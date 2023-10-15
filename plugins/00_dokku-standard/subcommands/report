@@ -21,8 +21,6 @@ cmd-report() {
   "$DOCKER_BIN" version | sed "s/^/       /"
   dokku_log_info1 "docker daemon info: "
   "$DOCKER_BIN" -D system info | sed "s/^/       /"
-  dokku_log_info1 "git version: $(git --version)"
-  dokku_log_info1 "sigil version: $(sigil -v)"
   dokku_log_info1 "herokuish version: "
   if [[ "$ARCHITECTURE" == "armhf" ]] || [[ "$ARCHITECTURE" == "arm64" ]]; then
     dokku_log_warn "herokuish not supported on $ARCHITECTURE architecture"
@@ -32,7 +30,29 @@ cmd-report() {
     dokku_log_warn "Herokuish image $DOKKU_IMAGE is not available"
   fi
   dokku_log_info1 "dokku version: $(dokku_version)"
+  if command -v "dokku-event-listener" &>/dev/null; then
+    dokku_log_info1 "dokku-event-listener version: $(dokku-event-listener version)"
+  else
+    dokku_log_warn "dokku-event-listener binary is not available"
+  fi
+  if command -v "dokku-update" &>/dev/null; then
+    dokku_log_info1 "dokku-update version: $(dokku-update version)"
+  else
+    dokku_log_warn "dokku-update binary is not available"
+  fi
+  dokku_log_info1 "docker-container-healthchecker version: $(docker-container-healthchecker version)"
+  dokku_log_info1 "docker-image-labeler version: $(docker-image-labeler version)"
+  dokku_log_info1 "git version: $(git --version)"
+  dokku_log_info1 "lambda-builder version: $(lambda-builder version)"
+  dokku_log_info1 "netrc version: $(netrc version)"
+  if command -v "pack" &>/dev/null; then
+    dokku_log_info1 "pack version: $(pack version)"
+  else
+    dokku_log_warn "pack binary is not available"
+  fi
   dokku_log_info1 "plugn version: $(plugn version)"
+  dokku_log_info1 "sigil version: $(sigil -v)"
+  dokku_log_info1 "sshcommand version: $(sshcommand version)"
   dokku_log_info1 "dokku plugins: "
   plugn list | sed "s/^/       /"
 
