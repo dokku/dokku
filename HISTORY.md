@@ -1,5 +1,86 @@
 # History
 
+## 0.31.5
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.31.5/bootstrap.sh
+sudo DOKKU_TAG=v0.31.5 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #6275: @josegonzalez Update message referencing CHECKS file usage to app.json
+- #6273: @josegonzalez Clean up local build images immediately after an image is released
+
+### New Features
+
+- #6274: @josegonzalez Add more version output to dokku report command
+- #6255: @josegonzalez Add ci concurrency to linting workflow
+- #6253: @josegonzalez Add ci concurrency to doc building
+- #6254: @josegonzalez Add ci concurrency to codeql analysis
+- #6222: @josegonzalez Install docker-buildx-plugin to silence buildx warnings
+
+### Refactors
+
+- #6257: @josegonzalez Manage Dokku system dependencies in a single file
+
+### Documentation
+
+- #6271: @josegonzalez Update list of official, community, and deprecated plugins
+- #6224: @joeyates Correct typo in example app.json for healthchecks
+- #6207: @AlejandroAkbal Update port clearing command in Dockerfile deploy documentation
+
+### Tests
+
+- #6278: @josegonzalez Remove pack installation from builder-lambda tests
+
+### Dependencies
+
+- #6269: @dependabot[bot] chore(deps): bump golang.org/x/net from 0.14.0 to 0.17.0 in /plugins/common
+- #6270: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 39.2.1 to 39.2.2
+- #6262: @dependabot[bot] chore(deps): bump golang from 1.21.2 to 1.21.3 in /tests/apps/zombies-dockerfile-no-tini
+- #6263: @dependabot[bot] chore(deps): bump golang.org/x/net from 0.16.0 to 0.17.0 in /tests/apps/gogrpc
+- #6264: @dependabot[bot] chore(deps): bump golang from 1.21.2 to 1.21.3 in /tests/apps/zombies-dockerfile-tini
+- #6265: @dependabot[bot] chore(deps): bump golang from 1.21.2 to 1.21.3 in /tests/apps/go-fail-predeploy
+- #6259: @dependabot[bot] chore(deps): bump org.eclipse.jetty:jetty-servlet from 11.0.16 to 11.0.17 in /tests/apps/java
+- #6260: @dependabot[bot] chore(deps): bump mkdocs-material from 9.4.4 to 9.4.5 in /docs/_build
+- #6261: @dependabot[bot] chore(deps): bump golang from 1.21.2 to 1.21.3 in /tests/apps/gogrpc
+- #6266: @dependabot[bot] chore(deps): bump golang from 1.21.2 to 1.21.3 in /tests/apps/go-fail-postdeploy
+- #6258: @dependabot[bot] chore(deps): update markdown requirement from <3.5,>=3.2.1 to >=3.2.1,<3.6 in /docs/_build
+- #6256: @josegonzalez chore: bump github.com/otiai10/copy and golang.org/x/sync
+- #6241: @dependabot[bot] chore(deps): bump python from 3.11.5-alpine to 3.12.0-alpine in /docs/_build
+- #6252: @dependabot[bot] chore(deps): bump mkdocs-material from 9.4.2 to 9.4.4 in /docs/_build
+- #6235: @dependabot[bot] chore(deps): bump packaging from 23.1 to 23.2 in /docs/_build
+- #6232: @dependabot[bot] chore(deps): bump werkzeug from 2.3.7 to 3.0.0 in /tests/apps/python-flask
+- #6231: @dependabot[bot] chore(deps): bump flask from 2.3.3 to 3.0.0 in /tests/apps/python-flask
+- #6248: @dependabot[bot] chore(deps): bump golang from 1.21.1 to 1.21.2 in /tests/apps/gogrpc
+- #6251: @dependabot[bot] chore(deps): bump golang from 1.21.1 to 1.21.2 in /tests/apps/zombies-dockerfile-tini
+- #6250: @dependabot[bot] chore(deps): bump golang.org/x/net from 0.15.0 to 0.16.0 in /tests/apps/gogrpc
+- #6249: @dependabot[bot] chore(deps): bump golang from 1.21.1 to 1.21.2 in /tests/apps/go-fail-predeploy
+- #6247: @dependabot[bot] chore(deps): bump golang from 1.21.1 to 1.21.2 in /tests/apps/zombies-dockerfile-no-tini
+- #6246: @dependabot[bot] chore(deps): bump golang from 1.21.1 to 1.21.2 in /tests/apps/go-fail-postdeploy
+- #6245: @dependabot[bot] chore(deps): bump golang.org/x/sync from 0.3.0 to 0.4.0 in /plugins/scheduler-docker-local
+- #6233: @dependabot[bot] chore(deps): bump flask from 2.3.3 to 3.0.0 in /tests/apps/multi
+- #6239: @dependabot[bot] chore(deps): bump github.com/otiai10/copy from 1.12.0 to 1.14.0 in /plugins/ps
+- #6234: @dependabot[bot] chore(deps): bump github.com/otiai10/copy from 1.12.0 to 1.14.0 in /plugins/builder
+- #6240: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 39.2.0 to 39.2.1
+- #6228: @josegonzalez Update all go modules and ensure all are tracked in dependabot
+- #6227: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.27.10 to 1.28.0 in /plugins/common
+- #6216: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 39.1.2 to 39.2.0
+- #6217: @dependabot[bot] chore(deps): bump mkdocs-material from 9.4.1 to 9.4.2 in /docs/_build
+- #6215: @dependabot[bot] chore(deps): bump mkdocs-material from 9.3.1 to 9.4.1 in /docs/_build
+- #6214: @dependabot[bot] chore(deps): bump mkdocs-material-extensions from 1.1.1 to 1.2 in /docs/_build
+- #6209: @dependabot[bot] chore(deps): bump zipp from 3.16.2 to 3.17.0 in /docs/_build
+- #6211: @dependabot[bot] chore(deps): bump mkdocs from 1.5.2 to 1.5.3 in /docs/_build
+- #6213: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 39.0.2 to 39.1.2
+- #6202: @dependabot[bot] chore(deps): bump docker/setup-buildx-action from 2 to 3
+- #6199: @dependabot[bot] chore(deps): bump docker/login-action from 2 to 3
+- #6200: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 39.0.0 to 39.0.2
+- #6201: @dependabot[bot] chore(deps): bump docker/setup-qemu-action from 2 to 3
+- #6203: @dependabot[bot] chore(deps): bump mkdocs-material from 9.2.8 to 9.3.1 in /docs/_build
+
 ## 0.31.4
 
 Install/update via the bootstrap script:
