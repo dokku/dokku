@@ -18,7 +18,7 @@ start on filesystem and started docker
 
 script
   sleep 2 # give docker some time
-  sudo -i -u dokku $dokku_path ps:restore
+  sudo -i -u dokku $dokku_path ps:restore --parallel -1
 end script
 EOF
 fi
@@ -33,7 +33,7 @@ After=docker.service
 [Service]
 Type=simple
 User=dokku
-ExecStart=$dokku_path ps:restore
+ExecStart=$dokku_path ps:restore --parallel -1
 
 [Install]
 WantedBy=docker.service
