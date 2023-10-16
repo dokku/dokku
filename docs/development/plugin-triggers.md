@@ -2626,7 +2626,6 @@ DOKKU_SCHEDULER="$1"; APP="$2"; IMAGE_TAG="$3";
 
 ### `scheduler-post-deploy-process`
 
-
 > [!WARNING]
 > The scheduler plugin trigger apis are under development and may change
 > between minor releases until the 1.0 release.
