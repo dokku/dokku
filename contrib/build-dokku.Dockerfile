@@ -21,6 +21,7 @@ RUN make deb-setup sshcommand plugn
 COPY . ${WORKDIR}
 
 ENV GOPATH=/go
+ENV GOROOT=/usr/local/go
 
 FROM builder as amd64
 
