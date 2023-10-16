@@ -2194,24 +2194,6 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
-### `proxy-configure-ports`
-
-> [!WARNING]
-> Deprecated, please use `ports-configure` instead
-
-- Description: Configures the port mapping
-- Invoked by: `internally triggered by proxy plugins`
-- Arguments: `$APP`
-- Example:
-
-```shell
-#!/usr/bin/env bash
-
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-
-# TODO
-```
-
 ### `proxy-disable`
 
 - Description: Disables the configured proxy implementation for an app
