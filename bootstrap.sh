@@ -185,16 +185,16 @@ install-dokku-from-deb-package() {
     wget -nv -O - https://get.docker.com/ | sh
   fi
 
-  OS_ID="$(lsb_release -cs 2>/dev/null || echo "bionic")"
+  OS_ID="$(lsb_release -cs 2>/dev/null || echo "jammy")"
   if ! in-array "$DOKKU_DISTRO" "debian" "ubuntu" "raspbian"; then
     DOKKU_DISTRO="ubuntu"
-    OS_ID="bionic"
+    OS_ID="jammy"
   fi
 
   if [[ "$DOKKU_DISTRO" == "ubuntu" ]]; then
-    OS_IDS=("bionic" "focal" "jammy")
+    OS_IDS=("focal" "jammy")
     if ! in-array "$OS_ID" "${OS_IDS[@]}"; then
-      OS_ID="bionic"
+      OS_ID="jammy"
     fi
   elif [[ "$DOKKU_DISTRO" == "debian" ]]; then
     OS_IDS=("stretch" "buster" "bullseye" "bookworm")

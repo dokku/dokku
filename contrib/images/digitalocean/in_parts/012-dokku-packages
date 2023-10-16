@@ -50,7 +50,7 @@ echo '--> Setting up dokku apt repository'
 curl -fsSL https://packagecloud.io/dokku/dokku/gpgkey -o /etc/apt/keyrings/dokku.asc
 
 cat >/etc/apt/sources.list.d/dokku.list <<EOM
-deb [arch=amd64 signed-by=/etc/apt/keyrings/dokku.asc]  https://packagecloud.io/dokku/dokku/ubuntu/ bionic main
+deb [arch=amd64 signed-by=/etc/apt/keyrings/dokku.asc]  https://packagecloud.io/dokku/dokku/ubuntu/ jammy main
 EOM
 
 echo '--> Install dependencies for dokku from new repository'
