@@ -8,7 +8,7 @@ fn-openresty-vhosts-copy-from-image() {
   declare APP="$1" IMAGE_NAME="$2" CONF_PATH="$3"
 
   mkdir -p "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP"
-  find "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/" -maxdepth 1 -name 'openresty-http-includes.*' -delete
+  find "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/" -maxdepth 1 -name 'openresty-http-includes.*' -type d -exec rm -r {} +
   copy_dir_from_image "$IMAGE_NAME" "$CONF_PATH" "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-http-includes.$DOKKU_PID" || true
   if [[ ! -f "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-http-includes.$DOKKU_PID" ]]; then
     touch "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-http-includes.$DOKKU_PID.missing"
@@ -31,7 +31,7 @@ fn-openresty-vhosts-copy-from-directory() {
     return
   fi
 
-  find "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/" -maxdepth 1 -name 'openresty-http-includes.*' -delete
+  find "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/" -maxdepth 1 -name 'openresty-http-includes.*' -type d -exec rm -r {} +
   mkdir p "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-http-includes.$DOKKU_PID/"
   cp -f "$CONF_PATH"/* "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-http-includes.$DOKKU_PID/"
   popd &>/dev/null || pushd "/tmp" >/dev/null
