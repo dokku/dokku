@@ -1,5 +1,48 @@
 # History
 
+## 0.32.0
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.32.0/bootstrap.sh
+sudo DOKKU_TAG=v0.32.0 bash bootstrap.sh
+```
+
+See the [0.32.0 migration guide](/docs/appendices/0.32.0-migration-guide.md) for more information on migrating to 0.32.0.
+
+### New Features
+
+- #6277: @josegonzalez Run ps:restore in parallel by default
+- #6276: @josegonzalez Warn when incorrect interface/port in use for web processes
+- #6132: @josegonzalez Add the ability to specify a custom mailto for all cron output
+- #6124: @josegonzalez Add a shell function to check if a plugin trigger exists
+- #5348: @josegonzalez Add nixpacks builder support
+
+### Removals
+
+- #6283: @josegonzalez Remove deprecated proxy-ports functions and and plugin subcommands
+
+### Deprecations
+
+- #6127: @josegonzalez Deprecate the builder-specific pre-release-* triggers in favor of a global pre-release-builder trigger
+- #6126: @josegonzalez Deprecate the builder-specific post-build-* triggers in favor of a global post-build trigger
+- #6125: @josegonzalez Deprecate the builder-specific pre-build-* triggers in favor of a global pre-build trigger
+
+### Documentation
+
+- #6284: @josegonzalez Document future removal of deprecated CHECKS file format
+- #6123: @josegonzalez Add a migration guide for 0.32.x
+
+### Dependencies
+
+- #6285: @dependabot[bot] chore(deps): bump mkdocs-material from 9.4.5 to 9.4.6 in /docs/_build
+- #6281: @josegonzalez Upgrade golang to 1.21
+
+### Other
+
+- #6155: @josegonzalez Remove ARM support
+
 ## 0.31.5
 
 Install/update via the bootstrap script:
