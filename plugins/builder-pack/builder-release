@@ -12,9 +12,13 @@ trigger-builder-pack-builder-release() {
     return
   fi
 
-  plugn trigger pre-release-pack "$APP" "$IMAGE_TAG"
-
   local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
+  if fn-plugn-trigger-exists "pre-release-pack"; then
+    dokku_log_warn "Deprecated: please upgrade plugin to use 'pre-release-builder' plugin trigger instead of pre-release-pack"
+    plugn trigger pre-release-pack "$APP" "$IMAGE_TAG"
+  fi
+  plugn trigger pre-release-builder "$BUILDER_TYPE" "$APP" "$IMAGE"
+
   docker-image-labeler relabel --label=com.dokku.image-stage=release --label=com.dokku.app-name=$APP --label=org.label-schema.schema-version=1.0 --label=org.label-schema.vendor=dokku --label=dokku "$IMAGE"
   plugn trigger post-release-builder "$BUILDER_TYPE" "$APP" "$IMAGE"
 }

@@ -57,10 +57,6 @@ git_trigger_build() {
         dokku_log_warn "Herokuish builder not supported on $ARCHITECTURE servers."
         dokku_log_warn "Switching to pack builder."
         BUILDER="pack"
-      elif [[ "$ARCHITECTURE" == "armhf" ]]; then
-        dokku_log_warn "Herokuish builder not supported on $ARCHITECTURE servers."
-        dokku_log_warn "Consider using a Dockerfile to build your app."
-        return 1
       fi
     fi
   fi

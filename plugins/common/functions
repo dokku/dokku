@@ -225,6 +225,19 @@ fn-is-valid-app-name-old() {
   return 1
 }
 
+fn-plugn-trigger-exists() {
+  declare desc="checks if a plugn trigger exists"
+  declare TRIGGER_NAME="$1"
+  local exists
+
+  exists="$("$PLUGIN_CORE_AVAILABLE_PATH/common/common" --quiet plugn-trigger-exists "$TRIGGER_NAME" || true)"
+  if [[ "$exists" == "true" ]]; then
+    return
+  fi
+
+  return 1
+}
+
 is_valid_app_name() {
   declare desc="verify that the app name matches naming restrictions"
   local APP="$1"
@@ -745,12 +758,6 @@ docker_cleanup() {
   "$PLUGIN_CORE_AVAILABLE_PATH/common/common" --quiet docker-cleanup "$APP"
 }
 
-get_available_port() {
-  declare desc="returns first currently unused port > 1024"
-  dokku_log_warn "Deprecated: please use the 'ports-get-available' plugin trigger instead"
-  plugn trigger ports-get-available
-}
-
 dokku_auth() {
   declare desc="calls user-auth plugin trigger"
   export SSH_USER=${SSH_USER:=$USER}
@@ -812,25 +819,6 @@ get_ipv6_regex() {
   # Ensure the ip address continues to the end of the line
   # Fixes using a wildcard dns service such as sslip.io which allows for *.<ip address>.sslip.io
   echo "${RE_IPV6}\$"
-}
-
-get_dockerfile_exposed_ports() {
-  declare desc="return all exposed ports from passed file path"
-  dokku_log_warn "Deprecated: this function should not be used in app code"
-
-  local DOCKERFILE_PORTS=$(grep -E "^EXPOSE " "$1" | awk '{ print $2 }' | xargs) || true
-  echo "$DOCKERFILE_PORTS"
-}
-
-get_exposed_ports_from_image() {
-  declare desc="return all exposed ports from passed image name"
-  dokku_log_warn "Deprecated: this function should not be used in app code"
-
-  local IMAGE="$1"
-  verify_image "$IMAGE"
-  # shellcheck disable=SC2016
-  local DOCKER_IMAGE_EXPOSED_PORTS="$("$DOCKER_BIN" image inspect --format '{{range $key, $value := .Config.ExposedPorts}}{{$key}} {{end}}' "$IMAGE")"
-  echo "$DOCKER_IMAGE_EXPOSED_PORTS"
 }
 
 get_entrypoint_from_image() {

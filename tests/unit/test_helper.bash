@@ -601,6 +601,13 @@ detach_delete_network() {
   delete_network "$NETWORK_NAME"
 }
 
+convert_to_dockerfile() {
+  local APP="$1"
+  local APP_REPO_DIR="$2"
+  [[ -z "$APP" ]] && local APP="$TEST_APP"
+  mv "$APP_REPO_DIR/dockerfile.Dockerfile" "$APP_REPO_DIR/Dockerfile"
+}
+
 install_pack() {
   if ! command -v "pack" &>/dev/null; then
     add-apt-repository --yes ppa:cncf-buildpacks/pack-cli
@@ -609,9 +616,8 @@ install_pack() {
   fi
 }
 
-convert_to_dockerfile() {
-  local APP="$1"
-  local APP_REPO_DIR="$2"
-  [[ -z "$APP" ]] && local APP="$TEST_APP"
-  mv "$APP_REPO_DIR/dockerfile.Dockerfile" "$APP_REPO_DIR/Dockerfile"
+install_nixpacks() {
+  if ! command -v "nixpacks" &>/dev/null; then
+    curl -sSL https://nixpacks.com/install.sh | FORCE=1 bash
+  fi
 }

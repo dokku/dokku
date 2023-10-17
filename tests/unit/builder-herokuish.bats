@@ -20,7 +20,7 @@ teardown() {
 
 @test "(builder-herokuish) builder-herokuish:set allowed" {
   if [[ "$(dpkg --print-architecture 2>/dev/null || true)" == "amd64" ]]; then
-    skip "this test cannot be performed accurately on amd64 as it tests whether we can enable the plugin on armhf/arm64"
+    skip "this test cannot be performed accurately on amd64 as it tests whether we can enable the plugin on arm64"
   fi
 
   run /bin/bash -c "dokku builder-herokuish:set --global allowed"

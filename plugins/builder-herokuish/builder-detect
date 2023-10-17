@@ -10,10 +10,8 @@ trigger-builder-herokuish-builder-detect() {
   declare APP="$1" SOURCECODE_WORK_DIR="$2"
   local ARCHITECTURE="$(dpkg --print-architecture 2>/dev/null || true)"
 
-  if [[ "$ARCHITECTURE" == "armhf" ]] || [[ "$ARCHITECTURE" == "arm64" ]]; then
-    if [[ "$(fn-builder-herokuish-computed-allowed "$APP")" != "true" ]]; then
-      return
-    fi
+  if [[ "$ARCHITECTURE" == "arm64" ]] && [[ "$(fn-builder-herokuish-computed-allowed "$APP")" != "true" ]]; then
+    return
   fi
 
   if fn-has-buildpacks-file "$SOURCECODE_WORK_DIR"; then

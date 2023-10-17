@@ -8,8 +8,10 @@ RUN apt-get install --no-install-recommends -y build-essential file nano && \
   rm -rf /var/lib/apt/lists/*
 
 ARG TARGETARCH
-RUN wget https://dl.google.com/go/go1.19.6.linux-${TARGETARCH}.tar.gz && \
-  tar -xvf go1.19.6.linux-${TARGETARCH}.tar.gz && \
+COPY common.mk common.mk
+RUN GOLANG_VERSION=$(grep BUILD_IMAGE common.mk | cut -d' ' -f3 | cut -d':' -f2) && \
+  wget https://dl.google.com/go/go${GOLANG_VERSION}.linux-${TARGETARCH}.tar.gz && \
+  tar -xvf go${GOLANG_VERSION}.linux-${TARGETARCH}.tar.gz && \
   mv go /usr/local
 
 RUN GOROOT=/usr/local/go /usr/local/go/bin/go install golang.org/x/tools/gopls@latest 2>&1

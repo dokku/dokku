@@ -549,18 +549,18 @@ echo "clock: some-command" >> Procfile
 popd &>/dev/null
 ```
 
-### `cron-write`
+### `cron-get-property`
 
-- Description: Force triggers writing out cron entries
+- Description: Return the value for an app's cron property
 - Invoked by:
-- Arguments:
+- Arguments: `$APP $KEY`
 - Example:
 
 ```shell
 #!/usr/bin/env bash
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+APP="$1"; PROPERTY="$2"
 
 # TODO
 ```
@@ -579,6 +579,22 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 DOKKU_SCHEDULER="$1"
+
+# TODO
+```
+
+### `cron-write`
+
+- Description: Force triggers writing out cron entries
+- Invoked by:
+- Arguments:
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 # TODO
 ```
@@ -1473,7 +1489,25 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 ```
 
+### `post-build`
+
+- Description: Allows you to run commands after the build image is create for a given app.
+- Invoked by: `internal function dokku_build() (build phase)`
+- Arguments: `$BUILDER_TYPE $APP $SOURCECODE_WORK_DIR`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `post-build-buildpack`
+
+> [!WARNING]
+> Deprecated, please use `post-build` instead
 
 - Description: Allows you to run commands after the build image is create for a given app. Only applies to apps using buildpacks.
 - Invoked by: `internal function dokku_build() (build phase)`
@@ -1488,26 +1522,10 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
-### `post-build-pack`
+### `post-build-dockerfile`
 
 > [!WARNING]
-> The pack plugin trigger apis are under development and may change
-> between minor releases until the 1.0 release.
-
-- Description: Allows you to run commands after the build image is create for a given app. Only applies to apps using pack.
-- Invoked by: `internal function dokku_build() (build phase)`
-- Arguments: `$APP` `$SOURCECODE_WORK_DIR`
-- Example:
-
-```shell
-#!/usr/bin/env bash
-
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-
-# TODO
-```
-
-### `post-build-dockerfile`
+> Deprecated, please use `post-build` instead
 
 - Description: Allows you to run commands after the build image is create for a given app. Only applies to apps using a dockerfile.
 - Invoked by: `internal function dokku_build() (build phase)`
@@ -1524,7 +1542,28 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 ### `post-build-lambda`
 
+> [!WARNING]
+> Deprecated, please use `post-build` instead
+
 - Description: Allows you to run commands after the build image is create for a given app. Only applies to apps using lambda.
+- Invoked by: `internal function dokku_build() (build phase)`
+- Arguments: `$APP` `$SOURCECODE_WORK_DIR`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
+### `post-build-pack`
+
+> [!WARNING]
+> Deprecated, please use `post-build` instead
+
+- Description: Allows you to run commands after the build image is create for a given app. Only applies to apps using pack.
 - Invoked by: `internal function dokku_build() (build phase)`
 - Arguments: `$APP` `$SOURCECODE_WORK_DIR`
 - Example:
@@ -1771,7 +1810,25 @@ APP="$1";
 dokku config:set --no-restart $APP MANUALLY_STOPPED=1
 ```
 
+### `pre-build`
+
+- Description: Allows you to run commands before the build image is created for a given app. For instance, this can be useful to add env vars to your container.
+- Invoked by: `internal function dokku_build() (build phase)`
+- Arguments: `$BUILDER_TYPE $APP $SOURCECODE_WORK_DIR`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `pre-build-buildpack`
+
+> [!WARNING]
+> Deprecated, please use `pre-build` instead
 
 - Description: Allows you to run commands before the build image is created for a given app. For instance, this can be useful to add env vars to your container. Only applies to apps using buildpacks.
 - Invoked by: `internal function dokku_build() (build phase)`
@@ -1786,7 +1843,28 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `pre-build-dockerfile`
+
+> [!WARNING]
+> Deprecated, please use `pre-build` instead
+
+- Description: Allows you to run commands before the build image is created for a given app. For instance, this can be useful to add env vars to your container. Only applies to apps using a dockerfile.
+- Invoked by: `internal function dokku_build() (build phase)`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `pre-build-lambda`
+
+> [!WARNING]
+> Deprecated, please use `pre-build` instead
 
 - Description: Allows you to run commands before the build image is created for a given app. For instance, this can be useful to add env vars to your container. Only applies to apps using lambda.
 - Invoked by: `internal function dokku_build() (build phase)`
@@ -1804,27 +1882,11 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 ### `pre-build-pack`
 
 > [!WARNING]
-> The pack plugin trigger apis are under development and may change
-> between minor releases until the 1.0 release.
+> Deprecated, please use `pre-build` instead
 
 - Description: Allows you to run commands before the build image is created for a given app. For instance, this can be useful to add env vars to your container. Only applies to apps using pack.
 - Invoked by: `internal function dokku_build() (build phase)`
 - Arguments: `$APP` `$SOURCECODE_WORK_DIR`
-- Example:
-
-```shell
-#!/usr/bin/env bash
-
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-
-# TODO
-```
-
-### `pre-build-dockerfile`
-
-- Description: Allows you to run commands before the build image is created for a given app. For instance, this can be useful to add env vars to your container. Only applies to apps using a dockerfile.
-- Invoked by: `internal function dokku_build() (build phase)`
-- Arguments: `$APP`
 - Example:
 
 ```shell
@@ -1931,7 +1993,27 @@ APP="$1"; IMAGE_SOURCE_TYPE="$2"; TMP_WORK_DIR="$3"; REV="$4"
 echo "$APP" > "$TMP_WORK_DIR/dokku-is-awesome"
 ```
 
+### `pre-release-builder`
+
+- Description: Allows you to run commands before environment variables are set for the release step of the deploy.
+- Invoked by: `internal function dokku_release() (release phase)`
+- Arguments: `$BUILDER_TYPE $APP $IMAGE`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+BUILDER_TYPE="$1"; APP="$2"; IMAGE_TAG="$3";
+
+# TODO
+```
+
 ### `pre-release-buildpack`
+
+> [!WARNING]
+> Deprecated, please use `pre-release-builder` instead
 
 - Description: Allows you to run commands before environment variables are set for the release step of the deploy. Only applies to apps using buildpacks.
 - Invoked by: `internal function dokku_release() (release phase)`
@@ -1960,6 +2042,9 @@ docker commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" $CID $IMAGE >/dev/null
 
 ### `pre-release-lambda`
 
+> [!WARNING]
+> Deprecated, please use `pre-release-builder` instead
+
 - Description: Allows you to run commands before environment variables are set for the release step of the deploy. Only applies to apps using lambda.
 - Invoked by: `internal function dokku_release() (release phase)`
 - Arguments: `$APP $IMAGE_TAG`
@@ -1978,8 +2063,7 @@ APP="$1"; IMAGE_TAG="$2";
 ### `pre-release-pack`
 
 > [!WARNING]
-> The pack plugin trigger apis are under development and may change
-> between minor releases until the 1.0 release.
+> Deprecated, please use `pre-release-builder` instead
 
 - Description: Allows you to run commands before environment variables are set for the release step of the deploy. Only applies to apps using pack.
 - Invoked by: `internal function dokku_release() (release phase)`
@@ -1997,6 +2081,9 @@ APP="$1"; IMAGE_TAG="$2";
 ```
 
 ### `pre-release-dockerfile`
+
+> [!WARNING]
+> Deprecated, please use `pre-release-builder` instead
 
 - Description: Allows you to run commands before environment variables are set for the release step of the deploy. Only applies to apps using a dockerfile.
 - Invoked by: `internal function dokku_release() (release phase)`
@@ -2096,24 +2183,6 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 - Description: Clears the proxy implementation configuration for a given app
 - Invoked by: `internally triggered by apps:rename`
-- Arguments: `$APP`
-- Example:
-
-```shell
-#!/usr/bin/env bash
-
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-
-# TODO
-```
-
-### `proxy-configure-ports`
-
-> [!WARNING]
-> Deprecated, please use `ports-configure` instead
-
-- Description: Configures the port mapping
-- Invoked by: `internally triggered by proxy plugins`
 - Arguments: `$APP`
 - Example:
 
@@ -2439,7 +2508,8 @@ DOKKU_SCHEDULER="$1"; APP="$2";
 
 ### `scheduler-is-deployed`
 
-> Warning: The scheduler plugin trigger apis are under development and may change
+> [!WARNING]
+> The scheduler plugin trigger apis are under development and may change
 > between minor releases until the 1.0 release.
 
 - Description: Allows you to check if the scheduler has deployed the app
@@ -2538,7 +2608,8 @@ DOKKU_SCHEDULER="$1"; APP="$2"; IMAGE_TAG="$3";
 
 ### `scheduler-post-deploy-process`
 
-> Warning: The scheduler plugin trigger apis are under development and may change
+> [!WARNING]
+> The scheduler plugin trigger apis are under development and may change
 > between minor releases until the 1.0 release.
 
 - Description: Allows you to run a command after a process has been started
@@ -2678,7 +2749,8 @@ DOKKU_SCHEDULER="$1"; APP="$2"; CONTAINER="$3"; TAIL="$4"; PRETTY_PRINT="$5"; NU
 
 ### `scheduler-run-stop`
 
-> Warning: The scheduler plugin trigger apis are under development and may change
+> [!WARNING]
+> The scheduler plugin trigger apis are under development and may change
 > between minor releases until the 1.0 release.
 
 - Description: Allows a scheduler to stop all "run" containers or a specified container

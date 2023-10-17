@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
-	"github.com/dokku/dokku/plugins/ports"
 	"github.com/dokku/dokku/plugins/proxy"
 
 	flag "github.com/spf13/pflag"
@@ -46,39 +45,6 @@ func main() {
 		args.Parse(os.Args[2:])
 		appName := args.Arg(0)
 		err = proxy.CommandEnable(appName, *allApps, *parallelCount)
-	case "ports":
-		args := flag.NewFlagSet("proxy:ports", flag.ExitOnError)
-		args.Parse(os.Args[2:])
-		appName := args.Arg(0)
-		common.LogWarn("Deprecated: Use 'ports:list' instead")
-		err = ports.CommandList(appName)
-	case "ports-add":
-		args := flag.NewFlagSet("proxy:ports-add", flag.ExitOnError)
-		args.Parse(os.Args[2:])
-		appName := args.Arg(0)
-		_, portMaps := common.ShiftString(args.Args())
-		common.LogWarn("Deprecated: Use 'ports:add' instead")
-		err = ports.CommandAdd(appName, portMaps)
-	case "ports-clear":
-		args := flag.NewFlagSet("proxy:ports-clear", flag.ExitOnError)
-		args.Parse(os.Args[2:])
-		appName := args.Arg(0)
-		common.LogWarn("Deprecated: Use 'ports:clear' instead")
-		err = ports.CommandClear(appName)
-	case "ports-remove":
-		args := flag.NewFlagSet("proxy:ports-remove", flag.ExitOnError)
-		args.Parse(os.Args[2:])
-		appName := args.Arg(0)
-		_, portMaps := common.ShiftString(args.Args())
-		common.LogWarn("Deprecated: Use 'ports:remove' instead")
-		err = ports.CommandRemove(appName, portMaps)
-	case "ports-set":
-		args := flag.NewFlagSet("proxy:ports-set", flag.ExitOnError)
-		args.Parse(os.Args[2:])
-		appName := args.Arg(0)
-		_, portMaps := common.ShiftString(args.Args())
-		common.LogWarn("Deprecated: Use 'ports:set' instead")
-		err = ports.CommandSet(appName, portMaps)
 	case "report":
 		args := flag.NewFlagSet("proxy:report", flag.ExitOnError)
 		format := args.String("format", "stdout", "format: [ stdout | json ]")
