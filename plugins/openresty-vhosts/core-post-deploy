@@ -19,6 +19,10 @@ trigger-openresty-vhosts-core-post-deploy() {
     rm -f "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-http-includes.$DOKKU_PID.missing"
     rm -f "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-http-includes"
   fi
+  if [[ -f "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-location-includes.$DOKKU_PID.missing" ]]; then
+    rm -f "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-location-includes.$DOKKU_PID.missing"
+    rm -f "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-location-includes"
+  fi
 }
 
 trigger-openresty-vhosts-core-post-deploy "$@"

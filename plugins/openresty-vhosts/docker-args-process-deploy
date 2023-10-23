@@ -48,6 +48,24 @@ trigger-openresty-vhosts-docker-args-process-deploy() {
     popd &>/dev/null || pushd "/tmp" >/dev/null
   fi
 
+  include_dir="$(fn-openresty-get-location-includes-dir "$APP")"
+  if [[ -d "$include_dir" ]]; then
+    pushd "$include_dir" >/dev/null
+    for filename in *; do
+      if [[ ! -f "$include_dir/$filename" ]]; then
+        continue
+      fi
+
+      if [[ $filename != *.conf ]]; then
+        continue
+      fi
+
+      DATA="$(base64 -w 0 <"$include_dir/$filename")"
+      output="$output '--label=openresty.include-location-http-$filename=$DATA'"
+    done
+    popd &>/dev/null || pushd "/tmp" >/dev/null
+  fi
+
   is_app_listening="false"
   local APP_PORT_MAP="$(plugn trigger ports-get "$APP")"
   while IFS= read -r port_map; do
