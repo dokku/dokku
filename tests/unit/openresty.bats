@@ -182,8 +182,12 @@ add_openresty_include() {
   local APP="$1"
   local APP_REPO_DIR="$2"
   [[ -z "$APP" ]] && local APP="$TEST_APP"
-  mkdir -p "$APP_REPO_DIR/openresty-http-includes"
-  touch "$APP_REPO_DIR/openresty-http-includes/example.conf"
-  echo "# force the character set to utf-8" >>"$APP_REPO_DIR/openresty-http-includes/example.conf"
-  echo "charset UTF-8;" >>"$APP_REPO_DIR/openresty-http-includes/example.conf"
+  mkdir -p "$APP_REPO_DIR/openresty/http-includes"
+  touch "$APP_REPO_DIR/openresty/http-includes/example.conf"
+  echo "# force the character set to utf-8" >>"$APP_REPO_DIR/openresty/http-includes/example.conf"
+  echo "charset UTF-8;" >>"$APP_REPO_DIR/openresty/http-includes/example.conf"
+
+  mkdir -p "$APP_REPO_DIR/openresty/http-location-includes"
+  touch "$APP_REPO_DIR/openresty/http-location-includes/example.conf"
+  echo "# location-block" >>"$APP_REPO_DIR/openresty/http-location-includes/example.conf"
 }

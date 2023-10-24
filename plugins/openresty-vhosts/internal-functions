@@ -70,6 +70,21 @@ fn-openresty-get-http-includes-dir() {
   fi
 }
 
+fn-openresty-get-location-includes-dir() {
+  declare desc="get any include dir if available"
+  declare APP="$1"
+
+  if [[ -d "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-location-includes.$DOKKU_PID.missing" ]]; then
+    return
+  fi
+
+  if [[ -d "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-location-includes.$DOKKU_PID" ]]; then
+    echo "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-location-includes.$DOKKU_PID"
+  elif [[ -d "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-location-includes" ]]; then
+    echo "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-location-includes"
+  fi
+}
+
 fn-openresty-hsts-include-subdomains() {
   declare APP="$1"
   fn-plugin-property-get-default "openresty" "$APP" "hsts-include-subdomains" "true"
