@@ -1,5 +1,42 @@
 # History
 
+## 0.32.1
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.32.1/bootstrap.sh
+sudo DOKKU_TAG=v0.32.1 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #6286: @josegonzalez Remove trailing quote on openresty letsencrypt email
+- #6287: @josegonzalez Recursively delete old custom openresty includes
+
+### New Features
+
+- #6303: @josegonzalez feat: add the ability to specify location-block includes
+
+### Documentation
+
+- #6288: @josegonzalez Add missing link to nixpacks builder
+
+### Dependencies
+
+- #6306: @dependabot[bot] chore(deps): bump org.apache.maven.plugins:maven-dependency-plugin from 3.6.0 to 3.6.1 in /tests/apps/java
+- #6301: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.28.0 to 1.28.1 in /plugins/config
+- #6304: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 39.2.3 to 39.2.4
+- #6305: @dependabot[bot] chore(deps): bump actions/setup-node from 3 to 4
+- #6297: @dependabot[bot] chore(deps): bump node from 20-alpine to 21-alpine in /tests/apps/dockerfile-procfile
+- #6292: @dependabot[bot] chore(deps): bump node from 20-alpine to 21-alpine in /tests/apps/dockerfile-procfile-bad
+- #6293: @dependabot[bot] chore(deps): bump node from 20-alpine to 21-alpine in /tests/apps/dockerfile
+- #6294: @dependabot[bot] chore(deps): bump pymdown-extensions from 10.3 to 10.3.1 in /docs/_build
+- #6295: @dependabot[bot] chore(deps): bump node from 20-alpine to 21-alpine in /tests/apps/dockerfile-app-json-formations
+- #6296: @dependabot[bot] chore(deps): bump node from 20-alpine to 21-alpine in /tests/apps/dockerfile-noexpose
+- #6289: @dependabot[bot] chore(deps): bump mkdocs-material-extensions from 1.2 to 1.3 in /docs/_build
+- #6290: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 39.2.2 to 39.2.3
+
 ## 0.32.0
 
 Install/update via the bootstrap script:
