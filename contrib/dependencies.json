@@ -14,7 +14,7 @@
             "version": "0.7.2",
             "urls": {
                 "amd64": "https://github.com/dokku/docker-container-healthchecker/releases/download/v0.7.2/docker-container-healthchecker_0.7.2_linux_amd64.tgz",
-                "arm4": "https://github.com/dokku/docker-container-healthchecker/releases/download/v0.7.2/docker-container-healthchecker_0.7.2_linux_arm64.tgz",
+                "arm64": "https://github.com/dokku/docker-container-healthchecker/releases/download/v0.7.2/docker-container-healthchecker_0.7.2_linux_arm64.tgz",
                 "arm": "https://github.com/dokku/docker-container-healthchecker/releases/download/v0.7.2/docker-container-healthchecker_0.7.2_linux_armhf.tgz"
             }
         },
