@@ -61,7 +61,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 ### `app-exists`
 
-- Description: Creates an app
+- Description: Checks if an app exists
 - Invoked by:
 - Arguments: `$APP`
 - Example:
