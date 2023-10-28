@@ -87,6 +87,12 @@ trigger-scheduler-docker-local-scheduler-run() {
     fi
   fi
 
+  local DOKKU_IMAGE_ARCHITECTURE="$("$DOCKER_BIN" image inspect --format '{{.Architecture}}' "$IMAGE")"
+  if [[ "$DOKKU_IMAGE_ARCHITECTURE" == "amd64" ]] && [[ "$(dpkg --print-architecture 2>/dev/null || true)" != "amd64" ]]; then
+    dokku_log_warn "Detected linux/amd64 image, forcing --platform=linux/amd64"
+    DOCKER_ARGS+=" --platform=linux/amd64"
+  fi
+
   # shellcheck disable=SC2124
   DOCKER_ARGS+=" --label=com.dokku.container-type=$PROCESS_TYPE"
   DOCKER_ARGS+=" --label=com.dokku.app-name=$APP"
