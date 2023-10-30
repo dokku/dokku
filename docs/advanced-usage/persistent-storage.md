@@ -73,7 +73,7 @@ By default, permissions are set for usage with Herokuish buildpacks. These permi
 - `--chown herokuish` (default): Use `32767:32767` as the folder permissions.
     - This is used for apps deployed with Buildpacks via Herokuish.
 - `--chown heroku`: Use `1000:1000` as the folder permissions.
-    - This is used for apps deployed with Cloud Native Buildpacks using the `heroku/buildpacks` builder.
+    - This is used for apps deployed with Cloud Native Buildpacks using the `heroku/builder` builder.
 - `--chown packeto`: Use `2000:2000` as the folder permissions.
     - This is used for apps deployed with Cloud Native Buildpacks using the `cloudfoundry/cnb` or `packeto` builders.
 - `--chown false`: Skips the `chown` call.
