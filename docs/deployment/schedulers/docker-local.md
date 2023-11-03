@@ -14,13 +14,13 @@ scheduler-docker-local:set <app> <key> (<value>)            # Set or clear a sch
 Dokku natively includes functionality to manage application lifecycles for a single server using the `scheduler-docker-local` plugin. It is the default scheduler, but as with all schedulers, it is set on a per-application basis. The scheduler can currently be overridden by running the following command:
 
 ```shell
-dokku config:set node-js-app DOCKER_SCHEDULER=docker-local
+dokku scheduler:set node-js-app selected docker-local
 ```
 
-As it is the default, unsetting the `DOCKER_SCHEDULER` config variable is also a valid way to reset the scheduler.
+As it is the default, unsetting the `selected` scheduler property is also a valid way to reset the scheduler.
 
 ```shell
-dokku config:unset node-js-app DOCKER_SCHEDULER
+dokku scheduler:set node-js-app selected 
 ```
 
 ## Usage
