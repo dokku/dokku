@@ -112,7 +112,7 @@ fn-openresty-hsts-is-enabled() {
 }
 
 fn-openresty-image() {
-  fn-plugin-property-get-default "openresty" "--global" "image" "dokku/openresty-docker-proxy:0.5.6"
+  fn-plugin-property-get-default "openresty" "--global" "image" "dokku/openresty-docker-proxy:0.6.0"
 }
 
 fn-openresty-letsencrypt-email() {
