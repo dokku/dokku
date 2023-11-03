@@ -80,7 +80,7 @@ While the default OpenResty image is hardcoded, users may specify an alternative
 dokku openresty:set --global image dokku/openresty-docker-proxy:0.5.6
 ```
 
-#### Checking the OpenResty container's logs
+### Checking the OpenResty container's logs
 
 It may be necessary to check the OpenResty container's logs to ensure that OpenResty is operating as expected. This can be performed with the `openresty:logs` command.
 
@@ -102,6 +102,27 @@ dokku openresty:logs --tail --num 10
 ```
 
 The above command will show logs continually from the openresty container, with an initial history of 10 log lines
+
+### Customizing Openresty Settings for an app
+
+#### OpenResty Properties
+
+The OpenResty plugin supports all properties supported by the `nginx:set` command via `openresty:set`. At this time, please consult the nginx documentation for more information on what properties are available.
+
+Please note that the oldest running container will be used for OpenResty configuration, and thus newer config may not apply until older app containers are retired during/after a deploy, depending on your zero-downtime settings.
+
+#### Custom OpenResty Templates
+
+At this time, the OpenResty plugin does not allow complete customization of the template used to manage an app's vhost. Apps will use a template provided by the OpenResty container to proxy requests. See the next section for documentation on how to configure portions of the template.
+
+#### Injecting custom snippets into the OpenResty config
+
+The OpenResty plugin allows users to specify templates in their repository for auto-injection into the OpenResty config. Please note that this configuration should be validated prior to deployment or may cause outages in your OpenResty proxy layer.
+
+The following folders within an app repository may have `*.conf` files that will be automatically injected into the OpenResty config.
+
+- `openresty/http-includes/`: Injected in the `server` block serving http(s) requests for the app.
+- `openresty/http-location-includes/`: Injected in the `location` block that proxies to the app in the app's respective `server` block.
 
 ### SSL Configuration
 
