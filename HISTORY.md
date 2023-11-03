@@ -1,5 +1,29 @@
 # History
 
+## 0.32.2
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.32.2/bootstrap.sh
+sudo DOKKU_TAG=v0.32.2 bash bootstrap.sh
+```
+
+### New Features
+
+- #6324: @josegonzalez Update openresty image to 0.6.0
+
+### Documentation
+
+- #6316: @holamendi Fix docs app-exists plugin trigger description
+
+### Dependencies
+
+- #6307: @dependabot[bot] chore(deps): bump luizm/action-sh-checker from 0.7.0 to 0.8.0
+- #6308: @dependabot[bot] chore(deps): bump werkzeug from 3.0.0 to 3.0.1 in /tests/apps/python-flask
+- #6310: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.28.1 to 1.29.0 in /plugins/config
+- #6311: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 39.2.4 to 40.0.0
+
 ## 0.32.1
 
 Install/update via the bootstrap script:
