@@ -211,4 +211,4 @@ For some sinks - such as the `http` sink - it may be useful to use special chara
 dokku logs:set test vector-sink "http://?uri=https%3A//loggerservice.com%3A1234/%3Ftoken%3Dabc1234%26type%3Dvector"
 ```
 
-Please read the [sink documentation](https://vector.dev/docs/reference/sinks/) for your sink of choice to configure the sink as desired.
+Please read the [sink documentation](https://vector.dev/docs/reference/configuration/sinks/) for your sink of choice to configure the sink as desired.
