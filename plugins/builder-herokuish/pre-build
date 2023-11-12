@@ -7,8 +7,12 @@ source "$PLUGIN_AVAILABLE_PATH/config/functions"
 trigger-builder-herokuish-pre-build-buildpack() {
   declare desc="builder-herokuish pre-build-buildpack plugin trigger"
   declare trigger="pre-build-buildpack"
-  declare APP="$1" SOURCECODE_WORK_DIR="$2"
+  declare BUILDER_TYPE="$1" APP="$2" SOURCECODE_WORK_DIR="$3"
   local IMAGE TMP_WORK_DIR
+
+  if [[ "$BUILDER_TYPE" != "herokuish" ]]; then
+    return
+  fi
 
   local DOCKER_BUILD_LABEL_ARGS="--label=org.label-schema.schema-version=1.0 --label=org.label-schema.vendor=dokku --label=com.dokku.app-name=$APP"
 
