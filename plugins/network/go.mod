@@ -12,7 +12,7 @@ require (
 	github.com/codegangsta/inject v0.0.0-20150114235600-33e0aa1cb7c0 // indirect
 	github.com/otiai10/copy v1.14.0 // indirect
 	github.com/ryanuber/columnize v2.1.2+incompatible // indirect
-	golang.org/x/sync v0.4.0 // indirect
+	golang.org/x/sync v0.5.0 // indirect
 	golang.org/x/sys v0.13.0 // indirect
 )
 
