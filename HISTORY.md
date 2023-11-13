@@ -1,5 +1,48 @@
 # History
 
+## 0.32.3
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.32.3/bootstrap.sh
+sudo DOKKU_TAG=v0.32.3 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #6345: @josegonzalez Use updated pre-build trigger for builder-herokuish
+
+### New Features
+
+- #6346: @josegonzalez Update all go modules and add a command to bump modules
+
+### Documentation
+
+- #6339: @nschlemm Fixed link to vector sink documentation
+- #6314: @josegonzalez Remove reference to DOKKU_SCHEDULER environment variable in favor of scheduler:set
+- #6317: @edmorley Replace deprecated builder reference in persistent-storage.md
+- #6325: @josegonzalez Add documentation on openresty includes
+
+### Dependencies
+
+- #6343: @dependabot[bot] chore(deps): bump golang.org/x/net from 0.17.0 to 0.18.0 in /tests/apps/gogrpc
+- #6338: @dependabot[bot] chore(deps): bump golang from 1.21.3 to 1.21.4 in /tests/apps/go-fail-postdeploy
+- #6337: @dependabot[bot] chore(deps): bump golang from 1.21.3 to 1.21.4 in /tests/apps/gogrpc
+- #6336: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 40.0.2 to 40.1.1
+- #6335: @dependabot[bot] chore(deps): bump golang from 1.21.3 to 1.21.4 in /tests/apps/go-fail-predeploy
+- #6334: @dependabot[bot] chore(deps): bump golang from 1.21.3 to 1.21.4 in /tests/apps/zombies-dockerfile-tini
+- #6333: @dependabot[bot] chore(deps): bump golang from 1.21.3 to 1.21.4 in /tests/apps/zombies-dockerfile-no-tini
+- #6328: @dependabot[bot] chore(deps): bump mkdocs-material from 9.4.7 to 9.4.8 in /docs/_build
+- #6320: @dependabot[bot] chore(deps): bump org.eclipse.jetty:jetty-servlet from 11.0.17 to 11.0.18 in /tests/apps/java
+- #6318: @dependabot[bot] chore(deps): bump mkdocs-material from 9.4.6 to 9.4.7 in /docs/_build
+- #6322: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 40.0.0 to 40.0.2
+- #6323: @dependabot[bot] chore(deps): bump django from 4.1.10 to 4.1.13 in /tests/apps/dockerfile-release
+
+### Other
+
+- #6315: @josegonzalez Correct key in dependency file to fix docker-container-healthchecker installs on local arm64 servers
+
 ## 0.32.2
 
 Install/update via the bootstrap script:
