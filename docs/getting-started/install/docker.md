@@ -87,3 +87,16 @@ Host dokku.docker
 ```
 
 In the above example, the hostname `127.0.0.1` is being aliased to `dokku.docker`, while the port is being overriden to `3022`. All SSH commands - including git pushes - for the hostname `dokku.docker` will be transparently sent to `127.0.0.1:3022`.
+
+## Easy Install with OrbStack
+
+Another easy way to get Dokku running is by using *OrbStack*.
+
+1. Start by installing OrbStack
+```bash
+brew install orbstack
+```
+
+2. Install Dokku
+
+3. Run dokku
