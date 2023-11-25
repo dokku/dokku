@@ -1,4 +1,4 @@
-api = "0.6"
+api = "0.9"
 
 [buildpack]
 id = "2"
@@ -6,4 +6,4 @@ version = "0.1.0"
 name = "2 Packages Buildpack"
 
 [[stacks]]
-id = "heroku-22"
+id = "*"
