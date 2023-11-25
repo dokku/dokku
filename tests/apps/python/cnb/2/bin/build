@@ -25,5 +25,5 @@ echo "TESTENV_2" >$bp_env_dir/TESTENV
 cat >"$layers_dir/launch.toml" <<EOL
 [[processes]]
 type = "web"
-command = "true"
+command = ["true"]
 EOL
