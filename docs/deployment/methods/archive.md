@@ -1,4 +1,4 @@
-# Deploying from a remote tarball or zip
+# Tar and Zip Archives
 
 ## Initializing an app repository from an archive file
 
