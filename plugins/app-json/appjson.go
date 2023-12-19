@@ -5,12 +5,12 @@ import (
 )
 
 var (
-	// DefaultProperties is a map of all valid network properties with corresponding default property values
+	// DefaultProperties is a map of all valid app-json properties with corresponding default property values
 	DefaultProperties = map[string]string{
 		"appjson-path": "",
 	}
 
-	// GlobalProperties is a map of all valid global network properties
+	// GlobalProperties is a map of all valid global app-json properties
 	GlobalProperties = map[string]bool{
 		"appjson-path": true,
 	}
