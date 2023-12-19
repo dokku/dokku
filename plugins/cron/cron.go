@@ -14,12 +14,12 @@ import (
 )
 
 var (
-	// DefaultProperties is a map of all valid network properties with corresponding default property values
+	// DefaultProperties is a map of all valid cron properties with corresponding default property values
 	DefaultProperties = map[string]string{
 		"mailto": "",
 	}
 
-	// GlobalProperties is a map of all valid global network properties
+	// GlobalProperties is a map of all valid global cron properties
 	GlobalProperties = map[string]bool{
 		"mailto": true,
 	}
