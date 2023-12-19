@@ -20,7 +20,7 @@ dokku scheduler:set node-js-app selected docker-local
 As it is the default, unsetting the `selected` scheduler property is also a valid way to reset the scheduler.
 
 ```shell
-dokku scheduler:set node-js-app selected 
+dokku scheduler:set node-js-app selected
 ```
 
 ## Usage
@@ -101,7 +101,7 @@ The `formation` key should be specified as follows in the `app.json` file:
 }
 ```
 
-Omitting or removing the entry will result in parallelism for that process type to return to 1 entry at a time. This can be combined with the  `parallel-schedule-count` property to speed up deployments.
+Omitting or removing the entry will result in parallelism for that process type to return to 1 entry at a time. This can be combined with the `parallel-schedule-count` property to speed up deployments.
 
 Note that increasing the value of `max_parallel` may significantly impact CPU utilization on your host as your app containers - and their respective processes - start up. Setting a value higher than the number of available CPUs is discouraged. It is recommended that users carefully set this value so as not to overburden their server.
 

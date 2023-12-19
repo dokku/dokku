@@ -99,7 +99,7 @@ Setting the property value to an empty string will reset the value to the system
 
 ```shell
 # per-app
-dokku registry:set node-js-app push-on-release
+dokku registry:set node-js-app image-repo
 ```
 
 ### Pushing images on build
