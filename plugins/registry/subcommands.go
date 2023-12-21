@@ -3,7 +3,7 @@ package registry
 import (
 	"bytes"
 	"errors"
-	"io/ioutil"
+	"io"
 	"os"
 	"strings"
 
@@ -13,7 +13,7 @@ import (
 // CommandLogin logs a user into the specified server
 func CommandLogin(server string, username string, password string, passwordStdin bool) error {
 	if passwordStdin {
-		stdin, err := ioutil.ReadAll(os.Stdin)
+		stdin, err := io.ReadAll(os.Stdin)
 		if err != nil {
 			return err
 		}

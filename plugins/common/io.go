@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"os/user"
 	"strconv"
@@ -133,7 +132,7 @@ func IsAbsPath(path string) bool {
 
 // ListFilesWithPrefix lists files within a given path that have a given prefix
 func ListFilesWithPrefix(path string, prefix string) []string {
-	names, err := ioutil.ReadDir(path)
+	names, err := os.ReadDir(path)
 	if err != nil {
 		return []string{}
 	}
@@ -144,7 +143,7 @@ func ListFilesWithPrefix(path string, prefix string) []string {
 			continue
 		}
 
-		if f.Mode().IsRegular() {
+		if f.Type().IsRegular() {
 			files = append(files, fmt.Sprintf("%s/%s", path, f.Name()))
 		}
 	}

@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -115,7 +114,7 @@ func PropertyGetAll(pluginName string, appName string) (map[string]string, error
 		return properties, errors.New("Specified property path is not a directory")
 	}
 
-	files, err := ioutil.ReadDir(pluginAppConfigRoot)
+	files, err := os.ReadDir(pluginAppConfigRoot)
 	if err != nil {
 		return properties, err
 	}
@@ -139,7 +138,7 @@ func PropertyGetDefault(pluginName, appName, property, defaultValue string) (val
 	}
 
 	propertyPath := getPropertyPath(pluginName, appName, property)
-	b, err := ioutil.ReadFile(propertyPath)
+	b, err := os.ReadFile(propertyPath)
 	if err != nil {
 		LogWarn(fmt.Sprintf("Unable to read %s property %s.%s", pluginName, appName, property))
 		return

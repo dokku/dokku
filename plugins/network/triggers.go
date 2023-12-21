@@ -2,7 +2,7 @@ package network
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"strings"
 
@@ -11,7 +11,7 @@ import (
 
 // TriggerDockerArgsProcess outputs the network plugin docker options for an app
 func TriggerDockerArgsProcess(appName string) error {
-	stdin, err := ioutil.ReadAll(os.Stdin)
+	stdin, err := io.ReadAll(os.Stdin)
 	if err != nil {
 		return err
 	}

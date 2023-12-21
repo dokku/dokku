@@ -3,7 +3,6 @@ package builder
 import (
 	"bytes"
 	"errors"
-	"io/ioutil"
 	"os"
 	"path"
 	"strings"
@@ -35,7 +34,7 @@ func listImagesByImageRepo(imageRepo string) ([]string, error) {
 }
 
 func removeAllContents(basePath string) error {
-	dir, err := ioutil.ReadDir(basePath)
+	dir, err := os.ReadDir(basePath)
 	if err != nil {
 		return err
 	}

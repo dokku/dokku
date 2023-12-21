@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 	"time"
@@ -79,7 +78,7 @@ func CopyFromImage(appName string, image string, source string, destination stri
 		}
 	}
 
-	tmpFile, err := ioutil.TempFile(os.TempDir(), fmt.Sprintf("dokku-%s-%s", MustGetEnv("DOKKU_PID"), "CopyFromImage"))
+	tmpFile, err := os.CreateTemp(os.TempDir(), fmt.Sprintf("dokku-%s-%s", MustGetEnv("DOKKU_PID"), "CopyFromImage"))
 	if err != nil {
 		return fmt.Errorf("Cannot create temporary file: %v", err)
 	}

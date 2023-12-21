@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -280,7 +280,7 @@ func DokkuApps() ([]string, error) {
 func UnfilteredDokkuApps() ([]string, error) {
 	apps := []string{}
 	dokkuRoot := MustGetEnv("DOKKU_ROOT")
-	files, err := ioutil.ReadDir(dokkuRoot)
+	files, err := os.ReadDir(dokkuRoot)
 	if err != nil {
 		return apps, fmt.Errorf("You haven't deployed any applications yet")
 	}
@@ -517,7 +517,7 @@ func SuppressOutput(f errfunc) error {
 	err := f()
 
 	w.Close()
-	out, _ := ioutil.ReadAll(r)
+	out, _ := io.ReadAll(r)
 	os.Stdout = rescueStdout
 
 	if err != nil {

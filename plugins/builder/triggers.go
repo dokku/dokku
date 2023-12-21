@@ -3,7 +3,6 @@ package builder
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -71,7 +70,7 @@ func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
 		return fmt.Errorf("Specified build-dir not found in sourcecode working directory: %v", buildDir)
 	}
 
-	tmpWorkDir, err := ioutil.TempDir(os.TempDir(), fmt.Sprintf("dokku-%s-%s", common.MustGetEnv("DOKKU_PID"), "CorePostExtract"))
+	tmpWorkDir, err := os.MkdirTemp(os.TempDir(), fmt.Sprintf("dokku-%s-%s", common.MustGetEnv("DOKKU_PID"), "CorePostExtract"))
 	if err != nil {
 		return fmt.Errorf("Unable to create temporary working directory: %v", err.Error())
 	}
