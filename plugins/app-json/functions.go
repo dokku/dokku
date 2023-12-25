@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -85,7 +84,7 @@ func getAppJSON(appName string) (AppJSON, error) {
 		return AppJSON{}, nil
 	}
 
-	b, err := ioutil.ReadFile(getProcessSpecificAppJSONPath(appName))
+	b, err := os.ReadFile(getProcessSpecificAppJSONPath(appName))
 	if err != nil {
 		return AppJSON{}, fmt.Errorf("Cannot read app.json file: %v", err)
 	}

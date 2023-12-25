@@ -1,7 +1,6 @@
 package common
 
 import (
-	"io/ioutil"
 	"os"
 	"strings"
 	"testing"
@@ -31,7 +30,7 @@ func setupTests() (err error) {
 func setupTestApp() (err error) {
 	Expect(os.MkdirAll(testAppDir, 0644)).To(Succeed())
 	b := []byte(testEnvLine + "\n")
-	if err = ioutil.WriteFile(testEnvFile, b, 0644); err != nil {
+	if err = os.WriteFile(testEnvFile, b, 0644); err != nil {
 		return
 	}
 	return
@@ -40,7 +39,7 @@ func setupTestApp() (err error) {
 func setupTestApp2() (err error) {
 	Expect(os.MkdirAll(testAppDir2, 0644)).To(Succeed())
 	b := []byte(testEnvLine2 + "\n")
-	if err = ioutil.WriteFile(testEnvFile2, b, 0644); err != nil {
+	if err = os.WriteFile(testEnvFile2, b, 0644); err != nil {
 		return
 	}
 	return

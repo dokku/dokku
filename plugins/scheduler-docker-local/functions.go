@@ -2,7 +2,6 @@ package schedulerdockerlocal
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -128,7 +127,7 @@ func writeCronEntries() error {
 		return err
 	}
 
-	tmpFile, err := ioutil.TempFile(os.TempDir(), fmt.Sprintf("dokku-%s-%s", common.MustGetEnv("DOKKU_PID"), "WriteCronEntries"))
+	tmpFile, err := os.CreateTemp(os.TempDir(), fmt.Sprintf("dokku-%s-%s", common.MustGetEnv("DOKKU_PID"), "WriteCronEntries"))
 	if err != nil {
 		return fmt.Errorf("Cannot create temporary schedule file: %v", err)
 	}
@@ -156,7 +155,7 @@ func getCronTemplate() (*template.Template, error) {
 	t := template.New("cron")
 
 	templatePath := filepath.Join(common.MustGetEnv("PLUGIN_ENABLED_PATH"), "cron", "templates", "cron.tmpl")
-	b, err := ioutil.ReadFile(templatePath)
+	b, err := os.ReadFile(templatePath)
 	if err != nil {
 		return t, fmt.Errorf("Cannot read template file: %v", err)
 	}

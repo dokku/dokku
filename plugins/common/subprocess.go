@@ -2,7 +2,7 @@ package common
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -104,8 +104,8 @@ func PlugnTriggerOutput(triggerName string, args ...string) ([]byte, error) {
 	wE.Close()
 	wO.Close()
 
-	readStderr, _ := ioutil.ReadAll(rE)
-	readStdout, _ := ioutil.ReadAll(rO)
+	readStderr, _ := io.ReadAll(rE)
+	readStdout, _ := io.ReadAll(rO)
 
 	stderr := string(readStderr[:])
 	if err != nil {

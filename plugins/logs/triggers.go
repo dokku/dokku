@@ -3,7 +3,7 @@ package logs
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -16,7 +16,7 @@ import (
 
 // TriggerDockerArgsProcessDeploy outputs the logs plugin docker options for an app
 func TriggerDockerArgsProcessDeploy(appName string) error {
-	stdin, err := ioutil.ReadAll(os.Stdin)
+	stdin, err := io.ReadAll(os.Stdin)
 	if err != nil {
 		return err
 	}

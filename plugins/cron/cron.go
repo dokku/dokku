@@ -3,7 +3,7 @@ package cron
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"strings"
 
 	appjson "github.com/dokku/dokku/plugins/app-json"
@@ -52,7 +52,7 @@ func FetchCronEntries(appName string) ([]TemplateCommand, error) {
 		return commands, nil
 	}
 
-	b, err := ioutil.ReadFile(appjsonPath)
+	b, err := os.ReadFile(appjsonPath)
 	if err != nil {
 		return commands, fmt.Errorf("Cannot read app.json file for %s: %v", appName, err)
 	}

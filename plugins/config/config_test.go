@@ -1,7 +1,6 @@
 package config
 
 import (
-	"io/ioutil"
 	"os"
 	"strings"
 	"testing"
@@ -29,12 +28,12 @@ func setupTests() (err error) {
 func setupTestApp() (err error) {
 	Expect(os.MkdirAll(testAppDir, 0766)).To(Succeed())
 	b := []byte("export testKey=TESTING\n")
-	if err = ioutil.WriteFile(strings.Join([]string{testAppDir, "/ENV"}, ""), b, 0644); err != nil {
+	if err = os.WriteFile(strings.Join([]string{testAppDir, "/ENV"}, ""), b, 0644); err != nil {
 		return
 	}
 
 	b = []byte("export testKey=GLOBAL_TESTING\nexport globalKey=GLOBAL_VALUE")
-	if err = ioutil.WriteFile(globalConfigFile, b, 0644); err != nil {
+	if err = os.WriteFile(globalConfigFile, b, 0644); err != nil {
 		return
 	}
 	return
@@ -179,7 +178,7 @@ func TestInvalidEnvOnDisk(t *testing.T) {
 
 	appConfigFile := strings.Join([]string{testAppDir, "/ENV"}, "")
 	b := []byte("export --invalid-key=TESTING\nexport valid_key=value\n")
-	if err := ioutil.WriteFile(appConfigFile, b, 0644); err != nil {
+	if err := os.WriteFile(appConfigFile, b, 0644); err != nil {
 		return
 	}
 
@@ -192,7 +191,7 @@ func TestInvalidEnvOnDisk(t *testing.T) {
 	Expect(value).To(Equal("value"))
 
 	//LoadAppEnv eliminates it from the file
-	content, err := ioutil.ReadFile(appConfigFile)
+	content, err := os.ReadFile(appConfigFile)
 	Expect(err).NotTo(HaveOccurred())
 	Expect(strings.Contains(string(content), "--invalid-key")).To(BeFalse())
 

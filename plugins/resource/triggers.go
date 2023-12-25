@@ -2,7 +2,7 @@ package resource
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"strings"
 
@@ -11,7 +11,7 @@ import (
 
 // TriggerDockerArgsProcessDeploy outputs the process-specific docker options
 func TriggerDockerArgsProcessDeploy(appName string, processType string) error {
-	stdin, err := ioutil.ReadAll(os.Stdin)
+	stdin, err := io.ReadAll(os.Stdin)
 	if err != nil {
 		return err
 	}
