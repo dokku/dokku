@@ -84,7 +84,8 @@ setup-plugins() {
       PLUGIN_PATH="${DOKKU_LIB_ROOT}/plugins" plugn enable "$plugin"
     fi
   done
-  find -L "${DOKKU_LIB_ROOT}" -type l -delete
+  find -L "${DOKKU_LIB_ROOT}/core-plugins" -type l -delete
+  find -L "${DOKKU_LIB_ROOT}/plugins" -type l -delete
   chown dokku:dokku -R "${DOKKU_LIB_ROOT}/plugins" "${DOKKU_LIB_ROOT}/core-plugins"
 
   echo "Install all core plugins"
