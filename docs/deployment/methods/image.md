@@ -61,7 +61,7 @@ See the [dockerfile documentation](/docs/deployment/builders/dockerfiles.md) to 
 A Dokku app repository can be initialized or updated from the contents of an image archive tar file via the `git:load-image` command. This method can be used when a Docker Registry is unavailable to act as an intermediary for storing an image, such as when building an image in CI and deploying directly from that image.
 
 ```shell
-docker image save my-registry/node-js-getting-started:latest | ssh dokku@dokku.me git:load-image node-js-app my-registry/node-js-getting-started:latest
+docker image save my-registry/node-js-getting-started:latest | ssh dokku@dokku.me dokku git:load-image node-js-app my-registry/node-js-getting-started:latest
 ```
 
 In the above example, we are saving the image to a tar file via `docker image save`, streaming that to the Dokku host, and then running `git:load-image` on the incoming stream. Dokku will build the app as if the repository contained _only_ a `Dockerfile` with the following content:
@@ -86,19 +86,19 @@ The resulting `git:load-image` call would then be:
 
 ```shell
 # where the image sha is: sha256:9d187c3025d03c033dcc71e3a284fee53be88cc4c0356a19242758bc80cab673
-docker image save my-registry/node-js-getting-started:latest | ssh dokku@dokku.me git:load-image node-js-app my-registry/node-js-getting-started@sha256:9d187c3025d03c033dcc71e3a284fee53be88cc4c0356a19242758bc80cab673
+docker image save my-registry/node-js-getting-started:latest | ssh dokku@dokku.me dokku git:load-image node-js-app my-registry/node-js-getting-started@sha256:9d187c3025d03c033dcc71e3a284fee53be88cc4c0356a19242758bc80cab673
 ```
 
 The `git:load-image` command can optionally take a git `user.name` and `user.email` argument (in that order) to customize the author. If the arguments are left empty, they will fallback to `Dokku` and `automated@dokku.sh`, respectively.
 
 ```shell
-docker image save my-registry/node-js-getting-started:latest | ssh dokku@dokku.me git:load-image node-js-app my-registry/node-js-getting-started:latest "Camila" "camila@example.com"
+docker image save my-registry/node-js-getting-started:latest | ssh dokku@dokku.me dokku git:load-image node-js-app my-registry/node-js-getting-started:latest "Camila" "camila@example.com"
 ```
 
 Finally, certain images may require a custom build context in order for `ONBUILD ADD` and `ONBUILD COPY` statements to succeed. A custom build context can be specified via the `--build-dir` flag. All files in the specified `build-dir` will be copied into the repository for use within the `docker build` process. The build context _must_ be specified on each deploy, and is not otherwise persisted between builds.
 
 ```shell
-docker image save my-registry/node-js-getting-started:latest | ssh dokku@dokku.me git:load-image --build-dir path/to/build node-js-app my-registry/node-js-getting-started:latest "Camila" "camila@example.com"
+docker image save my-registry/node-js-getting-started:latest | ssh dokku@dokku.me dokku git:load-image --build-dir path/to/build node-js-app my-registry/node-js-getting-started:latest "Camila" "camila@example.com"
 ```
 
 See the [dockerfile documentation](/docs/deployment/builders/dockerfiles.md) to learn about the different ways to configure Dockerfile-based deploys.
