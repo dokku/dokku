@@ -1,4 +1,4 @@
 [plugin]
 description = "dokku core builder-lambda plugin"
-version = "0.32.3"
+version = "0.32.4"
 [plugin.config]

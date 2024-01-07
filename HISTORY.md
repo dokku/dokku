@@ -1,5 +1,66 @@
 # History
 
+## 0.32.4
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.32.4/bootstrap.sh
+sudo DOKKU_TAG=v0.32.4 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #6407: @josegonzalez Upgrade ruby to fix the release process
+- #6394: @josegonzalez Scope the delete of symlinked plugins in debian post-install to the plugin folders
+
+### Refactors
+
+- #6388: @Juneezee Replace deprecated `io/ioutil` functions
+
+### Documentation
+
+- #6385: @josegonzalez Fix docblock entries for properties in plugins
+- #6384: @josegonzalez Cleanup some markdown in documentation
+- #6365: @josegonzalez Split out archive/image deployment docs into their own file
+
+### Tests
+
+- #6408: @josegonzalez Add options to the release workflow
+- #6359: @josegonzalez Update buildpack api for test buildpack
+
+### Dependencies
+
+- #6399: @dependabot[bot] chore(deps): bump pymdown-extensions from 10.5 to 10.7 in /docs/_build
+- #6398: @dependabot[bot] chore(deps): bump sinatra from 3.1.0 to 3.2.0 in /tests/apps/ruby
+- #6395: @dependabot[bot] chore(deps): bump ruby from 3.2.2 to 3.3.0 in /tests/apps/dockerfile-entrypoint
+- #6391: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.2 to 9.5.3 in /docs/_build
+- #6392: @dependabot[bot] chore(deps): bump importlib-metadata from 7.0.0 to 7.0.1 in /docs/_build
+- #6393: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 40.2.3 to 41.0.1
+- #6387: @dependabot[bot] chore(deps): bump org.eclipse.jetty:jetty-servlet from 11.0.18 to 11.0.19 in /tests/apps/java
+- #6386: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 40.2.2 to 40.2.3
+- #6377: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 40.2.1 to 40.2.2
+- #6380: @dependabot[bot] chore(deps): bump github/codeql-action from 2 to 3
+- #6379: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.1 to 9.5.2 in /docs/_build
+- #6378: @dependabot[bot] chore(deps): bump python from 3.12.0-alpine to 3.12.1-alpine in /docs/_build
+- #6376: @dependabot[bot] chore(deps): bump mkdocs-material from 9.4.14 to 9.5.1 in /docs/_build
+- #6371: @dependabot[bot] chore(deps): bump golang from 1.21.4 to 1.21.5 in /tests/apps/gogrpc
+- #6369: @dependabot[bot] chore(deps): bump golang from 1.21.4 to 1.21.5 in /tests/apps/zombies-dockerfile-tini
+- #6368: @dependabot[bot] chore(deps): bump golang from 1.21.4 to 1.21.5 in /tests/apps/zombies-dockerfile-no-tini
+- #6367: @dependabot[bot] chore(deps): bump importlib-metadata from 6.8.0 to 7.0.0 in /docs/_build
+- #6366: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 40.2.0 to 40.2.1
+- #6370: @dependabot[bot] chore(deps): bump golang from 1.21.4 to 1.21.5 in /tests/apps/go-fail-predeploy
+- #6372: @dependabot[bot] chore(deps): bump golang from 1.21.4 to 1.21.5 in /tests/apps/go-fail-postdeploy
+- #6373: @dependabot[bot] chore(deps): bump actions/setup-python from 4 to 5
+- #6364: @dependabot[bot] chore(deps): bump golang.org/x/net from 0.18.0 to 0.19.0 in /tests/apps/gogrpc
+- #6361: @dependabot[bot] chore(deps): bump pymdown-extensions from 10.4 to 10.5 in /docs/_build
+- #6362: @dependabot[bot] chore(deps): bump mkdocs-material from 9.4.12 to 9.4.14 in /docs/_build
+- #6360: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 40.1.1 to 40.2.0
+- #6357: @dependabot[bot] chore(deps): bump mkdocs-material-extensions from 1.3 to 1.3.1 in /docs/_build
+- #6355: @dependabot[bot] chore(deps): bump pygments from 2.16.1 to 2.17.2 in /docs/_build
+- #6358: @dependabot[bot] chore(deps): bump mkdocs-material from 9.4.8 to 9.4.12 in /docs/_build
+- #6348: @dependabot[bot] chore(deps): bump pymdown-extensions from 10.3.1 to 10.4 in /docs/_build
+
 ## 0.32.3
 
 Install/update via the bootstrap script:
