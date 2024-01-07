@@ -1,15 +1,21 @@
 ---
-name: 'release'
+name: "release"
 
 # yamllint disable-line rule:truthy
 on:
   workflow_dispatch:
     inputs:
       release_type:
-        description: 'Release type [build, betafish, patch, minor, major]'
+        description: "Release type"
+        default: "patch"
         required: true
-        default: 'build'
-
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+          - build
+          - betafish
 jobs:
   release:
     name: release
