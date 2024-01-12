@@ -164,7 +164,7 @@ One or more healthchecks can be defined in the `app.json` file - see the [deploy
 
 A healthcheck entry takes the following properties:
 
-- `attempts`: (default: `3` seconds) Number of retry attempts to perform on failure.
+- `attempts`: (default: `3`) Number of retry attempts to perform on failure.
 - `command`: (default `''` - empty string) Command to execute within container.
 - `content`: (default: `''` - empty string) Content to search in http path check output.
 - `initialDelay`: (default: 0, unit: seconds) Number of seconds to wait after a container has started before triggering the healthcheck.
