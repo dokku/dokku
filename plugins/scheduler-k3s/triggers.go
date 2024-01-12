@@ -49,3 +49,11 @@ func TriggerPostDelete(appName string) error {
 
 	return propertyErr
 }
+
+// TriggerPostRegistryLogin updates the `/etc/rancher/k3s/registries.yaml` to include
+// auth information for the registry
+func TriggerPostRegistryLogin(server string, username string, password string) error {
+	// todo: setup auth
+	// todo: auth against all nodes in cluster
+	return nil
+}
