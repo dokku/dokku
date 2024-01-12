@@ -18,6 +18,10 @@ func main() {
 
 	var err error
 	switch subcommand {
+	case "initialize":
+		args := flag.NewFlagSet("scheduler-k3s:initialize", flag.ExitOnError)
+		args.Parse(os.Args[2:])
+		err = scheduler_k3s.CommandInitialize()
 	case "report":
 		args := flag.NewFlagSet("scheduler-k3s:report", flag.ExitOnError)
 		format := args.String("format", "stdout", "format: [ stdout | json ]")

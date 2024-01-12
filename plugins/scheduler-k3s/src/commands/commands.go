@@ -18,6 +18,7 @@ Manage scheduler-k3s settings for an app
 Additional commands:`
 
 	helpContent = `
+    scheduler-k3s:initialize, Initializes a cluster
     scheduler-k3s:report [<app>] [<flag>], Displays a scheduler-k3s report for one or more apps
     scheduler-k3s:set <app> <property> (<value>), Set or clear a scheduler-k3s property for an app
 `

@@ -1,10 +1,10 @@
 # K3s Scheduler
 
 ```
-scheduler-k3s:initialize [<--local>|<--remote user:password@host:port>] # initializes a cluster
-scheduler-k3s:add-server [user:password@host:port]                      # adds a server node to a Dokku-managed cluster
-scheduler-k3s:add-client [user:password@host:port]                      # adds a client node to a Dokku-managed cluster
-scheduler-k3s:set [<app>|--global] <key> (<value>)                      # Set or clear a scheduler-k3s property for an app or the scheduler
+scheduler-k3s:initialize                           # initializes a cluster
+scheduler-k3s:add-server [user:password@host:port] # adds a server node to a Dokku-managed cluster
+scheduler-k3s:add-client [user:password@host:port] # adds a client node to a Dokku-managed cluster
+scheduler-k3s:set [<app>|--global] <key> (<value>) # Set or clear a scheduler-k3s property for an app or the scheduler
 ```
 
 > [!IMPORTANT]
@@ -29,6 +29,7 @@ dokku scheduler:set node-js-app k3s
 Initialize the cluster in single-node mode. This will start k3s on the Dokku node itself.
 
 ```shell
+# must be run as root
 dokku scheduler-k3s:initialize
 ```
 
