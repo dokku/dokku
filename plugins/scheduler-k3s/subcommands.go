@@ -11,6 +11,10 @@ import (
 
 // CommandInitialize initializes a k3s cluster on the local server
 func CommandInitialize() error {
+	if common.FileExists("/usr/local/bin/k3s") {
+		return fmt.Errorf("k3s already installed, cannot re-initialize k3s")
+	}
+
 	client := resty.New()
 	resp, err := client.R().
 		Get("https://get.k3s.io")
