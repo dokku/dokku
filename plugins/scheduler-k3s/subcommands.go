@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/dokku/dokku/plugins/common"
 	resty "github.com/go-resty/resty/v2"
@@ -73,6 +72,20 @@ func CommandInitialize() error {
 	}, " "))
 	if !installerCmd.Execute() {
 		return fmt.Errorf("Error installing k3s: %w", installerCmd.ExitError)
+	}
+
+	if err := common.TouchFile("/etc/rancher/k3s/registries.yaml"); err != nil {
+		return fmt.Errorf("Error creating initial registries.yaml file")
+	}
+
+	registryAclCmd := common.NewShellCmd(strings.Join([]string{
+		"setfacl",
+		"-m",
+		"user:dokku:rwx",
+		"/etc/rancher/k3s/registries.yaml",
+	}, " "))
+	if !registryAclCmd.Execute() {
+		return fmt.Errorf("Error updating acls on k3s registries.yaml file: %w", registryAclCmd.ExitError)
 	}
 
 	return nil

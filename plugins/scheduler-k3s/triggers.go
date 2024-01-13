@@ -2,8 +2,11 @@ package scheduler_k3s
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/dokku/dokku/plugins/common"
+	"github.com/rancher/wharfie/pkg/registries"
+	"gopkg.in/yaml.v3"
 )
 
 // TriggerInstall runs the install step for the scheduler-k3s plugin
@@ -51,9 +54,47 @@ func TriggerPostDelete(appName string) error {
 }
 
 // TriggerPostRegistryLogin updates the `/etc/rancher/k3s/registries.yaml` to include
-// auth information for the registry
+// auth information for the registry. Note that if the file does not exist, it won't be updated.
 func TriggerPostRegistryLogin(server string, username string, password string) error {
-	// todo: setup auth
+	if !common.FileExists("/usr/local/bin/k3s") {
+		return nil
+	}
+
+	registry := registries.Registry{}
+	registryFile := "/etc/rancher/k3s/registries.yaml"
+	yamlFile, err := os.ReadFile(registryFile)
+	if err != nil {
+		return fmt.Errorf("Unable to read existing registries.yaml: %w", err)
+	}
+
+	err = yaml.Unmarshal(yamlFile, registry)
+	if err != nil {
+		return fmt.Errorf("Unable to unmarshal registry configuration from yaml: %w", err)
+	}
+
+	common.LogInfo1("Updating k3s configuration")
+	if registry.Auths == nil {
+		registry.Auths = map[string]registries.AuthConfig{}
+	}
+
+	if server == "docker.io" {
+		server = "registry-1.docker.io"
+	}
+
+	registry.Auths[server] = registries.AuthConfig{
+		Username: username,
+		Password: password,
+	}
+
+	data, err := yaml.Marshal(&registry)
+	if err != nil {
+		return fmt.Errorf("Unable to marshal registry configuration to yaml: %w", err)
+	}
+
+	if err := os.WriteFile(registryFile, data, os.FileMode(644)); err != nil {
+		return fmt.Errorf("Unable to write registry configuration to file: %w", err)
+	}
+
 	// todo: auth against all nodes in cluster
 	return nil
 }
