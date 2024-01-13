@@ -31,6 +31,10 @@ func CommandInitialize() error {
 	}
 	defer os.Remove(f.Name())
 
+	if err := f.Close(); err != nil {
+		return fmt.Errorf("Unable to close k3s installer file: %w", err)
+	}
+
 	err = common.WriteSliceToFile(common.WriteSliceToFileInput{
 		Filename: f.Name(),
 		Lines:    strings.Split(resp.String(), "\n"),
@@ -38,10 +42,6 @@ func CommandInitialize() error {
 	})
 	if err != nil {
 		return fmt.Errorf("Unable to write k3s installer to file: %w", err)
-	}
-
-	if err := f.Close(); err != nil {
-		return fmt.Errorf("Unable to close k3s installer file: %w", err)
 	}
 
 	fi, err := os.Stat(f.Name())
@@ -52,8 +52,6 @@ func CommandInitialize() error {
 	if fi.Size() == 0 {
 		return fmt.Errorf("Invalid k3s installer filesize")
 	}
-
-	time.Sleep(1 * time.Second)
 
 	// todo: allow this to be passed as an option or environment variable
 	token := "password"
