@@ -44,6 +44,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # workaround for https://github.com/github/codeql/issues/14235
+      - name: Remove go.work file
+        run: rm go.work
+
       # Initializes the CodeQL tools for scanning.
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
@@ -65,10 +69,6 @@ jobs:
       # ✏️ If the Autobuild fails above, remove it and uncomment the following three lines
       #    and modify them (or add more) to build your code if your project
       #    uses a compiled language
-
-      # - run: |
-      #   make bootstrap
-      #   make release
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3

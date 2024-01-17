@@ -21,7 +21,7 @@ build-in-docker: clean
 		-e GO111MODULE=on \
 		-w $(GO_REPO_ROOT)/plugins/$(PLUGIN_NAME) \
 		$(BUILD_IMAGE) \
-		bash -c "GO_ARGS='$(GO_ARGS)' CGO_ENABLED=0 GOOS=linux GOARCH=$(GOARCH) make -j4 $(GO_PLUGIN_MAKE_TARGET)" || exit $$?
+		bash -c "GO_ARGS='$(GO_ARGS)' CGO_ENABLED=0 GOOS=linux GOARCH=$(GOARCH) GOWORK=off make -j4 $(GO_PLUGIN_MAKE_TARGET)" || exit $$?
 
 clean:
 	rm -rf $(BUILD)

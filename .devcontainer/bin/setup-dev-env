@@ -5,27 +5,6 @@ install-go-devtools() {
   go install honnef.co/go/tools/cmd/staticcheck@latest
 }
 
-install-go-mods() {
-  local plugin_root="/root/go/src/github.com/dokku/dokku/plugins"
-
-  export GO111MODULE=off
-  echo "-----> Fetching onsi/gomega dependency for tests"
-  go get github.com/onsi/gomega || true
-
-  echo "-----> Fetching spf13/pflag dependency for subcommands"
-  go get github.com/spf13/pflag || true
-  pushd "$plugin_root" >/dev/null || true
-  find "$plugin_root/" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | while read -r plugin; do
-    pushd "$plugin_root/$plugin" >/dev/null || true
-    if [[ -f "go.mod" ]]; then
-      echo "-----> Fetching dependencies for $plugin plugin"
-      go get || true
-    fi
-    popd >/dev/null || true
-  done
-  popd >/dev/null || true
-}
-
 setup-ci() {
   local dokku_root="/root/go/src/github.com/dokku/dokku"
   pushd "$plugin_root" >/dev/null || true
@@ -34,7 +13,6 @@ setup-ci() {
 }
 
 main() {
-  install-go-mods
   install-go-devtools
   setup-ci
 }
