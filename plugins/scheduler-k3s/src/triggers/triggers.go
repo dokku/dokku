@@ -40,6 +40,11 @@ func main() {
 	case "report":
 		appName := flag.Arg(0)
 		err = scheduler_k3s.ReportSingleApp(appName, "", "")
+	case "scheduler-deploy":
+		scheduler := flag.Arg(0)
+		appName := flag.Arg(1)
+		imageTag := flag.Arg(2)
+		err = scheduler_k3s.TriggerSchedulerDeploy(scheduler, appName, imageTag)
 	default:
 		err = fmt.Errorf("Invalid plugin trigger call: %s", trigger)
 	}

@@ -42,7 +42,7 @@ func CommandInitialize() error {
 	err = common.WriteSliceToFile(common.WriteSliceToFileInput{
 		Filename: f.Name(),
 		Lines:    strings.Split(resp.String(), "\n"),
-		Mode:     os.FileMode(755),
+		Mode:     os.FileMode(0755),
 	})
 	if err != nil {
 		return fmt.Errorf("Unable to write k3s installer to file: %w", err)
