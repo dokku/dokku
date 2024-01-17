@@ -12,3 +12,4 @@ stack.tgz
 tmp
 coverage.out
 site
+go.work.sum
