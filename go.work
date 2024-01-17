@@ -1,0 +1,24 @@
+go 1.21.3
+
+use (
+	./plugins/app-json
+	./plugins/apps
+	./plugins/builder
+	./plugins/buildpacks
+	./plugins/common
+	./plugins/config
+	./plugins/cron
+	./plugins/docker-options
+	./plugins/logs
+	./plugins/network
+	./plugins/nginx-vhosts
+	./plugins/ports
+	./plugins/proxy
+	./plugins/ps
+	./plugins/registry
+	./plugins/repo
+	./plugins/resource
+	./plugins/scheduler
+	./plugins/scheduler-docker-local
+	./plugins/scheduler-k3s
+)
