@@ -12,20 +12,26 @@
       "extensions": [
         "golang.go",
         "mads-hartmann.bash-ide-vscode",
-        "ms-azuretools.vscode-docker",
         "ms-vscode.makefile-tools",
-        "sleistner.vscode-fileutils"
+        "sleistner.vscode-fileutils",
+        "ms-azuretools.vscode-docker"
       ]
     }
   },
-  "initializeCommand": ["mkdir", "-p", "tmp/data"],
+  "initializeCommand": [
+    "mkdir",
+    "-p",
+    "tmp/data"
+  ],
   "mounts": [
     "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind",
     "source=${localWorkspaceFolder}/tmp/data/,target=/mnt/dokku/,type=bind"
   ],
   "overrideCommand": false,
   "postCreateCommand": "setup-dev-env",
-  "runArgs": ["--init"],
+  "runArgs": [
+    "--init"
+  ],
   "workspaceFolder": "/root/go/src/github.com/dokku/dokku",
   "workspaceMount": "type=bind,source=${localWorkspaceFolder},target=/root/go/src/github.com/dokku/dokku,consistency=cached"
 }
