@@ -12,6 +12,7 @@
       "extensions": [
         "golang.go",
         "mads-hartmann.bash-ide-vscode",
+        "ms-azuretools.vscode-docker",
         "ms-vscode.makefile-tools",
         "sleistner.vscode-fileutils"
       ]
