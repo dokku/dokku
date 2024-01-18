@@ -10,7 +10,6 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
-	"slices"
 	"strconv"
 	"strings"
 	"syscall"
@@ -25,10 +24,8 @@ import (
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 	"gopkg.in/yaml.v3"
 	appsv1 "k8s.io/api/apps/v1"
-	autoscalingv1 "k8s.io/api/autoscaling/v1"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/kubernetes/pkg/client/conditions"
 	"k8s.io/utils/ptr"
 )
@@ -444,41 +441,33 @@ func TriggerSchedulerEnter(scheduler string, appName string, processType string,
 		labelSelector = append(labelSelector, fmt.Sprintf("dokku.com/process-type=%s", processType))
 	}
 
-	podList, err := clientset.Client.CoreV1().Pods(namespace).List(ctx, metav1.ListOptions{
+	pods, err := clientset.ListPods(ctx, ListPodsInput{
+		Namespace:     namespace,
 		LabelSelector: strings.Join(labelSelector, ","),
 	})
 	if err != nil {
 		return fmt.Errorf("Error listing pods: %w", err)
 	}
 
-	if podList.Items == nil {
+	if len(pods) == 0 {
 		return fmt.Errorf("No pods found for app %s", appName)
 	}
-	if len(podList.Items) == 0 {
-		return fmt.Errorf("No pods found for app %s", appName)
-	}
-
-	pods := []string{}
-	for _, pod := range podList.Items {
-		pods = append(pods, pod.Name)
-	}
-	slices.Sort(pods)
 
 	processIndex--
-	if processIndex > len(podList.Items) {
+	if processIndex > len(pods) {
 		return fmt.Errorf("Process index %d out of range for app %s", processIndex, appName)
 	}
 
 	var selectedPod corev1.Pod
 	if podName != "" {
-		for _, pod := range podList.Items {
+		for _, pod := range pods {
 			if pod.Name == podName {
 				selectedPod = pod
 				break
 			}
 		}
 	} else {
-		selectedPod = podList.Items[processIndex]
+		selectedPod = pods[processIndex]
 	}
 
 	processType, ok := selectedPod.Labels["dokku.com/process-type"]
@@ -549,18 +538,18 @@ func TriggerSchedulerLogs(scheduler string, appName string, processType string, 
 	}
 
 	namespace := common.PropertyGetDefault("scheduler-k3s", appName, "namespace", "default")
-	podList, err := clientset.Client.CoreV1().Pods(namespace).List(ctx, metav1.ListOptions{
+	pods, err := clientset.ListPods(ctx, ListPodsInput{
+		Namespace:     namespace,
 		LabelSelector: strings.Join(labelSelector, ","),
 	})
 	if err != nil {
 		return fmt.Errorf("Error listing pods: %w", err)
 	}
-	if len(podList.Items) == 0 {
+	if len(pods) == 0 {
 		return fmt.Errorf("No pods found for app %s", appName)
 	}
 
 	ch := make(chan bool)
-	podItems := podList.Items
 
 	if os.Getenv("FORCE_TTY") == "1" {
 		color.NoColor = false
@@ -575,7 +564,7 @@ func TriggerSchedulerLogs(scheduler string, appName string, processType string, 
 		color.FgMagenta,
 	}
 	// colorIndex := 0
-	for i := 0; i < len(podItems); i++ {
+	for i := 0; i < len(pods); i++ {
 		if processIndex > 0 && i != (processIndex-1) {
 			continue
 		}
@@ -589,7 +578,7 @@ func TriggerSchedulerLogs(scheduler string, appName string, processType string, 
 
 		podColor := colors[i%len(colors)]
 		dynoText := color.New(podColor).SprintFunc()
-		podName := podItems[i].Name
+		podName := pods[i].Name
 		podLogs, err := clientset.Client.CoreV1().Pods(namespace).GetLogs(podName, &logOptions).Stream(ctx)
 		if err != nil {
 			return err
@@ -798,6 +787,11 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 		color.NoColor = false
 	}
 
+	clientset, err := NewKubernetesClient()
+	if err != nil {
+		return fmt.Errorf("Error creating kubernetes client: %w", err)
+	}
+
 	ctx, cancel := context.WithCancel(context.Background())
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, os.Interrupt, syscall.SIGHUP,
@@ -806,21 +800,34 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 		syscall.SIGTERM)
 	go func() {
 		<-signals
+		if attachToPod {
+			clientset.DeleteJob(ctx, DeleteJobInput{ // nolint: errcheck
+				Name:      job.Name,
+				Namespace: namespace,
+			})
+		}
 		cancel()
 	}()
 
-	createdJob, err := createKubernetesJob(ctx, job)
+	createdJob, err := clientset.CreateJob(ctx, CreateJobInput{
+		Job:       job,
+		Namespace: namespace,
+	})
 	if err != nil {
 		return fmt.Errorf("Error creating job: %w", err)
 	}
 
-	clientset, err := NewKubernetesClient()
-	if err != nil {
-		return fmt.Errorf("Error creating kubernetes client: %w", err)
+	if attachToPod {
+		defer func() {
+			clientset.DeleteJob(ctx, DeleteJobInput{ // nolint: errcheck
+				Name:      job.Name,
+				Namespace: namespace,
+			})
+		}()
 	}
 
 	batchJobSelector := fmt.Sprintf("batch.kubernetes.io/job-name=%s", createdJob.Name)
-	podList, err := waitForPodToExist(ctx, WaitForPodToExistInput{
+	pods, err := waitForPodToExist(ctx, WaitForPodToExistInput{
 		Clientset:  clientset,
 		Namespace:  namespace,
 		RetryCount: 3,
@@ -830,7 +837,7 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 		return fmt.Errorf("Error waiting for pod to exist: %w", err)
 	}
 
-	for _, pod := range podList.Items {
+	for _, pod := range pods {
 		common.LogQuiet(pod.Name)
 	}
 
@@ -847,15 +854,14 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 	})
 	if err != nil {
 		if errors.Is(err, conditions.ErrPodCompleted) {
-			podList, podErr := getPod(ctx, GetPodInput{
-				Clientset: clientset,
-				Namespace: namespace,
-				Selector:  batchJobSelector,
+			pods, podErr := clientset.ListPods(ctx, ListPodsInput{
+				Namespace:     namespace,
+				LabelSelector: batchJobSelector,
 			})
 			if podErr != nil {
 				return fmt.Errorf("Error completed pod: %w", err)
 			}
-			selectedPod := podList.Items[0]
+			selectedPod := pods[0]
 			if selectedPod.Status.Phase == v1.PodFailed {
 				for _, status := range selectedPod.Status.ContainerStatuses {
 					if status.Name != fmt.Sprintf("%s-%s", appName, processType) {
@@ -875,15 +881,14 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 		return fmt.Errorf("Error waiting for pod to be running: %w", err)
 	}
 
-	podList, err = getPod(ctx, GetPodInput{
-		Clientset: clientset,
-		Namespace: namespace,
-		Selector:  batchJobSelector,
+	pods, err = clientset.ListPods(ctx, ListPodsInput{
+		Namespace:     namespace,
+		LabelSelector: batchJobSelector,
 	})
 	if err != nil {
 		return fmt.Errorf("Error getting pod: %w", err)
 	}
-	selectedPod := podList.Items[0]
+	selectedPod := pods[0]
 
 	switch selectedPod.Status.Phase {
 	case v1.PodFailed, v1.PodSucceeded:
@@ -903,7 +908,7 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 			return errors.New("Unable to attach as the pod has already exited with a successful exit code")
 		}
 	case v1.PodRunning:
-		err := enterPod(ctx, EnterPodInput{
+		return enterPod(ctx, EnterPodInput{
 			AppName:     appName,
 			Clientset:   clientset,
 			Command:     command,
@@ -911,16 +916,6 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 			ProcessType: processType,
 			SelectedPod: selectedPod,
 		})
-		if err != nil {
-			return err
-		}
-
-		err = clientset.Client.BatchV1().Jobs(namespace).Delete(ctx, createdJob.Name, metav1.DeleteOptions{
-			PropagationPolicy: ptr.To(metav1.DeletePropagationForeground),
-		})
-		if err != nil {
-			return fmt.Errorf("Error deleting pod: %w", err)
-		}
 
 		return nil
 	default:
@@ -973,28 +968,25 @@ func TriggerSchedulerStop(scheduler string, appName string) error {
 	}()
 
 	namespace := common.PropertyGetDefault("scheduler-k3s", appName, "namespace", "default")
-	deploymentList, err := clientset.Client.AppsV1().Deployments(namespace).List(ctx, metav1.ListOptions{
+	deployments, err := clientset.ListDeployments(ctx, ListDeploymentsInput{
+		Namespace:     namespace,
 		LabelSelector: fmt.Sprintf("dokku.com/app-name=%s", appName),
 	})
 	if err != nil {
 		return fmt.Errorf("Error listing deployments: %w", err)
 	}
 
-	for _, deployment := range deploymentList.Items {
+	for _, deployment := range deployments {
 		processType, ok := deployment.Annotations["dokku.com/process-type"]
 		if !ok {
 			return fmt.Errorf("Deployment %s does not have a process type annotation", deployment.Name)
 		}
 		common.LogVerboseQuiet(fmt.Sprintf("Stopping %s process", processType))
-		_, err := clientset.Client.AppsV1().Deployments(namespace).UpdateScale(ctx, deployment.Name, &autoscalingv1.Scale{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:      deployment.Name,
-				Namespace: namespace,
-			},
-			Spec: autoscalingv1.ScaleSpec{
-				Replicas: 0,
-			},
-		}, metav1.UpdateOptions{})
+		err := clientset.ScaleDeployment(ctx, ScaleDeploymentInput{
+			Name:      deployment.Name,
+			Namespace: namespace,
+			Replicas:  0,
+		})
 		if err != nil {
 			return fmt.Errorf("Error updating deployment scale: %w", err)
 		}

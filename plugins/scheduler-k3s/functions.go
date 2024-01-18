@@ -8,18 +8,11 @@ import (
 	"time"
 
 	"github.com/dokku/dokku/plugins/common"
-	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/wait"
-	"k8s.io/client-go/kubernetes"
 	corev1client "k8s.io/client-go/kubernetes/typed/core/v1"
-	"k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/clientcmd"
-	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	"k8s.io/client-go/tools/remotecommand"
 	"k8s.io/kubectl/pkg/util/term"
 	"k8s.io/kubernetes/pkg/client/conditions"
@@ -33,12 +26,6 @@ type EnterPodInput struct {
 	Entrypoint  string
 	ProcessType string
 	SelectedPod v1.Pod
-}
-
-type GetPodInput struct {
-	Clientset KubernetesClient
-	Namespace string
-	Selector  string
 }
 
 // StartCommandInput contains all the information needed to get the start command
@@ -61,12 +48,6 @@ type StartCommandOutput struct {
 	Command []string
 }
 
-type KubernetesClient struct {
-	Client     kubernetes.Clientset
-	RestClient rest.Interface
-	RestConfig rest.Config
-}
-
 type WaitForPodBySelectorRunningInput struct {
 	Clientset KubernetesClient
 	Namespace string
@@ -82,69 +63,18 @@ type WaitForPodToExistInput struct {
 	Selector   string
 }
 
-func NewKubernetesClient() (KubernetesClient, error) {
-	clientConfig := KubernetesClientConfig()
-	restConf, err := clientConfig.ClientConfig()
-	if err != nil {
-		return KubernetesClient{}, err
-	}
-
-	restConf.GroupVersion = &schema.GroupVersion{
-		Group:   "api",
-		Version: "v1",
-	}
-
-	client, err := kubernetes.NewForConfig(restConf)
-	if err != nil {
-		return KubernetesClient{}, err
-	}
-
-	restConf.NegotiatedSerializer = runtime.NewSimpleNegotiatedSerializer(runtime.SerializerInfo{})
-
-	restClient, err := rest.RESTClientFor(restConf)
-	if err != nil {
-		return KubernetesClient{}, err
-	}
-
-	return KubernetesClient{
-		Client:     *client,
-		RestConfig: *restConf,
-		RestClient: restClient,
-	}, nil
-}
-
-func KubernetesClientConfig() clientcmd.ClientConfig {
-	return clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
-		&clientcmd.ClientConfigLoadingRules{ExplicitPath: KubeConfigPath},
-		&clientcmd.ConfigOverrides{ClusterInfo: clientcmdapi.Cluster{Server: ""}})
-}
-
-func createKubernetesJob(ctx context.Context, job batchv1.Job) (batchv1.Job, error) {
-	clientset, err := NewKubernetesClient()
-	if err != nil {
-		return batchv1.Job{}, err
-	}
-
-	createdJob, err := clientset.Client.BatchV1().Jobs(job.Namespace).Create(ctx, &job, metav1.CreateOptions{})
-	if err != nil {
-		return batchv1.Job{}, err
-	}
-
-	return *createdJob, nil
-}
-
 func createKubernetesNamespace(ctx context.Context, namespaceName string) error {
 	clientset, err := NewKubernetesClient()
 	if err != nil {
 		return err
 	}
 
-	namespaces, err := clientset.Client.CoreV1().Namespaces().List(ctx, metav1.ListOptions{})
+	namespaces, err := clientset.ListNamespaces(ctx)
 	if err != nil {
 		return err
 	}
 
-	for _, namespace := range namespaces.Items {
+	for _, namespace := range namespaces {
 		if namespace.Name == namespaceName {
 			return nil
 		}
@@ -161,7 +91,9 @@ func createKubernetesNamespace(ctx context.Context, namespaceName string) error 
 			},
 		},
 	}
-	_, err = clientset.Client.CoreV1().Namespaces().Create(ctx, &namespace, metav1.CreateOptions{})
+	_, err = clientset.CreateNamespace(ctx, CreateNamespaceInput{
+		Namespace: namespace,
+	})
 	if err != nil {
 		return err
 	}
@@ -318,17 +250,14 @@ func getStartCommand(input StartCommandInput) (StartCommandOutput, error) {
 	}, nil
 }
 
-func getPod(ctx context.Context, input GetPodInput) (v1.PodList, error) {
-	listOptions := metav1.ListOptions{LabelSelector: input.Selector}
-	podList, err := input.Clientset.Client.CoreV1().Pods(input.Namespace).List(ctx, listOptions)
-	return *podList, err
-}
-
 func isPodReady(ctx context.Context, clientset KubernetesClient, podName, namespace string) wait.ConditionWithContextFunc {
 	return func(ctx context.Context) (bool, error) {
 		fmt.Printf(".") // progress bar!
 
-		pod, err := clientset.Client.CoreV1().Pods(namespace).Get(ctx, podName, metav1.GetOptions{})
+		pod, err := clientset.GetPod(ctx, GetPodInput{
+			Name:      podName,
+			Namespace: namespace,
+		})
 		if err != nil {
 			return false, err
 		}
@@ -344,7 +273,7 @@ func isPodReady(ctx context.Context, clientset KubernetesClient, podName, namesp
 }
 
 func waitForPodBySelectorRunning(ctx context.Context, input WaitForPodBySelectorRunningInput) error {
-	podList, err := waitForPodToExist(ctx, WaitForPodToExistInput{
+	pods, err := waitForPodToExist(ctx, WaitForPodToExistInput{
 		Clientset:  input.Clientset,
 		Namespace:  input.Namespace,
 		RetryCount: 3,
@@ -354,29 +283,28 @@ func waitForPodBySelectorRunning(ctx context.Context, input WaitForPodBySelector
 		return fmt.Errorf("Error waiting for pod to exist: %w", err)
 	}
 
-	if len(podList.Items) == 0 {
+	if len(pods) == 0 {
 		return fmt.Errorf("no pods in %s with selector %s", input.Namespace, input.Selector)
 	}
 
 	timeout := time.Duration(input.Timeout) * time.Second
-	for _, pod := range podList.Items {
+	for _, pod := range pods {
 		if err := wait.PollUntilContextTimeout(ctx, time.Second, timeout, false, input.Waiter(ctx, input.Clientset, pod.Name, pod.Namespace)); err != nil {
 			print("\n")
-			return err
+			return fmt.Errorf("Error waiting for pod to be ready: %w", err)
 		}
 	}
 	print("\n")
 	return nil
 }
 
-func waitForPodToExist(ctx context.Context, input WaitForPodToExistInput) (v1.PodList, error) {
-	var podList v1.PodList
+func waitForPodToExist(ctx context.Context, input WaitForPodToExistInput) ([]v1.Pod, error) {
+	var pods []v1.Pod
 	var err error
 	for i := 0; i < input.RetryCount; i++ {
-		podList, err = getPod(ctx, GetPodInput{
-			Clientset: input.Clientset,
-			Namespace: input.Namespace,
-			Selector:  input.Selector,
+		pods, err = input.Clientset.ListPods(ctx, ListPodsInput{
+			Namespace:     input.Namespace,
+			LabelSelector: input.Selector,
 		})
 		if err == nil {
 			break
@@ -384,7 +312,7 @@ func waitForPodToExist(ctx context.Context, input WaitForPodToExistInput) (v1.Po
 		time.Sleep(1 * time.Second)
 	}
 	if err != nil {
-		return podList, fmt.Errorf("Error listing pods: %w", err)
+		return pods, fmt.Errorf("Error listing pods: %w", err)
 	}
-	return podList, nil
+	return pods, nil
 }

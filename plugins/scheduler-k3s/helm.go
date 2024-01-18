@@ -17,7 +17,6 @@ import (
 	"helm.sh/helm/v3/pkg/chart/loader"
 	"helm.sh/helm/v3/pkg/kube"
 	"helm.sh/helm/v3/pkg/storage/driver"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 var DevNullPrinter = func(format string, v ...interface{}) {}
@@ -106,7 +105,10 @@ func (h *HelmAgent) DeleteRevision(releaseName string, revision int) error {
 	}
 
 	secretName := fmt.Sprintf("sh.helm.release.v1.%s.v%d", releaseName, revision)
-	err = clientset.Client.CoreV1().Secrets(h.Namespace).Delete(context.Background(), secretName, metav1.DeleteOptions{})
+	err = clientset.DeleteSecret(context.Background(), DeleteSecretInput{
+		Name:      secretName,
+		Namespace: h.Namespace,
+	})
 	if err != nil {
 		return fmt.Errorf("Error deleting secret: %w", err)
 	}

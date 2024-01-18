@@ -1,6 +1,7 @@
 package scheduler_k3s
 
 import (
+	"crypto/rand"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -534,12 +535,19 @@ func templateKubernetesJob(input Job) (batchv1.Job, error) {
 		})
 	}
 
+	n := 5
+	b := make([]byte, n)
+	if _, err := rand.Read(b); err != nil {
+		panic(err)
+	}
+	suffix := strings.ToLower(fmt.Sprintf("%X", b))
+
 	job := batchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{
-			GenerateName: fmt.Sprintf("%s-%s-", input.AppName, input.ProcessType),
-			Namespace:    input.Namespace,
-			Labels:       labels,
-			Annotations:  annotations,
+			Name:        fmt.Sprintf("%s-%s-%s", input.AppName, input.ProcessType, suffix),
+			Namespace:   input.Namespace,
+			Labels:      labels,
+			Annotations: annotations,
 		},
 		Spec: batchv1.JobSpec{
 			BackoffLimit: ptr.To(int32(0)),
