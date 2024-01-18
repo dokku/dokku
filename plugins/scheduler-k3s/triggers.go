@@ -85,8 +85,7 @@ func TriggerPostRegistryLogin(server string, username string, password string) e
 	}
 
 	registry := registries.Registry{}
-	registryFile := "/etc/rancher/k3s/registries.yaml"
-	yamlFile, err := os.ReadFile(registryFile)
+	yamlFile, err := os.ReadFile(RegistryConfigPath)
 	if err != nil {
 		return fmt.Errorf("Unable to read existing registries.yaml: %w", err)
 	}

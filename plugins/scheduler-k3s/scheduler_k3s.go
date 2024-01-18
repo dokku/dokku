@@ -32,6 +32,8 @@ var (
 
 const KubeConfigPath = "/etc/rancher/k3s/k3s.yaml"
 
+const RegistryConfigPath = "/etc/rancher/k3s/registries.yaml"
+
 var (
 	runtimeScheme  = runtime.NewScheme()
 	codecs         = serializer.NewCodecFactory(runtimeScheme)

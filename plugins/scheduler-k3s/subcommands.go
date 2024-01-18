@@ -76,7 +76,7 @@ func CommandInitialize() error {
 		return fmt.Errorf("Error installing k3s: %w", installerCmd.ExitError)
 	}
 
-	if err := common.TouchFile("/etc/rancher/k3s/registries.yaml"); err != nil {
+	if err := common.TouchFile(RegistryConfigPath); err != nil {
 		return fmt.Errorf("Error creating initial registries.yaml file")
 	}
 
@@ -84,7 +84,7 @@ func CommandInitialize() error {
 		"setfacl",
 		"-m",
 		"user:dokku:rwx",
-		"/etc/rancher/k3s/registries.yaml",
+		RegistryConfigPath,
 	}, " "))
 	if !registryAclCmd.Execute() {
 		return fmt.Errorf("Error updating acls on k3s registries.yaml file: %w", registryAclCmd.ExitError)
