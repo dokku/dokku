@@ -428,6 +428,27 @@ data:
 		return err
 	}
 
+	common.LogInfo1("Running post-deploy")
+	_, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Args:          []string{appName, "", "", imageTag},
+		CaptureOutput: false,
+		StreamStdio:   true,
+		Trigger:       "core-post-deploy",
+	})
+	if err != nil {
+		return fmt.Errorf("Error running core-post-deploy: %w", err)
+
+	}
+	_, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Args:          []string{appName, "", "", imageTag},
+		CaptureOutput: false,
+		StreamStdio:   true,
+		Trigger:       "post-deploy",
+	})
+	if err != nil {
+		return fmt.Errorf("Error running post-deploy: %w", err)
+	}
+
 	return nil
 }
 
