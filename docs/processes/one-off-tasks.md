@@ -20,14 +20,22 @@ The `run` command can be used to run a one-off process for a specific command. T
 > New as of 0.25.0, this container will be removed after the process exits.
 
 ```shell
-# runs `ls -lah` in the `/app` directory of the app `node-js-app`
-dokku run node-js-app ls -lah
+# runs `ls` in the `/app` directory of the app `node-js-app`
+#
+dokku run node-js-app ls
 
 # optionally, run can be passed custom environment variables
 dokku run --env "NODE_ENV=development" --env "PATH=/custom/path" node-js-app npm run mytask
 ```
 
 One off containers are removed at the end of process execution.
+
+If the custom command uses flags, it must be separated from the `dokku enter` command via `--` (double dashes):
+
+```shell
+# runs `ls -lah` in the `/app` directory of the app `node-js-app`
+dokku run node-js-app -- ls -lah
+```
 
 #### Running Procfile commands
 
@@ -58,7 +66,7 @@ dokku --label=com.example.test-label=value run node-js-app ls -lah
 One-off containers default to interactive mode where possible. To disable this behavior, specify the `--no-tty` flag:
 
 ```shell
-dokku run --no-tty node-js-app ls -lah
+dokku run --no-tty node-js-app -- ls -lah
 ```
 
 ### Running a detached container
@@ -69,7 +77,7 @@ dokku run --no-tty node-js-app ls -lah
 Finally, a container can be run in "detached" mode via the `run:detached` Dokku command. Running a process in detached mode will immediately return a `CONTAINER_ID`. Detached containers are run without a tty and are also removed at the end of process execution.
 
 ```shell
-dokku run:detached node-js-app ls -lah
+dokku run:detached node-js-app -- ls -lah
 # returns the ID of the new container
 ```
 
