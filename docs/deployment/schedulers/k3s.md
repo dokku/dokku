@@ -156,6 +156,7 @@ The following sections describe implemented and unimplemented scheduler function
 This plugin implements various functionality through `plugn` triggers to integrate with Docker for running apps on a single server. The following functionality is supported by the `scheduler-docker-local` plugin.
 
 - `apps:destroy`
+- `enter`
 - `deploy`
 - `logs`
 - `ps:stop`
@@ -165,7 +166,6 @@ This plugin implements various functionality through `plugn` triggers to integra
 - `apps:clone`
 - `apps:rename`
 - `ps:inspect`
-- `enter`
 - `run`
 - `run:detached`
 
