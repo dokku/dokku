@@ -109,6 +109,11 @@ func main() {
 		}
 
 		err = scheduler_k3s.TriggerSchedulerRun(scheduler, appName, envCount, args)
+	case "scheduler-run-list":
+		scheduler := flag.Arg(0)
+		appName := flag.Arg(1)
+		format := flag.Arg(2)
+		err = scheduler_k3s.TriggerSchedulerRunList(scheduler, appName, format)
 	default:
 		err = fmt.Errorf("Invalid plugin trigger call: %s", trigger)
 	}

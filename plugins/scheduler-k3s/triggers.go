@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"context"
 	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -21,6 +22,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/kballard/go-shellquote"
 	"github.com/rancher/wharfie/pkg/registries"
+	"github.com/ryanuber/columnize"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 	"gopkg.in/yaml.v3"
 	appsv1 "k8s.io/api/apps/v1"
@@ -947,6 +949,74 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 		return fmt.Errorf("Unable to attach as the pod is in an unknown state: %s", selectedPod.Status.Phase)
 	}
 	// todo: support scheduler-post-run
+
+	return nil
+}
+
+// TriggerSchedulerRunList lists one-off run pods for a given application
+func TriggerSchedulerRunList(scheduler string, appName string, format string) error {
+	if scheduler != "k3s" {
+		return nil
+	}
+
+	clientset, err := NewKubernetesClient()
+	if err != nil {
+		return fmt.Errorf("Error creating kubernetes client: %w", err)
+	}
+
+	namespace := common.PropertyGetDefault("scheduler-k3s", appName, "namespace", "default")
+
+	ctx := context.Background()
+	cronJobs, err := clientset.ListCronJobs(ctx, ListCronJobsInput{
+		LabelSelector: fmt.Sprintf("dokku.com/app-name=%s", appName),
+		Namespace:     namespace,
+	})
+	if err != nil {
+		return fmt.Errorf("Error getting cron jobs: %w", err)
+	}
+
+	type CronJobEntry struct {
+		ID       string `json:"id"`
+		AppName  string `json:"app"`
+		Command  string `json:"command"`
+		Schedule string `json:"schedule"`
+	}
+
+	data := []CronJobEntry{}
+	lines := []string{"ID | Schedule | Command"}
+	for _, cronJob := range cronJobs {
+		command := ""
+		for _, container := range cronJob.Spec.JobTemplate.Spec.Template.Spec.Containers {
+			if container.Name == fmt.Sprintf("%s-cron", appName) {
+				command = strings.Join(container.Args, " ")
+			}
+		}
+
+		cronID, ok := cronJob.Labels["dokku.com/cron-id"]
+		if !ok {
+			common.LogWarn(fmt.Sprintf("Cron job %s does not have a cron ID label", cronJob.Name))
+			continue
+		}
+
+		lines = append(lines, fmt.Sprintf("%s | %s | %s", cronID, cronJob.Spec.Schedule, command))
+		data = append(data, CronJobEntry{
+			ID:       cronID,
+			AppName:  appName,
+			Command:  command,
+			Schedule: cronJob.Spec.Schedule,
+		})
+	}
+
+	if format == "stdout" {
+		result := columnize.SimpleFormat(lines)
+		fmt.Println(result)
+	} else {
+		b, err := json.Marshal(data)
+		if err != nil {
+			return fmt.Errorf("Error marshalling cron jobs: %w", err)
+		}
+		fmt.Println(string(b))
+	}
 
 	return nil
 }
