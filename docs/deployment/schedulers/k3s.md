@@ -162,7 +162,7 @@ The following sections describe implemented and unimplemented scheduler function
 
 ### Implemented Commands and Triggers
 
-This plugin implements various functionality through `plugn` triggers to integrate with Docker for running apps on a single server. The following functionality is supported by the `scheduler-docker-local` plugin.
+This plugin implements various functionality through `plugn` triggers to integrate with Docker for running apps on a single server. The following functionality is supported by the `scheduler-k3s` plugin.
 
 - `apps:destroy`
 - `cron`
@@ -194,7 +194,7 @@ App logs for the `logs` command are fetched by Dokku from running containers via
 
 ### Supported Resource Management Properties
 
-The `docker-local` scheduler supports a minimal list of resource _limits_ and _reservations_. The following properties are supported:
+The `k3s` scheduler supports a minimal list of resource _limits_ and _reservations_. The following properties are supported:
 
 #### Resource Limits
 
