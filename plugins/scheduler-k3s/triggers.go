@@ -924,15 +924,6 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 		color.NoColor = false
 	}
 
-	err = writeResourceToFile(WriteResourceInput{
-		Object: &job,
-		Path:   "/tmp/job.yaml",
-	})
-	if err != nil {
-		return fmt.Errorf("Error writing job: %w", err)
-	}
-	common.CatFile("/tmp/job.yaml")
-
 	ctx, cancel := context.WithCancel(context.Background())
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, os.Interrupt, syscall.SIGHUP,
