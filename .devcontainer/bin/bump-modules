@@ -1,12 +1,21 @@
 #!/usr/bin/env bash
 
+export GOWORK=off
 pushd /root/go/src/github.com/dokku/dokku/plugins/ >/dev/null || exit 1
 for plugin in *; do
   if [[ ! -f "/root/go/src/github.com/dokku/dokku/plugins/$plugin/go.mod" ]]; then continue; fi
   echo "$plugin"
   pushd /root/go/src/github.com/dokku/dokku/plugins/$plugin || exit 1
-  go mod tidy
-  go mod download
+  echo "running go mod tidy for $plugin"
+  if ! go mod tidy; then
+    echo "go mod tidy failed for $plugin"
+    exit 1
+  fi
+  echo "running go mod download for $plugin"
+  if ! go mod download; then
+    echo "go mod download failed for $plugin"
+    exit 1
+  fi
   popd >/dev/null || exit 1
 done
 popd >/dev/null || exit 1
