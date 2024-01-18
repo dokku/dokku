@@ -66,9 +66,13 @@ func TriggerPortsConfigure(appName string) error {
 
 // TriggerPortsGet prints out the port mapping for a given app
 func TriggerPortsGet(appName string, format string) error {
+	if format == "" {
+		format = "stdout"
+	}
 	if format != "json" && format != "stdout" {
 		return fmt.Errorf("Invalid format specified: %s", format)
 	}
+
 	portMaps := getPortMaps(appName)
 	if len(portMaps) == 0 {
 		portMaps = getDetectedPortMaps(appName)
