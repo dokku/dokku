@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 
 	flag "github.com/spf13/pflag"
@@ -59,6 +60,28 @@ func main() {
 		}
 
 		err = scheduler_k3s.TriggerSchedulerEnter(scheduler, appName, containerType, ptr.Deref(podIdentifier, ""), args)
+	case "scheduler-logs":
+		var tail bool
+		var quiet bool
+		var numLines int64
+		scheduler := flag.Arg(0)
+		appName := flag.Arg(1)
+		processType := flag.Arg(2)
+		tail, err = strconv.ParseBool(flag.Arg(3))
+		if err != nil {
+			tail = false
+		}
+		quiet, err = strconv.ParseBool(flag.Arg(4))
+		if err != nil {
+			quiet = false
+		}
+
+		numLines, err = strconv.ParseInt(flag.Arg(5), 10, 64)
+		if err != nil {
+			numLines = 0
+		}
+
+		err = scheduler_k3s.TriggerSchedulerLogs(scheduler, appName, processType, tail, quiet, numLines)
 	default:
 		err = fmt.Errorf("Invalid plugin trigger call: %s", trigger)
 	}

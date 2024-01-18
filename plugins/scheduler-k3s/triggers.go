@@ -1,9 +1,11 @@
 package scheduler_k3s
 
 import (
+	"bufio"
 	"context"
 	"encoding/base64"
 	"fmt"
+	"io"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -15,15 +17,18 @@ import (
 
 	"github.com/dokku/dokku/plugins/common"
 	"github.com/dokku/dokku/plugins/config"
+	"github.com/fatih/color"
 	"github.com/rancher/wharfie/pkg/registries"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 	"gopkg.in/yaml.v3"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	corev1client "k8s.io/client-go/kubernetes/typed/core/v1"
 	"k8s.io/client-go/tools/remotecommand"
 	"k8s.io/kubectl/pkg/util/term"
+	"k8s.io/utils/ptr"
 )
 
 // TriggerInstall runs the install step for the scheduler-k3s plugin
@@ -512,4 +517,111 @@ func TriggerSchedulerEnter(scheduler string, appName string, processType string,
 			TerminalSizeQueue: sizeQueue,
 		})
 	})
+}
+
+// TriggerSchedulerLogs displays logs for a given application
+func TriggerSchedulerLogs(scheduler string, appName string, processType string, tail bool, quiet bool, numLines int64) error {
+	if scheduler != "k3s" {
+		return nil
+	}
+
+	clientset, err := NewKubernetesClient()
+	if err != nil {
+		return fmt.Errorf("Error creating kubernetes client: %w", err)
+	}
+
+	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	cSignal := make(chan os.Signal, 2)
+	signal.Notify(cSignal, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-cSignal
+		cancel()
+	}()
+
+	labelSelector := []string{fmt.Sprintf("dokku.com/app-name=%s", appName)}
+	processIndex := 0
+	if processType != "" {
+		parts := strings.SplitN(processType, ".", 2)
+		if len(parts) == 2 {
+			processType = parts[0]
+			processIndex, err = strconv.Atoi(parts[1])
+			if err != nil {
+				return fmt.Errorf("Error parsing process index: %w", err)
+			}
+		}
+		labelSelector = append(labelSelector, fmt.Sprintf("dokku.com/process-type=%s", processType))
+	}
+
+	namespace := common.PropertyGetDefault("scheduler-k3s", appName, "namespace", "default")
+	podList, err := clientset.Client.CoreV1().Pods(namespace).List(ctx, metav1.ListOptions{
+		LabelSelector: strings.Join(labelSelector, ","),
+	})
+	if err != nil {
+		return fmt.Errorf("Error listing pods: %w", err)
+	}
+	if len(podList.Items) == 0 {
+		return fmt.Errorf("No pods found for app %s", appName)
+	}
+
+	ch := make(chan bool)
+	podItems := podList.Items
+
+	colors := []color.Attribute{
+		color.FgRed,
+		color.FgYellow,
+		color.FgGreen,
+		color.FgCyan,
+		color.FgBlue,
+		color.FgMagenta,
+	}
+	// colorIndex := 0
+	for i := 0; i < len(podItems); i++ {
+		if processIndex > 0 && i != (processIndex-1) {
+			continue
+		}
+
+		logOptions := v1.PodLogOptions{
+			Follow: tail,
+		}
+		if numLines > 0 {
+			logOptions.TailLines = ptr.To(numLines)
+		}
+
+		podColor := colors[i%len(colors)]
+		dynoText := color.New(podColor).SprintFunc()
+		podName := podItems[i].Name
+		podLogs, err := clientset.Client.CoreV1().Pods(namespace).GetLogs(podName, &logOptions).Stream(ctx)
+		if err != nil {
+			return err
+		}
+		buffer := bufio.NewReader(podLogs)
+		go func(buffer *bufio.Reader, prettyText func(a ...interface{}) string, ch chan bool) {
+			defer func() {
+				ch <- true
+			}()
+			for {
+				str, readErr := buffer.ReadString('\n')
+				if readErr == io.EOF {
+					break
+				}
+
+				if str == "" {
+					continue
+				}
+
+				if !quiet {
+					str = fmt.Sprintf("%s %s", dynoText(fmt.Sprintf("app[%s]:", podName)), str)
+				}
+
+				_, err := fmt.Print(str)
+				if err != nil {
+					return
+				}
+			}
+		}(buffer, dynoText, ch)
+	}
+	<-ch
+
+	return nil
 }
