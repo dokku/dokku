@@ -16,6 +16,7 @@ import (
 	"syscall"
 	"time"
 
+	appjson "github.com/dokku/dokku/plugins/app-json"
 	"github.com/dokku/dokku/plugins/common"
 	"github.com/dokku/dokku/plugins/config"
 	"github.com/dokku/dokku/plugins/cron"
@@ -221,6 +222,11 @@ data:
 		}
 	}
 
+	appJSON, err := appjson.GetAppJSON(appName)
+	if err != nil {
+		return fmt.Errorf("Error getting app.json for deployment: %w", err)
+	}
+
 	workingDir := common.GetWorkingDir(appName, image)
 	deployments := map[string]appsv1.Deployment{}
 	i := 0
@@ -239,7 +245,11 @@ data:
 		i++
 		replicaCountPlaceholder := int32(i * 1000)
 
-		// todo: implement healthchecks
+		healthchecks, ok := appJSON.Healthchecks[processType]
+		if !ok {
+			healthchecks = []appjson.Healthcheck{}
+		}
+
 		// todo: implement deployment annotations
 		// todo: implement pod annotations
 		// todo: implement volumes
@@ -249,6 +259,7 @@ data:
 			Image:            image,
 			ImagePullSecrets: imagePullSecrets,
 			ImageSourceType:  imageSourceType,
+			Healthchecks:     healthchecks,
 			Namespace:        namespace,
 			PrimaryPort:      primaryPort,
 			PortMaps:         portMaps,

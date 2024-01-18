@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	appjson "github.com/dokku/dokku/plugins/app-json"
 	"github.com/dokku/dokku/plugins/common"
 	traefikv1alpha1 "github.com/traefik/traefik/v2/pkg/provider/kubernetes/crd/traefikio/v1alpha1"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
@@ -45,6 +46,7 @@ type Deployment struct {
 	Image            string
 	ImagePullSecrets string
 	ImageSourceType  string
+	Healthchecks     []appjson.Healthcheck
 	Namespace        string
 	PrimaryPort      int32
 	PortMaps         []PortMap
@@ -400,6 +402,89 @@ func templateKubernetesDeployment(input Deployment) (appsv1.Deployment, error) {
 
 	if len(input.Command) > 0 {
 		deployment.Spec.Template.Spec.Containers[0].Args = input.Command
+	}
+
+	if len(input.Healthchecks) > 0 {
+		livenessChecks := []corev1.Probe{}
+		readinessChecks := []corev1.Probe{}
+		startupChecks := []corev1.Probe{}
+		uptimeSeconds := []int32{}
+		for _, healthcheck := range input.Healthchecks {
+			probe := corev1.Probe{
+				ProbeHandler:        corev1.ProbeHandler{},
+				InitialDelaySeconds: healthcheck.InitialDelay,
+				PeriodSeconds:       healthcheck.Wait,
+				TimeoutSeconds:      healthcheck.Timeout,
+				FailureThreshold:    healthcheck.Attempts,
+				SuccessThreshold:    int32(1),
+			}
+			if len(healthcheck.Command) > 0 {
+				probe.ProbeHandler.Exec = &corev1.ExecAction{
+					Command: healthcheck.Command,
+				}
+			} else if healthcheck.Listening {
+				probe.ProbeHandler.TCPSocket = &corev1.TCPSocketAction{
+					Port: intstr.FromInt32(input.PrimaryPort),
+				}
+				for _, header := range healthcheck.HTTPHeaders {
+					if header.Name == "Host" {
+						probe.ProbeHandler.TCPSocket.Host = header.Value
+					}
+				}
+			} else if healthcheck.Path != "" {
+				probe.ProbeHandler.HTTPGet = &corev1.HTTPGetAction{
+					Path:        healthcheck.Path,
+					Port:        intstr.FromInt32(input.PrimaryPort),
+					HTTPHeaders: []corev1.HTTPHeader{},
+				}
+
+				if healthcheck.Scheme != "" {
+					probe.ProbeHandler.HTTPGet.Scheme = corev1.URIScheme(strings.ToUpper(healthcheck.Scheme))
+				}
+
+				for _, header := range healthcheck.HTTPHeaders {
+					probe.ProbeHandler.HTTPGet.HTTPHeaders = append(probe.ProbeHandler.HTTPGet.HTTPHeaders, corev1.HTTPHeader{
+						Name:  header.Name,
+						Value: header.Value,
+					})
+				}
+			} else if healthcheck.Uptime > 0 {
+				uptimeSeconds = append(uptimeSeconds, healthcheck.Uptime)
+			}
+
+			if healthcheck.Type == appjson.HealthcheckType_Liveness {
+				livenessChecks = append(livenessChecks, probe)
+			} else if healthcheck.Type == appjson.HealthcheckType_Readiness {
+				readinessChecks = append(readinessChecks, probe)
+			} else if healthcheck.Type == appjson.HealthcheckType_Startup {
+				startupChecks = append(startupChecks, probe)
+			}
+		}
+		if len(livenessChecks) > 1 {
+			common.LogWarn("Multiple liveness checks are not supported, only the first one will be used")
+		}
+		if len(readinessChecks) > 1 {
+			common.LogWarn("Multiple readiness checks are not supported, only the first one will be used")
+		}
+		if len(startupChecks) > 1 {
+			common.LogWarn("Multiple startup checks are not supported, only the first one will be used")
+		}
+		if len(uptimeSeconds) > 1 {
+			common.LogWarn("Multiple uptime checks are not supported, only the first one will be used")
+		}
+
+		if len(livenessChecks) > 0 {
+			deployment.Spec.Template.Spec.Containers[0].LivenessProbe = &livenessChecks[0]
+		}
+		if len(readinessChecks) > 0 {
+			deployment.Spec.Template.Spec.Containers[0].ReadinessProbe = &readinessChecks[0]
+		}
+		if len(startupChecks) > 0 {
+			deployment.Spec.Template.Spec.Containers[0].StartupProbe = &startupChecks[0]
+		}
+		if len(uptimeSeconds) > 0 {
+			deployment.Spec.MinReadySeconds = uptimeSeconds[0]
+		}
 	}
 
 	if input.ProcessType == "web" {
