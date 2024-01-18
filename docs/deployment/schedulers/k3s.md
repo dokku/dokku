@@ -175,10 +175,11 @@ The following Dokku functionality is not implemented at this time.
 - `vector` log integration
 - one-off tasks
 - persistent storage
+- healthchecks
 
 ### Logging support
 
-App logs for the `logs` command are fetched by Dokku from running containers via the `kubectl` cli. Persisting logs via Vector is not implemented at this time.
+App logs for the `logs` command are fetched by Dokku from running containers via the `kubectl` cli. Persisting logs via Vector is not implemented at this time. Users may choose to configure the Vector Kubernetes integration directly by following [this guide](https://vector.dev/docs/setup/installation/platforms/kubernetes/).
 
 ### Supported Resource Management Properties
 
