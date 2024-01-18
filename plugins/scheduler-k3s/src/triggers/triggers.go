@@ -82,6 +82,10 @@ func main() {
 		}
 
 		err = scheduler_k3s.TriggerSchedulerLogs(scheduler, appName, processType, tail, quiet, numLines)
+	case "scheduler-stop":
+		scheduler := flag.Arg(0)
+		appName := flag.Arg(1)
+		err = scheduler_k3s.TriggerSchedulerStop(scheduler, appName)
 	default:
 		err = fmt.Errorf("Invalid plugin trigger call: %s", trigger)
 	}

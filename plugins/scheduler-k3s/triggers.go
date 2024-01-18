@@ -22,6 +22,7 @@ import (
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 	"gopkg.in/yaml.v3"
 	appsv1 "k8s.io/api/apps/v1"
+	autoscalingv1 "k8s.io/api/autoscaling/v1"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -635,6 +636,59 @@ func TriggerSchedulerLogs(scheduler string, appName string, processType string, 
 		}(ctx, buffer, dynoText, ch)
 	}
 	<-ch
+
+	return nil
+}
+
+// TriggerSchedulerStop stops an application
+func TriggerSchedulerStop(scheduler string, appName string) error {
+	if scheduler != "k3s" {
+		return nil
+	}
+
+	clientset, err := NewKubernetesClient()
+	if err != nil {
+		return fmt.Errorf("Error creating kubernetes client: %w", err)
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, os.Interrupt, syscall.SIGHUP,
+		syscall.SIGINT,
+		syscall.SIGQUIT,
+		syscall.SIGTERM)
+	go func() {
+		<-signals
+		cancel()
+	}()
+
+	namespace := common.PropertyGetDefault("scheduler-k3s", appName, "namespace", "default")
+	deploymentList, err := clientset.Client.AppsV1().Deployments(namespace).List(ctx, metav1.ListOptions{
+		LabelSelector: fmt.Sprintf("dokku.com/app-name=%s", appName),
+	})
+	if err != nil {
+		return fmt.Errorf("Error listing deployments: %w", err)
+	}
+
+	for _, deployment := range deploymentList.Items {
+		processType, ok := deployment.Annotations["dokku.com/process-type"]
+		if !ok {
+			return fmt.Errorf("Deployment %s does not have a process type annotation", deployment.Name)
+		}
+		common.LogVerboseQuiet(fmt.Sprintf("Stopping %s process", processType))
+		_, err := clientset.Client.AppsV1().Deployments(namespace).UpdateScale(ctx, deployment.Name, &autoscalingv1.Scale{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      deployment.Name,
+				Namespace: namespace,
+			},
+			Spec: autoscalingv1.ScaleSpec{
+				Replicas: 0,
+			},
+		}, metav1.UpdateOptions{})
+		if err != nil {
+			return fmt.Errorf("Error updating deployment scale: %w", err)
+		}
+	}
 
 	return nil
 }
