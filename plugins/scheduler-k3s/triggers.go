@@ -69,8 +69,11 @@ func TriggerPostAppRenameSetup(oldAppName string, newAppName string) error {
 	return nil
 }
 
-// TriggerPostDelete destroys the scheduler-k3s data for a given app container
-func TriggerPostDelete(appName string) error {
+// TriggerSchedulerPostDelete destroys the scheduler-k3s data for a given app container
+func TriggerSchedulerPostDelete(scheduler string, appName string) error {
+	if scheduler != "k3s" {
+		return nil
+	}
 	namespace := common.PropertyGetDefault("scheduler-k3s", appName, "namespace", "default")
 	helmAgent, err := NewHelmAgent(namespace, DeployLogPrinter)
 	if err != nil {
@@ -82,6 +85,11 @@ func TriggerPostDelete(appName string) error {
 		return fmt.Errorf("Error uninstalling chart: %w", err)
 	}
 
+	return nil
+}
+
+// TriggerPostDelete destroys the scheduler-k3s data for a given app container
+func TriggerPostDelete(appName string) error {
 	dataErr := common.RemoveAppDataDirectory("scheduler-k3s", appName)
 	propertyErr := common.PropertyDestroy("scheduler-k3s", appName)
 

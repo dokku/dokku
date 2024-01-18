@@ -89,6 +89,10 @@ func main() {
 		scheduler := flag.Arg(0)
 		appName := flag.Arg(1)
 		err = scheduler_k3s.TriggerSchedulerStop(scheduler, appName)
+	case "scheduler-post-delete":
+		scheduler := flag.Arg(0)
+		appName := flag.Arg(1)
+		err = scheduler_k3s.TriggerSchedulerPostDelete(scheduler, appName)
 	case "scheduler-run":
 		var envCount int
 		scheduler := flag.Arg(0)
