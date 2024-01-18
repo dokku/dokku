@@ -91,6 +91,9 @@ At this point, all app deploys will be performed against the k3s cluster.
 
 ### Running a multi-cluster node
 
+> [!IMPORTANT]
+> This is future planned behavior. Commands here will not work as expected.
+
 For high-availability, it is recommended to add both agent and server nodes to the cluster. Dokku will default to starting the cluster with an embedded Etcd database backend, and is ready to add new agent or server nodes immediately.
 
 Multiple server nodes can be added with the `scheduler-k3s:add-server` command. This will ssh onto the specified server, install k3s, and join it to the current Dokku node in server mode.
