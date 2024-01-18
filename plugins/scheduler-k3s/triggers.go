@@ -60,6 +60,17 @@ func TriggerPostAppRenameSetup(oldAppName string, newAppName string) error {
 
 // TriggerPostDelete destroys the scheduler-k3s data for a given app container
 func TriggerPostDelete(appName string) error {
+	namespace := common.PropertyGetDefault("scheduler-k3s", appName, "namespace", "default")
+	helmAgent, err := NewHelmAgent(namespace, DeployLogPrinter)
+	if err != nil {
+		return fmt.Errorf("Error creating helm agent: %w", err)
+	}
+
+	err = helmAgent.UninstallChart(fmt.Sprintf("dokku-%s", appName))
+	if err != nil {
+		return fmt.Errorf("Error uninstalling chart: %w", err)
+	}
+
 	dataErr := common.RemoveAppDataDirectory("scheduler-k3s", appName)
 	propertyErr := common.PropertyDestroy("scheduler-k3s", appName)
 
