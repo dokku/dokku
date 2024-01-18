@@ -153,7 +153,7 @@ func enterPod(ctx context.Context, input EnterPodInput) error {
 func extractStartCommand(input StartCommandInput) string {
 	command := ""
 	if input.ImageSourceType == "herokuish" {
-		command = "/start " + input.ProcessType
+		return "/start " + input.ProcessType
 	}
 
 	startCommandResp, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
@@ -162,12 +162,8 @@ func extractStartCommand(input StartCommandInput) string {
 		CaptureOutput: true,
 		StreamStdio:   false,
 	})
-	if err == nil && startCommandResp.ExitCode == 0 {
+	if err == nil && startCommandResp.ExitCode == 0 && len(startCommandResp.Stdout) > 0 {
 		command = startCommandResp.Stdout
-	}
-
-	if input.ImageSourceType == "herokuish" {
-		return command
 	}
 
 	if input.ImageSourceType == "dockerfile" {
@@ -177,7 +173,7 @@ func extractStartCommand(input StartCommandInput) string {
 			CaptureOutput: true,
 			StreamStdio:   false,
 		})
-		if err == nil && startCommandDockerfileResp.ExitCode == 0 {
+		if err == nil && startCommandDockerfileResp.ExitCode == 0 && len(startCommandDockerfileResp.Stdout) > 0 {
 			command = startCommandDockerfileResp.Stdout
 		}
 	}
