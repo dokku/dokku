@@ -29,10 +29,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/util/wait"
-	corev1client "k8s.io/client-go/kubernetes/typed/core/v1"
-	"k8s.io/client-go/tools/remotecommand"
-	"k8s.io/kubectl/pkg/util/term"
 	"k8s.io/kubernetes/pkg/client/conditions"
 	"k8s.io/utils/ptr"
 )
@@ -64,25 +60,6 @@ func TriggerPostAppRenameSetup(oldAppName string, newAppName string) error {
 
 	if err := common.PropertyDestroy("scheduler-k3s", oldAppName); err != nil {
 		return err
-	}
-
-	return nil
-}
-
-// TriggerSchedulerPostDelete destroys the scheduler-k3s data for a given app container
-func TriggerSchedulerPostDelete(scheduler string, appName string) error {
-	if scheduler != "k3s" {
-		return nil
-	}
-	namespace := common.PropertyGetDefault("scheduler-k3s", appName, "namespace", "default")
-	helmAgent, err := NewHelmAgent(namespace, DeployLogPrinter)
-	if err != nil {
-		return fmt.Errorf("Error creating helm agent: %w", err)
-	}
-
-	err = helmAgent.UninstallChart(fmt.Sprintf("dokku-%s", appName))
-	if err != nil {
-		return fmt.Errorf("Error uninstalling chart: %w", err)
 	}
 
 	return nil
@@ -535,64 +512,6 @@ func TriggerSchedulerEnter(scheduler string, appName string, processType string,
 	})
 }
 
-type EnterPodInput struct {
-	AppName     string
-	Clientset   KubernetesClient
-	Command     []string
-	Entrypoint  string
-	ProcessType string
-	SelectedPod v1.Pod
-}
-
-func enterPod(ctx context.Context, input EnterPodInput) error {
-	coreclient, err := corev1client.NewForConfig(&input.Clientset.RestConfig)
-	if err != nil {
-		return fmt.Errorf("Error creating corev1 client: %w", err)
-	}
-
-	req := coreclient.RESTClient().Post().
-		Resource("pods").
-		Namespace(input.SelectedPod.Namespace).
-		Name(input.SelectedPod.Name).
-		SubResource("exec")
-
-	req.Param("container", fmt.Sprintf("%s-%s", input.AppName, input.ProcessType))
-	req.Param("stdin", "true")
-	req.Param("stdout", "true")
-	req.Param("stderr", "true")
-	req.Param("tty", "true")
-
-	if input.Entrypoint != "" {
-		req.Param("command", input.Entrypoint)
-	}
-	for _, cmd := range input.Command {
-		req.Param("command", cmd)
-	}
-
-	t := term.TTY{
-		In:  os.Stdin,
-		Out: os.Stdout,
-		Raw: true,
-	}
-	size := t.GetSize()
-	sizeQueue := t.MonitorSize(size)
-
-	return t.Safe(func() error {
-		exec, err := remotecommand.NewSPDYExecutor(&input.Clientset.RestConfig, "POST", req.URL())
-		if err != nil {
-			return fmt.Errorf("Error creating executor: %w", err)
-		}
-
-		return exec.StreamWithContext(ctx, remotecommand.StreamOptions{
-			Stdin:             os.Stdin,
-			Stdout:            os.Stdout,
-			Stderr:            os.Stderr,
-			Tty:               true,
-			TerminalSizeQueue: sizeQueue,
-		})
-	})
-}
-
 // TriggerSchedulerLogs displays logs for a given application
 func TriggerSchedulerLogs(scheduler string, appName string, processType string, tail bool, quiet bool, numLines int64) error {
 	if scheduler != "k3s" {
@@ -708,59 +627,6 @@ func TriggerSchedulerLogs(scheduler string, appName string, processType string, 
 		}(ctx, buffer, dynoText, ch)
 	}
 	<-ch
-
-	return nil
-}
-
-// TriggerSchedulerStop stops an application
-func TriggerSchedulerStop(scheduler string, appName string) error {
-	if scheduler != "k3s" {
-		return nil
-	}
-
-	clientset, err := NewKubernetesClient()
-	if err != nil {
-		return fmt.Errorf("Error creating kubernetes client: %w", err)
-	}
-
-	ctx, cancel := context.WithCancel(context.Background())
-	signals := make(chan os.Signal, 1)
-	signal.Notify(signals, os.Interrupt, syscall.SIGHUP,
-		syscall.SIGINT,
-		syscall.SIGQUIT,
-		syscall.SIGTERM)
-	go func() {
-		<-signals
-		cancel()
-	}()
-
-	namespace := common.PropertyGetDefault("scheduler-k3s", appName, "namespace", "default")
-	deploymentList, err := clientset.Client.AppsV1().Deployments(namespace).List(ctx, metav1.ListOptions{
-		LabelSelector: fmt.Sprintf("dokku.com/app-name=%s", appName),
-	})
-	if err != nil {
-		return fmt.Errorf("Error listing deployments: %w", err)
-	}
-
-	for _, deployment := range deploymentList.Items {
-		processType, ok := deployment.Annotations["dokku.com/process-type"]
-		if !ok {
-			return fmt.Errorf("Deployment %s does not have a process type annotation", deployment.Name)
-		}
-		common.LogVerboseQuiet(fmt.Sprintf("Stopping %s process", processType))
-		_, err := clientset.Client.AppsV1().Deployments(namespace).UpdateScale(ctx, deployment.Name, &autoscalingv1.Scale{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:      deployment.Name,
-				Namespace: namespace,
-			},
-			Spec: autoscalingv1.ScaleSpec{
-				Replicas: 0,
-			},
-		}, metav1.UpdateOptions{})
-		if err != nil {
-			return fmt.Errorf("Error updating deployment scale: %w", err)
-		}
-	}
 
 	return nil
 }
@@ -954,7 +820,7 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 	}
 
 	batchJobSelector := fmt.Sprintf("batch.kubernetes.io/job-name=%s", createdJob.Name)
-	podList, err := WaitForPodToExist(ctx, WaitForPodToExistInput{
+	podList, err := waitForPodToExist(ctx, WaitForPodToExistInput{
 		Clientset:  clientset,
 		Namespace:  namespace,
 		RetryCount: 3,
@@ -972,7 +838,7 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 		return nil
 	}
 
-	err = WaitForPodBySelectorRunning(ctx, WaitForPodBySelectorRunningInput{
+	err = waitForPodBySelectorRunning(ctx, WaitForPodBySelectorRunningInput{
 		Clientset: clientset,
 		Namespace: namespace,
 		Selector:  batchJobSelector,
@@ -981,7 +847,7 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 	})
 	if err != nil {
 		if errors.Is(err, conditions.ErrPodCompleted) {
-			podList, podErr := GetPod(ctx, GetPodInput{
+			podList, podErr := getPod(ctx, GetPodInput{
 				Clientset: clientset,
 				Namespace: namespace,
 				Selector:  batchJobSelector,
@@ -1009,7 +875,7 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 		return fmt.Errorf("Error waiting for pod to be running: %w", err)
 	}
 
-	podList, err = GetPod(ctx, GetPodInput{
+	podList, err = getPod(ctx, GetPodInput{
 		Clientset: clientset,
 		Namespace: namespace,
 		Selector:  batchJobSelector,
@@ -1065,94 +931,74 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 	return nil
 }
 
-func isPodReady(ctx context.Context, clientset KubernetesClient, podName, namespace string) wait.ConditionWithContextFunc {
-	return func(ctx context.Context) (bool, error) {
-		fmt.Printf(".") // progress bar!
-
-		pod, err := clientset.Client.CoreV1().Pods(namespace).Get(ctx, podName, metav1.GetOptions{})
-		if err != nil {
-			return false, err
-		}
-
-		switch pod.Status.Phase {
-		case v1.PodRunning:
-			return true, nil
-		case v1.PodFailed, v1.PodSucceeded:
-			return false, conditions.ErrPodCompleted
-		}
-		return false, nil
+// TriggerSchedulerPostDelete destroys the scheduler-k3s data for a given app container
+func TriggerSchedulerPostDelete(scheduler string, appName string) error {
+	if scheduler != "k3s" {
+		return nil
 	}
-}
-
-type WaitForPodBySelectorRunningInput struct {
-	Clientset KubernetesClient
-	Namespace string
-	Selector  string
-	Timeout   int
-	Waiter    func(ctx context.Context, clientset KubernetesClient, podName, namespace string) wait.ConditionWithContextFunc
-}
-
-type WaitForPodToExistInput struct {
-	Clientset  KubernetesClient
-	Namespace  string
-	RetryCount int
-	Selector   string
-}
-
-func WaitForPodToExist(ctx context.Context, input WaitForPodToExistInput) (v1.PodList, error) {
-	var podList v1.PodList
-	var err error
-	for i := 0; i < input.RetryCount; i++ {
-		podList, err = GetPod(ctx, GetPodInput{
-			Clientset: input.Clientset,
-			Namespace: input.Namespace,
-			Selector:  input.Selector,
-		})
-		if err == nil {
-			break
-		}
-		time.Sleep(1 * time.Second)
-	}
+	namespace := common.PropertyGetDefault("scheduler-k3s", appName, "namespace", "default")
+	helmAgent, err := NewHelmAgent(namespace, DeployLogPrinter)
 	if err != nil {
-		return podList, fmt.Errorf("Error listing pods: %w", err)
+		return fmt.Errorf("Error creating helm agent: %w", err)
 	}
-	return podList, nil
+
+	err = helmAgent.UninstallChart(fmt.Sprintf("dokku-%s", appName))
+	if err != nil {
+		return fmt.Errorf("Error uninstalling chart: %w", err)
+	}
+
+	return nil
 }
 
-type GetPodInput struct {
-	Clientset KubernetesClient
-	Namespace string
-	Selector  string
-}
+// TriggerSchedulerStop stops an application
+func TriggerSchedulerStop(scheduler string, appName string) error {
+	if scheduler != "k3s" {
+		return nil
+	}
 
-func GetPod(ctx context.Context, input GetPodInput) (v1.PodList, error) {
-	listOptions := metav1.ListOptions{LabelSelector: input.Selector}
-	podList, err := input.Clientset.Client.CoreV1().Pods(input.Namespace).List(ctx, listOptions)
-	return *podList, err
-}
+	clientset, err := NewKubernetesClient()
+	if err != nil {
+		return fmt.Errorf("Error creating kubernetes client: %w", err)
+	}
 
-func WaitForPodBySelectorRunning(ctx context.Context, input WaitForPodBySelectorRunningInput) error {
-	podList, err := WaitForPodToExist(ctx, WaitForPodToExistInput{
-		Clientset:  input.Clientset,
-		Namespace:  input.Namespace,
-		RetryCount: 3,
-		Selector:   input.Selector,
+	ctx, cancel := context.WithCancel(context.Background())
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, os.Interrupt, syscall.SIGHUP,
+		syscall.SIGINT,
+		syscall.SIGQUIT,
+		syscall.SIGTERM)
+	go func() {
+		<-signals
+		cancel()
+	}()
+
+	namespace := common.PropertyGetDefault("scheduler-k3s", appName, "namespace", "default")
+	deploymentList, err := clientset.Client.AppsV1().Deployments(namespace).List(ctx, metav1.ListOptions{
+		LabelSelector: fmt.Sprintf("dokku.com/app-name=%s", appName),
 	})
 	if err != nil {
-		return fmt.Errorf("Error waiting for pod to exist: %w", err)
+		return fmt.Errorf("Error listing deployments: %w", err)
 	}
 
-	if len(podList.Items) == 0 {
-		return fmt.Errorf("no pods in %s with selector %s", input.Namespace, input.Selector)
-	}
-
-	timeout := time.Duration(input.Timeout) * time.Second
-	for _, pod := range podList.Items {
-		if err := wait.PollUntilContextTimeout(ctx, time.Second, timeout, false, input.Waiter(ctx, input.Clientset, pod.Name, pod.Namespace)); err != nil {
-			print("\n")
-			return err
+	for _, deployment := range deploymentList.Items {
+		processType, ok := deployment.Annotations["dokku.com/process-type"]
+		if !ok {
+			return fmt.Errorf("Deployment %s does not have a process type annotation", deployment.Name)
+		}
+		common.LogVerboseQuiet(fmt.Sprintf("Stopping %s process", processType))
+		_, err := clientset.Client.AppsV1().Deployments(namespace).UpdateScale(ctx, deployment.Name, &autoscalingv1.Scale{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      deployment.Name,
+				Namespace: namespace,
+			},
+			Spec: autoscalingv1.ScaleSpec{
+				Replicas: 0,
+			},
+		}, metav1.UpdateOptions{})
+		if err != nil {
+			return fmt.Errorf("Error updating deployment scale: %w", err)
 		}
 	}
-	print("\n")
+
 	return nil
 }

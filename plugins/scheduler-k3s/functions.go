@@ -4,20 +4,42 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
+	"time"
 
 	"github.com/dokku/dokku/plugins/common"
-	"github.com/dokku/dokku/plugins/config"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/kubernetes"
+	corev1client "k8s.io/client-go/kubernetes/typed/core/v1"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
+	"k8s.io/client-go/tools/remotecommand"
+	"k8s.io/kubectl/pkg/util/term"
+	"k8s.io/kubernetes/pkg/client/conditions"
 	"mvdan.cc/sh/v3/shell"
 )
+
+type EnterPodInput struct {
+	AppName     string
+	Clientset   KubernetesClient
+	Command     []string
+	Entrypoint  string
+	ProcessType string
+	SelectedPod v1.Pod
+}
+
+type GetPodInput struct {
+	Clientset KubernetesClient
+	Namespace string
+	Selector  string
+}
 
 // StartCommandInput contains all the information needed to get the start command
 type StartCommandInput struct {
@@ -43,6 +65,21 @@ type KubernetesClient struct {
 	Client     kubernetes.Clientset
 	RestClient rest.Interface
 	RestConfig rest.Config
+}
+
+type WaitForPodBySelectorRunningInput struct {
+	Clientset KubernetesClient
+	Namespace string
+	Selector  string
+	Timeout   int
+	Waiter    func(ctx context.Context, clientset KubernetesClient, podName, namespace string) wait.ConditionWithContextFunc
+}
+
+type WaitForPodToExistInput struct {
+	Clientset  KubernetesClient
+	Namespace  string
+	RetryCount int
+	Selector   string
 }
 
 func NewKubernetesClient() (KubernetesClient, error) {
@@ -132,15 +169,69 @@ func createKubernetesNamespace(ctx context.Context, namespaceName string) error 
 	return nil
 }
 
+func enterPod(ctx context.Context, input EnterPodInput) error {
+	coreclient, err := corev1client.NewForConfig(&input.Clientset.RestConfig)
+	if err != nil {
+		return fmt.Errorf("Error creating corev1 client: %w", err)
+	}
+
+	req := coreclient.RESTClient().Post().
+		Resource("pods").
+		Namespace(input.SelectedPod.Namespace).
+		Name(input.SelectedPod.Name).
+		SubResource("exec")
+
+	req.Param("container", fmt.Sprintf("%s-%s", input.AppName, input.ProcessType))
+	req.Param("stdin", "true")
+	req.Param("stdout", "true")
+	req.Param("stderr", "true")
+	req.Param("tty", "true")
+
+	if input.Entrypoint != "" {
+		req.Param("command", input.Entrypoint)
+	}
+	for _, cmd := range input.Command {
+		req.Param("command", cmd)
+	}
+
+	t := term.TTY{
+		In:  os.Stdin,
+		Out: os.Stdout,
+		Raw: true,
+	}
+	size := t.GetSize()
+	sizeQueue := t.MonitorSize(size)
+
+	return t.Safe(func() error {
+		exec, err := remotecommand.NewSPDYExecutor(&input.Clientset.RestConfig, "POST", req.URL())
+		if err != nil {
+			return fmt.Errorf("Error creating executor: %w", err)
+		}
+
+		return exec.StreamWithContext(ctx, remotecommand.StreamOptions{
+			Stdin:             os.Stdin,
+			Stdout:            os.Stdout,
+			Stderr:            os.Stderr,
+			Tty:               true,
+			TerminalSizeQueue: sizeQueue,
+		})
+	})
+}
+
 func extractStartCommand(input StartCommandInput) string {
 	command := ""
 	if input.ImageSourceType == "herokuish" {
 		command = "/start " + input.ProcessType
 	}
 
-	startCommandOverride, ok := config.Get(input.AppName, "DOKKU_START_CMD")
-	if ok {
-		command = startCommandOverride
+	startCommandResp, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:       "config-get",
+		Args:          []string{input.AppName, "DOKKU_START_CMD"},
+		CaptureOutput: true,
+		StreamStdio:   false,
+	})
+	if err == nil && startCommandResp.ExitCode == 0 {
+		command = startCommandResp.Stdout
 	}
 
 	if input.ImageSourceType == "herokuish" {
@@ -148,9 +239,14 @@ func extractStartCommand(input StartCommandInput) string {
 	}
 
 	if input.ImageSourceType == "dockerfile" {
-		startCommandOverride, ok := config.Get(input.AppName, "DOKKU_DOCKERFILE_START_CMD")
-		if ok {
-			command = startCommandOverride
+		startCommandDockerfileResp, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+			Trigger:       "config-get",
+			Args:          []string{input.AppName, "DOKKU_DOCKERFILE_START_CMD"},
+			CaptureOutput: true,
+			StreamStdio:   false,
+		})
+		if err == nil && startCommandDockerfileResp.ExitCode == 0 {
+			command = startCommandDockerfileResp.Stdout
 		}
 	}
 
@@ -220,4 +316,75 @@ func getStartCommand(input StartCommandInput) (StartCommandOutput, error) {
 	return StartCommandOutput{
 		Command: fields,
 	}, nil
+}
+
+func getPod(ctx context.Context, input GetPodInput) (v1.PodList, error) {
+	listOptions := metav1.ListOptions{LabelSelector: input.Selector}
+	podList, err := input.Clientset.Client.CoreV1().Pods(input.Namespace).List(ctx, listOptions)
+	return *podList, err
+}
+
+func isPodReady(ctx context.Context, clientset KubernetesClient, podName, namespace string) wait.ConditionWithContextFunc {
+	return func(ctx context.Context) (bool, error) {
+		fmt.Printf(".") // progress bar!
+
+		pod, err := clientset.Client.CoreV1().Pods(namespace).Get(ctx, podName, metav1.GetOptions{})
+		if err != nil {
+			return false, err
+		}
+
+		switch pod.Status.Phase {
+		case v1.PodRunning:
+			return true, nil
+		case v1.PodFailed, v1.PodSucceeded:
+			return false, conditions.ErrPodCompleted
+		}
+		return false, nil
+	}
+}
+
+func waitForPodBySelectorRunning(ctx context.Context, input WaitForPodBySelectorRunningInput) error {
+	podList, err := waitForPodToExist(ctx, WaitForPodToExistInput{
+		Clientset:  input.Clientset,
+		Namespace:  input.Namespace,
+		RetryCount: 3,
+		Selector:   input.Selector,
+	})
+	if err != nil {
+		return fmt.Errorf("Error waiting for pod to exist: %w", err)
+	}
+
+	if len(podList.Items) == 0 {
+		return fmt.Errorf("no pods in %s with selector %s", input.Namespace, input.Selector)
+	}
+
+	timeout := time.Duration(input.Timeout) * time.Second
+	for _, pod := range podList.Items {
+		if err := wait.PollUntilContextTimeout(ctx, time.Second, timeout, false, input.Waiter(ctx, input.Clientset, pod.Name, pod.Namespace)); err != nil {
+			print("\n")
+			return err
+		}
+	}
+	print("\n")
+	return nil
+}
+
+func waitForPodToExist(ctx context.Context, input WaitForPodToExistInput) (v1.PodList, error) {
+	var podList v1.PodList
+	var err error
+	for i := 0; i < input.RetryCount; i++ {
+		podList, err = getPod(ctx, GetPodInput{
+			Clientset: input.Clientset,
+			Namespace: input.Namespace,
+			Selector:  input.Selector,
+		})
+		if err == nil {
+			break
+		}
+		time.Sleep(1 * time.Second)
+	}
+	if err != nil {
+		return podList, fmt.Errorf("Error listing pods: %w", err)
+	}
+	return podList, nil
 }
