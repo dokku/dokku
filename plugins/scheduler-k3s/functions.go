@@ -101,6 +101,12 @@ func createKubernetesNamespace(ctx context.Context, namespaceName string) error 
 	namespace := &corev1.Namespace{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: namespaceName,
+			Annotations: map[string]string{
+				"dokku.com/managed": "true",
+			},
+			Labels: map[string]string{
+				"dokku.com/managed": "true",
+			},
 		},
 	}
 	_, err = clientset.Client.CoreV1().Namespaces().Create(ctx, namespace, metav1.CreateOptions{})
