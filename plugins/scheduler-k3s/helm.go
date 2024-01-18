@@ -274,6 +274,7 @@ func (h *HelmAgent) UpgradeChart(input ChartInput) error {
 
 func (h *HelmAgent) UninstallChart(releaseName string) error {
 	uninstall := action.NewUninstall(h.Configuration)
+	uninstall.DeletionPropagation = "foreground"
 	_, err := uninstall.Run(releaseName)
 	if err != nil {
 		return fmt.Errorf("Error uninstalling chart: %w", err)
