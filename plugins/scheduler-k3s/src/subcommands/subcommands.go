@@ -44,6 +44,10 @@ func main() {
 			value = args.Arg(1)
 		}
 		err = scheduler_k3s.CommandSet(appName, property, value)
+	case "show-kubeconfig":
+		args := flag.NewFlagSet("scheduler-k3s:show-kubeconfig", flag.ExitOnError)
+		args.Parse(os.Args[2:])
+		err = scheduler_k3s.CommandShowKubeconfig()
 	default:
 		err = fmt.Errorf("Invalid plugin subcommand call: %s", subcommand)
 	}

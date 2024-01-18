@@ -116,3 +116,19 @@ func CommandSet(appName string, property string, value string) error {
 	common.CommandPropertySet("scheduler-k3s", appName, property, value, DefaultProperties, GlobalProperties)
 	return nil
 }
+
+// CommandShowKubeconfig displays the kubeconfig file contents
+func CommandShowKubeconfig() error {
+	if !common.FileExists(KubeConfigPath) {
+		return fmt.Errorf("Kubeconfig file does not exist: %s", KubeConfigPath)
+	}
+
+	b, err := os.ReadFile(KubeConfigPath)
+	if err != nil {
+		return fmt.Errorf("Unable to read kubeconfig file: %w", err)
+	}
+
+	fmt.Println(string(b))
+
+	return nil
+}
