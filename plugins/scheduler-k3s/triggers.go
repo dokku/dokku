@@ -392,13 +392,14 @@ func TriggerSchedulerEnter(scheduler string, appName string, processType string,
 		return fmt.Errorf("Error creating kubernetes client: %w", err)
 	}
 
-	ctx := context.Background()
-	ctx, cancel := context.WithCancel(ctx)
-	cSignal := make(chan os.Signal, 2)
-	signal.Notify(cSignal, os.Interrupt, syscall.SIGTERM)
+	ctx, cancel := context.WithCancel(context.Background())
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, os.Interrupt, syscall.SIGHUP,
+		syscall.SIGINT,
+		syscall.SIGQUIT,
+		syscall.SIGTERM)
 	go func() {
-		<-cSignal
-		common.LogWarn("Exiting pod")
+		<-signals
 		cancel()
 	}()
 
@@ -530,12 +531,14 @@ func TriggerSchedulerLogs(scheduler string, appName string, processType string, 
 		return fmt.Errorf("Error creating kubernetes client: %w", err)
 	}
 
-	ctx := context.Background()
-	ctx, cancel := context.WithCancel(ctx)
-	cSignal := make(chan os.Signal, 2)
-	signal.Notify(cSignal, os.Interrupt, syscall.SIGTERM)
+	ctx, cancel := context.WithCancel(context.Background())
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, os.Interrupt, syscall.SIGHUP,
+		syscall.SIGINT,
+		syscall.SIGQUIT,
+		syscall.SIGTERM)
 	go func() {
-		<-cSignal
+		<-signals
 		cancel()
 	}()
 
@@ -567,6 +570,10 @@ func TriggerSchedulerLogs(scheduler string, appName string, processType string, 
 	ch := make(chan bool)
 	podItems := podList.Items
 
+	if os.Getenv("FORCE_COLOR") == "1" {
+		color.NoColor = false
+	}
+
 	colors := []color.Attribute{
 		color.FgRed,
 		color.FgYellow,
@@ -596,30 +603,36 @@ func TriggerSchedulerLogs(scheduler string, appName string, processType string, 
 			return err
 		}
 		buffer := bufio.NewReader(podLogs)
-		go func(buffer *bufio.Reader, prettyText func(a ...interface{}) string, ch chan bool) {
+		go func(ctx context.Context, buffer *bufio.Reader, prettyText func(a ...interface{}) string, ch chan bool) {
 			defer func() {
 				ch <- true
 			}()
 			for {
-				str, readErr := buffer.ReadString('\n')
-				if readErr == io.EOF {
-					break
-				}
-
-				if str == "" {
-					continue
-				}
-
-				if !quiet {
-					str = fmt.Sprintf("%s %s", dynoText(fmt.Sprintf("app[%s]:", podName)), str)
-				}
-
-				_, err := fmt.Print(str)
-				if err != nil {
+				select {
+				case <-ctx.Done(): // if cancel() execute
+					ch <- true
 					return
+				default:
+					str, readErr := buffer.ReadString('\n')
+					if readErr == io.EOF {
+						break
+					}
+
+					if str == "" {
+						continue
+					}
+
+					if !quiet {
+						str = fmt.Sprintf("%s %s", dynoText(fmt.Sprintf("app[%s]:", podName)), str)
+					}
+
+					_, err := fmt.Print(str)
+					if err != nil {
+						return
+					}
 				}
 			}
-		}(buffer, dynoText, ch)
+		}(ctx, buffer, dynoText, ch)
 	}
 	<-ch
 
