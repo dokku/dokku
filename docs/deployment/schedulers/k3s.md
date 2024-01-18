@@ -164,21 +164,25 @@ The following sections describe implemented and unimplemented scheduler function
 
 This plugin implements various functionality through `plugn` triggers to integrate with Docker for running apps on a single server. The following functionality is supported by the `scheduler-k3s` plugin.
 
+- `apps:clone`
 - `apps:destroy`
+- `apps:rename`
 - `cron`
+- `enter`
+- `deploy`
+- healthchecks
+       - Due to Kubernetes limitations, only a single healthcheck is supported for each of the `liveness`, `readiness`, and `startup` healthchecks
+       - Due to Kubernetes limitations, content checks are not supported
+       - Ports specified in the `app.json` are ignored in favor of the container port on the port mapping detected
+- `logs`
+- `ps:stop`
 - `run`
        - The `scheduler-post-run` trigger is not always triggered
 - `run:detached`
-- `enter`
-- `deploy`
-- `logs`
-- `ps:stop`
+- `run:list`
 
 ### Unimplemented command functionality
 
-- `apps:clone`
-- `apps:rename`
-- `run:list`
 - `run:logs`
 - `ps:inspect`
 
@@ -186,7 +190,6 @@ The following Dokku functionality is not implemented at this time.
 
 - `vector` log integration
 - persistent storage
-- healthchecks
 
 ### Logging support
 
