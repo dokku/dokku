@@ -9,8 +9,12 @@ import (
 	"github.com/dokku/dokku/plugins/config"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
+	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	"mvdan.cc/sh/v3/shell"
 )
 
@@ -34,22 +38,56 @@ type StartCommandOutput struct {
 	Command []string
 }
 
-func NewClient() (*kubernetes.Clientset, error) {
-	config, err := clientcmd.BuildConfigFromFlags("", KubeConfigPath)
+type KubernetesClient struct {
+	Client     kubernetes.Clientset
+	RestClient rest.Interface
+	RestConfig rest.Config
+}
+
+func NewKubernetesClient() (KubernetesClient, error) {
+	clientConfig := KubernetesClientConfig()
+	restConf, err := clientConfig.ClientConfig()
 	if err != nil {
-		return &kubernetes.Clientset{}, err
+		return KubernetesClient{}, err
 	}
 
-	return kubernetes.NewForConfig(config)
+	restConf.GroupVersion = &schema.GroupVersion{
+		Group:   "api",
+		Version: "v1",
+	}
+
+	client, err := kubernetes.NewForConfig(restConf)
+	if err != nil {
+		return KubernetesClient{}, err
+	}
+
+	restConf.NegotiatedSerializer = runtime.NewSimpleNegotiatedSerializer(runtime.SerializerInfo{})
+
+	restClient, err := rest.RESTClientFor(restConf)
+	if err != nil {
+		return KubernetesClient{}, err
+	}
+
+	return KubernetesClient{
+		Client:     *client,
+		RestConfig: *restConf,
+		RestClient: restClient,
+	}, nil
+}
+
+func KubernetesClientConfig() clientcmd.ClientConfig {
+	return clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
+		&clientcmd.ClientConfigLoadingRules{ExplicitPath: KubeConfigPath},
+		&clientcmd.ConfigOverrides{ClusterInfo: clientcmdapi.Cluster{Server: ""}})
 }
 
 func createKubernetesNamespace(ctx context.Context, namespaceName string) error {
-	client, err := NewClient()
+	clientset, err := NewKubernetesClient()
 	if err != nil {
 		return err
 	}
 
-	namespaces, err := client.CoreV1().Namespaces().List(ctx, metav1.ListOptions{})
+	namespaces, err := clientset.Client.CoreV1().Namespaces().List(ctx, metav1.ListOptions{})
 	if err != nil {
 		return err
 	}
@@ -65,7 +103,7 @@ func createKubernetesNamespace(ctx context.Context, namespaceName string) error 
 			Name: namespaceName,
 		},
 	}
-	_, err = client.CoreV1().Namespaces().Create(ctx, namespace, metav1.CreateOptions{})
+	_, err = clientset.Client.CoreV1().Namespaces().Create(ctx, namespace, metav1.CreateOptions{})
 	if err != nil {
 		return err
 	}

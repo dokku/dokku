@@ -200,23 +200,24 @@ func printResource(input PrintInput) error {
 
 func templateKubernetesDeployment(input Deployment) (appsv1.Deployment, error) {
 	labels := map[string]string{
-		"app":              input.AppName,
-		"process-type":     input.ProcessType,
-		"app-process-type": fmt.Sprintf("%s-%s", input.AppName, input.ProcessType),
+		"dokku.com/app-name":         input.AppName,
+		"dokku.com/process-type":     input.ProcessType,
+		"dokku.com/app-process-type": fmt.Sprintf("%s-%s", input.AppName, input.ProcessType),
+	}
+	annotations := map[string]string{
+		"dokku.com/app-name":      input.AppName,
+		"dokku.com/deployment-id": "DEPLOYMENT_ID_QUOTED",
+		"dokku.com/process-type":  input.ProcessType,
+		"dokku.com/builder-type":  input.ImageSourceType,
 	}
 	secretName := fmt.Sprintf("env-%s.DEPLOYMENT_ID", input.AppName)
 
 	deployment := appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("%s-%s", input.AppName, input.ProcessType),
-			Namespace: input.Namespace,
-			Labels:    labels,
-			Annotations: map[string]string{
-				"dokku.com/app-name":      input.AppName,
-				"dokku.com/deployment-id": "DEPLOYMENT_ID_QUOTED",
-				"dokku.com/process-type":  input.ProcessType,
-				"dokku.com/builder-type":  input.ImageSourceType,
-			},
+			Name:        fmt.Sprintf("%s-%s", input.AppName, input.ProcessType),
+			Namespace:   input.Namespace,
+			Labels:      labels,
+			Annotations: annotations,
 		},
 		Spec: appsv1.DeploymentSpec{
 			Replicas:             ptr.To(input.Replicas),
@@ -226,7 +227,8 @@ func templateKubernetesDeployment(input Deployment) (appsv1.Deployment, error) {
 			},
 			Template: corev1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
-					Labels: labels,
+					Labels:      labels,
+					Annotations: annotations,
 				},
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{
@@ -344,7 +346,7 @@ func templateKubernetesIngressRoute(input IngressRoute) traefikv1alpha1.IngressR
 			Name:      fmt.Sprintf("%s-%s", input.ServiceName, port),
 			Namespace: input.Namespace,
 			Labels: map[string]string{
-				"dokku.com/app":          input.AppName,
+				"dokku.com/app-name":     input.AppName,
 				"dokku.com/process-type": input.ProcessType,
 			},
 		},
@@ -400,14 +402,14 @@ func templateKubernetesService(input Service) corev1.Service {
 			Name:      fmt.Sprintf("%s-%s", input.AppName, "web"),
 			Namespace: input.Namespace,
 			Labels: map[string]string{
-				"dokku.com/app":              input.AppName,
+				"dokku.com/app-name":         input.AppName,
 				"dokku.com/process-type":     "web",
 				"dokku.com/app-process-type": fmt.Sprintf("%s-%s", input.AppName, "web"),
 			},
 		},
 		Spec: corev1.ServiceSpec{
 			Selector: map[string]string{
-				"dokku.com/app":              input.AppName,
+				"dokku.com/app-name":         input.AppName,
 				"dokku.com/process-type":     "web",
 				"dokku.com/app-process-type": fmt.Sprintf("%s-%s", input.AppName, "web"),
 			},

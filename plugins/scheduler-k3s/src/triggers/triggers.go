@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	flag "github.com/spf13/pflag"
+	"k8s.io/utils/ptr"
 
 	"github.com/dokku/dokku/plugins/common"
 	scheduler_k3s "github.com/dokku/dokku/plugins/scheduler-k3s"
@@ -15,6 +16,7 @@ import (
 func main() {
 	parts := strings.Split(os.Args[0], "/")
 	trigger := parts[len(parts)-1]
+	podIdentifier := flag.String("container-id", "", "--container-id: A pod identifier")
 	flag.Parse()
 
 	var err error
@@ -45,6 +47,18 @@ func main() {
 		appName := flag.Arg(1)
 		imageTag := flag.Arg(2)
 		err = scheduler_k3s.TriggerSchedulerDeploy(scheduler, appName, imageTag)
+	case "scheduler-enter":
+		scheduler := flag.Arg(0)
+		appName := flag.Arg(1)
+		containerType := flag.Arg(2)
+		args := flag.Args()
+		if len(args) > 3 {
+			_, args = common.ShiftString(args)
+			_, args = common.ShiftString(args)
+			_, args = common.ShiftString(args)
+		}
+
+		err = scheduler_k3s.TriggerSchedulerEnter(scheduler, appName, containerType, ptr.Deref(podIdentifier, ""), args)
 	default:
 		err = fmt.Errorf("Invalid plugin trigger call: %s", trigger)
 	}

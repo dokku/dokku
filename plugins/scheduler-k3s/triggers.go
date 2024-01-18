@@ -5,8 +5,12 @@ import (
 	"encoding/base64"
 	"fmt"
 	"os"
+	"os/signal"
 	"path/filepath"
+	"slices"
 	"strconv"
+	"strings"
+	"syscall"
 	"time"
 
 	"github.com/dokku/dokku/plugins/common"
@@ -15,6 +19,11 @@ import (
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 	"gopkg.in/yaml.v3"
 	appsv1 "k8s.io/api/apps/v1"
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	corev1client "k8s.io/client-go/kubernetes/typed/core/v1"
+	"k8s.io/client-go/tools/remotecommand"
+	"k8s.io/kubectl/pkg/util/term"
 )
 
 // TriggerInstall runs the install step for the scheduler-k3s plugin
@@ -353,4 +362,143 @@ data:
 	}
 
 	return nil
+}
+
+// TriggerSchedulerEnter enters a container for a given application
+func TriggerSchedulerEnter(scheduler string, appName string, processType string, podName string, args []string) error {
+	if scheduler != "k3s" {
+		return nil
+	}
+
+	common.LogDebug(fmt.Sprintf("%s %s %s %s", scheduler, appName, processType, podName))
+	clientset, err := NewKubernetesClient()
+	if err != nil {
+		return fmt.Errorf("Error creating kubernetes client: %w", err)
+	}
+
+	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	cSignal := make(chan os.Signal, 2)
+	signal.Notify(cSignal, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-cSignal
+		common.LogWarn("Exiting pod")
+		cancel()
+	}()
+
+	namespace := common.PropertyGetDefault("scheduler-k3s", appName, "namespace", "default")
+
+	labelSelector := []string{fmt.Sprintf("dokku.com/app-name=%s", appName)}
+	processIndex := 1
+	if processType != "" {
+		parts := strings.SplitN(processType, ".", 2)
+		if len(parts) == 2 {
+			processType = parts[0]
+			processIndex, err = strconv.Atoi(parts[1])
+			if err != nil {
+				return fmt.Errorf("Error parsing process index: %w", err)
+			}
+		}
+		labelSelector = append(labelSelector, fmt.Sprintf("dokku.com/process-type=%s", processType))
+	}
+
+	podList, err := clientset.Client.CoreV1().Pods(namespace).List(ctx, metav1.ListOptions{
+		LabelSelector: strings.Join(labelSelector, ","),
+	})
+	if err != nil {
+		return fmt.Errorf("Error listing pods: %w", err)
+	}
+
+	if podList.Items == nil {
+		return fmt.Errorf("No pods found for app %s", appName)
+	}
+	if len(podList.Items) == 0 {
+		return fmt.Errorf("No pods found for app %s", appName)
+	}
+
+	pods := []string{}
+	for _, pod := range podList.Items {
+		pods = append(pods, pod.Name)
+	}
+	slices.Sort(pods)
+
+	processIndex--
+	if processIndex > len(podList.Items) {
+		return fmt.Errorf("Process index %d out of range for app %s", processIndex, appName)
+	}
+
+	var selectedPod corev1.Pod
+	if podName != "" {
+		for _, pod := range podList.Items {
+			if pod.Name == podName {
+				selectedPod = pod
+				break
+			}
+		}
+	} else {
+		selectedPod = podList.Items[processIndex]
+	}
+
+	processType, ok := selectedPod.Labels["dokku.com/process-type"]
+	if !ok {
+		return fmt.Errorf("Pod %s does not have a process type label", selectedPod.Name)
+	}
+
+	command := args
+	if len(args) == 0 {
+		command = []string{"/bin/bash"}
+		if globalShell, err := common.PlugnTriggerOutputAsString("config-get-global", []string{"DOKKU_APP_SHELL"}...); err == nil && globalShell != "" {
+			command = []string{globalShell}
+		}
+		if appShell, err := common.PlugnTriggerOutputAsString("config-get", []string{appName, "DOKKU_APP_SHELL"}...); err == nil && appShell != "" {
+			command = []string{appShell}
+		}
+	}
+
+	coreclient, err := corev1client.NewForConfig(&clientset.RestConfig)
+	if err != nil {
+		return fmt.Errorf("Error creating corev1 client: %w", err)
+	}
+
+	req := coreclient.RESTClient().Post().
+		Resource("pods").
+		Namespace(selectedPod.Namespace).
+		Name(selectedPod.Name).
+		SubResource("exec")
+
+	req.Param("container", fmt.Sprintf("%s-%s", appName, processType))
+	req.Param("stdin", "true")
+	req.Param("stdout", "true")
+	req.Param("stderr", "true")
+	req.Param("tty", "true")
+
+	if selectedPod.Annotations["dokku.com/builder-type"] == "herokuish" {
+		req.Param("command", "/exec")
+	}
+	for _, cmd := range command {
+		req.Param("command", cmd)
+	}
+
+	t := term.TTY{
+		In:  os.Stdin,
+		Out: os.Stdout,
+		Raw: true,
+	}
+	size := t.GetSize()
+	sizeQueue := t.MonitorSize(size)
+
+	return t.Safe(func() error {
+		exec, err := remotecommand.NewSPDYExecutor(&clientset.RestConfig, "POST", req.URL())
+		if err != nil {
+			return fmt.Errorf("Error creating executor: %w", err)
+		}
+
+		return exec.StreamWithContext(ctx, remotecommand.StreamOptions{
+			Stdin:             os.Stdin,
+			Stdout:            os.Stdout,
+			Stderr:            os.Stderr,
+			Tty:               true,
+			TerminalSizeQueue: sizeQueue,
+		})
+	})
 }
