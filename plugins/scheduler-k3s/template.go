@@ -274,6 +274,8 @@ func templateKubernetesCronJob(input Job) (batchv1.CronJob, error) {
 			return job, fmt.Errorf("Error parsing cpu limit: %w", err)
 		}
 		job.Spec.JobTemplate.Spec.Template.Spec.Containers[0].Resources.Limits["cpu"] = cpuQuantity
+	} else {
+		job.Spec.JobTemplate.Spec.Template.Spec.Containers[0].Resources.Limits["cpu"] = resource.MustParse("500m")
 	}
 	nvidiaGpuLimit, err := common.PlugnTriggerOutputAsString("resource-get-property", []string{input.AppName, input.ProcessType, "limit", "nvidia-gpu"}...)
 	if err != nil && nvidiaGpuLimit != "" && nvidiaGpuLimit != "0" {
@@ -290,6 +292,8 @@ func templateKubernetesCronJob(input Job) (batchv1.CronJob, error) {
 			return job, fmt.Errorf("Error parsing memory limit: %w", err)
 		}
 		job.Spec.JobTemplate.Spec.Template.Spec.Containers[0].Resources.Limits["memory"] = memoryQuantity
+	} else {
+		job.Spec.JobTemplate.Spec.Template.Spec.Containers[0].Resources.Limits["memory"] = resource.MustParse("512Mi")
 	}
 
 	cpuRequest, err := common.PlugnTriggerOutputAsString("resource-get-property", []string{input.AppName, input.ProcessType, "reserve", "cpu"}...)
@@ -299,6 +303,8 @@ func templateKubernetesCronJob(input Job) (batchv1.CronJob, error) {
 			return job, fmt.Errorf("Error parsing cpu request: %w", err)
 		}
 		job.Spec.JobTemplate.Spec.Template.Spec.Containers[0].Resources.Requests["cpu"] = cpuQuantity
+	} else {
+		job.Spec.JobTemplate.Spec.Template.Spec.Containers[0].Resources.Requests["cpu"] = resource.MustParse("500m")
 	}
 	memoryRequest, err := common.PlugnTriggerOutputAsString("resource-get-property", []string{input.AppName, input.ProcessType, "reserve", "memory"}...)
 	if err != nil && memoryRequest != "" && memoryRequest != "0" {
@@ -307,6 +313,8 @@ func templateKubernetesCronJob(input Job) (batchv1.CronJob, error) {
 			return job, fmt.Errorf("Error parsing memory request: %w", err)
 		}
 		job.Spec.JobTemplate.Spec.Template.Spec.Containers[0].Resources.Requests["memory"] = memoryQuantity
+	} else {
+		job.Spec.JobTemplate.Spec.Template.Spec.Containers[0].Resources.Requests["memory"] = resource.MustParse("512Mi")
 	}
 
 	return job, nil

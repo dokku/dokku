@@ -195,10 +195,16 @@ The `docker-local` scheduler supports a minimal list of resource _limits_ and _r
 
 #### Resource Limits
 
+> [!NOTE]
+> Cron tasks retrieve resource limits based on the computed cron task ID. If unspecified, the default will be 1 CPU and 512m RAM.
+
 - cpu: is specified in number of CPUs a process can access.
 - memory: should be specified with a suffix of `b` (bytes), `k` (kilobytes), `m` (megabytes), `g` (gigabytes). Default unit is `m` (megabytes).
 
 #### Resource Reservations
+
+> [!NOTE]
+> Cron tasks retrieve resource reservations based on the computed cron task ID. If unspecified, the default will be 1 CPU and 512m RAM.
 
 - cpu: is specified in number of CPUs a process can access.
 - memory: should be specified with a suffix of `b` (bytes), `k` (kilobytes), `m` (megabytes), `g` (gigabytes). Default unit is `m` (megabytes).
