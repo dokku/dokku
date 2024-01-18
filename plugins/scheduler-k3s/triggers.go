@@ -18,7 +18,9 @@ import (
 
 	"github.com/dokku/dokku/plugins/common"
 	"github.com/dokku/dokku/plugins/config"
+	"github.com/dokku/dokku/plugins/cron"
 	"github.com/fatih/color"
+	"github.com/kballard/go-shellquote"
 	"github.com/rancher/wharfie/pkg/registries"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 	"gopkg.in/yaml.v3"
@@ -235,6 +237,7 @@ data:
 		}
 	}
 
+	workingDir := common.GetWorkingDir(appName, image)
 	deployments := map[string]appsv1.Deployment{}
 	i := 0
 	for processType := range processes {
@@ -267,7 +270,7 @@ data:
 			PortMaps:         portMaps,
 			ProcessType:      processType,
 			Replicas:         replicaCountPlaceholder,
-			WorkingDir:       common.GetWorkingDir(appName, image),
+			WorkingDir:       workingDir,
 		})
 		if err != nil {
 			return fmt.Errorf("Error templating deployment: %w", err)
@@ -280,10 +283,45 @@ data:
 			Path:         filepath.Join(chartDir, fmt.Sprintf("templates/deployment-%s.yaml", deployment.Name)),
 			Replacements: replacements,
 		})
-		replacements.Delete(fmt.Sprintf("replicas: %d", replicaCountPlaceholder))
-
 		if err != nil {
 			return fmt.Errorf("Error printing deployment: %w", err)
+		}
+
+		replacements.Delete(fmt.Sprintf("replicas: %d", replicaCountPlaceholder))
+	}
+
+	cronEntries, err := cron.FetchCronEntries(appName)
+	if err != nil {
+		return fmt.Errorf("Error fetching cron entries: %w", err)
+	}
+	for _, cronEntry := range cronEntries {
+		words, err := shellquote.Split(cronEntry.Command)
+		if err != nil {
+			return fmt.Errorf("Error parsing cron command: %w", err)
+		}
+		cronJob, err := templateKubernetesCronJob(Job{
+			AppName:          appName,
+			Command:          words,
+			Env:              map[string]string{},
+			Image:            image,
+			ImagePullSecrets: imagePullSecrets,
+			ImageSourceType:  imageSourceType,
+			Namespace:        namespace,
+			ProcessType:      cronEntry.ID,
+			Schedule:         cronEntry.Schedule,
+			WorkingDir:       workingDir,
+		})
+		if err != nil {
+			return fmt.Errorf("Error templating cron job: %w", err)
+		}
+
+		err = writeResourceToFile(WriteResourceInput{
+			Object:       &cronJob,
+			Path:         filepath.Join(chartDir, fmt.Sprintf("templates/cron-job-%s.yaml", cronEntry.ID)),
+			Replacements: replacements,
+		})
+		if err != nil {
+			return fmt.Errorf("Error printing cron job: %w", err)
 		}
 	}
 
