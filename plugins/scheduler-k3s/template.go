@@ -62,7 +62,6 @@ type IngressRoute struct {
 	Entrypoints []IngressRouteEntrypoint
 	Hostnames   []string
 	Namespace   string
-	Port        int32
 	PortMap     PortMap
 	ProcessType string
 	ServiceName string
@@ -77,7 +76,7 @@ type Secret struct {
 type Service struct {
 	AppName   string
 	Namespace string
-	Port      int32
+	PortMaps  []PortMap
 }
 
 type PrintInput struct {
@@ -129,7 +128,6 @@ func createIngressRoutesFiles(input CreateIngressRoutesInput) error {
 				AppName:     input.AppName,
 				Hostnames:   domains,
 				Namespace:   input.Namespace,
-				Port:        input.Deployment.Spec.Template.Spec.Containers[0].Ports[0].ContainerPort,
 				PortMap:     portMap,
 				ProcessType: "web",
 				ServiceName: input.Service.Name,
@@ -424,15 +422,22 @@ func templateKubernetesService(input Service) corev1.Service {
 				"dokku.com/app-process-type": fmt.Sprintf("%s-%s", input.AppName, "web"),
 				"dokku.com/process-type":     "web",
 			},
-			Ports: []corev1.ServicePort{
-				{
-					Name:       "web",
-					Port:       input.Port,
-					TargetPort: intstr.FromInt32(input.Port),
-				},
-			},
 		},
 	}
+
+	for _, portMap := range input.PortMaps {
+		protocol := "TCP"
+		if portMap.Scheme == "udp" {
+			protocol = "UDP"
+		}
+		service.Spec.Ports = append(service.Spec.Ports, corev1.ServicePort{
+			Name:       fmt.Sprintf("%s-%d-%d", portMap.Scheme, portMap.HostPort, portMap.ContainerPort),
+			Port:       portMap.HostPort,
+			TargetPort: intstr.FromString(fmt.Sprintf("%s-%d-%d", portMap.Scheme, portMap.HostPort, portMap.ContainerPort)),
+			Protocol:   corev1.Protocol(protocol),
+		})
+	}
+
 	return service
 }
 

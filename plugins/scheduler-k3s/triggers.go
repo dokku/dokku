@@ -289,7 +289,7 @@ data:
 		service := templateKubernetesService(Service{
 			AppName:   appName,
 			Namespace: namespace,
-			Port:      deployment.Spec.Template.Spec.Containers[0].Ports[0].ContainerPort,
+			PortMaps:  portMaps,
 		})
 
 		err := printResource(PrintInput{
