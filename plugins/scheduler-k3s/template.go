@@ -201,14 +201,15 @@ func printResource(input PrintInput) error {
 func templateKubernetesDeployment(input Deployment) (appsv1.Deployment, error) {
 	labels := map[string]string{
 		"dokku.com/app-name":         input.AppName,
-		"dokku.com/process-type":     input.ProcessType,
 		"dokku.com/app-process-type": fmt.Sprintf("%s-%s", input.AppName, input.ProcessType),
+		"dokku.com/process-type":     input.ProcessType,
 	}
 	annotations := map[string]string{
 		"dokku.com/app-name":      input.AppName,
-		"dokku.com/deployment-id": "DEPLOYMENT_ID_QUOTED",
-		"dokku.com/process-type":  input.ProcessType,
 		"dokku.com/builder-type":  input.ImageSourceType,
+		"dokku.com/deployment-id": "DEPLOYMENT_ID_QUOTED",
+		"dokku.com/managed":       "true",
+		"dokku.com/process-type":  input.ProcessType,
 	}
 	secretName := fmt.Sprintf("env-%s.DEPLOYMENT_ID", input.AppName)
 
@@ -346,8 +347,12 @@ func templateKubernetesIngressRoute(input IngressRoute) traefikv1alpha1.IngressR
 			Name:      fmt.Sprintf("%s-%s", input.ServiceName, port),
 			Namespace: input.Namespace,
 			Labels: map[string]string{
-				"dokku.com/app-name":     input.AppName,
-				"dokku.com/process-type": input.ProcessType,
+				"dokku.com/app-name":         input.AppName,
+				"dokku.com/app-process-type": fmt.Sprintf("%s-%s", input.AppName, input.ProcessType),
+				"dokku.com/process-type":     input.ProcessType,
+			},
+			Annotations: map[string]string{
+				"dokku.com/managed": "true",
 			},
 		},
 		Spec: traefikv1alpha1.IngressRouteSpec{
@@ -389,6 +394,9 @@ func templateKubernetesSecret(input Secret) corev1.Secret {
 				"dokku.com/app-name":      input.AppName,
 				"dokku.com/deployment-id": "DEPLOYMENT_ID_QUOTED",
 			},
+			Annotations: map[string]string{
+				"dokku.com/managed": "true",
+			},
 		},
 		Data: map[string][]byte{},
 	}
@@ -403,15 +411,18 @@ func templateKubernetesService(input Service) corev1.Service {
 			Namespace: input.Namespace,
 			Labels: map[string]string{
 				"dokku.com/app-name":         input.AppName,
-				"dokku.com/process-type":     "web",
 				"dokku.com/app-process-type": fmt.Sprintf("%s-%s", input.AppName, "web"),
+				"dokku.com/process-type":     "web",
+			},
+			Annotations: map[string]string{
+				"dokku.com/managed": "true",
 			},
 		},
 		Spec: corev1.ServiceSpec{
 			Selector: map[string]string{
 				"dokku.com/app-name":         input.AppName,
-				"dokku.com/process-type":     "web",
 				"dokku.com/app-process-type": fmt.Sprintf("%s-%s", input.AppName, "web"),
+				"dokku.com/process-type":     "web",
 			},
 			Ports: []corev1.ServicePort{
 				{
