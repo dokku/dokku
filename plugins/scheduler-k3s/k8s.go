@@ -165,6 +165,34 @@ func (k KubernetesClient) GetPod(ctx context.Context, input GetPodInput) (v1.Pod
 	return *pod, err
 }
 
+// ListCronJobsInput contains all the information needed to list Kubernetes cron jobs
+type ListCronJobsInput struct {
+	// LabelSelector is the Kubernetes label selector
+	LabelSelector string
+
+	// Namespace is the Kubernetes namespace
+	Namespace string
+}
+
+// ListCronJobs lists Kubernetes cron jobs
+func (k KubernetesClient) ListCronJobs(ctx context.Context, input ListCronJobsInput) ([]batchv1.CronJob, error) {
+	listOptions := metav1.ListOptions{}
+	if input.LabelSelector != "" {
+		listOptions.LabelSelector = input.LabelSelector
+	}
+
+	cronJobs, err := k.Client.BatchV1().CronJobs(input.Namespace).List(ctx, listOptions)
+	if err != nil {
+		return []batchv1.CronJob{}, err
+	}
+
+	if cronJobs == nil {
+		return []batchv1.CronJob{}, errors.New("cron jobs is nil")
+	}
+
+	return cronJobs.Items, err
+}
+
 // ListDeploymentsInput contains all the information needed to list Kubernetes deployments
 type ListDeploymentsInput struct {
 	// Namespace is the Kubernetes namespace

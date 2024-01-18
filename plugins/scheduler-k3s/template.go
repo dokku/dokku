@@ -76,6 +76,7 @@ type Job struct {
 	DeploymentID     int64
 	Entrypoint       string
 	Env              map[string]string
+	ID               string
 	Image            string
 	ImagePullSecrets string
 	ImageSourceType  string
@@ -84,6 +85,7 @@ type Job struct {
 	Namespace        string
 	ProcessType      string
 	Schedule         string
+	Suffix           string
 	RemoveContainer  bool
 	WorkingDir       string
 }
@@ -172,11 +174,13 @@ func templateKubernetesCronJob(input Job) (batchv1.CronJob, error) {
 	labels := map[string]string{
 		"dokku.com/app-name":         input.AppName,
 		"dokku.com/app-process-type": fmt.Sprintf("%s-%s", input.AppName, input.ProcessType),
+		"dokku.com/cron-id":          input.ID,
 		"dokku.com/process-type":     input.ProcessType,
 	}
 	annotations := map[string]string{
 		"dokku.com/app-name":      input.AppName,
 		"dokku.com/builder-type":  input.ImageSourceType,
+		"dokku.com/cron-id":       input.ID,
 		"dokku.com/deployment-id": "DEPLOYMENT_ID_QUOTED",
 		"dokku.com/managed":       "true",
 		"dokku.com/process-type":  input.ProcessType,
@@ -195,12 +199,23 @@ func templateKubernetesCronJob(input Job) (batchv1.CronJob, error) {
 		})
 	}
 
+	suffix := input.Suffix
+	if suffix == "" {
+		n := 5
+		b := make([]byte, n)
+		if _, err := rand.Read(b); err != nil {
+			panic(err)
+		}
+		suffix = strings.ToLower(fmt.Sprintf("%X", b))
+	}
+	annotations["dokku.com/job-suffix"] = suffix
+
 	job := batchv1.CronJob{
 		ObjectMeta: metav1.ObjectMeta{
-			GenerateName: fmt.Sprintf("%s-%s-", input.AppName, input.ProcessType),
-			Namespace:    input.Namespace,
-			Labels:       labels,
-			Annotations:  annotations,
+			Name:        fmt.Sprintf("%s-%s-%s", input.AppName, input.ProcessType, suffix),
+			Namespace:   input.Namespace,
+			Labels:      labels,
+			Annotations: annotations,
 		},
 		Spec: batchv1.CronJobSpec{
 			ConcurrencyPolicy:          batchv1.AllowConcurrent,
@@ -535,12 +550,16 @@ func templateKubernetesJob(input Job) (batchv1.Job, error) {
 		})
 	}
 
-	n := 5
-	b := make([]byte, n)
-	if _, err := rand.Read(b); err != nil {
-		panic(err)
+	suffix := input.Suffix
+	if suffix == "" {
+		n := 5
+		b := make([]byte, n)
+		if _, err := rand.Read(b); err != nil {
+			panic(err)
+		}
+		suffix = strings.ToLower(fmt.Sprintf("%X", b))
 	}
-	suffix := strings.ToLower(fmt.Sprintf("%X", b))
+	annotations["dokku.com/job-suffix"] = suffix
 
 	job := batchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{

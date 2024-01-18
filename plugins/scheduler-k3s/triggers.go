@@ -276,7 +276,32 @@ data:
 	if err != nil {
 		return fmt.Errorf("Error fetching cron entries: %w", err)
 	}
+
+	clientset, err := NewKubernetesClient()
+	if err != nil {
+		return fmt.Errorf("Error creating kubernetes client: %w", err)
+	}
+
+	cronJobs, err := clientset.ListCronJobs(ctx, ListCronJobsInput{
+		LabelSelector: fmt.Sprintf("dokku.com/app-name=%s", appName),
+		Namespace:     namespace,
+	})
+	if err != nil {
+		return fmt.Errorf("Error listing cron jobs: %w", err)
+	}
+
 	for _, cronEntry := range cronEntries {
+		suffix := ""
+		for _, cronJob := range cronJobs {
+			if cronJob.Labels["dokku.com/cron-id"] == cronEntry.ID {
+				var ok bool
+				suffix, ok = cronJob.Annotations["dokku.com/job-suffix"]
+				if !ok {
+					suffix = ""
+				}
+			}
+		}
+
 		words, err := shellquote.Split(cronEntry.Command)
 		if err != nil {
 			return fmt.Errorf("Error parsing cron command: %w", err)
@@ -285,12 +310,14 @@ data:
 			AppName:          appName,
 			Command:          words,
 			Env:              map[string]string{},
+			ID:               cronEntry.ID,
 			Image:            image,
 			ImagePullSecrets: imagePullSecrets,
 			ImageSourceType:  imageSourceType,
 			Namespace:        namespace,
-			ProcessType:      cronEntry.ID,
+			ProcessType:      "cron",
 			Schedule:         cronEntry.Schedule,
+			Suffix:           suffix,
 			WorkingDir:       workingDir,
 		})
 		if err != nil {
@@ -916,8 +943,6 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 			ProcessType: processType,
 			SelectedPod: selectedPod,
 		})
-
-		return nil
 	default:
 		return fmt.Errorf("Unable to attach as the pod is in an unknown state: %s", selectedPod.Status.Phase)
 	}
