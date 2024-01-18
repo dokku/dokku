@@ -19,7 +19,6 @@ import (
 	"github.com/dokku/dokku/plugins/common"
 	"github.com/dokku/dokku/plugins/config"
 	"github.com/fatih/color"
-	"github.com/kballard/go-shellquote"
 	"github.com/rancher/wharfie/pkg/registries"
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 	"gopkg.in/yaml.v3"
@@ -803,28 +802,9 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 		labels["dokku.com/cron-id"] = os.Getenv("DOKKU_CRON_ID")
 	}
 
-	dockerArgs := []string{}
-	if b, err := common.PlugnTriggerSetup("docker-args-run", []string{appName, imageTag}...).SetInput("").Output(); err == nil {
-		words, err := shellquote.Split(strings.TrimSpace(string(b[:])))
-		if err != nil {
-			return err
-		}
-
-		dockerArgs = append(dockerArgs, words...)
-	}
-
 	imageSourceType, err := common.DockerInspect(image, "{{ index .Config.Labels \"com.dokku.builder-type\" }}")
 	if err != nil {
 		return fmt.Errorf("Error getting image builder type: %w", err)
-	}
-
-	if b, err := common.PlugnTriggerSetup("docker-args-process-run", []string{appName, imageSourceType, imageTag}...).SetInput("").Output(); err == nil {
-		words, err := shellquote.Split(strings.TrimSpace(string(b[:])))
-		if err != nil {
-			return err
-		}
-
-		dockerArgs = append(dockerArgs, words...)
 	}
 
 	// todo: do something with docker args
@@ -1062,23 +1042,6 @@ func isPodReady(ctx context.Context, clientset KubernetesClient, podName, namesp
 			return true, nil
 		case v1.PodFailed, v1.PodSucceeded:
 			return false, conditions.ErrPodCompleted
-		}
-		return false, nil
-	}
-}
-
-func isPodComplete(ctx context.Context, clientset KubernetesClient, podName, namespace string) wait.ConditionWithContextFunc {
-	return func(ctx context.Context) (bool, error) {
-		fmt.Printf(".") // progress bar!
-
-		pod, err := clientset.Client.CoreV1().Pods(namespace).Get(ctx, podName, metav1.GetOptions{})
-		if err != nil {
-			return false, err
-		}
-
-		switch pod.Status.Phase {
-		case v1.PodFailed, v1.PodSucceeded:
-			return true, nil
 		}
 		return false, nil
 	}
