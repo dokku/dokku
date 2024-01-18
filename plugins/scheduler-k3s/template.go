@@ -11,6 +11,7 @@ import (
 	orderedmap "github.com/wk8/go-ordered-map/v2"
 	"gopkg.in/yaml.v3"
 	appsv1 "k8s.io/api/apps/v1"
+	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -48,6 +49,7 @@ type Deployment struct {
 	PortMaps         []PortMap
 	ProcessType      string
 	Replicas         int32
+	WorkingDir       string
 }
 
 type IngressRouteEntrypoint string
@@ -67,6 +69,23 @@ type IngressRoute struct {
 	ServiceName string
 }
 
+type Job struct {
+	AppName          string
+	Command          []string
+	DeploymentID     int64
+	Entrypoint       string
+	Env              map[string]string
+	Image            string
+	ImagePullSecrets string
+	ImageSourceType  string
+	Interactive      bool
+	Labels           map[string]string
+	Namespace        string
+	ProcessType      string
+	RemoveContainer  bool
+	WorkingDir       string
+}
+
 type Secret struct {
 	AppName   string
 	Env       map[string]string
@@ -79,11 +98,10 @@ type Service struct {
 	PortMaps  []PortMap
 }
 
-type PrintInput struct {
+type WriteResourceInput struct {
 	AppendContents string
 	Object         runtime.Object
 	Path           string
-	Name           string
 	Replacements   *orderedmap.OrderedMap[string, string]
 }
 
@@ -133,65 +151,14 @@ func createIngressRoutesFiles(input CreateIngressRoutesInput) error {
 				ServiceName: input.Service.Name,
 			})
 
-			err = printResource(PrintInput{
+			err = writeResourceToFile(WriteResourceInput{
 				Object: &ingressRoute,
 				Path:   filepath.Join(input.ChartDir, fmt.Sprintf("templates/ingress-route-%s-%d-%d.yaml", portMap.Scheme, portMap.HostPort, portMap.ContainerPort)),
-				Name:   ingressRoute.Name,
 			})
 			if err != nil {
 				return fmt.Errorf("Error printing ingress route: %w", err)
 			}
 		}
-	}
-	return nil
-}
-
-func printResource(input PrintInput) error {
-	common.LogDebug(fmt.Sprintf("Printing resource: %s", input.Path))
-	printr := printers.NewTypeSetter(runtimeScheme).ToPrinter(&printers.YAMLPrinter{})
-	handle, err := os.Create(input.Path)
-	if err != nil {
-		return fmt.Errorf("Error creating template file: %w", err)
-	}
-	defer handle.Close()
-
-	if err := printr.PrintObj(input.Object, handle); err != nil {
-		return fmt.Errorf("Error writing template file: %w", err)
-	}
-
-	if input.Replacements != nil {
-		b, err := os.ReadFile(input.Path)
-		if err != nil {
-			return fmt.Errorf("Error reading template file: %w", err)
-		}
-
-		contents := string(b)
-		for pair := input.Replacements.Oldest(); pair != nil; pair = pair.Next() {
-			contents = strings.ReplaceAll(string(contents), pair.Key, pair.Value)
-		}
-
-		err = os.WriteFile(input.Path, []byte(contents), os.FileMode(0644))
-		if err != nil {
-			return fmt.Errorf("Error updating template file with replacements: %w", err)
-		}
-	}
-
-	if input.AppendContents != "" {
-		b, err := os.ReadFile(input.Path)
-		if err != nil {
-			return fmt.Errorf("Error reading template file: %w", err)
-		}
-
-		contents := string(b) + "\n" + input.AppendContents
-
-		err = os.WriteFile(input.Path, []byte(contents), os.FileMode(0644))
-		if err != nil {
-			return fmt.Errorf("Error updating template file with replacements: %w", err)
-		}
-	}
-
-	if os.Getenv("DOKKU_TRACE") == "1" {
-		common.CatFile(input.Path)
 	}
 	return nil
 }
@@ -245,11 +212,12 @@ func templateKubernetesDeployment(input Deployment) (appsv1.Deployment, error) {
 								},
 							},
 							Image:           input.Image,
-							ImagePullPolicy: corev1.PullPolicy("Always"),
+							ImagePullPolicy: corev1.PullAlways,
 							Resources: corev1.ResourceRequirements{
 								Limits:   corev1.ResourceList{},
 								Requests: corev1.ResourceList{},
 							},
+							WorkingDir: input.WorkingDir,
 						},
 					},
 				},
@@ -382,6 +350,144 @@ func templateKubernetesIngressRoute(input IngressRoute) traefikv1alpha1.IngressR
 	return ingressRoute
 }
 
+func templateKubernetesJob(input Job) (batchv1.Job, error) {
+	labels := map[string]string{
+		"dokku.com/app-name":         input.AppName,
+		"dokku.com/app-process-type": fmt.Sprintf("%s-%s", input.AppName, input.ProcessType),
+		"dokku.com/process-type":     input.ProcessType,
+	}
+	annotations := map[string]string{
+		"dokku.com/app-name":      input.AppName,
+		"dokku.com/builder-type":  input.ImageSourceType,
+		"dokku.com/deployment-id": fmt.Sprint(input.DeploymentID),
+		"dokku.com/managed":       "true",
+		"dokku.com/process-type":  input.ProcessType,
+	}
+
+	// todo: implement a controller to delete pods on completion
+
+	for key, value := range input.Labels {
+		labels[key] = value
+	}
+	secretName := fmt.Sprintf("env-%s.%d", input.AppName, input.DeploymentID)
+
+	env := []corev1.EnvVar{}
+	for key, value := range input.Env {
+		env = append(env, corev1.EnvVar{
+			Name:  key,
+			Value: value,
+		})
+	}
+
+	job := batchv1.Job{
+		ObjectMeta: metav1.ObjectMeta{
+			GenerateName: fmt.Sprintf("%s-%s-", input.AppName, input.ProcessType),
+			Namespace:    input.Namespace,
+			Labels:       labels,
+			Annotations:  annotations,
+		},
+		Spec: batchv1.JobSpec{
+			BackoffLimit: ptr.To(int32(0)),
+			Template: corev1.PodTemplateSpec{
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{
+						{
+							Args: input.Command,
+							Name: fmt.Sprintf("%s-%s", input.AppName, input.ProcessType),
+							Env:  env,
+							// todo: pull secret ref here
+							EnvFrom: []corev1.EnvFromSource{
+								{
+									SecretRef: &corev1.SecretEnvSource{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: secretName,
+										},
+										Optional: ptr.To(true),
+									},
+								},
+							},
+							Image:           input.Image,
+							ImagePullPolicy: corev1.PullAlways,
+							Resources: corev1.ResourceRequirements{
+								Limits:   corev1.ResourceList{},
+								Requests: corev1.ResourceList{},
+							},
+							WorkingDir: input.WorkingDir,
+						},
+					},
+					RestartPolicy: corev1.RestartPolicyNever,
+				},
+			},
+		},
+	}
+
+	if input.Entrypoint != "" {
+		job.Spec.Template.Spec.Containers[0].Command = []string{input.Entrypoint}
+	}
+
+	if input.Interactive {
+		job.Spec.Template.Spec.Containers[0].Stdin = true
+		job.Spec.Template.Spec.Containers[0].StdinOnce = true
+		job.Spec.Template.Spec.Containers[0].TTY = true
+	}
+
+	if input.RemoveContainer {
+		job.Spec.TTLSecondsAfterFinished = ptr.To(int32(60))
+	}
+
+	if input.ImagePullSecrets != "" {
+		job.Spec.Template.Spec.ImagePullSecrets = []corev1.LocalObjectReference{
+			{
+				Name: input.ImagePullSecrets,
+			},
+		}
+	}
+
+	cpuLimit, err := common.PlugnTriggerOutputAsString("resource-get-property", []string{input.AppName, input.ProcessType, "limit", "cpu"}...)
+	if err != nil && cpuLimit != "" && cpuLimit != "0" {
+		cpuQuantity, err := resource.ParseQuantity(cpuLimit)
+		if err != nil {
+			return job, fmt.Errorf("Error parsing cpu limit: %w", err)
+		}
+		job.Spec.Template.Spec.Containers[0].Resources.Limits["cpu"] = cpuQuantity
+	}
+	nvidiaGpuLimit, err := common.PlugnTriggerOutputAsString("resource-get-property", []string{input.AppName, input.ProcessType, "limit", "nvidia-gpu"}...)
+	if err != nil && nvidiaGpuLimit != "" && nvidiaGpuLimit != "0" {
+		nvidiaGpuQuantity, err := resource.ParseQuantity(nvidiaGpuLimit)
+		if err != nil {
+			return job, fmt.Errorf("Error parsing nvidia-gpu limit: %w", err)
+		}
+		job.Spec.Template.Spec.Containers[0].Resources.Limits["nvidia.com/gpu"] = nvidiaGpuQuantity
+	}
+	memoryLimit, err := common.PlugnTriggerOutputAsString("resource-get-property", []string{input.AppName, input.ProcessType, "limit", "memory"}...)
+	if err != nil && memoryLimit != "" && memoryLimit != "0" {
+		memoryQuantity, err := resource.ParseQuantity(memoryLimit)
+		if err != nil {
+			return job, fmt.Errorf("Error parsing memory limit: %w", err)
+		}
+		job.Spec.Template.Spec.Containers[0].Resources.Limits["memory"] = memoryQuantity
+	}
+
+	cpuRequest, err := common.PlugnTriggerOutputAsString("resource-get-property", []string{input.AppName, input.ProcessType, "reserve", "cpu"}...)
+	if err != nil && cpuRequest != "" && cpuRequest != "0" {
+		cpuQuantity, err := resource.ParseQuantity(cpuRequest)
+		if err != nil {
+			return job, fmt.Errorf("Error parsing cpu request: %w", err)
+		}
+		job.Spec.Template.Spec.Containers[0].Resources.Requests["cpu"] = cpuQuantity
+	}
+	memoryRequest, err := common.PlugnTriggerOutputAsString("resource-get-property", []string{input.AppName, input.ProcessType, "reserve", "memory"}...)
+	if err != nil && memoryRequest != "" && memoryRequest != "0" {
+		memoryQuantity, err := resource.ParseQuantity(memoryRequest)
+		if err != nil {
+			return job, fmt.Errorf("Error parsing memory request: %w", err)
+		}
+		job.Spec.Template.Spec.Containers[0].Resources.Requests["memory"] = memoryQuantity
+	}
+
+	return job, nil
+}
+
 func templateKubernetesSecret(input Secret) corev1.Secret {
 	secretName := fmt.Sprintf("env-%s.DEPLOYMENT_ID", input.AppName)
 	secret := corev1.Secret{
@@ -439,6 +545,56 @@ func templateKubernetesService(input Service) corev1.Service {
 	}
 
 	return service
+}
+
+func writeResourceToFile(input WriteResourceInput) error {
+	common.LogDebug(fmt.Sprintf("Printing resource: %s", input.Path))
+	printr := printers.NewTypeSetter(runtimeScheme).ToPrinter(&printers.YAMLPrinter{})
+	handle, err := os.Create(input.Path)
+	if err != nil {
+		return fmt.Errorf("Error creating template file: %w", err)
+	}
+	defer handle.Close()
+
+	if err := printr.PrintObj(input.Object, handle); err != nil {
+		return fmt.Errorf("Error writing template file: %w", err)
+	}
+
+	if input.Replacements != nil {
+		b, err := os.ReadFile(input.Path)
+		if err != nil {
+			return fmt.Errorf("Error reading template file: %w", err)
+		}
+
+		contents := string(b)
+		for pair := input.Replacements.Oldest(); pair != nil; pair = pair.Next() {
+			contents = strings.ReplaceAll(string(contents), pair.Key, pair.Value)
+		}
+
+		err = os.WriteFile(input.Path, []byte(contents), os.FileMode(0644))
+		if err != nil {
+			return fmt.Errorf("Error updating template file with replacements: %w", err)
+		}
+	}
+
+	if input.AppendContents != "" {
+		b, err := os.ReadFile(input.Path)
+		if err != nil {
+			return fmt.Errorf("Error reading template file: %w", err)
+		}
+
+		contents := string(b) + "\n" + input.AppendContents
+
+		err = os.WriteFile(input.Path, []byte(contents), os.FileMode(0644))
+		if err != nil {
+			return fmt.Errorf("Error updating template file with replacements: %w", err)
+		}
+	}
+
+	if os.Getenv("DOKKU_TRACE") == "1" {
+		common.CatFile(input.Path)
+	}
+	return nil
 }
 
 func writeYaml(input WriteYamlInput) error {

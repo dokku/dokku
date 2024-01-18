@@ -5,6 +5,7 @@ import (
 
 	traefikv1alpha1 "github.com/traefik/traefik/v2/pkg/provider/kubernetes/crd/traefikio/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
+	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
@@ -43,6 +44,7 @@ var k8sNativeSchemeOnce sync.Once
 func init() {
 	k8sNativeSchemeOnce.Do(func() {
 		_ = appsv1.AddToScheme(runtimeScheme)
+		_ = batchv1.AddToScheme(runtimeScheme)
 		_ = corev1.AddToScheme(runtimeScheme)
 		_ = traefikv1alpha1.AddToScheme(runtimeScheme)
 	})

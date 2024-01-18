@@ -7,6 +7,7 @@ import (
 
 	"github.com/dokku/dokku/plugins/common"
 	"github.com/dokku/dokku/plugins/config"
+	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -81,6 +82,20 @@ func KubernetesClientConfig() clientcmd.ClientConfig {
 		&clientcmd.ConfigOverrides{ClusterInfo: clientcmdapi.Cluster{Server: ""}})
 }
 
+func createKubernetesJob(ctx context.Context, job batchv1.Job) (batchv1.Job, error) {
+	clientset, err := NewKubernetesClient()
+	if err != nil {
+		return batchv1.Job{}, err
+	}
+
+	createdJob, err := clientset.Client.BatchV1().Jobs(job.Namespace).Create(ctx, &job, metav1.CreateOptions{})
+	if err != nil {
+		return batchv1.Job{}, err
+	}
+
+	return *createdJob, nil
+}
+
 func createKubernetesNamespace(ctx context.Context, namespaceName string) error {
 	clientset, err := NewKubernetesClient()
 	if err != nil {
@@ -98,7 +113,7 @@ func createKubernetesNamespace(ctx context.Context, namespaceName string) error 
 		}
 	}
 
-	namespace := &corev1.Namespace{
+	namespace := corev1.Namespace{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: namespaceName,
 			Annotations: map[string]string{
@@ -109,7 +124,7 @@ func createKubernetesNamespace(ctx context.Context, namespaceName string) error 
 			},
 		},
 	}
-	_, err = clientset.Client.CoreV1().Namespaces().Create(ctx, namespace, metav1.CreateOptions{})
+	_, err = clientset.Client.CoreV1().Namespaces().Create(ctx, &namespace, metav1.CreateOptions{})
 	if err != nil {
 		return err
 	}

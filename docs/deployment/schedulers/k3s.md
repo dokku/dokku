@@ -162,6 +162,9 @@ The following sections describe implemented and unimplemented scheduler function
 This plugin implements various functionality through `plugn` triggers to integrate with Docker for running apps on a single server. The following functionality is supported by the `scheduler-docker-local` plugin.
 
 - `apps:destroy`
+- `run`
+       - The `scheduler-post-run` trigger is not always triggered
+- `run:detached`
 - `enter`
 - `deploy`
 - `logs`
@@ -171,15 +174,14 @@ This plugin implements various functionality through `plugn` triggers to integra
 
 - `apps:clone`
 - `apps:rename`
+- `run:list`
+- `run:logs`
 - `ps:inspect`
-- `run`
-- `run:detached`
 
 The following Dokku functionality is not implemented at this time.
 
 - `cron`
 - `vector` log integration
-- one-off tasks
 - persistent storage
 - healthchecks
 

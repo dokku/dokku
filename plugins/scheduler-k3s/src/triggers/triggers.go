@@ -53,7 +53,10 @@ func main() {
 		appName := flag.Arg(1)
 		containerType := flag.Arg(2)
 		args := flag.Args()
-		if len(args) > 3 {
+		if len(args) == 2 {
+			_, args = common.ShiftString(args)
+			_, args = common.ShiftString(args)
+		} else if len(args) >= 3 {
 			_, args = common.ShiftString(args)
 			_, args = common.ShiftString(args)
 			_, args = common.ShiftString(args)
@@ -86,6 +89,22 @@ func main() {
 		scheduler := flag.Arg(0)
 		appName := flag.Arg(1)
 		err = scheduler_k3s.TriggerSchedulerStop(scheduler, appName)
+	case "scheduler-run":
+		var envCount int
+		scheduler := flag.Arg(0)
+		appName := flag.Arg(1)
+		envCount, err = strconv.Atoi(flag.Arg(2))
+		if err != nil {
+			envCount = 0
+		}
+		args := flag.Args()
+		if len(args) >= 3 {
+			_, args = common.ShiftString(args)
+			_, args = common.ShiftString(args)
+			_, args = common.ShiftString(args)
+		}
+
+		err = scheduler_k3s.TriggerSchedulerRun(scheduler, appName, envCount, args)
 	default:
 		err = fmt.Errorf("Invalid plugin trigger call: %s", trigger)
 	}

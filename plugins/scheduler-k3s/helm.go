@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"sort"
 	"strings"
 	"syscall"
 	"time"
@@ -16,6 +17,7 @@ import (
 	"helm.sh/helm/v3/pkg/chart/loader"
 	"helm.sh/helm/v3/pkg/kube"
 	"helm.sh/helm/v3/pkg/storage/driver"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 var DevNullPrinter = func(format string, v ...interface{}) {}
@@ -38,6 +40,21 @@ var DeployLogPrinter = func(format string, v ...interface{}) {
 	}
 }
 
+type ChartInput struct {
+	ChartPath         string
+	Namespace         string
+	ReleaseName       string
+	RollbackOnFailure bool
+	Timeout           time.Duration
+	Values            map[string]interface{}
+}
+
+type Release struct {
+	Name      string
+	Namespace string
+	Version   int
+}
+
 type HelmAgent struct {
 	Configuration *action.Configuration
 	Namespace     string
@@ -45,18 +62,6 @@ type HelmAgent struct {
 }
 
 func NewHelmAgent(namespace string, logger action.DebugLog) (*HelmAgent, error) {
-	actionConfig, err := getActionConfig(namespace, logger)
-	if err != nil {
-		return nil, err
-	}
-
-	return &HelmAgent{
-		Configuration: actionConfig,
-		Namespace:     namespace,
-	}, nil
-}
-
-func getActionConfig(namespace string, logger action.DebugLog) (*action.Configuration, error) {
 	actionConfig := new(action.Configuration)
 
 	helmDriver := os.Getenv("HELM_DRIVER")
@@ -68,7 +73,12 @@ func getActionConfig(namespace string, logger action.DebugLog) (*action.Configur
 	if err := actionConfig.Init(kubeConfig, namespace, helmDriver, logger); err != nil {
 		return nil, err
 	}
-	return actionConfig, nil
+
+	return &HelmAgent{
+		Configuration: actionConfig,
+		Namespace:     namespace,
+		Logger:        logger,
+	}, nil
 }
 
 func (h *HelmAgent) ChartExists(releaseName string) (bool, error) {
@@ -89,19 +99,35 @@ func (h *HelmAgent) ChartExists(releaseName string) (bool, error) {
 	return false, nil
 }
 
-type ChartInput struct {
-	ChartPath         string
-	Namespace         string
-	ReleaseName       string
-	RollbackOnFailure bool
-	Timeout           time.Duration
-	Values            map[string]interface{}
+func (h *HelmAgent) DeleteRevision(releaseName string, revision int) error {
+	clientset, err := NewKubernetesClient()
+	if err != nil {
+		return fmt.Errorf("Error creating kubernetes client: %w", err)
+	}
+
+	secretName := fmt.Sprintf("sh.helm.release.v1.%s.v%d", releaseName, revision)
+	err = clientset.Client.CoreV1().Secrets(h.Namespace).Delete(context.Background(), secretName, metav1.DeleteOptions{})
+	if err != nil {
+		return fmt.Errorf("Error deleting secret: %w", err)
+	}
+	return nil
+}
+
+func (h *HelmAgent) GetValues(releaseName string) (map[string]interface{}, error) {
+	client := action.NewGetValues(h.Configuration)
+	client.AllValues = true
+	values, err := client.Run(releaseName)
+	if err != nil {
+		return nil, fmt.Errorf("Error getting values: %w", err)
+	}
+
+	return values, nil
 }
 
 func (h *HelmAgent) InstallOrUpgradeChart(input ChartInput) error {
 	chartExists, err := h.ChartExists(input.ReleaseName)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error checking if chart exists: %w", err)
 	}
 
 	if chartExists {
@@ -167,6 +193,29 @@ func (h *HelmAgent) InstallChart(input ChartInput) error {
 	return nil
 }
 
+func (h *HelmAgent) ListRevisions(releaseName string) ([]Release, error) {
+	client := action.NewHistory(h.Configuration)
+	response, err := client.Run(releaseName)
+	if err != nil {
+		return nil, fmt.Errorf("Error getting revisions: %w", err)
+	}
+
+	releases := []Release{}
+	for _, release := range response {
+		releases = append(releases, Release{
+			Name:      release.Name,
+			Namespace: release.Namespace,
+			Version:   release.Version,
+		})
+	}
+
+	sort.Slice(releases, func(i, j int) bool {
+		return releases[i].Version < releases[j].Version
+	})
+
+	return releases, nil
+}
+
 func (h *HelmAgent) UpgradeChart(input ChartInput) error {
 	namespace := input.Namespace
 	if namespace == "" {
@@ -186,7 +235,9 @@ func (h *HelmAgent) UpgradeChart(input ChartInput) error {
 	client := action.NewUpgrade(h.Configuration)
 	client.Atomic = input.RollbackOnFailure
 	client.ChartPathOptions = action.ChartPathOptions{}
+	client.CleanupOnFail = true
 	client.DryRun = false
+	client.MaxHistory = 10
 	client.Namespace = namespace
 	client.Timeout = input.Timeout
 	client.Wait = false
