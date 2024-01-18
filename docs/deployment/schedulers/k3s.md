@@ -75,6 +75,12 @@ As routing is handled by traefik managed on the k3s plugin, set the proxy plugin
 dokku proxy:set --global k3s
 ```
 
+Ensure any other proxy implementations are disabled. Typically at least nginx will be running on the Dokku host and should be stopped if the host is used as load balancer.
+
+```shell
+dokku nginx:stop
+```
+
 Finally, set the scheduler to `k3s` so that app deploys will work on k3s.
 
 ```shell
