@@ -102,6 +102,16 @@ Setting the property value to an empty string will reset the value to the system
 dokku registry:set node-js-app image-repo
 ```
 
+### Templating the image repository name
+
+Instead of setting the image repository name on a per-app basis, it can be set via a template globally with the `image-repo-template` property:
+
+```shell
+dokku registry:set --global image-repo-template "my-awesome-prefix/{{ .AppName }}"
+```
+
+Dokku uses a Golang template and has access to the `AppName` variable as shown above.
+
 ### Pushing images on build
 
 To push the image on release, set the `push-on-release` property to `true` via the `registry:set` command. The default value for this property is `false`. Setting the property to `true` will result in the image being tagged with an ID that is incremented with every release. This tag will be what is used for running app code.

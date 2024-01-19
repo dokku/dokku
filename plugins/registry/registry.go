@@ -10,7 +10,8 @@ var (
 
 	// GlobalProperties is a map of all valid global registry properties
 	GlobalProperties = map[string]bool{
-		"push-on-release": true,
-		"server":          true,
+		"image-repo-template": true,
+		"push-on-release":     true,
+		"server":              true,
 	}
 )

@@ -10,8 +10,15 @@ import (
 
 // TriggerDeployedAppImageRepo outputs the associated image repo to stdout
 func TriggerDeployedAppImageRepo(appName string) error {
-	imageRepo := common.PropertyGet("registry", appName, "image-repo")
-	imageRepo = strings.TrimSpace(imageRepo)
+	imageRepo := strings.TrimSpace(reportImageRepo(appName))
+	if imageRepo == "" {
+		var err error
+		imageRepo, err = getImageRepoFromTemplate(appName)
+		if err != nil {
+			return fmt.Errorf("Unable to determine image repo from template: %w", err)
+		}
+	}
+
 	if imageRepo == "" {
 		imageRepo = common.GetAppImageRepo(appName)
 	}
