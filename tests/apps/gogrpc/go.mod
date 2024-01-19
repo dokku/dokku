@@ -11,8 +11,7 @@ require (
 )
 
 require (
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20231002182017-d307bd883b97 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20231106174013-bbf56f31fb17 // indirect
+	google.golang.org/grpc/examples v0.0.0-20240118175532-987df1309236 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 )
-
-replace google.golang.org/grpc/examples/helloworld/helloworld => ./helloworld
