@@ -88,17 +88,18 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "curl --silent $TEST_APP.${DOKKU_DOMAIN}"
+  run /bin/bash -c "dokku logs $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "python/http.server"
 
-  run /bin/bash -c "curl --silent $TEST_APP-2.${DOKKU_DOMAIN}"
+  run /bin/bash -c "docker logs haproxy-haproxy-1"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "python/http.server"
+
+  assert_http_localhost_response "http" "$TEST_APP.$DOKKU_DOMAIN" "80" "/" "python/http.server"
+  assert_http_localhost_response "http" "$TEST_APP-2.$DOKKU_DOMAIN" "80" "/" "python/http.server"
 }
 
 @test "(haproxy) ssl" {
