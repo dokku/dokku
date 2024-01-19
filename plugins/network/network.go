@@ -64,10 +64,10 @@ func BuildConfig(appName string) error {
 	common.LogInfo1(fmt.Sprintf("Ensuring network configuration is in sync for %s", appName))
 
 	for processType, procCount := range scale {
-		containerIndex := 0
+		containerIndex := int32(0)
 		for containerIndex < procCount {
 			containerIndex++
-			containerIndexString := strconv.Itoa(containerIndex)
+			containerIndexString := strconv.FormatInt(int64(containerIndex), 10)
 			containerIDFile := fmt.Sprintf("%v/CONTAINER.%v.%v", appRoot, processType, containerIndex)
 
 			containerID := common.ReadFirstLine(containerIDFile)
