@@ -56,6 +56,19 @@ cmd-git-from-archive() {
   plugn trigger deploy-source-set "$APP" "$ARCHIVE_TYPE" "$ARCHIVE_URL"
 }
 
+cmd-git-generate-deploy-key() {
+  declare desc="generates a deploy ssh key"
+  local cmd="git:generate-deploy-key"
+  [[ "$1" == "$cmd" ]] && shift 1
+
+  if [[ -f "$DOKKU_ROOT/.ssh/id_ed25519.pub" ]] || [[ -f "$DOKKU_ROOT/.ssh/id_rsa.pub" ]]; then
+    dokku_log_exclaim_quiet "A deploy key already exists for this host"
+    return
+  fi
+
+  ssh-keygen -t ed25519 -C "dokku@$(hostname)" -N "" -f "$DOKKU_ROOT/.ssh/id_ed25519"
+}
+
 cmd-git-auth() {
   declare desc="configures netrc authentication for a given git server"
   local cmd="git:auth"
@@ -349,8 +362,8 @@ cmd-git-status() {
 
 fn-git-auth-error() {
   dokku_log_warn "There is no deploy key associated with the $DOKKU_SYSTEM_USER user."
-  dokku_log_warn "Generate an ssh key with the following command (do not specify a password):"
-  dokku_log_warn "  ssh-keygen -t ed25519 -C 'example@example.com'"
+  dokku_log_warn "Generate an ssh key with the following command:"
+  dokku_log_warn "  dokku git:generate-deploy-key"
   dokku_log_fail "As an alternative, configure the netrc authentication via the git:auth command"
 }
 

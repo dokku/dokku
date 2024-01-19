@@ -8,6 +8,7 @@ git:allow-host <host>                             # Adds a host to known_hosts
 git:auth <host> [<username> <password>]           # Configures netrc authentication for a given git server
 git:from-archive [--archive-type ARCHIVE_TYPE] <app> <archive-url> [<git-username> <git-email>] # Updates an app's git repository with a given archive file
 git:from-image [--build-dir DIRECTORY] <app> <docker-image> [<git-username> <git-email>] # Updates an app's git repository with a given docker image
+git:generate-deploy-key                           # Generates a deploy ssh key
 git:load-image [--build-dir DIRECTORY] <app> <docker-image> [<git-username> <git-email>] # Updates an app's git repository with a docker image loaded from stdin
 git:sync [--build] <app> <repository> [<git-ref>] # Clone or fetch an app from remote git repo
 git:initialize <app>                              # Initialize a git repository for an app
@@ -189,9 +190,40 @@ dokku git:allow-host github.com
 
 Note that this command is currently not idempotent and may add duplicate entries to the `~dokku/.ssh/known_hosts` file.
 
+### Creating a cloning ssh key pair
+
+> [!IMPORTANT]
+> New as of 0.33.0
+
+While most repositories can be authenticated to via the `git:auth` command, some users may prefer to use an ssh key. This can be generated via the `git:generate-deploy-key` command, which generates a passwordless ed25519 key-pair.
+
+```shell
+dokku git:generate-deploy-key
+```
+
+```
+Generating public/private ed25519 key pair.
+Your identification has been saved in /home/dokku/.ssh/id_ed25519
+Your public key has been saved in /home/dokku/.ssh/id_ed25519.pub
+The key fingerprint is:
+SHA256:PvlvVfbpYvkmA87rTfLUq07e3GarRN1BcLqDSjod+p8 dokku@ubuntu
+The key's randomart image is:
++--[ED25519 256]--+
+|             ..o |
+|              +  |
+|             . . |
+|            . o =|
+|        So . + ++|
+|       .=.o.. +..|
+|       ++oo..*o. |
+|        oo o%*oo=|
+|         .+E=BOOo|
++----[SHA256]-----+
+```
+
 ### Verifying the cloning public key
 
-In order to clone a remote repository, the remote server should have the Dokku host's public key configured. This plugin does not currently create this key, but if there is one available, it can be shown via the `git:public-key` command.
+In order to clone a remote repository, the remote server should have the Dokku host's public key configured. This plugin does not currently create this key, but if can be shown via the `git:public-key` command.
 
 ```shell
 dokku git:public-key
