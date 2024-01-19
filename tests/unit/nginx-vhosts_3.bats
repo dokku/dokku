@@ -32,11 +32,11 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "docker run --rm ${TEST_APP}-docker-image /go/bin/greeter_client -address ${TEST_APP}.${DOKKU_DOMAIN}:80 -name grpc"
+  run /bin/bash -c "docker run --rm ${TEST_APP}-docker-image /go/bin/greeter_client -addr ${TEST_APP}.${DOKKU_DOMAIN}:80 -name grpc"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "Greeting: Hello grpc"
+  assert_output_contains "Greeting: Hello grpc"
 }
 
 @test "(nginx-vhosts) grpc endpoint on a port other than 80" {
@@ -50,11 +50,11 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "docker run --rm ${TEST_APP}-docker-image /go/bin/greeter_client -address ${TEST_APP}.${DOKKU_DOMAIN}:8080 -name grpc8080"
+  run /bin/bash -c "docker run --rm ${TEST_APP}-docker-image /go/bin/greeter_client -addr ${TEST_APP}.${DOKKU_DOMAIN}:8080 -name grpc8080"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "Greeting: Hello grpc8080"
+  assert_output_contains "Greeting: Hello grpc8080"
 }
 
 @test "(nginx-vhosts) grpcs endpoint" {
@@ -69,9 +69,9 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "docker run --rm ${TEST_APP}-docker-image /go/bin/greeter_client -address ${TEST_APP}.${DOKKU_DOMAIN}:443 -name grpcs -tls"
+  run /bin/bash -c "docker run --rm ${TEST_APP}-docker-image /go/bin/greeter_client -addr ${TEST_APP}.${DOKKU_DOMAIN}:443 -name grpcs -tls"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "Greeting: Hello grpcs"
+  assert_output_contains "Greeting: Hello grpcs"
 }

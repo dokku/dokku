@@ -23,18 +23,22 @@ import (
 	"context"
 	"crypto/tls"
 	"flag"
-	"fmt"
 	"log"
 	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/credentials/insecure"
 	pb "google.golang.org/grpc/examples/helloworld/helloworld"
 )
 
+const (
+	defaultName = "world"
+)
+
 var (
-	address       = flag.String("address", "", "address to call")
-	name          = flag.String("name", "world", "the name")
+	addr          = flag.String("addr", "localhost:50051", "the address to connect to")
+	name          = flag.String("name", defaultName, "Name to greet")
 	selfSignedTLS = flag.Bool("tls", false, "use self signed tls")
 )
 
@@ -46,9 +50,10 @@ func main() {
 		creds := credentials.NewTLS(&tls.Config{InsecureSkipVerify: true})
 		opts = append(opts, grpc.WithTransportCredentials(creds))
 	} else {
-		opts = append(opts, grpc.WithInsecure())
+		opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	}
-	conn, err := grpc.Dial(*address, opts...)
+	conn, err := grpc.Dial(*addr, opts...)
+
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
@@ -62,5 +67,5 @@ func main() {
 	if err != nil {
 		log.Fatalf("could not greet: %v", err)
 	}
-	fmt.Printf("Greeting: %s", r.Message)
+	log.Printf("Greeting: %s", r.GetMessage())
 }
