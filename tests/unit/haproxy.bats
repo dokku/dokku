@@ -88,6 +88,8 @@ teardown() {
   echo "status: $status"
   assert_success
 
+  sleep 5
+
   run /bin/bash -c "dokku logs $TEST_APP"
   echo "output: $output"
   echo "status: $status"
