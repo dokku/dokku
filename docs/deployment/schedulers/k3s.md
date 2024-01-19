@@ -57,10 +57,10 @@ To ensure images are pushed and pulled from the correct registry, set the correc
 dokku registry:set --global server hub.docker.com
 ```
 
-If using docker hub, you'll need to use a custom repository name. As it is unique, this must be set on a per-app basis.
+If using docker hub, you'll need to use a custom repository name. This can be set via a global template, allowing users access to the app name as the variable `AppName` as shown below.
 
 ```shell
-dokku registry:set node-js-app image-repo my-awesome-prefix/node-js-app
+dokku registry:set --global image-repo-template "my-awesome-prefix/{{ .AppName }}"
 ```
 
 Additionally, apps should be configured to push images on the release phase via the `push-on-release` registry property.
@@ -122,7 +122,13 @@ When attaching an agent or server node, the K3s plugin will look at the IP assoc
 dokku scheduler-k3s:set --global network-interface eth1
 ```
 
-Dokku does not manage the ssh key of the server, but the value that should be added to the remote root user's `/root/.ssh/authorized_keys` file can be checked with the `git:public-key` command:
+Dokku servers may not have an ssh key pair by default, but they can be generated as needed
+
+```shell
+dokku git:generate-deploy-key
+```
+
+This key can then be displayed with the `git:public-key` command:
 
 ```shell
 dokku git:public-key
