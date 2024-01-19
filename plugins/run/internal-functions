@@ -53,7 +53,7 @@ fn-run() {
   verify_app_name "$APP"
 
   local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
-  DOKKU_CRON_ID="$CRON_ID" plugn trigger scheduler-run "$DOKKU_SCHEDULER" "$APP" "${#RUN_ENV[@]}" "${RUN_ENV[@]}" "$@"
+  DOKKU_CRON_ID="$CRON_ID" plugn trigger scheduler-run "$DOKKU_SCHEDULER" "$APP" "${#RUN_ENV[@]}" "${RUN_ENV[@]}" -- "$@"
 }
 
 cmd-run() {

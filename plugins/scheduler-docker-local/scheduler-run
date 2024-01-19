@@ -73,6 +73,10 @@ trigger-scheduler-docker-local-scheduler-run() {
   [[ "$IMAGE_SOURCE_TYPE" == "herokuish" ]] && local EXEC_CMD="/exec"
   is_image_cnb_based "$IMAGE" && EXEC_CMD=""
 
+  if [[ "$1" == "--" ]]; then
+    shift
+  fi
+
   local POTENTIAL_PROCFILE_KEY="$1"
   if [[ -n "$POTENTIAL_PROCFILE_KEY" ]]; then
     PROC_CMD=$(plugn trigger procfile-get-command "$APP" "$POTENTIAL_PROCFILE_KEY" "5000" 2>/dev/null || echo '')
