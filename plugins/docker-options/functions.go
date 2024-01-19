@@ -32,5 +32,9 @@ func touchPhaseFile(appName string, phase string) error {
 
 func writeDockerOptionsForPhase(appName string, phase string, options []string) error {
 	phaseFilePath := getPhaseFilePath(appName, phase)
-	return common.WriteSliceToFile(phaseFilePath, options)
+	return common.WriteSliceToFile(common.WriteSliceToFileInput{
+		Filename: phaseFilePath,
+		Lines:    options,
+		Mode:     os.FileMode(0600),
+	})
 }

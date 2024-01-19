@@ -3,6 +3,7 @@ package buildpacks
 import (
 	"errors"
 	"fmt"
+	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -34,7 +35,11 @@ func rewriteBuildpacksFile(sourceWorkDir string) error {
 		buildpacks[i] = buildpack
 	}
 
-	return common.WriteSliceToFile(buildpacksPath, buildpacks)
+	return common.WriteSliceToFile(common.WriteSliceToFileInput{
+		Filename: buildpacksPath,
+		Lines:    buildpacks,
+		Mode:     os.FileMode(0600),
+	})
 }
 
 func validBuildpackURL(buildpack string) (string, error) {

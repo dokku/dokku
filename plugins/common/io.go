@@ -217,33 +217,45 @@ func TouchFile(filename string) error {
 	}
 	defer file.Close()
 
-	file.Chmod(mode)
-	SetPermissions(filename, mode)
-	return nil
-}
-
-// WriteSliceToFile writes a slice of strings to a file
-func WriteSliceToFile(filename string, lines []string) error {
-	mode := os.FileMode(0600)
-	if strings.HasPrefix(filename, "/etc/sudoers.d/") {
-		mode = os.FileMode(0440)
-	}
-
-	file, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, mode)
-	if err != nil {
+	if err := file.Chmod(mode); err != nil {
 		return err
 	}
 
+	if err := SetPermissions(filename, mode); err != nil {
+		return err
+	}
+	return nil
+}
+
+type WriteSliceToFileInput struct {
+	Filename string
+	Lines    []string
+	Mode     os.FileMode
+}
+
+// WriteSliceToFile writes a slice of strings to a file
+func WriteSliceToFile(input WriteSliceToFileInput) error {
+	file, err := os.OpenFile(input.Filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, input.Mode)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
 	w := bufio.NewWriter(file)
-	for _, line := range lines {
+	for _, line := range input.Lines {
 		fmt.Fprintln(w, line)
 	}
 	if err = w.Flush(); err != nil {
 		return err
 	}
 
-	file.Chmod(mode)
-	SetPermissions(filename, mode)
+	if err := file.Chmod(input.Mode); err != nil {
+		return err
+	}
+
+	if err := SetPermissions(input.Filename, input.Mode); err != nil {
+		return err
+	}
 
 	return nil
 }
