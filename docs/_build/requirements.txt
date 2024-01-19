@@ -1,4 +1,4 @@
-beautifulsoup4==4.12.2
+beautifulsoup4==4.12.3
 click==8.1.7
 ghp-import==2.1.0
 importlib-metadata==7.0.1
