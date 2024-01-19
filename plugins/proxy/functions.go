@@ -9,9 +9,9 @@ func getAppProxyType(appName string) string {
 }
 
 func getComputedProxyType(appName string) string {
-	proxyType := getGlobalProxyType()
+	proxyType := getAppProxyType(appName)
 	if proxyType == "" {
-		proxyType = getAppProxyType(appName)
+		proxyType = getGlobalProxyType()
 	}
 
 	return proxyType
