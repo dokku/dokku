@@ -36,7 +36,7 @@ func TriggerInstall() error {
 		return nil
 	}
 
-	globalScheduler := config.GetWithDefault("--scheduler", "DOKKU_SCHEDULER", "")
+	globalScheduler := config.GetWithDefault("--global", "DOKKU_SCHEDULER", "")
 	if globalScheduler != "" {
 		common.LogVerboseQuiet(fmt.Sprintf("Setting scheduler property 'selected' to %v", globalScheduler))
 		if err := common.PropertyWrite("scheduler", "--global", "selected", globalScheduler); err != nil {
