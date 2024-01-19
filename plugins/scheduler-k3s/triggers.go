@@ -705,8 +705,7 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 	if err != nil {
 		return fmt.Errorf("Error getting running image tag: %w", err)
 	}
-	imageRepo := common.GetAppImageRepo(appName)
-	image, err := common.GetDeployingAppImageName(appName, imageTag, imageRepo)
+	image, err := common.GetDeployingAppImageName(appName, imageTag, "")
 	if err != nil {
 		return fmt.Errorf("Error getting deploying app image name: %w", err)
 	}
