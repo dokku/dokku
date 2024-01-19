@@ -1,13 +1,9 @@
 package cron
 
 import (
-	"encoding/json"
 	"fmt"
-	"os"
-	"strings"
 
 	appjson "github.com/dokku/dokku/plugins/app-json"
-	"github.com/dokku/dokku/plugins/common"
 
 	"github.com/multiformats/go-base36"
 	cronparser "github.com/robfig/cron/v3"
@@ -25,15 +21,28 @@ var (
 	}
 )
 
+// TemplateCommand is a struct that represents a cron command
 type TemplateCommand struct {
-	ID         string `json:"id"`
-	App        string `json:"app"`
-	Command    string `json:"command"`
-	Schedule   string `json:"schedule"`
+	// ID is a unique identifier for the cron command
+	ID string `json:"id"`
+
+	// App is the app the cron command belongs to
+	App string `json:"app"`
+
+	// Command is the command to run
+	Command string `json:"command"`
+
+	// Schedule is the cron schedule
+	Schedule string `json:"schedule"`
+
+	// AltCommand is an alternate command to run
 	AltCommand string `json:"-"`
-	LogFile    string `json:"-"`
+
+	// LogFile is the log file to write to
+	LogFile string `json:"-"`
 }
 
+// CronCommand returns the command to run for a given cron command
 func (t TemplateCommand) CronCommand() string {
 	if t.AltCommand != "" {
 		if t.LogFile != "" {
@@ -45,25 +54,16 @@ func (t TemplateCommand) CronCommand() string {
 	return fmt.Sprintf("dokku run --cron-id %s %s -- %s", t.ID, t.App, t.Command)
 }
 
+// FetchCronEntries returns a list of cron commands for a given app
 func FetchCronEntries(appName string) ([]TemplateCommand, error) {
 	commands := []TemplateCommand{}
-	appjsonPath := appjson.GetAppjsonPath(appName)
-	if !common.FileExists(appjsonPath) {
-		return commands, nil
-	}
-
-	b, err := os.ReadFile(appjsonPath)
+	appJSON, err := appjson.GetAppJSON(appName)
 	if err != nil {
-		return commands, fmt.Errorf("Cannot read app.json file for %s: %v", appName, err)
+		return commands, err
 	}
 
-	if strings.TrimSpace(string(b)) == "" {
+	if appJSON.Cron == nil {
 		return commands, nil
-	}
-
-	var appJSON appjson.AppJSON
-	if err = json.Unmarshal(b, &appJSON); err != nil {
-		return commands, fmt.Errorf("Cannot parse app.json for %s: %v", appName, err)
 	}
 
 	for _, c := range appJSON.Cron {
