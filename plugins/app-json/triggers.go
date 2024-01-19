@@ -13,7 +13,7 @@ import (
 
 // TriggerAppJSONProcessDeployParallelism returns the max number of processes to deploy in parallel
 func TriggerAppJSONProcessDeployParallelism(appName string, processType string) error {
-	appJSON, err := getAppJSON(appName)
+	appJSON, err := GetAppJSON(appName)
 	if err != nil {
 		return err
 	}
