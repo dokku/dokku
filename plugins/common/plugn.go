@@ -16,6 +16,7 @@ import (
 type PlugnTriggerInput struct {
 	Args          []string
 	CaptureOutput bool
+	Env           map[string]string
 	StreamStdio   bool
 	Trigger       string
 }
@@ -41,6 +42,11 @@ func CallPlugnTrigger(input PlugnTriggerInput) (execute.ExecResult, error) {
 	env := os.Environ()
 	if isatty && !input.CaptureOutput {
 		env = append(env, "FORCE_TTY=1")
+	}
+	if input.Env != nil {
+		for k, v := range input.Env {
+			env = append(env, fmt.Sprintf("%s=%s", k, v))
+		}
 	}
 
 	args := []string{"trigger", input.Trigger}

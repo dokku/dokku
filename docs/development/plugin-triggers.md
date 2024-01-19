@@ -1757,6 +1757,20 @@ APP="$1"
 haproxy-build-config "$APP"
 ```
 
+### `post-registry-login`
+
+- Description: Allows running a command after the a registry has been logged into
+- Invoked by: `dokku registry:login`
+- Arguments: `$DOCKER_REGISTRY_SERVER $DOCKER_REGISTRY_USER`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+# the DOCKER_REGISTRY_PASS env var is also set
+echo "$DOCKER_REGISTRY_PASS"
+```
+
 ### `post-release-builder`
 
 > [!WARNING]

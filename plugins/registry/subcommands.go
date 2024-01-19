@@ -53,6 +53,19 @@ func CommandLogin(server string, username string, password string, passwordStdin
 		return errors.New("Failed to log into registry")
 	}
 
+	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:       "post-registry-login",
+		Args:          []string{server, username},
+		StreamStdio:   true,
+		CaptureOutput: false,
+		Env: map[string]string{
+			"DOCKER_REGISTRY_PASS": password,
+		},
+	})
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
