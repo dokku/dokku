@@ -1,6 +1,7 @@
 package ports
 
 import (
+	"encoding/json"
 	"fmt"
 	"sort"
 
@@ -64,17 +65,35 @@ func TriggerPortsConfigure(appName string) error {
 }
 
 // TriggerPortsGet prints out the port mapping for a given app
-func TriggerPortsGet(appName string) error {
+func TriggerPortsGet(appName string, format string) error {
+	if format != "json" && format != "stdout" {
+		return fmt.Errorf("Invalid format specified: %s", format)
+	}
 	portMaps := getPortMaps(appName)
 	if len(portMaps) == 0 {
 		portMaps = getDetectedPortMaps(appName)
 	}
 
+	persisted := []PortMap{}
 	for _, portMap := range portMaps {
 		if portMap.AllowsPersistence() {
 			continue
 		}
 
+		persisted = append(persisted, portMap)
+	}
+
+	if format == "json" {
+		b, err := json.Marshal(persisted)
+		if err != nil {
+			return fmt.Errorf("Unable to marshal port mapping: %s", err.Error())
+		}
+
+		fmt.Println(string(b))
+		return nil
+	}
+
+	for _, portMap := range persisted {
 		fmt.Println(portMap)
 	}
 

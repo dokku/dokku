@@ -1371,7 +1371,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 - Description: Returns a list of port mappings, newline delimited
 - Invoked by: Various networking plugins
-- Arguments: `$APP`
+- Arguments: `$APP $FORMAT`
 - Example:
 
 ```shell
