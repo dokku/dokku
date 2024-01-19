@@ -12,14 +12,15 @@ import (
 
 // CatFile cats the contents of a file (if it exists)
 func CatFile(filename string) {
-	slice, err := FileToSlice(filename)
+	f, err := os.Open(filename)
 	if err != nil {
-		LogDebug(fmt.Sprintf("Error cat'ing file %s: %s", filename, err.Error()))
 		return
 	}
+	defer f.Close()
 
-	for _, line := range slice {
-		LogDebug(fmt.Sprintf("line: '%s'", line))
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		LogDebug(fmt.Sprintf("line: '%s'", scanner.Text()))
 	}
 }
 
