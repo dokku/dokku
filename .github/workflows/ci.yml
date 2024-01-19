@@ -19,7 +19,7 @@ env:
 
 jobs:
   check-commit:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     outputs:
       skip: ${{ steps.check-commit.outputs.skip }}
 
@@ -43,7 +43,7 @@ jobs:
 
   build:
     name: build
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs: check-commit
     if: ${{ needs.check-commit.outputs.skip != 'true' }}
     outputs:
@@ -83,7 +83,7 @@ jobs:
   build-image-amd64:
     name: build-image.linux/amd64
     needs: build
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     timeout-minutes: 20
 
     steps:
@@ -111,7 +111,7 @@ jobs:
   unit-tests:
     name: unit.${{ matrix.index }}
     needs: build
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix: ${{fromJson(needs.build.outputs.matrix)}}
@@ -151,7 +151,7 @@ jobs:
   docker-deploy-tests:
     name: docker
     needs: build
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
 
@@ -177,7 +177,7 @@ jobs:
   go-tests:
     name: go.${{ matrix.index }}
     needs: build
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
@@ -218,7 +218,7 @@ jobs:
   publish-test-results:
     name: publish-test-results
     needs: unit-tests
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     permissions:
       checks: write
     # the build-and-test job might be skipped, we don't need to run this job then
