@@ -79,28 +79,6 @@ func constructScript(command string, shell string, isHerokuishImage bool, isCnbI
 	return []string{shell, "-c", strings.Join(script, " ")}
 }
 
-func getAppJSON(appName string) (AppJSON, error) {
-	if !hasAppJSON(appName) {
-		return AppJSON{}, nil
-	}
-
-	b, err := os.ReadFile(getProcessSpecificAppJSONPath(appName))
-	if err != nil {
-		return AppJSON{}, fmt.Errorf("Cannot read app.json file: %v", err)
-	}
-
-	if strings.TrimSpace(string(b)) == "" {
-		return AppJSON{}, nil
-	}
-
-	var appJSON AppJSON
-	if err = json.Unmarshal(b, &appJSON); err != nil {
-		return AppJSON{}, fmt.Errorf("Cannot parse app.json: %v", err)
-	}
-
-	return appJSON, nil
-}
-
 func getAppJSONPath(appName string) string {
 	directory := filepath.Join(common.MustGetEnv("DOKKU_LIB_ROOT"), "data", "app-json", appName)
 	return filepath.Join(directory, "app.json")
@@ -118,7 +96,7 @@ func getProcessSpecificAppJSONPath(appName string) string {
 
 // getPhaseScript extracts app.json from app image and returns the appropriate json key/value
 func getPhaseScript(appName string, phase string) (string, error) {
-	appJSON, err := getAppJSON(appName)
+	appJSON, err := GetAppJSON(appName)
 	if err != nil {
 		return "", err
 	}
@@ -482,7 +460,7 @@ func createdContainerID(appName string, dockerArgs []string, image string, comma
 }
 
 func setScale(appName string, image string) error {
-	appJSON, err := getAppJSON(appName)
+	appJSON, err := GetAppJSON(appName)
 	if err != nil {
 		return err
 	}
