@@ -218,10 +218,6 @@ updates:
     open-pull-requests-limit: 10
     labels:
       - "type: dependencies"
-    ignore:
-      - dependency-name: google.golang.org/grpc
-        versions:
-          - "> 1.29.1"
   - package-ecosystem: pip
     directory: "/tests/apps/multi"
     schedule:
