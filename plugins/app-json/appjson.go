@@ -65,42 +65,6 @@ type Formation struct {
 	// MaxParallel is the maximum number of processes to start in parallel
 	MaxParallel *int `json:"max_parallel"`
 }
-type Healthcheck struct {
-	Attempts     int32           `json:"attempts,omitempty"`
-	Command      []string        `json:"command,omitempty"`
-	Content      string          `json:"content,omitempty"`
-	HTTPHeaders  []HTTPHeader    `json:"httpHeaders,omitempty"`
-	InitialDelay int32           `json:"initialDelay,omitempty"`
-	Listening    bool            `json:"listening,omitempty"`
-	Name         string          `json:"name,omitempty"`
-	Path         string          `json:"path,omitempty"`
-	Port         int             `json:"port,omitempty"`
-	Scheme       string          `json:"scheme,omitempty"`
-	Timeout      int32           `json:"timeout,omitempty"`
-	Type         HealthcheckType `json:"type,omitempty"`
-	Uptime       int32           `json:"uptime,omitempty"`
-	Wait         int32           `json:"wait,omitempty"`
-	Warn         bool            `json:"warn,omitempty"`
-	OnFailure    *OnFailure      `json:"onFailure,omitempty"`
-}
-
-type HealthcheckType string
-
-const (
-	HealthcheckType_Liveness  HealthcheckType = "liveness"
-	HealthcheckType_Readiness HealthcheckType = "readiness"
-	HealthcheckType_Startup   HealthcheckType = "startup"
-)
-
-type HTTPHeader struct {
-	Name  string `json:"name,omitempty"`
-	Value string `json:"value,omitempty"`
-}
-
-type OnFailure struct {
-	Command []string `json:"command,omitempty"`
-	Url     string   `json:"url,omitempty"`
-}
 
 // Healthcheck is a struct that represents a single healthcheck from an app.json file
 type Healthcheck struct {
