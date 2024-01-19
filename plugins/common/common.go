@@ -390,8 +390,8 @@ func ParseReportArgs(pluginName string, arguments []string) ([]string, string, e
 }
 
 // ParseScaleOutput allows golang plugins to properly parse the output of ps-current-scale
-func ParseScaleOutput(b []byte) (map[string]int, error) {
-	scale := make(map[string]int)
+func ParseScaleOutput(b []byte) (map[string]int32, error) {
+	scale := make(map[string]int32)
 
 	for _, line := range strings.Split(string(b), "\n") {
 		s := strings.SplitN(line, "=", 2)
@@ -399,11 +399,11 @@ func ParseScaleOutput(b []byte) (map[string]int, error) {
 			return scale, fmt.Errorf("invalid scale output stored by dokku: %v", line)
 		}
 		processType := s[0]
-		count, err := strconv.Atoi(s[1])
+		count, err := strconv.ParseInt(s[1], 10, 32)
 		if err != nil {
 			return scale, err
 		}
-		scale[processType] = count
+		scale[processType] = int32(count)
 	}
 
 	return scale, nil
