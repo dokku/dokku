@@ -40,10 +40,3 @@ dokku enter node-js-app web echo hi
 # run a long-running command, as one might for a cron task
 dokku enter node-js-app web python script/background-worker.py
 ```
-
-If the custom command uses flags, it must be separated from the `dokku enter` command via `--` (double dashes):
-
-```shell
-# list files in the app
-dokku enter node-js-app web -- ls -lah
-```
