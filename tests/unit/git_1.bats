@@ -98,7 +98,7 @@ teardown() {
   assert_output_contains "objects"
   assert_output_contains "refs"
 
-  run /bin/bash -c "dokku enter $TEST_APP web -- test -d .git"
+  run /bin/bash -c "dokku enter $TEST_APP web test -d .git"
   echo "output: $output"
   echo "status: $status"
   assert_success
