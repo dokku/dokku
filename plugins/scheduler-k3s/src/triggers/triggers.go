@@ -38,8 +38,7 @@ func main() {
 	case "post-registry-login":
 		server := flag.Arg(0)
 		username := flag.Arg(1)
-		password := flag.Arg(2)
-		err = scheduler_k3s.TriggerPostRegistryLogin(server, username, password)
+		err = scheduler_k3s.TriggerPostRegistryLogin(server, username)
 	case "report":
 		appName := flag.Arg(0)
 		err = scheduler_k3s.ReportSingleApp(appName, "", "")

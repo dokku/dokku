@@ -79,10 +79,12 @@ func TriggerPostDelete(appName string) error {
 
 // TriggerPostRegistryLogin updates the `/etc/rancher/k3s/registries.yaml` to include
 // auth information for the registry. Note that if the file does not exist, it won't be updated.
-func TriggerPostRegistryLogin(server string, username string, password string) error {
+func TriggerPostRegistryLogin(server string, username string) error {
 	if !common.FileExists("/usr/local/bin/k3s") {
 		return nil
 	}
+
+	password := os.Getenv("DOCKER_REGISTRY_PASS")
 
 	registry := registries.Registry{}
 	yamlFile, err := os.ReadFile(RegistryConfigPath)
