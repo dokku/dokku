@@ -114,7 +114,7 @@ func TriggerPostRegistryLogin(server string, username string, password string) e
 		return fmt.Errorf("Unable to marshal registry configuration to yaml: %w", err)
 	}
 
-	if err := os.WriteFile(registryFile, data, os.FileMode(0644)); err != nil {
+	if err := os.WriteFile(RegistryConfigPath, data, os.FileMode(0644)); err != nil {
 		return fmt.Errorf("Unable to write registry configuration to file: %w", err)
 	}
 

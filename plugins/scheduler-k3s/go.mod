@@ -3,6 +3,7 @@ module github.com/dokku/dokku/plugins/scheduler-k3s
 go 1.21
 
 require (
+	github.com/dokku/dokku/plugins/app-json v0.0.0-00010101000000-000000000000
 	github.com/dokku/dokku/plugins/common v0.0.0-00010101000000-000000000000
 	github.com/dokku/dokku/plugins/config v0.0.0-00010101000000-000000000000
 	github.com/dokku/dokku/plugins/cron v0.0.0-00010101000000-000000000000
@@ -10,6 +11,7 @@ require (
 	github.com/go-resty/resty/v2 v2.11.0
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
 	github.com/rancher/wharfie v0.6.5
+	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/spf13/pflag v1.0.5
 	github.com/traefik/traefik/v2 v2.10.7
 	github.com/wk8/go-ordered-map/v2 v2.1.8
@@ -55,7 +57,6 @@ require (
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-metrics v0.0.1 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
-	github.com/dokku/dokku/plugins/app-json v0.0.0-00010101000000-000000000000 // indirect
 	github.com/emicklei/go-restful/v3 v3.11.0 // indirect
 	github.com/evanphx/json-patch v5.6.0+incompatible // indirect
 	github.com/exponent-io/jsonpath v0.0.0-20151013193312-d6023ce2651d // indirect
@@ -129,7 +130,6 @@ require (
 	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/rubenv/sql-migrate v1.5.2 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
-	github.com/ryanuber/columnize v2.1.2+incompatible // indirect
 	github.com/shopspring/decimal v1.3.1 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
