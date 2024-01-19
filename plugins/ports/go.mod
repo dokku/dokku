@@ -15,7 +15,7 @@ require (
 	github.com/joho/godotenv v1.2.0 // indirect
 	github.com/otiai10/copy v1.14.0 // indirect
 	golang.org/x/sync v0.6.0 // indirect
-	golang.org/x/sys v0.13.0 // indirect
+	golang.org/x/sys v0.15.0 // indirect
 )
 
 replace github.com/dokku/dokku/plugins/common => ../common
