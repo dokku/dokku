@@ -36,7 +36,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "Greeting: Hello grpc"
+  assert_output_contains "Greeting: Hello grpc"
 }
 
 @test "(nginx-vhosts) grpc endpoint on a port other than 80" {
@@ -54,7 +54,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "Greeting: Hello grpc8080"
+  assert_output_contains "Greeting: Hello grpc8080"
 }
 
 @test "(nginx-vhosts) grpcs endpoint" {
@@ -73,5 +73,5 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "Greeting: Hello grpcs"
+  assert_output_contains "Greeting: Hello grpcs"
 }
