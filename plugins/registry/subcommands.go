@@ -31,6 +31,10 @@ func CommandLogin(server string, username string, password string, passwordStdin
 		return errors.New("Missing password argument")
 	}
 
+	if server == "hub.docker.com" || server == "docker.com" {
+		server = "docker.io"
+	}
+
 	command := []string{
 		common.DockerBin(),
 		"login",
