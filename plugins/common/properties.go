@@ -25,6 +25,12 @@ func CommandPropertySet(pluginName, appName, property, value string, properties 
 		LogFail("No property specified")
 	}
 
+	for k := range globalProperties {
+		if _, ok := properties[k]; !ok {
+			properties[k] = ""
+		}
+	}
+
 	if _, ok := properties[property]; !ok {
 		properties := reflect.ValueOf(properties).MapKeys()
 		validPropertyList := make([]string, len(properties))
