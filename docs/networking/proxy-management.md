@@ -9,12 +9,38 @@ proxy:clear-config [--all|<app>] # Clears config for given app
 proxy:disable [--parallel count] [--all|<app>]      # Disable proxy for app
 proxy:enable [--parallel count] [--all|<app>]       # Enable proxy for app
 proxy:report [<app>] [<flag>]                       # Displays a proxy report for one or more apps
-proxy:set <app> <proxy-type>                        # Set proxy type for app
+proxy:set [<app>|--global] <proxy-type>                        # Set proxy type for app
 ```
 
 In Dokku 0.5.0, port proxying was decoupled from the `nginx-vhosts` plugin into the proxy plugin. Dokku 0.6.0 introduced the ability to map host ports to specific container ports. In the future this will allow other proxy software - such as HAProxy or Caddy - to be used in place of nginx.
 
 ## Usage
+
+### Changing the proxy
+
+The default proxy shipped with Dokku is `nginx`. It can be changed via the `proxy:set` command.
+
+```shell
+dokku proxy:set node-js-app caddy
+```
+
+```
+-----> Setting config vars
+       DOKKU_APP_PROXY_TYPE:  caddy
+```
+
+The proxy may also be set on a global basis. This is usually preferred as running multiple proxy implementations may cause port collision issues.
+
+```shell
+dokku proxy:set --global caddy
+```
+
+```
+-----> Setting config vars
+       DOKKU_PROXY_TYPE:  caddy
+```
+
+Changing the proxy does not stop or start any given proxy implementation. Please see the documentation for your proxy implementation for details on how to perform a change.
 
 ### Regenerating proxy config
 

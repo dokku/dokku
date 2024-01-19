@@ -17,7 +17,7 @@ func TriggerProxyIsEnabled(appName string) error {
 
 // TriggerProxyType prints out the current proxy type, defaulting to nginx
 func TriggerProxyType(appName string) error {
-	proxyType := getAppProxyType(appName)
+	proxyType := getComputedProxyType(appName)
 	fmt.Println(proxyType)
 
 	return nil

@@ -79,16 +79,22 @@ func CommandReport(appName string, format string, infoFlag string) error {
 
 // CommandSet sets a proxy for an app
 func CommandSet(appName string, proxyType string) error {
-	if err := common.VerifyAppName(appName); err != nil {
-		return err
+	if appName != "--global" {
+		if err := common.VerifyAppName(appName); err != nil {
+			return err
+		}
 	}
 
 	if len(proxyType) < 2 {
 		return errors.New("Please specify a proxy type")
 	}
 
+	key := "DOKKU_APP_PROXY_TYPE"
+	if appName == "--global" {
+		key = "DOKKU_PROXY_TYPE"
+	}
 	entries := map[string]string{
-		"DOKKU_APP_PROXY_TYPE": proxyType,
+		key: proxyType,
 	}
 	return config.SetMany(appName, entries, false)
 }
