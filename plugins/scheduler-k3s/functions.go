@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/dokku/dokku/plugins/common"
@@ -20,12 +21,12 @@ import (
 )
 
 type EnterPodInput struct {
-	AppName     string
-	Clientset   KubernetesClient
-	Command     []string
-	Entrypoint  string
-	ProcessType string
-	SelectedPod v1.Pod
+	Clientset             KubernetesClient
+	Command               []string
+	Entrypoint            string
+	SelectedContainerName string
+	SelectedPod           v1.Pod
+	WaitTimeout           int
 }
 
 // StartCommandInput contains all the information needed to get the start command
@@ -49,18 +50,20 @@ type StartCommandOutput struct {
 }
 
 type WaitForPodBySelectorRunningInput struct {
-	Clientset KubernetesClient
-	Namespace string
-	Selector  string
-	Timeout   int
-	Waiter    func(ctx context.Context, clientset KubernetesClient, podName, namespace string) wait.ConditionWithContextFunc
+	Clientset     KubernetesClient
+	Namespace     string
+	LabelSelector string
+	PodName       string
+	Timeout       int
+	Waiter        func(ctx context.Context, clientset KubernetesClient, podName, namespace string) wait.ConditionWithContextFunc
 }
 
 type WaitForPodToExistInput struct {
-	Clientset  KubernetesClient
-	Namespace  string
-	RetryCount int
-	Selector   string
+	Clientset     KubernetesClient
+	Namespace     string
+	RetryCount    int
+	PodName       string
+	LabelSelector string
 }
 
 func createKubernetesNamespace(ctx context.Context, namespaceName string) error {
@@ -107,13 +110,42 @@ func enterPod(ctx context.Context, input EnterPodInput) error {
 		return fmt.Errorf("Error creating corev1 client: %w", err)
 	}
 
+	labelSelector := []string{}
+	for k, v := range input.SelectedPod.Labels {
+		labelSelector = append(labelSelector, fmt.Sprintf("%s=%s", k, v))
+	}
+
+	if input.WaitTimeout > 0 {
+		input.WaitTimeout = 5
+	}
+
+	err = waitForPodBySelectorRunning(ctx, WaitForPodBySelectorRunningInput{
+		Clientset:     input.Clientset,
+		Namespace:     input.SelectedPod.Namespace,
+		LabelSelector: strings.Join(labelSelector, ","),
+		PodName:       input.SelectedPod.Name,
+		Timeout:       input.WaitTimeout,
+		Waiter:        isPodReady,
+	})
+	if err != nil {
+		return fmt.Errorf("Error waiting for pod to be ready: %w", err)
+	}
+
+	defaultContainerName, hasDefaultContainer := input.SelectedPod.Annotations["kubectl.kubernetes.io/default-container"]
+	if input.SelectedContainerName == "" && hasDefaultContainer {
+		input.SelectedContainerName = defaultContainerName
+	}
+	if input.SelectedContainerName == "" {
+		return fmt.Errorf("No container specified and no default container found")
+	}
+
 	req := coreclient.RESTClient().Post().
 		Resource("pods").
 		Namespace(input.SelectedPod.Namespace).
 		Name(input.SelectedPod.Name).
 		SubResource("exec")
 
-	req.Param("container", fmt.Sprintf("%s-%s", input.AppName, input.ProcessType))
+	req.Param("container", input.SelectedContainerName)
 	req.Param("stdin", "true")
 	req.Param("stdout", "true")
 	req.Param("stderr", "true")
@@ -270,21 +302,26 @@ func isPodReady(ctx context.Context, clientset KubernetesClient, podName, namesp
 
 func waitForPodBySelectorRunning(ctx context.Context, input WaitForPodBySelectorRunningInput) error {
 	pods, err := waitForPodToExist(ctx, WaitForPodToExistInput{
-		Clientset:  input.Clientset,
-		Namespace:  input.Namespace,
-		RetryCount: 3,
-		Selector:   input.Selector,
+		Clientset:     input.Clientset,
+		LabelSelector: input.LabelSelector,
+		Namespace:     input.Namespace,
+		PodName:       input.PodName,
+		RetryCount:    3,
 	})
 	if err != nil {
 		return fmt.Errorf("Error waiting for pod to exist: %w", err)
 	}
 
 	if len(pods) == 0 {
-		return fmt.Errorf("no pods in %s with selector %s", input.Namespace, input.Selector)
+		return fmt.Errorf("no pods in %s with selector %s", input.Namespace, input.LabelSelector)
 	}
 
 	timeout := time.Duration(input.Timeout) * time.Second
 	for _, pod := range pods {
+		if input.PodName != "" && pod.Name != input.PodName {
+			break
+		}
+
 		if err := wait.PollUntilContextTimeout(ctx, time.Second, timeout, false, input.Waiter(ctx, input.Clientset, pod.Name, pod.Namespace)); err != nil {
 			print("\n")
 			return fmt.Errorf("Error waiting for pod to be ready: %w", err)
@@ -300,12 +337,21 @@ func waitForPodToExist(ctx context.Context, input WaitForPodToExistInput) ([]v1.
 	for i := 0; i < input.RetryCount; i++ {
 		pods, err = input.Clientset.ListPods(ctx, ListPodsInput{
 			Namespace:     input.Namespace,
-			LabelSelector: input.Selector,
+			LabelSelector: input.LabelSelector,
 		})
-		if err == nil {
+		if err != nil {
+			time.Sleep(1 * time.Second)
+		}
+
+		if input.PodName == "" {
 			break
 		}
-		time.Sleep(1 * time.Second)
+
+		for _, pod := range pods {
+			if pod.Name == input.PodName {
+				break
+			}
+		}
 	}
 	if err != nil {
 		return pods, fmt.Errorf("Error listing pods: %w", err)

@@ -181,7 +181,6 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 	}
 	defer os.RemoveAll(chartDir)
 
-	common.LogDebug(fmt.Sprintf("Using chart directory: %s", chartDir))
 	if err := os.MkdirAll(filepath.Join(chartDir, "templates"), os.FileMode(0755)); err != nil {
 		return fmt.Errorf("Error creating chart templates directory: %w", err)
 	}
@@ -470,7 +469,6 @@ func TriggerSchedulerEnter(scheduler string, appName string, processType string,
 		return nil
 	}
 
-	common.LogDebug(fmt.Sprintf("%s %s %s %s", scheduler, appName, processType, podName))
 	clientset, err := NewKubernetesClient()
 	if err != nil {
 		return fmt.Errorf("Error creating kubernetes client: %w", err)
@@ -532,11 +530,6 @@ func TriggerSchedulerEnter(scheduler string, appName string, processType string,
 		selectedPod = pods[processIndex]
 	}
 
-	processType, ok := selectedPod.Labels["dokku.com/process-type"]
-	if !ok {
-		return fmt.Errorf("Pod %s does not have a process type label", selectedPod.Name)
-	}
-
 	command := args
 	if len(args) == 0 {
 		command = []string{"/bin/bash"}
@@ -554,12 +547,11 @@ func TriggerSchedulerEnter(scheduler string, appName string, processType string,
 	}
 
 	return enterPod(ctx, EnterPodInput{
-		AppName:     appName,
 		Clientset:   clientset,
 		Command:     command,
 		Entrypoint:  entrypoint,
-		ProcessType: processType,
 		SelectedPod: selectedPod,
+		WaitTimeout: 10,
 	})
 }
 
@@ -889,10 +881,10 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 
 	batchJobSelector := fmt.Sprintf("batch.kubernetes.io/job-name=%s", createdJob.Name)
 	pods, err := waitForPodToExist(ctx, WaitForPodToExistInput{
-		Clientset:  clientset,
-		Namespace:  namespace,
-		RetryCount: 3,
-		Selector:   batchJobSelector,
+		Clientset:     clientset,
+		Namespace:     namespace,
+		RetryCount:    3,
+		LabelSelector: batchJobSelector,
 	})
 	if err != nil {
 		return fmt.Errorf("Error waiting for pod to exist: %w", err)
@@ -907,11 +899,11 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 	}
 
 	err = waitForPodBySelectorRunning(ctx, WaitForPodBySelectorRunningInput{
-		Clientset: clientset,
-		Namespace: namespace,
-		Selector:  batchJobSelector,
-		Timeout:   300,
-		Waiter:    isPodReady,
+		Clientset:     clientset,
+		Namespace:     namespace,
+		LabelSelector: batchJobSelector,
+		Timeout:       300,
+		Waiter:        isPodReady,
 	})
 	if err != nil {
 		if errors.Is(err, conditions.ErrPodCompleted) {
@@ -970,11 +962,9 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 		}
 	case v1.PodRunning:
 		return enterPod(ctx, EnterPodInput{
-			AppName:     appName,
 			Clientset:   clientset,
 			Command:     command,
 			Entrypoint:  entrypoint,
-			ProcessType: processType,
 			SelectedPod: selectedPod,
 		})
 	default:
