@@ -21,6 +21,7 @@ import (
 	"github.com/dokku/dokku/plugins/config"
 	"github.com/dokku/dokku/plugins/cron"
 	"github.com/fatih/color"
+	"github.com/hashicorp/go-multierror"
 	"github.com/kballard/go-shellquote"
 	"github.com/rancher/wharfie/pkg/registries"
 	"github.com/ryanuber/columnize"
@@ -121,7 +122,33 @@ func TriggerPostRegistryLogin(server string, username string) error {
 	}
 
 	// todo: auth against all nodes in cluster
-	return nil
+	clientset, err := NewKubernetesClient()
+	if err != nil {
+		return fmt.Errorf("Error creating kubernetes client: %w", err)
+	}
+
+	ctx := context.Background()
+	nodes, err := clientset.ListNodes(ctx, ListNodesInput{})
+	if err != nil {
+		return fmt.Errorf("Error listing nodes: %w", err)
+	}
+
+	var result error
+	for _, node := range nodes {
+		remoteHost, ok := node.Annotations["dokku.com/remote-host"]
+		if !ok {
+			continue
+		}
+
+		err := copyRegistryToNode(ctx, remoteHost)
+		if err != nil {
+			wrappedErr := fmt.Errorf("Error copying registry to node: %w", err)
+			result = multierror.Append(result, wrappedErr)
+			common.LogWarn(wrappedErr.Error())
+		}
+	}
+
+	return result
 }
 
 // TriggerSchedulerDeploy deploys an image tag for a given application

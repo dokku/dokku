@@ -8,7 +8,9 @@ require (
 	github.com/dokku/dokku/plugins/config v0.0.0-00010101000000-000000000000
 	github.com/dokku/dokku/plugins/cron v0.0.0-00010101000000-000000000000
 	github.com/fatih/color v1.16.0
+	github.com/go-openapi/jsonpointer v0.19.6
 	github.com/go-resty/resty/v2 v2.11.0
+	github.com/hashicorp/go-multierror v1.1.1
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
 	github.com/rancher/wharfie v0.6.5
 	github.com/ryanuber/columnize v2.1.2+incompatible
@@ -66,7 +68,6 @@ require (
 	github.com/go-jose/go-jose/v3 v3.0.0 // indirect
 	github.com/go-logr/logr v1.3.0 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
-	github.com/go-openapi/jsonpointer v0.19.6 // indirect
 	github.com/go-openapi/jsonreference v0.20.2 // indirect
 	github.com/go-openapi/swag v0.22.3 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
@@ -84,7 +85,6 @@ require (
 	github.com/gosuri/uitable v0.0.4 // indirect
 	github.com/gregjones/httpcache v0.0.0-20180305231024-9cad4c3443a7 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
-	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/huandu/xstrings v1.4.0 // indirect
 	github.com/imdario/mergo v0.3.13 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect

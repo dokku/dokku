@@ -73,6 +73,37 @@ func KubernetesClientConfig() clientcmd.ClientConfig {
 		&clientcmd.ConfigOverrides{ClusterInfo: clientcmdapi.Cluster{Server: ""}})
 }
 
+// AnnotateNodeInput contains all the information needed to annotates a Kubernetes node
+type AnnotateNodeInput struct {
+	// Name is the Kubernetes node name
+	Name string
+	// Key is the annotation key
+	Key string
+	// Value is the annotation value
+	Value string
+}
+
+// AnnotateNode annotates a Kubernetes node
+func (k KubernetesClient) AnnotateNode(ctx context.Context, input AnnotateNodeInput) error {
+	node, err := k.Client.CoreV1().Nodes().Get(ctx, input.Name, metav1.GetOptions{})
+	if err != nil {
+		return err
+	}
+
+	if node == nil {
+		return errors.New("node is nil")
+	}
+
+	keyPath := fmt.Sprintf("/metadata/annotations/%s", jsonpointer.Escape(input.Key))
+	patch := fmt.Sprintf(`[{"op":"add", "path":"%s", "value":"%s" }]`, keyPath, input.Value)
+	_, err = k.Client.CoreV1().Nodes().Patch(ctx, node.Name, types.JSONPatchType, []byte(patch), metav1.PatchOptions{})
+	if err != nil {
+		return fmt.Errorf("failed to annotate node: %w", err)
+	}
+
+	return nil
+}
+
 // CreateJobInput contains all the information needed to create a Kubernetes job
 type CreateJobInput struct {
 	// Job is the Kubernetes job
@@ -190,9 +221,9 @@ func (k KubernetesClient) LabelNode(ctx context.Context, input LabelNodeInput) e
 		return errors.New("node is nil")
 	}
 
-	keyPath := fmt.Sprintf("/metadata/labels/%s", jsonpointer.Escape("kubernetes.io/role"))
-	patch := fmt.Sprintf(`[{"op":"add", "path":"%s", "value":"%s" }]`, keyPath, "worker")
-	_, err = k.Client.CoreV1().Nodes().Patch(context.Background(), node.Name, types.JSONPatchType, []byte(patch), metav1.PatchOptions{})
+	keyPath := fmt.Sprintf("/metadata/labels/%s", jsonpointer.Escape(input.Key))
+	patch := fmt.Sprintf(`[{"op":"add", "path":"%s", "value":"%s" }]`, keyPath, input.Value)
+	_, err = k.Client.CoreV1().Nodes().Patch(ctx, node.Name, types.JSONPatchType, []byte(patch), metav1.PatchOptions{})
 	if err != nil {
 		return fmt.Errorf("failed to label node: %w", err)
 	}

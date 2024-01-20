@@ -462,7 +462,7 @@ func CommandClusterAdd(role string, remoteHost string, allowUknownHosts bool, ta
 		args = append(args, "--node-taint", "node-role.kubernetes.io/master=true:NoSchedule")
 	}
 
-	common.LogInfo2Quiet("Joining k3s cluster")
+	common.LogInfo2Quiet(fmt.Sprintf("Adding %s k3s cluster", nodeName))
 	joinCmd, err := common.CallSshCommand(common.SshCommandInput{
 		Command:          "/tmp/k3s-installer.sh",
 		Args:             args,
@@ -477,27 +477,31 @@ func CommandClusterAdd(role string, remoteHost string, allowUknownHosts bool, ta
 	if joinCmd.ExitCode != 0 {
 		return fmt.Errorf("Invalid exit code from k3s installer command over ssh: %d", joinCmd.ExitCode)
 	}
+	ctx := context.Background()
+	clientset, err := NewKubernetesClient()
+	if err != nil {
+		return fmt.Errorf("Unable to create kubernetes client: %w", err)
+	}
+
+	common.LogInfo2Quiet("Waiting for node to exist")
+	nodes, err := waitForNodeToExist(ctx, WaitForNodeToExistInput{
+		Clientset:  clientset,
+		NodeName:   nodeName,
+		RetryCount: 20,
+	})
+	if err != nil {
+		return fmt.Errorf("Error waiting for pod to exist: %w", err)
+	}
+	if len(nodes) == 0 {
+		return fmt.Errorf("Unable to find node after joining cluster, node will not be labeled appropriately and cannot access registry secrets")
+	}
+
+	err = copyRegistryToNode(ctx, remoteHost)
+	if err != nil {
+		return fmt.Errorf("Error copying registries.yaml to remote host: %w", err)
+	}
 
 	if role == "worker" {
-		ctx := context.Background()
-		clientset, err := NewKubernetesClient()
-		if err != nil {
-			return fmt.Errorf("Unable to create kubernetes client: %w", err)
-		}
-
-		common.LogInfo2Quiet("Waiting for node to exist")
-		nodes, err := waitForNodeToExist(ctx, WaitForNodeToExistInput{
-			Clientset:  clientset,
-			NodeName:   nodeName,
-			RetryCount: 20,
-		})
-		if err != nil {
-			return fmt.Errorf("Error waiting for pod to exist: %w", err)
-		}
-		if len(nodes) == 0 {
-			return fmt.Errorf("Unable to find node after joining cluster, node will not be labeled kubernetes.io/role=worker")
-		}
-
 		common.LogInfo2Quiet("Labeling node kubernetes.io/role=worker")
 		err = clientset.LabelNode(ctx, LabelNodeInput{
 			Name:  nodes[0].Name,
@@ -507,6 +511,16 @@ func CommandClusterAdd(role string, remoteHost string, allowUknownHosts bool, ta
 		if err != nil {
 			return fmt.Errorf("Unable to patch node: %w", err)
 		}
+	}
+
+	common.LogInfo2Quiet("Annotating node with connection information")
+	err = clientset.AnnotateNode(ctx, AnnotateNodeInput{
+		Name:  nodes[0].Name,
+		Key:   "dokku.com/remote-host",
+		Value: remoteHost,
+	})
+	if err != nil {
+		return fmt.Errorf("Unable to patch node: %w", err)
 	}
 
 	common.LogVerboseQuiet("Done")
