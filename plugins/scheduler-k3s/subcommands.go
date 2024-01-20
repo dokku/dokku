@@ -127,10 +127,18 @@ func CommandInitialize(taintScheduling bool) error {
 		return fmt.Errorf("Invalid k3s installer filesize")
 	}
 
-	// todo: allow this to be passed as an option or environment variable
-	token := "password"
-	if err := CommandSet("--global", "token", token); err != nil {
-		return fmt.Errorf("Unable to set k3s token: %w", err)
+	token := common.PropertyGet("scheduler-k3s", "--global", "token")
+	if len(token) == 0 {
+		n := 5
+		b := make([]byte, n)
+		if _, err := rand.Read(b); err != nil {
+			return fmt.Errorf("Unable to generate random node name: %w", err)
+		}
+
+		token := strings.ToLower(fmt.Sprintf("%X", b))
+		if err := CommandSet("--global", "token", token); err != nil {
+			return fmt.Errorf("Unable to set k3s token: %w", err)
+		}
 	}
 
 	nodeName := serverIp
