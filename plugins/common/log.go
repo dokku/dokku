@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+
+	"github.com/hashicorp/go-multierror"
 )
 
 // ErrWithExitCode wraps error and exposes an ExitCode method
@@ -54,7 +56,17 @@ func LogFail(text string) {
 // LogFailWithError is the failure log formatter
 // prints text to stderr and exits with the specified exit code
 func LogFailWithError(err error) {
-	fmt.Fprintln(os.Stderr, fmt.Sprintf(" !     %s", err.Error()))
+	if err == nil {
+		return
+	}
+
+	if merr, ok := err.(*multierror.Error); ok {
+		for _, e := range merr.Errors {
+			fmt.Fprintf(os.Stderr, " !     %s\n", e.Error())
+		}
+	} else {
+		fmt.Fprintf(os.Stderr, " !     %s\n", err.Error())
+	}
 	if errExit, ok := err.(ErrWithExitCode); ok {
 		os.Exit(errExit.ExitCode())
 	}
