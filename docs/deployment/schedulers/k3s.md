@@ -33,7 +33,15 @@ Initialize the cluster in single-node mode. This will start k3s on the Dokku nod
 dokku scheduler-k3s:initialize
 ```
 
-The above command will initialize a cluster with an automatically generated token for authentication. This token should be stored securely for later recovery, and can be displayed with via the `scheduler-k3s:report` command:
+The above command will initialize a cluster with the following configuration:
+
+- etcd distributed backing store
+- Wireguard as the networking flannel
+- K3s automatic upgrader
+- Longhorn distributed block storage
+- Traefik configured to run on all nodes in the cluster
+
+Additionally, an internal token for authentication will be automatically generated. This token should be stored securely for later recovery, and can be displayed with via the `scheduler-k3s:report` command:
 
 ```shell
 dokku scheduler-k3s:report --global
@@ -88,6 +96,9 @@ dokku scheduler:set --global selected k3s
 ```
 
 At this point, all app deploys will be performed against the k3s cluster.
+
+> [!NOTE]
+> HTTP requests for apps can be performed against any node in the cluster. Without extra configuration, many other ports may also be available on the host. For security reasons, it may be desirable to place the k3s cluster behind one or more TCP load balancers while shutting off traffic to all cluster ports. Please consult your hosting provider for more information on how to provision a TCP load balancer and shut off all ports other than 22/80/443 access to the outside world.
 
 ### Running a multi-cluster node
 
