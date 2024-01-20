@@ -212,6 +212,9 @@ func templateKubernetesCronJob(input Job) (batchv1.CronJob, error) {
 	}
 	annotations["dokku.com/job-suffix"] = suffix
 
+	podAnnotations := annotations
+	podAnnotations["kubectl.kubernetes.io/default-container"] = fmt.Sprintf("%s-%s", input.AppName, input.ProcessType)
+
 	job := batchv1.CronJob{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        fmt.Sprintf("%s-%s-%s", input.AppName, input.ProcessType, suffix),
@@ -236,6 +239,10 @@ func templateKubernetesCronJob(input Job) (batchv1.CronJob, error) {
 					BackoffLimit:         ptr.To(int32(0)),
 					PodReplacementPolicy: ptr.To(batchv1.Failed),
 					Template: corev1.PodTemplateSpec{
+						ObjectMeta: metav1.ObjectMeta{
+							Labels:      labels,
+							Annotations: podAnnotations,
+						},
 						Spec: corev1.PodSpec{
 							Containers: []corev1.Container{
 								{
@@ -353,6 +360,9 @@ func templateKubernetesDeployment(input Deployment) (appsv1.Deployment, error) {
 	}
 	secretName := fmt.Sprintf("env-%s.DEPLOYMENT_ID", input.AppName)
 
+	podAnnotations := annotations
+	podAnnotations["kubectl.kubernetes.io/default-container"] = fmt.Sprintf("%s-%s", input.AppName, input.ProcessType)
+
 	deployment := appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        fmt.Sprintf("%s-%s", input.AppName, input.ProcessType),
@@ -369,7 +379,7 @@ func templateKubernetesDeployment(input Deployment) (appsv1.Deployment, error) {
 			Template: corev1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels:      labels,
-					Annotations: annotations,
+					Annotations: podAnnotations,
 				},
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{
@@ -646,6 +656,9 @@ func templateKubernetesJob(input Job) (batchv1.Job, error) {
 	}
 	annotations["dokku.com/job-suffix"] = suffix
 
+	podAnnotations := annotations
+	podAnnotations["kubectl.kubernetes.io/default-container"] = fmt.Sprintf("%s-%s", input.AppName, input.ProcessType)
+
 	job := batchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        fmt.Sprintf("%s-%s-%s", input.AppName, input.ProcessType, suffix),
@@ -658,7 +671,7 @@ func templateKubernetesJob(input Job) (batchv1.Job, error) {
 			Template: corev1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels:      labels,
-					Annotations: annotations,
+					Annotations: podAnnotations,
 				},
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{
