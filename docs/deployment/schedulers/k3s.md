@@ -145,10 +145,31 @@ In some cases, Dokku must be setup from scratch and joined to an existing cluste
 dokku scheduler-k3s:set --global token topsecret:server:token
 ```
 
-Next, run the `scheduler-k3s:join-cluster` command. This command takes a single server node in the cluster, will SSH onto the specified server, retrieve the kubeconfig, and then configure kubectl on the Dokku node to speak with the specified k3s cluster. Dokku will also periodically retrieve all server nodes in the cluster so that server nodes can be safely replaced as needed.
+Next, run the `scheduler-k3s:cluster-add` command. This command takes a single server node in the cluster, will SSH onto the specified server, retrieve the kubeconfig, and then configure kubectl on the Dokku node to speak with the specified k3s cluster. 
+
+> [!TODO]
+> TODO: Dokku will also periodically retrieve all server nodes in the cluster so that server nodes can be safely replaced as needed.
 
 ```shell
-dokku scheduler-k3s:join-cluster root@server-1.example.com
+dokku scheduler-k3s:cluster-add ssh://root@worker-1.example.com
+```
+
+If the server isn't in the `known_hosts` file, the connection will fail. This can be bypassed by setting the `--insecure-allow-unknown-hosts` flag:
+
+```shell
+dokku scheduler-k3s:cluster-add --insecure-allow-unknown-hosts ssh://root@worker-1.example.com
+```
+
+New server nodes are added as worker nodes which run application workloads but do not otherwise participate in managing the cluster. For high availability, new server nodes can be added to the cluster by specifying the `--role` flag:
+
+```shell
+dokku scheduler-kes:cluster-add --role server ssh://root@cluster-1.example.com
+```
+
+Server nodes allow any workloads to be scheduled on them by default, in addition to the control-plane, etcd, and the scheduler itself. To avoid app workloads being scheduled on your control-plane, use the `--taint-scheduling` flag:
+
+```shell
+dokku scheduler-kes:cluster-add --role server --taint-scheduling ssh://root@cluster-1.example.com
 ```
 
 ### Using kubectl remotely

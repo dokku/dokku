@@ -49,6 +49,13 @@ type StartCommandOutput struct {
 	Command []string
 }
 
+type WaitForNodeToExistInput struct {
+	Clientset  KubernetesClient
+	Namespace  string
+	RetryCount int
+	NodeName   string
+}
+
 type WaitForPodBySelectorRunningInput struct {
 	Clientset     KubernetesClient
 	Namespace     string
@@ -188,25 +195,25 @@ func extractStartCommand(input StartCommandInput) string {
 		return "/start " + input.ProcessType
 	}
 
-	startCommandResp, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+	resp, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
 		Trigger:       "config-get",
 		Args:          []string{input.AppName, "DOKKU_START_CMD"},
 		CaptureOutput: true,
 		StreamStdio:   false,
 	})
-	if err == nil && startCommandResp.ExitCode == 0 && len(startCommandResp.Stdout) > 0 {
-		command = startCommandResp.Stdout
+	if err == nil && resp.ExitCode == 0 && len(resp.Stdout) > 0 {
+		command = strings.TrimSpace(resp.Stdout)
 	}
 
 	if input.ImageSourceType == "dockerfile" {
-		startCommandDockerfileResp, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		resp, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
 			Trigger:       "config-get",
 			Args:          []string{input.AppName, "DOKKU_DOCKERFILE_START_CMD"},
 			CaptureOutput: true,
 			StreamStdio:   false,
 		})
-		if err == nil && startCommandDockerfileResp.ExitCode == 0 && len(startCommandDockerfileResp.Stdout) > 0 {
-			command = startCommandDockerfileResp.Stdout
+		if err == nil && resp.ExitCode == 0 && len(resp.Stdout) > 0 {
+			command = strings.TrimSpace(resp.Stdout)
 		}
 	}
 
@@ -278,6 +285,22 @@ func getStartCommand(input StartCommandInput) (StartCommandOutput, error) {
 	}, nil
 }
 
+func isK3sInstalled() error {
+	if !common.FileExists("/usr/local/bin/k3s") {
+		return fmt.Errorf("k3s binary is not available")
+	}
+
+	if !common.FileExists(RegistryConfigPath) {
+		return fmt.Errorf("k3s registry config is not available")
+	}
+
+	if !common.FileExists(KubeConfigPath) {
+		return fmt.Errorf("k3s kubeconfig is not available")
+	}
+
+	return nil
+}
+
 func isPodReady(ctx context.Context, clientset KubernetesClient, podName, namespace string) wait.ConditionWithContextFunc {
 	return func(ctx context.Context) (bool, error) {
 		fmt.Printf(".") // progress bar!
@@ -331,6 +354,37 @@ func waitForPodBySelectorRunning(ctx context.Context, input WaitForPodBySelector
 	return nil
 }
 
+func waitForNodeToExist(ctx context.Context, input WaitForNodeToExistInput) ([]v1.Node, error) {
+	var matchingNodes []v1.Node
+	var err error
+	for i := 0; i < input.RetryCount; i++ {
+		nodes, err := input.Clientset.ListNodes(ctx, ListNodesInput{})
+		if err != nil {
+			time.Sleep(1 * time.Second)
+		}
+
+		if input.NodeName == "" {
+			matchingNodes = nodes
+			break
+		}
+
+		for _, node := range nodes {
+			if node.Name == input.NodeName {
+				matchingNodes = append(matchingNodes, node)
+				break
+			}
+		}
+		if len(matchingNodes) > 0 {
+			break
+		}
+		time.Sleep(1 * time.Second)
+	}
+	if err != nil {
+		return matchingNodes, fmt.Errorf("Error listing nodes: %w", err)
+	}
+	return matchingNodes, nil
+}
+
 func waitForPodToExist(ctx context.Context, input WaitForPodToExistInput) ([]v1.Pod, error) {
 	var pods []v1.Pod
 	var err error
@@ -352,6 +406,7 @@ func waitForPodToExist(ctx context.Context, input WaitForPodToExistInput) ([]v1.
 				break
 			}
 		}
+		time.Sleep(1 * time.Second)
 	}
 	if err != nil {
 		return pods, fmt.Errorf("Error listing pods: %w", err)

@@ -3,7 +3,10 @@ package scheduler_k3s
 import (
 	"context"
 	"errors"
+	"fmt"
 
+	"github.com/dokku/dokku/plugins/common"
+	"github.com/go-openapi/jsonpointer"
 	appsv1 "k8s.io/api/apps/v1"
 	autoscalingv1 "k8s.io/api/autoscaling/v1"
 	batchv1 "k8s.io/api/batch/v1"
@@ -11,6 +14,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
@@ -165,6 +169,37 @@ func (k KubernetesClient) GetPod(ctx context.Context, input GetPodInput) (v1.Pod
 	return *pod, err
 }
 
+// LabelNodeInput contains all the information needed to label a Kubernetes node
+type LabelNodeInput struct {
+	// Name is the Kubernetes node name
+	Name string
+	// Key is the label key
+	Key string
+	// Value is the label value
+	Value string
+}
+
+// LabelNode labels a Kubernetes node
+func (k KubernetesClient) LabelNode(ctx context.Context, input LabelNodeInput) error {
+	node, err := k.Client.CoreV1().Nodes().Get(ctx, input.Name, metav1.GetOptions{})
+	if err != nil {
+		return err
+	}
+
+	if node == nil {
+		return errors.New("node is nil")
+	}
+
+	keyPath := fmt.Sprintf("/metadata/labels/%s", jsonpointer.Escape("kubernetes.io/role"))
+	patch := fmt.Sprintf(`[{"op":"add", "path":"%s", "value":"%s" }]`, keyPath, "worker")
+	_, err = k.Client.CoreV1().Nodes().Patch(context.Background(), node.Name, types.JSONPatchType, []byte(patch), metav1.PatchOptions{})
+	if err != nil {
+		return fmt.Errorf("failed to label node: %w", err)
+	}
+
+	return nil
+}
+
 // ListCronJobsInput contains all the information needed to list Kubernetes cron jobs
 type ListCronJobsInput struct {
 	// LabelSelector is the Kubernetes label selector
@@ -228,6 +263,31 @@ func (k KubernetesClient) ListNamespaces(ctx context.Context) ([]v1.Namespace, e
 	}
 
 	return namespaces.Items, nil
+}
+
+// ListNodesInput contains all the information needed to list Kubernetes nodes
+type ListNodesInput struct {
+	// LabelSelector is the Kubernetes label selector
+	LabelSelector string
+}
+
+// ListNodes lists Kubernetes nodes
+func (k KubernetesClient) ListNodes(ctx context.Context, input ListNodesInput) ([]v1.Node, error) {
+	listOptions := metav1.ListOptions{}
+	if input.LabelSelector != "" {
+		common.LogDebug(fmt.Sprintf("Using label selector: %s", input.LabelSelector))
+		listOptions.LabelSelector = input.LabelSelector
+	}
+	nodeList, err := k.Client.CoreV1().Nodes().List(ctx, listOptions)
+	if err != nil {
+		return []v1.Node{}, err
+	}
+
+	if nodeList == nil {
+		return []v1.Node{}, errors.New("pod list is nil")
+	}
+
+	return nodeList.Items, err
 }
 
 // ListPodsInput contains all the information needed to list Kubernetes pods

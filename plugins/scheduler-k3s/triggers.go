@@ -713,24 +713,24 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 
 	dokkuRmContainer := os.Getenv("DOKKU_RM_CONTAINER")
 	if dokkuRmContainer == "" {
-		appRmContainer, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		resp, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
 			Trigger:       "config-get",
 			Args:          []string{appName, "DOKKU_RM_CONTAINER"},
 			CaptureOutput: true,
 			StreamStdio:   false,
 		})
 		if err != nil {
-			globalRmContainer, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+			resp, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
 				Trigger:       "config-get-global",
 				Args:          []string{"DOKKU_RM_CONTAINER"},
 				CaptureOutput: true,
 				StreamStdio:   false,
 			})
 			if err == nil {
-				dokkuRmContainer = globalRmContainer.Stdout
+				dokkuRmContainer = strings.TrimSpace(resp.Stdout)
 			}
 		} else {
-			dokkuRmContainer = appRmContainer.Stdout
+			dokkuRmContainer = strings.TrimSpace(resp.Stdout)
 		}
 	}
 	if dokkuRmContainer == "" {

@@ -20,8 +20,17 @@ func main() {
 	switch subcommand {
 	case "initialize":
 		args := flag.NewFlagSet("scheduler-k3s:initialize", flag.ExitOnError)
+		taintScheduling := args.Bool("taint-scheduling", false, "taint-scheduling: add a taint against scheduling app workloads")
 		args.Parse(os.Args[2:])
-		err = scheduler_k3s.CommandInitialize()
+		err = scheduler_k3s.CommandInitialize(*taintScheduling)
+	case "cluster-add":
+		args := flag.NewFlagSet("scheduler-k3s:cluster-add", flag.ExitOnError)
+		allowUknownHosts := args.Bool("insecure-allow-unknown-hosts", false, "insecure-allow-unknown-hosts: allow unknown hosts")
+		taintScheduling := args.Bool("taint-scheduling", false, "taint-scheduling: add a taint against scheduling app workloads")
+		role := args.String("role", "worker", "role: [ server | worker ]")
+		args.Parse(os.Args[2:])
+		remoteHost := args.Arg(0)
+		err = scheduler_k3s.CommandClusterAdd(*role, remoteHost, *allowUknownHosts, *taintScheduling)
 	case "report":
 		args := flag.NewFlagSet("scheduler-k3s:report", flag.ExitOnError)
 		format := args.String("format", "stdout", "format: [ stdout | json ]")
@@ -48,6 +57,10 @@ func main() {
 		args := flag.NewFlagSet("scheduler-k3s:show-kubeconfig", flag.ExitOnError)
 		args.Parse(os.Args[2:])
 		err = scheduler_k3s.CommandShowKubeconfig()
+	case "uninstall":
+		args := flag.NewFlagSet("scheduler-k3s:uninstall", flag.ExitOnError)
+		args.Parse(os.Args[2:])
+		err = scheduler_k3s.CommandUninstall()
 	default:
 		err = fmt.Errorf("Invalid plugin subcommand call: %s", subcommand)
 	}
