@@ -296,7 +296,7 @@ data:
 	}
 
 	cronJobs, err := clientset.ListCronJobs(ctx, ListCronJobsInput{
-		LabelSelector: fmt.Sprintf("dokku.com/app-name=%s", appName),
+		LabelSelector: fmt.Sprintf("app.kubernetes.io/part-of=%s", appName),
 		Namespace:     namespace,
 	})
 	if err != nil {
@@ -487,7 +487,7 @@ func TriggerSchedulerEnter(scheduler string, appName string, processType string,
 
 	namespace := common.PropertyGetDefault("scheduler-k3s", appName, "namespace", "default")
 
-	labelSelector := []string{fmt.Sprintf("dokku.com/app-name=%s", appName)}
+	labelSelector := []string{fmt.Sprintf("app.kubernetes.io/part-of=%s", appName)}
 	processIndex := 1
 	if processType != "" {
 		parts := strings.SplitN(processType, ".", 2)
@@ -498,7 +498,7 @@ func TriggerSchedulerEnter(scheduler string, appName string, processType string,
 				return fmt.Errorf("Error parsing process index: %w", err)
 			}
 		}
-		labelSelector = append(labelSelector, fmt.Sprintf("dokku.com/process-type=%s", processType))
+		labelSelector = append(labelSelector, fmt.Sprintf("app.kubernetes.io/name=%s", processType))
 	}
 
 	pods, err := clientset.ListPods(ctx, ListPodsInput{
@@ -577,7 +577,7 @@ func TriggerSchedulerLogs(scheduler string, appName string, processType string, 
 		cancel()
 	}()
 
-	labelSelector := []string{fmt.Sprintf("dokku.com/app-name=%s", appName)}
+	labelSelector := []string{fmt.Sprintf("app.kubernetes.io/part-of=%s", appName)}
 	processIndex := 0
 	if processType != "" {
 		parts := strings.SplitN(processType, ".", 2)
@@ -588,7 +588,7 @@ func TriggerSchedulerLogs(scheduler string, appName string, processType string, 
 				return fmt.Errorf("Error parsing process index: %w", err)
 			}
 		}
-		labelSelector = append(labelSelector, fmt.Sprintf("dokku.com/process-type=%s", processType))
+		labelSelector = append(labelSelector, fmt.Sprintf("app.kubernetes.io/name=%s", processType))
 	}
 
 	namespace := common.PropertyGetDefault("scheduler-k3s", appName, "namespace", "default")
@@ -743,7 +743,7 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 	}
 
 	labels := map[string]string{
-		"dokku.com/app-name": appName,
+		"app.kubernetes.io/part-of": appName,
 	}
 
 	if os.Getenv("DOKKU_TRACE") == "1" {
@@ -990,7 +990,7 @@ func TriggerSchedulerRunList(scheduler string, appName string, format string) er
 
 	ctx := context.Background()
 	cronJobs, err := clientset.ListCronJobs(ctx, ListCronJobsInput{
-		LabelSelector: fmt.Sprintf("dokku.com/app-name=%s", appName),
+		LabelSelector: fmt.Sprintf("app.kubernetes.io/part-of=%s", appName),
 		Namespace:     namespace,
 	})
 	if err != nil {
@@ -1087,14 +1087,14 @@ func TriggerSchedulerStop(scheduler string, appName string) error {
 	namespace := common.PropertyGetDefault("scheduler-k3s", appName, "namespace", "default")
 	deployments, err := clientset.ListDeployments(ctx, ListDeploymentsInput{
 		Namespace:     namespace,
-		LabelSelector: fmt.Sprintf("dokku.com/app-name=%s", appName),
+		LabelSelector: fmt.Sprintf("app.kubernetes.io/part-of=%s", appName),
 	})
 	if err != nil {
 		return fmt.Errorf("Error listing deployments: %w", err)
 	}
 
 	for _, deployment := range deployments {
-		processType, ok := deployment.Annotations["dokku.com/process-type"]
+		processType, ok := deployment.Annotations["app.kubernetes.io/name"]
 		if !ok {
 			return fmt.Errorf("Deployment %s does not have a process type annotation", deployment.Name)
 		}

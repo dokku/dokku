@@ -174,18 +174,16 @@ func templateKubernetesCronJob(input Job) (batchv1.CronJob, error) {
 		return batchv1.CronJob{}, fmt.Errorf("Schedule cannot be empty")
 	}
 	labels := map[string]string{
-		"dokku.com/app-name":         input.AppName,
-		"dokku.com/app-process-type": fmt.Sprintf("%s-%s", input.AppName, input.ProcessType),
+		"app.kubernetes.io/instance": fmt.Sprintf("%s-%s", input.AppName, input.ProcessType),
+		"app.kubernetes.io/name":     input.ProcessType,
+		"app.kubernetes.io/part-of":  input.AppName,
 		"dokku.com/cron-id":          input.ID,
-		"dokku.com/process-type":     input.ProcessType,
 	}
 	annotations := map[string]string{
-		"dokku.com/app-name":      input.AppName,
-		"dokku.com/builder-type":  input.ImageSourceType,
-		"dokku.com/cron-id":       input.ID,
-		"dokku.com/deployment-id": "DEPLOYMENT_ID_QUOTED",
-		"dokku.com/managed":       "true",
-		"dokku.com/process-type":  input.ProcessType,
+		"app.kubernetes.io/version": "DEPLOYMENT_ID_QUOTED",
+		"dokku.com/builder-type":    input.ImageSourceType,
+		"dokku.com/cron-id":         input.ID,
+		"dokku.com/managed":         "true",
 	}
 
 	for key, value := range input.Labels {
@@ -347,16 +345,14 @@ func templateKubernetesCronJob(input Job) (batchv1.CronJob, error) {
 
 func templateKubernetesDeployment(input Deployment) (appsv1.Deployment, error) {
 	labels := map[string]string{
-		"dokku.com/app-name":         input.AppName,
-		"dokku.com/app-process-type": fmt.Sprintf("%s-%s", input.AppName, input.ProcessType),
-		"dokku.com/process-type":     input.ProcessType,
+		"app.kubernetes.io/instance": fmt.Sprintf("%s-%s", input.AppName, input.ProcessType),
+		"app.kubernetes.io/name":     input.ProcessType,
+		"app.kubernetes.io/part-of":  input.AppName,
 	}
 	annotations := map[string]string{
-		"dokku.com/app-name":      input.AppName,
-		"dokku.com/builder-type":  input.ImageSourceType,
-		"dokku.com/deployment-id": "DEPLOYMENT_ID_QUOTED",
-		"dokku.com/managed":       "true",
-		"dokku.com/process-type":  input.ProcessType,
+		"app.kubernetes.io/version": "DEPLOYMENT_ID_QUOTED",
+		"dokku.com/builder-type":    input.ImageSourceType,
+		"dokku.com/managed":         "true",
 	}
 	secretName := fmt.Sprintf("env-%s.DEPLOYMENT_ID", input.AppName)
 
@@ -575,19 +571,22 @@ func templateKubernetesIngressRoute(input IngressRoute) traefikv1alpha1.IngressR
 		entryPoint = IngressRouteEntrypoint_HTTPS
 	}
 
+	labels := map[string]string{
+		"app.kubernetes.io/instance": fmt.Sprintf("%s-%s", input.AppName, input.ProcessType),
+		"app.kubernetes.io/name":     input.ProcessType,
+		"app.kubernetes.io/part-of":  input.AppName,
+	}
+	annotations := map[string]string{
+		"dokku.com/managed": "true",
+	}
+
 	port := fmt.Sprintf("%s-%d-%d", input.PortMap.Scheme, input.PortMap.HostPort, input.PortMap.ContainerPort)
 	ingressRoute := traefikv1alpha1.IngressRoute{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("%s-%s", input.ServiceName, port),
-			Namespace: input.Namespace,
-			Labels: map[string]string{
-				"dokku.com/app-name":         input.AppName,
-				"dokku.com/app-process-type": fmt.Sprintf("%s-%s", input.AppName, input.ProcessType),
-				"dokku.com/process-type":     input.ProcessType,
-			},
-			Annotations: map[string]string{
-				"dokku.com/managed": "true",
-			},
+			Name:        fmt.Sprintf("%s-%s", input.ServiceName, port),
+			Namespace:   input.Namespace,
+			Labels:      labels,
+			Annotations: annotations,
 		},
 		Spec: traefikv1alpha1.IngressRouteSpec{
 			EntryPoints: []string{string(entryPoint)},
@@ -620,16 +619,14 @@ func templateKubernetesIngressRoute(input IngressRoute) traefikv1alpha1.IngressR
 
 func templateKubernetesJob(input Job) (batchv1.Job, error) {
 	labels := map[string]string{
-		"dokku.com/app-name":         input.AppName,
-		"dokku.com/app-process-type": fmt.Sprintf("%s-%s", input.AppName, input.ProcessType),
-		"dokku.com/process-type":     input.ProcessType,
+		"app.kubernetes.io/instance": fmt.Sprintf("%s-%s", input.AppName, input.ProcessType),
+		"app.kubernetes.io/name":     input.ProcessType,
+		"app.kubernetes.io/part-of":  input.AppName,
 	}
 	annotations := map[string]string{
-		"dokku.com/app-name":      input.AppName,
-		"dokku.com/builder-type":  input.ImageSourceType,
-		"dokku.com/deployment-id": fmt.Sprint(input.DeploymentID),
-		"dokku.com/managed":       "true",
-		"dokku.com/process-type":  input.ProcessType,
+		"app.kubernetes.io/version": fmt.Sprint(input.DeploymentID),
+		"dokku.com/builder-type":    input.ImageSourceType,
+		"dokku.com/managed":         "true",
 	}
 
 	for key, value := range input.Labels {
@@ -773,17 +770,22 @@ func templateKubernetesJob(input Job) (batchv1.Job, error) {
 
 func templateKubernetesSecret(input Secret) corev1.Secret {
 	secretName := fmt.Sprintf("env-%s.DEPLOYMENT_ID", input.AppName)
+	labels := map[string]string{
+		"app.kubernetes.io/instance": secretName,
+		"app.kubernetes.io/name":     fmt.Sprintf("%s-env", input.AppName),
+		"app.kubernetes.io/part-of":  input.AppName,
+	}
+
+	annotations := map[string]string{
+		"app.kubernetes.io/version": "DEPLOYMENT_ID_QUOTED",
+		"dokku.com/managed":         "true",
+	}
 	secret := corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      secretName,
-			Namespace: input.Namespace,
-			Labels: map[string]string{
-				"dokku.com/app-name":      input.AppName,
-				"dokku.com/deployment-id": "DEPLOYMENT_ID_QUOTED",
-			},
-			Annotations: map[string]string{
-				"dokku.com/managed": "true",
-			},
+			Name:        secretName,
+			Namespace:   input.Namespace,
+			Labels:      labels,
+			Annotations: annotations,
 		},
 		Data: map[string][]byte{},
 	}
@@ -792,25 +794,23 @@ func templateKubernetesSecret(input Secret) corev1.Secret {
 }
 
 func templateKubernetesService(input Service) corev1.Service {
+	labels := map[string]string{
+		"app.kubernetes.io/instance": fmt.Sprintf("%s-%s", input.AppName, "web"),
+		"app.kubernetes.io/name":     "web",
+		"app.kubernetes.io/part-of":  input.AppName,
+	}
+	annotations := map[string]string{
+		"dokku.com/managed": "true",
+	}
 	service := corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("%s-%s", input.AppName, "web"),
-			Namespace: input.Namespace,
-			Labels: map[string]string{
-				"dokku.com/app-name":         input.AppName,
-				"dokku.com/app-process-type": fmt.Sprintf("%s-%s", input.AppName, "web"),
-				"dokku.com/process-type":     "web",
-			},
-			Annotations: map[string]string{
-				"dokku.com/managed": "true",
-			},
+			Name:        fmt.Sprintf("%s-%s", input.AppName, "web"),
+			Namespace:   input.Namespace,
+			Labels:      labels,
+			Annotations: annotations,
 		},
 		Spec: corev1.ServiceSpec{
-			Selector: map[string]string{
-				"dokku.com/app-name":         input.AppName,
-				"dokku.com/app-process-type": fmt.Sprintf("%s-%s", input.AppName, "web"),
-				"dokku.com/process-type":     "web",
-			},
+			Selector: labels,
 		},
 	}
 
