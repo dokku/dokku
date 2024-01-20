@@ -69,7 +69,7 @@ Additionally, apps should be configured to push images on the release phase via 
 dokku registry:set --global push-on-release true
 ```
 
-As routing is handled by traefik managed on the k3s plugin, set the proxy plugin to `k3s` as well. This implements a traefik-plugin compatible layer, allowing users to otherwise interact with the `traefik` plugin as expected.
+As routing is handled by traefik managed on the k3s plugin, set the proxy plugin to `k3s` as well.
 
 ```shell
 dokku proxy:set --global k3s
