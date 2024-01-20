@@ -91,30 +91,10 @@ At this point, all app deploys will be performed against the k3s cluster.
 
 ### Running a multi-cluster node
 
-> [!IMPORTANT]
-> This is future planned behavior. Commands here will not work as expected.
-
-For high-availability, it is recommended to add both agent and server nodes to the cluster. Dokku will default to starting the cluster with an embedded Etcd database backend, and is ready to add new agent or server nodes immediately.
-
-Multiple server nodes can be added with the `scheduler-k3s:add-server` command. This will ssh onto the specified server, install k3s, and join it to the current Dokku node in server mode.
-
 > [!WARNING]
 > Certain ports must be open for cross-server communication. Refer to the [K3s networking documentation](https://docs.k3s.io/installation/requirements?os=debian#networking) for the required open ports between servers prior to running the command.
 
-```shell
-dokku scheduler-k3s:add-server root@server-1.example.com
-```
-
-Server nodes are typically used to replicate the cluster state, and it is recommended to have an odd number of nodes spread across several availability zones (datacenters in close proximity within a region). This allows for higher availability in the event of a cluster failure. Server nodes do not run any app workloads, but run control-plane services such as the traefik load balancer and the etcd backing store.
-
-> [!NOTE]
-> Only the initial Dokku server will be properly configured for deployment, and should be considered your git remote. Additional server nodes are for ensuring high-availability of the K3s etcd state. Ensure this server is properly backed up and restorable or deployments will not work.
-
-Agent nodes are used to run. To add an agent, run the `add-agent` command. This will ssh onto the specified server, install k3s, and join it to the current Dokku node in agent mode. Agents are typically used to run app workloads.
-
-```shell
-dokku scheduler-k3s:add-agent root@server-1.example.com
-```
+For high-availability, it is recommended to add both agent and server nodes to the cluster. Dokku will default to starting the cluster with an embedded Etcd database backend, and is ready to add new agent or server nodes immediately.
 
 When attaching an agent or server node, the K3s plugin will look at the IP associated with the `eth0` interface and use that to connect the new node to the cluster. To change this, set the `network-interface` property to the appropriate value.
 
@@ -122,54 +102,45 @@ When attaching an agent or server node, the K3s plugin will look at the IP assoc
 dokku scheduler-k3s:set --global network-interface eth1
 ```
 
-Dokku servers may not have an ssh key pair by default, but they can be generated as needed
+Dokku will connect to remote servers via the `root` user with the `dokku` user's SSH key pair. Dokku servers may not have an ssh key pair by default, but they can be generated as needed via the `git:generate-deploy-key` command.
 
 ```shell
 dokku git:generate-deploy-key
 ```
 
-This key can then be displayed with the `git:public-key` command:
+This key can then be displayed with the `git:public-key` command, and copied to the remote server's `/root/.ssh/authorized_keys` file.
 
 ```shell
 dokku git:public-key
 ```
 
-### Joining an existing cluster
-
-> [!IMPORTANT]
-> This is future planned behavior. Commands here will not work as expected.
-
-In some cases, Dokku must be setup from scratch and joined to an existing cluster. To do so, first set the k3s token value:
+Multiple server nodes can be added with the `scheduler-k3s:cluster-add` command. This will ssh onto the specified server, install k3s, and join it to the current Dokku node in server mode.
 
 ```shell
-dokku scheduler-k3s:set --global token topsecret:server:token
-```
-
-Next, run the `scheduler-k3s:cluster-add` command. This command takes a single server node in the cluster, will SSH onto the specified server, retrieve the kubeconfig, and then configure kubectl on the Dokku node to speak with the specified k3s cluster. 
-
-> [!TODO]
-> TODO: Dokku will also periodically retrieve all server nodes in the cluster so that server nodes can be safely replaced as needed.
-
-```shell
-dokku scheduler-k3s:cluster-add ssh://root@worker-1.example.com
-```
-
-If the server isn't in the `known_hosts` file, the connection will fail. This can be bypassed by setting the `--insecure-allow-unknown-hosts` flag:
-
-```shell
-dokku scheduler-k3s:cluster-add --insecure-allow-unknown-hosts ssh://root@worker-1.example.com
-```
-
-New server nodes are added as worker nodes which run application workloads but do not otherwise participate in managing the cluster. For high availability, new server nodes can be added to the cluster by specifying the `--role` flag:
-
-```shell
-dokku scheduler-kes:cluster-add --role server ssh://root@cluster-1.example.com
+dokku scheduler-k3s:cluster-add  --role server ssh://root@server-1.example.com
 ```
 
 Server nodes allow any workloads to be scheduled on them by default, in addition to the control-plane, etcd, and the scheduler itself. To avoid app workloads being scheduled on your control-plane, use the `--taint-scheduling` flag:
 
 ```shell
-dokku scheduler-kes:cluster-add --role server --taint-scheduling ssh://root@cluster-1.example.com
+dokku scheduler-k3s:cluster-add --role server --taint-scheduling ssh://root@cluster-1.example.com
+```
+
+If the server isn't in the `known_hosts` file, the connection will fail. This can be bypassed by setting the `--insecure-allow-unknown-hosts` flag:
+
+```shell
+dokku scheduler-k3s:cluster-add --role server --insecure-allow-unknown-hosts ssh://root@worker-1.example.com
+```
+
+Server nodes are typically used to replicate the cluster state, and it is recommended to have an odd number of nodes spread across several availability zones (datacenters in close proximity within a region). This allows for higher availability in the event of a cluster failure. Server nodes run control-plane services such as the traefik load balancer and the etcd backing store.
+
+> [!NOTE]
+> Only the initial Dokku server will be properly configured for push deployment, and should be considered your git remote. Additional server nodes are for ensuring high-availability of the K3s etcd state. Ensure this server is properly backed up and restorable or deployments will not work.
+
+Agent nodes are used to run. To add an agent, run the `scheduler-k3s:cluster-add` with the `--role worker` flag. This will ssh onto the specified server, install k3s, and join it to the current Dokku node in agent mode. Agents are typically used to run app workloads.
+
+```shell
+dokku scheduler-k3s:cluster-add --role worker ssh://root@worker-1.example.com
 ```
 
 ### Using kubectl remotely
