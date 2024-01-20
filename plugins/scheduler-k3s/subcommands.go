@@ -211,6 +211,23 @@ func CommandInitialize(taintScheduling bool) error {
 		return fmt.Errorf("Invalid exit code from setfacl command: %d", registryAclCmd.ExitCode)
 	}
 
+	common.LogInfo2Quiet("Installing longhorn")
+	longhornCmd, err := common.CallExecCommand(common.ExecCommandInput{
+		Command: "kubectl",
+		Args: []string{
+			"apply",
+			"-f",
+			"https://raw.githubusercontent.com/longhorn/longhorn/v1.4.0/deploy/longhorn.yaml",
+		},
+		StreamStdio: true,
+	})
+	if err != nil {
+		return fmt.Errorf("Unable to call kubectl command: %w", err)
+	}
+	if longhornCmd.ExitCode != 0 {
+		return fmt.Errorf("Invalid exit code from kubectl command: %d", longhornCmd.ExitCode)
+	}
+
 	common.LogInfo2Quiet("Installing k3s automatic upgrader")
 	upgradeCmd, err := common.CallExecCommand(common.ExecCommandInput{
 		Command: "kubectl",
