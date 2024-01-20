@@ -86,13 +86,13 @@ func TriggerPostRegistryLogin(server string, username string) error {
 
 	password := os.Getenv("DOCKER_REGISTRY_PASS")
 
-	registry := registries.Registry{}
 	yamlFile, err := os.ReadFile(RegistryConfigPath)
 	if err != nil {
 		return fmt.Errorf("Unable to read existing registries.yaml: %w", err)
 	}
 
-	err = yaml.Unmarshal(yamlFile, registry)
+	var registry registries.Registry
+	err = yaml.Unmarshal(yamlFile, &registry)
 	if err != nil {
 		return fmt.Errorf("Unable to unmarshal registry configuration from yaml: %w", err)
 	}
