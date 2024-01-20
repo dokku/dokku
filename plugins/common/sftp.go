@@ -18,20 +18,17 @@ import (
 
 // SftpCopyInput is the input for CallSftpCopy
 type SftpCopyInput struct {
-	// SourcePath is the path to the file to copy
-	SourcePath string
+	// AllowUknownHosts allows connecting to hosts with unknown host keys
+	AllowUknownHosts bool
 
 	// DestinationPath is the path to copy the file to
 	DestinationPath string
 
-	// AllowUknownHosts allows connecting to hosts with unknown host keys
-	AllowUknownHosts bool
-
 	// RemoteHost is the remote host to connect to
 	RemoteHost string
 
-	// Sudo runs the command with sudo -n -u root
-	Sudo bool
+	// SourcePath is the path to the file to copy
+	SourcePath string
 }
 
 // CallSftpCopy copies a file to a remote host via sftp
@@ -226,14 +223,7 @@ func (task SftpCopyTask) Execute(ctx context.Context) (SftpCopyResult, error) {
 		return SftpCopyResult{}, fmt.Errorf("failed to create sftp client: %w", err)
 	}
 
-	srcFile, err := os.Open(task.SourcePath)
-	if err != nil {
-		return SftpCopyResult{}, fmt.Errorf("failed to open source file: %w", err)
-	}
-	defer srcFile.Close()
-
-	var contents []byte
-	_, err = srcFile.Read(contents)
+	contents, err := os.ReadFile(task.SourcePath)
 	if err != nil {
 		return SftpCopyResult{}, fmt.Errorf("failed to read source file: %w", err)
 	}
