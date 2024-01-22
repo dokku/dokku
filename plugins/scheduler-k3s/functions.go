@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -20,13 +22,48 @@ import (
 	"mvdan.cc/sh/v3/shell"
 )
 
+// EnterPodInput contains all the information needed to enter a pod
 type EnterPodInput struct {
-	Clientset             KubernetesClient
-	Command               []string
-	Entrypoint            string
+	// Clientset is the kubernetes clientset
+	Clientset KubernetesClient
+
+	// Command is the command to run
+	Command []string
+
+	// Entrypoint is the entrypoint to run
+	Entrypoint string
+
+	// SelectedContainerName is the container name to enter
 	SelectedContainerName string
-	SelectedPod           v1.Pod
-	WaitTimeout           int
+
+	// SelectedPod is the pod to enter
+	SelectedPod v1.Pod
+
+	// WaitTimeout is the timeout to wait for the pod to be ready
+	WaitTimeout int
+}
+
+// Node contains information about a node
+type Node struct {
+	// Name is the name of the node
+	Name string
+
+	// Roles is the roles of the node
+	Roles []string
+
+	// Ready is whether the node is ready
+	Ready bool
+
+	// RemoteHost is the remote host
+	RemoteHost string
+
+	// Version is the version of the node
+	Version string
+}
+
+// String returns a string representation of the node
+func (n Node) String() string {
+	return fmt.Sprintf("%s|%s|%s|%s", n.Name, strconv.FormatBool(n.Ready), strings.Join(n.Roles, ","), n.Version)
 }
 
 // StartCommandInput contains all the information needed to get the start command
@@ -320,6 +357,43 @@ func isPodReady(ctx context.Context, clientset KubernetesClient, podName, namesp
 			return false, conditions.ErrPodCompleted
 		}
 		return false, nil
+	}
+}
+
+// kubernetesNodeToNode converts a kubernetes node to a Node
+func kubernetesNodeToNode(node v1.Node) Node {
+	roles := []string{}
+	if len(node.Labels["kubernetes.io/role"]) > 0 {
+		roles = append(roles, node.Labels["kubernetes.io/role"])
+	} else {
+		for k, v := range node.Labels {
+			if strings.HasPrefix(k, "node-role.kubernetes.io/") && v == "true" {
+				roles = append(roles, strings.TrimPrefix(k, "node-role.kubernetes.io/"))
+			}
+		}
+	}
+
+	sort.Strings(roles)
+
+	ready := false
+	for _, condition := range node.Status.Conditions {
+		if condition.Type == "Ready" {
+			ready = condition.Status == "True"
+			break
+		}
+	}
+
+	remoteHost := ""
+	if val, ok := node.Annotations["dokku.com/remote-host"]; ok {
+		remoteHost = val
+	}
+
+	return Node{
+		Name:       node.Name,
+		Roles:      roles,
+		Ready:      ready,
+		RemoteHost: remoteHost,
+		Version:    node.Status.NodeInfo.KubeletVersion,
 	}
 }
 

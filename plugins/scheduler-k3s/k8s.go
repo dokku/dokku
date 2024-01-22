@@ -163,6 +163,17 @@ func (k KubernetesClient) DeleteJob(ctx context.Context, input DeleteJobInput) e
 	})
 }
 
+// DeleteNodeInput contains all the information needed to delete a Kubernetes node
+type DeleteNodeInput struct {
+	// Name is the Kubernetes node name
+	Name string
+}
+
+// DeleteNode deletes a Kubernetes node
+func (k KubernetesClient) DeleteNode(ctx context.Context, input DeleteNodeInput) error {
+	return k.Client.CoreV1().Nodes().Delete(ctx, input.Name, metav1.DeleteOptions{})
+}
+
 // DeleteSecretInput contains all the information needed to delete a Kubernetes secret
 type DeleteSecretInput struct {
 	// Name is the Kubernetes secret name
@@ -175,6 +186,30 @@ type DeleteSecretInput struct {
 // DeleteSecret deletes a Kubernetes secret
 func (k KubernetesClient) DeleteSecret(ctx context.Context, input DeleteSecretInput) error {
 	return k.Client.CoreV1().Secrets(input.Namespace).Delete(ctx, input.Name, metav1.DeleteOptions{})
+}
+
+// GetNodeInput contains all the information needed to get a Kubernetes node
+type GetNodeInput struct {
+	// Name is the Kubernetes node name
+	Name string
+}
+
+// GetNode gets a Kubernetes node
+func (k KubernetesClient) GetNode(ctx context.Context, input GetNodeInput) (Node, error) {
+	if input.Name == "" {
+		return Node{}, errors.New("node name is required")
+	}
+
+	node, err := k.Client.CoreV1().Nodes().Get(ctx, input.Name, metav1.GetOptions{})
+	if err != nil {
+		return Node{}, err
+	}
+
+	if node == nil {
+		return Node{}, errors.New("node is nil")
+	}
+
+	return kubernetesNodeToNode(*node), err
 }
 
 // GetJobInput contains all the information needed to get a Kubernetes job

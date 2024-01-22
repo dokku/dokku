@@ -31,6 +31,16 @@ func main() {
 		args.Parse(os.Args[2:])
 		remoteHost := args.Arg(0)
 		err = scheduler_k3s.CommandClusterAdd(*role, remoteHost, *allowUknownHosts, *taintScheduling)
+	case "cluster-list":
+		args := flag.NewFlagSet("scheduler-k3s:cluster-list", flag.ExitOnError)
+		format := args.String("format", "stdout", "format: [ stdout | json ]")
+		args.Parse(os.Args[2:])
+		err = scheduler_k3s.CommandClusterList(*format)
+	case "cluster-remove":
+		args := flag.NewFlagSet("scheduler-k3s:cluster-remove", flag.ExitOnError)
+		args.Parse(os.Args[2:])
+		nodeName := args.Arg(0)
+		err = scheduler_k3s.CommandClusterRemove(nodeName)
 	case "report":
 		args := flag.NewFlagSet("scheduler-k3s:report", flag.ExitOnError)
 		format := args.String("format", "stdout", "format: [ stdout | json ]")

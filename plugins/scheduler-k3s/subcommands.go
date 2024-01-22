@@ -3,6 +3,7 @@ package scheduler_k3s
 import (
 	"context"
 	"crypto/rand"
+	"encoding/json"
 	"fmt"
 	"net"
 	"net/url"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/dokku/dokku/plugins/common"
 	resty "github.com/go-resty/resty/v2"
+	"github.com/ryanuber/columnize"
 )
 
 // CommandInitialize initializes a k3s cluster on the local server
@@ -522,6 +524,106 @@ func CommandClusterAdd(role string, remoteHost string, allowUknownHosts bool, ta
 	}
 
 	common.LogVerboseQuiet("Done")
+	return nil
+}
+
+// CommandClusterList lists the nodes in the k3s cluster
+func CommandClusterList(format string) error {
+	if format != "stdout" && format != "json" {
+		return fmt.Errorf("Invalid format: %s", format)
+	}
+	if err := isK3sInstalled(); err != nil {
+		return fmt.Errorf("k3s not installed, cannot list cluster nodes")
+	}
+
+	clientset, err := NewKubernetesClient()
+	if err != nil {
+		return fmt.Errorf("Unable to create kubernetes client: %w", err)
+	}
+
+	nodes, err := clientset.ListNodes(context.Background(), ListNodesInput{})
+	if err != nil {
+		return fmt.Errorf("Unable to list nodes: %w", err)
+	}
+
+	output := []Node{}
+	for _, node := range nodes {
+		output = append(output, kubernetesNodeToNode(node))
+	}
+
+	if format == "stdout" {
+		lines := []string{"name|ready|roles|version"}
+		for _, node := range output {
+			lines = append(lines, node.String())
+		}
+
+		columnized := columnize.SimpleFormat(lines)
+		fmt.Println(columnized)
+		return nil
+	}
+
+	b, err := json.Marshal(output)
+	if err != nil {
+		return fmt.Errorf("Unable to marshal json: %w", err)
+	}
+
+	fmt.Println(string(b))
+	return nil
+}
+
+// CommandClusterRemove removes a node from the k3s cluster
+func CommandClusterRemove(nodeName string) error {
+	if err := isK3sInstalled(); err != nil {
+		return fmt.Errorf("k3s not installed, cannot remove node")
+	}
+
+	common.LogInfo1Quiet(fmt.Sprintf("Removing %s from k3s cluster", nodeName))
+	clientset, err := NewKubernetesClient()
+	if err != nil {
+		return fmt.Errorf("Unable to create kubernetes client: %w", err)
+	}
+
+	common.LogVerboseQuiet("Getting node remote connection information")
+	ctx := context.Background()
+	node, err := clientset.GetNode(ctx, GetNodeInput{
+		Name: nodeName,
+	})
+	if err != nil {
+		return fmt.Errorf("Unable to get node: %w", err)
+	}
+
+	common.LogVerboseQuiet("Checking if node is a remote node managed by Dokku")
+	if node.RemoteHost == "" {
+		return fmt.Errorf("Node %s is not a remote node managed by Dokku", nodeName)
+	}
+
+	common.LogVerboseQuiet("Uninstalling k3s on remote host")
+	removeCmd, err := common.CallSshCommand(common.SshCommandInput{
+		Command:          "/usr/local/bin/k3s-uninstall.sh",
+		Args:             []string{},
+		AllowUknownHosts: true,
+		RemoteHost:       node.RemoteHost,
+		StreamStdio:      true,
+		Sudo:             true,
+	})
+	if err != nil {
+		return fmt.Errorf("Unable to call k3s uninstall command over ssh: %w", err)
+	}
+
+	if removeCmd.ExitCode != 0 {
+		return fmt.Errorf("Invalid exit code from k3s uninstall command over ssh: %d", removeCmd.ExitCode)
+	}
+
+	common.LogVerboseQuiet("Deleting node from k3s cluster")
+	err = clientset.DeleteNode(ctx, DeleteNodeInput{
+		Name: nodeName,
+	})
+	if err != nil {
+		return fmt.Errorf("Unable to delete node: %w", err)
+	}
+
+	common.LogVerboseQuiet("Done")
+
 	return nil
 }
 
