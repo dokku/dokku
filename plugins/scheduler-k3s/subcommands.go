@@ -491,7 +491,7 @@ func CommandClusterAdd(role string, remoteHost string, allowUknownHosts bool, ta
 		return fmt.Errorf("Error waiting for pod to exist: %w", err)
 	}
 	if len(nodes) == 0 {
-		return fmt.Errorf("Unable to find node after joining cluster, node will not be labeled appropriately and cannot access registry secrets")
+		return fmt.Errorf("Unable to find node after joining cluster, node will not be annotated/labeled appropriately access registry secrets")
 	}
 
 	err = copyRegistryToNode(ctx, remoteHost)
