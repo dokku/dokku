@@ -17,18 +17,23 @@ import (
 var (
 	// DefaultProperties is a map of all valid k3s properties with corresponding default property values
 	DefaultProperties = map[string]string{
+		"deploy-timeout":      "",
+		"letsencrypt-server":  "",
 		"image-pull-secrets":  "",
+		"namespace":           "",
 		"rollback-on-failure": "",
-		"namespace":           "default",
-		"timeout":             "300",
 	}
 
 	// GlobalProperties is a map of all valid global k3s properties
 	GlobalProperties = map[string]bool{
-		"network-interface":   true,
-		"rollback-on-failure": true,
-		"token":               true,
-		"timeout":             true,
+		"deploy-timeout":         true,
+		"image-pull-secrets":     true,
+		"letsencrypt-email-prod": true,
+		"letsencrypt-email-stag": true,
+		"namespace":              true,
+		"network-interface":      true,
+		"rollback-on-failure":    true,
+		"token":                  true,
 	}
 )
 

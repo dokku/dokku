@@ -2,7 +2,6 @@ package scheduler_k3s
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -255,48 +254,105 @@ func extractStartCommand(input StartCommandInput) string {
 	return command
 }
 
-type PortMap struct {
-	ContainerPort int32  `json:"container_port"`
-	HostPort      int32  `json:"host_port"`
-	Scheme        string `json:"scheme"`
+func getDeployTimeout(appName string) string {
+	return common.PropertyGetDefault("scheduler-k3s", appName, "deploy-timeout", "")
 }
 
-func (p PortMap) String() string {
-	return fmt.Sprintf("%s-%d-%d", p.Scheme, p.HostPort, p.ContainerPort)
+func getGlobalDeployTimeout() string {
+	return common.PropertyGetDefault("scheduler-k3s", "--global", "deploy-timeout", "300s")
 }
 
-func (p PortMap) IsAllowedHttp() bool {
-	return p.Scheme == "http" || p.ContainerPort == 80
-}
-
-func (p PortMap) IsAllowedHttps() bool {
-	return p.Scheme == "https" || p.ContainerPort == 443
-}
-
-func getPortMaps(appName string) ([]PortMap, error) {
-	portMaps := []PortMap{}
-
-	output, err := common.PlugnTriggerOutputAsString("ports-get", []string{appName, "json"}...)
-	if err != nil {
-		return portMaps, err
+func getComputedDeployTimeout(appName string) string {
+	deployTimeout := getDeployTimeout(appName)
+	if deployTimeout == "" {
+		deployTimeout = getGlobalDeployTimeout()
 	}
 
-	err = json.Unmarshal([]byte(output), &portMaps)
-	if err != nil {
-		return portMaps, err
+	return deployTimeout
+}
+
+func getImagePullSecrets(appName string) string {
+	return common.PropertyGetDefault("scheduler-k3s", appName, "image-pull-secrets", "")
+}
+
+func getGlobalImagePullSecrets() string {
+	return common.PropertyGetDefault("scheduler-k3s", "--global", "image-pull-secrets", "")
+}
+
+func getComputedImagePullSecrets(appName string) string {
+	imagePullSecrets := getImagePullSecrets(appName)
+	if imagePullSecrets == "" {
+		imagePullSecrets = getGlobalImagePullSecrets()
 	}
 
-	allowedMappings := []PortMap{}
-	for _, portMap := range portMaps {
-		if !portMap.IsAllowedHttp() && !portMap.IsAllowedHttps() {
-			// todo: log warning
-			continue
-		}
+	return imagePullSecrets
+}
 
-		allowedMappings = append(allowedMappings, portMap)
+func getLetsencryptServer(appName string) string {
+	return common.PropertyGetDefault("scheduler-k3s", appName, "letsencrypt-server", "")
+}
+
+func getGlobalLetsencryptServer(appName string) string {
+	return common.PropertyGetDefault("scheduler-k3s", appName, "letsencrypt-server", "prod")
+}
+
+func getComputedLetsencryptServer(appName string) string {
+	letsencryptServer := getLetsencryptServer(appName)
+	if letsencryptServer == "" {
+		letsencryptServer = getGlobalLetsencryptServer(appName)
 	}
 
-	return allowedMappings, nil
+	return letsencryptServer
+}
+
+func getGlobalLetsencryptEmailProd() string {
+	return common.PropertyGetDefault("scheduler-k3s", "--global", "letsencrypt-email-prod", "")
+}
+
+func getGlobalLetsencryptEmailStag() string {
+	return common.PropertyGetDefault("scheduler-k3s", "--global", "letsencrypt-email-stag", "")
+}
+
+func getNamespace(appName string) string {
+	return common.PropertyGetDefault("scheduler-k3s", appName, "namespace", "")
+}
+
+func getGlobalNamespace() string {
+	return common.PropertyGetDefault("scheduler-k3s", "--global", "namespace", "default")
+}
+
+func getComputedNamespace(appName string) string {
+	namespace := getNamespace(appName)
+	if namespace == "" {
+		namespace = getGlobalNamespace()
+	}
+
+	return namespace
+}
+
+func getGlobalNetworkInterface() string {
+	return common.PropertyGetDefault("scheduler-k3s", "--global", "network-interface", "eth0")
+}
+
+func getRollbackOnFailure(appName string) string {
+	return common.PropertyGetDefault("scheduler-k3s", appName, "rollback-on-failure", "")
+}
+
+func getGlobalRollbackOnFailure() string {
+	return common.PropertyGetDefault("scheduler-k3s", "--global", "rollback-on-failure", "")
+}
+
+func getComputedRollbackOnFailure(appName string) string {
+	rollbackOnFailure := getRollbackOnFailure(appName)
+	if rollbackOnFailure == "" {
+		rollbackOnFailure = getGlobalRollbackOnFailure()
+	}
+
+	return rollbackOnFailure
+}
+
+func getGlobalGlobalToken() string {
+	return common.PropertyGet("scheduler-k3s", "--global", "token")
 }
 
 func getStartCommand(input StartCommandInput) (StartCommandOutput, error) {

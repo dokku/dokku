@@ -34,7 +34,7 @@ func CommandInitialize(taintScheduling bool) error {
 		cancel()
 	}()
 
-	networkInterface := common.PropertyGetDefault("scheduler-k3s", "--global", "network-interface", "eth0")
+	networkInterface := getGlobalNetworkInterface()
 	ifaces, err := net.Interfaces()
 	if err != nil {
 		return fmt.Errorf("Unable to get network interfaces: %w", err)
@@ -142,7 +142,7 @@ func CommandInitialize(taintScheduling bool) error {
 		return fmt.Errorf("Invalid k3s installer filesize")
 	}
 
-	token := common.PropertyGet("scheduler-k3s", "--global", "token")
+	token := getGlobalGlobalToken()
 	if len(token) == 0 {
 		n := 5
 		b := make([]byte, n)
@@ -289,7 +289,7 @@ func CommandClusterAdd(role string, remoteHost string, allowUknownHosts bool, ta
 		return fmt.Errorf("Invalid server-type: %s", role)
 	}
 
-	token := common.PropertyGet("scheduler-k3s", "--global", "token")
+	token := getGlobalGlobalToken()
 	if len(token) == 0 {
 		return fmt.Errorf("Missing k3s token")
 	}
@@ -298,7 +298,7 @@ func CommandClusterAdd(role string, remoteHost string, allowUknownHosts bool, ta
 		return fmt.Errorf("Taint scheduling can only be used on the server role")
 	}
 
-	networkInterface := common.PropertyGetDefault("scheduler-k3s", "--global", "network-interface", "eth0")
+	networkInterface := getGlobalNetworkInterface()
 	ifaces, err := net.Interfaces()
 	if err != nil {
 		return fmt.Errorf("Unable to get network interfaces: %w", err)

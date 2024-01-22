@@ -188,7 +188,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 		cancel()
 	}()
 
-	namespace := common.PropertyGetDefault("scheduler-k3s", appName, "namespace", "default")
+	namespace := getComputedNamespace(appName)
 	if err := createKubernetesNamespace(ctx, namespace); err != nil {
 		return fmt.Errorf("Error creating kubernetes namespace for deployment: %w", err)
 	}
@@ -198,18 +198,18 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 		return fmt.Errorf("Error getting deploying app image name: %w", err)
 	}
 
-	deployTimeout := common.PropertyGetDefault("scheduler-k3s", appName, "deploy-timeout", "300s")
+	deployTimeout := getComputedDeployTimeout(appName)
 	if _, err := strconv.Atoi(deployTimeout); err == nil {
 		deployTimeout = fmt.Sprintf("%ss", deployTimeout)
 	}
 
-	deployRollback := common.PropertyGetDefault("scheduler-k3s", appName, "rollback-on-failure", "false")
+	deployRollback := getComputedRollbackOnFailure(appName)
 	allowRollbacks, err := strconv.ParseBool(deployRollback)
 	if err != nil {
 		return fmt.Errorf("Error parsing rollback-on-failure value as boolean: %w", err)
 	}
 
-	imagePullSecrets := common.PropertyGetDefault("scheduler-k3s", appName, "image-pull-secrets", "")
+	imagePullSecrets := getComputedImagePullSecrets(appName)
 
 	imageSourceType := "dockerfile"
 	if common.IsImageCnbBased(image) {
@@ -576,8 +576,7 @@ func TriggerSchedulerEnter(scheduler string, appName string, processType string,
 		return fmt.Errorf("Error creating kubernetes client: %w", err)
 	}
 
-	namespace := common.PropertyGetDefault("scheduler-k3s", appName, "namespace", "default")
-
+	namespace := getComputedNamespace(appName)
 	labelSelector := []string{fmt.Sprintf("app.kubernetes.io/part-of=%s", appName)}
 	processIndex := 1
 	if processType != "" {
@@ -682,7 +681,7 @@ func TriggerSchedulerLogs(scheduler string, appName string, processType string, 
 		labelSelector = append(labelSelector, fmt.Sprintf("app.kubernetes.io/name=%s", processType))
 	}
 
-	namespace := common.PropertyGetDefault("scheduler-k3s", appName, "namespace", "default")
+	namespace := getComputedNamespace(appName)
 	pods, err := clientset.ListPods(ctx, ListPodsInput{
 		Namespace:     namespace,
 		LabelSelector: strings.Join(labelSelector, ","),
@@ -881,7 +880,7 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 		entrypoint = "/exec"
 	}
 
-	namespace := common.PropertyGetDefault("scheduler-k3s", appName, "namespace", "default")
+	namespace := getComputedNamespace(appName)
 	helmAgent, err := NewHelmAgent(namespace, DevNullPrinter)
 	if err != nil {
 		return fmt.Errorf("Error creating helm agent: %w", err)
@@ -905,7 +904,7 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 	}
 
 	attachToPod := os.Getenv("DOKKU_DETACH_CONTAINER") != "1"
-	imagePullSecrets := common.PropertyGetDefault("scheduler-k3s", appName, "image-pull-secrets", "")
+	imagePullSecrets := getComputedImagePullSecrets(appName)
 	workingDir := common.GetWorkingDir(appName, image)
 	job, err := templateKubernetesJob(Job{
 		AppName:          appName,
@@ -1088,8 +1087,7 @@ func TriggerSchedulerRunList(scheduler string, appName string, format string) er
 		return fmt.Errorf("Error creating kubernetes client: %w", err)
 	}
 
-	namespace := common.PropertyGetDefault("scheduler-k3s", appName, "namespace", "default")
-
+	namespace := getComputedNamespace(appName)
 	cronJobs, err := clientset.ListCronJobs(ctx, ListCronJobsInput{
 		LabelSelector: fmt.Sprintf("app.kubernetes.io/part-of=%s", appName),
 		Namespace:     namespace,
@@ -1149,7 +1147,7 @@ func TriggerSchedulerPostDelete(scheduler string, appName string) error {
 	if scheduler != "k3s" {
 		return nil
 	}
-	namespace := common.PropertyGetDefault("scheduler-k3s", appName, "namespace", "default")
+	namespace := getComputedNamespace(appName)
 	helmAgent, err := NewHelmAgent(namespace, DeployLogPrinter)
 	if err != nil {
 		return fmt.Errorf("Error creating helm agent: %w", err)
@@ -1185,7 +1183,7 @@ func TriggerSchedulerStop(scheduler string, appName string) error {
 		return fmt.Errorf("Error creating kubernetes client: %w", err)
 	}
 
-	namespace := common.PropertyGetDefault("scheduler-k3s", appName, "namespace", "default")
+	namespace := getComputedNamespace(appName)
 	deployments, err := clientset.ListDeployments(ctx, ListDeploymentsInput{
 		Namespace:     namespace,
 		LabelSelector: fmt.Sprintf("app.kubernetes.io/part-of=%s", appName),
