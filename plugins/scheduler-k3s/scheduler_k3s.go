@@ -4,6 +4,7 @@ import (
 	"embed"
 	"sync"
 
+	certmanagerv1 "github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1"
 	traefikv1alpha1 "github.com/traefik/traefik/v2/pkg/provider/kubernetes/crd/traefikio/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
@@ -118,6 +119,7 @@ func init() {
 	k8sNativeSchemeOnce.Do(func() {
 		_ = appsv1.AddToScheme(runtimeScheme)
 		_ = batchv1.AddToScheme(runtimeScheme)
+		_ = certmanagerv1.AddToScheme(runtimeScheme)
 		_ = corev1.AddToScheme(runtimeScheme)
 		_ = traefikv1alpha1.AddToScheme(runtimeScheme)
 	})

@@ -8,6 +8,9 @@ import (
 	"path/filepath"
 	"strings"
 
+	acmev1 "github.com/cert-manager/cert-manager/pkg/apis/acme/v1"
+	certmanagerv1 "github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1"
+	certmanagermetav1 "github.com/cert-manager/cert-manager/pkg/apis/meta/v1"
 	appjson "github.com/dokku/dokku/plugins/app-json"
 	"github.com/dokku/dokku/plugins/common"
 	traefikv1alpha1 "github.com/traefik/traefik/v2/pkg/provider/kubernetes/crd/traefikio/v1alpha1"
@@ -39,8 +42,9 @@ type Values struct {
 }
 
 type ProcessValues struct {
-	Replicas int32    `yaml:"replicas"`
 	Domains  []string `yaml:"domains,omitempty"`
+	Replicas int32    `yaml:"replicas"`
+	TLS      bool     `yaml:"tls"`
 }
 
 type CreateIngressRoutesInput struct {
@@ -111,6 +115,172 @@ func createIngressRoutesFiles(input CreateIngressRoutesInput) error {
 	}
 
 	return nil
+}
+
+type CreateCertificateFileInput struct {
+	Certificate Certificate
+	ChartDir    string
+	IssuerName  string
+	ProcessType string
+}
+
+type Certificate struct {
+	AppName   string
+	Name      string
+	Namespace string
+	TLS       bool
+}
+
+func createCertificateFile(input CreateCertificateFileInput) error {
+	certificate, err := templateKubernetesCertificate(input.Certificate)
+	if err != nil {
+		return fmt.Errorf("Error templating certificate: %w", err)
+	}
+
+	certificateFile := filepath.Join(input.ChartDir, fmt.Sprintf("templates/certificate-%s.yaml", input.ProcessType))
+	err = writeResourceToFile(WriteResourceInput{
+		Object: &certificate,
+		Path:   certificateFile,
+	})
+	if err != nil {
+		return fmt.Errorf("Error printing ingress route: %w", err)
+	}
+
+	b, err := os.ReadFile(certificateFile)
+	if err != nil {
+		return fmt.Errorf("Error reading ingress route file: %w", err)
+	}
+
+	append, err := templates.ReadFile("templates/certificate-append.yaml")
+	if err != nil {
+		return fmt.Errorf("Error reading ingress route append file: %w", err)
+	}
+
+	contents := string(bytes.Join([][]byte{b, append}, []byte("")))
+	contents = strings.Join([]string{
+		"{{- if and .Values.processes.PROCESS_TYPE.tls .Values.processes.PROCESS_TYPE.domains }}",
+		contents,
+		"{{- end }}",
+	}, "\n")
+
+	replacements := orderedmap.New[string, string]()
+	replacements.Set("PROCESS_TYPE", input.ProcessType)
+	replacements.Set("ISSUER_NAME", input.IssuerName)
+	for pair := replacements.Oldest(); pair != nil; pair = pair.Next() {
+		contents = strings.ReplaceAll(contents, pair.Key, pair.Value)
+	}
+
+	err = os.WriteFile(certificateFile, []byte(contents), os.FileMode(0644))
+	if err != nil {
+		return fmt.Errorf("Error writing ingress route file: %w", err)
+	}
+
+	if os.Getenv("DOKKU_TRACE") == "1" {
+		common.CatFile(certificateFile)
+	}
+
+	return nil
+}
+
+func templateKubernetesCertificate(input Certificate) (certmanagerv1.Certificate, error) {
+	if input.Name == "" {
+		return certmanagerv1.Certificate{}, fmt.Errorf("Name cannot be empty")
+	}
+	if input.Namespace == "" {
+		return certmanagerv1.Certificate{}, fmt.Errorf("Namespace cannot be empty")
+	}
+
+	labels := map[string]string{
+		"app.kubernetes.io/name":    input.Name,
+		"app.kubernetes.io/part-of": input.AppName,
+	}
+	annotations := map[string]string{
+		"dokku.com/managed": "true",
+	}
+
+	certificate := certmanagerv1.Certificate{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:        input.Name,
+			Namespace:   input.Namespace,
+			Labels:      labels,
+			Annotations: annotations,
+		},
+		Spec: certmanagerv1.CertificateSpec{
+			SecretName: "tls-" + input.Name,
+			SecretTemplate: &certmanagerv1.CertificateSecretTemplate{
+				Annotations: annotations,
+				Labels:      labels,
+			},
+			IssuerRef: certmanagermetav1.ObjectReference{
+				Name: "ISSUER_NAME",
+				Kind: "ClusterIssuer",
+			},
+		},
+	}
+
+	return certificate, nil
+}
+
+type ClusterIssuer struct {
+	Email        string
+	IngressClass string
+	Name         string
+	Namespace    string
+	Server       string
+}
+
+func templateKubernetesClusterIssuer(input ClusterIssuer) (certmanagerv1.ClusterIssuer, error) {
+	if input.Email == "" {
+		return certmanagerv1.ClusterIssuer{}, fmt.Errorf("Email cannot be empty")
+	}
+	if input.Server == "" {
+		return certmanagerv1.ClusterIssuer{}, fmt.Errorf("Server cannot be empty")
+	}
+	if input.Name == "" {
+		return certmanagerv1.ClusterIssuer{}, fmt.Errorf("Name cannot be empty")
+	}
+	if input.Namespace == "" {
+		return certmanagerv1.ClusterIssuer{}, fmt.Errorf("Namespace cannot be empty")
+	}
+
+	if input.Server == "staging" {
+		input.Server = "https://acme-staging-v02.api.letsencrypt.org/directory"
+	} else if input.Server == "production" {
+		input.Server = "https://acme-v02.api.letsencrypt.org/directory"
+	} else {
+		return certmanagerv1.ClusterIssuer{}, fmt.Errorf("Server must be either staging or production")
+	}
+
+	clusterIssuer := certmanagerv1.ClusterIssuer{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      input.Name,
+			Namespace: input.Namespace,
+		},
+		Spec: certmanagerv1.IssuerSpec{
+			IssuerConfig: certmanagerv1.IssuerConfig{
+				ACME: &acmev1.ACMEIssuer{
+					Email:  input.Email,
+					Server: input.Server,
+					PrivateKey: certmanagermetav1.SecretKeySelector{
+						LocalObjectReference: certmanagermetav1.LocalObjectReference{
+							Name: input.Name,
+						},
+					},
+					Solvers: []acmev1.ACMEChallengeSolver{
+						{
+							HTTP01: &acmev1.ACMEChallengeSolverHTTP01{
+								Ingress: &acmev1.ACMEChallengeSolverHTTP01Ingress{
+									Class: ptr.To(input.IngressClass),
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	return clusterIssuer, nil
 }
 
 type Job struct {

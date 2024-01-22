@@ -395,6 +395,9 @@ data:
 		}
 	}
 
+	// todo: make this configurable
+	tls := false
+
 	domains := []string{}
 	if deployment, ok := deployments["web"]; ok {
 		service := templateKubernetesService(Service{
@@ -439,6 +442,21 @@ data:
 		if err != nil {
 			return fmt.Errorf("Error creating ingress routes: %w", err)
 		}
+
+		err = createCertificateFile(CreateCertificateFileInput{
+			ChartDir: chartDir,
+			Certificate: Certificate{
+				AppName:   appName,
+				Name:      fmt.Sprintf("%s-%s", appName, "web"),
+				Namespace: namespace,
+				TLS:       tls,
+			},
+			IssuerName:  "letsencrypt-prod",
+			ProcessType: "web",
+		})
+		if err != nil {
+			return fmt.Errorf("Error creating certificate files: %w", err)
+		}
 	}
 
 	chart := &Chart{
@@ -468,6 +486,7 @@ data:
 		if processType == "web" {
 			sort.Strings(domains)
 			processValues.Domains = domains
+			processValues.TLS = tls
 		}
 
 		values.Processes[processType] = processValues
