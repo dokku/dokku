@@ -86,7 +86,7 @@ func createIngressRoutesFiles(input CreateIngressRoutesInput) error {
 			return fmt.Errorf("Error reading ingress route append file: %w", err)
 		}
 
-		contents := string(bytes.Join([][]byte{b, append}, []byte("")))
+		contents := strings.Join([]string{strings.TrimSpace(string(b)), string(append)}, "")
 		contents = strings.ReplaceAll(contents, "  routes: null", "")
 		contents = strings.Join([]string{
 			"{{- if .Values.processes.PROCESS_TYPE.domains }}",
@@ -731,11 +731,6 @@ type IngressRoute struct {
 }
 
 func templateKubernetesIngressRoute(input IngressRoute) traefikv1alpha1.IngressRoute {
-	entryPoint := IngressRouteEntrypoint_HTTP
-	if input.PortMap.Scheme == "https" {
-		entryPoint = IngressRouteEntrypoint_HTTPS
-	}
-
 	labels := map[string]string{
 		"app.kubernetes.io/instance": fmt.Sprintf("%s-%s", input.AppName, input.ProcessType),
 		"app.kubernetes.io/name":     input.ProcessType,
@@ -754,7 +749,7 @@ func templateKubernetesIngressRoute(input IngressRoute) traefikv1alpha1.IngressR
 			Annotations: annotations,
 		},
 		Spec: traefikv1alpha1.IngressRouteSpec{
-			EntryPoints: []string{string(entryPoint)},
+			EntryPoints: []string{string(IngressRouteEntrypoint_HTTP)},
 		},
 	}
 

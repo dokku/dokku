@@ -1,3 +1,6 @@
+  {{ if .Values.processes.PROCESS_TYPE.tls }}
+  - websecure
+  {{- end }}
   routes:
     {{- range .Values.processes.PROCESS_TYPE.domains }}
     - kind: Rule
@@ -9,3 +12,7 @@
         port: PORT_MAPPING
         scheme: PORT_SCHEME
     {{- end }}
+  {{ if .Values.processes.PROCESS_TYPE.tls }}
+  tls:
+    secretName: tls-APP_NAME-PROCESS_TYPE
+  {{- end }}
