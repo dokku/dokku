@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"syscall"
@@ -394,6 +395,7 @@ data:
 		}
 	}
 
+	domains := []string{}
 	if deployment, ok := deployments["web"]; ok {
 		service := templateKubernetesService(Service{
 			AppName:   appName,
@@ -410,13 +412,29 @@ data:
 			return fmt.Errorf("Error printing service: %w", err)
 		}
 
+		err = common.PlugnTrigger("domains-vhost-enabled", []string{appName}...)
+		if err == nil {
+			b, err := common.PlugnTriggerOutput("domains-list", []string{appName}...)
+			if err != nil {
+				return fmt.Errorf("Error getting domains for deployment: %w", err)
+			}
+
+			for _, domain := range strings.Split(string(b), "\n") {
+				domain = strings.TrimSpace(domain)
+				if domain != "" {
+					domains = append(domains, domain)
+				}
+			}
+		}
+
 		err = createIngressRoutesFiles(CreateIngressRoutesInput{
-			AppName:    appName,
-			ChartDir:   chartDir,
-			Deployment: deployment,
-			Namespace:  namespace,
-			PortMaps:   portMaps,
-			Service:    service,
+			AppName:     appName,
+			ChartDir:    chartDir,
+			Deployment:  deployment,
+			Namespace:   namespace,
+			PortMaps:    portMaps,
+			ProcessType: "web",
+			Service:     service,
 		})
 		if err != nil {
 			return fmt.Errorf("Error creating ingress routes: %w", err)
@@ -441,13 +459,20 @@ data:
 	values := &Values{
 		DeploymentID: fmt.Sprint(deploymentId),
 		Secrets:      map[string]string{},
-		Processes:    map[string]ValuesProcess{},
+		Processes:    map[string]ProcessValues{},
 	}
 	for processType, processCount := range processes {
-		values.Processes[processType] = ValuesProcess{
+		processValues := ProcessValues{
 			Replicas: int32(processCount),
 		}
+		if processType == "web" {
+			sort.Strings(domains)
+			processValues.Domains = domains
+		}
+
+		values.Processes[processType] = processValues
 	}
+
 	for key, value := range env.Map() {
 		values.Secrets[key] = base64.StdEncoding.EncodeToString([]byte(value))
 	}

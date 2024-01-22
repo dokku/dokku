@@ -1,0 +1,11 @@
+  routes:
+    {{- range .Values.processes.PROCESS_TYPE.domains }}
+    - kind: Rule
+      match: Host(`{{ . }}`)
+      services:
+      - name: APP_NAME-PROCESS_TYPE
+        namespace: NAMESPACE
+        passHostHeader: true
+        port: PORT_MAPPING
+        scheme: PORT_SCHEME
+    {{- end }}

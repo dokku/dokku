@@ -1,11 +1,11 @@
 package scheduler_k3s
 
 import (
+	"bytes"
 	"crypto/rand"
 	"fmt"
 	"os"
 	"path/filepath"
-	"sort"
 	"strings"
 
 	appjson "github.com/dokku/dokku/plugins/app-json"
@@ -34,63 +34,82 @@ type Chart struct {
 
 type Values struct {
 	DeploymentID string                   `yaml:"deploment_id"`
-	Secrets      map[string]string        `yaml:"secrets"`
-	Processes    map[string]ValuesProcess `yaml:"processes"`
+	Secrets      map[string]string        `yaml:"secrets,omitempty"`
+	Processes    map[string]ProcessValues `yaml:"processes"`
 }
 
-type ValuesProcess struct {
-	Replicas int32 `yaml:"replicas"`
+type ProcessValues struct {
+	Replicas int32    `yaml:"replicas"`
+	Domains  []string `yaml:"domains,omitempty"`
 }
 
 type CreateIngressRoutesInput struct {
-	AppName    string
-	ChartDir   string
-	Deployment appsv1.Deployment
-	Namespace  string
-	PortMaps   []PortMap
-	Service    v1.Service
+	AppName     string
+	ChartDir    string
+	Deployment  appsv1.Deployment
+	Namespace   string
+	ProcessType string
+	PortMaps    []PortMap
+	Service     v1.Service
 }
 
 func createIngressRoutesFiles(input CreateIngressRoutesInput) error {
-	err := common.PlugnTrigger("domains-vhost-enabled", []string{input.AppName}...)
-	isAppVhostEnabled := err == nil
+	for _, portMap := range input.PortMaps {
+		ingressRoute := templateKubernetesIngressRoute(IngressRoute{
+			AppName:     input.AppName,
+			Namespace:   input.Namespace,
+			PortMap:     portMap,
+			ProcessType: input.ProcessType,
+			ServiceName: input.Service.Name,
+		})
 
-	if isAppVhostEnabled {
-		b, err := common.PlugnTriggerOutput("domains-list", []string{input.AppName}...)
+		ingressRouteFile := filepath.Join(input.ChartDir, fmt.Sprintf("templates/ingress-route-%s.yaml", portMap.String()))
+		err := writeResourceToFile(WriteResourceInput{
+			Object: &ingressRoute,
+			Path:   ingressRouteFile,
+		})
 		if err != nil {
-			return fmt.Errorf("Error getting domains for deployment: %w", err)
-		}
-		domains := []string{}
-		for _, domain := range strings.Split(string(b), "\n") {
-			domain = strings.TrimSpace(domain)
-			if domain != "" {
-				domains = append(domains, domain)
-			}
+			return fmt.Errorf("Error printing ingress route: %w", err)
 		}
 
-		if len(domains) == 0 {
-			return nil
+		b, err := os.ReadFile(ingressRouteFile)
+		if err != nil {
+			return fmt.Errorf("Error reading ingress route file: %w", err)
 		}
 
-		for _, portMap := range input.PortMaps {
-			ingressRoute := templateKubernetesIngressRoute(IngressRoute{
-				AppName:     input.AppName,
-				Domains:     domains,
-				Namespace:   input.Namespace,
-				PortMap:     portMap,
-				ProcessType: "web",
-				ServiceName: input.Service.Name,
-			})
+		append, err := templates.ReadFile("templates/ingress-routes-append.yaml")
+		if err != nil {
+			return fmt.Errorf("Error reading ingress route append file: %w", err)
+		}
 
-			err = writeResourceToFile(WriteResourceInput{
-				Object: &ingressRoute,
-				Path:   filepath.Join(input.ChartDir, fmt.Sprintf("templates/ingress-route-%s-%d-%d.yaml", portMap.Scheme, portMap.HostPort, portMap.ContainerPort)),
-			})
-			if err != nil {
-				return fmt.Errorf("Error printing ingress route: %w", err)
-			}
+		contents := string(bytes.Join([][]byte{b, append}, []byte("")))
+		contents = strings.ReplaceAll(contents, "  routes: null", "")
+		contents = strings.Join([]string{
+			"{{- if .Values.processes.PROCESS_TYPE.domains }}",
+			contents,
+			"{{- end }}",
+		}, "\n")
+
+		replacements := orderedmap.New[string, string]()
+		replacements.Set("PROCESS_TYPE", input.ProcessType)
+		replacements.Set("APP_NAME", input.AppName)
+		replacements.Set("NAMESPACE", input.Namespace)
+		replacements.Set("PORT_MAPPING", portMap.String())
+		replacements.Set("PORT_SCHEME", portMap.Scheme)
+		for pair := replacements.Oldest(); pair != nil; pair = pair.Next() {
+			contents = strings.ReplaceAll(contents, pair.Key, pair.Value)
+		}
+
+		err = os.WriteFile(ingressRouteFile, []byte(contents), os.FileMode(0644))
+		if err != nil {
+			return fmt.Errorf("Error writing ingress route file: %w", err)
+		}
+
+		if os.Getenv("DOKKU_TRACE") == "1" {
+			common.CatFile(ingressRouteFile)
 		}
 	}
+
 	return nil
 }
 
@@ -535,7 +554,6 @@ const (
 type IngressRoute struct {
 	AppName     string
 	Entrypoints []IngressRouteEntrypoint
-	Domains     []string
 	Namespace   string
 	PortMap     PortMap
 	ProcessType string
@@ -567,30 +585,7 @@ func templateKubernetesIngressRoute(input IngressRoute) traefikv1alpha1.IngressR
 		},
 		Spec: traefikv1alpha1.IngressRouteSpec{
 			EntryPoints: []string{string(entryPoint)},
-			Routes:      []traefikv1alpha1.Route{},
 		},
-	}
-
-	sort.Strings(input.Domains)
-
-	for _, hostname := range input.Domains {
-		rule := traefikv1alpha1.Route{
-			Kind:  "Rule",
-			Match: "Host(`" + hostname + "`)",
-			Services: []traefikv1alpha1.Service{
-				{
-					LoadBalancerSpec: traefikv1alpha1.LoadBalancerSpec{
-						Name:           input.ServiceName,
-						Namespace:      input.Namespace,
-						PassHostHeader: ptr.To(true),
-						Port:           intstr.FromString(port),
-						Scheme:         input.PortMap.Scheme,
-					},
-				},
-			},
-		}
-
-		ingressRoute.Spec.Routes = append(ingressRoute.Spec.Routes, rule)
 	}
 
 	return ingressRoute
