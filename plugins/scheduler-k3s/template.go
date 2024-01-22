@@ -31,86 +31,6 @@ type Chart struct {
 	Version    string `yaml:"version"`
 }
 
-type CreateIngressRoutesInput struct {
-	AppName    string
-	ChartDir   string
-	Deployment appsv1.Deployment
-	Namespace  string
-	PortMaps   []PortMap
-	Service    v1.Service
-}
-
-type Deployment struct {
-	AppName          string
-	Command          []string
-	Image            string
-	ImagePullSecrets string
-	ImageSourceType  string
-	Healthchecks     []appjson.Healthcheck
-	Namespace        string
-	PrimaryPort      int32
-	PortMaps         []PortMap
-	ProcessType      string
-	Replicas         int32
-	WorkingDir       string
-}
-
-type IngressRouteEntrypoint string
-
-const (
-	IngressRouteEntrypoint_HTTP  IngressRouteEntrypoint = "web"
-	IngressRouteEntrypoint_HTTPS IngressRouteEntrypoint = "websecure"
-)
-
-type IngressRoute struct {
-	AppName     string
-	Entrypoints []IngressRouteEntrypoint
-	Hostnames   []string
-	Namespace   string
-	PortMap     PortMap
-	ProcessType string
-	ServiceName string
-}
-
-type Job struct {
-	AppName          string
-	Command          []string
-	DeploymentID     int64
-	Entrypoint       string
-	Env              map[string]string
-	ID               string
-	Image            string
-	ImagePullSecrets string
-	ImageSourceType  string
-	Interactive      bool
-	Labels           map[string]string
-	Namespace        string
-	ProcessType      string
-	Schedule         string
-	Suffix           string
-	RemoveContainer  bool
-	WorkingDir       string
-}
-
-type Secret struct {
-	AppName   string
-	Env       map[string]string
-	Namespace string
-}
-
-type Service struct {
-	AppName   string
-	Namespace string
-	PortMaps  []PortMap
-}
-
-type WriteResourceInput struct {
-	AppendContents string
-	Object         runtime.Object
-	Path           string
-	Replacements   *orderedmap.OrderedMap[string, string]
-}
-
 type Values struct {
 	DeploymentID string                   `yaml:"deploment_id"`
 	Secrets      map[string]string        `yaml:"secrets"`
@@ -121,9 +41,13 @@ type ValuesProcess struct {
 	Replicas int32 `yaml:"replicas"`
 }
 
-type WriteYamlInput struct {
-	Object interface{}
-	Path   string
+type CreateIngressRoutesInput struct {
+	AppName    string
+	ChartDir   string
+	Deployment appsv1.Deployment
+	Namespace  string
+	PortMaps   []PortMap
+	Service    v1.Service
 }
 
 func createIngressRoutesFiles(input CreateIngressRoutesInput) error {
@@ -167,6 +91,26 @@ func createIngressRoutesFiles(input CreateIngressRoutesInput) error {
 		}
 	}
 	return nil
+}
+
+type Job struct {
+	AppName          string
+	Command          []string
+	DeploymentID     int64
+	Entrypoint       string
+	Env              map[string]string
+	ID               string
+	Image            string
+	ImagePullSecrets string
+	ImageSourceType  string
+	Interactive      bool
+	Labels           map[string]string
+	Namespace        string
+	ProcessType      string
+	Schedule         string
+	Suffix           string
+	RemoveContainer  bool
+	WorkingDir       string
 }
 
 func templateKubernetesCronJob(input Job) (batchv1.CronJob, error) {
@@ -341,6 +285,21 @@ func templateKubernetesCronJob(input Job) (batchv1.CronJob, error) {
 	}
 
 	return job, nil
+}
+
+type Deployment struct {
+	AppName          string
+	Command          []string
+	Image            string
+	ImagePullSecrets string
+	ImageSourceType  string
+	Healthchecks     []appjson.Healthcheck
+	Namespace        string
+	PrimaryPort      int32
+	PortMaps         []PortMap
+	ProcessType      string
+	Replicas         int32
+	WorkingDir       string
 }
 
 func templateKubernetesDeployment(input Deployment) (appsv1.Deployment, error) {
@@ -565,6 +524,23 @@ func templateKubernetesDeployment(input Deployment) (appsv1.Deployment, error) {
 	return deployment, nil
 }
 
+type IngressRouteEntrypoint string
+
+const (
+	IngressRouteEntrypoint_HTTP  IngressRouteEntrypoint = "web"
+	IngressRouteEntrypoint_HTTPS IngressRouteEntrypoint = "websecure"
+)
+
+type IngressRoute struct {
+	AppName     string
+	Entrypoints []IngressRouteEntrypoint
+	Hostnames   []string
+	Namespace   string
+	PortMap     PortMap
+	ProcessType string
+	ServiceName string
+}
+
 func templateKubernetesIngressRoute(input IngressRoute) traefikv1alpha1.IngressRoute {
 	entryPoint := IngressRouteEntrypoint_HTTP
 	if input.PortMap.Scheme == "https" {
@@ -768,6 +744,12 @@ func templateKubernetesJob(input Job) (batchv1.Job, error) {
 	return job, nil
 }
 
+type Secret struct {
+	AppName   string
+	Env       map[string]string
+	Namespace string
+}
+
 func templateKubernetesSecret(input Secret) corev1.Secret {
 	secretName := fmt.Sprintf("env-%s.DEPLOYMENT_ID", input.AppName)
 	labels := map[string]string{
@@ -791,6 +773,12 @@ func templateKubernetesSecret(input Secret) corev1.Secret {
 	}
 
 	return secret
+}
+
+type Service struct {
+	AppName   string
+	Namespace string
+	PortMaps  []PortMap
 }
 
 func templateKubernetesService(input Service) corev1.Service {
@@ -828,6 +816,13 @@ func templateKubernetesService(input Service) corev1.Service {
 	}
 
 	return service
+}
+
+type WriteResourceInput struct {
+	AppendContents string
+	Object         runtime.Object
+	Path           string
+	Replacements   *orderedmap.OrderedMap[string, string]
 }
 
 func writeResourceToFile(input WriteResourceInput) error {
@@ -878,6 +873,11 @@ func writeResourceToFile(input WriteResourceInput) error {
 		common.CatFile(input.Path)
 	}
 	return nil
+}
+
+type WriteYamlInput struct {
+	Object interface{}
+	Path   string
 }
 
 func writeYaml(input WriteYamlInput) error {
