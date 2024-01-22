@@ -74,7 +74,7 @@ func createIngressRoutesFiles(input CreateIngressRoutesInput) error {
 		for _, portMap := range input.PortMaps {
 			ingressRoute := templateKubernetesIngressRoute(IngressRoute{
 				AppName:     input.AppName,
-				Hostnames:   domains,
+				Domains:     domains,
 				Namespace:   input.Namespace,
 				PortMap:     portMap,
 				ProcessType: "web",
@@ -534,7 +534,7 @@ const (
 type IngressRoute struct {
 	AppName     string
 	Entrypoints []IngressRouteEntrypoint
-	Hostnames   []string
+	Domains     []string
 	Namespace   string
 	PortMap     PortMap
 	ProcessType string
@@ -570,7 +570,9 @@ func templateKubernetesIngressRoute(input IngressRoute) traefikv1alpha1.IngressR
 		},
 	}
 
-	for _, hostname := range input.Hostnames {
+	sort.Strings(input.Domains)
+
+	for _, hostname := range input.Domains {
 		rule := traefikv1alpha1.Route{
 			Kind:  "Rule",
 			Match: "Host(`" + hostname + "`)",
