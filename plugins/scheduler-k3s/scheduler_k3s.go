@@ -60,6 +60,11 @@ var Manifests = []Manifest{
 		Version: "0.13.2",
 		Path:    "https://github.com/rancher/system-upgrade-controller/releases/v0.13.2/download/system-upgrade-controller.yaml",
 	},
+	{
+		Name:    "cert-manager",
+		Version: "v1.13.3",
+		Path:    "https://github.com/cert-manager/cert-manager/releases/download/v1.13.3/cert-manager.yaml",
+	},
 }
 
 func init() {
