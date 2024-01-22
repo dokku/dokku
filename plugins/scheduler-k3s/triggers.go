@@ -121,13 +121,22 @@ func TriggerPostRegistryLogin(server string, username string) error {
 		return fmt.Errorf("Unable to write registry configuration to file: %w", err)
 	}
 
-	// todo: auth against all nodes in cluster
+	ctx, cancel := context.WithCancel(context.Background())
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, os.Interrupt, syscall.SIGHUP,
+		syscall.SIGINT,
+		syscall.SIGQUIT,
+		syscall.SIGTERM)
+	go func() {
+		<-signals
+		cancel()
+	}()
+
 	clientset, err := NewKubernetesClient()
 	if err != nil {
 		return fmt.Errorf("Error creating kubernetes client: %w", err)
 	}
 
-	ctx := context.Background()
 	nodes, err := clientset.ListNodes(ctx, ListNodesInput{})
 	if err != nil {
 		return fmt.Errorf("Error listing nodes: %w", err)
@@ -166,12 +175,14 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 		return err
 	}
 
-	ctx := context.Background()
-	ctx, cancel := context.WithCancel(ctx)
-	cSignal := make(chan os.Signal, 2)
-	signal.Notify(cSignal, os.Interrupt, syscall.SIGTERM)
+	ctx, cancel := context.WithCancel(context.Background())
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, os.Interrupt, syscall.SIGHUP,
+		syscall.SIGINT,
+		syscall.SIGQUIT,
+		syscall.SIGTERM)
 	go func() {
-		<-cSignal
+		<-signals
 		common.LogWarn(fmt.Sprintf("Deployment of %s has been cancelled", appName))
 		cancel()
 	}()
@@ -505,11 +516,6 @@ func TriggerSchedulerEnter(scheduler string, appName string, processType string,
 		return nil
 	}
 
-	clientset, err := NewKubernetesClient()
-	if err != nil {
-		return fmt.Errorf("Error creating kubernetes client: %w", err)
-	}
-
 	ctx, cancel := context.WithCancel(context.Background())
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, os.Interrupt, syscall.SIGHUP,
@@ -520,6 +526,11 @@ func TriggerSchedulerEnter(scheduler string, appName string, processType string,
 		<-signals
 		cancel()
 	}()
+
+	clientset, err := NewKubernetesClient()
+	if err != nil {
+		return fmt.Errorf("Error creating kubernetes client: %w", err)
+	}
 
 	namespace := common.PropertyGetDefault("scheduler-k3s", appName, "namespace", "default")
 
@@ -597,11 +608,6 @@ func TriggerSchedulerLogs(scheduler string, appName string, processType string, 
 		return nil
 	}
 
-	clientset, err := NewKubernetesClient()
-	if err != nil {
-		return fmt.Errorf("Error creating kubernetes client: %w", err)
-	}
-
 	ctx, cancel := context.WithCancel(context.Background())
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, os.Interrupt, syscall.SIGHUP,
@@ -612,6 +618,11 @@ func TriggerSchedulerLogs(scheduler string, appName string, processType string, 
 		<-signals
 		cancel()
 	}()
+
+	clientset, err := NewKubernetesClient()
+	if err != nil {
+		return fmt.Errorf("Error creating kubernetes client: %w", err)
+	}
 
 	labelSelector := []string{fmt.Sprintf("app.kubernetes.io/part-of=%s", appName)}
 	processIndex := 0
@@ -1017,6 +1028,17 @@ func TriggerSchedulerRunList(scheduler string, appName string, format string) er
 		return nil
 	}
 
+	ctx, cancel := context.WithCancel(context.Background())
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, os.Interrupt, syscall.SIGHUP,
+		syscall.SIGINT,
+		syscall.SIGQUIT,
+		syscall.SIGTERM)
+	go func() {
+		<-signals
+		cancel()
+	}()
+
 	clientset, err := NewKubernetesClient()
 	if err != nil {
 		return fmt.Errorf("Error creating kubernetes client: %w", err)
@@ -1024,7 +1046,6 @@ func TriggerSchedulerRunList(scheduler string, appName string, format string) er
 
 	namespace := common.PropertyGetDefault("scheduler-k3s", appName, "namespace", "default")
 
-	ctx := context.Background()
 	cronJobs, err := clientset.ListCronJobs(ctx, ListCronJobsInput{
 		LabelSelector: fmt.Sprintf("app.kubernetes.io/part-of=%s", appName),
 		Namespace:     namespace,
@@ -1104,11 +1125,6 @@ func TriggerSchedulerStop(scheduler string, appName string) error {
 		return nil
 	}
 
-	clientset, err := NewKubernetesClient()
-	if err != nil {
-		return fmt.Errorf("Error creating kubernetes client: %w", err)
-	}
-
 	ctx, cancel := context.WithCancel(context.Background())
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, os.Interrupt, syscall.SIGHUP,
@@ -1119,6 +1135,11 @@ func TriggerSchedulerStop(scheduler string, appName string) error {
 		<-signals
 		cancel()
 	}()
+
+	clientset, err := NewKubernetesClient()
+	if err != nil {
+		return fmt.Errorf("Error creating kubernetes client: %w", err)
+	}
 
 	namespace := common.PropertyGetDefault("scheduler-k3s", appName, "namespace", "default")
 	deployments, err := clientset.ListDeployments(ctx, ListDeploymentsInput{

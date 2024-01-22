@@ -247,7 +247,7 @@ func CommandInitialize(taintScheduling bool) error {
 			return fmt.Errorf("Unable to create kubernetes client: %w", err)
 		}
 
-		err = clientset.LabelNode(context.Background(), LabelNodeInput{
+		err = clientset.LabelNode(ctx, LabelNodeInput{
 			Name:  nodeName,
 			Key:   key,
 			Value: value,
@@ -324,6 +324,17 @@ func CommandClusterAdd(role string, remoteHost string, allowUknownHosts bool, ta
 	if len(serverIp) == 0 {
 		return fmt.Errorf(fmt.Sprintf("Unable to determine server ip address from network-interface %s", networkInterface))
 	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, os.Interrupt, syscall.SIGHUP,
+		syscall.SIGINT,
+		syscall.SIGQUIT,
+		syscall.SIGTERM)
+	go func() {
+		<-signals
+		cancel()
+	}()
 
 	// todo: check if k3s is installed on the remote host
 
@@ -505,7 +516,7 @@ func CommandClusterAdd(role string, remoteHost string, allowUknownHosts bool, ta
 	if joinCmd.ExitCode != 0 {
 		return fmt.Errorf("Invalid exit code from k3s installer command over ssh: %d", joinCmd.ExitCode)
 	}
-	ctx := context.Background()
+
 	clientset, err := NewKubernetesClient()
 	if err != nil {
 		return fmt.Errorf("Unable to create kubernetes client: %w", err)
@@ -540,7 +551,7 @@ func CommandClusterAdd(role string, remoteHost string, allowUknownHosts bool, ta
 			return fmt.Errorf("Unable to create kubernetes client: %w", err)
 		}
 
-		err = clientset.LabelNode(context.Background(), LabelNodeInput{
+		err = clientset.LabelNode(ctx, LabelNodeInput{
 			Name:  nodeName,
 			Key:   key,
 			Value: value,
@@ -573,12 +584,23 @@ func CommandClusterList(format string) error {
 		return fmt.Errorf("k3s not installed, cannot list cluster nodes")
 	}
 
+	ctx, cancel := context.WithCancel(context.Background())
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, os.Interrupt, syscall.SIGHUP,
+		syscall.SIGINT,
+		syscall.SIGQUIT,
+		syscall.SIGTERM)
+	go func() {
+		<-signals
+		cancel()
+	}()
+
 	clientset, err := NewKubernetesClient()
 	if err != nil {
 		return fmt.Errorf("Unable to create kubernetes client: %w", err)
 	}
 
-	nodes, err := clientset.ListNodes(context.Background(), ListNodesInput{})
+	nodes, err := clientset.ListNodes(ctx, ListNodesInput{})
 	if err != nil {
 		return fmt.Errorf("Unable to list nodes: %w", err)
 	}
@@ -614,6 +636,17 @@ func CommandClusterRemove(nodeName string) error {
 		return fmt.Errorf("k3s not installed, cannot remove node")
 	}
 
+	ctx, cancel := context.WithCancel(context.Background())
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, os.Interrupt, syscall.SIGHUP,
+		syscall.SIGINT,
+		syscall.SIGQUIT,
+		syscall.SIGTERM)
+	go func() {
+		<-signals
+		cancel()
+	}()
+
 	common.LogInfo1Quiet(fmt.Sprintf("Removing %s from k3s cluster", nodeName))
 	clientset, err := NewKubernetesClient()
 	if err != nil {
@@ -621,7 +654,6 @@ func CommandClusterRemove(nodeName string) error {
 	}
 
 	common.LogVerboseQuiet("Getting node remote connection information")
-	ctx := context.Background()
 	node, err := clientset.GetNode(ctx, GetNodeInput{
 		Name: nodeName,
 	})
