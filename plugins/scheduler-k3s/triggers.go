@@ -395,8 +395,21 @@ data:
 		}
 	}
 
-	// todo: make this configurable
+	issuerName := "letsencrypt-stag"
+	server := getComputedLetsencryptServer(appName)
+	if server == "prod" || server == "production" {
+		issuerName = "letsencrypt-prod"
+	} else if server != "stag" && server != "staging" {
+		return fmt.Errorf("Invalid letsencrypt server config: %s", server)
+	}
+
 	tls := false
+	if issuerName == "letsencrypt-stag" {
+		tls = getGlobalLetsencryptEmailStag() != ""
+	}
+	if issuerName == "letsencrypt-prod" {
+		tls = getGlobalLetsencryptEmailProd() != ""
+	}
 
 	domains := []string{}
 	if deployment, ok := deployments["web"]; ok {
@@ -451,7 +464,7 @@ data:
 				Namespace: namespace,
 				TLS:       tls,
 			},
-			IssuerName:  "letsencrypt-prod",
+			IssuerName:  issuerName,
 			ProcessType: "web",
 		})
 		if err != nil {
