@@ -3,3 +3,6 @@ extends: default
 
 rules:
   line-length: disable
+
+ignore:
+  - plugins/scheduler-k3s/templates/*
