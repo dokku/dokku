@@ -261,6 +261,10 @@ type PortMap struct {
 	Scheme        string `json:"scheme"`
 }
 
+func (p PortMap) String() string {
+	return fmt.Sprintf("%s-%d-%d", p.Scheme, p.HostPort, p.ContainerPort)
+}
+
 func (p PortMap) IsAllowedHttp() bool {
 	return p.Scheme == "http" || p.ContainerPort == 80
 }

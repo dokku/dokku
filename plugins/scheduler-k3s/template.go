@@ -460,7 +460,7 @@ func templateKubernetesDeployment(input Deployment) (appsv1.Deployment, error) {
 				protocol = "UDP"
 			}
 			deployment.Spec.Template.Spec.Containers[0].Ports = append(deployment.Spec.Template.Spec.Containers[0].Ports, corev1.ContainerPort{
-				Name:          fmt.Sprintf("%s-%d-%d", portMap.Scheme, portMap.HostPort, portMap.ContainerPort),
+				Name:          portMap.String(),
 				ContainerPort: portMap.ContainerPort,
 				Protocol:      corev1.Protocol(protocol),
 			})
@@ -557,7 +557,7 @@ func templateKubernetesIngressRoute(input IngressRoute) traefikv1alpha1.IngressR
 		"dokku.com/managed": "true",
 	}
 
-	port := fmt.Sprintf("%s-%d-%d", input.PortMap.Scheme, input.PortMap.HostPort, input.PortMap.ContainerPort)
+	port := input.PortMap.String()
 	ingressRoute := traefikv1alpha1.IngressRoute{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        fmt.Sprintf("%s-%s", input.ServiceName, port),
@@ -811,9 +811,9 @@ func templateKubernetesService(input Service) corev1.Service {
 			protocol = "UDP"
 		}
 		service.Spec.Ports = append(service.Spec.Ports, corev1.ServicePort{
-			Name:       fmt.Sprintf("%s-%d-%d", portMap.Scheme, portMap.HostPort, portMap.ContainerPort),
+			Name:       portMap.String(),
 			Port:       portMap.HostPort,
-			TargetPort: intstr.FromString(fmt.Sprintf("%s-%d-%d", portMap.Scheme, portMap.HostPort, portMap.ContainerPort)),
+			TargetPort: intstr.FromString(portMap.String()),
 			Protocol:   corev1.Protocol(protocol),
 		})
 	}
