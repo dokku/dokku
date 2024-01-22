@@ -154,13 +154,24 @@ func (k KubernetesClient) CreateJob(ctx context.Context, input CreateJobInput) (
 
 // CreateNamespaceInput contains all the information needed to create a Kubernetes namespace
 type CreateNamespaceInput struct {
-	// Namespace is the Kubernetes namespace
-	Namespace v1.Namespace
+	// Name is the name of the Kubernetes namespace
+	Name v1.Namespace
 }
 
 // CreateNamespace creates a Kubernetes namespace
 func (k KubernetesClient) CreateNamespace(ctx context.Context, input CreateNamespaceInput) (v1.Namespace, error) {
-	namespace, err := k.Client.CoreV1().Namespaces().Create(ctx, &input.Namespace, metav1.CreateOptions{})
+	namespaces, err := k.ListNamespaces(ctx)
+	if err != nil {
+		return v1.Namespace{}, err
+	}
+
+	for _, namespace := range namespaces {
+		if namespace.Name == input.Name.Name {
+			return namespace, nil
+		}
+	}
+
+	namespace, err := k.Client.CoreV1().Namespaces().Create(ctx, &input.Name, metav1.CreateOptions{})
 	if err != nil {
 		return v1.Namespace{}, err
 	}

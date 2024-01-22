@@ -4,18 +4,23 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"os"
-	"os/signal"
+	"path/filepath"
 	"sort"
 	"strings"
-	"syscall"
 	"time"
 	"unicode"
 
 	"github.com/dokku/dokku/plugins/common"
+	"github.com/gofrs/flock"
+	"gopkg.in/yaml.v3"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart/loader"
+	"helm.sh/helm/v3/pkg/cli"
+	"helm.sh/helm/v3/pkg/getter"
 	"helm.sh/helm/v3/pkg/kube"
+	"helm.sh/helm/v3/pkg/repo"
 	"helm.sh/helm/v3/pkg/storage/driver"
 )
 
@@ -43,8 +48,10 @@ type ChartInput struct {
 	ChartPath         string
 	Namespace         string
 	ReleaseName       string
+	RepoURL           string
 	RollbackOnFailure bool
 	Timeout           time.Duration
+	Version           string
 	Values            map[string]interface{}
 }
 
@@ -80,7 +87,74 @@ func NewHelmAgent(namespace string, logger action.DebugLog) (*HelmAgent, error) 
 	}, nil
 }
 
+type AddRepositoryInput struct {
+	Name string
+	URL  string
+}
+
+func (h *HelmAgent) AddRepository(ctx context.Context, helmRepo AddRepositoryInput) error {
+	settings := cli.New()
+	repoFile := settings.RepositoryConfig
+
+	err := os.MkdirAll(filepath.Dir(repoFile), os.ModePerm)
+	if err != nil && !os.IsExist(err) {
+		return fmt.Errorf("Error creating repository directory: %w", err)
+	}
+
+	fileLock := flock.New(strings.Replace(repoFile, filepath.Ext(repoFile), ".lock", 1))
+	locked, err := fileLock.TryLockContext(ctx, time.Second)
+	if err != nil {
+		return fmt.Errorf("Error acquiring file lock: %w", err)
+	}
+
+	if !locked {
+		return fmt.Errorf("Could not acquire file lock")
+	}
+
+	defer fileLock.Unlock() // nolint: errcheck
+
+	b, err := os.ReadFile(repoFile)
+	if err != nil && !os.IsNotExist(err) {
+		return fmt.Errorf("Error reading repository file: %w", err)
+	}
+
+	var f repo.File
+	if err := yaml.Unmarshal(b, &f); err != nil {
+		return fmt.Errorf("Error unmarshalling yaml: %w", err)
+	}
+
+	if f.Has(helmRepo.Name) {
+		return nil
+	}
+
+	c := repo.Entry{
+		Name: helmRepo.Name,
+		URL:  helmRepo.URL,
+	}
+
+	r, err := repo.NewChartRepository(&c, getter.All(settings))
+	if err != nil {
+		return fmt.Errorf("Error creating chart repository: %w", err)
+	}
+
+	if _, err := r.DownloadIndexFile(); err != nil {
+		return fmt.Errorf("Specified repository '%q' is not a valid chart repository or cannot be reached: %w", helmRepo.URL, err)
+	}
+
+	f.Update(&c)
+
+	if err := f.WriteFile(repoFile, 0644); err != nil {
+		log.Fatal(err)
+	}
+
+	return nil
+}
+
 func (h *HelmAgent) ChartExists(releaseName string) (bool, error) {
+	if releaseName == "" {
+		return false, fmt.Errorf("Release name is required")
+	}
+
 	client := action.NewHistory(h.Configuration)
 	client.Max = 1
 	releases, err := client.Run(releaseName)
@@ -98,14 +172,14 @@ func (h *HelmAgent) ChartExists(releaseName string) (bool, error) {
 	return false, nil
 }
 
-func (h *HelmAgent) DeleteRevision(releaseName string, revision int) error {
+func (h *HelmAgent) DeleteRevision(ctx context.Context, releaseName string, revision int) error {
 	clientset, err := NewKubernetesClient()
 	if err != nil {
 		return fmt.Errorf("Error creating kubernetes client: %w", err)
 	}
 
 	secretName := fmt.Sprintf("sh.helm.release.v1.%s.v%d", releaseName, revision)
-	err = clientset.DeleteSecret(context.Background(), DeleteSecretInput{
+	err = clientset.DeleteSecret(ctx, DeleteSecretInput{
 		Name:      secretName,
 		Namespace: h.Namespace,
 	})
@@ -126,7 +200,7 @@ func (h *HelmAgent) GetValues(releaseName string) (map[string]interface{}, error
 	return values, nil
 }
 
-func (h *HelmAgent) InstallOrUpgradeChart(input ChartInput) error {
+func (h *HelmAgent) InstallOrUpgradeChart(ctx context.Context, input ChartInput) error {
 	chartExists, err := h.ChartExists(input.ReleaseName)
 	if err != nil {
 		return fmt.Errorf("Error checking if chart exists: %w", err)
@@ -134,14 +208,14 @@ func (h *HelmAgent) InstallOrUpgradeChart(input ChartInput) error {
 
 	if chartExists {
 		common.LogExclaim(fmt.Sprintf("Upgrading %s", input.ReleaseName))
-		return h.UpgradeChart(input)
+		return h.UpgradeChart(ctx, input)
 	}
 
 	common.LogExclaim(fmt.Sprintf("Installing %s", input.ReleaseName))
-	return h.InstallChart(input)
+	return h.InstallChart(ctx, input)
 }
 
-func (h *HelmAgent) InstallChart(input ChartInput) error {
+func (h *HelmAgent) InstallChart(ctx context.Context, input ChartInput) error {
 	namespace := input.Namespace
 	if namespace == "" {
 		namespace = h.Namespace
@@ -167,7 +241,15 @@ func (h *HelmAgent) InstallChart(input ChartInput) error {
 	client.Timeout = input.Timeout
 	client.Wait = false
 
-	chart, err := client.ChartPathOptions.LocateChart(input.ChartPath, nil)
+	settings := cli.New()
+	if input.RepoURL != "" {
+		client.ChartPathOptions.RepoURL = input.RepoURL
+	}
+	if input.Version != "" {
+		client.ChartPathOptions.Version = input.Version
+	}
+
+	chart, err := client.ChartPathOptions.LocateChart(input.ChartPath, settings)
 	if err != nil {
 		return fmt.Errorf("Error locating chart: %w", err)
 	}
@@ -177,16 +259,6 @@ func (h *HelmAgent) InstallChart(input ChartInput) error {
 		return fmt.Errorf("Error loading chart: %w", err)
 	}
 
-	ctx := context.Background()
-	ctx, cancel := context.WithCancel(ctx)
-	cSignal := make(chan os.Signal, 2)
-	signal.Notify(cSignal, os.Interrupt, syscall.SIGTERM)
-	go func() {
-		<-cSignal
-		common.LogWarn(fmt.Sprintf("Deployment of %s has been cancelled", input.ReleaseName))
-		cancel()
-	}()
-
 	_, err = client.RunWithContext(ctx, chartRequested, input.Values)
 	if err != nil {
 		return fmt.Errorf("Error deploying: %w", err)
@@ -195,7 +267,7 @@ func (h *HelmAgent) InstallChart(input ChartInput) error {
 	return nil
 }
 
-func (h *HelmAgent) ListRevisions(releaseName string) ([]Release, error) {
+func (h *HelmAgent) ListRevisions(ctx context.Context, releaseName string) ([]Release, error) {
 	client := action.NewHistory(h.Configuration)
 	response, err := client.Run(releaseName)
 	if err != nil {
@@ -218,7 +290,7 @@ func (h *HelmAgent) ListRevisions(releaseName string) ([]Release, error) {
 	return releases, nil
 }
 
-func (h *HelmAgent) UpgradeChart(input ChartInput) error {
+func (h *HelmAgent) UpgradeChart(ctx context.Context, input ChartInput) error {
 	namespace := input.Namespace
 	if namespace == "" {
 		namespace = h.Namespace
@@ -243,6 +315,9 @@ func (h *HelmAgent) UpgradeChart(input ChartInput) error {
 	client.Namespace = namespace
 	client.Timeout = input.Timeout
 	client.Wait = false
+	if input.RepoURL != "" {
+		client.RepoURL = input.RepoURL
+	}
 
 	chart, err := client.ChartPathOptions.LocateChart(input.ChartPath, nil)
 	if err != nil {
@@ -253,16 +328,6 @@ func (h *HelmAgent) UpgradeChart(input ChartInput) error {
 	if err != nil {
 		return fmt.Errorf("Error loading chart: %w", err)
 	}
-
-	ctx := context.Background()
-	ctx, cancel := context.WithCancel(ctx)
-	cSignal := make(chan os.Signal, 2)
-	signal.Notify(cSignal, os.Interrupt, syscall.SIGTERM)
-	go func() {
-		<-cSignal
-		common.LogWarn(fmt.Sprintf("Deployment of %s has been cancelled", input.ReleaseName))
-		cancel()
-	}()
 
 	_, err = client.RunWithContext(ctx, input.ReleaseName, chartRequested, input.Values)
 	if err != nil {

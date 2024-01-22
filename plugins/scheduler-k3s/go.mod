@@ -10,6 +10,7 @@ require (
 	github.com/fatih/color v1.16.0
 	github.com/go-openapi/jsonpointer v0.19.6
 	github.com/go-resty/resty/v2 v2.11.0
+	github.com/gofrs/flock v0.8.1
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
 	github.com/rancher/wharfie v0.6.5

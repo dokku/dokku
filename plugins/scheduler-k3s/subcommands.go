@@ -8,7 +8,9 @@ import (
 	"net"
 	"net/url"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 
 	"github.com/dokku/dokku/plugins/common"
 	resty "github.com/go-resty/resty/v2"
@@ -20,6 +22,17 @@ func CommandInitialize(taintScheduling bool) error {
 	if err := isK3sInstalled(); err == nil {
 		return fmt.Errorf("k3s already installed, cannot re-initialize k3s")
 	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, os.Interrupt, syscall.SIGHUP,
+		syscall.SIGINT,
+		syscall.SIGQUIT,
+		syscall.SIGTERM)
+	go func() {
+		<-signals
+		cancel()
+	}()
 
 	networkInterface := common.PropertyGetDefault("scheduler-k3s", "--global", "network-interface", "eth0")
 	ifaces, err := net.Interfaces()
@@ -176,7 +189,7 @@ func CommandInitialize(taintScheduling bool) error {
 		"--token", token,
 	}
 	if taintScheduling {
-		args = append(args, "--node-taint", "node-role.kubernetes.io/master=true:NoSchedule")
+		args = append(args, "--node-taint", "CriticalAddonsOnly=true:NoSchedule")
 	}
 
 	common.LogInfo2Quiet("Running k3s installer")
@@ -214,9 +227,13 @@ func CommandInitialize(taintScheduling bool) error {
 	}
 
 	clientset, err := NewKubernetesClient()
-	for _, manifest := range Manifests {
+	if err != nil {
+		return fmt.Errorf("Unable to create kubernetes client: %w", err)
+	}
+
+	for _, manifest := range KubernetesManifests {
 		common.LogInfo2Quiet(fmt.Sprintf("Installing %s@%s", manifest.Name, manifest.Version))
-		err = clientset.ApplyKubernetesManifest(context.Background(), ApplyKubernetesManifestInput{
+		err = clientset.ApplyKubernetesManifest(ctx, ApplyKubernetesManifestInput{
 			Manifest: manifest.Path,
 		})
 		if err != nil {
@@ -224,18 +241,37 @@ func CommandInitialize(taintScheduling bool) error {
 		}
 	}
 
-	common.LogInfo2Quiet("Labeling node svccontroller.k3s.cattle.io/enablelb=true")
-	if err != nil {
-		return fmt.Errorf("Unable to create kubernetes client: %w", err)
+	for key, value := range ServerLabels {
+		common.LogInfo2Quiet(fmt.Sprintf("Labeling node %s=%s", key, value))
+		if err != nil {
+			return fmt.Errorf("Unable to create kubernetes client: %w", err)
+		}
+
+		err = clientset.LabelNode(context.Background(), LabelNodeInput{
+			Name:  nodeName,
+			Key:   key,
+			Value: value,
+		})
+		if err != nil {
+			return fmt.Errorf("Unable to patch node: %w", err)
+		}
 	}
 
-	err = clientset.LabelNode(context.Background(), LabelNodeInput{
-		Name:  nodeName,
-		Key:   "svccontroller.k3s.cattle.io/enablelb",
-		Value: "true",
-	})
+	common.LogInfo2Quiet("Updating traefik config")
+	contents, err := templates.ReadFile("templates/traefik-config.yaml")
 	if err != nil {
-		return fmt.Errorf("Unable to patch node: %w", err)
+		return fmt.Errorf("Unable to read traefik config template: %w", err)
+	}
+
+	err = os.WriteFile("/var/lib/rancher/k3s/server/manifests/traefik-custom.yaml", contents, 0600)
+	if err != nil {
+		return fmt.Errorf("Unable to write traefik config: %w", err)
+	}
+
+	common.LogInfo2Quiet("Installing helm charts")
+	err = installHelmCharts(ctx, clientset)
+	if err != nil {
+		return fmt.Errorf("Unable to install helm charts: %w", err)
 	}
 
 	common.LogVerboseQuiet("Done")
@@ -449,8 +485,9 @@ func CommandClusterAdd(role string, remoteHost string, allowUknownHosts bool, ta
 		// bind proxy metrics to all interfaces
 		args = append(args, "--kube-proxy-arg", "metrics-bind-address=0.0.0.0")
 	}
+
 	if taintScheduling {
-		args = append(args, "--node-taint", "node-role.kubernetes.io/master=true:NoSchedule")
+		args = append(args, "--node-taint", "CriticalAddonsOnly=true:NoSchedule")
 	}
 
 	common.LogInfo2Quiet(fmt.Sprintf("Adding %s k3s cluster", nodeName))
@@ -492,22 +529,21 @@ func CommandClusterAdd(role string, remoteHost string, allowUknownHosts bool, ta
 		return fmt.Errorf("Error copying registries.yaml to remote host: %w", err)
 	}
 
+	labels := ServerLabels
 	if role == "worker" {
-		common.LogInfo2Quiet("Labeling node kubernetes.io/role=worker")
-		err = clientset.LabelNode(ctx, LabelNodeInput{
-			Name:  nodes[0].Name,
-			Key:   "kubernetes.io/role",
-			Value: "worker",
-		})
+		labels = WorkerLabels
+	}
+
+	for key, value := range labels {
+		common.LogInfo2Quiet(fmt.Sprintf("Labeling node %s=%s", key, value))
 		if err != nil {
-			return fmt.Errorf("Unable to patch node: %w", err)
+			return fmt.Errorf("Unable to create kubernetes client: %w", err)
 		}
-	} else {
-		common.LogInfo2Quiet("Labeling node svccontroller.k3s.cattle.io/enablelb=true")
-		err = clientset.LabelNode(ctx, LabelNodeInput{
-			Name:  nodes[0].Name,
-			Key:   "svccontroller.k3s.cattle.io/enablelb",
-			Value: "true",
+
+		err = clientset.LabelNode(context.Background(), LabelNodeInput{
+			Name:  nodeName,
+			Key:   key,
+			Value: value,
 		})
 		if err != nil {
 			return fmt.Errorf("Unable to patch node: %w", err)

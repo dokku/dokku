@@ -1,0 +1,28 @@
+installCRDs: true
+
+tolerations:
+- key: CriticalAddonsOnly
+  operator: Equal
+  value: "true"
+  effect: "NoSchedule"
+
+webhook:
+  tolerations:
+  - key: CriticalAddonsOnly
+    operator: Equal
+    value: "true"
+    effect: "NoSchedule"
+
+cainjector:
+  tolerations:
+  - key: CriticalAddonsOnly
+    operator: Equal
+    value: "true"
+    effect: "NoSchedule"
+
+startupapicheck:
+  tolerations:
+  - key: CriticalAddonsOnly
+    operator: Equal
+    value: "true"
+    effect: "NoSchedule"

@@ -3,6 +3,7 @@ package scheduler_k3s
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"sort"
@@ -11,6 +12,7 @@ import (
 	"time"
 
 	"github.com/dokku/dokku/plugins/common"
+	"gopkg.in/yaml.v3"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -116,17 +118,6 @@ func createKubernetesNamespace(ctx context.Context, namespaceName string) error 
 		return err
 	}
 
-	namespaces, err := clientset.ListNamespaces(ctx)
-	if err != nil {
-		return err
-	}
-
-	for _, namespace := range namespaces {
-		if namespace.Name == namespaceName {
-			return nil
-		}
-	}
-
 	namespace := corev1.Namespace{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: namespaceName,
@@ -139,7 +130,7 @@ func createKubernetesNamespace(ctx context.Context, namespaceName string) error 
 		},
 	}
 	_, err = clientset.CreateNamespace(ctx, CreateNamespaceInput{
-		Namespace: namespace,
+		Name: namespace,
 	})
 	if err != nil {
 		return err
@@ -322,6 +313,73 @@ func getStartCommand(input StartCommandInput) (StartCommandOutput, error) {
 	}, nil
 }
 
+func installHelmCharts(ctx context.Context, clientset KubernetesClient) error {
+	for _, repo := range HelmRepositories {
+		helmAgent, err := NewHelmAgent("default", DeployLogPrinter)
+		if err != nil {
+			return fmt.Errorf("Error creating helm agent: %w", err)
+		}
+
+		err = helmAgent.AddRepository(ctx, AddRepositoryInput(repo))
+		if err != nil {
+			return fmt.Errorf("Error adding helm repository %s: %w", repo.Name, err)
+		}
+	}
+
+	for _, chart := range HelmCharts {
+		if chart.CreateNamespace {
+			namespace := corev1.Namespace{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: chart.Namespace,
+					Annotations: map[string]string{
+						"dokku.com/managed": "true",
+					},
+					Labels: map[string]string{
+						"dokku.com/managed": "true",
+					},
+				},
+			}
+			_, err := clientset.CreateNamespace(ctx, CreateNamespaceInput{
+				Name: namespace,
+			})
+			if err != nil {
+				return fmt.Errorf("Error creating namespace %s: %w", chart.Namespace, err)
+			}
+		}
+
+		contents, err := templates.ReadFile(fmt.Sprintf("templates/%s.yaml", chart.ReleaseName))
+		if err != nil && !errors.Is(err, os.ErrNotExist) {
+			return fmt.Errorf("Error reading values file %s: %w", chart.ReleaseName, err)
+		}
+
+		var values map[string]interface{}
+		if len(contents) > 0 {
+			err = yaml.Unmarshal(contents, &values)
+			if err != nil {
+				return fmt.Errorf("Error unmarshalling values file: %w", err)
+			}
+		}
+
+		helmAgent, err := NewHelmAgent(chart.Namespace, DeployLogPrinter)
+		if err != nil {
+			return fmt.Errorf("Error creating helm agent: %w", err)
+		}
+
+		err = helmAgent.InstallOrUpgradeChart(ctx, ChartInput{
+			ChartPath:   chart.ChartPath,
+			Namespace:   chart.Namespace,
+			ReleaseName: chart.ReleaseName,
+			RepoURL:     chart.RepoURL,
+			Values:      values,
+			Version:     chart.Version,
+		})
+		if err != nil {
+			return fmt.Errorf("Error installing chart %s: %w", chart.ChartPath, err)
+		}
+	}
+	return nil
+}
+
 func isK3sInstalled() error {
 	if !common.FileExists("/usr/local/bin/k3s") {
 		return fmt.Errorf("k3s binary is not available")
@@ -340,7 +398,7 @@ func isK3sInstalled() error {
 
 func isPodReady(ctx context.Context, clientset KubernetesClient, podName, namespace string) wait.ConditionWithContextFunc {
 	return func(ctx context.Context) (bool, error) {
-		fmt.Printf(".") // progress bar!
+		fmt.Printf(".")
 
 		pod, err := clientset.GetPod(ctx, GetPodInput{
 			Name:      podName,

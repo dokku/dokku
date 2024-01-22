@@ -167,6 +167,15 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 	}
 
 	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	cSignal := make(chan os.Signal, 2)
+	signal.Notify(cSignal, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-cSignal
+		common.LogWarn(fmt.Sprintf("Deployment of %s has been cancelled", appName))
+		cancel()
+	}()
+
 	namespace := common.PropertyGetDefault("scheduler-k3s", appName, "namespace", "default")
 	if err := createKubernetesNamespace(ctx, namespace); err != nil {
 		return fmt.Errorf("Error creating kubernetes namespace for deployment: %w", err)
@@ -455,7 +464,7 @@ data:
 		return fmt.Errorf("Error parsing deploy timeout duration: %w", err)
 	}
 
-	err = helmAgent.InstallOrUpgradeChart(ChartInput{
+	err = helmAgent.InstallOrUpgradeChart(ctx, ChartInput{
 		ChartPath:         chartPath,
 		Namespace:         namespace,
 		ReleaseName:       fmt.Sprintf("dokku-%s", appName),
