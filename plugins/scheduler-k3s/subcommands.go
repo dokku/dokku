@@ -246,6 +246,20 @@ func CommandInitialize(taintScheduling bool) error {
 	if upgradeCmd.ExitCode != 0 {
 		return fmt.Errorf("Invalid exit code from kubectl command: %d", upgradeCmd.ExitCode)
 	}
+	common.LogInfo2Quiet("Labeling node svccontroller.k3s.cattle.io/enablelb=true")
+	clientset, err := NewKubernetesClient()
+	if err != nil {
+		return fmt.Errorf("Unable to create kubernetes client: %w", err)
+	}
+
+	err = clientset.LabelNode(context.Background(), LabelNodeInput{
+		Name:  nodeName,
+		Key:   "svccontroller.k3s.cattle.io/enablelb",
+		Value: "true",
+	})
+	if err != nil {
+		return fmt.Errorf("Unable to patch node: %w", err)
+	}
 
 	common.LogVerboseQuiet("Done")
 
@@ -507,6 +521,16 @@ func CommandClusterAdd(role string, remoteHost string, allowUknownHosts bool, ta
 			Name:  nodes[0].Name,
 			Key:   "kubernetes.io/role",
 			Value: "worker",
+		})
+		if err != nil {
+			return fmt.Errorf("Unable to patch node: %w", err)
+		}
+	} else {
+		common.LogInfo2Quiet("Labeling node svccontroller.k3s.cattle.io/enablelb=true")
+		err = clientset.LabelNode(ctx, LabelNodeInput{
+			Name:  nodes[0].Name,
+			Key:   "svccontroller.k3s.cattle.io/enablelb",
+			Value: "true",
 		})
 		if err != nil {
 			return fmt.Errorf("Unable to patch node: %w", err)
