@@ -418,8 +418,6 @@ func CommandClusterAdd(role string, remoteHost string, allowUknownHosts bool, ta
 	args := []string{
 		// disable local-storage
 		"--disable", "local-storage",
-		// add a node label
-		"--node-label=node_type=worker",
 		// use wireguard for flannel
 		"--flannel-backend=wireguard-native",
 		// specify the node name
