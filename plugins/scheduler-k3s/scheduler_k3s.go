@@ -43,6 +43,25 @@ var (
 
 var k8sNativeSchemeOnce sync.Once
 
+type Manifest struct {
+	Name    string
+	Version string
+	Path    string
+}
+
+var Manifests = []Manifest{
+	{
+		Name:    "longhorn",
+		Version: "1.5.3",
+		Path:    "https://raw.githubusercontent.com/longhorn/longhorn/v1.5.3/deploy/longhorn.yaml",
+	},
+	{
+		Name:    "system-upgrader",
+		Version: "0.13.2",
+		Path:    "https://github.com/rancher/system-upgrade-controller/releases/v0.13.2/download/system-upgrade-controller.yaml",
+	},
+}
+
 func init() {
 	k8sNativeSchemeOnce.Do(func() {
 		_ = appsv1.AddToScheme(runtimeScheme)

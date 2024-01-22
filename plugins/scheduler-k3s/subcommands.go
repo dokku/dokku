@@ -213,41 +213,18 @@ func CommandInitialize(taintScheduling bool) error {
 		return fmt.Errorf("Invalid exit code from setfacl command: %d", registryAclCmd.ExitCode)
 	}
 
-	common.LogInfo2Quiet("Installing longhorn")
-	longhornCmd, err := common.CallExecCommand(common.ExecCommandInput{
-		Command: "kubectl",
-		Args: []string{
-			"apply",
-			"-f",
-			"https://raw.githubusercontent.com/longhorn/longhorn/v1.4.0/deploy/longhorn.yaml",
-		},
-		StreamStdio: true,
-	})
-	if err != nil {
-		return fmt.Errorf("Unable to call kubectl command: %w", err)
-	}
-	if longhornCmd.ExitCode != 0 {
-		return fmt.Errorf("Invalid exit code from kubectl command: %d", longhornCmd.ExitCode)
+	clientset, err := NewKubernetesClient()
+	for _, manifest := range Manifests {
+		common.LogInfo2Quiet(fmt.Sprintf("Installing %s@%s", manifest.Name, manifest.Version))
+		err = clientset.ApplyKubernetesManifest(context.Background(), ApplyKubernetesManifestInput{
+			Manifest: manifest.Path,
+		})
+		if err != nil {
+			return fmt.Errorf("Unable to apply kubernetes manifest: %w", err)
+		}
 	}
 
-	common.LogInfo2Quiet("Installing k3s automatic upgrader")
-	upgradeCmd, err := common.CallExecCommand(common.ExecCommandInput{
-		Command: "kubectl",
-		Args: []string{
-			"apply",
-			"-f",
-			"https://github.com/rancher/system-upgrade-controller/releases/latest/download/system-upgrade-controller.yaml",
-		},
-		StreamStdio: true,
-	})
-	if err != nil {
-		return fmt.Errorf("Unable to call kubectl command: %w", err)
-	}
-	if upgradeCmd.ExitCode != 0 {
-		return fmt.Errorf("Invalid exit code from kubectl command: %d", upgradeCmd.ExitCode)
-	}
 	common.LogInfo2Quiet("Labeling node svccontroller.k3s.cattle.io/enablelb=true")
-	clientset, err := NewKubernetesClient()
 	if err != nil {
 		return fmt.Errorf("Unable to create kubernetes client: %w", err)
 	}

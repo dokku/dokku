@@ -104,6 +104,31 @@ func (k KubernetesClient) AnnotateNode(ctx context.Context, input AnnotateNodeIn
 	return nil
 }
 
+type ApplyKubernetesManifestInput struct {
+	// Manifest is the path to the Kubernetes manifest
+	Manifest string
+}
+
+func (k KubernetesClient) ApplyKubernetesManifest(ctx context.Context, input ApplyKubernetesManifestInput) error {
+	upgradeCmd, err := common.CallExecCommand(common.ExecCommandInput{
+		Command: "kubectl",
+		Args: []string{
+			"apply",
+			"-f",
+			input.Manifest,
+		},
+		StreamStdio: true,
+	})
+	if err != nil {
+		return fmt.Errorf("Unable to call kubectl command: %w", err)
+	}
+	if upgradeCmd.ExitCode != 0 {
+		return fmt.Errorf("Invalid exit code from kubectl command: %d", upgradeCmd.ExitCode)
+	}
+
+	return nil
+}
+
 // CreateJobInput contains all the information needed to create a Kubernetes job
 type CreateJobInput struct {
 	// Job is the Kubernetes job
