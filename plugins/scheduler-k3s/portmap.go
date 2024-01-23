@@ -25,27 +25,27 @@ func (p PortMap) IsAllowedHttps() bool {
 	return p.Scheme == "https" || p.ContainerPort == 443
 }
 
-func getPortMaps(appName string) ([]PortMap, error) {
+func getPortMaps(appName string) (map[string]PortMap, error) {
 	portMaps := []PortMap{}
 
+	allowedMappings := map[string]PortMap{}
 	output, err := common.PlugnTriggerOutputAsString("ports-get", []string{appName, "json"}...)
 	if err != nil {
-		return portMaps, err
+		return allowedMappings, err
 	}
 
 	err = json.Unmarshal([]byte(output), &portMaps)
 	if err != nil {
-		return portMaps, err
+		return allowedMappings, err
 	}
 
-	allowedMappings := []PortMap{}
 	for _, portMap := range portMaps {
 		if !portMap.IsAllowedHttp() && !portMap.IsAllowedHttps() {
 			// todo: log warning
 			continue
 		}
 
-		allowedMappings = append(allowedMappings, portMap)
+		allowedMappings[portMap.String()] = portMap
 	}
 
 	return allowedMappings, nil

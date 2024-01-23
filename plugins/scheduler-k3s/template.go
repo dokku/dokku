@@ -139,11 +139,12 @@ type ProcessCron struct {
 }
 
 type ProcessPortMap struct {
-	ContainerPort int32           `yaml:"container_port"`
-	HostPort      int32           `yaml:"host_port"`
-	Scheme        string          `yaml:"scheme"`
-	Protocol      PortmapProtocol `yaml:"protocol"`
-	Name          string          `yaml:"name"`
+	ContainerPort   int32           `yaml:"container_port"`
+	HostPort        int32           `yaml:"host_port"`
+	Scheme          string          `yaml:"scheme"`
+	Protocol        PortmapProtocol `yaml:"protocol"`
+	Name            string          `yaml:"name"`
+	RedirectToHttps bool            `yaml:"redirect_to_https"`
 }
 
 type PortmapProtocol string

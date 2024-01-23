@@ -372,18 +372,25 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 					IssuerName: issuerName,
 				},
 			}
+
 			processValues.ProcessType = ProcessType_Web
 			for _, portMap := range portMaps {
 				protocol := PortmapProtocol_TCP
 				if portMap.Scheme == "udp" {
 					protocol = PortmapProtocol_UDP
 				}
+
+				redirecToHttps := false
+				if _, ok := portMaps[fmt.Sprintf("https-443-%d", portMap.ContainerPort)]; ok && portMap.Scheme == "http" {
+					redirecToHttps = true
+				}
 				processValues.Web.PortMaps = append(processValues.Web.PortMaps, ProcessPortMap{
-					ContainerPort: portMap.ContainerPort,
-					HostPort:      portMap.HostPort,
-					Name:          portMap.String(),
-					Protocol:      protocol,
-					Scheme:        portMap.Scheme,
+					ContainerPort:   portMap.ContainerPort,
+					HostPort:        portMap.HostPort,
+					Name:            portMap.String(),
+					Protocol:        protocol,
+					RedirectToHttps: redirecToHttps,
+					Scheme:          portMap.Scheme,
 				})
 			}
 
@@ -393,7 +400,11 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 
 		values.Processes[processType] = processValues
 
-		for _, templateName := range []string{"deployment", "service", "certificate", "ingress-route"} {
+		templateFiles := []string{"deployment"}
+		if processType == "web" {
+			templateFiles = append(templateFiles, "service", "certificate", "ingress-route", "https-redirect-middleware")
+		}
+		for _, templateName := range templateFiles {
 			b, err := templates.ReadFile(fmt.Sprintf("templates/chart/%s.yaml", templateName))
 			if err != nil {
 				return fmt.Errorf("Error reading %s template: %w", templateName, err)

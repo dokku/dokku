@@ -16,14 +16,20 @@ metadata:
   namespace: {{ $.Values.global.namespace }}
 spec:
   entryPoints:
-  - web
-  {{- if and $config.web.tls (eq $port_map.scheme "https") }}
+  {{- if and $config.web.tls.enabled (eq $port_map.scheme "https") }}
   - websecure
+  {{- else }}
+  - web
   {{- end }}
   routes:
     {{- range $ddx, $domain := $config.web.domains }}
     - kind: Rule
       match: Host(`{{ $domain }}`)
+      {{- if and $config.web.tls.enabled (and (eq $port_map.scheme "http") $port_map.redirect_to_https) }}
+      middlewares:
+        - name: {{ $.Values.global.app_name}}-redirect-to-https
+          namespace: traefik
+      {{- end }}
       services:
       - name: {{ $.Values.global.app_name }}-{{ $processName }}
         namespace: {{ $.Values.global.namespace }}
@@ -31,7 +37,7 @@ spec:
         port: {{ $port_map.name }}
         scheme: http
     {{- end }}
-  {{- if and $config.web.tls (eq $port_map.scheme "https") }}
+  {{- if and $config.web.tls.enabled (eq $port_map.scheme "https") }}
   tls:
     secretName: tls-{{ $.Values.global.app_name }}-{{ $processName }}
   {{- end }}
