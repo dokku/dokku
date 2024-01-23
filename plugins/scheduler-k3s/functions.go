@@ -10,10 +10,12 @@ import (
 	"strings"
 	"time"
 
+	appjson "github.com/dokku/dokku/plugins/app-json"
 	"github.com/dokku/dokku/plugins/common"
 	"gopkg.in/yaml.v3"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
 	corev1client "k8s.io/client-go/kubernetes/typed/core/v1"
@@ -355,6 +357,151 @@ func getGlobalGlobalToken() string {
 	return common.PropertyGet("scheduler-k3s", "--global", "token")
 }
 
+func getProcessHealtchecks(healthchecks []appjson.Healthcheck, primaryPort int32) ProcessHealthchecks {
+	if len(healthchecks) == 0 {
+		return ProcessHealthchecks{}
+	}
+
+	livenessChecks := []ProcessHealthcheck{}
+	readinessChecks := []ProcessHealthcheck{}
+	startupChecks := []ProcessHealthcheck{}
+	uptimeSeconds := []int32{}
+	for _, healthcheck := range healthchecks {
+		probe := ProcessHealthcheck{
+			InitialDelaySeconds: healthcheck.InitialDelay,
+			PeriodSeconds:       healthcheck.Wait,
+			TimeoutSeconds:      healthcheck.Timeout,
+			FailureThreshold:    healthcheck.Attempts,
+			SuccessThreshold:    int32(1),
+		}
+		if len(healthcheck.Command) > 0 {
+			probe.Exec = &ExecHealthcheck{
+				Command: healthcheck.Command,
+			}
+		} else if healthcheck.Listening {
+			probe.TCPSocket = &TCPHealthcheck{
+				Port: primaryPort,
+			}
+			for _, header := range healthcheck.HTTPHeaders {
+				if header.Name == "Host" {
+					probe.TCPSocket.Host = header.Value
+				}
+			}
+		} else if healthcheck.Path != "" {
+			probe.HTTPGet = &HTTPHealthcheck{
+				Path:        healthcheck.Path,
+				Port:        primaryPort,
+				HTTPHeaders: []HTTPHeader{},
+			}
+
+			if healthcheck.Scheme != "" {
+				probe.HTTPGet.Scheme = URIScheme(strings.ToUpper(healthcheck.Scheme))
+			}
+
+			for _, header := range healthcheck.HTTPHeaders {
+				probe.HTTPGet.HTTPHeaders = append(probe.HTTPGet.HTTPHeaders, HTTPHeader{
+					Name:  header.Name,
+					Value: header.Value,
+				})
+			}
+		} else if healthcheck.Uptime > 0 {
+			uptimeSeconds = append(uptimeSeconds, healthcheck.Uptime)
+		}
+
+		if healthcheck.Type == appjson.HealthcheckType_Liveness {
+			livenessChecks = append(livenessChecks, probe)
+		} else if healthcheck.Type == appjson.HealthcheckType_Readiness {
+			readinessChecks = append(readinessChecks, probe)
+		} else if healthcheck.Type == appjson.HealthcheckType_Startup {
+			startupChecks = append(startupChecks, probe)
+		}
+	}
+	if len(livenessChecks) > 1 {
+		common.LogWarn("Multiple liveness checks are not supported, only the first one will be used")
+	}
+	if len(readinessChecks) > 1 {
+		common.LogWarn("Multiple readiness checks are not supported, only the first one will be used")
+	}
+	if len(startupChecks) > 1 {
+		common.LogWarn("Multiple startup checks are not supported, only the first one will be used")
+	}
+	if len(uptimeSeconds) > 1 {
+		common.LogWarn("Multiple uptime checks are not supported, only the first one will be used")
+	}
+
+	processHealthchecks := ProcessHealthchecks{}
+	if len(livenessChecks) > 0 {
+		processHealthchecks.Liveness = livenessChecks[0]
+	}
+	if len(readinessChecks) > 0 {
+		processHealthchecks.Readiness = readinessChecks[0]
+	}
+	if len(startupChecks) > 0 {
+		processHealthchecks.Startup = startupChecks[0]
+	}
+	if len(uptimeSeconds) > 0 {
+		processHealthchecks.MinReadySeconds = uptimeSeconds[0]
+	}
+
+	return processHealthchecks
+}
+
+func getProcessResources(appName string, processType string) (ProcessResourcesMap, error) {
+	processResources := ProcessResourcesMap{
+		Limits: ProcessResources{
+			CPU:    "1000m",
+			Memory: "512Mi",
+		},
+		Requests: ProcessResources{
+			CPU:    "1000m",
+			Memory: "512Mi",
+		},
+	}
+	cpuLimit, err := common.PlugnTriggerOutputAsString("resource-get-property", []string{appName, processType, "limit", "cpu"}...)
+	if err != nil && cpuLimit != "" && cpuLimit != "0" {
+		_, err := resource.ParseQuantity(cpuLimit)
+		if err != nil {
+			return ProcessResourcesMap{}, fmt.Errorf("Error parsing cpu limit: %w", err)
+		}
+		processResources.Limits.CPU = cpuLimit
+	}
+	nvidiaGpuLimit, err := common.PlugnTriggerOutputAsString("resource-get-property", []string{appName, processType, "limit", "nvidia-gpu"}...)
+	if err != nil && nvidiaGpuLimit != "" && nvidiaGpuLimit != "0" {
+		_, err := resource.ParseQuantity(nvidiaGpuLimit)
+		if err != nil {
+			return ProcessResourcesMap{}, fmt.Errorf("Error parsing nvidia-gpu limit: %w", err)
+		}
+		processResources.Limits.NvidiaGPU = nvidiaGpuLimit
+	}
+	memoryLimit, err := common.PlugnTriggerOutputAsString("resource-get-property", []string{appName, processType, "limit", "memory"}...)
+	if err != nil && memoryLimit != "" && memoryLimit != "0" {
+		_, err := resource.ParseQuantity(memoryLimit)
+		if err != nil {
+			return ProcessResourcesMap{}, fmt.Errorf("Error parsing memory limit: %w", err)
+		}
+		processResources.Limits.Memory = memoryLimit
+	}
+
+	cpuRequest, err := common.PlugnTriggerOutputAsString("resource-get-property", []string{appName, processType, "reserve", "cpu"}...)
+	if err != nil && cpuRequest != "" && cpuRequest != "0" {
+		_, err := resource.ParseQuantity(cpuRequest)
+		if err != nil {
+			return ProcessResourcesMap{}, fmt.Errorf("Error parsing cpu request: %w", err)
+		}
+		processResources.Requests.CPU = cpuRequest
+	}
+	memoryRequest, err := common.PlugnTriggerOutputAsString("resource-get-property", []string{appName, processType, "reserve", "memory"}...)
+	if err != nil && memoryRequest != "" && memoryRequest != "0" {
+		_, err := resource.ParseQuantity(memoryRequest)
+		if err != nil {
+			return ProcessResourcesMap{}, fmt.Errorf("Error parsing memory request: %w", err)
+		}
+		processResources.Requests.Memory = memoryRequest
+	}
+
+	return processResources, nil
+}
+
 func getStartCommand(input StartCommandInput) (StartCommandOutput, error) {
 	command := extractStartCommand(input)
 	fields, err := shell.Fields(command, func(name string) string {
@@ -407,7 +554,7 @@ func installHelmCharts(ctx context.Context, clientset KubernetesClient) error {
 			}
 		}
 
-		contents, err := templates.ReadFile(fmt.Sprintf("templates/%s.yaml", chart.ReleaseName))
+		contents, err := templates.ReadFile(fmt.Sprintf("templates/helm-config/%s.yaml", chart.ReleaseName))
 		if err != nil && !errors.Is(err, os.ErrNotExist) {
 			return fmt.Errorf("Error reading values file %s: %w", chart.ReleaseName, err)
 		}

@@ -1,0 +1,26 @@
+{{- $processName := "PROCESS_NAME" }}
+{{- $config := .Values.processes.PROCESS_NAME }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    dokku.com/managed: "true"
+  labels:
+    app.kubernetes.io/instance: {{ $.Values.global.app_name }}-{{ $processName }}
+    app.kubernetes.io/name: {{ $processName }}
+    app.kubernetes.io/part-of: {{ $.Values.global.app_name }}
+  name: {{ $.Values.global.app_name }}-{{ $processName }}
+  namespace: default
+spec:
+  ports:
+  {{- range $pdx, $port_map := $config.web.port_maps }}
+  - name: {{ $port_map.name }}
+    port: {{ $port_map.host_port }}
+    protocol: TCP
+    targetPort: {{ $port_map.name }}
+  {{- end }}
+  selector:
+    app.kubernetes.io/instance: {{ $.Values.global.app_name }}-{{ $processName }}
+    app.kubernetes.io/name: {{ $processName }}
+    app.kubernetes.io/part-of: {{ $.Values.global.app_name }}

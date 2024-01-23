@@ -1,4 +1,0 @@
-  dnsNames:
-    {{- range .Values.processes.PROCESS_TYPE.domains }}
-    - {{ . }}
-    {{- end }}

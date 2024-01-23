@@ -1,0 +1,35 @@
+{{- $processName := "PROCESS_NAME" }}
+{{- $config := .Values.processes.PROCESS_NAME }}
+{{- if $config.web.domains }}
+{{- range $pdx, $port_map := $config.web.port_maps }}
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  annotations:
+    dokku.com/managed: "true"
+  labels:
+    app.kubernetes.io/instance: {{ $.Values.global.app_name }}-{{ $processName }}
+    app.kubernetes.io/name: {{ $processName }}
+    app.kubernetes.io/part-of: {{ $.Values.global.app_name }}
+  name: {{ $.Values.global.app_name }}-{{ $processName }}-{{ $port_map.name }}
+  namespace: {{ $.Values.global.namespace }}
+spec:
+  entryPoints:
+  - web
+  {{- if and $config.web.tls (eq $port_map "https") }}
+  - websecure
+  {{- end }}
+  routes:
+    {{- range $ddx, $domain := $config.web.domains }}
+    - kind: Rule
+      match: Host(`{{ $domain }}`)
+      services:
+      - name: {{ $.Values.global.app_name }}-{{ $processName }}
+        namespace: {{ $.Values.global.namespace }}
+        passHostHeader: true
+        port: {{ $port_map.name }}
+        scheme: {{ $port_map.scheme }}
+    {{- end }}
+{{- end }}
+{{- end }}

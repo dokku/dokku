@@ -3,6 +3,7 @@ package scheduler_k3s
 import (
 	"bufio"
 	"context"
+	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -26,9 +27,7 @@ import (
 	"github.com/kballard/go-shellquote"
 	"github.com/rancher/wharfie/pkg/registries"
 	"github.com/ryanuber/columnize"
-	orderedmap "github.com/wk8/go-ordered-map/v2"
 	"gopkg.in/yaml.v3"
-	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/kubernetes/pkg/client/conditions"
@@ -227,34 +226,26 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 	if err != nil {
 		return fmt.Errorf("Error creating chart directory: %w", err)
 	}
-	defer os.RemoveAll(chartDir)
+	// defer os.RemoveAll(chartDir)
 
 	if err := os.MkdirAll(filepath.Join(chartDir, "templates"), os.FileMode(0755)); err != nil {
 		return fmt.Errorf("Error creating chart templates directory: %w", err)
 	}
 
 	deploymentId := time.Now().Unix()
-	replacements := orderedmap.New[string, string]()
-	replacements.Set("DEPLOYMENT_ID_QUOTED", "{{.Values.deploment_id | quote}}")
-	replacements.Set("DEPLOYMENT_ID", "{{.Values.deploment_id}}")
-
-	secret := templateKubernetesSecret(Secret{
-		AppName:   appName,
-		Env:       env.Map(),
-		Namespace: namespace,
-	})
-	err = writeResourceToFile(WriteResourceInput{
-		Object:       &secret,
-		Path:         filepath.Join(chartDir, "templates/secret.yaml"),
-		Replacements: replacements,
-		AppendContents: `{{- with .Values.secrets }}
-data:
-  {{- toYaml . | nindent 2 }}
-{{- end }}
-`,
-	})
+	b, err := templates.ReadFile("templates/chart/secret.yaml")
 	if err != nil {
-		return fmt.Errorf("Error printing deployment: %w", err)
+		return fmt.Errorf("Error reading secret template: %w", err)
+	}
+
+	filename := filepath.Join(chartDir, "templates", "secrets.yaml")
+	err = os.WriteFile(filename, b, os.FileMode(0644))
+	if err != nil {
+		return fmt.Errorf("Error writing secrets template: %w", err)
+	}
+
+	if os.Getenv("DOKKU_TRACE") == "1" {
+		common.CatFile(filename)
 	}
 
 	portMaps, err := getPortMaps(appName)
@@ -276,123 +267,10 @@ data:
 	}
 
 	workingDir := common.GetWorkingDir(appName, image)
-	deployments := map[string]appsv1.Deployment{}
-	i := 0
-	for processType := range processes {
-		startCommand, err := getStartCommand(StartCommandInput{
-			AppName:         appName,
-			ProcessType:     processType,
-			ImageSourceType: imageSourceType,
-			Port:            primaryPort,
-			Env:             env.Map(),
-		})
-		if err != nil {
-			return fmt.Errorf("Error getting start command for deployment: %w", err)
-		}
-
-		i++
-		replicaCountPlaceholder := int32(i * 1000)
-
-		healthchecks, ok := appJSON.Healthchecks[processType]
-		if !ok {
-			healthchecks = []appjson.Healthcheck{}
-		}
-
-		// todo: implement deployment annotations
-		// todo: implement pod annotations
-		// todo: implement volumes
-		deployment, err := templateKubernetesDeployment(Deployment{
-			AppName:          appName,
-			Command:          startCommand.Command,
-			Image:            image,
-			ImagePullSecrets: imagePullSecrets,
-			ImageSourceType:  imageSourceType,
-			Healthchecks:     healthchecks,
-			Namespace:        namespace,
-			PrimaryPort:      primaryPort,
-			PortMaps:         portMaps,
-			ProcessType:      processType,
-			Replicas:         replicaCountPlaceholder,
-			WorkingDir:       workingDir,
-		})
-		if err != nil {
-			return fmt.Errorf("Error templating deployment: %w", err)
-		}
-
-		replacements.Set(fmt.Sprintf("replicas: %d", replicaCountPlaceholder), fmt.Sprintf("replicas: {{.Values.processes.%s.replicas}}", processType))
-		deployments[processType] = deployment
-		err = writeResourceToFile(WriteResourceInput{
-			Object:       &deployment,
-			Path:         filepath.Join(chartDir, fmt.Sprintf("templates/deployment-%s.yaml", deployment.Name)),
-			Replacements: replacements,
-		})
-		if err != nil {
-			return fmt.Errorf("Error printing deployment: %w", err)
-		}
-
-		replacements.Delete(fmt.Sprintf("replicas: %d", replicaCountPlaceholder))
-	}
 
 	cronEntries, err := cron.FetchCronEntries(appName)
 	if err != nil {
 		return fmt.Errorf("Error fetching cron entries: %w", err)
-	}
-
-	clientset, err := NewKubernetesClient()
-	if err != nil {
-		return fmt.Errorf("Error creating kubernetes client: %w", err)
-	}
-
-	cronJobs, err := clientset.ListCronJobs(ctx, ListCronJobsInput{
-		LabelSelector: fmt.Sprintf("app.kubernetes.io/part-of=%s", appName),
-		Namespace:     namespace,
-	})
-	if err != nil {
-		return fmt.Errorf("Error listing cron jobs: %w", err)
-	}
-
-	for _, cronEntry := range cronEntries {
-		suffix := ""
-		for _, cronJob := range cronJobs {
-			if cronJob.Labels["dokku.com/cron-id"] == cronEntry.ID {
-				var ok bool
-				suffix, ok = cronJob.Annotations["dokku.com/job-suffix"]
-				if !ok {
-					suffix = ""
-				}
-			}
-		}
-
-		words, err := shellquote.Split(cronEntry.Command)
-		if err != nil {
-			return fmt.Errorf("Error parsing cron command: %w", err)
-		}
-		cronJob, err := templateKubernetesCronJob(Job{
-			AppName:          appName,
-			Command:          words,
-			Env:              map[string]string{},
-			ID:               cronEntry.ID,
-			Image:            image,
-			ImagePullSecrets: imagePullSecrets,
-			ImageSourceType:  imageSourceType,
-			Namespace:        namespace,
-			ProcessType:      "cron",
-			Schedule:         cronEntry.Schedule,
-			Suffix:           suffix,
-			WorkingDir:       workingDir,
-		})
-		if err != nil {
-			return fmt.Errorf("Error templating cron job: %w", err)
-		}
-
-		err = writeResourceToFile(WriteResourceInput{
-			Object:       &cronJob,
-			Path:         filepath.Join(chartDir, fmt.Sprintf("templates/cron-job-%s.yaml", cronEntry.ID)),
-			Replacements: replacements,
-		})
-		if err != nil {
-			return fmt.Errorf("Error printing cron job: %w", err)
-		}
 	}
 
 	issuerName := "letsencrypt-stag"
@@ -412,22 +290,7 @@ data:
 	}
 
 	domains := []string{}
-	if deployment, ok := deployments["web"]; ok {
-		service := templateKubernetesService(Service{
-			AppName:   appName,
-			Namespace: namespace,
-			PortMaps:  portMaps,
-		})
-
-		err := writeResourceToFile(WriteResourceInput{
-			Object:       &service,
-			Path:         filepath.Join(chartDir, "templates/service-web.yaml"),
-			Replacements: replacements,
-		})
-		if err != nil {
-			return fmt.Errorf("Error printing service: %w", err)
-		}
-
+	if _, ok := processes["web"]; ok {
 		err = common.PlugnTrigger("domains-vhost-enabled", []string{appName}...)
 		if err == nil {
 			b, err := common.PlugnTriggerOutput("domains-list", []string{appName}...)
@@ -441,34 +304,6 @@ data:
 					domains = append(domains, domain)
 				}
 			}
-		}
-
-		err = createIngressRoutesFiles(CreateIngressRoutesInput{
-			AppName:     appName,
-			ChartDir:    chartDir,
-			Deployment:  deployment,
-			Namespace:   namespace,
-			PortMaps:    portMaps,
-			ProcessType: "web",
-			Service:     service,
-		})
-		if err != nil {
-			return fmt.Errorf("Error creating ingress routes: %w", err)
-		}
-
-		err = createCertificateFile(CreateCertificateFileInput{
-			ChartDir: chartDir,
-			Certificate: Certificate{
-				AppName:   appName,
-				Name:      fmt.Sprintf("%s-%s", appName, "web"),
-				Namespace: namespace,
-				TLS:       tls,
-			},
-			IssuerName:  issuerName,
-			ProcessType: "web",
-		})
-		if err != nil {
-			return fmt.Errorf("Error creating certificate files: %w", err)
 		}
 	}
 
@@ -488,25 +323,181 @@ data:
 	}
 
 	values := &Values{
-		DeploymentID: fmt.Sprint(deploymentId),
-		Secrets:      map[string]string{},
-		Processes:    map[string]ProcessValues{},
+		Global: GlobalValues{
+			AppName:      appName,
+			DeploymentID: fmt.Sprint(deploymentId),
+			Image: GlobalImage{
+				ImagePullSecrets: imagePullSecrets,
+				Name:             image,
+				Type:             imageSourceType,
+				WorkingDir:       workingDir,
+			},
+			Namespace:   namespace,
+			PrimaryPort: primaryPort,
+			Secrets:     map[string]string{},
+		},
+		Processes: map[string]ProcessValues{},
 	}
+
 	for processType, processCount := range processes {
+		// todo: implement deployment annotations
+		// todo: implement pod annotations
+		// todo: implement volumes
+
+		healthchecks, ok := appJSON.Healthchecks[processType]
+		if !ok {
+			healthchecks = []appjson.Healthcheck{}
+		}
+		processHealthchecks := getProcessHealtchecks(healthchecks, primaryPort)
+
+		startCommand, err := getStartCommand(StartCommandInput{
+			AppName:         appName,
+			ProcessType:     processType,
+			ImageSourceType: imageSourceType,
+			Port:            primaryPort,
+			Env:             env.Map(),
+		})
+		if err != nil {
+			return fmt.Errorf("Error getting start command for deployment: %w", err)
+		}
+		args := startCommand.Command
+
+		processResources, err := getProcessResources(appName, processType)
+		if err != nil {
+			return fmt.Errorf("Error getting process resources: %w", err)
+		}
+
 		processValues := ProcessValues{
-			Replicas: int32(processCount),
+			Args:         args,
+			Healthchecks: processHealthchecks,
+			ProcessType:  ProcessType_Worker,
+			Replicas:     int32(processCount),
+			Resources:    processResources,
 		}
 		if processType == "web" {
-			sort.Strings(domains)
-			processValues.Domains = domains
-			processValues.TLS = tls
+			processValues.Web = ProcessWeb{
+				Domains:  domains,
+				PortMaps: []ProcessPortMap{},
+				TLS:      tls,
+			}
+			processValues.ProcessType = ProcessType_Web
+			for _, portMap := range portMaps {
+				protocol := PortmapProtocol_TCP
+				if portMap.Scheme == "udp" {
+					protocol = PortmapProtocol_UDP
+				}
+				processValues.Web.PortMaps = append(processValues.Web.PortMaps, ProcessPortMap{
+					ContainerPort: portMap.ContainerPort,
+					HostPort:      portMap.HostPort,
+					Name:          portMap.String(),
+					Protocol:      protocol,
+					Scheme:        portMap.Scheme,
+				})
+			}
+
+			sort.Sort(NameSorter(processValues.Web.PortMaps))
+			sort.Strings(processValues.Web.Domains)
 		}
 
 		values.Processes[processType] = processValues
+
+		for _, templateName := range []string{"deployment", "service", "certificate", "ingress-route"} {
+			b, err := templates.ReadFile(fmt.Sprintf("templates/chart/%s.yaml", templateName))
+			if err != nil {
+				return fmt.Errorf("Error reading %s template: %w", templateName, err)
+			}
+
+			filename := filepath.Join(chartDir, "templates", fmt.Sprintf("%s-%s.yaml", templateName, processType))
+			contents := strings.ReplaceAll(string(b), "PROCESS_NAME", processType)
+			err = os.WriteFile(filename, []byte(contents), os.FileMode(0644))
+			if err != nil {
+				return fmt.Errorf("Error writing %s template: %w", templateName, err)
+			}
+
+			if os.Getenv("DOKKU_TRACE") == "1" {
+				common.CatFile(filename)
+			}
+		}
+
+	}
+
+	clientset, err := NewKubernetesClient()
+	if err != nil {
+		return fmt.Errorf("Error creating kubernetes client: %w", err)
+	}
+
+	cronJobs, err := clientset.ListCronJobs(ctx, ListCronJobsInput{
+		LabelSelector: fmt.Sprintf("app.kubernetes.io/part-of=%s", appName),
+		Namespace:     namespace,
+	})
+	if err != nil {
+		return fmt.Errorf("Error listing cron jobs: %w", err)
+	}
+	for _, cronEntry := range cronEntries {
+		// todo: implement deployment annotations
+		// todo: implement pod annotations
+		// todo: implement volumes
+		suffix := ""
+		for _, cronJob := range cronJobs {
+			if cronJob.Labels["dokku.com/cron-id"] == cronEntry.ID {
+				var ok bool
+				suffix, ok = cronJob.Annotations["dokku.com/job-suffix"]
+				if !ok {
+					suffix = ""
+				}
+			}
+		}
+		if suffix == "" {
+			n := 5
+			b := make([]byte, n)
+			if _, err := rand.Read(b); err != nil {
+				panic(err)
+			}
+			suffix = strings.ToLower(fmt.Sprintf("%X", b))
+		}
+
+		words, err := shellquote.Split(cronEntry.Command)
+		if err != nil {
+			return fmt.Errorf("Error parsing cron command: %w", err)
+		}
+
+		processResources, err := getProcessResources(appName, cronEntry.ID)
+		if err != nil {
+			return fmt.Errorf("Error getting process resources: %w", err)
+		}
+
+		processValues := ProcessValues{
+			Args: words,
+			Cron: ProcessCron{
+				ID:       cronEntry.ID,
+				Schedule: cronEntry.Schedule,
+				Suffix:   suffix,
+			},
+			ProcessType: ProcessType_Cron,
+			Replicas:    1,
+			Resources:   processResources,
+		}
+		values.Processes[cronEntry.ID] = processValues
+
+		b, err := templates.ReadFile("templates/chart/cron-job.yaml")
+		if err != nil {
+			return fmt.Errorf("Error reading cron job template: %w", err)
+		}
+
+		cronFile := filepath.Join(chartDir, "templates", fmt.Sprintf("cron-job-%s.yaml", cronEntry.ID))
+		contents := strings.ReplaceAll(string(b), "CRON_ID", cronEntry.ID)
+		err = os.WriteFile(cronFile, []byte(contents), os.FileMode(0644))
+		if err != nil {
+			return fmt.Errorf("Error writing cron job template: %w", err)
+		}
+
+		if os.Getenv("DOKKU_TRACE") == "1" {
+			common.CatFile(cronFile)
+		}
 	}
 
 	for key, value := range env.Map() {
-		values.Secrets[key] = base64.StdEncoding.EncodeToString([]byte(value))
+		values.Global.Secrets[key] = base64.StdEncoding.EncodeToString([]byte(value))
 	}
 
 	err = writeYaml(WriteYamlInput{

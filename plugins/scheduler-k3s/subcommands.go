@@ -258,7 +258,7 @@ func CommandInitialize(taintScheduling bool) error {
 	}
 
 	common.LogInfo2Quiet("Updating traefik config")
-	contents, err := templates.ReadFile("templates/traefik-config.yaml")
+	contents, err := templates.ReadFile("templates/helm-config/traefik-config.yaml")
 	if err != nil {
 		return fmt.Errorf("Unable to read traefik config template: %w", err)
 	}

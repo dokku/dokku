@@ -1,0 +1,96 @@
+{{- $processName := "PROCESS_NAME" }}
+{{- $config := .Values.processes.PROCESS_NAME }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    app.kubernetes.io/version: {{ $.Values.global.deploment_id | quote }}
+    dokku.com/builder-type: {{ $.Values.global.image.type }}
+    dokku.com/managed: "true"
+    kubectl.kubernetes.io/default-container: {{ $.Values.global.app_name }}-{{ $processName }}
+  creationTimestamp: null
+  labels:
+    app.kubernetes.io/instance: {{ $.Values.global.app_name }}-{{ $processName }}
+    app.kubernetes.io/name: {{ $processName }}
+    app.kubernetes.io/part-of: {{ $.Values.global.app_name }}
+  name: {{ $.Values.global.app_name }}-{{ $processName }}
+  namespace: default
+spec:
+  replicas: {{ $config.replicas }}
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: {{ $.Values.global.app_name }}-{{ $processName }}
+      app.kubernetes.io/name: {{ $processName }}
+      app.kubernetes.io/part-of: {{ $.Values.global.app_name }}
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        app.kubernetes.io/version: {{ $.Values.global.deploment_id | quote }}
+        dokku.com/builder-type: {{ $.Values.global.image.type }}
+        dokku.com/managed: "true"
+        kubectl.kubernetes.io/default-container: {{ $.Values.global.app_name }}-{{ $processName }}
+      creationTimestamp: null
+      labels:
+        app.kubernetes.io/instance: {{ $.Values.global.app_name }}-{{ $processName }}
+        app.kubernetes.io/name: {{ $processName }}
+        app.kubernetes.io/part-of: {{ $.Values.global.app_name }}
+    spec:
+      containers:
+      - args:
+        {{- range $config.args }}
+        - {{ . }}
+        {{- end }}
+        {{- if eq $processName "web" }}
+        env:
+        - name: PORT
+          value: "{{ $.Values.global.primary_port }}"
+        {{- end }}
+        envFrom:
+        - secretRef:
+            name: env-{{ $.Values.global.app_name }}.{{ $.Values.global.deploment_id }}
+            optional: true
+        image: {{ $.Values.global.image.name }}
+        imagePullPolicy: Always
+        name: {{ $.Values.global.app_name }}-{{ $processName }}
+        {{- if eq $processName "web" }}
+        ports:
+        {{- range $pdx, $port_map := $config.web.port_maps }}
+        - containerPort: {{ $port_map.container_port }}
+          name: {{ $port_map.name }}
+          protocol: {{ $port_map.protocol }}
+        {{- end }}
+        {{- end }}
+        {{- if and $config.resources (or $config.resources.limits $config.resources.requests) }}
+        resources:
+          {{- if $config.resources.limits }}
+          limits:
+            {{- if $config.resources.limits.cpu }}
+            cpu: {{ $config.resources.limits.cpu }}
+            {{- end }}
+            {{- if $config.resources.limits.memory }}
+            memory: {{ $config.resources.limits.memory }}
+            {{- end }}
+          {{- end }}
+          {{- if $config.resources.requests }}
+          requests:
+            {{- if $config.resources.requests.cpu }}
+            cpu: {{ $config.resources.requests.cpu }}
+            {{- end }}
+            {{- if $config.resources.requests.memory }}
+            memory: {{ $config.resources.requests.memory }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
+        {{- if $config.healthchecks.startup }}
+        startupProbe:
+          {{ $config.healthchecks.startup | toJson | indent 10 }}
+        {{- end }}
+        {{- if $.Values.global.image.working_dir }}
+        workingDir: {{ $.Values.global.image.working_dir }}
+        {{- end }}
+      {{- if $.Values.global.image.image_pull_secrets }}
+      imagePullSecrets: {{ $.Values.global.image.image_pull_secrets }}
+      {{- end }}

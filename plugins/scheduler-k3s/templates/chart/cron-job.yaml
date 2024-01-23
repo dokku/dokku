@@ -1,0 +1,103 @@
+{{- $processName := "CRON_ID" }}
+{{- $config := .Values.processes.CRON_ID }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  annotations:
+    app.kubernetes.io/version: {{ $.Values.global.deploment_id | quote }}
+    dokku.com/builder-type: {{ $.Values.global.image.type }}
+    dokku.com/cron-id: {{ $config.cron.id }}
+    dokku.com/job-suffix: {{ $config.cron.suffix }}
+    dokku.com/managed: "true"
+    kubectl.kubernetes.io/default-container: {{ $.Values.global.app_name }}-cron
+  labels:
+    app.kubernetes.io/instance: {{ $.Values.global.app_name }}-cron-{{ $config.cron.suffix }}
+    app.kubernetes.io/name: cron
+    app.kubernetes.io/part-of: {{ $.Values.global.app_name }}
+    dokku.com/cron-id: {{ $config.cron.id }}
+  name: {{ $.Values.global.app_name }}-cron-{{ $config.cron.suffix }}
+  namespace: default
+spec:
+  concurrencyPolicy: Allow
+  failedJobsHistoryLimit: 10
+  jobTemplate:
+    metadata:
+      annotations:
+        app.kubernetes.io/version: {{ $.Values.global.deploment_id | quote }}
+        dokku.com/builder-type: {{ $.Values.global.image.type }}
+        dokku.com/cron-id: {{ $config.cron.id }}
+        dokku.com/job-suffix: {{ $config.cron.suffix }}
+        dokku.com/managed: "true"
+        kubectl.kubernetes.io/default-container: {{ $.Values.global.app_name }}-cron
+      creationTimestamp: null
+      labels:
+        app.kubernetes.io/instance: {{ $.Values.global.app_name }}-cron-{{ $config.cron.suffix }}
+        app.kubernetes.io/name: cron
+        app.kubernetes.io/part-of: {{ $.Values.global.app_name }}
+        dokku.com/cron-id: {{ $config.cron.id }}
+    spec:
+      backoffLimit: 0
+      podReplacementPolicy: Failed
+      template:
+        metadata:
+          annotations:
+            app.kubernetes.io/version: {{ $.Values.global.deploment_id | quote }}
+            dokku.com/builder-type: {{ $.Values.global.image.type }}
+            dokku.com/cron-id: {{ $config.cron.id }}
+            dokku.com/job-suffix: {{ $config.cron.suffix }}
+            dokku.com/managed: "true"
+            kubectl.kubernetes.io/default-container: {{ $.Values.global.app_name }}-cron
+          creationTimestamp: null
+          labels:
+            app.kubernetes.io/instance: {{ $.Values.global.app_name }}-cron-{{ $config.cron.suffix }}
+            app.kubernetes.io/name: cron
+            app.kubernetes.io/part-of: {{ $.Values.global.app_name }}
+            dokku.com/cron-id: {{ $config.cron.id }}
+        spec:
+          containers:
+          - args:
+            {{- range $config.args }}
+            - {{ . }}
+            {{- end }}
+            envFrom:
+            - secretRef:
+                name: env-{{ $.Values.global.app_name }}.{{ $.Values.global.deploment_id }}
+                optional: true
+            image: {{ $.Values.global.image.name }}
+            imagePullPolicy: Always
+            name: {{ $.Values.global.app_name }}-cron
+            {{- if and $config.resources (or $config.resources.limits $config.resources.requests) }}
+            resources:
+              {{- if $config.resources.limits }}
+              limits:
+                {{- if $config.resources.limits.cpu }}
+                cpu: {{ $config.resources.limits.cpu }}
+                {{- end }}
+                {{- if $config.resources.limits.memory }}
+                memory: {{ $config.resources.limits.memory }}
+                {{- end }}
+              {{- end }}
+              {{- if $config.resources.requests }}
+              requests:
+                {{- if $config.resources.requests.cpu }}
+                cpu: {{ $config.resources.requests.cpu }}
+                {{- end }}
+                {{- if $config.resources.requests.memory }}
+                memory: {{ $config.resources.requests.memory }}
+                {{- end }}
+              {{- end }}
+            {{- end }}
+            {{- if $.Values.global.image.working_dir }}
+            workingDir: {{ $.Values.global.image.working_dir }}
+            {{- end }}
+          {{- if $.Values.global.image.image_pull_secrets }}
+          imagePullSecrets: {{ $.Values.global.image.image_pull_secrets }}
+          {{- end }}
+          restartPolicy: Never
+          ttlSecondsAfterFinished: 60
+  schedule: {{ $config.cron.schedule }}
+  startingDeadlineSeconds: 60
+  successfulJobsHistoryLimit: 10
+  suspend: false
+  timeZone: Etc/UTC
