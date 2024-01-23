@@ -351,45 +351,28 @@ func templateKubernetesJob(input Job) (batchv1.Job, error) {
 		}
 	}
 
-	cpuLimit, err := common.PlugnTriggerOutputAsString("resource-get-property", []string{input.AppName, input.ProcessType, "limit", "cpu"}...)
-	if err != nil && cpuLimit != "" && cpuLimit != "0" {
-		cpuQuantity, err := resource.ParseQuantity(cpuLimit)
-		if err != nil {
-			return job, fmt.Errorf("Error parsing cpu limit: %w", err)
-		}
+	processResources, err := getProcessResources(input.AppName, input.ProcessType)
+	if err != nil {
+		return job, fmt.Errorf("Error getting process resources: %w", err)
+	}
+	if processResources.Limits.CPU != "" {
+		cpuQuantity, _ := resource.ParseQuantity(processResources.Limits.CPU)
 		job.Spec.Template.Spec.Containers[0].Resources.Limits["cpu"] = cpuQuantity
 	}
-	nvidiaGpuLimit, err := common.PlugnTriggerOutputAsString("resource-get-property", []string{input.AppName, input.ProcessType, "limit", "nvidia-gpu"}...)
-	if err != nil && nvidiaGpuLimit != "" && nvidiaGpuLimit != "0" {
-		nvidiaGpuQuantity, err := resource.ParseQuantity(nvidiaGpuLimit)
-		if err != nil {
-			return job, fmt.Errorf("Error parsing nvidia-gpu limit: %w", err)
-		}
-		job.Spec.Template.Spec.Containers[0].Resources.Limits["nvidia.com/gpu"] = nvidiaGpuQuantity
-	}
-	memoryLimit, err := common.PlugnTriggerOutputAsString("resource-get-property", []string{input.AppName, input.ProcessType, "limit", "memory"}...)
-	if err != nil && memoryLimit != "" && memoryLimit != "0" {
-		memoryQuantity, err := resource.ParseQuantity(memoryLimit)
-		if err != nil {
-			return job, fmt.Errorf("Error parsing memory limit: %w", err)
-		}
+	if processResources.Limits.Memory != "" {
+		memoryQuantity, _ := resource.ParseQuantity(processResources.Limits.Memory)
 		job.Spec.Template.Spec.Containers[0].Resources.Limits["memory"] = memoryQuantity
 	}
-
-	cpuRequest, err := common.PlugnTriggerOutputAsString("resource-get-property", []string{input.AppName, input.ProcessType, "reserve", "cpu"}...)
-	if err != nil && cpuRequest != "" && cpuRequest != "0" {
-		cpuQuantity, err := resource.ParseQuantity(cpuRequest)
-		if err != nil {
-			return job, fmt.Errorf("Error parsing cpu request: %w", err)
-		}
+	if processResources.Limits.NvidiaGPU != "" {
+		nvidiaGpuQuantity, _ := resource.ParseQuantity(processResources.Limits.NvidiaGPU)
+		job.Spec.Template.Spec.Containers[0].Resources.Limits["nvidia.com/gpu"] = nvidiaGpuQuantity
+	}
+	if processResources.Requests.CPU != "" {
+		cpuQuantity, _ := resource.ParseQuantity(processResources.Requests.CPU)
 		job.Spec.Template.Spec.Containers[0].Resources.Requests["cpu"] = cpuQuantity
 	}
-	memoryRequest, err := common.PlugnTriggerOutputAsString("resource-get-property", []string{input.AppName, input.ProcessType, "reserve", "memory"}...)
-	if err != nil && memoryRequest != "" && memoryRequest != "0" {
-		memoryQuantity, err := resource.ParseQuantity(memoryRequest)
-		if err != nil {
-			return job, fmt.Errorf("Error parsing memory request: %w", err)
-		}
+	if processResources.Requests.Memory != "" {
+		memoryQuantity, _ := resource.ParseQuantity(processResources.Requests.Memory)
 		job.Spec.Template.Spec.Containers[0].Resources.Requests["memory"] = memoryQuantity
 	}
 
