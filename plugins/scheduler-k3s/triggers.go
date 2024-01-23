@@ -222,6 +222,11 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 		return fmt.Errorf("Error loading environment for deployment: %w", err)
 	}
 
+	issuerName, tlsEnabled, err := applyClusterIssuers(ctx, appName)
+	if err != nil {
+		return fmt.Errorf("Error applying cluster issuers: %w", err)
+	}
+
 	chartDir, err := os.MkdirTemp("", "dokku-chart-")
 	if err != nil {
 		return fmt.Errorf("Error creating chart directory: %w", err)
@@ -273,22 +278,6 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 		return fmt.Errorf("Error fetching cron entries: %w", err)
 	}
 
-	issuerName := "letsencrypt-stag"
-	server := getComputedLetsencryptServer(appName)
-	if server == "prod" || server == "production" {
-		issuerName = "letsencrypt-prod"
-	} else if server != "stag" && server != "staging" {
-		return fmt.Errorf("Invalid letsencrypt server config: %s", server)
-	}
-
-	tls := false
-	if issuerName == "letsencrypt-stag" {
-		tls = getGlobalLetsencryptEmailStag() != ""
-	}
-	if issuerName == "letsencrypt-prod" {
-		tls = getGlobalLetsencryptEmailProd() != ""
-	}
-
 	domains := []string{}
 	if _, ok := processes["web"]; ok {
 		err = common.PlugnTrigger("domains-vhost-enabled", []string{appName}...)
@@ -322,7 +311,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 		return fmt.Errorf("Error writing chart: %w", err)
 	}
 
-	values := &Values{
+	values := &AppValues{
 		Global: GlobalValues{
 			AppName:      appName,
 			DeploymentID: fmt.Sprint(deploymentId),
@@ -379,7 +368,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 				Domains:  domains,
 				PortMaps: []ProcessPortMap{},
 				TLS: ProcessTls{
-					Enabled:    tls,
+					Enabled:    tlsEnabled,
 					IssuerName: issuerName,
 				},
 			}

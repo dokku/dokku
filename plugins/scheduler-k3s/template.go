@@ -6,9 +6,6 @@ import (
 	"os"
 	"strings"
 
-	acmev1 "github.com/cert-manager/cert-manager/pkg/apis/acme/v1"
-	certmanagerv1 "github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1"
-	certmanagermetav1 "github.com/cert-manager/cert-manager/pkg/apis/meta/v1"
 	"github.com/dokku/dokku/plugins/common"
 	"gopkg.in/yaml.v3"
 	batchv1 "k8s.io/api/batch/v1"
@@ -25,7 +22,11 @@ type Chart struct {
 	Version    string `yaml:"version"`
 }
 
-type Values struct {
+type ClusterIssuerValues struct {
+	ClusterIssuers map[string]ClusterIssuer `yaml:"cluster_issuers"`
+}
+
+type AppValues struct {
 	Global    GlobalValues             `yaml:"global"`
 	Processes map[string]ProcessValues `yaml:"processes"`
 }
@@ -164,65 +165,11 @@ type ProcessTls struct {
 }
 
 type ClusterIssuer struct {
-	Email        string
-	IngressClass string
-	Name         string
-	Namespace    string
-	Server       string
-}
-
-func templateKubernetesClusterIssuer(input ClusterIssuer) (certmanagerv1.ClusterIssuer, error) {
-	if input.Email == "" {
-		return certmanagerv1.ClusterIssuer{}, fmt.Errorf("Email cannot be empty")
-	}
-	if input.Server == "" {
-		return certmanagerv1.ClusterIssuer{}, fmt.Errorf("Server cannot be empty")
-	}
-	if input.Name == "" {
-		return certmanagerv1.ClusterIssuer{}, fmt.Errorf("Name cannot be empty")
-	}
-	if input.Namespace == "" {
-		return certmanagerv1.ClusterIssuer{}, fmt.Errorf("Namespace cannot be empty")
-	}
-
-	if input.Server == "staging" {
-		input.Server = "https://acme-staging-v02.api.letsencrypt.org/directory"
-	} else if input.Server == "production" {
-		input.Server = "https://acme-v02.api.letsencrypt.org/directory"
-	} else {
-		return certmanagerv1.ClusterIssuer{}, fmt.Errorf("Server must be either staging or production")
-	}
-
-	clusterIssuer := certmanagerv1.ClusterIssuer{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      input.Name,
-			Namespace: input.Namespace,
-		},
-		Spec: certmanagerv1.IssuerSpec{
-			IssuerConfig: certmanagerv1.IssuerConfig{
-				ACME: &acmev1.ACMEIssuer{
-					Email:  input.Email,
-					Server: input.Server,
-					PrivateKey: certmanagermetav1.SecretKeySelector{
-						LocalObjectReference: certmanagermetav1.LocalObjectReference{
-							Name: input.Name,
-						},
-					},
-					Solvers: []acmev1.ACMEChallengeSolver{
-						{
-							HTTP01: &acmev1.ACMEChallengeSolverHTTP01{
-								Ingress: &acmev1.ACMEChallengeSolverHTTP01Ingress{
-									Class: ptr.To(input.IngressClass),
-								},
-							},
-						},
-					},
-				},
-			},
-		},
-	}
-
-	return clusterIssuer, nil
+	Email        string `yaml:"email"`
+	Enabled      bool   `yaml:"enabled"`
+	IngressClass string `yaml:"ingress_class"`
+	Name         string `yaml:"name"`
+	Server       string `yaml:"server"`
 }
 
 type Job struct {

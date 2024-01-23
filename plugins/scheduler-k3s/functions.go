@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
@@ -112,6 +113,123 @@ type WaitForPodToExistInput struct {
 	RetryCount    int
 	PodName       string
 	LabelSelector string
+}
+
+func applyClusterIssuers(ctx context.Context, appName string) (string, bool, error) {
+	chartDir, err := os.MkdirTemp("", "cluster-issuer-chart-")
+	if err != nil {
+		return "", false, fmt.Errorf("Error creating cluster-issuer chart directory: %w", err)
+	}
+	defer os.RemoveAll(chartDir)
+
+	// create the chart.yaml
+	chart := &Chart{
+		ApiVersion: "v2",
+		AppVersion: "1.0.0",
+		Name:       appName,
+		Version:    "0.0.1",
+	}
+
+	err = writeYaml(WriteYamlInput{
+		Object: chart,
+		Path:   filepath.Join(chartDir, "Chart.yaml"),
+	})
+	if err != nil {
+		return "", false, fmt.Errorf("Error writing cluster-issuer chart: %w", err)
+	}
+
+	// create the values.yaml
+	issuerName := "letsencrypt-stag"
+	server := getComputedLetsencryptServer(appName)
+	if server == "prod" || server == "production" {
+		issuerName = "letsencrypt-prod"
+	} else if server != "stag" && server != "staging" {
+		return "", false, fmt.Errorf("Invalid letsencrypt server config: %s", server)
+	}
+
+	tls := false
+	letsencryptEmailStag := getGlobalLetsencryptEmailStag()
+	letsencryptEmailProd := getGlobalLetsencryptEmailProd()
+	if issuerName == "letsencrypt-stag" {
+		tls = letsencryptEmailStag != ""
+	}
+	if issuerName == "letsencrypt-prod" {
+		tls = letsencryptEmailProd != ""
+	}
+
+	clusterIssuerValues := ClusterIssuerValues{
+		ClusterIssuers: map[string]ClusterIssuer{
+			"letsencrypt-stag": {
+				Email:   letsencryptEmailStag,
+				Enabled: letsencryptEmailStag != "",
+				Name:    "letsencrypt-stag",
+				Server:  "https://acme-staging-v02.api.letsencrypt.org/directory",
+			},
+			"letsencrypt-prod": {
+				Email:   letsencryptEmailProd,
+				Enabled: letsencryptEmailProd != "",
+				Name:    "letsencrypt-prod",
+				Server:  "https://acme-v02.api.letsencrypt.org/directory",
+			},
+		},
+	}
+
+	if err := os.MkdirAll(filepath.Join(chartDir, "templates"), os.FileMode(0755)); err != nil {
+		return "", false, fmt.Errorf("Error creating cluster-issuer chart templates directory: %w", err)
+	}
+
+	err = writeYaml(WriteYamlInput{
+		Object: clusterIssuerValues,
+		Path:   filepath.Join(chartDir, "values.yaml"),
+	})
+	if err != nil {
+		return "", false, fmt.Errorf("Error writing chart: %w", err)
+	}
+
+	// create the templates/cluster-issuer.yaml
+	b, err := templates.ReadFile("templates/chart/cluster-issuer.yaml")
+	if err != nil {
+		return "", false, fmt.Errorf("Error reading cluster-issuer template: %w", err)
+	}
+
+	filename := filepath.Join(chartDir, "templates", "cluster-issuer.yaml")
+	err = os.WriteFile(filename, b, os.FileMode(0644))
+	if err != nil {
+		return "", false, fmt.Errorf("Error writing cluster-issuer template: %w", err)
+	}
+
+	if os.Getenv("DOKKU_TRACE") == "1" {
+		common.CatFile(filename)
+	}
+
+	// install the chart
+	helmAgent, err := NewHelmAgent("cert-manager", DevNullPrinter)
+	if err != nil {
+		return issuerName, tls, fmt.Errorf("Error creating helm agent: %w", err)
+	}
+
+	chartPath, err := filepath.Abs(chartDir)
+	if err != nil {
+		return issuerName, tls, fmt.Errorf("Error getting chart path: %w", err)
+	}
+
+	timeoutDuration, err := time.ParseDuration("300s")
+	if err != nil {
+		return issuerName, tls, fmt.Errorf("Error parsing deploy timeout duration: %w", err)
+	}
+
+	err = helmAgent.InstallOrUpgradeChart(ctx, ChartInput{
+		ChartPath:         chartPath,
+		Namespace:         "cert-manager",
+		ReleaseName:       "cluster-issuers",
+		RollbackOnFailure: true,
+		Timeout:           timeoutDuration,
+	})
+	if err != nil {
+		return issuerName, tls, fmt.Errorf("Error installing cluster-issuer chart: %w", err)
+	}
+
+	return issuerName, tls, nil
 }
 
 func createKubernetesNamespace(ctx context.Context, namespaceName string) error {
