@@ -18,7 +18,7 @@ spec:
   - name: {{ $port_map.name }}
     port: {{ $port_map.host_port }}
     protocol: TCP
-    targetPort: {{ $port_map.name }}
+    targetPort: {{ $port_map.container_port }}
   {{- end }}
   selector:
     app.kubernetes.io/instance: {{ $.Values.global.app_name }}-{{ $processName }}
