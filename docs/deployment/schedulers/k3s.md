@@ -1,14 +1,21 @@
 # K3s Scheduler
 
-```
-scheduler-k3s:initialize                           # initializes a cluster
-scheduler-k3s:add-server [user:password@host:port] # adds a server node to a Dokku-managed cluster
-scheduler-k3s:add-client [user:password@host:port] # adds a client node to a Dokku-managed cluster
-scheduler-k3s:set [<app>|--global] <key> (<value>) # Set or clear a scheduler-k3s property for an app or the scheduler
-```
-
 > [!IMPORTANT]
 > New as of 0.33.0
+
+```
+scheduler-k3s:cluster-add [ssh://user@host:port]    # Adds a server node to a Dokku-managed cluster
+scheduler-k3s:cluster-list                          # Lists all nodes in a Dokku-managed cluster
+scheduler-k3s:cluster-remove [node-id]              # Removes client node to a Dokku-managed cluster
+scheduler-k3s:initialize                            # Initializes a cluster
+scheduler-k3s:report [<app>] [<flag>]               # Displays a scheduler-k3s report for one or more apps
+scheduler-k3s:set [<app>|--global] <key> (<value>)  # Set or clear a scheduler-k3s property for an app or the scheduler
+scheduler-k3s:show-kubeconfig                       # Displays the kubeconfig for remote usage
+scheduler-k3s:uninstall                             # Uninstalls k3s from the Dokku server
+```
+
+> [!NOTE]
+> The k3s plugin replaces the external [scheduler-kubernetes](https://github.com/dokku/dokku-scheduler-kubernetes) plugin. Users can continue to use the external plugin as necessary, but all future development will occur on the official core k3s plugin.
 
 For multi-server support, Dokku provides the ability for users to setup a K3s cluster. As with all schedulers, it is set on a per-app basis. The scheduler can currently be overridden by running the following command:
 
