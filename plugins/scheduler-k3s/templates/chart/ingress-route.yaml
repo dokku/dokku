@@ -31,5 +31,9 @@ spec:
         port: {{ $port_map.name }}
         scheme: {{ $port_map.scheme }}
     {{- end }}
+  {{- if and $config.web.tls (eq $port_map.scheme "https") }}
+  tls:
+    secretName: tls-{{ $.Values.global.app_name }}-{{ $processName }}
+  {{- end }}
 {{- end }}
 {{- end }}
