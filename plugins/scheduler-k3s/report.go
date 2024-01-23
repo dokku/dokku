@@ -10,6 +10,7 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 		return err
 	}
 
+	// todo: add all fields
 	flags := map[string]common.ReportFunc{}
 
 	flagKeys := []string{}
