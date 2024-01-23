@@ -1,5 +1,103 @@
 # History
 
+## 0.33.0
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.33.0/bootstrap.sh
+sudo DOKKU_TAG=v0.33.0 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #6466: @josegonzalez Use correct key for migrating global scheduler configuration on upgrade
+- #6450: @josegonzalez Always set -- on docker run commands internally to avoid parsing flags on specified commands
+- #6447: @josegonzalez Propagate arm64 build support for development builds
+- #6445: @josegonzalez Do not strip whitespace when displaying a file for debugging purposes
+- #6442: @josegonzalez Ignore go.work when bumping modules
+- #6427: @josegonzalez Add missing gitignore entry for app-json trigger
+
+### New Features
+
+- #6500: @josegonzalez Add support for custom user namespaces when creating persistent storage directories
+- #6492: @josegonzalez Add support for multierror when exiting triggers
+- #6491: @josegonzalez Add wrappers for exec and ssh commands
+- #6489: @josegonzalez Disable flag parsing for dokku enter
+- #6469: @josegonzalez Allow generating an ssh deploy key via the git plugin
+- #6468: @josegonzalez Implement global support for setting proxy type
+- #6467: @josegonzalez Add ability to customize the registry repo with a template
+- #6464: @josegonzalez Create helper function for exposing a docker image's working directory
+- #6462: @josegonzalez Ensure ps:stop has a proper cli header
+- #6460: @josegonzalez Add a post-registry-login trigger
+- #6459: @josegonzalez Alias common registry names to docker.io
+- #6457: @josegonzalez Add the ability to specify the output format when listing ports
+- #6452: @josegonzalez Add alternative implementation for calling plugin triggers
+- #6446: @josegonzalez Add support for global-only environment properties
+- #6443: @josegonzalez Add support for exposing healthchecks in the AppJson struct
+- #6435: @josegonzalez Implement native k3s scheduler support
+- #6433: @josegonzalez Add go.work.sum to gitignore
+- #6432: @josegonzalez Upgrade golang to 1.21.6
+- #6430: @josegonzalez Reformat devcontainer file
+- #6428: @josegonzalez Add ms-azuretools.vscode-docker to devcontainer setup
+- #6313: @josegonzalez Set the platform flag in order to run amd64 images on arm64 deploy targets
+
+### Refactors
+
+- #6448: @josegonzalez Return an int32 for scale count
+- #6444: @josegonzalez Allow setting a custom mode when writing a slice to a file
+
+### Documentation
+
+- #6517: @josegonzalez Remove k3s tutorial from documentation
+- #6516: @josegonzalez Note that the external kubernetes plugin is deprecated
+- #6515: @josegonzalez Replace the kubernetes plugin with k3s in the documentation
+- #6514: @josegonzalez Add notes on k3s replacement of the scheduler-kubernetes plugin
+- #6461: @josegonzalez Add documentation for implementing scheduler-related commands
+- #6458: @josegonzalez Add docblocks to appjson structs
+- #6420: @aochagavia Fix typo in zero downtime documentation
+
+### Tests
+
+- #6465: @josegonzalez Update haproxy tests so they pass
+- #6449: @josegonzalez Run ci on ubuntu 22.04
+- #6431: @josegonzalez Add golanglint-ci testing support
+
+### Dependencies
+
+- #6513: @dependabot[bot] chore(deps): bump github.com/containerd/containerd from 1.7.6 to 1.7.11 in /plugins/scheduler-k3s
+- #6512: @josegonzalez Update github.com/gonsi/gomega golang dependency
+- #6511: @josegonzalez Update crypto and sys golang dependencies
+- #6494: @dependabot[bot] chore(deps): bump markupsafe from 2.1.3 to 2.1.4 in /docs/_build
+- #6482: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.3 to 9.5.4 in /docs/_build
+- #6478: @dependabot[bot] chore(deps): bump golang from 1.21.5 to 1.21.6 in /tests/apps/zombies-dockerfile-tini
+- #6456: @dependabot[bot] chore(deps): bump google.golang.org/grpc from 1.29.1 to 1.60.1 in /tests/apps/gogrpc
+- #6454: @dependabot[bot] chore(deps): bump flask from 3.0.0 to 3.0.1 in /tests/apps/python-flask
+- #6455: @dependabot[bot] chore(deps): bump flask from 3.0.0 to 3.0.1 in /tests/apps/multi
+- #6453: @josegonzalez Remove ignored dependency from dependabot
+- #6451: @josegonzalez Update go modules
+- #6439: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.30.0 to 1.31.0 in /plugins/config
+- #6438: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.30.0 to 1.31.0 in /plugins/common
+- #6437: @dependabot[bot] chore(deps): bump beautifulsoup4 from 4.12.2 to 4.12.3 in /docs/_build
+- #6436: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 41.1.1 to 42.0.0
+- #6425: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 41.0.1 to 41.1.1
+- #6424: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.3 to 9.5.4 in /docs/_build
+- #6421: @josegonzalez chore: bump golang.org/x/sync from 0.5.0 to 0.6.0
+- #6419: @dependabot[bot] chore(deps): bump jinja2 from 3.1.2 to 3.1.3 in /docs/_build
+- #6418: @dependabot[bot] chore(deps): bump jinja2 from 3.1.2 to 3.1.3 in /tests/apps/python-flask
+- #6415: @dependabot[bot] chore(deps): bump golang from 1.21.5 to 1.21.6 in /tests/apps/go-fail-postdeploy
+- #6414: @dependabot[bot] chore(deps): bump golang from 1.21.5 to 1.21.6 in /tests/apps/gogrpc
+- #6413: @dependabot[bot] chore(deps): bump golang from 1.21.5 to 1.21.6 in /tests/apps/go-fail-predeploy
+- #6412: @dependabot[bot] chore(deps): bump golang from 1.21.5 to 1.21.6 in /tests/apps/zombies-dockerfile-no-tini
+- #6411: @dependabot[bot] chore(deps): bump golang from 1.21.5 to 1.21.6 in /tests/apps/zombies-dockerfile-tini
+- #6410: @dependabot[bot] chore(deps): bump golang.org/x/net from 0.19.0 to 0.20.0 in /tests/apps/gogrpc
+- #6406: @dependabot[bot] chore(deps): bump golang.org/x/sync from 0.5.0 to 0.6.0 in /plugins/scheduler-docker-local
+
+### Other
+
+- #6463: @josegonzalez Use exported function from appjson module instead of manually parsing
+- #6429: @josegonzalez Use go.work for development purposes
+
 ## 0.32.4
 
 Install/update via the bootstrap script:
