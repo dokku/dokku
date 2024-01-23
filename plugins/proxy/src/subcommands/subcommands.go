@@ -56,9 +56,14 @@ func main() {
 		}
 	case "set":
 		args := flag.NewFlagSet("proxy:set", flag.ExitOnError)
+		global := args.Bool("global", false, "--global: set a global property")
 		args.Parse(os.Args[2:])
 		appName := args.Arg(0)
 		proxyType := args.Arg(1)
+		if *global {
+			appName = "--global"
+			proxyType = args.Arg(0)
+		}
 		err = proxy.CommandSet(appName, proxyType)
 	default:
 		err = fmt.Errorf("Invalid plugin subcommand call: %s", subcommand)

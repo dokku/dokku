@@ -183,7 +183,7 @@ func Stop(appName string) error {
 		return nil
 	}
 
-	common.LogQuiet(fmt.Sprintf("Stopping %s", appName))
+	common.LogInfo1Quiet(fmt.Sprintf("Stopping %s", appName))
 	scheduler := common.GetAppScheduler(appName)
 
 	if err := common.PlugnTrigger("scheduler-stop", []string{scheduler, appName}...); err != nil {

@@ -1,7 +1,7 @@
 GO_ARGS ?=
 GO_PLUGIN_MAKE_TARGET ?= build
 GO_REPO_ROOT := /go/src/github.com/dokku/dokku
-BUILD_IMAGE := golang:1.21.3
+BUILD_IMAGE := golang:1.21.6
 GO_BUILD_CACHE ?= /tmp/dokku-go-build-cache
 GO_MOD_CACHE   ?= /tmp/dokku-go-mod-mod
 GO_ROOT_MOUNT  ?= $$PWD/../..:$(GO_REPO_ROOT)
@@ -21,17 +21,17 @@ build-in-docker: clean
 		-e GO111MODULE=on \
 		-w $(GO_REPO_ROOT)/plugins/$(PLUGIN_NAME) \
 		$(BUILD_IMAGE) \
-		bash -c "GO_ARGS='$(GO_ARGS)' CGO_ENABLED=0 GOOS=linux GOARCH=$(GOARCH) make -j4 $(GO_PLUGIN_MAKE_TARGET)" || exit $$?
+		bash -c "GO_ARGS='$(GO_ARGS)' CGO_ENABLED=0 GOOS=linux GOARCH=$(GOARCH) GOWORK=off make -j4 $(GO_PLUGIN_MAKE_TARGET)" || exit $$?
 
 clean:
 	rm -rf $(BUILD)
 	find . -xtype l -delete
 
 commands: **/**/commands.go
-	go build -ldflags="-s -w" $(GO_ARGS) -o commands src/commands/commands.go
+	GOARCH=$(GOARCH) go build -ldflags="-s -w" $(GO_ARGS) -o commands src/commands/commands.go
 
 subcommands:
-	go build -ldflags="-s -w" $(GO_ARGS) -o subcommands/subcommands src/subcommands/subcommands.go
+	GOARCH=$(GOARCH) go build -ldflags="-s -w" $(GO_ARGS) -o subcommands/subcommands src/subcommands/subcommands.go
 	$(MAKE) $(SUBCOMMANDS)
 
 subcommands/%:
@@ -41,7 +41,7 @@ src-clean:
 	rm -rf .gitignore src vendor Makefile *.go glide.* go.sum go.mod
 
 triggers:
-	go build -ldflags="-s -w" $(GO_ARGS) -o triggers src/triggers/triggers.go
+	GOARCH=$(GOARCH) go build -ldflags="-s -w" $(GO_ARGS) -o triggers src/triggers/triggers.go
 	$(MAKE) $(TRIGGERS)
 
 triggers/%:

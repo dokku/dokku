@@ -63,16 +63,8 @@ func CopyFromImage(appName string, image string, source string, destination stri
 		return fmt.Errorf("Invalid docker image for copying content")
 	}
 
-	workDir := ""
 	if !IsAbsPath(source) {
-		if IsImageCnbBased(image) {
-			workDir = "/workspace"
-		} else if IsImageHerokuishBased(image, appName) {
-			workDir = "/app"
-		} else {
-			workDir, _ = DockerInspect(image, "{{.Config.WorkingDir}}")
-		}
-
+		workDir := GetWorkingDir(appName, image)
 		if workDir != "" {
 			source = fmt.Sprintf("%s/%s", workDir, source)
 		}
@@ -253,6 +245,18 @@ func DockerInspect(containerOrImageID, format string) (output string, err error)
 		output = strings.TrimSuffix(strings.TrimPrefix(output, "'"), "'")
 	}
 	return
+}
+
+// GetWorkingDir returns the working directory for a given image
+func GetWorkingDir(appName string, image string) string {
+	if IsImageCnbBased(image) {
+		return "/workspace"
+	} else if IsImageHerokuishBased(image, appName) {
+		return "/app"
+	}
+
+	workDir, _ := DockerInspect(image, "{{.Config.WorkingDir}}")
+	return workDir
 }
 
 // IsImageCnbBased returns true if app image is based on cnb

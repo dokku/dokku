@@ -11,8 +11,10 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 	}
 
 	flags := map[string]common.ReportFunc{
-		"--proxy-enabled": reportEnabled,
-		"--proxy-type":    reportType,
+		"--proxy-enabled":       reportEnabled,
+		"--proxy-computed-type": reportComputedType,
+		"--proxy-global-type":   reportGlobalType,
+		"--proxy-type":          reportType,
 	}
 
 	flagKeys := []string{}
@@ -33,6 +35,19 @@ func reportEnabled(appName string) string {
 	}
 
 	return proxyEnabled
+}
+
+func reportComputedType(appName string) string {
+	proxyType := getGlobalProxyType()
+	if proxyType == "" {
+		proxyType = getAppProxyType(appName)
+	}
+
+	return proxyType
+}
+
+func reportGlobalType(appName string) string {
+	return getGlobalProxyType()
 }
 
 func reportType(appName string) string {

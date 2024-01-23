@@ -31,6 +31,10 @@ func CommandLogin(server string, username string, password string, passwordStdin
 		return errors.New("Missing password argument")
 	}
 
+	if server == "hub.docker.com" || server == "docker.com" {
+		server = "docker.io"
+	}
+
 	command := []string{
 		common.DockerBin(),
 		"login",
@@ -47,6 +51,19 @@ func CommandLogin(server string, username string, password string, passwordStdin
 	loginCmd.Command.Stdin = &buffer
 	if !loginCmd.Execute() {
 		return errors.New("Failed to log into registry")
+	}
+
+	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:       "post-registry-login",
+		Args:          []string{server, username},
+		StreamStdio:   true,
+		CaptureOutput: false,
+		Env: map[string]string{
+			"DOCKER_REGISTRY_PASS": password,
+		},
+	})
+	if err != nil {
+		return err
 	}
 
 	return nil

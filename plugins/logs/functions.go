@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"os"
 	"path/filepath"
 	"strings"
 	"time"
@@ -224,7 +225,11 @@ func writeVectorConfig() error {
 	b = bytes.Replace(b, []byte("\\u002B"), []byte("+"), -1)
 
 	vectorConfig := filepath.Join(common.GetDataDirectory("logs"), "vector.json")
-	if err := common.WriteSliceToFile(vectorConfig, []string{string(b)}); err != nil {
+	if err := common.WriteSliceToFile(common.WriteSliceToFileInput{
+		Filename: vectorConfig,
+		Lines:    []string{string(b)},
+		Mode:     os.FileMode(0600),
+	}); err != nil {
 		return err
 	}
 

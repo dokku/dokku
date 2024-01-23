@@ -13,15 +13,16 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 	}
 
 	flags := map[string]common.ReportFunc{
-		"--registry-computed-image-repo":      reportComputedImageRepo,
-		"--registry-image-repo":               reportImageRepo,
-		"--registry-computed-push-on-release": reportComputedPushOnRelease,
-		"--registry-global-push-on-release":   reportGlobalPushOnRelease,
-		"--registry-push-on-release":          reportPushOnRelease,
-		"--registry-computed-server":          reportComputedServer,
-		"--registry-global-server":            reportGlobalServer,
-		"--registry-server":                   reportServer,
-		"--registry-tag-version":              reportTagVersion,
+		"--registry-computed-image-repo":        reportComputedImageRepo,
+		"--registry-image-repo":                 reportImageRepo,
+		"--registry-computed-push-on-release":   reportComputedPushOnRelease,
+		"--registry-global-push-on-release":     reportGlobalPushOnRelease,
+		"--registry-push-on-release":            reportPushOnRelease,
+		"--registry-computed-server":            reportComputedServer,
+		"--registry-global-server":              reportGlobalServer,
+		"--registry-global-image-repo-template": reportGlobalImageRepoTemplate,
+		"--registry-server":                     reportServer,
+		"--registry-tag-version":                reportTagVersion,
 	}
 
 	flagKeys := []string{}
@@ -36,8 +37,11 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 }
 
 func reportComputedImageRepo(appName string) string {
-	imageRepo := reportImageRepo(appName)
-	imageRepo = strings.TrimSpace(imageRepo)
+	imageRepo := strings.TrimSpace(reportImageRepo(appName))
+	if imageRepo == "" {
+		imageRepo, _ = getImageRepoFromTemplate(appName)
+	}
+
 	if imageRepo == "" {
 		imageRepo = common.GetAppImageRepo(appName)
 	}
@@ -74,6 +78,10 @@ func reportPushOnRelease(appName string) string {
 func reportComputedServer(appName string) string {
 	server := getRegistryServerForApp(appName)
 	return strings.TrimSpace(server)
+}
+
+func reportGlobalImageRepoTemplate(appName string) string {
+	return common.PropertyGet("registry", "--global", "image-repo-template")
 }
 
 func reportGlobalServer(appName string) string {

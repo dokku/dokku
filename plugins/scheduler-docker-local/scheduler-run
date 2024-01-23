@@ -73,6 +73,10 @@ trigger-scheduler-docker-local-scheduler-run() {
   [[ "$IMAGE_SOURCE_TYPE" == "herokuish" ]] && local EXEC_CMD="/exec"
   is_image_cnb_based "$IMAGE" && EXEC_CMD=""
 
+  if [[ "$1" == "--" ]]; then
+    shift
+  fi
+
   local POTENTIAL_PROCFILE_KEY="$1"
   if [[ -n "$POTENTIAL_PROCFILE_KEY" ]]; then
     PROC_CMD=$(plugn trigger procfile-get-command "$APP" "$POTENTIAL_PROCFILE_KEY" "5000" 2>/dev/null || echo '')
@@ -81,6 +85,12 @@ trigger-scheduler-docker-local-scheduler-run() {
       dokku_log_info1_quiet "Found '$POTENTIAL_PROCFILE_KEY' in Procfile, running that command"
       set -- "$PROC_CMD" "${@:2}"
     fi
+  fi
+
+  local DOKKU_IMAGE_ARCHITECTURE="$("$DOCKER_BIN" image inspect --format '{{.Architecture}}' "$IMAGE")"
+  if [[ "$DOKKU_IMAGE_ARCHITECTURE" == "amd64" ]] && [[ "$(dpkg --print-architecture 2>/dev/null || true)" != "amd64" ]]; then
+    dokku_log_warn "Detected linux/amd64 image, forcing --platform=linux/amd64"
+    DOCKER_ARGS+=" --platform=linux/amd64"
   fi
 
   # shellcheck disable=SC2124

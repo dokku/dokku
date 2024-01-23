@@ -14,38 +14,56 @@ trigger-scheduler-docker-local-scheduler-enter() {
     return
   fi
 
-  declare CONTAINER_TYPE="$1"
-  local AVAILABLE_CONTAINER_TYPES CONTAINER_ID
-  local CONTAINER_TYPE_SPECIFIED=false
+  local CONTAINER_ID
+  local CONTAINER_TYPE
+  while [[ $# -gt 0 ]]; do
+    case $1 in
+      --container-id=*)
+        local arg=$(printf "%s" "$1" | sed -E 's/(^--cron-id=)//g')
+        CONTAINER_ID="$arg"
+        shift
+        ;;
+      --container-id)
+        if [[ ! $2 ]]; then
+          dokku_log_warn "expected $1 to have an argument"
+          break
+        fi
+        CONTAINER_ID="$2"
+        shift 2
+        ;;
+      *)
+        CONTAINER_TYPE="$1"
+        shift
+        break
+        ;;
+    esac
+  done
 
-  if [[ -z "$CONTAINER_TYPE" ]]; then
+  if [[ -z "$CONTAINER_ID" ]] && [[ -z "$CONTAINER_TYPE" ]]; then
     AVAILABLE_CONTAINER_TYPES=($(get_app_running_container_types "$APP"))
     if [[ ${#AVAILABLE_CONTAINER_TYPES[@]} -gt 1 ]]; then
       dokku_log_warn "No container type specified."
       dokku_log_fail "Available types for app ($APP): ${AVAILABLE_CONTAINER_TYPES[*]}"
-    else
-      CONTAINER_TYPE="${AVAILABLE_CONTAINER_TYPES[0]}"
     fi
-  else
-    CONTAINER_TYPE_SPECIFIED=true
+
+    CONTAINER_TYPE="${AVAILABLE_CONTAINER_TYPES[0]}"
   fi
 
-  if [[ "$CONTAINER_TYPE" == "--container-id" ]]; then
-    CONTAINER_ID="$2"
+  if [[ -z "$CONTAINER_ID" ]]; then
+    if [[ -z "$CONTAINER_TYPE" ]]; then
+      AVAILABLE_CONTAINER_TYPES=($(get_app_running_container_types "$APP"))
+      if [[ ${#AVAILABLE_CONTAINER_TYPES[@]} -gt 1 ]]; then
+        dokku_log_warn "No container type specified."
+        dokku_log_fail "Available types for app ($APP): ${AVAILABLE_CONTAINER_TYPES[*]}"
+      fi
 
-    local DOKKU_APP_CIDS=($(get_app_container_ids "$APP"))
-    if [[ -z "$CONTAINER_ID" ]]; then
-      dokku_log_warn "No container id specified."
-      dokku_log_fail "Available ids for app ($APP): ${DOKKU_APP_CIDS[*]}"
+      CONTAINER_TYPE="${AVAILABLE_CONTAINER_TYPES[0]}"
     fi
 
-    if ! (printf -- '%s\n' "${DOKKU_APP_CIDS[@]}" | grep -q -e "^$CONTAINER_ID"); then
-      dokku_log_warn "Invalid container id for app"
-      dokku_log_fail "Available ids for app ($APP): ${DOKKU_APP_CIDS[*]}"
+    if [[ -z "$CONTAINER_TYPE" ]]; then
+      dokku_log_fail "No containers found for app"
     fi
-    local CONTAINER_ID=$(printf -- '%s\n' "${DOKKU_APP_CIDS[@]}" | grep -e "^$CONTAINER_ID")
-    shift 2
-  else
+
     local DOKKU_APP_CIDS=($(get_app_container_ids "$APP" "$CONTAINER_TYPE"))
     local CONTAINER_ID=${DOKKU_APP_CIDS[0]}
     if [[ -z "$CONTAINER_ID" ]]; then
@@ -56,12 +74,22 @@ trigger-scheduler-docker-local-scheduler-enter() {
       dokku_log_warn "No containers found for type '$CONTAINER_TYPE'"
       dokku_log_fail "Available types for app ($APP): ${AVAILABLE_CONTAINER_TYPES[*]}"
     fi
+  else
+    local DOKKU_APP_CIDS=($(get_app_container_ids "$APP"))
 
-    [[ "$CONTAINER_TYPE_SPECIFIED" == "true" ]] && shift 1
+    if ! (printf -- '%s\n' "${DOKKU_APP_CIDS[@]}" | grep -q -e "^$CONTAINER_ID"); then
+      dokku_log_warn "Invalid container id for app: $CONTAINER_ID"
+      dokku_log_fail "Available ids for app ($APP): ${DOKKU_APP_CIDS[*]}"
+    fi
+    CONTAINER_ID=$(printf -- '%s\n' "${DOKKU_APP_CIDS[@]}" | grep -e "^$CONTAINER_ID")
   fi
 
   if ! is_container_status "$CONTAINER_ID" "Running"; then
     dokku_log_fail "Container is not running"
+  fi
+
+  if [[ "$1" == "--" ]]; then
+    shift
   fi
 
   local DOKKU_APP_SHELL="/bin/bash"

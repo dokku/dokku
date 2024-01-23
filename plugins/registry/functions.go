@@ -1,15 +1,41 @@
 package registry
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"os"
 	"strconv"
 	"strings"
+	"text/template"
 
 	"github.com/codeskyblue/go-sh"
 	"github.com/dokku/dokku/plugins/common"
 )
+
+func getImageRepoFromTemplate(appName string) (string, error) {
+	imageRepoTemplate := common.PropertyGet("registry", "--global", "image-repo-template")
+	if imageRepoTemplate == "" {
+		return "", nil
+	}
+
+	tmpl, err := template.New("template").Parse(imageRepoTemplate)
+	if err != nil {
+		return "", fmt.Errorf("Unable to parse image-repo-template: %w", err)
+	}
+
+	type templateData struct {
+		AppName string
+	}
+	data := templateData{AppName: appName}
+
+	var doc bytes.Buffer
+	if err := tmpl.Execute(&doc, data); err != nil {
+		return "", fmt.Errorf("Unable to execute image-repo-template: %w", err)
+	}
+
+	return strings.TrimSpace(doc.String()), nil
+}
 
 func getRegistryServerForApp(appName string) string {
 	value := common.PropertyGet("registry", appName, "server")

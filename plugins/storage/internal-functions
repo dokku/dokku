@@ -44,10 +44,17 @@ cmd-storage-ensure-directory() {
     CHOWN_FLAG="1000"
   elif [[ "$CHOWN_FLAG" == "packeto" ]]; then
     CHOWN_FLAG="2000"
+  elif [[ "$CHOWN_FLAG" == "root" ]]; then
+    CHOWN_FLAG="0"
   elif [[ "$CHOWN_FLAG" == "false" ]]; then
     CHOWN_FLAG="false"
   else
     dokku_log_fail "Unsupported chown permissions"
+  fi
+
+  userns_enabled="$(docker info -f '{{range .SecurityOptions}}{{if eq . "name=userns"}}true{{end}}{{end}}')"
+  if [[ "$userns_enabled" == "true" ]] && [[ "$CHOWN_FLAG" != "false" ]]; then
+    CHOWN_FLAG=$((CHOWN_FLAG + 165536))
   fi
 
   local storage_directory="${DOKKU_LIB_ROOT}/data/storage/$DIRECTORY"

@@ -1,6 +1,7 @@
-SYSTEM := $(shell sh -c 'uname -s 2>/dev/null')
 DOKKU_SSH_PORT ?= 22
 DOKKU_DOMAIN ?= dokku.me
+GO_PLUGINS := $(shell sh -c 'find plugins -type f -name "go.mod" -exec dirname "{}" \; | sort -u | sed -e "s/$$/\/.../" | xargs')
+SYSTEM := $(shell sh -c 'uname -s 2>/dev/null')
 
 bats:
 ifeq ($(SYSTEM),Darwin)
@@ -129,6 +130,9 @@ lint-ci: lint-setup
 	@cat .shellcheckrc | sed -n -e '/^# SC/p'
 	@echo linting...
 	@cat tmp/shellcheck/test-files | xargs shellcheck | tests/shellcheck-to-junit --output test-results/shellcheck/results.xml --files tmp/shellcheck/test-files --exclude $(shell cat tmp/shellcheck/exclude)
+
+lint-golang:
+	golangci-lint run $(GO_PLUGINS)
 
 lint-shfmt: shfmt
 	# verifying via shfmt

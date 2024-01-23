@@ -76,6 +76,8 @@ By default, permissions are set for usage with Herokuish buildpacks. These permi
     - This is used for apps deployed with Cloud Native Buildpacks using the `heroku/builder` builder.
 - `--chown packeto`: Use `2000:2000` as the folder permissions.
     - This is used for apps deployed with Cloud Native Buildpacks using the `cloudfoundry/cnb` or `packeto` builders.
+- `--chown root`: Use `0:0` as the folder permissions.
+    - This is used for containers that run their processes as root, as is typical for most Dockerfile or Docker image deploys.
 - `--chown false`: Skips the `chown` call.
 
 Users deploying via Dockerfile will want to specify `--chown false` and manually `chown` the created directory if the user and/or group id  of the runnning process in the deployed container do not correspond to any of the above options.

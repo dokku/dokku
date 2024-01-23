@@ -50,7 +50,6 @@ The following plugins are available and provided by Dokku maintainers.  Please f
 | [Scheduler Kubernetes](https://github.com/dokku/dokku-scheduler-kubernetes)                       | [dokku][]             | 0.4.0+                |
 | [Scheduler Nomad](https://github.com/dokku/dokku-scheduler-nomad)                                 | [dokku][]             | 0.4.0+                |
 | [Solr](https://github.com/dokku/dokku-solr)                                                       | [dokku][]             | 0.4.0+                |
-| [SSH Deployment Keys](https://github.com/cedricziel/dokku-deployment-keys)                        | [dokku][]             | 0.4.0+                |
 | [SSH Hostkeys](https://github.com/cedricziel/dokku-hostkeys-plugin)                               | [dokku][]             | 0.4.0+                 |
 | [Typesense](https://github.com/dokku/dokku-typesense)                                             | [dokku][]             | 0.4.0+                |
 
@@ -202,6 +201,7 @@ The following plugins have been removed as their functionality is now in Dokku C
 | [Process Manager: Supervisord](https://github.com/statianzo/dokku-supervisord)                    | [statianzo][]         | v0.3.14/0.7.0 (ps plugin)                 |
 | [Rebuild application](https://github.com/scottatron/dokku-rebuild)                                | [scottatron][]        | v0.3.14 (ps plugin)                       |
 | [Reset mtime](https://github.com/mixxorz/dokku-docker-reset-mtime)                                | [mixxorz][]           | Docker 1.8+                               |
+| [SSH Deployment Keys](https://github.com/cedricziel/dokku-deployment-keys)                        | [dokku][]             | v0.33.0 (git plugin)                      |
 | [Supply env vars to buildpacks](https://github.com/cameron-martin/dokku-build-env)<sup>2</sup>    | [cameron-martin][]    | v0.3.9 (build-env plugin)                 |
 | [Slack Notifications](https://github.com/ribot/dokku-slack)                                       | [ribot][]             | v0.5.0 (deployment tasks)                 |
 | [Telegram Notifications](https://github.com/m0rth1um/dokku-telegram)                              | [m0rth1um][]          | v0.5.0 (deployment tasks)                 |

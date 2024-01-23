@@ -8,11 +8,49 @@ cmd-enter-default() {
   declare cmd="enter"
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1"
+  shift 1
 
   verify_app_name "$APP"
 
+  local CONTAINER_ID
+  local CONTAINER_TYPE
+  while [[ $# -gt 0 ]]; do
+    case $1 in
+      --container-id=*)
+        local arg=$(printf "%s" "$1" | sed -E 's/(^--cron-id=)//g')
+        CONTAINER_ID="$arg"
+        shift
+        ;;
+      --container-id)
+        if [[ ! $2 ]]; then
+          dokku_log_warn "expected $1 to have an argument"
+          break
+        fi
+        CONTAINER_ID="$2"
+        shift 2
+        ;;
+      *)
+        CONTAINER_TYPE="$1"
+        shift
+        break
+        ;;
+    esac
+  done
+
+  if [[ "$1" == "--" ]]; then
+    shift
+  fi
+
   local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
-  plugn trigger scheduler-enter "$DOKKU_SCHEDULER" "$@"
+  if [[ -n "$CONTAINER_TYPE" ]]; then
+    plugn trigger scheduler-enter "$DOKKU_SCHEDULER" "$APP" "$CONTAINER_TYPE" -- "$@"
+    return "$?"
+  elif [[ -n "$CONTAINER_ID" ]]; then
+    plugn trigger scheduler-enter "$DOKKU_SCHEDULER" "$APP" --container-id "$CONTAINER_ID" -- "$@"
+    return "$?"
+  fi
+
+  plugn trigger scheduler-enter "$DOKKU_SCHEDULER" "$APP" -- "$@"
 }
 
 cmd-enter-default "$@"

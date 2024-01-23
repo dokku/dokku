@@ -1,0 +1,16 @@
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: traefik-crd
+  namespace: kube-system
+spec:
+  bootstrap: true
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: traefik
+  namespace: kube-system
+spec:
+  bootstrap: true
