@@ -21,7 +21,6 @@ metadata:
 spec:
   concurrencyPolicy: Allow
   failedJobsHistoryLimit: 10
-  ttlSecondsAfterFinished: 60
   jobTemplate:
     metadata:
       annotations:
@@ -40,6 +39,7 @@ spec:
     spec:
       backoffLimit: 0
       podReplacementPolicy: Failed
+      ttlSecondsAfterFinished: 60
       template:
         metadata:
           annotations:
