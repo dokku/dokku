@@ -1,7 +1,7 @@
 # Kubernetes Scheduler
 
 > [!WARNING]
-> This scheduler is not in Dokku core and thus functionality may change over time as the API stabilizes.
+> Deprecation notice: This scheduler has been replaced with the [k3s scheduler plugin](/docs/deployment/schedulers/k3s.md) and is no longer under active development.
 
 The [Kubernetes Scheduler Plugin](https://github.com/dokku/dokku-scheduler-kubernetes) is available free as an external plugin. Please see the plugin's [issue tracker](https://github.com/dokku/dokku-scheduler-kubernetes/issues) for more information on the status of the plugin.
 
