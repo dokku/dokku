@@ -41,6 +41,12 @@ By default, the k3s installation can run both app and system workloads. For clus
 dokku scheduler-k3s:initialize --taint-scheduling
 ```
 
+By default, Dokku will attempt to auto-detect the IP address of the server. In cases where the auto-detected IP address is incorrect, an override may be specified via the `--server-ip` flag:
+
+```shell
+dokku scheduler-k3s:initialize --server-ip 192.168.20.15
+```
+
 ### Adding nodes to the cluster
 
 > [!WARNING]
@@ -60,6 +66,12 @@ If the server isn't in the `known_hosts` file, the connection will fail. This ca
 dokku scheduler-k3s:cluster-add --insecure-allow-unknown-hosts ssh://root@worker-1.example.com
 ```
 
+By default, Dokku will attempt to auto-detect the IP address of the Dokku server for the remote server to connect to. In cases where the auto-detected IP address is incorrect, an override may be specified via the `--server-ip` flag:
+
+```shell
+dokku scheduler-k3s:cluster-add --server-ip 192.168.20.15 ssh://root@worker-1.example.com
+```
+
 #### Adding a server node
 
 > [!NOTE]
@@ -76,13 +88,19 @@ dokku scheduler-k3s:cluster-add  --role server ssh://root@server-1.example.com
 Server nodes allow any workloads to be scheduled on them by default, in addition to the control-plane, etcd, and the scheduler itself. To avoid app workloads being scheduled on your control-plane, use the `--taint-scheduling` flag:
 
 ```shell
-dokku scheduler-k3s:cluster-add --role server --taint-scheduling ssh://root@cluster-1.example.com
+dokku scheduler-k3s:cluster-add --role server --taint-scheduling ssh://root@server-1.example.com
 ```
 
 If the server isn't in the `known_hosts` file, the connection will fail. This can be bypassed by setting the `--insecure-allow-unknown-hosts` flag:
 
 ```shell
-dokku scheduler-k3s:cluster-add --role server --insecure-allow-unknown-hosts ssh://root@worker-1.example.com
+dokku scheduler-k3s:cluster-add --role server --insecure-allow-unknown-hosts ssh://root@server-1.example.com
+```
+
+By default, Dokku will attempt to auto-detect the IP address of the Dokku server for the remote server to connect to. In cases where the auto-detected IP address is incorrect, an override may be specified via the `--server-ip` flag:
+
+```shell
+dokku scheduler-k3s:cluster-add --role server --server-ip 192.168.20.15 ssh://root@server-1.example.com
 ```
 
 #### Changing the network interface
@@ -362,7 +380,7 @@ dokku scheduler-k3s:cluster-add  --role server ssh://root@server-1.example.com
 Server nodes allow any workloads to be scheduled on them by default, in addition to the control-plane, etcd, and the scheduler itself. To avoid app workloads being scheduled on your control-plane, use the `--taint-scheduling` flag:
 
 ```shell
-dokku scheduler-k3s:cluster-add --role server --taint-scheduling ssh://root@cluster-1.example.com
+dokku scheduler-k3s:cluster-add --role server --taint-scheduling ssh://root@server-1.example.com
 ```
 
 If the server isn't in the `known_hosts` file, the connection will fail. This can be bypassed by setting the `--insecure-allow-unknown-hosts` flag:

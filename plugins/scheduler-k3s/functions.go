@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net"
 	"os"
 	"sort"
 	"strconv"
@@ -500,6 +501,36 @@ func getProcessResources(appName string, processType string) (ProcessResourcesMa
 	}
 
 	return processResources, nil
+}
+
+func getServerIP() (string, error) {
+	serverIP := ""
+	networkInterface := getGlobalNetworkInterface()
+	ifaces, err := net.Interfaces()
+	if err != nil {
+		return "", fmt.Errorf("Unable to get network interfaces: %w", err)
+	}
+
+	for _, iface := range ifaces {
+		if iface.Name == networkInterface {
+			addr, err := iface.Addrs()
+			if err != nil {
+				return "", fmt.Errorf("Unable to get network addresses for interface %s: %w", networkInterface, err)
+			}
+			for _, a := range addr {
+				if ipnet, ok := a.(*net.IPNet); ok {
+					if ipnet.IP.To4() != nil {
+						serverIP = ipnet.IP.String()
+					}
+				}
+			}
+		}
+	}
+
+	if len(serverIP) == 0 {
+		return "", fmt.Errorf(fmt.Sprintf("Unable to determine server ip address from network-interface %s", networkInterface))
+	}
+	return serverIP, nil
 }
 
 func getStartCommand(input StartCommandInput) (StartCommandOutput, error) {

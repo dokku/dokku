@@ -5,7 +5,6 @@ import (
 	"crypto/rand"
 	"encoding/json"
 	"fmt"
-	"net"
 	"net/url"
 	"os"
 	"os/signal"
@@ -18,7 +17,7 @@ import (
 )
 
 // CommandInitialize initializes a k3s cluster on the local server
-func CommandInitialize(taintScheduling bool) error {
+func CommandInitialize(serverIP string, taintScheduling bool) error {
 	if err := isK3sInstalled(); err == nil {
 		return fmt.Errorf("k3s already installed, cannot re-initialize k3s")
 	}
@@ -34,31 +33,14 @@ func CommandInitialize(taintScheduling bool) error {
 		cancel()
 	}()
 
-	networkInterface := getGlobalNetworkInterface()
-	ifaces, err := net.Interfaces()
-	if err != nil {
-		return fmt.Errorf("Unable to get network interfaces: %w", err)
-	}
-
-	serverIp := ""
-	for _, iface := range ifaces {
-		if iface.Name == networkInterface {
-			addr, err := iface.Addrs()
-			if err != nil {
-				return fmt.Errorf("Unable to get network addresses for interface %s: %w", networkInterface, err)
-			}
-			for _, a := range addr {
-				if ipnet, ok := a.(*net.IPNet); ok {
-					if ipnet.IP.To4() != nil {
-						serverIp = ipnet.IP.String()
-					}
-				}
-			}
+	if serverIP == "" {
+		var err error
+		serverIP, err = getServerIP()
+		if err != nil {
+			return fmt.Errorf("Unable to get server ip address: %w", err)
 		}
-	}
 
-	if len(serverIp) == 0 {
-		return fmt.Errorf(fmt.Sprintf("Unable to determine server ip address from network-interface %s", networkInterface))
+		common.LogVerboseQuiet(fmt.Sprintf("Using server ip address: %s", serverIP))
 	}
 
 	common.LogInfo1Quiet("Initializing k3s")
@@ -156,7 +138,7 @@ func CommandInitialize(taintScheduling bool) error {
 		}
 	}
 
-	nodeName := serverIp
+	nodeName := serverIP
 	n := 5
 	b := make([]byte, n)
 	if _, err := rand.Read(b); err != nil {
@@ -280,7 +262,7 @@ func CommandInitialize(taintScheduling bool) error {
 }
 
 // CommandClusterAdd adds a server to the k3s cluster
-func CommandClusterAdd(role string, remoteHost string, allowUknownHosts bool, taintScheduling bool) error {
+func CommandClusterAdd(role string, remoteHost string, serverIP string, allowUknownHosts bool, taintScheduling bool) error {
 	if err := isK3sInstalled(); err != nil {
 		return fmt.Errorf("k3s not installed, cannot join cluster")
 	}
@@ -298,31 +280,14 @@ func CommandClusterAdd(role string, remoteHost string, allowUknownHosts bool, ta
 		return fmt.Errorf("Taint scheduling can only be used on the server role")
 	}
 
-	networkInterface := getGlobalNetworkInterface()
-	ifaces, err := net.Interfaces()
-	if err != nil {
-		return fmt.Errorf("Unable to get network interfaces: %w", err)
-	}
-
-	serverIp := ""
-	for _, iface := range ifaces {
-		if iface.Name == networkInterface {
-			addr, err := iface.Addrs()
-			if err != nil {
-				return fmt.Errorf("Unable to get network addresses for interface %s: %w", networkInterface, err)
-			}
-			for _, a := range addr {
-				if ipnet, ok := a.(*net.IPNet); ok {
-					if ipnet.IP.To4() != nil {
-						serverIp = ipnet.IP.String()
-					}
-				}
-			}
+	if serverIP == "" {
+		var err error
+		serverIP, err = getServerIP()
+		if err != nil {
+			return fmt.Errorf("Unable to get server ip address: %w", err)
 		}
-	}
 
-	if len(serverIp) == 0 {
-		return fmt.Errorf(fmt.Sprintf("Unable to determine server ip address from network-interface %s", networkInterface))
+		common.LogVerboseQuiet(fmt.Sprintf("Using server ip address: %s", serverIP))
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -464,7 +429,7 @@ func CommandClusterAdd(role string, remoteHost string, allowUknownHosts bool, ta
 		"--node-name", nodeName,
 		// server to connect to as the main
 		"--server",
-		fmt.Sprintf("https://%s:6443", serverIp),
+		fmt.Sprintf("https://%s:6443", serverIP),
 		// specify a token
 		"--token",
 		token,

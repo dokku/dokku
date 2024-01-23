@@ -21,16 +21,18 @@ func main() {
 	case "initialize":
 		args := flag.NewFlagSet("scheduler-k3s:initialize", flag.ExitOnError)
 		taintScheduling := args.Bool("taint-scheduling", false, "taint-scheduling: add a taint against scheduling app workloads")
+		serverIP := args.String("server-ip", "", "server-ip: IP address of the dokku server node")
 		args.Parse(os.Args[2:])
-		err = scheduler_k3s.CommandInitialize(*taintScheduling)
+		err = scheduler_k3s.CommandInitialize(*serverIP, *taintScheduling)
 	case "cluster-add":
 		args := flag.NewFlagSet("scheduler-k3s:cluster-add", flag.ExitOnError)
 		allowUknownHosts := args.Bool("insecure-allow-unknown-hosts", false, "insecure-allow-unknown-hosts: allow unknown hosts")
 		taintScheduling := args.Bool("taint-scheduling", false, "taint-scheduling: add a taint against scheduling app workloads")
+		serverIP := args.String("server-ip", "", "server-ip: IP address of the dokku server node")
 		role := args.String("role", "worker", "role: [ server | worker ]")
 		args.Parse(os.Args[2:])
 		remoteHost := args.Arg(0)
-		err = scheduler_k3s.CommandClusterAdd(*role, remoteHost, *allowUknownHosts, *taintScheduling)
+		err = scheduler_k3s.CommandClusterAdd(*role, remoteHost, *serverIP, *allowUknownHosts, *taintScheduling)
 	case "cluster-list":
 		args := flag.NewFlagSet("scheduler-k3s:cluster-list", flag.ExitOnError)
 		format := args.String("format", "stdout", "format: [ stdout | json ]")
