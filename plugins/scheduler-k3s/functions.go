@@ -295,14 +295,14 @@ func getLetsencryptServer(appName string) string {
 	return common.PropertyGetDefault("scheduler-k3s", appName, "letsencrypt-server", "")
 }
 
-func getGlobalLetsencryptServer(appName string) string {
-	return common.PropertyGetDefault("scheduler-k3s", appName, "letsencrypt-server", "prod")
+func getGlobalLetsencryptServer() string {
+	return common.PropertyGetDefault("scheduler-k3s", "--global", "letsencrypt-server", "prod")
 }
 
 func getComputedLetsencryptServer(appName string) string {
 	letsencryptServer := getLetsencryptServer(appName)
 	if letsencryptServer == "" {
-		letsencryptServer = getGlobalLetsencryptServer(appName)
+		letsencryptServer = getGlobalLetsencryptServer()
 	}
 
 	return letsencryptServer
