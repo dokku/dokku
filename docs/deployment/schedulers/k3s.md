@@ -22,6 +22,234 @@ As it is the default, unsetting the `selected` scheduler property is also a vali
 dokku scheduler:set node-js-app k3s
 ```
 
+## Usage
+
+### Initializing a cluster
+
+> [!WARNING]
+> This command must be run as root
+
+Clusters can be initialized via the `scheduler-k3s:initialize` command. This will start a k3s cluster on the Dokku node itself.
+
+```shell
+dokku scheduler-k3s:initialize
+```
+
+By default, the k3s installation can run both app and system workloads. For clusters where app workloads are run on distinct worker nodes, initialize the cluster with the `--taint-scheduling` flag, which will allow _only_ Critical cluster components on the k3s control-plane nodes.
+
+```shell
+dokku scheduler-k3s:initialize --taint-scheduling
+```
+
+### Adding nodes to the cluster
+
+> [!WARNING]
+> The `dokku` user _must_ be able to ssh onto the server in order to connect nodes to the cluster. The remote user must be root or have sudo enabled, or the install will fail.
+
+#### Adding a worker node
+
+Nodes that run app workloads can be added via the `scheduler-k3s:cluster-add` command. This will ssh onto the specified server, install k3s, and join it to the current Dokku node in worker mode. Workers are typically used to run app workloads.
+
+```shell
+dokku scheduler-k3s:cluster-add  ssh://root@worker-1.example.com
+```
+
+If the server isn't in the `known_hosts` file, the connection will fail. This can be bypassed by setting the `--insecure-allow-unknown-hosts` flag:
+
+```shell
+dokku scheduler-k3s:cluster-add --insecure-allow-unknown-hosts ssh://root@worker-1.example.com
+```
+
+#### Adding a server node
+
+> [!NOTE]
+> Only the initial Dokku server will be properly configured for push deployment, and should be considered your git remote. Additional server nodes are for ensuring high-availability of the K3s etcd state. Ensure this server is properly backed up and restorable or deployments will not work.
+
+Server nodes are typically used to replicate the cluster state, and it is recommended to have an odd number of nodes spread across several availability zones (datacenters in close proximity within a region). This allows for higher availability in the event of a cluster failure. Server nodes run control-plane services such as the traefik load balancer and the etcd backing store.
+
+Server nodes can also be added with the `scheduler-k3s:cluster-add` command by specifying `--role server`. This will ssh onto the specified server, install k3s, and join it to the current Dokku node in server mode.
+
+```shell
+dokku scheduler-k3s:cluster-add  --role server ssh://root@server-1.example.com
+```
+
+Server nodes allow any workloads to be scheduled on them by default, in addition to the control-plane, etcd, and the scheduler itself. To avoid app workloads being scheduled on your control-plane, use the `--taint-scheduling` flag:
+
+```shell
+dokku scheduler-k3s:cluster-add --role server --taint-scheduling ssh://root@cluster-1.example.com
+```
+
+If the server isn't in the `known_hosts` file, the connection will fail. This can be bypassed by setting the `--insecure-allow-unknown-hosts` flag:
+
+```shell
+dokku scheduler-k3s:cluster-add --role server --insecure-allow-unknown-hosts ssh://root@worker-1.example.com
+```
+
+#### Changing the network interface
+
+When attaching an worker or server node, the K3s plugin will look at the IP associated with the `eth0` interface and use that to connect the new node to the cluster. To change this, set the `network-interface` property to the appropriate value.
+
+```shell
+dokku scheduler-k3s:set --global network-interface eth1
+```
+
+### Changing deploy timeouts
+
+By default, app deploys will timeout after 300s. To customize this value, set the `deploy-timeout` property via `scheduler-k3s:set`:
+
+```shell
+dokku scheduler-k3s:set node-js-app deploy-timeout 60s
+```
+
+The default value may be set by passing an empty value for the option:
+
+```shell
+dokku scheduler-k3s:set node-js-app deploy-timeout
+```
+
+The `deploy-timeout` property can also be set globally. The global default is `300s`.
+
+```shell
+dokku scheduler-k3s:set --global deploy-timeout 60s
+```
+
+The default value may be set by passing an empty value for the option.
+
+```shell
+dokku scheduler-k3s:set --global deploy-timeout
+```
+
+### Customizing the namespace
+
+By default, app deploys will run against the `default` Kubernetes namespace. To customize this value, set the `namespace` property via `scheduler-k3s:set`:
+
+```shell
+dokku scheduler-k3s:set node-js-app namespace lollipop
+```
+
+The default value may be set by passing an empty value for the option:
+
+```shell
+dokku scheduler-k3s:set node-js-app namespace
+```
+
+The `namespace` property can also be set globally. The global default is `default`.
+
+```shell
+dokku scheduler-k3s:set --global namespace 60s
+```
+
+The default value may be set by passing an empty value for the option.
+
+```shell
+dokku scheduler-k3s:set --global namespace
+```
+
+### Enabling rollback on failure
+
+By default, app deploys do not rollback on failure. To enable this functionality, set the `rollback-on-failure` property via `scheduler-k3s:set`:
+
+```shell
+dokku scheduler-k3s:set node-js-app rollback-on-failure true
+```
+
+The default value may be set by passing an empty value for the option:
+
+```shell
+dokku scheduler-k3s:set node-js-app rollback-on-failure
+```
+
+The `rollback-on-failure` property can also be set globally. The global default is `false`.
+
+```shell
+dokku scheduler-k3s:set --global rollback-on-failure false
+```
+
+The default value may be set by passing an empty value for the option.
+
+```shell
+dokku scheduler-k3s:set --global rollback-on-failure
+```
+
+### Using image pull secrets
+
+When authenticating against a registry via `registry:login`, the scheduler-k3s plugin will authenticate all servers in the cluster against the registry specified. If desired, an image pull secret can be used instead. To customize this value, set the `image-pull-secrets` property via `scheduler-k3s:set`:
+
+```shell
+dokku scheduler-k3s:set node-js-app image-pull-secrets lollipop
+```
+
+The default value may be set by passing an empty value for the option:
+
+```shell
+dokku scheduler-k3s:set node-js-app image-pull-secrets
+```
+
+The `image-pull-secrets` property can also be set globally. The global default is empty string, and k3s will use the local `registries.yaml` for any private registry pulls.
+
+```shell
+dokku scheduler-k3s:set --global image-pull-secrets 60s
+```
+
+The default value may be set by passing an empty value for the option.
+
+```shell
+dokku scheduler-k3s:set --global image-pull-secrets
+```
+
+#### Enabling letsencrypt integration
+
+By default, letsencrypt is disabled and https port mappings are ignored. To enable, set the `letsencrypt-email-prod` or `letsencrypt-email-stag` property with the `--global` flag:
+
+```shell
+# set the value for prod
+dokku scheduler-k3s:set --global letsencrypt-email-prod automated@dokku.sh
+
+# set the value for stag
+dokku scheduler-k3s:set --global letsencrypt-email-stag automated@dokku.sh
+```
+
+After enabling, all apps with an `https` port mapping that utilize the related letsencrypt server will be automatically updated to enable ssl. All http requests will then be redirected to https.
+
+#### Customizing the letsencrypt server
+
+The letsencrypt integration is set to the production letsencrypt server by default. This can be changed on an app-level by setting the `letsencrypt-server` property with the `scheduler-k3s:set` command
+
+```shell
+dokku scheduler-k3s:set node-js-app letsencrypt-server staging
+```
+
+The default value may be set by passing an empty value for the option:
+
+```shell
+dokku scheduler-k3s:set node-js-app letsencrypt-server
+```
+
+The `image-pull-secrets` property can also be set globally. The global default is `production`.
+
+```shell
+dokku scheduler-k3s:set --global letsencrypt-server staging
+```
+
+The default value may be set by passing an empty value for the option.
+
+```shell
+dokku scheduler-k3s:set --global letsencrypt-server staging
+```
+
+After changing, all apps with an 
+
+### Using kubectl remotely
+
+> [!WARNING]
+> Certain ports must be open for interacting with the remote kubernets api. Refer to the [K3s networking documentation](https://docs.k3s.io/installation/requirements?os=debian#networking) for the required open ports between servers prior to running the command.
+
+By default, Dokku assumes that all it controls all actions on the cluster, and thus does not expose the `kubectl` binary for administrators. To interact with kubectl, you will need to retrieve the `kubeconfig` for the cluster and configure your client to use that configuration.
+
+```shell
+dokku scheduler-k3s:show-kubeconfig
+```
+
 ## Tutorial
 
 ### Single-node cluster
@@ -105,9 +333,9 @@ At this point, all app deploys will be performed against the k3s cluster.
 > [!WARNING]
 > Certain ports must be open for cross-server communication. Refer to the [K3s networking documentation](https://docs.k3s.io/installation/requirements?os=debian#networking) for the required open ports between servers prior to running the command.
 
-For high-availability, it is recommended to add both agent and server nodes to the cluster. Dokku will default to starting the cluster with an embedded Etcd database backend, and is ready to add new agent or server nodes immediately.
+For high-availability, it is recommended to add both worker and server nodes to the cluster. Dokku will default to starting the cluster with an embedded Etcd database backend, and is ready to add new worker or server nodes immediately.
 
-When attaching an agent or server node, the K3s plugin will look at the IP associated with the `eth0` interface and use that to connect the new node to the cluster. To change this, set the `network-interface` property to the appropriate value.
+When attaching an worker or server node, the K3s plugin will look at the IP associated with the `eth0` interface and use that to connect the new node to the cluster. To change this, set the `network-interface` property to the appropriate value.
 
 ```shell
 dokku scheduler-k3s:set --global network-interface eth1
@@ -148,21 +376,10 @@ Server nodes are typically used to replicate the cluster state, and it is recomm
 > [!NOTE]
 > Only the initial Dokku server will be properly configured for push deployment, and should be considered your git remote. Additional server nodes are for ensuring high-availability of the K3s etcd state. Ensure this server is properly backed up and restorable or deployments will not work.
 
-Agent nodes are used to run. To add an agent, run the `scheduler-k3s:cluster-add` with the `--role worker` flag. This will ssh onto the specified server, install k3s, and join it to the current Dokku node in agent mode. Agents are typically used to run app workloads.
+Worker nodes are used to run. To add an worker, run the `scheduler-k3s:cluster-add` with the `--role worker` flag. This will ssh onto the specified server, install k3s, and join it to the current Dokku node in worker mode. Workers are typically used to run app workloads.
 
 ```shell
 dokku scheduler-k3s:cluster-add --role worker ssh://root@worker-1.example.com
-```
-
-### Using kubectl remotely
-
-> [!WARNING]
-> Certain ports must be open for interacting with the remote kubernets api. Refer to the [K3s networking documentation](https://docs.k3s.io/installation/requirements?os=debian#networking) for the required open ports between servers prior to running the command.
-
-By default, Dokku assumes that all it controls all actions on the cluster, and thus does not expose the `kubectl` binary for administrators. To interact with kubectl, you will need to retrieve the `kubeconfig` for the cluster and configure your client to use that configuration.
-
-```shell
-dokku scheduler-k3s:show-kubeconfig
 ```
 
 ## Scheduler Interface
