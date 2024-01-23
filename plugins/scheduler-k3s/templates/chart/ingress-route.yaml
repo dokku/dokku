@@ -29,7 +29,7 @@ spec:
         namespace: {{ $.Values.global.namespace }}
         passHostHeader: true
         port: {{ $port_map.name }}
-        scheme: {{ $port_map.scheme }}
+        scheme: http
     {{- end }}
   {{- if and $config.web.tls (eq $port_map.scheme "https") }}
   tls:
