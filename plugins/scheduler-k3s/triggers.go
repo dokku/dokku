@@ -378,7 +378,10 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 			processValues.Web = ProcessWeb{
 				Domains:  domains,
 				PortMaps: []ProcessPortMap{},
-				TLS:      tls,
+				TLS: ProcessTls{
+					Enabled:    tls,
+					IssuerName: issuerName,
+				},
 			}
 			processValues.ProcessType = ProcessType_Web
 			for _, portMap := range portMaps {

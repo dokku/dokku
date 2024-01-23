@@ -1,6 +1,6 @@
 {{- $processName := "PROCESS_NAME" }}
 {{- $config := .Values.processes.PROCESS_NAME }}
-{{- if and $config.web.tls $config.domains }}
+{{- if and $config.web.tls.enabled $config.web.domains }}
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -16,7 +16,7 @@ metadata:
 spec:
   issuerRef:
     kind: ClusterIssuer
-    name: {{ $config.tls.issuer_name }}
+    name: {{ $config.web.tls.issuer_name }}
   secretName: tls-{{ $.Values.global.app_name }}-{{ $processName }}
   secretTemplate:
     annotations:
@@ -24,9 +24,8 @@ spec:
     labels:
       app.kubernetes.io/name: {{ $.Values.global.app_name }}-{{ $processName }}
       app.kubernetes.io/part-of: {{ $.Values.global.app_name }}
-status: {}
   dnsNames:
-    {{- range $config.domains }}
+    {{- range $config.web.domains }}
     - {{ . }}
     {{- end }}
 {{- end }}

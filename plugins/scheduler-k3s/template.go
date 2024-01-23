@@ -108,7 +108,7 @@ const (
 type ProcessWeb struct {
 	Domains  []string         `yaml:"domains,omitempty"`
 	PortMaps []ProcessPortMap `yaml:"port_maps,omitempty"`
-	TLS      bool             `yaml:"tls"`
+	TLS      ProcessTls       `yaml:"tls"`
 }
 
 type ProcessResourcesMap struct {
