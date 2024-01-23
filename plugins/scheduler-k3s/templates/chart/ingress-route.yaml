@@ -17,7 +17,7 @@ metadata:
 spec:
   entryPoints:
   - web
-  {{- if and $config.web.tls (eq $port_map "https") }}
+  {{- if and $config.web.tls (eq $port_map.scheme "https") }}
   - websecure
   {{- end }}
   routes:
