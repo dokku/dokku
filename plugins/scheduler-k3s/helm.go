@@ -207,11 +207,9 @@ func (h *HelmAgent) InstallOrUpgradeChart(ctx context.Context, input ChartInput)
 	}
 
 	if chartExists {
-		common.LogExclaim(fmt.Sprintf("Upgrading %s", input.ReleaseName))
 		return h.UpgradeChart(ctx, input)
 	}
 
-	common.LogExclaim(fmt.Sprintf("Installing %s", input.ReleaseName))
 	return h.InstallChart(ctx, input)
 }
 

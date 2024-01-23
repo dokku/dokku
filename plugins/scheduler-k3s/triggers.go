@@ -515,6 +515,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 		return fmt.Errorf("Error parsing deploy timeout duration: %w", err)
 	}
 
+	common.LogExclaim(fmt.Sprintf("Installing %s", appName))
 	err = helmAgent.InstallOrUpgradeChart(ctx, ChartInput{
 		ChartPath:         chartPath,
 		Namespace:         namespace,
