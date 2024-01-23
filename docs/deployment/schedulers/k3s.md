@@ -234,7 +234,7 @@ dokku scheduler-k3s:set --global letsencrypt-email-prod automated@dokku.sh
 dokku scheduler-k3s:set --global letsencrypt-email-stag automated@dokku.sh
 ```
 
-After enabling, all apps with an `https` port mapping that utilize the related letsencrypt server will be automatically updated to enable ssl. All http requests will then be redirected to https.
+After enabling and rebuilding, all apps with an `https` port mapping that utilize the related letsencrypt server will be automatically updated to enable ssl. All http requests will then be redirected to https.
 
 #### Customizing the letsencrypt server
 
@@ -261,8 +261,6 @@ The default value may be set by passing an empty value for the option.
 ```shell
 dokku scheduler-k3s:set --global letsencrypt-server staging
 ```
-
-After changing, all apps with an 
 
 ### Using kubectl remotely
 
