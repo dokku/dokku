@@ -21,6 +21,7 @@ metadata:
 spec:
   concurrencyPolicy: Allow
   failedJobsHistoryLimit: 10
+  ttlSecondsAfterFinished: 60
   jobTemplate:
     metadata:
       annotations:
@@ -95,7 +96,6 @@ spec:
           imagePullSecrets: {{ $.Values.global.image.image_pull_secrets }}
           {{- end }}
           restartPolicy: Never
-          ttlSecondsAfterFinished: 60
   schedule: {{ $config.cron.schedule }}
   startingDeadlineSeconds: 60
   successfulJobsHistoryLimit: 10
