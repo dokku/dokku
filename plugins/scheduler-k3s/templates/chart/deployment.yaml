@@ -9,7 +9,6 @@ metadata:
     dokku.com/builder-type: {{ $.Values.global.image.type }}
     dokku.com/managed: "true"
     kubectl.kubernetes.io/default-container: {{ $.Values.global.app_name }}-{{ $processName }}
-  creationTimestamp: null
   labels:
     app.kubernetes.io/instance: {{ $.Values.global.app_name }}-{{ $processName }}
     app.kubernetes.io/name: {{ $processName }}
@@ -32,7 +31,6 @@ spec:
         dokku.com/builder-type: {{ $.Values.global.image.type }}
         dokku.com/managed: "true"
         kubectl.kubernetes.io/default-container: {{ $.Values.global.app_name }}-{{ $processName }}
-      creationTimestamp: null
       labels:
         app.kubernetes.io/instance: {{ $.Values.global.app_name }}-{{ $processName }}
         app.kubernetes.io/name: {{ $processName }}

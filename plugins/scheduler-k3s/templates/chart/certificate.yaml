@@ -7,7 +7,6 @@ kind: Certificate
 metadata:
   annotations:
     dokku.com/managed: "true"
-  creationTimestamp: null
   labels:
     app.kubernetes.io/name: {{ $.Values.global.app_name }}-{{ $processName }}
     app.kubernetes.io/part-of: {{ $.Values.global.app_name }}
