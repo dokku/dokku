@@ -519,7 +519,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 	err = helmAgent.InstallOrUpgradeChart(ctx, ChartInput{
 		ChartPath:         chartPath,
 		Namespace:         namespace,
-		ReleaseName:       fmt.Sprintf("dokku-%s", appName),
+		ReleaseName:       appName,
 		RollbackOnFailure: allowRollbacks,
 		Timeout:           timeoutDuration,
 	})
