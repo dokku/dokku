@@ -132,7 +132,7 @@ func CommandInitialize(serverIP string, taintScheduling bool) error {
 			return fmt.Errorf("Unable to generate random node name: %w", err)
 		}
 
-		token := strings.ToLower(fmt.Sprintf("%X", b))
+		token = strings.ToLower(fmt.Sprintf("%X", b))
 		if err := CommandSet("--global", "token", token); err != nil {
 			return fmt.Errorf("Unable to set k3s token: %w", err)
 		}
