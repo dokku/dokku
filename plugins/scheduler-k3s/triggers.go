@@ -231,7 +231,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 	if err != nil {
 		return fmt.Errorf("Error creating chart directory: %w", err)
 	}
-	// defer os.RemoveAll(chartDir)
+	defer os.RemoveAll(chartDir)
 
 	if err := os.MkdirAll(filepath.Join(chartDir, "templates"), os.FileMode(0755)); err != nil {
 		return fmt.Errorf("Error creating chart templates directory: %w", err)
