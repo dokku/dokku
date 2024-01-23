@@ -339,7 +339,7 @@ func getRollbackOnFailure(appName string) string {
 }
 
 func getGlobalRollbackOnFailure() string {
-	return common.PropertyGetDefault("scheduler-k3s", "--global", "rollback-on-failure", "")
+	return common.PropertyGetDefault("scheduler-k3s", "--global", "rollback-on-failure", "false")
 }
 
 func getComputedRollbackOnFailure(appName string) string {
