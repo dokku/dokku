@@ -1,0 +1,30 @@
+{{- $processName := "PROCESS_NAME" }}
+{{- $config := .Values.processes.PROCESS_NAME }}
+{{- if and $config.web.tls.enabled $config.web.domains }}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  annotations:
+    dokku.com/managed: "true"
+  labels:
+    app.kubernetes.io/name: {{ $.Values.global.app_name }}-{{ $processName }}
+    app.kubernetes.io/part-of: {{ $.Values.global.app_name }}
+  name: {{ $.Values.global.app_name }}-{{ $processName }}
+  namespace: {{ $.Values.global.namespace }}
+spec:
+  issuerRef:
+    kind: ClusterIssuer
+    name: {{ $config.web.tls.issuer_name }}
+  secretName: tls-{{ $.Values.global.app_name }}-{{ $processName }}
+  secretTemplate:
+    annotations:
+      dokku.com/managed: "true"
+    labels:
+      app.kubernetes.io/name: {{ $.Values.global.app_name }}-{{ $processName }}
+      app.kubernetes.io/part-of: {{ $.Values.global.app_name }}
+  dnsNames:
+    {{- range $config.web.domains }}
+    - {{ . }}
+    {{- end }}
+{{- end }}

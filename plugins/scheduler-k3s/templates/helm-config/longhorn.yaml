@@ -1,0 +1,41 @@
+defaultSettings:
+  taintToleration: "CriticalAddonsOnly=true:NoSchedule"
+
+longhornManager:
+  tolerations:
+  - key: CriticalAddonsOnly
+    operator: Equal
+    value: "true"
+    effect: "NoSchedule"
+
+longhornDriver:
+  tolerations:
+  - key: CriticalAddonsOnly
+    operator: Equal
+    value: "true"
+    effect: "NoSchedule"
+
+longhornUI:
+  tolerations:
+  - key: CriticalAddonsOnly
+    operator: Equal
+    value: "true"
+    effect: "NoSchedule"
+
+longhornConversionWebhook:
+  - key: CriticalAddonsOnly
+    operator: Equal
+    value: "true"
+    effect: "NoSchedule"
+
+longhornAdmissionWebhook:
+  - key: CriticalAddonsOnly
+    operator: Equal
+    value: "true"
+    effect: "NoSchedule"
+
+longhornRecoveryBackend:
+  - key: CriticalAddonsOnly
+    operator: Equal
+    value: "true"
+    effect: "NoSchedule"

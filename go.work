@@ -20,4 +20,5 @@ use (
 	./plugins/resource
 	./plugins/scheduler
 	./plugins/scheduler-docker-local
+	./plugins/scheduler-k3s
 )

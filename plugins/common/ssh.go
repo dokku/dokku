@@ -244,6 +244,10 @@ func (task SshTask) Execute(ctx context.Context) (SshResult, error) {
 		task.Port = 22
 	}
 
+	if err := TouchFile(filepath.Join(os.Getenv("DOKKU_ROOT"), ".ssh", "known_hosts")); err != nil {
+		return SshResult{}, fmt.Errorf("failed to touch known_hosts file: %w", err)
+	}
+
 	auth, err := goph.Key(task.SshKeyPath, "")
 	if err != nil {
 		return SshResult{}, fmt.Errorf("failed to load ssh key: %w", err)
