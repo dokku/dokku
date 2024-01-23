@@ -28,6 +28,7 @@ var (
 	GlobalProperties = map[string]bool{
 		"deploy-timeout":         true,
 		"image-pull-secrets":     true,
+		"letsencrypt-server":     true,
 		"letsencrypt-email-prod": true,
 		"letsencrypt-email-stag": true,
 		"namespace":              true,
