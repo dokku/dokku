@@ -254,6 +254,10 @@ func (task SshTask) Execute(ctx context.Context) (SshResult, error) {
 		return SshResult{}, fmt.Errorf("failed to load known hosts: %w", err)
 	}
 
+	if err := TouchFile(filepath.Join(os.Getenv("DOKKU_ROOT"), ".ssh", "known_hosts")); err != nil {
+		return SshResult{}, fmt.Errorf("failed to touch known_hosts file: %w", err)
+	}
+
 	if task.AllowUknownHosts {
 		callback = ssh.InsecureIgnoreHostKey()
 	}
