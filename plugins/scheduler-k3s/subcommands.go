@@ -151,6 +151,8 @@ func CommandInitialize(serverIP string, taintScheduling bool) error {
 		"--cluster-init",
 		// disable local-storage
 		"--disable", "local-storage",
+		// disable traefik so it can be installed separately
+		"--disable", "traefik",
 		// expose etcd metrics
 		"--etcd-expose-metrics",
 		// use wireguard for flannel
@@ -237,17 +239,6 @@ func CommandInitialize(serverIP string, taintScheduling bool) error {
 		if err != nil {
 			return fmt.Errorf("Unable to patch node: %w", err)
 		}
-	}
-
-	common.LogInfo2Quiet("Updating traefik config")
-	contents, err := templates.ReadFile("templates/helm-config/traefik-config.yaml")
-	if err != nil {
-		return fmt.Errorf("Unable to read traefik config template: %w", err)
-	}
-
-	err = os.WriteFile("/var/lib/rancher/k3s/server/manifests/traefik-custom.yaml", contents, 0600)
-	if err != nil {
-		return fmt.Errorf("Unable to write traefik config: %w", err)
 	}
 
 	common.LogInfo2Quiet("Installing helm charts")

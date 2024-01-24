@@ -1,0 +1,26 @@
+logs:
+  access:
+    enabled: true
+    format: json
+podAnnotations:
+  prometheus.io/port: "8082"
+  prometheus.io/scrape: "true"
+providers:
+  kubernetesCRD:
+    enabled: true
+    allowCrossNamespace: true
+  kubernetesIngress:
+    publishedService:
+      enabled: true
+priorityClassName: "system-cluster-critical"
+tolerations:
+- key: "CriticalAddonsOnly"
+  operator: "Exists"
+- key: "node-role.kubernetes.io/control-plane"
+  operator: "Exists"
+  effect: "NoSchedule"
+- key: "node-role.kubernetes.io/master"
+  operator: "Exists"
+  effect: "NoSchedule"
+service:
+  ipFamilyPolicy: "PreferDualStack"
