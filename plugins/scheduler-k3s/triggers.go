@@ -222,7 +222,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 		return fmt.Errorf("Error loading environment for deployment: %w", err)
 	}
 
-	err = applyClusterIssuers(ctx, appName)
+	err = applyClusterIssuers(ctx)
 	if err != nil {
 		return fmt.Errorf("Error applying cluster issuers: %w", err)
 	}

@@ -82,9 +82,17 @@ spec:
             {{- end }}
           {{- end }}
         {{- end }}
-        {{- if $config.healthchecks.startup }}
+        {{- if and $config.healthchecks $config.healthchecks.startup }}
         startupProbe:
           {{ $config.healthchecks.startup | toJson | indent 10 }}
+        {{- end }}
+        {{- if and $config.healthchecks $config.healthchecks.liveness }}
+        livenessProbe:
+          {{ $config.healthchecks.liveness | toJson | indent 10 }}
+        {{- end }}
+        {{- if and $config.healthchecks $config.healthchecks.readiness }}
+        readinessProbe:
+          {{ $config.healthchecks.readiness | toJson | indent 10 }}
         {{- end }}
         {{- if $.Values.global.image.working_dir }}
         workingDir: {{ $.Values.global.image.working_dir }}
