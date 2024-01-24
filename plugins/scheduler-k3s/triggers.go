@@ -222,9 +222,27 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 		return fmt.Errorf("Error loading environment for deployment: %w", err)
 	}
 
-	issuerName, tlsEnabled, err := applyClusterIssuers(ctx, appName)
+	err = applyClusterIssuers(ctx, appName)
 	if err != nil {
 		return fmt.Errorf("Error applying cluster issuers: %w", err)
+	}
+
+	issuerName := "letsencrypt-stag"
+	server := getComputedLetsencryptServer(appName)
+	if server == "prod" || server == "production" {
+		issuerName = "letsencrypt-prod"
+	} else if server != "stag" && server != "staging" {
+		return fmt.Errorf("Invalid letsencrypt server config: %s", server)
+	}
+
+	tlsEnabled := false
+	letsencryptEmailStag := getGlobalLetsencryptEmailStag()
+	letsencryptEmailProd := getGlobalLetsencryptEmailProd()
+	if issuerName == "letsencrypt-stag" {
+		tlsEnabled = letsencryptEmailStag != ""
+	}
+	if issuerName == "letsencrypt-prod" {
+		tlsEnabled = letsencryptEmailProd != ""
 	}
 
 	chartDir, err := os.MkdirTemp("", "dokku-chart-")
