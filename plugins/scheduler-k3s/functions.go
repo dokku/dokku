@@ -115,7 +115,7 @@ type WaitForPodToExistInput struct {
 	LabelSelector string
 }
 
-func applyClusterIssuers(ctx context.Context, appName string) error {
+func applyClusterIssuers(ctx context.Context) error {
 	chartDir, err := os.MkdirTemp("", "cluster-issuer-chart-")
 	if err != nil {
 		return fmt.Errorf("Error creating cluster-issuer chart directory: %w", err)
@@ -126,7 +126,7 @@ func applyClusterIssuers(ctx context.Context, appName string) error {
 	chart := &Chart{
 		ApiVersion: "v2",
 		AppVersion: "1.0.0",
-		Name:       appName,
+		Name:       "cluster-issuers",
 		Version:    "0.0.1",
 	}
 
