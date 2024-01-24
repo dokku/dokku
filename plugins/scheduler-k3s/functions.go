@@ -115,10 +115,10 @@ type WaitForPodToExistInput struct {
 	LabelSelector string
 }
 
-func applyClusterIssuers(ctx context.Context, appName string) (string, bool, error) {
+func applyClusterIssuers(ctx context.Context, appName string) error {
 	chartDir, err := os.MkdirTemp("", "cluster-issuer-chart-")
 	if err != nil {
-		return "", false, fmt.Errorf("Error creating cluster-issuer chart directory: %w", err)
+		return fmt.Errorf("Error creating cluster-issuer chart directory: %w", err)
 	}
 	defer os.RemoveAll(chartDir)
 
@@ -135,27 +135,12 @@ func applyClusterIssuers(ctx context.Context, appName string) (string, bool, err
 		Path:   filepath.Join(chartDir, "Chart.yaml"),
 	})
 	if err != nil {
-		return "", false, fmt.Errorf("Error writing cluster-issuer chart: %w", err)
+		return fmt.Errorf("Error writing cluster-issuer chart: %w", err)
 	}
 
 	// create the values.yaml
-	issuerName := "letsencrypt-stag"
-	server := getComputedLetsencryptServer(appName)
-	if server == "prod" || server == "production" {
-		issuerName = "letsencrypt-prod"
-	} else if server != "stag" && server != "staging" {
-		return "", false, fmt.Errorf("Invalid letsencrypt server config: %s", server)
-	}
-
-	tls := false
 	letsencryptEmailStag := getGlobalLetsencryptEmailStag()
 	letsencryptEmailProd := getGlobalLetsencryptEmailProd()
-	if issuerName == "letsencrypt-stag" {
-		tls = letsencryptEmailStag != ""
-	}
-	if issuerName == "letsencrypt-prod" {
-		tls = letsencryptEmailProd != ""
-	}
 
 	clusterIssuerValues := ClusterIssuerValues{
 		ClusterIssuers: map[string]ClusterIssuer{
@@ -175,7 +160,7 @@ func applyClusterIssuers(ctx context.Context, appName string) (string, bool, err
 	}
 
 	if err := os.MkdirAll(filepath.Join(chartDir, "templates"), os.FileMode(0755)); err != nil {
-		return "", false, fmt.Errorf("Error creating cluster-issuer chart templates directory: %w", err)
+		return fmt.Errorf("Error creating cluster-issuer chart templates directory: %w", err)
 	}
 
 	err = writeYaml(WriteYamlInput{
@@ -183,19 +168,19 @@ func applyClusterIssuers(ctx context.Context, appName string) (string, bool, err
 		Path:   filepath.Join(chartDir, "values.yaml"),
 	})
 	if err != nil {
-		return "", false, fmt.Errorf("Error writing chart: %w", err)
+		return fmt.Errorf("Error writing chart: %w", err)
 	}
 
 	// create the templates/cluster-issuer.yaml
 	b, err := templates.ReadFile("templates/chart/cluster-issuer.yaml")
 	if err != nil {
-		return "", false, fmt.Errorf("Error reading cluster-issuer template: %w", err)
+		return fmt.Errorf("Error reading cluster-issuer template: %w", err)
 	}
 
 	filename := filepath.Join(chartDir, "templates", "cluster-issuer.yaml")
 	err = os.WriteFile(filename, b, os.FileMode(0644))
 	if err != nil {
-		return "", false, fmt.Errorf("Error writing cluster-issuer template: %w", err)
+		return fmt.Errorf("Error writing cluster-issuer template: %w", err)
 	}
 
 	if os.Getenv("DOKKU_TRACE") == "1" {
@@ -205,17 +190,17 @@ func applyClusterIssuers(ctx context.Context, appName string) (string, bool, err
 	// install the chart
 	helmAgent, err := NewHelmAgent("cert-manager", DevNullPrinter)
 	if err != nil {
-		return issuerName, tls, fmt.Errorf("Error creating helm agent: %w", err)
+		return fmt.Errorf("Error creating helm agent: %w", err)
 	}
 
 	chartPath, err := filepath.Abs(chartDir)
 	if err != nil {
-		return issuerName, tls, fmt.Errorf("Error getting chart path: %w", err)
+		return fmt.Errorf("Error getting chart path: %w", err)
 	}
 
 	timeoutDuration, err := time.ParseDuration("300s")
 	if err != nil {
-		return issuerName, tls, fmt.Errorf("Error parsing deploy timeout duration: %w", err)
+		return fmt.Errorf("Error parsing deploy timeout duration: %w", err)
 	}
 
 	err = helmAgent.InstallOrUpgradeChart(ctx, ChartInput{
@@ -226,10 +211,10 @@ func applyClusterIssuers(ctx context.Context, appName string) (string, bool, err
 		Timeout:           timeoutDuration,
 	})
 	if err != nil {
-		return issuerName, tls, fmt.Errorf("Error installing cluster-issuer chart: %w", err)
+		return fmt.Errorf("Error installing cluster-issuer chart: %w", err)
 	}
 
-	return issuerName, tls, nil
+	return nil
 }
 
 func createKubernetesNamespace(ctx context.Context, namespaceName string) error {
