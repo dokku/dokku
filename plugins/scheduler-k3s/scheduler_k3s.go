@@ -92,6 +92,14 @@ var HelmCharts = []HelmChart{
 		RepoURL:         "https://charts.longhorn.io",
 		Version:         "1.5.3",
 	},
+	{
+		ChartPath:       "traefik",
+		CreateNamespace: true,
+		Namespace:       "traefik",
+		ReleaseName:     "traefik",
+		RepoURL:         "https://helm.traefik.io/traefik",
+		Version:         "26.0.0",
+	},
 }
 
 type HelmRepository struct {
@@ -107,6 +115,10 @@ var HelmRepositories = []HelmRepository{
 	{
 		Name: "longhorn",
 		URL:  "https://charts.longhorn.io",
+	},
+	{
+		Name: "traefik",
+		URL:  "https://helm.traefik.io/traefik",
 	},
 }
 
