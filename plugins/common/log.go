@@ -196,6 +196,7 @@ func LogVerboseQuietContainerLogsTail(containerID string, lines int, tail bool) 
 
 	if !tail && result.ExitCode != 0 {
 		LogExclaim(fmt.Sprintf("Failed to fetch container logs: %s", containerID))
+		return
 	}
 }
 

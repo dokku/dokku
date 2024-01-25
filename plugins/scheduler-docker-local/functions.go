@@ -65,8 +65,11 @@ func generateCronEntries() ([]cron.TemplateCommand, error) {
 
 	g.Go(func() error {
 		commands := []cron.TemplateCommand{}
-		b, _ := common.PlugnTriggerOutput("cron-entries", "docker-local")
-		for _, line := range strings.Split(strings.TrimSpace(string(b[:])), "\n") {
+		response, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
+			Trigger: "cron-entries",
+			Args:    []string{"docker-local"},
+		})
+		for _, line := range strings.Split(response.StdoutContents(), "\n") {
 			if strings.TrimSpace(line) == "" {
 				results <- []cron.TemplateCommand{}
 				return nil

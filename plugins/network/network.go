@@ -43,12 +43,18 @@ func BuildConfig(appName string) error {
 	}
 
 	appRoot := common.AppRoot(appName)
-	s, err := common.PlugnTriggerOutput("ps-current-scale", []string{appName}...)
+	results, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "ps-current-scale",
+		Args:    []string{appName},
+	})
 	if err != nil {
 		return err
 	}
+	if results.ExitCode != 0 {
+		return fmt.Errorf("Unable to retrieve current scale: %s", results.Stderr)
+	}
 
-	scale, err := common.ParseScaleOutput(s)
+	scale, err := common.ParseScaleOutput([]byte(results.StdoutContents()))
 	if err != nil {
 		return err
 	}
@@ -78,9 +84,15 @@ func BuildConfig(appName string) error {
 			ipAddress := GetContainerIpaddress(appName, processType, containerID)
 			if ipAddress != "" {
 				args := []string{appName, processType, containerIndexString, ipAddress}
-				_, err := common.PlugnTriggerOutput("network-write-ipaddr", args...)
+				_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+					Trigger: "network-write-ipaddr",
+					Args:    args,
+				})
 				if err != nil {
 					common.LogWarn(err.Error())
+				}
+				if results.ExitCode != 0 {
+					common.LogWarn(results.StderrContents())
 				}
 			}
 		}

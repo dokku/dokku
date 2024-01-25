@@ -129,8 +129,11 @@ func reportRestartPolicy(appName string) string {
 }
 
 func reportRestore(appName string) string {
-	b, _ := common.PlugnTriggerOutput("config-get", []string{appName, "DOKKU_APP_RESTORE"}...)
-	restore := strings.TrimSpace(string(b[:]))
+	results, _ := common.CallExecCommand(common.ExecCommandInput{
+		Command: "config-get",
+		Args:    []string{appName, "DOKKU_APP_RESTORE"},
+	})
+	restore := results.StdoutContents()
 	if restore == "0" {
 		restore = "false"
 	} else {

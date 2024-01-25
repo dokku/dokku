@@ -2,7 +2,6 @@ package ps
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
 )
@@ -129,8 +128,11 @@ func Restore(appName string) error {
 		return nil
 	}
 
-	b, _ := common.PlugnTriggerOutput("config-get", []string{appName, "DOKKU_APP_RESTORE"}...)
-	restore := strings.TrimSpace(string(b[:]))
+	results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "config-get",
+		Args:    []string{appName, "DOKKU_APP_RESTORE"},
+	})
+	restore := results.StdoutContents()
 	if restore == "0" {
 		common.LogWarn(fmt.Sprintf("Skipping ps:restore for %s as DOKKU_APP_RESTORE=%s", appName, restore))
 		return nil
