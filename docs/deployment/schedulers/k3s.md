@@ -222,7 +222,7 @@ The default value may be set by passing an empty value for the option.
 dokku scheduler-k3s:set --global image-pull-secrets
 ```
 
-#### Enabling letsencrypt integration
+### Enabling letsencrypt integration
 
 By default, letsencrypt is disabled and https port mappings are ignored. To enable, set the `letsencrypt-email-prod` or `letsencrypt-email-stag` property with the `--global` flag:
 
@@ -236,7 +236,7 @@ dokku scheduler-k3s:set --global letsencrypt-email-stag automated@dokku.sh
 
 After enabling and rebuilding, all apps with an `https` port mapping that utilize the related letsencrypt server will be automatically updated to enable ssl. All http requests will then be redirected to https.
 
-#### Customizing the letsencrypt server
+### Customizing the letsencrypt server
 
 The letsencrypt integration is set to the production letsencrypt server by default. This can be changed on an app-level by setting the `letsencrypt-server` property with the `scheduler-k3s:set` command
 
