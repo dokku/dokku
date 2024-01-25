@@ -11,11 +11,12 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 	}
 
 	flags := map[string]common.ReportFunc{
-		"--logs-computed-max-size":  reportComputedMaxSize,
-		"--logs-global-max-size":    reportGlobalMaxSize,
-		"--logs-global-vector-sink": reportGlobalVectorSink,
-		"--logs-max-size":           reportMaxSize,
-		"--logs-vector-sink":        reportVectorSink,
+		"--logs-computed-max-size":   reportComputedMaxSize,
+		"--logs-global-max-size":     reportGlobalMaxSize,
+		"--logs-global-vector-sink":  reportGlobalVectorSink,
+		"--logs-max-size":            reportMaxSize,
+		"--logs-vector-global-image": reportVectorGlobalImage,
+		"--logs-vector-sink":         reportVectorSink,
 	}
 
 	flagKeys := []string{}
@@ -40,6 +41,10 @@ func reportComputedMaxSize(appName string) string {
 
 func reportGlobalMaxSize(appName string) string {
 	return common.PropertyGetDefault("logs", "--global", "max-size", MaxSize)
+}
+
+func reportVectorGlobalImage(appName string) string {
+	return common.PropertyGetDefault("logs", "--global", "vector-image", VectorImage)
 }
 
 func reportGlobalVectorSink(appName string) string {

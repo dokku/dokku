@@ -155,6 +155,27 @@ dokku logs:vector-logs --tail --num 10
 
 The above command will show logs continually from the vector container, with an initial history of 10 log lines
 
+#### Changing the vector image
+
+Dokku integrates with a Vector docker image version that is known to be compatible with the documentation. In some cases, it may be useful to specify an alternative image version. To do so, set the global `vector-image` property.
+
+```shell
+dokku logs:set --global vector-image timberio/vector:0.35.X-debian
+```
+
+Once set, the vector container will need to be stopped and then started. Note that specifying the `--vector-image` flag on the `logs:vector-start` will override the setting.
+
+```shell
+dokku logs:vector-stop
+dokku logs:vector-start
+```
+
+Setting this to an empty string will reset the version to the version currently compatible with the Dokku installation.
+
+```shell
+dokku logs:set --global vector-image
+```
+
 #### Configuring a log sink
 
 Vector uses the concept of log "sinks" to send logs to a given endpoint. Log sinks may be configured globally or on a per-app basis by specifying a `vector-sink` in DSN form with the `logs:set` command. Specifying a sink value will reload any running vector container.
