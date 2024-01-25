@@ -1,5 +1,28 @@
 # History
 
+## 0.33.1
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.33.1/bootstrap.sh
+sudo DOKKU_TAG=v0.33.1 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #6520: @josegonzalez Guard against missing healthcheck config
+- #6519: @josegonzalez Use correct name for cluster-issuers helm chart
+
+### Refactors
+
+- #6521: @josegonzalez Install traefik via helm chart directly to avoid issues where traefik silently fails installation
+
+### Dependencies
+
+- #6523: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.4 to 9.5.5 in /docs/_build
+- #6522: @dependabot[bot] chore(deps): bump google.golang.org/grpc from 1.60.1 to 1.61.0 in /tests/apps/gogrpc
+
 ## 0.33.0
 
 Install/update via the bootstrap script:
