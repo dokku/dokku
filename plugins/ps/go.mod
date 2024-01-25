@@ -8,7 +8,6 @@ require (
 	github.com/dokku/dokku/plugins/config v0.0.0-00010101000000-000000000000
 	github.com/dokku/dokku/plugins/docker-options v0.0.0-00010101000000-000000000000
 	github.com/gofrs/flock v0.8.1
-	github.com/otiai10/copy v1.14.0
 	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/spf13/pflag v1.0.5
 )
@@ -24,6 +23,7 @@ require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/melbahja/goph v1.4.0 // indirect
+	github.com/otiai10/copy v1.14.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pkg/sftp v1.13.5 // indirect
 	golang.org/x/crypto v0.18.0 // indirect

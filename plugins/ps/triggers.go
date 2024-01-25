@@ -14,7 +14,6 @@ import (
 	"github.com/dokku/dokku/plugins/common"
 	"github.com/dokku/dokku/plugins/config"
 	dockeroptions "github.com/dokku/dokku/plugins/docker-options"
-	"github.com/otiai10/copy"
 )
 
 // TriggerAppRestart restarts an app
@@ -90,12 +89,12 @@ func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
 			return common.TouchFile(fmt.Sprintf("%s.missing", processSpecificProcfile))
 		}
 
-		if err := copy.Copy(repoProcfilePath, processSpecificProcfile); err != nil {
+		if err := common.Copy(repoProcfilePath, processSpecificProcfile); err != nil {
 			return fmt.Errorf("Unable to extract Procfile: %v", err.Error())
 		}
 
 		if procfilePath != "Procfile" {
-			if err := copy.Copy(repoProcfilePath, repoDefaultProcfilePath); err != nil {
+			if err := common.Copy(repoProcfilePath, repoDefaultProcfilePath); err != nil {
 				return fmt.Errorf("Unable to move Procfile into place: %v", err.Error())
 			}
 		}

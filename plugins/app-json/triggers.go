@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
-	"github.com/otiai10/copy"
 )
 
 // TriggerAppJSONProcessDeployParallelism returns the max number of processes to deploy in parallel
@@ -120,12 +119,12 @@ func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
 			return common.TouchFile(fmt.Sprintf("%s.missing", processSpecificAppJSON))
 		}
 
-		if err := copy.Copy(repoAppJSONPath, processSpecificAppJSON); err != nil {
+		if err := common.Copy(repoAppJSONPath, processSpecificAppJSON); err != nil {
 			return fmt.Errorf("Unable to extract app.json: %v", err.Error())
 		}
 
 		if appJSONPath != "app.json" {
-			if err := copy.Copy(repoAppJSONPath, repoDefaultAppJSONPath); err != nil {
+			if err := common.Copy(repoAppJSONPath, repoDefaultAppJSONPath); err != nil {
 				return fmt.Errorf("Unable to move app.json into place: %v", err.Error())
 			}
 		}

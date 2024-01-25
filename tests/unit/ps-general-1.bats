@@ -87,6 +87,13 @@ EOF
   rm -rf "$TMP"
 }
 
+@test "(ps) handle windows newlines in procfile" {
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP procfile_line_endings_to_windows
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
 @test "(ps:restart-policy) default policy" {
   run /bin/bash -c "dokku --quiet ps:report $TEST_APP --ps-restart-policy"
   echo "output: $output"
@@ -130,4 +137,12 @@ EOF
   echo "output: $output"
   echo "status: $status"
   assert_output "$test_restart_policy"
+}
+
+procfile_line_endings_to_windows() {
+  local APP="$1"
+  local APP_REPO_DIR="$2"
+  [[ -z "$APP" ]] && local APP="$TEST_APP"
+  echo "setting line endings on Procfile to \n via unix2dos"
+  sed -i -e 's/\r*$/\r/' "$APP_REPO_DIR/Procfile"
 }
