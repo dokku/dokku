@@ -103,6 +103,10 @@ func CommandVectorStart(vectorImage string) error {
 		return err
 	}
 
+	if vectorImage == "" {
+		vectorImage = common.PropertyGet("logs", "--global", "vector-image")
+	}
+
 	if common.ContainerExists(vectorContainerName) {
 		if common.ContainerIsRunning(vectorContainerName) {
 			common.LogVerbose("Vector container is running")

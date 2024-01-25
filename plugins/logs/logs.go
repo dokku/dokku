@@ -18,8 +18,9 @@ var (
 
 	// GlobalProperties is a map of all valid global logs properties
 	GlobalProperties = map[string]bool{
-		"max-size":    true,
-		"vector-sink": true,
+		"max-size":     true,
+		"vector-image": true,
+		"vector-sink":  true,
 	}
 )
 

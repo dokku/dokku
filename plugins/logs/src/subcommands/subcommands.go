@@ -54,7 +54,7 @@ func main() {
 		err = logs.CommandVectorLogs(*num, *tail)
 	case "vector-start":
 		args := flag.NewFlagSet("logs:vector-start", flag.ExitOnError)
-		vectorImage := args.String("vector-image", logs.VectorImage, "--vector-image: the name of the docker image to run for vector")
+		vectorImage := args.String("vector-image", "", "--vector-image: the name of the docker image to run for vector")
 		args.Parse(os.Args[2:])
 		err = logs.CommandVectorStart(*vectorImage)
 	case "vector-stop":
