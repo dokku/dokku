@@ -3,11 +3,12 @@ package common
 import (
 	"bufio"
 	"fmt"
-	"io"
 	"os"
 	"os/user"
 	"strconv"
 	"strings"
+
+	"github.com/otiai10/copy"
 )
 
 // CatFile cats the contents of a file (if it exists)
@@ -24,66 +25,41 @@ func CatFile(filename string) {
 	}
 }
 
-// CopyFile copies a file from src to dst. If src and dst files exist, and are
-// the same, then return success. Otherise, attempt to create a hard link
-// between the two files. If that fail, copy the file contents from src to dst.
-// FROM: https://stackoverflow.com/a/21067803/1515875
-func CopyFile(src, dst string) (err error) {
-	sfi, err := os.Stat(src)
+// Copy copies a file/directory from src to dst. If the source is a file, it will also
+// convert line endings to unix style
+func Copy(src, dst string) error {
+	fi, err := os.Stat(src)
 	if err != nil {
-		return
+		return err
 	}
-	if !sfi.Mode().IsRegular() {
-		// cannot copy non-regular files (e.g., directories,
-		// symlinks, devices, etc.)
-		return fmt.Errorf("CopyFile: non-regular source file %s (%q)", sfi.Name(), sfi.Mode().String())
-	}
-	dfi, err := os.Stat(dst)
-	if err != nil {
-		if !os.IsNotExist(err) {
-			return
-		}
-	} else {
-		if !(dfi.Mode().IsRegular()) {
-			return fmt.Errorf("CopyFile: non-regular destination file %s (%q)", dfi.Name(), dfi.Mode().String())
-		}
-		if os.SameFile(sfi, dfi) {
-			return
-		}
-	}
-	if err = os.Link(src, dst); err == nil {
-		return
-	}
-	err = copyFileContents(src, dst)
-	return
-}
 
-// copyFileContents copies the contents of the file named src to the file named
-// by dst. The file will be created if it does not already exist. If the
-// destination file exists, all it's contents will be replaced by the contents
-// of the source file.
-// FROM: https://stackoverflow.com/a/21067803/1515875
-func copyFileContents(src, dst string) (err error) {
-	in, err := os.Open(src)
+	if !fi.Mode().IsRegular() {
+		return copy.Copy(src, dst)
+	}
+
+	// ensure file has the correct line endings
+	dos2unixCmd := NewShellCmd(strings.Join([]string{
+		"dos2unix",
+		"-l",
+		"-n",
+		src,
+		dst,
+	}, " "))
+	dos2unixCmd.ShowOutput = false
+	dos2unixCmd.Execute()
+
+	// ensure file permissions are correct
+	b, err := os.ReadFile(dst)
 	if err != nil {
-		return
+		return err
 	}
-	defer in.Close()
-	out, err := os.Create(dst)
+
+	err = os.WriteFile(dst, b, fi.Mode())
 	if err != nil {
-		return
+		return err
 	}
-	defer func() {
-		cerr := out.Close()
-		if err == nil {
-			err = cerr
-		}
-	}()
-	if _, err = io.Copy(out, in); err != nil {
-		return
-	}
-	err = out.Sync()
-	return
+
+	return nil
 }
 
 // DirectoryExists returns if a path exists and is a directory

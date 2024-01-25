@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
-	"github.com/otiai10/copy"
 )
 
 // TriggerBuilderDetect outputs a manually selected builder for the app
@@ -79,7 +78,7 @@ func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
 		return fmt.Errorf("Unable to clear out temporary working directory for rewrite: %v", err.Error())
 	}
 
-	if err := copy.Copy(newSourceWorkDir, tmpWorkDir); err != nil {
+	if err := common.Copy(newSourceWorkDir, tmpWorkDir); err != nil {
 		return fmt.Errorf("Unable to move build-dir to temporary working directory: %v", err.Error())
 	}
 
@@ -87,7 +86,7 @@ func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
 		return fmt.Errorf("Unable to clear out sourcecode working directory for rewrite: %v", err.Error())
 	}
 
-	if err := copy.Copy(tmpWorkDir, sourceWorkDir); err != nil {
+	if err := common.Copy(tmpWorkDir, sourceWorkDir); err != nil {
 		return fmt.Errorf("Unable to move build-dir to sourcecode working directory: %v", err.Error())
 	}
 

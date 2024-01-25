@@ -121,7 +121,7 @@ func CopyFromImage(appName string, image string, source string, destination stri
 		return fmt.Errorf("Unable to copy file %s from image", source)
 	}
 
-	// workaround for CHECKS file when owner is root. seems to only happen when running inside docker
+	// workaround when owner is root. seems to only happen when running inside docker
 	dos2unixCmd := NewShellCmd(strings.Join([]string{
 		"dos2unix",
 		"-l",
