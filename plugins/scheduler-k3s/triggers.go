@@ -339,9 +339,12 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 				Type:             imageSourceType,
 				WorkingDir:       workingDir,
 			},
-			Namespace:   namespace,
-			PrimaryPort: primaryPort,
-			Secrets:     map[string]string{},
+			Namespace: namespace,
+			Network: GlobalNetwork{
+				IngressClass: "traefik",
+				PrimaryPort:  primaryPort,
+			},
+			Secrets: map[string]string{},
 		},
 		Processes: map[string]ProcessValues{},
 	}

@@ -1,6 +1,6 @@
 {{- $processName := "PROCESS_NAME" }}
 {{- $config := .Values.processes.PROCESS_NAME }}
-{{- if $config.web.domains }}
+{{- if and $config.web.domains (eq $.Values.global.network.ingress_class "traefik") }}
 {{- range $pdx, $port_map := $config.web.port_maps }}
 ---
 apiVersion: traefik.io/v1alpha1

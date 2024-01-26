@@ -36,7 +36,7 @@ type GlobalValues struct {
 	DeploymentID string            `yaml:"deploment_id"`
 	Image        GlobalImage       `yaml:"image"`
 	Namespace    string            `yaml:"namespace"`
-	PrimaryPort  int32             `yaml:"primary_port"`
+	Network      GlobalNetwork     `yaml:"network"`
 	Secrets      map[string]string `yaml:"secrets,omitempty"`
 }
 
@@ -45,6 +45,11 @@ type GlobalImage struct {
 	Name             string `yaml:"name"`
 	Type             string `yaml:"type"`
 	WorkingDir       string `yaml:"working_dir"`
+}
+
+type GlobalNetwork struct {
+	IngressClass string `yaml:"ingress_class"`
+	PrimaryPort  int32  `yaml:"primary_port"`
 }
 
 type ProcessValues struct {
