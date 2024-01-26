@@ -20,6 +20,7 @@ type Chart struct {
 	AppVersion string `yaml:"appVersion"`
 	Name       string `yaml:"name"`
 	Version    string `yaml:"version"`
+	Icon       string `yaml:"icon"`
 }
 
 type ClusterIssuerValues struct {

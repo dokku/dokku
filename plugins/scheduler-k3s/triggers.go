@@ -318,6 +318,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 		ApiVersion: "v2",
 		AppVersion: "1.0.0",
 		Name:       appName,
+		Icon:       "https://dokku.com/assets/dokku-logo.svg",
 		Version:    fmt.Sprintf("0.0.%d", deploymentId),
 	}
 
