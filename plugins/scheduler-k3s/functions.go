@@ -126,6 +126,7 @@ func applyClusterIssuers(ctx context.Context) error {
 	chart := &Chart{
 		ApiVersion: "v2",
 		AppVersion: "1.0.0",
+		Icon:       "https://dokku.com/assets/dokku-logo.svg",
 		Name:       "cluster-issuers",
 		Version:    "0.0.1",
 	}
