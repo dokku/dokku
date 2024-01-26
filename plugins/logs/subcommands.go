@@ -107,20 +107,9 @@ func CommandVectorStart(vectorImage string) error {
 		vectorImage = common.PropertyGetDefault("logs", "--global", "vector-image", VectorImage)
 	}
 
-	if common.ContainerExists(vectorContainerName) {
-		if common.ContainerIsRunning(vectorContainerName) {
-			common.LogVerbose("Vector container is running")
-			return nil
-		}
-
-		common.LogVerbose("Starting vector container")
-		if !common.ContainerStart(vectorContainerName) {
-			return errors.New("Unable to start vector container")
-		}
-	} else {
-		if err := startVectorContainer(vectorImage); err != nil {
-			return err
-		}
+	common.LogVerbose("Starting vector container")
+	if err := startVectorContainer(vectorImage); err != nil {
+		return err
 	}
 
 	common.LogVerbose("Waiting for 10 seconds")
@@ -134,6 +123,6 @@ func CommandVectorStart(vectorImage string) error {
 
 // CommandVectorStop stops and removes an existing vector container
 func CommandVectorStop() error {
-	common.LogInfo2Quiet("Stopping and removing vector container")
-	return killVectorContainer()
+	common.LogInfo2Quiet("Stopping and removing vector container")
+	return stopVectorContainer()
 }

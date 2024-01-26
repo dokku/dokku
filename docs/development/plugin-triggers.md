@@ -2950,3 +2950,18 @@ main() {
 
 main "$@"
 ```
+
+### `vector-template-source`
+
+- Description: Retrieves an alternative template for the vector compose config
+- Invoked by: caddy-vhosts
+- Arguments:
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```

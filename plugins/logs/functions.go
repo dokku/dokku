@@ -5,11 +5,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"html/template"
 	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/dokku/dokku/plugins/common"
 	"github.com/joncalhoun/qson"
@@ -25,92 +25,164 @@ type vectorSource struct {
 	IncludeLabels []string `json:"include_labels,omitempty"`
 }
 
-type vectorSink map[string]interface{}
-
-const vectorContainerName = "vector"
-
-func killVectorContainer() error {
-	if !common.ContainerExists(vectorContainerName) {
-		return nil
-	}
-
-	if err := stopVectorContainer(); err != nil {
-		return err
-	}
-
-	time.Sleep(10 * time.Second)
-	if err := removeVectorContainer(); err != nil {
-		return err
-	}
-
-	return nil
+type vectorTemplateData struct {
+	DokkuLibRoot string
+	DokkuLogsDir string
+	VectorImage  string
 }
 
-func removeVectorContainer() error {
-	if !common.ContainerExists(vectorContainerName) {
-		return nil
+type vectorSink map[string]interface{}
+
+const vectorContainerName = "vector-vector-1"
+const vectorOldContainerName = "vector"
+
+func getComposeFile() ([]byte, error) {
+	result, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:       "vector-template-source",
+		CaptureOutput: true,
+	})
+	if err == nil && result.ExitCode == 0 && strings.TrimSpace(result.Stdout) != "" {
+		contents, err := os.ReadFile(strings.TrimSpace(result.Stdout))
+		if err != nil {
+			return []byte{}, fmt.Errorf("Unable to read compose template: %s", err)
+		}
+
+		return contents, nil
 	}
 
-	cmd := common.NewShellCmd(strings.Join([]string{
-		common.DockerBin(), "container", "rm", "-f", vectorContainerName}, " "))
+	contents, err := templates.ReadFile("templates/compose.yml.tmpl")
+	if err != nil {
+		return []byte{}, fmt.Errorf("Unable to read compose template: %s", err)
+	}
 
-	return common.SuppressOutput(func() error {
-		if cmd.Execute() {
-			return nil
-		}
-
-		if common.ContainerExists(vectorContainerName) {
-			return errors.New("Unable to remove vector container")
-		}
-
-		return nil
-	})
+	return contents, nil
 }
 
 func startVectorContainer(vectorImage string) error {
-	cmd := common.NewShellCmd(strings.Join([]string{
-		common.DockerBin(),
-		"container",
-		"run", "--detach", "--name", vectorContainerName, common.MustGetEnv("DOKKU_GLOBAL_RUN_ARGS"),
-		"--restart", "unless-stopped",
-		"--volume", "/var/lib/dokku/data/logs:/etc/vector",
-		"--volume", "/var/run/docker.sock:/var/run/docker.sock",
-		"--volume", common.MustGetEnv("DOKKU_LOGS_HOST_DIR") + ":/var/logs/dokku/apps",
-		"--volume", common.MustGetEnv("DOKKU_LOGS_HOST_DIR") + "/apps:/var/log/dokku/apps",
-		vectorImage,
-		"--config", "/etc/vector/vector.json", "--watch-config"}, " "))
-	cmd.ShowOutput = false
+	if !common.IsComposeInstalled() {
+		return errors.New("Required docker compose plugin is not installed")
+	}
 
-	if !cmd.Execute() {
-		return errors.New("Unable to start vector container")
+	if common.ContainerExists(vectorOldContainerName) {
+		return errors.New("Vector container %s already exists in old format, run 'dokku logs:vector-stop' once to remove it")
+	}
+
+	tmpFile, err := os.CreateTemp(os.TempDir(), "vector-compose-*.yml")
+	if err != nil {
+		return fmt.Errorf("Unable to create temporary file: %s", err)
+	}
+	defer os.Remove(tmpFile.Name())
+
+	contents, err := getComposeFile()
+	if err != nil {
+		return fmt.Errorf("Unable to read compose template: %s", err)
+	}
+
+	tmpl, err := template.New("compose.yml").Parse(string(contents))
+	if err != nil {
+		return fmt.Errorf("Unable to parse compose template: %s", err)
+	}
+
+	dokkuLibRoot := os.Getenv("DOKKU_LIB_HOST_ROOT")
+	if dokkuLibRoot == "" {
+		dokkuLibRoot = os.Getenv("DOKKU_LIB_ROOT")
+	}
+
+	dokkuLogsDir := os.Getenv("DOKKU_LOGS_HOST_DIR")
+	if dokkuLogsDir == "" {
+		dokkuLogsDir = os.Getenv("DOKKU_LOGS_DIR")
+	}
+
+	data := vectorTemplateData{
+		DokkuLibRoot: dokkuLibRoot,
+		DokkuLogsDir: dokkuLogsDir,
+		VectorImage:  vectorImage,
+	}
+
+	if err := tmpl.Execute(tmpFile, data); err != nil {
+		return fmt.Errorf("Unable to execute compose template: %s", err)
+	}
+
+	result, err := common.CallExecCommand(common.ExecCommandInput{
+		Command: common.DockerBin(),
+		Args: []string{
+			"compose",
+			"--file", tmpFile.Name(),
+			"--project-name", "vector",
+			"up",
+			"--detach",
+			"--quiet-pull",
+		},
+		StreamStdio: true,
+	})
+	if err != nil || result.ExitCode != 0 {
+		return fmt.Errorf("Unable to start vector container: %s", result.Stderr)
 	}
 
 	return nil
 }
 
 func stopVectorContainer() error {
-	if !common.ContainerExists(vectorContainerName) {
-		return nil
+	if !common.IsComposeInstalled() {
+		return errors.New("Required docker compose plugin is not installed")
 	}
 
-	if !common.ContainerIsRunning(vectorContainerName) {
-		return nil
+	if common.ContainerExists(vectorOldContainerName) {
+		common.ContainerRemove(vectorOldContainerName)
 	}
 
-	cmd := common.NewShellCmd(strings.Join([]string{
-		common.DockerBin(), "container", "stop", vectorContainerName}, " "))
+	tmpFile, err := os.CreateTemp(os.TempDir(), "vector-compose-*.yml")
+	if err != nil {
+		return fmt.Errorf("Unable to create temporary file: %s", err)
+	}
+	defer os.Remove(tmpFile.Name())
 
-	return common.SuppressOutput(func() error {
-		if cmd.Execute() {
-			return nil
-		}
+	contents, err := getComposeFile()
+	if err != nil {
+		return fmt.Errorf("Unable to read compose template: %s", err)
+	}
 
-		if common.ContainerIsRunning(vectorContainerName) {
-			return errors.New("Unable to stop vector container")
-		}
+	tmpl, err := template.New("compose.yml").Parse(string(contents))
+	if err != nil {
+		return fmt.Errorf("Unable to parse compose template: %s", err)
+	}
 
-		return nil
+	dokkuLibRoot := os.Getenv("DOKKU_LIB_HOST_ROOT")
+	if dokkuLibRoot == "" {
+		dokkuLibRoot = os.Getenv("DOKKU_LIB_ROOT")
+	}
+
+	dokkuLogsDir := os.Getenv("DOKKU_LOGS_HOST_DIR")
+	if dokkuLogsDir == "" {
+		dokkuLogsDir = os.Getenv("DOKKU_LOGS_DIR")
+	}
+
+	data := vectorTemplateData{
+		DokkuLibRoot: dokkuLibRoot,
+		DokkuLogsDir: dokkuLogsDir,
+		VectorImage:  VectorImage,
+	}
+
+	if err := tmpl.Execute(tmpFile, data); err != nil {
+		return fmt.Errorf("Unable to execute compose template: %s", err)
+	}
+
+	result, err := common.CallExecCommand(common.ExecCommandInput{
+		Command: common.DockerBin(),
+		Args: []string{
+			"compose",
+			"--file", tmpFile.Name(),
+			"--project-name", "vector",
+			"down",
+			"--remove-orphans",
+		},
+		StreamStdio: true,
 	})
+	if err != nil || result.ExitCode != 0 {
+		return fmt.Errorf("Unable to stop vector container: %s", result.Stderr)
+	}
+
+	return nil
 }
 
 func sinkValueToConfig(appName string, sinkValue string) (vectorSink, error) {
@@ -132,9 +204,7 @@ func sinkValueToConfig(appName string, sinkValue string) (vectorSink, error) {
 	u.Scheme = strings.ReplaceAll(u.Scheme, "-", "_")
 
 	query := u.RawQuery
-	if strings.HasPrefix(query, "&") {
-		query = strings.TrimPrefix(query, "&")
-	}
+	query = strings.TrimPrefix(query, "&")
 
 	b, err := qson.ToJSON(query)
 	if err != nil {

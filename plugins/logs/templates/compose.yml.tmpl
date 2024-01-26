@@ -1,0 +1,25 @@
+---
+version: "3.7"
+
+services:
+  vector:
+    image: "{{ $.VectorImage }}"
+
+    command:
+      - "--config"
+      - "/etc/vector/vector.json"
+      - "--watch-config"
+
+    labels:
+      dokku: ""
+      org.label-schema.schema-version: "1.0"
+      org.label-schema.vendor: dokku
+
+    network_mode: bridge
+
+    restart: unless-stopped
+
+    volumes:
+      - "{{ $.DokkuLibRoot }}/data/logs:/etc/vector"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "{{ $.DokkuLogsDir }}/apps:/var/log/dokku/apps"
