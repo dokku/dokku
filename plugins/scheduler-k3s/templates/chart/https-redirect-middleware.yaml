@@ -1,3 +1,6 @@
+{{- $processName := "PROCESS_NAME" }}
+{{- $config := .Values.processes.PROCESS_NAME }}
+{{- if $config.web.domains }}
 ---
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
@@ -5,11 +8,13 @@ metadata:
   annotations:
     dokku.com/managed: "true"
   labels:
-    app.kubernetes.io/instance: {{ $.Values.global.app_name }}-redirect-to-https
+    app.kubernetes.io/instance: {{ $.Values.global.app_name }}-{{ $processName }}-redirect-to-https
+    app.kubernetes.io/name: {{ $processName }}
     app.kubernetes.io/part-of: {{ $.Values.global.app_name }}
-  name: {{ $.Values.global.app_name}}-redirect-to-https
+  name: {{ $.Values.global.app_name}}-{{ $processName }}-redirect-to-https
   namespace: {{ $.Values.global.namespace }}
 spec:
   redirectScheme:
     scheme: https
     permanent: true
+{{- end }}
