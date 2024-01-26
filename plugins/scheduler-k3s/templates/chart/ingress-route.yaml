@@ -27,7 +27,7 @@ spec:
       match: Host(`{{ $domain }}`)
       {{- if and $config.web.tls.enabled (and (eq $port_map.scheme "http") $port_map.redirect_to_https) }}
       middlewares:
-        - name: {{ $.Values.global.app_name}}-redirect-to-https
+        - name: {{ $.Values.global.app_name}}-{{ $processName }}-redirect-to-https
           namespace: {{ $.Values.global.namespace }}
       {{- end }}
       services:
