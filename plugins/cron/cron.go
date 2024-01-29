@@ -51,7 +51,7 @@ func (t TemplateCommand) CronCommand() string {
 		return t.AltCommand
 	}
 
-	return fmt.Sprintf("dokku run --cron-id %s %s -- %s", t.ID, t.App, t.Command)
+	return fmt.Sprintf("dokku run --cron-id %s %s %s", t.ID, t.App, t.Command)
 }
 
 // FetchCronEntries returns a list of cron commands for a given app
