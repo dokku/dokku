@@ -6,7 +6,6 @@ import sys
 from collections.abc import Callable
 
 import yaml
-
 from bs4 import BeautifulSoup
 
 

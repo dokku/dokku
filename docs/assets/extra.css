@@ -3,3 +3,21 @@
   --md-primary-fg-color--light: #ECB7B7;
   --md-primary-fg-color--dark:  #90030C;
 }
+
+.md-typeset .mdx-badge {
+  font-size: .80em;
+}
+
+.md-typeset .mdx-badge__icon {
+  background: var(--md-accent-fg-color--transparent);
+  padding: 0.2rem;
+  border-top-left-radius: 0.1rem;
+  border-bottom-left-radius: 0.1rem
+}
+
+.md-typeset .mdx-badge__text {
+  box-shadow: 0 0 0 1px inset var(--md-accent-fg-color--transparent);
+  padding: 0.2rem 0.3rem;
+  border-bottom-right-radius: 0.1rem;
+  border-top-right-radius: 0.1rem;
+}
