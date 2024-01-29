@@ -1,5 +1,45 @@
 # History
 
+## 0.33.2
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.33.2/bootstrap.sh
+sudo DOKKU_TAG=v0.33.2 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #6535: @josegonzalez Properly fetch default vector image if none is passed
+- #6533: @josegonzalez Ensure all k3s traefik middleware resources are scoped to the process
+- #6524: @josegonzalez Ensure all copied files always have line endings converted to unix-style
+
+### New Features
+
+- #6537: @josegonzalez Add the dokku logo as the chart icon
+- #6527: @josegonzalez Upgrade vector image to 0.35.x
+- #6534: @josegonzalez Allow specifying an ingress class via chart value
+
+### Documentation
+
+- #6530: @josegonzalez Fix indentation on letsencrypt sections for k3s scheduler docs
+
+### Tests
+
+- #6532: @josegonzalez Correct issues in tests for vector image log property
+
+### Dependencies
+
+- #6540: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.5 to 9.5.6 in /docs/_build
+- #6538: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 42.0.1 to 42.0.2
+- #6528: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 42.0.0 to 42.0.1
+- #6529: @dependabot[bot] chore(deps): bump google.golang.org/protobuf from 1.31.0 to 1.32.0 in /tests/apps/gogrpc
+
+### Other
+
+- #6526: @josegonzalez Allow setting the vector image as a global property
+
 ## 0.33.1
 
 Install/update via the bootstrap script:
