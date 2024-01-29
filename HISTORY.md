@@ -1,5 +1,22 @@
 # History
 
+## 0.33.3
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.33.3/bootstrap.sh
+sudo DOKKU_TAG=v0.33.3 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #6542: @josegonzalez Drop -- when calling dokku run for cron-tab templating
+
+### Documentation
+
+- #6543: @josegonzalez Add support for badge shortcodes in documentation
+
 ## 0.33.2
 
 Install/update via the bootstrap script:
