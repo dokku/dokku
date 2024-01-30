@@ -929,7 +929,7 @@ acquire_app_deploy_lock() {
   declare desc="acquire advisory lock for use in deploys"
   local APP="$1"
   local LOCK_TYPE="${2:-waiting}"
-  local APP_DEPLOY_LOCK_FILE="$DOKKU_ROOT/$APP/.deploy.lock"
+  local APP_DEPLOY_LOCK_FILE="$DOKKU_LIB_ROOT/data/$APP/.deploy.lock"
   local LOCK_WAITING_MSG="$APP currently has a deploy lock in place. Waiting..."
   local LOCK_FAILED_MSG="$APP currently has a deploy lock in place. Exiting..."
 
@@ -939,7 +939,7 @@ acquire_app_deploy_lock() {
 release_app_deploy_lock() {
   declare desc="release advisory lock used in deploys"
   local APP="$1"
-  local APP_DEPLOY_LOCK_FILE="$DOKKU_ROOT/$APP/.deploy.lock"
+  local APP_DEPLOY_LOCK_FILE="$DOKKU_LIB_ROOT/data/$APP/.deploy.lock"
 
   release_advisory_lock "$APP_DEPLOY_LOCK_FILE"
 }
