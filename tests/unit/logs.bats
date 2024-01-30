@@ -553,7 +553,7 @@ teardown() {
   assert_success
   assert_output_contains "Vector container is running"
 
-  run /bin/bash -c "sudo docker inspect --format='{{.HostConfig.RestartPolicy.Name}}' vector"
+  run /bin/bash -c "sudo docker inspect --format='{{.HostConfig.RestartPolicy.Name}}' vector-vector-1"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -586,7 +586,7 @@ teardown() {
   assert_output_contains "vector:" 5
   assert_line_count 6
 
-  run /bin/bash -c "docker stop vector"
+  run /bin/bash -c "docker stop vector-vector-1"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -602,5 +602,5 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "Stopping and removing vector container"
+  assert_output_contains "Stopping and removing vector container"
 }

@@ -1,6 +1,7 @@
 package logs
 
 import (
+	"embed"
 	"fmt"
 
 	"github.com/dokku/dokku/plugins/common"
@@ -29,6 +30,9 @@ const VectorImage = "timberio/vector:0.35.X-debian"
 
 // VectorDefaultSink contains the default sink in use for vector log shipping
 const VectorDefaultSink = "blackhole://?print_interval_secs=1"
+
+//go:embed templates/*
+var templates embed.FS
 
 // GetFailedLogs outputs failed deploy logs for a given app
 func GetFailedLogs(appName string) error {

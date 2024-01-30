@@ -33,6 +33,18 @@ func ContainerStart(containerID string) bool {
 	return true
 }
 
+// ContainerRemove runs 'docker container remove' against an existing container
+func ContainerRemove(containerID string) bool {
+	cmd := sh.Command(DockerBin(), "container", "remove", "-f", containerID)
+	cmd.Stdout = nil
+	cmd.Stderr = nil
+	if err := cmd.Run(); err != nil {
+		return false
+	}
+
+	return true
+}
+
 // ContainerExists checks to see if a container exists
 func ContainerExists(containerID string) bool {
 	cmd := sh.Command(DockerBin(), "container", "inspect", containerID)
@@ -257,6 +269,15 @@ func GetWorkingDir(appName string, image string) string {
 
 	workDir, _ := DockerInspect(image, "{{.Config.WorkingDir}}")
 	return workDir
+}
+
+func IsComposeInstalled() bool {
+	result, err := CallExecCommand(ExecCommandInput{
+		Command:       DockerBin(),
+		Args:          []string{"info", "--format", "{{range .ClientInfo.Plugins}}{{if eq .Name \"compose\"}}true{{end}}{{end}}')"},
+		CaptureOutput: true,
+	})
+	return err == nil && result.ExitCode == 0
 }
 
 // IsImageCnbBased returns true if app image is based on cnb
