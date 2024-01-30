@@ -27,6 +27,7 @@ dokku scheduler:set node-js-app selected
 
 ### Deploying amd64 images on arm64
 
+> [!IMPORTANT]
 > New as of 0.33.0
 
 Many builders only produce amd64-compatible images. The docker-local scheduler will automatically detect these and run them via the `--platform=linux/amd64` on arm64 deploy targets.
