@@ -84,6 +84,7 @@ func CommandInitialize(serverIP string, taintScheduling bool) error {
 	common.LogInfo2Quiet("Downloading k3s installer")
 	client := resty.New()
 	resp, err := client.R().
+		SetContext(ctx).
 		Get("https://get.k3s.io")
 	if err != nil {
 		return fmt.Errorf("Unable to download k3s installer: %w", err)
@@ -245,6 +246,12 @@ func CommandInitialize(serverIP string, taintScheduling bool) error {
 	err = installHelmCharts(ctx, clientset)
 	if err != nil {
 		return fmt.Errorf("Unable to install helm charts: %w", err)
+	}
+
+	common.LogInfo2Quiet("Installing helper commands")
+	err = installHelperCommands(ctx)
+	if err != nil {
+		return fmt.Errorf("Unable to install helper commands: %w", err)
 	}
 
 	common.LogVerboseQuiet("Done")
@@ -709,5 +716,6 @@ func CommandUninstall() error {
 		return fmt.Errorf("Invalid exit code from k3s uninstaller command: %d", uninstallerCmd.ExitCode)
 	}
 
-	return nil
+	common.LogInfo2Quiet("Removing k3s dependencies")
+	return uninstallHelperCommands(context.Background())
 }

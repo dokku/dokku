@@ -151,24 +151,33 @@ func ReadFirstLine(filename string) (text string) {
 	return
 }
 
+// SetPermissionsInput is the input struct for SetPermissions
+type SetPermissionInput struct {
+	Filename  string
+	GroupName string
+	Mode      os.FileMode
+	Username  string
+}
+
 // SetPermissions sets the proper owner and filemode for a given file
-func SetPermissions(path string, fileMode os.FileMode) error {
-	if err := os.Chmod(path, fileMode); err != nil {
+func SetPermissions(input SetPermissionInput) error {
+	if err := os.Chmod(input.Filename, input.Mode); err != nil {
 		return err
 	}
 
-	systemGroup := GetenvWithDefault("DOKKU_SYSTEM_GROUP", "dokku")
-	systemUser := GetenvWithDefault("DOKKU_SYSTEM_USER", "dokku")
-	if strings.HasPrefix(path, "/etc/sudoers.d/") {
-		systemGroup = "root"
-		systemUser = "root"
+	if input.GroupName == "" {
+		input.GroupName = GetenvWithDefault("DOKKU_SYSTEM_GROUP", "dokku")
 	}
 
-	group, err := user.LookupGroup(systemGroup)
+	if input.Username == "" {
+		input.Username = GetenvWithDefault("DOKKU_SYSTEM_USER", "dokku")
+	}
+
+	group, err := user.LookupGroup(input.GroupName)
 	if err != nil {
 		return err
 	}
-	user, err := user.Lookup(systemUser)
+	user, err := user.Lookup(input.Username)
 	if err != nil {
 		return err
 	}
@@ -182,7 +191,7 @@ func SetPermissions(path string, fileMode os.FileMode) error {
 	if err != nil {
 		return err
 	}
-	return os.Chown(path, uid, gid)
+	return os.Chown(input.Filename, uid, gid)
 }
 
 // TouchFile creates an empty file at the specified path
@@ -198,16 +207,18 @@ func TouchFile(filename string) error {
 		return err
 	}
 
-	if err := SetPermissions(filename, mode); err != nil {
-		return err
-	}
-	return nil
+	return SetPermissions(SetPermissionInput{
+		Filename: filename,
+		Mode:     mode,
+	})
 }
 
 type WriteSliceToFileInput struct {
-	Filename string
-	Lines    []string
-	Mode     os.FileMode
+	Filename  string
+	GroupName string
+	Lines     []string
+	Mode      os.FileMode
+	Username  string
 }
 
 // WriteSliceToFile writes a slice of strings to a file
@@ -230,9 +241,17 @@ func WriteSliceToFile(input WriteSliceToFileInput) error {
 		return err
 	}
 
-	if err := SetPermissions(input.Filename, input.Mode); err != nil {
-		return err
+	permissionsInput := SetPermissionInput{
+		Filename: input.Filename,
+		Mode:     input.Mode,
 	}
 
-	return nil
+	if input.GroupName != "" {
+		permissionsInput.GroupName = input.GroupName
+	}
+	if input.Username != "" {
+		permissionsInput.Username = input.Username
+	}
+
+	return SetPermissions(permissionsInput)
 }

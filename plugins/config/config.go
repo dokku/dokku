@@ -8,7 +8,7 @@ import (
 	"github.com/dokku/dokku/plugins/common"
 )
 
-//Get retrieves a value from a config. If appName is empty the global config is used.
+// Get retrieves a value from a config. If appName is empty the global config is used.
 func Get(appName string, key string) (value string, ok bool) {
 	env, err := loadAppOrGlobalEnv(appName)
 	if err != nil {
@@ -20,7 +20,7 @@ func Get(appName string, key string) (value string, ok bool) {
 	return env.Get(key)
 }
 
-//GetWithDefault gets a value from a config. If appName is empty the global config is used. If the appName or key do not exist defaultValue is returned.
+// GetWithDefault gets a value from a config. If appName is empty the global config is used. If the appName or key do not exist defaultValue is returned.
 func GetWithDefault(appName string, key string, defaultValue string) (value string) {
 	value, ok := Get(appName, key)
 	if !ok {
@@ -29,7 +29,7 @@ func GetWithDefault(appName string, key string, defaultValue string) (value stri
 	return value
 }
 
-//SetMany variables in the environment. If appName is empty the global config is used. If restart is true the app is restarted.
+// SetMany variables in the environment. If appName is empty the global config is used. If restart is true the app is restarted.
 func SetMany(appName string, entries map[string]string, restart bool) (err error) {
 	global := appName == "" || appName == "--global"
 	env, err := loadAppOrGlobalEnv(appName)
@@ -52,7 +52,10 @@ func SetMany(appName string, entries map[string]string, restart bool) (err error
 			fmt.Println(prettyPrintEnvEntries("       ", entries))
 		}
 		env.Write()
-		common.SetPermissions(env.Filename(), 0600)
+		common.SetPermissions(common.SetPermissionInput{
+			Filename: env.Filename(),
+			Mode:     os.FileMode(0600),
+		})
 		triggerUpdate(appName, "set", keys)
 	}
 	if !global && restart && env.GetBoolDefault("DOKKU_APP_RESTORE", true) {
@@ -61,7 +64,7 @@ func SetMany(appName string, entries map[string]string, restart bool) (err error
 	return
 }
 
-//UnsetMany a value in a config. If appName is empty the global config is used. If restart is true the app is restarted.
+// UnsetMany a value in a config. If appName is empty the global config is used. If restart is true the app is restarted.
 func UnsetMany(appName string, keys []string, restart bool) (err error) {
 	global := appName == "" || appName == "--global"
 	env, err := loadAppOrGlobalEnv(appName)
@@ -85,7 +88,10 @@ func UnsetMany(appName string, keys []string, restart bool) (err error) {
 	}
 	if changed {
 		env.Write()
-		common.SetPermissions(env.Filename(), 0600)
+		common.SetPermissions(common.SetPermissionInput{
+			Filename: env.Filename(),
+			Mode:     os.FileMode(0600),
+		})
 		triggerUpdate(appName, "unset", keys)
 	}
 	if !global && restart && env.GetBoolDefault("DOKKU_APP_RESTORE", true) {
@@ -94,7 +100,7 @@ func UnsetMany(appName string, keys []string, restart bool) (err error) {
 	return
 }
 
-//UnsetAll removes all config keys
+// UnsetAll removes all config keys
 func UnsetAll(appName string, restart bool) (err error) {
 	global := appName == "" || appName == "--global"
 	env, err := loadAppOrGlobalEnv(appName)
@@ -109,7 +115,10 @@ func UnsetAll(appName string, restart bool) (err error) {
 	}
 	if changed {
 		env.Write()
-		common.SetPermissions(env.Filename(), 0600)
+		common.SetPermissions(common.SetPermissionInput{
+			Filename: env.Filename(),
+			Mode:     os.FileMode(0600),
+		})
 		triggerUpdate(appName, "clear", []string{})
 	}
 	if !global && restart && env.GetBoolDefault("DOKKU_APP_RESTORE", true) {
@@ -132,7 +141,7 @@ func triggerUpdate(appName string, operation string, args []string) {
 	}
 }
 
-//getEnvironment for the given app (global config if appName is empty). Merge with global environment if merged is true.
+// getEnvironment for the given app (global config if appName is empty). Merge with global environment if merged is true.
 func getEnvironment(appName string, merged bool) (env *Env) {
 	var err error
 	if appName != "" && merged {

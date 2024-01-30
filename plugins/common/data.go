@@ -13,11 +13,10 @@ func CreateAppDataDirectory(pluginName, appName string) error {
 		return err
 	}
 
-	if err := SetPermissions(directory, 0755); err != nil {
-		return err
-	}
-
-	return nil
+	return SetPermissions(SetPermissionInput{
+		Filename: directory,
+		Mode:     os.FileMode(0755),
+	})
 }
 
 // CreateDataDirectory creates a data directory for the given plugin/app combination with the correct permissions
@@ -27,11 +26,10 @@ func CreateDataDirectory(pluginName string) error {
 		return err
 	}
 
-	if err := SetPermissions(directory, 0755); err != nil {
-		return err
-	}
-
-	return nil
+	return SetPermissions(SetPermissionInput{
+		Filename: directory,
+		Mode:     os.FileMode(0755),
+	})
 }
 
 // GetAppDataDirectory returns the path to the data directory for the given plugin/app combination

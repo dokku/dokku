@@ -84,11 +84,10 @@ func TriggerInstall() error {
 		return err
 	}
 
-	if err := common.SetPermissions(logDirectory, 0755); err != nil {
-		return err
-	}
-
-	return nil
+	return common.SetPermissions(common.SetPermissionInput{
+		Filename: logDirectory,
+		Mode:     os.FileMode(0755),
+	})
 }
 
 // TriggerLogsGetProperty writes the logs key to stdout for a given app container

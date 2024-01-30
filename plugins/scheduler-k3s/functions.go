@@ -14,6 +14,8 @@ import (
 
 	appjson "github.com/dokku/dokku/plugins/app-json"
 	"github.com/dokku/dokku/plugins/common"
+	resty "github.com/go-resty/resty/v2"
+	"golang.org/x/sync/errgroup"
 	"gopkg.in/yaml.v3"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/core/v1"
@@ -722,6 +724,61 @@ func installHelmCharts(ctx context.Context, clientset KubernetesClient) error {
 	return nil
 }
 
+func installHelperCommands(ctx context.Context) error {
+	urls := map[string]string{
+		"kubectx": "https://github.com/ahmetb/kubectx/releases/latest/download/kubectx",
+		"kubens":  "https://github.com/ahmetb/kubectx/releases/latest/download/kubens",
+	}
+
+	client := resty.New()
+	for binaryName, url := range urls {
+		resp, err := client.R().
+			SetContext(ctx).
+			Get(url)
+		if err != nil {
+			return fmt.Errorf("Unable to download %s: %w", binaryName, err)
+		}
+		if resp == nil {
+			return fmt.Errorf("Missing response from %s download: %w", binaryName, err)
+		}
+
+		if resp.StatusCode() != 200 {
+			return fmt.Errorf("Invalid status code for %s: %d", binaryName, resp.StatusCode())
+		}
+
+		f, err := os.Create(filepath.Join("/usr/local/bin", binaryName))
+		if err != nil {
+			return fmt.Errorf("Unable to create %s: %w", binaryName, err)
+		}
+
+		if err := f.Close(); err != nil {
+			return fmt.Errorf("Unable to close %s file: %w", binaryName, err)
+		}
+
+		err = common.WriteSliceToFile(common.WriteSliceToFileInput{
+			Filename:  f.Name(),
+			GroupName: "root",
+			Lines:     strings.Split(resp.String(), "\n"),
+			Mode:      os.FileMode(0755),
+			Username:  "root",
+		})
+		if err != nil {
+			return fmt.Errorf("Unable to write %s to file: %w", binaryName, err)
+		}
+
+		fi, err := os.Stat(f.Name())
+		if err != nil {
+			return fmt.Errorf("Unable to get %s file size: %w", binaryName, err)
+		}
+
+		if fi.Size() == 0 {
+			return fmt.Errorf("Invalid %s filesize", binaryName)
+		}
+	}
+
+	return nil
+}
+
 func isK3sInstalled() error {
 	if !common.FileExists("/usr/local/bin/k3s") {
 		return fmt.Errorf("k3s binary is not available")
@@ -795,6 +852,17 @@ func kubernetesNodeToNode(node v1.Node) Node {
 		RemoteHost: remoteHost,
 		Version:    node.Status.NodeInfo.KubeletVersion,
 	}
+}
+
+func uninstallHelperCommands(ctx context.Context) error {
+	errs, _ := errgroup.WithContext(ctx)
+	errs.Go(func() error {
+		return os.RemoveAll("/usr/local/bin/kubectx")
+	})
+	errs.Go(func() error {
+		return os.RemoveAll("/usr/local/bin/kubens")
+	})
+	return errs.Wait()
 }
 
 func waitForPodBySelectorRunning(ctx context.Context, input WaitForPodBySelectorRunningInput) error {
