@@ -1,0 +1,41 @@
+{{- $processName := "PROCESS_NAME" }}
+{{- $config := .Values.processes.PROCESS_NAME }}
+{{- if and $config.web.domains (eq $.Values.global.network.ingress_class "nginx") }}
+{{- range $pdx, $port_map := $config.web.port_maps }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    dokku.com/managed: "true"
+  labels:
+    app.kubernetes.io/instance: {{ $.Values.global.app_name }}-{{ $processName }}
+    app.kubernetes.io/name: {{ $processName }}
+    app.kubernetes.io/part-of: {{ $.Values.global.app_name }}
+  name: {{ $.Values.global.app_name }}-{{ $processName }}-{{ $port_map.name }}
+  namespace: {{ $.Values.global.namespace }}
+spec:
+  ingressClassName: nginx
+  {{- if and $config.web.tls.enabled (eq $port_map.scheme "https") }}
+  tls:
+    - hosts:
+    {{- range $ddx, $domain := $config.web.domains }}
+      - {{ $domain | quote }}
+    {{- end }}
+    secretName: tls-{{ $.Values.global.app_name }}-{{ $processName }}
+  {{- end }}
+  rules:
+    {{- range $ddx, $domain := $config.web.domains }}
+    - host: {{ $domain | quote }}
+      http:
+        paths:
+          - backend:
+              service:
+                name: {{ $.Values.global.app_name }}-{{ $processName }}
+                port:
+                  name: {{ $port_map.name }}
+            pathType: ImplementationSpecific
+            path: /
+    {{- end }}
+{{- end }}
+{{- end }}

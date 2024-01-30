@@ -351,7 +351,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 			},
 			Namespace: namespace,
 			Network: GlobalNetwork{
-				IngressClass: "traefik",
+				IngressClass: common.PropertyGetDefault("scheduler-k3s", "--global", "ingress-class", DefaultIngressClass),
 				PrimaryPort:  primaryPort,
 			},
 			Secrets: map[string]string{},
@@ -439,7 +439,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 
 		templateFiles := []string{"deployment"}
 		if processType == "web" {
-			templateFiles = append(templateFiles, "service", "certificate", "ingress-route", "https-redirect-middleware")
+			templateFiles = append(templateFiles, "service", "certificate", "ingress", "ingress-route", "https-redirect-middleware")
 		}
 		for _, templateName := range templateFiles {
 			b, err := templates.ReadFile(fmt.Sprintf("templates/chart/%s.yaml", templateName))

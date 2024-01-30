@@ -28,22 +28,21 @@ var (
 	GlobalProperties = map[string]bool{
 		"deploy-timeout":         true,
 		"image-pull-secrets":     true,
+		"ingress-class":          true,
 		"letsencrypt-server":     true,
 		"letsencrypt-email-prod": true,
 		"letsencrypt-email-stag": true,
 		"namespace":              true,
 		"network-interface":      true,
-		"proxy":                  true,
 		"rollback-on-failure":    true,
 		"token":                  true,
 	}
 )
 
-const KubeConfigPath = "/etc/rancher/k3s/k3s.yaml"
-
-const RegistryConfigPath = "/etc/rancher/k3s/registries.yaml"
-
+const DefaultIngressClass = "traefik"
 const GlobalProcessType = "--global"
+const KubeConfigPath = "/etc/rancher/k3s/k3s.yaml"
+const RegistryConfigPath = "/etc/rancher/k3s/registries.yaml"
 
 var (
 	runtimeScheme  = runtime.NewScheme()

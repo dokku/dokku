@@ -12,23 +12,24 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 
 	flags := map[string]common.ReportFunc{
 		"--scheduler-k3s-computed-deploy-timeout":       reportComputedDeployTimeout,
+		"--scheduler-k3s-computed-image-pull-secrets":   reportComputedImagePullSecrets,
+		"--scheduler-k3s-computed-letsencrypt-server":   reportComputedLetsencryptServer,
+		"--scheduler-k3s-computed-namespace":            reportComputedNamespace,
+		"--scheduler-k3s-computed-rollback-on-failure":  reportComputedRollbackOnFailure,
 		"--scheduler-k3s-deploy-timeout":                reportDeployTimeout,
 		"--scheduler-k3s-global-deploy-timeout":         reportGlobalDeployTimeout,
-		"--scheduler-k3s-computed-image-pull-secrets":   reportComputedImagePullSecrets,
-		"--scheduler-k3s-image-pull-secrets":            reportImagePullSecrets,
 		"--scheduler-k3s-global-image-pull-secrets":     reportGlobalImagePullSecrets,
-		"--scheduler-k3s-computed-letsencrypt-server":   reportComputedLetsencryptServer,
-		"--scheduler-k3s-letsencrypt-server":            reportLetsencryptServer,
-		"--scheduler-k3s-global-letsencrypt-server":     reportGlobalLetsencryptServer,
+		"--scheduler-k3s-global-ingress-class":          reportGlobalIngressClass,
 		"--scheduler-k3s-global-letsencrypt-email-prod": reportGlobalLetsencryptEmailProd,
 		"--scheduler-k3s-global-letsencrypt-email-stag": reportGlobalLetsencryptEmailStag,
-		"--scheduler-k3s-computed-namespace":            reportComputedNamespace,
-		"--scheduler-k3s-namespace":                     reportNamespace,
+		"--scheduler-k3s-global-letsencrypt-server":     reportGlobalLetsencryptServer,
 		"--scheduler-k3s-global-namespace":              reportGlobalNamespace,
 		"--scheduler-k3s-global-network-interface":      reportGlobalNetworkInterface,
-		"--scheduler-k3s-computed-rollback-on-failure":  reportComputedRollbackOnFailure,
-		"--scheduler-k3s-rollback-on-failure":           reportRollbackOnFailure,
 		"--scheduler-k3s-global-rollback-on-failure":    reportGlobalRollbackOnFailure,
+		"--scheduler-k3s-image-pull-secrets":            reportImagePullSecrets,
+		"--scheduler-k3s-letsencrypt-server":            reportLetsencryptServer,
+		"--scheduler-k3s-namespace":                     reportNamespace,
+		"--scheduler-k3s-rollback-on-failure":           reportRollbackOnFailure,
 	}
 
 	flagKeys := []string{}
@@ -64,6 +65,10 @@ func reportImagePullSecrets(appName string) string {
 
 func reportGlobalImagePullSecrets(appName string) string {
 	return getGlobalImagePullSecrets()
+}
+
+func reportGlobalIngressClass(appName string) string {
+	return getGlobalIngressClass()
 }
 
 func reportComputedLetsencryptServer(appName string) string {

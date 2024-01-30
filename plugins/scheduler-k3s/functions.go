@@ -494,6 +494,10 @@ func getComputedImagePullSecrets(appName string) string {
 	return imagePullSecrets
 }
 
+func getGlobalIngressClass() string {
+	return common.PropertyGetDefault("scheduler-k3s", "global", "ingress-class", DefaultIngressClass)
+}
+
 func getLetsencryptServer(appName string) string {
 	return common.PropertyGetDefault("scheduler-k3s", appName, "letsencrypt-server", "")
 }
