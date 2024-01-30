@@ -1,0 +1,45 @@
+controller:
+  metrics:
+    enabled: true
+  config:
+    # Print access log to file instead of stdout
+    # Separating acces logs from the rest
+    access-log-path: "/data/access.log"
+    log-format-escape-json: "true"
+
+  extraVolumeMounts:
+    - name: data
+      mountPath: /data
+  extraVolumes:
+    - name: data
+      emptyDir: {}
+  extraContainers:
+    - name: stream-accesslog
+      image: busybox
+      args:
+      - /bin/sh
+      - -c
+      - tail -n+1 -F /data/access.log
+      imagePullPolicy: Always
+      resources: {}
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /data
+        name: data
+  allowSnippetAnnotations: true
+  podAnnotations:
+    prometheus.io/path: /metrics
+    prometheus.io/port: "10254"
+    prometheus.io/scheme: http
+    prometheus.io/scrape: "true"
+  tolerations:
+  - key: "CriticalAddonsOnly"
+    operator: "Exists"
+  - key: "node-role.kubernetes.io/control-plane"
+    operator: "Exists"
+    effect: "NoSchedule"
+  - key: "node-role.kubernetes.io/master"
+    operator: "Exists"
+    effect: "NoSchedule"
+  priorityClassName: "system-cluster-critical"

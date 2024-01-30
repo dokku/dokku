@@ -754,7 +754,7 @@ func getStartCommand(input StartCommandInput) (StartCommandOutput, error) {
 	}, nil
 }
 
-func installHelmCharts(ctx context.Context, clientset KubernetesClient) error {
+func installHelmCharts(ctx context.Context, clientset KubernetesClient, shouldInstall func(HelmChart) bool) error {
 	for _, repo := range HelmRepositories {
 		helmAgent, err := NewHelmAgent("default", DeployLogPrinter)
 		if err != nil {
@@ -768,6 +768,10 @@ func installHelmCharts(ctx context.Context, clientset KubernetesClient) error {
 	}
 
 	for _, chart := range HelmCharts {
+		if !shouldInstall(chart) {
+			continue
+		}
+
 		if chart.CreateNamespace {
 			namespace := corev1.Namespace{
 				ObjectMeta: metav1.ObjectMeta{
@@ -871,6 +875,65 @@ func installHelperCommands(ctx context.Context) error {
 		if fi.Size() == 0 {
 			return fmt.Errorf("Invalid %s filesize", binaryName)
 		}
+	}
+
+	return installHelm(ctx)
+}
+
+func installHelm(ctx context.Context) error {
+	client := resty.New()
+	resp, err := client.R().
+		SetContext(ctx).
+		Get("https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3")
+	if err != nil {
+		return fmt.Errorf("Unable to download helm installer: %w", err)
+	}
+	if resp == nil {
+		return fmt.Errorf("Missing response from helm installer download: %w", err)
+	}
+
+	if resp.StatusCode() != 200 {
+		return fmt.Errorf("Invalid status code for helm installer script: %d", resp.StatusCode())
+	}
+
+	f, err := os.CreateTemp("", "sample")
+	if err != nil {
+		return fmt.Errorf("Unable to create temporary file for helm installer: %w", err)
+	}
+	defer os.Remove(f.Name())
+
+	if err := f.Close(); err != nil {
+		return fmt.Errorf("Unable to close helm installer file: %w", err)
+	}
+
+	err = common.WriteStringToFile(common.WriteStringToFileInput{
+		Content:  resp.String(),
+		Filename: f.Name(),
+		Mode:     os.FileMode(0755),
+	})
+	if err != nil {
+		return fmt.Errorf("Unable to write helm installer to file: %w", err)
+	}
+
+	fi, err := os.Stat(f.Name())
+	if err != nil {
+		return fmt.Errorf("Unable to get helm installer file size: %w", err)
+	}
+
+	if fi.Size() == 0 {
+		return fmt.Errorf("Invalid helm installer filesize")
+	}
+
+	common.LogInfo2Quiet("Running helm installer")
+	installerCmd, err := common.CallExecCommand(common.ExecCommandInput{
+		Command:     f.Name(),
+		StreamStdio: true,
+	})
+	if err != nil {
+		return fmt.Errorf("Unable to call helm installer command: %w", err)
+	}
+	if installerCmd.ExitCode != 0 {
+		return fmt.Errorf("Invalid exit code from helm installer command: %d", installerCmd.ExitCode)
 	}
 
 	return nil
