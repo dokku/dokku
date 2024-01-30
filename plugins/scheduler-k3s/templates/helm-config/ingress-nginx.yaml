@@ -5,8 +5,8 @@ controller:
     # Print access log to file instead of stdout
     # Separating acces logs from the rest
     access-log-path: "/data/access.log"
+    error-log-path: "/data/error.log"
     log-format-escape-json: "true"
-
   extraVolumeMounts:
     - name: data
       mountPath: /data
@@ -20,6 +20,20 @@ controller:
       - /bin/sh
       - -c
       - tail -n+1 -F /data/access.log
+      imagePullPolicy: Always
+      resources: {}
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /data
+        name: data
+  extraContainers:
+    - name: stream-errorlog
+      image: busybox
+      args:
+      - /bin/sh
+      - -c
+      - tail -n+1 -F /data/error.log
       imagePullPolicy: Always
       resources: {}
       terminationMessagePath: /dev/termination-log
