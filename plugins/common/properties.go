@@ -202,7 +202,10 @@ func PropertyListWrite(pluginName string, appName string, property string, value
 	}
 
 	file.Chmod(0600)
-	SetPermissions(propertyPath, 0600)
+	SetPermissions(SetPermissionInput{
+		Filename: propertyPath,
+		Mode:     os.FileMode(0600),
+	})
 	return nil
 }
 
@@ -329,7 +332,10 @@ func PropertyListRemove(pluginName string, appName string, property string, valu
 	}
 
 	file.Chmod(0600)
-	SetPermissions(propertyPath, 0600)
+	SetPermissions(SetPermissionInput{
+		Filename: propertyPath,
+		Mode:     os.FileMode(0600),
+	})
 
 	if !found {
 		return errors.New("Property not found, nothing was removed")
@@ -365,7 +371,10 @@ func PropertyListRemoveByPrefix(pluginName string, appName string, property stri
 	}
 
 	file.Chmod(0600)
-	SetPermissions(propertyPath, 0600)
+	SetPermissions(SetPermissionInput{
+		Filename: propertyPath,
+		Mode:     os.FileMode(0600),
+	})
 
 	if !found {
 		return errors.New("Property not found, nothing was removed")
@@ -441,7 +450,10 @@ func PropertyWrite(pluginName string, appName string, property string, value str
 
 	fmt.Fprint(file, value)
 	file.Chmod(0600)
-	SetPermissions(propertyPath, 0600)
+	SetPermissions(SetPermissionInput{
+		Filename: propertyPath,
+		Mode:     os.FileMode(0600),
+	})
 	return nil
 }
 
@@ -451,10 +463,19 @@ func PropertySetup(pluginName string) error {
 	if err := os.MkdirAll(pluginConfigRoot, 0755); err != nil {
 		return err
 	}
-	if err := SetPermissions(filepath.Join(MustGetEnv("DOKKU_LIB_ROOT"), "config"), 0755); err != nil {
+
+	input := SetPermissionInput{
+		Filename: filepath.Join(MustGetEnv("DOKKU_LIB_ROOT"), "config"),
+		Mode:     os.FileMode(0755),
+	}
+
+	if err := SetPermissions(input); err != nil {
 		return err
 	}
-	return SetPermissions(pluginConfigRoot, 0755)
+	return SetPermissions(SetPermissionInput{
+		Filename: pluginConfigRoot,
+		Mode:     os.FileMode(0755),
+	})
 }
 
 func getPropertyPath(pluginName string, appName string, property string) string {
@@ -478,5 +499,8 @@ func makePluginAppPropertyPath(pluginName string, appName string) error {
 	if err := os.MkdirAll(pluginAppConfigRoot, 0755); err != nil {
 		return err
 	}
-	return SetPermissions(pluginAppConfigRoot, 0755)
+	return SetPermissions(SetPermissionInput{
+		Filename: pluginAppConfigRoot,
+		Mode:     os.FileMode(0755),
+	})
 }

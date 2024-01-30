@@ -151,24 +151,33 @@ func ReadFirstLine(filename string) (text string) {
 	return
 }
 
+// SetPermissionsInput is the input struct for SetPermissions
+type SetPermissionInput struct {
+	Filename  string
+	Mode      os.FileMode
+	GroupName string
+	Username  string
+}
+
 // SetPermissions sets the proper owner and filemode for a given file
-func SetPermissions(path string, fileMode os.FileMode) error {
-	if err := os.Chmod(path, fileMode); err != nil {
+func SetPermissions(input SetPermissionInput) error {
+	if err := os.Chmod(input.Filename, input.Mode); err != nil {
 		return err
 	}
 
-	systemGroup := GetenvWithDefault("DOKKU_SYSTEM_GROUP", "dokku")
-	systemUser := GetenvWithDefault("DOKKU_SYSTEM_USER", "dokku")
-	if strings.HasPrefix(path, "/etc/sudoers.d/") {
-		systemGroup = "root"
-		systemUser = "root"
+	if input.GroupName == "" {
+		input.GroupName = GetenvWithDefault("DOKKU_SYSTEM_GROUP", "dokku")
 	}
 
-	group, err := user.LookupGroup(systemGroup)
+	if input.Username == "" {
+		input.Username = GetenvWithDefault("DOKKU_SYSTEM_USER", "dokku")
+	}
+
+	group, err := user.LookupGroup(input.GroupName)
 	if err != nil {
 		return err
 	}
-	user, err := user.Lookup(systemUser)
+	user, err := user.Lookup(input.Username)
 	if err != nil {
 		return err
 	}
@@ -182,7 +191,7 @@ func SetPermissions(path string, fileMode os.FileMode) error {
 	if err != nil {
 		return err
 	}
-	return os.Chown(path, uid, gid)
+	return os.Chown(input.Filename, uid, gid)
 }
 
 // TouchFile creates an empty file at the specified path
@@ -198,10 +207,10 @@ func TouchFile(filename string) error {
 		return err
 	}
 
-	if err := SetPermissions(filename, mode); err != nil {
-		return err
-	}
-	return nil
+	return SetPermissions(SetPermissionInput{
+		Filename: filename,
+		Mode:     mode,
+	})
 }
 
 type WriteSliceToFileInput struct {
@@ -230,9 +239,8 @@ func WriteSliceToFile(input WriteSliceToFileInput) error {
 		return err
 	}
 
-	if err := SetPermissions(input.Filename, input.Mode); err != nil {
-		return err
-	}
-
-	return nil
+	return SetPermissions(SetPermissionInput{
+		Filename: input.Filename,
+		Mode:     input.Mode,
+	})
 }
