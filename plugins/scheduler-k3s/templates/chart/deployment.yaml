@@ -14,7 +14,7 @@ metadata:
     app.kubernetes.io/name: {{ $processName }}
     app.kubernetes.io/part-of: {{ $.Values.global.app_name }}
   name: {{ $.Values.global.app_name }}-{{ $processName }}
-  namespace: default
+  namespace: {{ $.Values.global.namespace }}
 spec:
   replicas: {{ $config.replicas }}
   revisionHistoryLimit: 5

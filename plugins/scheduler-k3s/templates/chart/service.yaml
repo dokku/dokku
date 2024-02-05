@@ -11,7 +11,7 @@ metadata:
     app.kubernetes.io/name: {{ $processName }}
     app.kubernetes.io/part-of: {{ $.Values.global.app_name }}
   name: {{ $.Values.global.app_name }}-{{ $processName }}
-  namespace: default
+  namespace: {{ $.Values.global.namespace }}
 spec:
   ports:
   {{- range $pdx, $port_map := $config.web.port_maps }}
