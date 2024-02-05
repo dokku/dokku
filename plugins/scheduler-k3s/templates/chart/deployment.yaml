@@ -100,3 +100,4 @@ spec:
       {{- if $.Values.global.image.image_pull_secrets }}
       imagePullSecrets: {{ $.Values.global.image.image_pull_secrets }}
       {{- end }}
+      serviceAccountName: {{ $.Values.global.app_name }}
