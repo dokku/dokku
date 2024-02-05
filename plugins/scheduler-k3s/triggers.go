@@ -256,19 +256,22 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 	}
 
 	deploymentId := time.Now().Unix()
-	b, err := templates.ReadFile("templates/chart/secret.yaml")
-	if err != nil {
-		return fmt.Errorf("Error reading secret template: %w", err)
-	}
+	globalTemplateFiles := []string{"service-account", "secret"}
+	for _, templateName := range globalTemplateFiles {
+		b, err := templates.ReadFile(fmt.Sprintf("templates/chart/%s.yaml", templateName))
+		if err != nil {
+			return fmt.Errorf("Error reading %s template: %w", templateName, err)
+		}
 
-	filename := filepath.Join(chartDir, "templates", "secrets.yaml")
-	err = os.WriteFile(filename, b, os.FileMode(0644))
-	if err != nil {
-		return fmt.Errorf("Error writing secrets template: %w", err)
-	}
+		filename := filepath.Join(chartDir, "templates", fmt.Sprintf("%s.yaml", templateName))
+		err = os.WriteFile(filename, b, os.FileMode(0644))
+		if err != nil {
+			return fmt.Errorf("Error writing %s template: %w", templateName, err)
+		}
 
-	if os.Getenv("DOKKU_TRACE") == "1" {
-		common.CatFile(filename)
+		if os.Getenv("DOKKU_TRACE") == "1" {
+			common.CatFile(filename)
+		}
 	}
 
 	portMaps, err := getPortMaps(appName)
