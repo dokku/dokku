@@ -8,6 +8,7 @@ require (
 	github.com/dokku/dokku/plugins/common v0.0.0-00010101000000-000000000000
 	github.com/dokku/dokku/plugins/config v0.0.0-00010101000000-000000000000
 	github.com/dokku/dokku/plugins/cron v0.0.0-00010101000000-000000000000
+	github.com/dokku/dokku/plugins/nginx-vhosts v0.0.0-00010101000000-000000000000
 	github.com/fatih/color v1.16.0
 	github.com/go-openapi/jsonpointer v0.19.6
 	github.com/go-resty/resty/v2 v2.11.0
@@ -18,6 +19,7 @@ require (
 	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/spf13/pflag v1.0.5
 	github.com/traefik/traefik/v2 v2.10.7
+	golang.org/x/sync v0.6.0
 	gopkg.in/yaml.v3 v3.0.1
 	helm.sh/helm/v3 v3.13.3
 	k8s.io/api v0.29.0
@@ -152,7 +154,6 @@ require (
 	golang.org/x/mod v0.14.0 // indirect
 	golang.org/x/net v0.19.0 // indirect
 	golang.org/x/oauth2 v0.12.0 // indirect
-	golang.org/x/sync v0.6.0 // indirect
 	golang.org/x/sys v0.16.0 // indirect
 	golang.org/x/term v0.16.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
@@ -186,3 +187,5 @@ replace github.com/dokku/dokku/plugins/common => ../common
 replace github.com/dokku/dokku/plugins/config => ../config
 
 replace github.com/dokku/dokku/plugins/cron => ../cron
+
+replace github.com/dokku/dokku/plugins/nginx-vhosts => ../nginx-vhosts

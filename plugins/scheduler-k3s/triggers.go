@@ -410,6 +410,8 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 				},
 			}
 
+			processValues.Annotations.IngressAnnotations = getIngressAnnotations(appName, processType)
+
 			processValues.ProcessType = ProcessType_Web
 			for _, portMap := range portMaps {
 				protocol := PortmapProtocol_TCP

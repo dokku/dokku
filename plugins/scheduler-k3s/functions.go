@@ -14,6 +14,7 @@ import (
 
 	appjson "github.com/dokku/dokku/plugins/app-json"
 	"github.com/dokku/dokku/plugins/common"
+	nginxvhosts "github.com/dokku/dokku/plugins/nginx-vhosts"
 	resty "github.com/go-resty/resty/v2"
 	"golang.org/x/sync/errgroup"
 	"gopkg.in/yaml.v3"
@@ -496,6 +497,167 @@ func getComputedImagePullSecrets(appName string) string {
 
 func getGlobalIngressClass() string {
 	return common.PropertyGetDefault("scheduler-k3s", "global", "ingress-class", DefaultIngressClass)
+}
+
+func getIngressAnnotations(appName string, processType string) map[string]string {
+	type annotation struct {
+		annotation      string
+		getter          func(appName string) string
+		locationSnippet func(value string) string
+		serverSnippet   func(value string) string
+	}
+
+	locationLines := []string{}
+	serverLines := []string{}
+
+	properties := map[string]annotation{
+		"access-log-path": {
+			getter: nginxvhosts.ComputedAccessLogPath,
+			serverSnippet: func(value string) string {
+				if value == "" {
+					return ""
+				}
+				return fmt.Sprintf("access_log %s;", value)
+			},
+		},
+		"bind-address-ipv4": {
+			getter: nginxvhosts.ComputedBindAddressIPv4,
+		},
+		"bind-address-ipv6": {
+			getter: nginxvhosts.ComputedBindAddressIPv6,
+		},
+		"client-max-body-size": {
+			annotation: "nginx.ingress.kubernetes.io/proxy-body-size",
+			getter:     nginxvhosts.ComputedClientMaxBodySize,
+		},
+		"disable-custom-config": {
+			getter: nginxvhosts.ComputedDisableCustomConfig,
+		},
+		"error-log-path": {
+			getter: nginxvhosts.ComputedErrorLogPath,
+			serverSnippet: func(value string) string {
+				if value == "" {
+					return ""
+				}
+				return fmt.Sprintf("error_log %s;", value)
+			},
+		},
+		// todo: handle hsts properly
+		"hsts-include-subdomains": {
+			getter: nginxvhosts.ComputedHSTSIncludeSubdomains,
+		},
+		"hsts-max-age": {
+			getter: nginxvhosts.ComputedHSTSMaxAge,
+		},
+		"hsts-preload": {
+			getter: nginxvhosts.ComputedHSTSPreload,
+		},
+		"hsts": {
+			getter: nginxvhosts.ComputedHSTS,
+		},
+		"nginx-conf-sigil-path": {
+			getter: nginxvhosts.ComputedNginxConfSigilPath,
+		},
+		"proxy-buffer-size": {
+			annotation: "nginx.ingress.kubernetes.io/proxy-buffer-size",
+			getter:     nginxvhosts.ComputedProxyBufferSize,
+		},
+		"proxy-buffering": {
+			getter: nginxvhosts.ComputedProxyBuffering,
+			locationSnippet: func(value string) string {
+				if value == "" {
+					return ""
+				}
+				return fmt.Sprintf("proxy_buffering %s;", value)
+			},
+		},
+		"proxy-buffers": {
+			annotation: "nginx.ingress.kubernetes.io/proxy-buffers-number",
+			getter:     nginxvhosts.ComputedProxyBuffers,
+		},
+		"proxy-busy-buffers-size": {
+			getter: nginxvhosts.ComputedProxyBusyBuffersSize,
+			locationSnippet: func(value string) string {
+				if value == "" {
+					return ""
+				}
+				return fmt.Sprintf("proxy_busy_buffers_size %s;", value)
+			},
+		},
+		"proxy-read-timeout": {
+			annotation: "nginx.ingress.kubernetes.io/proxy-read-timeout",
+			getter:     nginxvhosts.ComputedProxyReadTimeout,
+		},
+		"x-forwarded-for-value": {
+			getter: nginxvhosts.ComputedXForwardedForValue,
+			locationSnippet: func(value string) string {
+				if value == "" {
+					return ""
+				}
+				return fmt.Sprintf("proxy_set_header X-Forwarded-For %s;", value)
+			},
+		},
+		"x-forwarded-port-value": {
+			getter: nginxvhosts.ComputedXForwardedPortValue,
+			locationSnippet: func(value string) string {
+				if value == "" {
+					return ""
+				}
+				return fmt.Sprintf("proxy_set_header X-Forwarded-Port %s;", value)
+			},
+		},
+		"x-forwarded-proto-value": {
+			getter: nginxvhosts.ComputedXForwardedProtoValue,
+			locationSnippet: func(value string) string {
+				if value == "" {
+					return ""
+				}
+				return fmt.Sprintf("proxy_set_header X-Forwarded-Proto %s;", value)
+			},
+		},
+		"x-forwarded-ssl": {
+			getter: nginxvhosts.ComputedXForwardedSSL,
+			locationSnippet: func(value string) string {
+				if value == "" {
+					return ""
+				}
+				return fmt.Sprintf("proxy_set_header X-Forwarded-SSL %s;", value)
+			},
+		},
+	}
+
+	data := map[string]string{}
+	for _, newKey := range properties {
+		if newKey.locationSnippet != nil {
+			locationLines = append(locationLines, newKey.locationSnippet(newKey.getter(appName)))
+		} else if newKey.serverSnippet != nil {
+			serverLines = append(serverLines, newKey.serverSnippet(newKey.getter(appName)))
+		} else if newKey.annotation != "" {
+			data[newKey.annotation] = newKey.getter(appName)
+		}
+	}
+
+	var locationSnippet string
+	for _, line := range locationLines {
+		if line != "" {
+			locationSnippet += line + "\n"
+		}
+	}
+	var serverSnippet string
+	for _, line := range serverLines {
+		if line != "" {
+			serverSnippet += line + "\n"
+		}
+	}
+
+	if locationSnippet != "" {
+		data["nginx.ingress.kubernetes.io/configuration-snippet"] = locationSnippet
+	}
+	if serverSnippet != "" {
+		data["nginx.ingress.kubernetes.io/server-snippet"] = serverSnippet
+	}
+
+	return data
 }
 
 func getLetsencryptServer(appName string) string {
