@@ -1,5 +1,5 @@
 {{- $processName := "PROCESS_NAME" }}
-{{- $config := .Values.processes.PROCESS_NAME }}
+{{- $config := index .Values.processes "PROCESS_NAME" }}
 {{- if and $config.web.domains (eq $.Values.global.network.ingress_class "nginx") }}
 {{- range $pdx, $port_map := $config.web.port_maps }}
 ---
@@ -8,6 +8,16 @@ kind: Ingress
 metadata:
   annotations:
     dokku.com/managed: "true"
+    {{- if and $.Values.global.annotations $.Values.global.annotations.deployment }}
+    {{- range $k, $v := $.Values.global.annotations.deployment }}
+    {{ $k }}: {{ $v | quote }}
+    {{- end }}
+    {{- end }}
+    {{- if and $config.annotations $config.annotations.ingress }}
+    {{- range $k, $v := $config.annotations.ingress }}
+    {{ $k }}: {{ $v | quote }}
+    {{- end }}
+    {{- end }}
   labels:
     app.kubernetes.io/instance: {{ $.Values.global.app_name }}-{{ $processName }}
     app.kubernetes.io/name: {{ $processName }}
