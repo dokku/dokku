@@ -17,7 +17,7 @@ metadata:
     app.kubernetes.io/part-of: {{ $.Values.global.app_name }}
     dokku.com/cron-id: {{ $config.cron.id }}
   name: {{ $.Values.global.app_name }}-cron-{{ $config.cron.suffix }}
-  namespace: default
+  namespace: {{ $.Values.global.namespace }}
 spec:
   concurrencyPolicy: Allow
   failedJobsHistoryLimit: 10
