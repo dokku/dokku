@@ -49,110 +49,6 @@ The nginx server can be stopped via `nginx:stop`.
 dokku nginx:stop
 ```
 
-### Binding to specific addresses
-
-> [!IMPORTANT]
-> New as of 0.19.2
-
-> [!NOTE]
-> Changing this value globally or on a per-app basis will require rebuilding the nginx config via the `proxy:build-config` command.
-
-By default, nginx will listen to all interfaces (`[::]` for IPv6, `0.0.0.0` for IPv4) when proxying requests to applications. This may be changed using the `bind-address-ipv4` and `bind-address-ipv6` properties. This is useful in cases where the proxying should be internal to a network or if there are multiple network interfaces that should respond with different content.
-
-```shell
-dokku nginx:set node-js-app bind-address-ipv4 127.0.0.1
-dokku nginx:set node-js-app bind-address-ipv6 ::1
-```
-
-This may be reverted by setting an empty bind address.
-
-```shell
-dokku nginx:set node-js-app bind-address-ipv4
-dokku nginx:set node-js-app bind-address-ipv6
-```
-
-> [!WARNING]
-> Validation is not performed on either value.
-
-Users with apps that contain a custom `nginx.conf.sigil` file will need to modify the files to respect the new `NGINX_BIND_ADDRESS_IPV4` and `NGINX_BIND_ADDRESS_IPV6` variables.
-
-### HSTS Header
-
-> [!IMPORTANT]
-> New as of 0.20.0
-
-> [!NOTE]
-> Changing this value globally or on a per-app basis will require rebuilding the nginx config via the `proxy:build-config` command.
-
-If SSL certificates are present, HSTS will be automatically enabled. It can be toggled via `nginx:set`:
-
-```shell
-dokku nginx:set node-js-app hsts true
-dokku nginx:set node-js-app hsts false
-```
-
-The following options are also available via the `nginx:set` command:
-
-- `hsts` (type: boolean, default: `true`): Enables or disables HSTS for your application.
-- `hsts-include-subdomains` (type: boolean, default: `true`): Tells the browser that the HSTS policy also applies to all subdomains of the current domain.
-- `hsts-max-age` (type: integer, default: `15724800`): Time in seconds to cache HSTS configuration.
-- `hsts-preload` (type: boolean, default: `false`): Tells most major web browsers to include the domain in their HSTS preload lists.
-
-Beware that if you enable the header and a subsequent deploy of your application results in an HTTP deploy (for whatever reason), the way the header works means that a browser will not attempt to request the HTTP version of your site if the HTTPS version fails until the max-age is reached.
-
-#### Globally disabling the HSTS Header
-
-> [!NOTE]
-> Changing this value globally or on a per-app basis will require rebuilding the nginx config via the `proxy:build-config` command.
-
-HSTS Header can be disabled for all apps by setting the `hsts` property to false after passing the `--global` flag to `nginx:set`.
-
-```shell
-dokku nginx:set --global hsts false
-```
-
-Once the HSTS setting is disabled globally, it can be re-enabled on a per-app basis by setting the `hsts` property as normal.
-
-```shell
-dokku nginx:set node-js-app hsts true
-```
-
-### Running behind another proxy — configuring `X-Forwarded-*` headers
-
-Dokku's default Nginx configuration passes the de-facto standard HTTP headers [`X-Forwarded-For`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-For), [`X-Forwarded-Proto`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Proto), and `X-Forwarded-Port` to your application.
-These headers indicate the IP address of the original client making the request, the protocol of the original request (HTTP or HTTPS), and the port number of the original request, respectively.
-
-If you have another HTTP proxy sitting in between the end user and your server (for example, a load balancer, or a CDN), then the values of these headers will contain information about (e.g. the IP address of) the the closest proxy, and not the end user.
-
-To fix this, assuming that the other proxy also passes `X-Forwarded-*` headers, which in turn contain information about the end user, you can tell Nginx include those values in the `X-Forwarded-*` headers that it sends to your application. You can do this via `nginx:set`, like so:
-
-```shell
-dokku nginx:set node-js-app x-forwarded-for-value '$http_x_forwarded_for'
-dokku nginx:set node-js-app x-forwarded-port-value '$http_x_forwarded_port'
-dokku nginx:set node-js-app x-forwarded-proto-value '$http_x_forwarded_proto'
-```
-
-However, note that you should only do this if:
-
-1. Requests to your website always go through a trusted proxy.
-2. That proxy is configured to send the aforementioned `X-Forwarded-*` headers.
-
-Otherwise, if it's possible for clients to make HTTP requests directly against your server, bypassing the other proxy, or if the other proxy is not configured to set these headers, then a client can basically pass any arbitrary values for these headers (which your app then presumably reads) and thereby fake an IP address, for example.
-
-There's also the `X-Forwarded-Ssl` header which a less common alternative to `X-Forwarded-Proto` — and because of that, isn't included in Dokku's default Nginx configuration.
-But you can tell Nginx to send this header as well, if necessary.
-
-```shell
-# force-setting value to `on`
-dokku nginx:set node-js-app x-forwarded-ssl on
-
-# force-setting value to `off`
-dokku nginx:set node-js-app x-forwarded-ssl off
-
-# removing the value from nginx.conf (default)
-dokku nginx:set node-js-app x-forwarded-ssl
-```
-
 ### Checking access logs
 
 > [!NOTE]
@@ -183,130 +79,6 @@ You may also follow the logs by specifying the `-t` flag.
 ```shell
 dokku nginx:error-logs node-js-app -t
 ```
-
-### Changing log path
-
-> [!IMPORTANT]
-> New as of 0.20.1
-
-> [!NOTE]
-> Changing this value globally or on a per-app basis will require rebuilding the nginx config via the `proxy:build-config` command.
-
-The path to where log files are stored can be changed by calling the `nginx:set` command with the following options:
-
-- `access-log-path` (type: string, default: `${NGINX_LOG_ROOT}/${APP}-access.log`): Log path for nginx access logs
-- `error-log-path` (type: string, default: `${NGINX_LOG_ROOT}/${APP}-error.log`): Log path for nginx error logs
-
-The defaults should not be changed without verifying that the paths will be writeable by nginx. However, this setting is useful for enabling or disabling logging by setting the values to `off`.
-
-```shell
-dokku nginx:set node-js-app access-log-path off
-dokku nginx:set node-js-app error-log-path off
-```
-
-The default value may be set by passing an empty value for the option:
-
-```shell
-dokku nginx:set node-js-app access-log-path
-dokku nginx:set node-js-app error-log-path
-```
-
-In all cases, the nginx config must be regenerated after setting the above values.
-
-### Changing log format
-
-> [!IMPORTANT]
-> New as of 0.22.0
-
-> [!NOTE]
-> Changing this value globally or on a per-app basis will require rebuilding the nginx config via the `proxy:build-config` command.
-
-The format of the access log can be changed by calling the `nginx:set` command as follows:
-
-```shell
-dokku nginx:set node-js-app access-log-format custom-format
-```
-
-Prior to changing the log-format, log formats should be specified at a file such as `/etc/nginx/conf.d/00-log-formats.conf`. This will ensure they are available within your app's nginx context. For instance, the following may be added to the above file. It only needs to be specified once to be used for all apps.
-
-```nginx
-# /etc/nginx/conf.d/00-log-formats.conf
-# escape=json was added in nginx 1.11.8
-log_format json_combined escape=json
-  '{'
-    '"time_local":"$time_local",'
-    '"remote_addr":"$remote_addr",'
-    '"remote_user":"$remote_user",'
-    '"request":"$request",'
-    '"status":"$status",'
-    '"body_bytes_sent":"$body_bytes_sent",'
-    '"request_time":"$request_time",'
-    '"http_referrer":"$http_referer",'
-    '"http_user_agent":"$http_user_agent"'
-  '}';
-```
-
-Next, the format should be set for the given app.
-
-```shell
-dokku nginx:set node-js-app access-log-format json_combined
-```
-
-Finally, a proxy rebuild will change the format as desired.
-
-```shell
-dokku proxy:build-config node-js-app
-```
-
-### Specifying a read timeout
-
-> [!IMPORTANT]
-> New as of 0.21.0
-
-> [!NOTE]
-> Changing this value globally or on a per-app basis will require rebuilding the nginx config via the `proxy:build-config` command.
-
-When proxying requests to your applications, it may be useful to specify a proxy read timeout. This can be done via the `nginx:set` command as follows:
-
-```shell
-dokku nginx:set node-js-app proxy-read-timeout 120s
-```
-
-The default value is `60s`, and all numeric values _must_ have a trailing time value specified (`s` for seconds, `m` for minutes).
-
-The default value may be set by passing an empty value for the option:
-
-```shell
-dokku nginx:set node-js-app proxy-read-timeout
-```
-
-In all cases, the nginx config must be regenerated after setting the above value.
-
-### Specifying a custom client_max_body_size
-
-> [!IMPORTANT]
-> New as of 0.23.0
-
-> [!NOTE]
-> Changing this value globally or on a per-app basis will require rebuilding the nginx config via the `proxy:build-config` command.
-
-Users can override the default `client_max_body_size` value - which limits file uploads - via `nginx:set`. Changing this value will only apply to every `server` stanza of the default `nginx.conf.sigil`; users of custom `nginx.conf.sigil` files must update their templates to support the new value.
-
-```shell
-dokku nginx:set node-js-app client-max-body-size 50m
-```
-
-The default value is empty string, which will result in nginx falling back to any configured, higher-level defaults (or `1m` if unconfigued; all numerical values _must_ have a size unit specified (`k` for kilobytes, `m` for megabytes).
-
-The default value may be set by passing an empty value for the option:
-
-```shell
-dokku nginx:set node-js-app client-max-body-size
-```
-
-In all cases, the nginx config must be regenerated after setting the above value.
-
-Changing this value when using the PHP buildpack (or any other buildpack that uses an intermediary server) will require changing the value in the server config shipped with that buildpack. Consult your buildpack documentation for further details.
 
 ### Showing the nginx config
 
@@ -340,6 +112,65 @@ The `--clean` flag may also be specified for a given app:
 ```shell
 dokku nginx:validate-config node-js-app --clean
 ```
+
+### Custom Error Pages
+
+By default, Dokku provides custom error pages for the following three categories of errors:
+
+- 4xx: For all non-404 errors with a 4xx response code.
+- 404: For "404 Not Found" errors.
+- 5xx: For all 5xx error responses
+
+These are provided as an alternative to the generic Nginx error page, are shared for _all_ applications, and their contents are located on disk at `/var/lib/dokku/data/nginx-vhosts/dokku-errors`. To customize them for a specific app, create a custom `nginx.conf.sigil` as described above and change the paths to point elsewhere.
+
+### Default site
+
+By default, Dokku will route any received request with an unknown HOST header value to the lexicographically first site in the nginx config stack. This means that accessing the dokku server via its IP address or a bogus domain name may return a seemingly random website.
+
+> [!WARNING]
+> Some versions of Nginx may create a default site when installed. This site is simply a static page which says "Welcome to Nginx", and if this default site is enabled, Nginx will not route any requests with an unknown HOST header to Dokku. If you want Dokku to receive all requests, run the following commands:
+>
+> ```
+> rm /etc/nginx/sites-enabled/default
+> dokku nginx:stop
+> dokku nginx:start
+> ```
+
+If services should only be accessed via their domain name, you may want to disable the default site by adding the following configuration to the global nginx configuration.
+
+Create the file at `/etc/nginx/conf.d/00-default-vhost.conf`:
+
+```nginx
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    # If services hosted by dokku are available via HTTPS, it is recommended
+    # to also uncomment the following section.
+    #
+    # Please note that in order to let this work, you need an SSL certificate. However
+    # it does not need to be valid. Users of Debian-based distributions can install the
+    # `ssl-cert` package with `sudo apt install ssl-cert` to automatically generate
+    # a self-signed certificate that is stored at `/etc/ssl/certs/ssl-cert-snakeoil.pem`.
+    #
+    #listen 443 ssl;
+    #listen [::]:443 ssl;
+    #ssl_certificate /etc/ssl/certs/ssl-cert-snakeoil.pem;
+    #ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;
+
+    server_name _;
+    access_log off;
+    return 444;
+}
+```
+
+Make sure to reload nginx after creating this file by running `systemctl reload nginx.service`.
+
+This will catch all unknown HOST header values and close the connection without responding. You can replace the `return 444;` with `return 410;` which will cause nginx to respond with an error page.
+
+The configuration file must be loaded before `/etc/nginx/conf.d/dokku.conf`, so it can not be arranged as a vhost in `/etc/nginx/sites-enabled` that is only processed afterwards.
+
+Alternatively, you may push an app to your Dokku host with a name like "00-default". As long as it lists first in `ls /home/dokku/*/nginx.conf | head`, it will be used as the default nginx vhost.
 
 ### Customizing the nginx configuration
 
@@ -445,64 +276,188 @@ location / {
 
 Please adjust the `Procfile` and `nginx.conf` file as appropriate.
 
-### Custom Error Pages
+### Setting Properties for the nginx config
 
-By default, Dokku provides custom error pages for the following three categories of errors:
+The nginx plugin exposes a variety of properties configurable via the `nginx:set` command. The properties are used to configure the generated `nginx.conf` file from the `nginx.conf.sigil` template. The value precedence is app-specific, then global, and finally the Dokku default.
 
-- 4xx: For all non-404 errors with a 4xx response code.
-- 404: For "404 Not Found" errors.
-- 5xx: For all 5xx error responses
+The nginx:set command takes an app name or the `--global` flag.
 
-These are provided as an alternative to the generic Nginx error page, are shared for _all_ applications, and their contents are located on disk at `/var/lib/dokku/data/nginx-vhosts/dokku-errors`. To customize them for a specific app, create a custom `nginx.conf.sigil` as described above and change the paths to point elsewhere.
+```shell
+# set a property for the node-js-app
+dokku nginx:set node-js-app property-name some-value
 
-### Default site
-
-By default, Dokku will route any received request with an unknown HOST header value to the lexicographically first site in the nginx config stack. This means that accessing the dokku server via its IP address or a bogus domain name may return a seemingly random website.
-
-> [!WARNING]
-> some versions of Nginx may create a default site when installed. This site is simply a static page which says "Welcome to Nginx", and if this default site is enabled, Nginx will not route any requests with an unknown HOST header to Dokku. If you want Dokku to receive all requests, run the following commands:
->
-> ```
-> rm /etc/nginx/sites-enabled/default
-> dokku nginx:stop
-> dokku nginx:start
-> ```
-
-If services should only be accessed via their domain name, you may want to disable the default site by adding the following configuration to the global nginx configuration.
-
-Create the file at `/etc/nginx/conf.d/00-default-vhost.conf`:
-
-```nginx
-server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
-
-    # If services hosted by dokku are available via HTTPS, it is recommended
-    # to also uncomment the following section.
-    #
-    # Please note that in order to let this work, you need an SSL certificate. However
-    # it does not need to be valid. Users of Debian-based distributions can install the
-    # `ssl-cert` package with `sudo apt install ssl-cert` to automatically generate
-    # a self-signed certificate that is stored at `/etc/ssl/certs/ssl-cert-snakeoil.pem`.
-    #
-    #listen 443 ssl;
-    #listen [::]:443 ssl;
-    #ssl_certificate /etc/ssl/certs/ssl-cert-snakeoil.pem;
-    #ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;
-
-    server_name _;
-    access_log off;
-    return 444;
-}
+# set a property globally
+dokku nginx:set --global property-name some-value
 ```
 
-Make sure to reload nginx after creating this file by running `systemctl reload nginx.service`.
+Additionally, setting an empty value will result in reverting the value back to it's default. For app-specific values, this means that Dokku will revert to the globally specified (or global default) value.
 
-This will catch all unknown HOST header values and close the connection without responding. You can replace the `return 444;` with `return 410;` which will cause nginx to respond with an error page.
+```shell
+# default the value back to the global value for node-js-app
+dokku nginx:set node-js-app property-name
 
-The configuration file must be loaded before `/etc/nginx/conf.d/dokku.conf`, so it can not be arranged as a vhost in `/etc/nginx/sites-enabled` that is only processed afterwards.
+# use the dokku default as the global value
+dokku nginx:set --global property-name
+```
 
-Alternatively, you may push an app to your Dokku host with a name like "00-default". As long as it lists first in `ls /home/dokku/*/nginx.conf | head`, it will be used as the default nginx vhost.
+Changing these value globally or on a per-app basis will require rebuilding the nginx config via the `proxy:build-config` command.
+
+> [!WARNING]
+> Validation is not performed against the values, and they are used as is within Dokku.
+
+| Property                  | Default                               | Type    | Explanation                                                                         | 
+| --------------------------|---------------------------------------|---------|-------------------------------------------------------------------------------------|
+| access-log-format         | empty string                          | string  | Name of custom log format to use (log format must be specified elsewhere)           |
+| access-log-path           | `${NGINX_LOG_ROOT}/${APP}-access.log` | string  | Log path for nginx access logs (set to `off` to disable)                            |
+| bind-address-ipv4         | `0.0.0.0`                             | string  | Default IPv4 address to bind to                                                     |
+| bind-address-ipv6         | `[::]`                                | string  | Default IPv6 address to bind to                                                     |
+| client-max-body-size      | `1m`                                  | string  | Size (with units) of client request body (usually modified for file uploads)        |
+| error-log-path            | `${NGINX_LOG_ROOT}/${APP}-error.log`  | string  | Log path for nginx error logs (set to `off` to disable)                             |
+| hsts                      | `true`                                | boolean | Enables or disables HSTS for your application                                       |
+| hsts-include-subdomains   | `true`                                | boolean | Forces the browser to apply the HSTS policy to all app subdomains                   |
+| hsts-max-age              | `15724800`                            | integer | Time in seconds to cache HSTS configuration                                         |
+| hsts-preload              | `false`                               | boolean | Tells the browser to include the domain in their HSTS preload lists                 |
+| nginx-conf-sigil-path     | `nginx.conf.sigil`                    | string  | Path in the repository to the `nginx.conf.sigil` file                               |
+| proxy-buffer-size         | `8k` (# is os pagesize)               | string  | Size of the buffer used for reading the first part of proxied server response       |
+| proxy-buffering           | `on`                                  | string  | Enables or disables buffering of responses from the proxied server                  |
+| proxy-buffers             | `8 8k`                                | string  | Number and size of the buffers used for reading the proxied server response, for a single connection |
+| proxy-busy-buffers-size   | `16k`                                 | string  | Limits the total size of buffers that can be busy sending a response to the client while the response is not yet fully read. |
+| proxy-read-timeout        | `60s`                                 | string  | Timeout (with units) for reading response from your backend server                  |
+| x-forwarded-for-value     | `$remote_addr`                        | string  | Used for specifying the header value to set for the `X-Forwared-For` header         |
+| x-forwarded-port-value    | `$server_port`                        | string  | Used for specifying the header value to set for the `X-Forwared-Port` header        |
+| x-forwarded-proto-value   | `$scheme`                             | string  | Used for specifying the header value to set for the `X-Forwared-Proto` header       |
+| x-forwarded-ssl           | empty string                          | string  | Less commonly used alternative to `X-Forwarded-Proto` (valid values: `on` or `off`) |
+
+#### Binding to specific addresses
+
+> [!NOTE]
+> Users with apps that contain a custom `nginx.conf.sigil` file will need to modify the files to respect the new `NGINX_BIND_ADDRESS_IPV4` and `NGINX_BIND_ADDRESS_IPV6` variables.
+
+Properties:
+
+- `bind-address-ipv4`
+- `bind-address-ipv6`
+
+This is useful in cases where the proxying should be internal to a network or if there are multiple network interfaces that should respond with different content.
+
+#### HSTS Header
+
+> [!WARNING]
+> if you enable the header and a subsequent deploy of your application results in an HTTP deploy (for whatever reason), the way the header works means that a browser will not attempt to request the HTTP version of your site if the HTTPS version fails until the max-age is reached.
+
+Properties:
+
+- `hsts`
+- `hsts-include-subdomains`
+- `hsts-max-age`
+- `hsts-preload`
+
+If SSL certificates are present, HSTS will be automatically enabled.
+
+#### Running behind another proxy — configuring `X-Forwarded-*` headers
+
+> [!WARNING]
+> These values should only be modified if there is an intermediate Load balancer or CDN between the user and the Dokku server hosting your application.
+
+Properties:
+
+- `x-forwarded-for-value`
+- `x-forwarded-port-value`
+- `x-forwarded-proto-value`
+- `x-forwarded-ssl`
+
+
+Dokku's default Nginx configuration passes the de-facto standard HTTP headers [`X-Forwarded-For`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-For), [`X-Forwarded-Proto`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Proto), and `X-Forwarded-Port` to your application.
+These headers indicate the IP address of the original client making the request, the protocol of the original request (HTTP or HTTPS), and the port number of the original request, respectively.
+
+If you have another HTTP proxy sitting in between the end user and your server (for example, a load balancer, or a CDN), then the values of these headers will contain information about (e.g. the IP address of) the the closest proxy, and not the end user.
+
+To fix this, assuming that the other proxy also passes `X-Forwarded-*` headers, which in turn contain information about the end user, you can tell Nginx include those values in the `X-Forwarded-*` headers that it sends to your application. You can do this via `nginx:set`, like so:
+
+```shell
+dokku nginx:set node-js-app x-forwarded-for-value '$http_x_forwarded_for'
+dokku nginx:set node-js-app x-forwarded-port-value '$http_x_forwarded_port'
+dokku nginx:set node-js-app x-forwarded-proto-value '$http_x_forwarded_proto'
+```
+
+However, note that you should only do this if:
+
+1. Requests to your website always go through a trusted proxy.
+2. That proxy is configured to send the aforementioned `X-Forwarded-*` headers.
+
+Otherwise, if it's possible for clients to make HTTP requests directly against your server, bypassing the other proxy, or if the other proxy is not configured to set these headers, then a client can basically pass any arbitrary values for these headers (which your app then presumably reads) and thereby fake an IP address, for example.
+
+There's also the `X-Forwarded-Ssl` header which a less common alternative to `X-Forwarded-Proto` — and because of that, isn't included in Dokku's default Nginx configuration. It can be turned `on` if need be:
+
+```shell
+# force-setting value to `on`
+dokku nginx:set node-js-app x-forwarded-ssl on
+```
+
+#### Changing log path
+
+> [!WARNING]
+> The defaults should not be changed without verifying that the paths will be writeable by nginx.
+
+Properties:
+
+- `access-log-path`
+- `error-log-path`
+
+These setting can be useful for enabling or disabling logging by setting the values to `off`.
+
+```shell
+dokku nginx:set node-js-app access-log-path off
+dokku nginx:set node-js-app error-log-path off
+```
+
+#### Changing log format
+
+Properties:
+
+- `acccess-log-format`
+
+Prior to changing the log-format, log formats should be specified at a file such as `/etc/nginx/conf.d/00-log-formats.conf`. This will ensure they are available within your app's nginx context. For instance, the following may be added to the above file. It only needs to be specified once to be used for all apps.
+
+```nginx
+# /etc/nginx/conf.d/00-log-formats.conf
+# escape=json was added in nginx 1.11.8
+log_format json_combined escape=json
+  '{'
+    '"time_local":"$time_local",'
+    '"remote_addr":"$remote_addr",'
+    '"remote_user":"$remote_user",'
+    '"request":"$request",'
+    '"status":"$status",'
+    '"body_bytes_sent":"$body_bytes_sent",'
+    '"request_time":"$request_time",'
+    '"http_referrer":"$http_referer",'
+    '"http_user_agent":"$http_user_agent"'
+  '}';
+```
+
+#### Specifying a read timeout
+
+> [!NOTE]
+> All numeric values _must_ have a trailing time value specified (`s` for seconds, `m` for minutes).
+
+Properties:
+
+- `proxy-read-timeout`
+
+#### Specifying a custom client_max_body_size
+
+> [!NOTE]
+> All numerical values _must_ have a trailing size unit specified (`k` for kilobytes, `m` for megabytes).
+
+Properties:
+
+- `client-max-body-size`
+
+This property is commonly used to increase the max file upload size.
+
+Changing this value when using the PHP buildpack (or any other buildpack that uses an intermediary server) will require changing the value in the server config shipped with that buildpack. Consult your buildpack documentation for further details.
+
 
 ## Other
 

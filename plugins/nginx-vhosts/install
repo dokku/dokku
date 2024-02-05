@@ -37,7 +37,7 @@ fn-nginx-vhosts-migrate-nginx-conf-sigil() {
   fn-plugin-property-write "nginx" "--global" "nginx-conf-sigil-migrated" "true"
 
   for APP in $(dokku_apps "false" 2>/dev/null); do
-    local DISABLE_CUSTOM_CONFIG="$(fn-plugin-property-get-default "nginx" "$APP" "disable-custom-config" "false")"
+    local DISABLE_CUSTOM_CONFIG="$(fn-nginx-computed-disable-custom-config "$APP")"
     if [[ "$DISABLE_CUSTOM_CONFIG" == "true" ]]; then
       continue
     fi

@@ -154,7 +154,7 @@ fn-openresty-proxy-buffer-size() {
   declare desc="get the configured proxy buffer size"
   declare APP="$1"
 
-  fn-plugin-property-get-default "openresty" "$APP" "proxy-buffer-size" "$(fn-get-pagesize)"
+  fn-plugin-property-get-default "openresty" "$APP" "proxy-buffer-size" "$(fn-get-pagesize)k"
 }
 
 fn-openresty-proxy-buffering() {
@@ -168,14 +168,14 @@ fn-openresty-proxy-buffers() {
   declare desc="get the configured proxy buffers"
   declare APP="$1"
 
-  fn-plugin-property-get-default "openresty" "$APP" "proxy-buffers" "8 $(fn-get-pagesize)"
+  fn-plugin-property-get-default "openresty" "$APP" "proxy-buffers" "8 $(fn-get-pagesize)k"
 }
 
 fn-openresty-proxy-busy-buffers-size() {
   declare desc="get the configured proxy busy buffers size"
   declare APP="$1"
 
-  fn-plugin-property-get-default "openresty" "$APP" "proxy-busy-buffers-size" "$(($(fn-get-pagesize) * 2))"
+  fn-plugin-property-get-default "openresty" "$APP" "proxy-busy-buffers-size" "$(($(fn-get-pagesize) * 2))k"
 }
 
 fn-openresty-proxy-connect-timeout() {
