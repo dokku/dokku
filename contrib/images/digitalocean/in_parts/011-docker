@@ -30,7 +30,7 @@ EOM
 
 echo '--> Installing docker-ce'
 apt-get -y update
-apt-get -y install docker-ce docker-compose-plugin
+apt-get -y install docker-ce docker-buildx-plugin docker-compose-plugin
 
 echo '--> Enabling docker-ce'
 systemctl enable docker
