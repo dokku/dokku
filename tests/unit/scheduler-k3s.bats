@@ -8,6 +8,7 @@ setup() {
   uninstall_k3s || true
   global_setup
   dokku nginx:stop
+  export KUBECONFIG="/etc/rancher/k3s/k3s.yaml"
 }
 
 teardown_() {
