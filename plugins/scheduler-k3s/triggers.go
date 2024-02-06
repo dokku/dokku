@@ -1180,6 +1180,12 @@ func TriggerSchedulerPostDelete(scheduler string, appName string) error {
 	if scheduler != "k3s" {
 		return nil
 	}
+
+	if err := isK3sInstalled(); err != nil {
+		common.LogWarn(fmt.Sprintf("Skipping app deletion: %s", err.Error()))
+		return nil
+	}
+
 	namespace := getComputedNamespace(appName)
 	helmAgent, err := NewHelmAgent(namespace, DeployLogPrinter)
 	if err != nil {
@@ -1197,6 +1203,11 @@ func TriggerSchedulerPostDelete(scheduler string, appName string) error {
 // TriggerSchedulerStop stops an application
 func TriggerSchedulerStop(scheduler string, appName string) error {
 	if scheduler != "k3s" {
+		return nil
+	}
+
+	if err := isK3sInstalled(); err != nil {
+		common.LogWarn(fmt.Sprintf("Skipping app stop: %s", err.Error()))
 		return nil
 	}
 
