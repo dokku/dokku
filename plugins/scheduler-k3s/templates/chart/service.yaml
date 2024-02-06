@@ -1,5 +1,5 @@
 {{- $processName := "PROCESS_NAME" }}
-{{- $config := .Values.processes.PROCESS_NAME }}
+{{- $config := index .Values.processes "PROCESS_NAME" }}
 ---
 apiVersion: v1
 kind: Service
