@@ -1,5 +1,5 @@
 {{- $processName := "CRON_ID" }}
-{{- $config := .Values.processes.CRON_ID }}
+{{- $config := index .Values.processes "CRON_ID" }}
 ---
 apiVersion: batch/v1
 kind: CronJob
