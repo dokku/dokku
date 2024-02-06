@@ -27,7 +27,7 @@ install_k3s() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku registry:set --global image-repo-template 'savant/{{ .AppName }}'"
+  run /bin/bash -c "dokku registry:set --global image-repo-template '$DOCKERHUB_USERNAME/{{ .AppName }}'"
   echo "output: $output"
   echo "status: $status"
   assert_success
