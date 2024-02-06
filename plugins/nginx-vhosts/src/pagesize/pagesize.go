@@ -6,5 +6,5 @@ import (
 )
 
 func main() {
-	fmt.Println(os.Getpagesize())
+	fmt.Println(os.Getpagesize() / 1024)
 }
