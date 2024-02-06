@@ -44,7 +44,9 @@ func CommandPropertySet(pluginName, appName, property, value string, properties 
 
 	if value != "" {
 		LogInfo2Quiet(fmt.Sprintf("Setting %s to %s", property, value))
-		PropertyWrite(pluginName, appName, property, value)
+		if err := PropertyWrite(pluginName, appName, property, value); err != nil {
+			LogFailWithError(err)
+		}
 	} else {
 		LogInfo2Quiet(fmt.Sprintf("Unsetting %s", property))
 		if err := PropertyDelete(pluginName, appName, property); err != nil {
@@ -201,11 +203,17 @@ func PropertyListWrite(pluginName string, appName string, property string, value
 		return fmt.Errorf("Unable to write %s config value %s.%s: %s", pluginName, appName, property, err.Error())
 	}
 
-	file.Chmod(0600)
-	SetPermissions(SetPermissionInput{
+	if err := file.Close(); err != nil {
+		return fmt.Errorf("Unable to close %s config value %s.%s: %s", pluginName, appName, property, err.Error())
+	}
+
+	if err := SetPermissions(SetPermissionInput{
 		Filename: propertyPath,
 		Mode:     os.FileMode(0600),
-	})
+	}); err != nil {
+		return fmt.Errorf("Unable to set permissions for %s config value %s.%s: %s", pluginName, appName, property, err.Error())
+	}
+
 	return nil
 }
 
@@ -331,11 +339,16 @@ func PropertyListRemove(pluginName string, appName string, property string, valu
 		return fmt.Errorf("Unable to write %s config value %s.%s: %s", pluginName, appName, property, err.Error())
 	}
 
-	file.Chmod(0600)
-	SetPermissions(SetPermissionInput{
+	if err := file.Close(); err != nil {
+		return fmt.Errorf("Unable to close %s config value %s.%s: %s", pluginName, appName, property, err.Error())
+	}
+
+	if err := SetPermissions(SetPermissionInput{
 		Filename: propertyPath,
 		Mode:     os.FileMode(0600),
-	})
+	}); err != nil {
+		return fmt.Errorf("Unable to set permissions for %s config value %s.%s: %s", pluginName, appName, property, err.Error())
+	}
 
 	if !found {
 		return errors.New("Property not found, nothing was removed")
@@ -370,11 +383,16 @@ func PropertyListRemoveByPrefix(pluginName string, appName string, property stri
 		return fmt.Errorf("Unable to write %s config value %s.%s: %s", pluginName, appName, property, err.Error())
 	}
 
-	file.Chmod(0600)
-	SetPermissions(SetPermissionInput{
+	if err := file.Close(); err != nil {
+		return fmt.Errorf("Unable to close %s config value %s.%s: %s", pluginName, appName, property, err.Error())
+	}
+
+	if err := SetPermissions(SetPermissionInput{
 		Filename: propertyPath,
 		Mode:     os.FileMode(0600),
-	})
+	}); err != nil {
+		return fmt.Errorf("Unable to set permissions for %s config value %s.%s: %s", pluginName, appName, property, err.Error())
+	}
 
 	if !found {
 		return errors.New("Property not found, nothing was removed")
@@ -398,9 +416,7 @@ func PropertyListSet(pluginName string, appName string, property string, value s
 
 	var lines []string
 	if index >= len(scannedLines) {
-		for _, line := range scannedLines {
-			lines = append(lines, line)
-		}
+		lines = append(lines, scannedLines...)
 		lines = append(lines, value)
 	} else {
 		for i, line := range scannedLines {
@@ -449,11 +465,18 @@ func PropertyWrite(pluginName string, appName string, property string, value str
 	defer file.Close()
 
 	fmt.Fprint(file, value)
-	file.Chmod(0600)
-	SetPermissions(SetPermissionInput{
+
+	if err := file.Close(); err != nil {
+		return fmt.Errorf("Unable to close %s config value %s.%s: %s", pluginName, appName, property, err.Error())
+	}
+
+	if err := SetPermissions(SetPermissionInput{
 		Filename: propertyPath,
 		Mode:     os.FileMode(0600),
-	})
+	}); err != nil {
+		return fmt.Errorf("Unable to set permissions for %s config value %s.%s: %s", pluginName, appName, property, err.Error())
+	}
+
 	return nil
 }
 
