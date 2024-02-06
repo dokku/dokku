@@ -216,6 +216,19 @@ func CommandInitialize(serverIP string, taintScheduling bool) error {
 		return fmt.Errorf("Unable to create kubernetes client: %w", err)
 	}
 
+	common.LogInfo2Quiet("Waiting for node to exist")
+	nodes, err := waitForNodeToExist(ctx, WaitForNodeToExistInput{
+		Clientset:  clientset,
+		NodeName:   nodeName,
+		RetryCount: 20,
+	})
+	if err != nil {
+		return fmt.Errorf("Error waiting for pod to exist: %w", err)
+	}
+	if len(nodes) == 0 {
+		return fmt.Errorf("Unable to find node after initializing cluster, node will not be annotated/labeled appropriately access registry secrets")
+	}
+
 	for _, manifest := range KubernetesManifests {
 		common.LogInfo2Quiet(fmt.Sprintf("Installing %s@%s", manifest.Name, manifest.Version))
 		err = clientset.ApplyKubernetesManifest(ctx, ApplyKubernetesManifestInput{
