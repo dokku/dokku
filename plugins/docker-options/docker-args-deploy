@@ -39,7 +39,7 @@ trigger-docker-options-docker-args() {
           ;;
         *)
           case "$IMAGE_SOURCE_TYPE" in
-            dockerfile)
+            dockerfile | nixpacks)
               case "$line" in
                 --link* | -v* | --volume*)
                   continue
