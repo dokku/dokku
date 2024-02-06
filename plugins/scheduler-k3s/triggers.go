@@ -333,8 +333,14 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 		return fmt.Errorf("Error writing chart: %w", err)
 	}
 
+	globalAnnotations, err := getGlobalAnnotations(appName)
+	if err != nil {
+		return fmt.Errorf("Error getting global annotations: %w", err)
+	}
+
 	values := &AppValues{
 		Global: GlobalValues{
+			Annotations:  globalAnnotations,
 			AppName:      appName,
 			DeploymentID: fmt.Sprint(deploymentId),
 			Image: GlobalImage{
@@ -381,7 +387,13 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 			return fmt.Errorf("Error getting process resources: %w", err)
 		}
 
+		annotations, err := getAnnotations(appName, processType)
+		if err != nil {
+			return fmt.Errorf("Error getting process annotations: %w", err)
+		}
+
 		processValues := ProcessValues{
+			Annotations:  annotations,
 			Args:         args,
 			Healthchecks: processHealthchecks,
 			ProcessType:  ProcessType_Worker,
@@ -494,8 +506,14 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 			return fmt.Errorf("Error getting process resources: %w", err)
 		}
 
+		annotations, err := getAnnotations(appName, cronEntry.ID)
+		if err != nil {
+			return fmt.Errorf("Error getting process annotations: %w", err)
+		}
+
 		processValues := ProcessValues{
-			Args: words,
+			Args:        words,
+			Annotations: annotations,
 			Cron: ProcessCron{
 				ID:       cronEntry.ID,
 				Schedule: cronEntry.Schedule,
@@ -1237,9 +1255,9 @@ func TriggerSchedulerStop(scheduler string, appName string) error {
 	}
 
 	for _, deployment := range deployments {
-		processType, ok := deployment.Annotations["app.kubernetes.io/name"]
+		processType, ok := deployment.Labels["app.kubernetes.io/name"]
 		if !ok {
-			return fmt.Errorf("Deployment %s does not have a process type annotation", deployment.Name)
+			return fmt.Errorf("Deployment %s does not have a process type label", deployment.Name)
 		}
 		common.LogVerboseQuiet(fmt.Sprintf("Stopping %s process", processType))
 		err := clientset.ScaleDeployment(ctx, ScaleDeploymentInput{

@@ -4,6 +4,7 @@
 > New as of 0.33.0
 
 ```
+scheduler-k3s:annotations:set <app|--global> <property> (<value>) [--process-type PROCESS_TYPE] <--resource-type RESOURCE_TYPE>, Set or clear an annotation for a given app/process-type/resource-type combination
 scheduler-k3s:cluster-add [ssh://user@host:port]    # Adds a server node to a Dokku-managed cluster
 scheduler-k3s:cluster-list                          # Lists all nodes in a Dokku-managed cluster
 scheduler-k3s:cluster-remove [node-id]              # Removes client node to a Dokku-managed cluster
@@ -261,6 +262,44 @@ The default value may be set by passing an empty value for the option.
 ```shell
 dokku scheduler-k3s:set --global letsencrypt-server staging
 ```
+
+### Customizing Resource Annotations
+
+Dokku injects certain resources into each created resource by default, but it may be necessary to inject others for tighter integration with third-party tools. The `scheduler-k3s:annotations:set` command can be used to perform this task. The command takes an app name and a required `--resource-type` flag.
+
+```shell
+dokku scheduler-k3s:annotations:set node-js-app annotation.key annotation.value --resource-type deployment
+```
+
+If not specified, the annotation will be applied to all processes within an app, though it may be further scoped to a specific process type via the `--process-type` flag. 
+
+> [!NOTE]
+> The cron ID is used as the process type if your app deploys any cron tasks
+
+```shell
+dokku scheduler-k3s:annotations:set node-js-app annotation.key annotation.value --resource-type deployment --process-type web
+```
+
+To unset an annotation, pass an empty value:
+
+```shell
+dokku scheduler-k3s:annotations:set node-js-app annotation.key --resource-type deployment
+dokku scheduler-k3s:annotations:set node-js-app annotation.key --resource-type deployment --process-type web
+```
+
+The following resource types are supported:
+
+- `certificate`
+- `cronjob`
+- `deployment`
+- `ingress`
+- `job`
+- `pod`
+- `secret`
+- `service`
+- `serviceaccount`
+- `traefik_ingressroute`
+- `traefik_middleware`
 
 ### Using kubectl remotely
 

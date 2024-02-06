@@ -363,6 +363,103 @@ func extractStartCommand(input StartCommandInput) string {
 	return command
 }
 
+// getAnnotations retrieves annotations for a given app and process type
+func getAnnotations(appName string, processType string) (ProcessAnnotations, error) {
+	annotations := ProcessAnnotations{}
+	certificateAnnotations, err := getAnnotation(appName, processType, "certificate")
+	if err != nil {
+		return annotations, err
+	}
+	annotations.CertificateAnnotations = certificateAnnotations
+
+	cronJobAnnotations, err := getAnnotation(appName, processType, "cronjob")
+	if err != nil {
+		return annotations, err
+	}
+	annotations.CronJobAnnotations = cronJobAnnotations
+
+	deploymentAnnotations, err := getAnnotation(appName, processType, "deployment")
+	if err != nil {
+		return annotations, err
+	}
+	annotations.DeploymentAnnotations = deploymentAnnotations
+
+	ingressAnnotations, err := getAnnotation(appName, processType, "ingress")
+	if err != nil {
+		return annotations, err
+	}
+	annotations.IngressAnnotations = ingressAnnotations
+
+	jobAnnotations, err := getAnnotation(appName, processType, "job")
+	if err != nil {
+		return annotations, err
+	}
+	annotations.JobAnnotations = jobAnnotations
+
+	podAnnotations, err := getAnnotation(appName, processType, "pod")
+	if err != nil {
+		return annotations, err
+	}
+	annotations.PodAnnotations = podAnnotations
+
+	secretAnnotations, err := getAnnotation(appName, processType, "secret")
+	if err != nil {
+		return annotations, err
+	}
+	annotations.SecretAnnotations = secretAnnotations
+
+	serviceAnnotations, err := getAnnotation(appName, processType, "service")
+	if err != nil {
+		return annotations, err
+	}
+	annotations.ServiceAnnotations = serviceAnnotations
+
+	serviceAccountAnnotations, err := getAnnotation(appName, processType, "serviceaccount")
+	if err != nil {
+		return annotations, err
+	}
+	annotations.ServiceAccountAnnotations = serviceAccountAnnotations
+
+	traefikIngressRouteAnnotations, err := getAnnotation(appName, processType, "traefik_ingressroute")
+	if err != nil {
+		return annotations, err
+	}
+	annotations.TraefikIngressRouteAnnotations = traefikIngressRouteAnnotations
+
+	traefikMiddlewareAnnotations, err := getAnnotation(appName, processType, "traefik_middleware")
+	if err != nil {
+		return annotations, err
+	}
+	annotations.TraefikMiddlewareAnnotations = traefikMiddlewareAnnotations
+
+	return annotations, nil
+}
+
+// getGlobalAnnotations retrieves global annotations for a given app
+func getGlobalAnnotations(appName string) (ProcessAnnotations, error) {
+	return getAnnotations(appName, GlobalProcessType)
+}
+
+// getAnnotation retrieves an annotation for a given app, process type, and resource type
+func getAnnotation(appName string, processType string, resourceType string) (map[string]string, error) {
+	annotations := map[string]string{}
+	annotationsList, err := common.PropertyListGet("scheduler-k3s", appName, fmt.Sprintf("%s.%s", processType, resourceType))
+	if err != nil {
+		return annotations, err
+	}
+
+	for _, annotation := range annotationsList {
+		parts := strings.SplitN(annotation, ": ", 2)
+		if len(parts) != 2 {
+			return annotations, fmt.Errorf("Invalid annotation format: %s", annotation)
+		}
+
+		annotations[parts[0]] = parts[1]
+	}
+
+	return annotations, nil
+}
+
 func getDeployTimeout(appName string) string {
 	return common.PropertyGetDefault("scheduler-k3s", appName, "deploy-timeout", "")
 }

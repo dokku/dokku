@@ -11,6 +11,16 @@ metadata:
     dokku.com/job-suffix: {{ $config.cron.suffix }}
     dokku.com/managed: "true"
     kubectl.kubernetes.io/default-container: {{ $.Values.global.app_name }}-cron
+    {{- if and $.Values.global.annotations $.Values.global.annotations.cronjob }}
+    {{- range $k, $v := $.Values.global.annotations.cronjob }}
+    {{ $k }}: {{ $v | quote }}
+    {{- end }}
+    {{- end }}
+    {{- if and $config.annotations $config.annotations.cronjob }}
+    {{- range $k, $v := $config.annotations.cronjob }}
+    {{ $k }}: {{ $v | quote }}
+    {{- end }}
+    {{- end }}
   labels:
     app.kubernetes.io/instance: {{ $.Values.global.app_name }}-cron-{{ $config.cron.suffix }}
     app.kubernetes.io/name: cron
@@ -30,6 +40,16 @@ spec:
         dokku.com/job-suffix: {{ $config.cron.suffix }}
         dokku.com/managed: "true"
         kubectl.kubernetes.io/default-container: {{ $.Values.global.app_name }}-cron
+        {{- if and $.Values.global.annotations $.Values.global.annotations.pod }}
+        {{- range $k, $v := $.Values.global.annotations.pod }}
+        {{ $k }}: {{ $v | quote }}
+        {{- end }}
+        {{- end }}
+        {{- if and $config.annotations $config.annotations.pod }}
+        {{- range $k, $v := $config.annotations.pod }}
+        {{ $k }}: {{ $v | quote }}
+        {{- end }}
+        {{- end }}
       labels:
         app.kubernetes.io/instance: {{ $.Values.global.app_name }}-cron-{{ $config.cron.suffix }}
         app.kubernetes.io/name: cron

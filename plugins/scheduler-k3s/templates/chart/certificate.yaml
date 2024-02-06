@@ -7,6 +7,16 @@ kind: Certificate
 metadata:
   annotations:
     dokku.com/managed: "true"
+    {{- if and $.Values.global.annotations $.Values.global.annotations.certificate }}
+    {{- range $k, $v := $.Values.global.annotations.certificate }}
+    {{ $k }}: {{ $v | quote }}
+    {{- end }}
+    {{- end }}
+    {{- if and $config.annotations $config.annotations.certificate }}
+    {{- range $k, $v := $config.annotations.certificate }}
+    {{ $k }}: {{ $v | quote }}
+    {{- end }}
+    {{- end }}
   labels:
     app.kubernetes.io/name: {{ $.Values.global.app_name }}-{{ $processName }}
     app.kubernetes.io/part-of: {{ $.Values.global.app_name }}
