@@ -117,6 +117,9 @@ func (k KubernetesClient) ApplyKubernetesManifest(ctx context.Context, input App
 			"-f",
 			input.Manifest,
 		},
+		Env: map[string]string{
+			"KUBECONFIG": KubeConfigPath,
+		},
 		StreamStdio: true,
 	})
 	if err != nil {
