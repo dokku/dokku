@@ -213,6 +213,7 @@ func TouchFile(filename string) error {
 	})
 }
 
+// WriteSliceToFile writes a slice of strings to a file
 type WriteSliceToFileInput struct {
 	Filename  string
 	GroupName string
@@ -223,17 +224,53 @@ type WriteSliceToFileInput struct {
 
 // WriteSliceToFile writes a slice of strings to a file
 func WriteSliceToFile(input WriteSliceToFileInput) error {
+	return WriteBytesToFile(WriteBytesToFileInput{
+		Bytes:     []byte(strings.TrimSuffix(strings.Join(input.Lines, "\n"), "\n") + "\n"),
+		Filename:  input.Filename,
+		GroupName: input.GroupName,
+		Mode:      input.Mode,
+		Username:  input.Username,
+	})
+}
+
+// WriteStringToFile writes a string to a file
+type WriteStringToFileInput struct {
+	Content   string
+	Filename  string
+	GroupName string
+	Mode      os.FileMode
+	Username  string
+}
+
+// WriteStringToFile writes a string to a file
+func WriteStringToFile(input WriteStringToFileInput) error {
+	return WriteBytesToFile(WriteBytesToFileInput{
+		Bytes:     []byte(input.Content),
+		Filename:  input.Filename,
+		GroupName: input.GroupName,
+		Mode:      input.Mode,
+		Username:  input.Username,
+	})
+}
+
+// WriteBytesToFileInput writes a byte array to a file
+type WriteBytesToFileInput struct {
+	Bytes     []byte
+	Filename  string
+	GroupName string
+	Mode      os.FileMode
+	Username  string
+}
+
+// WriteBytesToFile writes a byte array to a file
+func WriteBytesToFile(input WriteBytesToFileInput) error {
 	file, err := os.OpenFile(input.Filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, input.Mode)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 
-	w := bufio.NewWriter(file)
-	for _, line := range input.Lines {
-		fmt.Fprintln(w, line)
-	}
-	if err = w.Flush(); err != nil {
+	if _, err := file.Write(input.Bytes); err != nil {
 		return err
 	}
 

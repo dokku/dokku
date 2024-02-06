@@ -107,9 +107,9 @@ func CommandInitialize(serverIP string, taintScheduling bool) error {
 		return fmt.Errorf("Unable to close k3s installer file: %w", err)
 	}
 
-	err = common.WriteSliceToFile(common.WriteSliceToFileInput{
+	err = common.WriteStringToFile(common.WriteStringToFileInput{
+		Content:  resp.String(),
 		Filename: f.Name(),
-		Lines:    strings.Split(resp.String(), "\n"),
 		Mode:     os.FileMode(0755),
 	})
 	if err != nil {

@@ -755,10 +755,10 @@ func installHelperCommands(ctx context.Context) error {
 			return fmt.Errorf("Unable to close %s file: %w", binaryName, err)
 		}
 
-		err = common.WriteSliceToFile(common.WriteSliceToFileInput{
+		err = common.WriteStringToFile(common.WriteStringToFileInput{
+			Content:   resp.String(),
 			Filename:  f.Name(),
 			GroupName: "root",
-			Lines:     strings.Split(resp.String(), "\n"),
 			Mode:      os.FileMode(0755),
 			Username:  "root",
 		})
