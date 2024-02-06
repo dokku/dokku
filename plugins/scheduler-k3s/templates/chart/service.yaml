@@ -6,6 +6,16 @@ kind: Service
 metadata:
   annotations:
     dokku.com/managed: "true"
+    {{- if and $.Values.global.annotations $.Values.global.annotations.service }}
+    {{- range $k, $v := $.Values.global.annotations.service }}
+    {{ $k }}: {{ $v | quote }}
+    {{- end }}
+    {{- end }}
+    {{- if and $config.annotations $config.annotations.service }}
+    {{- range $k, $v := $config.annotations.service }}
+    {{ $k }}: {{ $v | quote }}
+    {{- end }}
+    {{- end }}
   labels:
     app.kubernetes.io/instance: {{ $.Values.global.app_name }}-{{ $processName }}
     app.kubernetes.io/name: {{ $processName }}

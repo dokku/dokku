@@ -33,12 +33,13 @@ type AppValues struct {
 }
 
 type GlobalValues struct {
-	AppName      string            `yaml:"app_name"`
-	DeploymentID string            `yaml:"deploment_id"`
-	Image        GlobalImage       `yaml:"image"`
-	Namespace    string            `yaml:"namespace"`
-	Network      GlobalNetwork     `yaml:"network"`
-	Secrets      map[string]string `yaml:"secrets,omitempty"`
+	Annotations  ProcessAnnotations `yaml:"annotations,omitempty"`
+	AppName      string             `yaml:"app_name"`
+	DeploymentID string             `yaml:"deploment_id"`
+	Image        GlobalImage        `yaml:"image"`
+	Namespace    string             `yaml:"namespace"`
+	Network      GlobalNetwork      `yaml:"network"`
+	Secrets      map[string]string  `yaml:"secrets,omitempty"`
 }
 
 type GlobalImage struct {
@@ -54,6 +55,7 @@ type GlobalNetwork struct {
 }
 
 type ProcessValues struct {
+	Annotations  ProcessAnnotations  `yaml:"annotations,omitempty"`
 	Args         []string            `yaml:"args,omitempty"`
 	Cron         ProcessCron         `yaml:"cron,omitempty"`
 	Healthchecks ProcessHealthchecks `yaml:"healthchecks,omitempty"`
@@ -61,6 +63,20 @@ type ProcessValues struct {
 	Replicas     int32               `yaml:"replicas"`
 	Resources    ProcessResourcesMap `yaml:"resources,omitempty"`
 	Web          ProcessWeb          `yaml:"web,omitempty"`
+}
+
+type ProcessAnnotations struct {
+	CertificateAnnotations         map[string]string `yaml:"certificate,omitempty"`
+	CronJobAnnotations             map[string]string `yaml:"cronjob,omitempty"`
+	DeploymentAnnotations          map[string]string `yaml:"deployment,omitempty"`
+	IngressAnnotations             map[string]string `yaml:"ingress,omitempty"`
+	JobAnnotations                 map[string]string `yaml:"job,omitempty"`
+	PodAnnotations                 map[string]string `yaml:"pod,omitempty"`
+	SecretAnnotations              map[string]string `yaml:"secret,omitempty"`
+	ServiceAnnotations             map[string]string `yaml:"service,omitempty"`
+	ServiceAccountAnnotations      map[string]string `yaml:"serviceaccount,omitempty"`
+	TraefikIngressRouteAnnotations map[string]string `yaml:"traefik_ingressroute,omitempty"`
+	TraefikMiddlewareAnnotations   map[string]string `yaml:"traefik_middleware,omitempty"`
 }
 
 type ProcessHealthchecks struct {
@@ -229,7 +245,7 @@ func templateKubernetesJob(input Job) (batchv1.Job, error) {
 		n := 5
 		b := make([]byte, n)
 		if _, err := rand.Read(b); err != nil {
-			panic(err)
+			return batchv1.Job{}, fmt.Errorf("Error generating random suffix: %w", err)
 		}
 		suffix = strings.ToLower(fmt.Sprintf("%X", b))
 	}
@@ -237,6 +253,28 @@ func templateKubernetesJob(input Job) (batchv1.Job, error) {
 
 	podAnnotations := annotations
 	podAnnotations["kubectl.kubernetes.io/default-container"] = fmt.Sprintf("%s-%s", input.AppName, input.ProcessType)
+
+	globalAnnotations, err := getGlobalAnnotations(input.AppName)
+	if err != nil {
+		return batchv1.Job{}, fmt.Errorf("Error getting global annotations: %w", err)
+	}
+	for key, value := range globalAnnotations.JobAnnotations {
+		annotations[key] = value
+	}
+	for key, value := range globalAnnotations.PodAnnotations {
+		podAnnotations[key] = value
+	}
+
+	processAnnotations, err := getAnnotations(input.AppName, input.ProcessType)
+	if err != nil {
+		return batchv1.Job{}, fmt.Errorf("Error getting process annotations: %w", err)
+	}
+	for key, value := range processAnnotations.JobAnnotations {
+		annotations[key] = value
+	}
+	for key, value := range processAnnotations.PodAnnotations {
+		podAnnotations[key] = value
+	}
 
 	job := batchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{

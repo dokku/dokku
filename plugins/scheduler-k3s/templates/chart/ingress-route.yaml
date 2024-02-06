@@ -8,6 +8,16 @@ kind: IngressRoute
 metadata:
   annotations:
     dokku.com/managed: "true"
+    {{- if and $.Values.global.annotations $.Values.global.annotations.traefik_ingressroute }}
+    {{- range $k, $v := $.Values.global.annotations.traefik_ingressroute }}
+    {{ $k }}: {{ $v | quote }}
+    {{- end }}
+    {{- end }}
+    {{- if and $config.annotations $config.annotations.traefik_ingressroute }}
+    {{- range $k, $v := $config.annotations.traefik_ingressroute }}
+    {{ $k }}: {{ $v | quote }}
+    {{- end }}
+    {{- end }}
   labels:
     app.kubernetes.io/instance: {{ $.Values.global.app_name }}-{{ $processName }}
     app.kubernetes.io/name: {{ $processName }}

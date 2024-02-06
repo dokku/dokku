@@ -7,6 +7,16 @@ kind: Middleware
 metadata:
   annotations:
     dokku.com/managed: "true"
+    {{- if and $.Values.global.annotations $.Values.global.annotations.traefik_middleware }}
+    {{- range $k, $v := $.Values.global.annotations.traefik_middleware }}
+    {{ $k }}: {{ $v | quote }}
+    {{- end }}
+    {{- end }}
+    {{- if and $config.annotations $config.annotations.traefik_middleware }}
+    {{- range $k, $v := $config.annotations.traefik_middleware }}
+    {{ $k }}: {{ $v | quote }}
+    {{- end }}
+    {{- end }}
   labels:
     app.kubernetes.io/instance: {{ $.Values.global.app_name }}-{{ $processName }}-redirect-to-https
     app.kubernetes.io/name: {{ $processName }}

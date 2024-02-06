@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
+	"sort"
 	"strings"
 	"syscall"
 
@@ -15,6 +16,47 @@ import (
 	resty "github.com/go-resty/resty/v2"
 	"github.com/ryanuber/columnize"
 )
+
+// CommandAnnotationsSet set or clear a scheduler-k3s annotation for an app
+func CommandAnnotationsSet(appName string, processType string, resourceType string, key string, value string) error {
+	if resourceType == "" {
+		return fmt.Errorf("Missing resource-type")
+	}
+
+	if processType == "" {
+		processType = GlobalProcessType
+	}
+
+	property := fmt.Sprintf("%s.%s", processType, resourceType)
+	annotationsList, err := common.PropertyListGet("scheduler-k3s", appName, property)
+	if err != nil {
+		return fmt.Errorf("Unable to get property list: %w", err)
+	}
+
+	annotations := []string{}
+	for _, annotation := range annotationsList {
+		parts := strings.SplitN(annotation, ": ", 2)
+		if len(parts) != 2 {
+			return fmt.Errorf("Invalid annotation: %s", annotation)
+		}
+		if key == parts[0] {
+			continue
+		}
+
+		annotations = append(annotations, annotation)
+	}
+
+	if value != "" {
+		annotations = append(annotations, fmt.Sprintf("%s: %s", key, value))
+	}
+
+	sort.Strings(annotations)
+	if err := common.PropertyListWrite("scheduler-k3s", appName, property, annotations); err != nil {
+		return fmt.Errorf("Unable to write property list: %w", err)
+	}
+
+	return nil
+}
 
 // CommandInitialize initializes a k3s cluster on the local server
 func CommandInitialize(serverIP string, taintScheduling bool) error {

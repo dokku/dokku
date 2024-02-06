@@ -9,6 +9,16 @@ metadata:
     dokku.com/builder-type: {{ $.Values.global.image.type }}
     dokku.com/managed: "true"
     kubectl.kubernetes.io/default-container: {{ $.Values.global.app_name }}-{{ $processName }}
+    {{- if and $.Values.global.annotations $.Values.global.annotations.deployment }}
+    {{- range $k, $v := $.Values.global.annotations.deployment }}
+    {{ $k }}: {{ $v | quote }}
+    {{- end }}
+    {{- end }}
+    {{- if and $config.annotations $config.annotations.deployment }}
+    {{- range $k, $v := $config.annotations.deployment }}
+    {{ $k }}: {{ $v | quote }}
+    {{- end }}
+    {{- end }}
   labels:
     app.kubernetes.io/instance: {{ $.Values.global.app_name }}-{{ $processName }}
     app.kubernetes.io/name: {{ $processName }}
@@ -31,6 +41,16 @@ spec:
         dokku.com/builder-type: {{ $.Values.global.image.type }}
         dokku.com/managed: "true"
         kubectl.kubernetes.io/default-container: {{ $.Values.global.app_name }}-{{ $processName }}
+        {{- if and $.Values.global.annotations $.Values.global.annotations.pod }}
+        {{- range $k, $v := $.Values.global.annotations.pod }}
+        {{ $k }}: {{ $v | quote }}
+        {{- end }}
+        {{- end }}
+        {{- if and $config.annotations $config.annotations.pod }}
+        {{- range $k, $v := $config.annotations.pod }}
+        {{ $k }}: {{ $v | quote }}
+        {{- end }}
+        {{- end }}
       labels:
         app.kubernetes.io/instance: {{ $.Values.global.app_name }}-{{ $processName }}
         app.kubernetes.io/name: {{ $processName }}
