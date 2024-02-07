@@ -20,6 +20,7 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 		"--scheduler-k3s-computed-letsencrypt-server":   reportComputedLetsencryptServer,
 		"--scheduler-k3s-letsencrypt-server":            reportLetsencryptServer,
 		"--scheduler-k3s-global-letsencrypt-server":     reportGlobalLetsencryptServer,
+		"--scheduler-k3s-global-ingress-class":          reportGlobalIngressClass,
 		"--scheduler-k3s-global-letsencrypt-email-prod": reportGlobalLetsencryptEmailProd,
 		"--scheduler-k3s-global-letsencrypt-email-stag": reportGlobalLetsencryptEmailStag,
 		"--scheduler-k3s-computed-namespace":            reportComputedNamespace,
@@ -64,6 +65,10 @@ func reportImagePullSecrets(appName string) string {
 
 func reportGlobalImagePullSecrets(appName string) string {
 	return getGlobalImagePullSecrets()
+}
+
+func reportGlobalIngressClass(appName string) string {
+	return getGlobalIngressClass()
 }
 
 func reportComputedLetsencryptServer(appName string) string {

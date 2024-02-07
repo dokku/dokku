@@ -22,8 +22,9 @@ func main() {
 		args := flag.NewFlagSet("scheduler-k3s:initialize", flag.ExitOnError)
 		taintScheduling := args.Bool("taint-scheduling", false, "taint-scheduling: add a taint against scheduling app workloads")
 		serverIP := args.String("server-ip", "", "server-ip: IP address of the dokku server node")
+		ingressClass := args.String("ingress-class", "traefik", "ingress-class: ingress-class to use for all outbound traffic")
 		args.Parse(os.Args[2:])
-		err = scheduler_k3s.CommandInitialize(*serverIP, *taintScheduling)
+		err = scheduler_k3s.CommandInitialize(*ingressClass, *serverIP, *taintScheduling)
 	case "cluster-add":
 		args := flag.NewFlagSet("scheduler-k3s:cluster-add", flag.ExitOnError)
 		allowUknownHosts := args.Bool("insecure-allow-unknown-hosts", false, "insecure-allow-unknown-hosts: allow unknown hosts")

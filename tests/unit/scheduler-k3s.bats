@@ -49,7 +49,8 @@ install_k3s() {
   assert_success
   assert_output_contains "Login Succeeded"
 
-  run /bin/bash -c "dokku scheduler-k3s:initialize"
+  INGRESS_CLASS="${INGRESS_CLASS:-traefik}"
+  run /bin/bash -c "dokku scheduler-k3s:initialize --ingress-class $INGRESS_CLASS"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -70,12 +71,42 @@ uninstall_k3s() {
   install_k3s
 }
 
-@test "(scheduler-k3s) deploy" {
+@test "(scheduler-k3s) deploy traefik" {
   if [[ -z "$DOCKERHUB_USERNAME" ]] || [[ -z "$DOCKERHUB_TOKEN" ]]; then
     skip "skipping due to missing docker.io credentials DOCKERHUB_USERNAME:DOCKERHUB_TOKEN"
   fi
 
-  install_k3s
+  INGRESS_CLASS=traefik install_k3s
+
+  run /bin/bash -c "dokku apps:create $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku domains:set $TEST_APP $TEST_APP.dokku.me"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:sync --build $TEST_APP https://github.com/dokku/smoke-test-app.git"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "sleep 20"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  assert_http_localhost_response "http" "$TEST_APP.dokku.me" "80" "" "python/http.server"
+}
+
+@test "(scheduler-k3s) deploy nginx" {
+  if [[ -z "$DOCKERHUB_USERNAME" ]] || [[ -z "$DOCKERHUB_TOKEN" ]]; then
+    skip "skipping due to missing docker.io credentials DOCKERHUB_USERNAME:DOCKERHUB_TOKEN"
+  fi
+
+  INGRESS_CLASS=nginx install_k3s
 
   run /bin/bash -c "dokku apps:create $TEST_APP"
   echo "output: $output"

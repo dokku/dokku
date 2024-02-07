@@ -73,8 +73,8 @@ type ProcessAnnotations struct {
 	JobAnnotations                 map[string]string `yaml:"job,omitempty"`
 	PodAnnotations                 map[string]string `yaml:"pod,omitempty"`
 	SecretAnnotations              map[string]string `yaml:"secret,omitempty"`
-	ServiceAnnotations             map[string]string `yaml:"service,omitempty"`
 	ServiceAccountAnnotations      map[string]string `yaml:"serviceaccount,omitempty"`
+	ServiceAnnotations             map[string]string `yaml:"service,omitempty"`
 	TraefikIngressRouteAnnotations map[string]string `yaml:"traefik_ingressroute,omitempty"`
 	TraefikMiddlewareAnnotations   map[string]string `yaml:"traefik_middleware,omitempty"`
 }

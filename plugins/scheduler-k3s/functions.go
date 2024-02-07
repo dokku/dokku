@@ -14,6 +14,7 @@ import (
 
 	appjson "github.com/dokku/dokku/plugins/app-json"
 	"github.com/dokku/dokku/plugins/common"
+	nginxvhosts "github.com/dokku/dokku/plugins/nginx-vhosts"
 	resty "github.com/go-resty/resty/v2"
 	"golang.org/x/sync/errgroup"
 	"gopkg.in/yaml.v3"
@@ -384,7 +385,7 @@ func getAnnotations(appName string, processType string) (ProcessAnnotations, err
 	}
 	annotations.DeploymentAnnotations = deploymentAnnotations
 
-	ingressAnnotations, err := getAnnotation(appName, processType, "ingress")
+	ingressAnnotations, err := getIngressAnnotations(appName, processType)
 	if err != nil {
 		return annotations, err
 	}
@@ -492,6 +493,179 @@ func getComputedImagePullSecrets(appName string) string {
 	}
 
 	return imagePullSecrets
+}
+
+func getGlobalIngressClass() string {
+	return common.PropertyGetDefault("scheduler-k3s", "global", "ingress-class", DefaultIngressClass)
+}
+
+func getIngressAnnotations(appName string, processType string) (map[string]string, error) {
+	type annotation struct {
+		annotation      string
+		getter          func(appName string) string
+		locationSnippet func(value string) string
+		serverSnippet   func(value string) string
+	}
+
+	locationLines := []string{}
+	serverLines := []string{}
+
+	properties := map[string]annotation{
+		"access-log-path": {
+			getter: nginxvhosts.ComputedAccessLogPath,
+			serverSnippet: func(value string) string {
+				if value == "" {
+					return ""
+				}
+				return fmt.Sprintf("access_log %s;", value)
+			},
+		},
+		"bind-address-ipv4": {
+			getter: nginxvhosts.ComputedBindAddressIPv4,
+		},
+		"bind-address-ipv6": {
+			getter: nginxvhosts.ComputedBindAddressIPv6,
+		},
+		"client-max-body-size": {
+			annotation: "nginx.ingress.kubernetes.io/proxy-body-size",
+			getter:     nginxvhosts.ComputedClientMaxBodySize,
+		},
+		"disable-custom-config": {
+			getter: nginxvhosts.ComputedDisableCustomConfig,
+		},
+		"error-log-path": {
+			getter: nginxvhosts.ComputedErrorLogPath,
+			serverSnippet: func(value string) string {
+				if value == "" {
+					return ""
+				}
+				return fmt.Sprintf("error_log %s;", value)
+			},
+		},
+		// todo: handle hsts properly
+		"hsts-include-subdomains": {
+			getter: nginxvhosts.ComputedHSTSIncludeSubdomains,
+		},
+		"hsts-max-age": {
+			getter: nginxvhosts.ComputedHSTSMaxAge,
+		},
+		"hsts-preload": {
+			getter: nginxvhosts.ComputedHSTSPreload,
+		},
+		"hsts": {
+			getter: nginxvhosts.ComputedHSTS,
+		},
+		"nginx-conf-sigil-path": {
+			getter: nginxvhosts.ComputedNginxConfSigilPath,
+		},
+		"proxy-buffer-size": {
+			annotation: "nginx.ingress.kubernetes.io/proxy-buffer-size",
+			getter:     nginxvhosts.ComputedProxyBufferSize,
+		},
+		"proxy-buffering": {
+			annotation: "nginx.ingress.kubernetes.io/proxy-buffering",
+			getter:     nginxvhosts.ComputedProxyBuffering,
+		},
+		"proxy-buffers": {
+			annotation: "nginx.ingress.kubernetes.io/proxy-buffers-number",
+			getter:     nginxvhosts.ComputedProxyBuffers,
+		},
+		"proxy-busy-buffers-size": {
+			getter: nginxvhosts.ComputedProxyBusyBuffersSize,
+			locationSnippet: func(value string) string {
+				if value == "" {
+					return ""
+				}
+				return fmt.Sprintf("proxy_busy_buffers_size %s;", value)
+			},
+		},
+		"proxy-read-timeout": {
+			annotation: "nginx.ingress.kubernetes.io/proxy-read-timeout",
+			getter:     nginxvhosts.ComputedProxyReadTimeout,
+		},
+		"x-forwarded-for-value": {
+			getter: nginxvhosts.ComputedXForwardedForValue,
+			locationSnippet: func(value string) string {
+				if value == "" {
+					return ""
+				}
+				return fmt.Sprintf("proxy_set_header X-Forwarded-For %s;", value)
+			},
+		},
+		"x-forwarded-port-value": {
+			getter: nginxvhosts.ComputedXForwardedPortValue,
+			locationSnippet: func(value string) string {
+				if value == "" {
+					return ""
+				}
+				return fmt.Sprintf("proxy_set_header X-Forwarded-Port %s;", value)
+			},
+		},
+		"x-forwarded-proto-value": {
+			getter: nginxvhosts.ComputedXForwardedProtoValue,
+			locationSnippet: func(value string) string {
+				if value == "" {
+					return ""
+				}
+				return fmt.Sprintf("proxy_set_header X-Forwarded-Proto %s;", value)
+			},
+		},
+		"x-forwarded-ssl": {
+			getter: nginxvhosts.ComputedXForwardedSSL,
+			locationSnippet: func(value string) string {
+				if value == "" {
+					return ""
+				}
+				return fmt.Sprintf("proxy_set_header X-Forwarded-SSL %s;", value)
+			},
+		},
+	}
+
+	annotations := map[string]string{}
+	for _, newKey := range properties {
+		if newKey.locationSnippet != nil {
+			locationLines = append(locationLines, newKey.locationSnippet(newKey.getter(appName)))
+		} else if newKey.serverSnippet != nil {
+			serverLines = append(serverLines, newKey.serverSnippet(newKey.getter(appName)))
+		} else if newKey.annotation != "" {
+			annotations[newKey.annotation] = newKey.getter(appName)
+		}
+	}
+
+	var locationSnippet string
+	for _, line := range locationLines {
+		if line != "" {
+			locationSnippet += line + "\n"
+		}
+	}
+	var serverSnippet string
+	for _, line := range serverLines {
+		if line != "" {
+			serverSnippet += line + "\n"
+		}
+	}
+
+	if locationSnippet != "" {
+		annotations["nginx.ingress.kubernetes.io/configuration-snippet"] = locationSnippet
+	}
+	if serverSnippet != "" {
+		annotations["nginx.ingress.kubernetes.io/server-snippet"] = serverSnippet
+	}
+
+	customAnnotations, err := getAnnotation(appName, processType, "deployment")
+	if err != nil {
+		return map[string]string{}, err
+	}
+
+	for key, value := range customAnnotations {
+		if _, ok := annotations[key]; ok {
+			common.LogWarn(fmt.Sprintf("Nginx-based annotation %s will be overwritten by custom annotation", key))
+		}
+
+		annotations[key] = value
+	}
+
+	return annotations, nil
 }
 
 func getLetsencryptServer(appName string) string {
@@ -754,7 +928,7 @@ func getStartCommand(input StartCommandInput) (StartCommandOutput, error) {
 	}, nil
 }
 
-func installHelmCharts(ctx context.Context, clientset KubernetesClient) error {
+func installHelmCharts(ctx context.Context, clientset KubernetesClient, shouldInstall func(HelmChart) bool) error {
 	for _, repo := range HelmRepositories {
 		helmAgent, err := NewHelmAgent("default", DeployLogPrinter)
 		if err != nil {
@@ -768,6 +942,10 @@ func installHelmCharts(ctx context.Context, clientset KubernetesClient) error {
 	}
 
 	for _, chart := range HelmCharts {
+		if !shouldInstall(chart) {
+			continue
+		}
+
 		if chart.CreateNamespace {
 			namespace := corev1.Namespace{
 				ObjectMeta: metav1.ObjectMeta{
@@ -871,6 +1049,65 @@ func installHelperCommands(ctx context.Context) error {
 		if fi.Size() == 0 {
 			return fmt.Errorf("Invalid %s filesize", binaryName)
 		}
+	}
+
+	return installHelm(ctx)
+}
+
+func installHelm(ctx context.Context) error {
+	client := resty.New()
+	resp, err := client.R().
+		SetContext(ctx).
+		Get("https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3")
+	if err != nil {
+		return fmt.Errorf("Unable to download helm installer: %w", err)
+	}
+	if resp == nil {
+		return fmt.Errorf("Missing response from helm installer download: %w", err)
+	}
+
+	if resp.StatusCode() != 200 {
+		return fmt.Errorf("Invalid status code for helm installer script: %d", resp.StatusCode())
+	}
+
+	f, err := os.CreateTemp("", "sample")
+	if err != nil {
+		return fmt.Errorf("Unable to create temporary file for helm installer: %w", err)
+	}
+	defer os.Remove(f.Name())
+
+	if err := f.Close(); err != nil {
+		return fmt.Errorf("Unable to close helm installer file: %w", err)
+	}
+
+	err = common.WriteStringToFile(common.WriteStringToFileInput{
+		Content:  resp.String(),
+		Filename: f.Name(),
+		Mode:     os.FileMode(0755),
+	})
+	if err != nil {
+		return fmt.Errorf("Unable to write helm installer to file: %w", err)
+	}
+
+	fi, err := os.Stat(f.Name())
+	if err != nil {
+		return fmt.Errorf("Unable to get helm installer file size: %w", err)
+	}
+
+	if fi.Size() == 0 {
+		return fmt.Errorf("Invalid helm installer filesize")
+	}
+
+	common.LogInfo2Quiet("Running helm installer")
+	installerCmd, err := common.CallExecCommand(common.ExecCommandInput{
+		Command:     f.Name(),
+		StreamStdio: true,
+	})
+	if err != nil {
+		return fmt.Errorf("Unable to call helm installer command: %w", err)
+	}
+	if installerCmd.ExitCode != 0 {
+		return fmt.Errorf("Invalid exit code from helm installer command: %d", installerCmd.ExitCode)
 	}
 
 	return nil

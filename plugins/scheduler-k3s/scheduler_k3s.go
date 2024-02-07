@@ -28,6 +28,7 @@ var (
 	GlobalProperties = map[string]bool{
 		"deploy-timeout":         true,
 		"image-pull-secrets":     true,
+		"ingress-class":          true,
 		"letsencrypt-server":     true,
 		"letsencrypt-email-prod": true,
 		"letsencrypt-email-stag": true,
@@ -38,11 +39,10 @@ var (
 	}
 )
 
-const KubeConfigPath = "/etc/rancher/k3s/k3s.yaml"
-
-const RegistryConfigPath = "/etc/rancher/k3s/registries.yaml"
-
+const DefaultIngressClass = "traefik"
 const GlobalProcessType = "--global"
+const KubeConfigPath = "/etc/rancher/k3s/k3s.yaml"
+const RegistryConfigPath = "/etc/rancher/k3s/registries.yaml"
 
 var (
 	runtimeScheme  = runtime.NewScheme()
@@ -68,13 +68,13 @@ var KubernetesManifests = []Manifest{
 }
 
 type HelmChart struct {
-	ReleaseName     string
 	ChartPath       string
-	Namespace       string
 	CreateNamespace bool
-	Version         string
+	Namespace       string
 	Path            string
+	ReleaseName     string
 	RepoURL         string
+	Version         string
 }
 
 var HelmCharts = []HelmChart{
@@ -101,6 +101,14 @@ var HelmCharts = []HelmChart{
 		ReleaseName:     "traefik",
 		RepoURL:         "https://helm.traefik.io/traefik",
 		Version:         "26.0.0",
+	},
+	{
+		ChartPath:       "ingress-nginx",
+		CreateNamespace: true,
+		Namespace:       "ingress-nginx",
+		ReleaseName:     "ingress-nginx",
+		RepoURL:         "https://kubernetes.github.io/ingress-nginx",
+		Version:         "4.7.5",
 	},
 }
 

@@ -59,7 +59,11 @@ func CommandAnnotationsSet(appName string, processType string, resourceType stri
 }
 
 // CommandInitialize initializes a k3s cluster on the local server
-func CommandInitialize(serverIP string, taintScheduling bool) error {
+func CommandInitialize(ingressClass string, serverIP string, taintScheduling bool) error {
+	if ingressClass != "nginx" && ingressClass != "traefik" {
+		return fmt.Errorf("Invalid ingress-class: %s", ingressClass)
+	}
+
 	if err := isK3sInstalled(); err == nil {
 		return fmt.Errorf("k3s already installed, cannot re-initialize k3s")
 	}
@@ -219,6 +223,11 @@ func CommandInitialize(serverIP string, taintScheduling bool) error {
 		args = append(args, "--node-taint", "CriticalAddonsOnly=true:NoSchedule")
 	}
 
+	common.CommandPropertySet("scheduler-k3s", "--global", "ingress-class", ingressClass, DefaultProperties, GlobalProperties)
+	if ingressClass == "nginx" {
+		args = append(args, "--disable", "traefik")
+	}
+
 	common.LogInfo2Quiet("Running k3s installer")
 	installerCmd, err := common.CallExecCommand(common.ExecCommandInput{
 		Command:     f.Name(),
@@ -298,7 +307,17 @@ func CommandInitialize(serverIP string, taintScheduling bool) error {
 	}
 
 	common.LogInfo2Quiet("Installing helm charts")
-	err = installHelmCharts(ctx, clientset)
+	err = installHelmCharts(ctx, clientset, func(chart HelmChart) bool {
+		if chart.ChartPath == "traefik" && ingressClass == "nginx" {
+			return false
+		}
+
+		if chart.ChartPath == "nginx" && ingressClass == "traefik" {
+			return false
+		}
+
+		return true
+	})
 	if err != nil {
 		return fmt.Errorf("Unable to install helm charts: %w", err)
 	}

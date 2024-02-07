@@ -1,0 +1,57 @@
+---
+controller:
+  metrics:
+    enabled: true
+  config:
+    access-log-path: /var/log/nginx/access.log
+    error-log-path: /var/log/nginx/error.log
+    log-format-escape-json: "true"
+  extraVolumeMounts:
+    - name: data
+      mountPath: /var/log/nginx
+  extraVolumes:
+    - name: data
+      emptyDir: {}
+  extraContainers:
+    - name: stream-accesslog
+      image: busybox
+      args:
+        - /bin/sh
+        - -c
+        - tail -n+1 -F /var/log/nginx/access.log
+      imagePullPolicy: Always
+      resources: {}
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+        - mountPath: /var/log/nginx
+          name: data
+    - name: stream-errorlog
+      image: busybox
+      args:
+        - /bin/sh
+        - -c
+        - tail -n+1 -F /var/log/nginx/error.log
+      imagePullPolicy: Always
+      resources: {}
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+        - mountPath: /var/log/nginx
+          name: data
+  allowSnippetAnnotations: true
+  podAnnotations:
+    prometheus.io/path: /metrics
+    prometheus.io/port: "10254"
+    prometheus.io/scheme: http
+    prometheus.io/scrape: "true"
+  tolerations:
+    - key: CriticalAddonsOnly
+      operator: Exists
+    - key: node-role.kubernetes.io/control-plane
+      operator: Exists
+      effect: NoSchedule
+    - key: node-role.kubernetes.io/master
+      operator: Exists
+      effect: NoSchedule
+  priorityClassName: system-cluster-critical
