@@ -1,5 +1,59 @@
 # History
 
+## 0.33.4
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.33.4/bootstrap.sh
+sudo DOKKU_TAG=v0.33.4 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #6564: @josegonzalez Ignore link and volume flags for nixpacks builds
+- #6563: @josegonzalez Wait until initial k3s node is ready before installing manifests
+- #6561: @josegonzalez Index the process map to ensure the correct config is pulled
+- #6560: @josegonzalez Skip app stop/delete when k3s is not installed
+- #6559: @josegonzalez Check errors when writing properties
+- #6556: @josegonzalez Respect the release namespace when creating resources for a k3s deploy
+
+### New Features
+
+- #6562: @josegonzalez Add support for specifying annotations on kubernetes resources
+- #6555: @josegonzalez Add support for app-specific service accounts when deploying via k3s
+- #6546: @josegonzalez Install kubectx and kubens helper binaries when setting up a k3s cluster
+
+### Refactors
+
+- #6558: @josegonzalez Use type-specific functions for writing contents to a file
+- #6557: @josegonzalez Consolidate property fetching for nginx plugin into golang codebase
+- #6536: @josegonzalez Manage vector container via compose
+
+### Documentation
+
+- #6545: @josegonzalez Migrate markdown doc rewriting into mkdocs hooks
+
+### Tests
+
+- #6554: @josegonzalez Fix issue where CI cannot install docker-buildx-plugin
+
+### Dependencies
+
+- #6568: @dependabot[bot] chore(deps): bump golang from 1.21.6 to 1.22.0 in /tests/apps/gogrpc
+- #6567: @dependabot[bot] chore(deps): bump watchdog from 3.0.0 to 4.0.0 in /docs/_build
+- #6566: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.7 to 9.5.8 in /docs/_build
+- #6565: @dependabot[bot] chore(deps): bump golang from 1.21.6 to 1.22.0 in /tests/apps/zombies-dockerfile-no-tini
+- #6551: @dependabot[bot] chore(deps): bump flask from 3.0.1 to 3.0.2 in /tests/apps/multi
+- #6552: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.6 to 9.5.7 in /docs/_build
+- #6553: @dependabot[bot] chore(deps): bump markupsafe from 2.1.4 to 2.1.5 in /docs/_build
+- #6550: @dependabot[bot] chore(deps): bump flask from 3.0.1 to 3.0.2 in /tests/apps/python-flask
+- #6548: @dependabot[bot] chore(deps): bump org.eclipse.jetty:jetty-servlet from 11.0.19 to 11.0.20 in /tests/apps/java
+
+### Other
+
+- #6547: @josegonzalez Add support for nginx as a k3s ingress implementation
+
 ## 0.33.3
 
 Install/update via the bootstrap script:
