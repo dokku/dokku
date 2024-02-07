@@ -563,13 +563,8 @@ func getIngressAnnotations(appName string, processType string) (map[string]strin
 			getter:     nginxvhosts.ComputedProxyBufferSize,
 		},
 		"proxy-buffering": {
-			getter: nginxvhosts.ComputedProxyBuffering,
-			locationSnippet: func(value string) string {
-				if value == "" {
-					return ""
-				}
-				return fmt.Sprintf("proxy_buffering %s;", value)
-			},
+			annotation: "nginx.ingress.kubernetes.io/proxy-buffering",
+			getter:     nginxvhosts.ComputedProxyBuffering,
 		},
 		"proxy-buffers": {
 			annotation: "nginx.ingress.kubernetes.io/proxy-buffers-number",
