@@ -385,7 +385,7 @@ func getAnnotations(appName string, processType string) (ProcessAnnotations, err
 	}
 	annotations.DeploymentAnnotations = deploymentAnnotations
 
-	ingressAnnotations, err := getAnnotation(appName, processType, "ingress")
+	ingressAnnotations, err := getIngressAnnotations(appName, processType)
 	if err != nil {
 		return annotations, err
 	}
@@ -499,7 +499,7 @@ func getGlobalIngressClass() string {
 	return common.PropertyGetDefault("scheduler-k3s", "global", "ingress-class", DefaultIngressClass)
 }
 
-func getIngressAnnotations(appName string, processType string) map[string]string {
+func getIngressAnnotations(appName string, processType string) (map[string]string, error) {
 	type annotation struct {
 		annotation      string
 		getter          func(appName string) string
@@ -626,14 +626,14 @@ func getIngressAnnotations(appName string, processType string) map[string]string
 		},
 	}
 
-	data := map[string]string{}
+	annotations := map[string]string{}
 	for _, newKey := range properties {
 		if newKey.locationSnippet != nil {
 			locationLines = append(locationLines, newKey.locationSnippet(newKey.getter(appName)))
 		} else if newKey.serverSnippet != nil {
 			serverLines = append(serverLines, newKey.serverSnippet(newKey.getter(appName)))
 		} else if newKey.annotation != "" {
-			data[newKey.annotation] = newKey.getter(appName)
+			annotations[newKey.annotation] = newKey.getter(appName)
 		}
 	}
 
@@ -651,13 +651,26 @@ func getIngressAnnotations(appName string, processType string) map[string]string
 	}
 
 	if locationSnippet != "" {
-		data["nginx.ingress.kubernetes.io/configuration-snippet"] = locationSnippet
+		annotations["nginx.ingress.kubernetes.io/configuration-snippet"] = locationSnippet
 	}
 	if serverSnippet != "" {
-		data["nginx.ingress.kubernetes.io/server-snippet"] = serverSnippet
+		annotations["nginx.ingress.kubernetes.io/server-snippet"] = serverSnippet
 	}
 
-	return data
+	customAnnotations, err := getAnnotation(appName, processType, "deployment")
+	if err != nil {
+		return map[string]string{}, err
+	}
+
+	for key, value := range customAnnotations {
+		if _, ok := annotations[key]; ok {
+			common.LogWarn(fmt.Sprintf("Nginx-based annotation %s will be overwritten by custom annotation", key))
+		}
+
+		annotations[key] = value
+	}
+
+	return annotations, nil
 }
 
 func getLetsencryptServer(appName string) string {
