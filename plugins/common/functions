@@ -437,19 +437,19 @@ parse_args() {
     fi
 
     case "$arg" in
-    --quiet)
-      export DOKKU_QUIET_OUTPUT=1
-      ;;
-    --trace)
-      export DOKKU_TRACE=1
-      ;;
-    --force)
-      export DOKKU_APPS_FORCE_DELETE=1
-      ;;
-    --app)
-      export DOKKU_APP_NAME=${args[$next_index]}
-      skip=true
-      ;;
+      --quiet)
+        export DOKKU_QUIET_OUTPUT=1
+        ;;
+      --trace)
+        export DOKKU_TRACE=1
+        ;;
+      --force)
+        export DOKKU_APPS_FORCE_DELETE=1
+        ;;
+      --app)
+        export DOKKU_APP_NAME=${args[$next_index]}
+        skip=true
+        ;;
     esac
 
     if [[ "$skip" == "true" ]]; then
