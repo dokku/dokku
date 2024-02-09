@@ -1,5 +1,30 @@
 # History
 
+## 0.33.5
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.33.5/bootstrap.sh
+sudo DOKKU_TAG=v0.33.5 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #6574: @josegonzalez Correct indentation when configuring https on a k3s app
+
+### Documentation
+
+- #6575: @josegonzalez Remove reference to web ui from digitalocean install documentation
+
+### Dependencies
+
+- #6573: @dependabot[bot] chore(deps): bump golang from 1.21.6 to 1.22.0 in /tests/apps/go-fail-postdeploy
+- #6569: @dependabot[bot] chore(deps): bump golang from 1.21.6 to 1.22.0 in /tests/apps/go-fail-predeploy
+- #6570: @dependabot[bot] chore(deps): bump golang.org/x/crypto from 0.18.0 to 0.19.0 in /plugins/common
+- #6571: @dependabot[bot] chore(deps): bump golang from 1.21.6 to 1.22.0 in /tests/apps/zombies-dockerfile-tini
+- #6572: @dependabot[bot] chore(deps): bump python from 3.12.1-alpine to 3.12.2-alpine in /docs/_build
+
 ## 0.33.4
 
 Install/update via the bootstrap script:
