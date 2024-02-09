@@ -29,10 +29,10 @@ spec:
   {{- if and $config.web.tls.enabled (eq $port_map.scheme "https") }}
   tls:
     - hosts:
-    {{- range $ddx, $domain := $config.web.domains }}
+      {{- range $ddx, $domain := $config.web.domains }}
       - {{ $domain | quote }}
-    {{- end }}
-    secretName: tls-{{ $.Values.global.app_name }}-{{ $processName }}
+      {{- end }}
+      secretName: tls-{{ $.Values.global.app_name }}-{{ $processName }}
   {{- end }}
   rules:
     {{- range $ddx, $domain := $config.web.domains }}
