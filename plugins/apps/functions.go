@@ -96,7 +96,7 @@ func destroyApp(appName string) error {
 
 // returns the lock path
 func getLockPath(appName string) string {
-	return fmt.Sprintf("%v/.deploy.lock", common.GetDataDirectory(appName))
+	return fmt.Sprintf("%v/.deploy.lock", common.GetAppDataDirectory("apps", appName))
 }
 
 // creates an app if allowed
