@@ -1,7 +1,14 @@
 {{- $processName := "PROCESS_NAME" }}
 {{- $config := index .Values.processes "PROCESS_NAME" }}
 {{- if and $config.web.domains (eq $.Values.global.network.ingress_class "traefik") }}
+{{- $mappings := dict }}
 {{- range $pdx, $port_map := $config.web.port_maps }}
+{{- $mappings := set $mappings $port_map.name "true" }}
+{{- end }}
+{{- range $pdx, $port_map := $config.web.port_maps }}
+{{- if and (eq $port_map.scheme "https") (hasKey $mappings (printf "http-80-%.0f" $port_map.container_port)) }}
+{{- continue }}
+{{- end }}
 ---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute

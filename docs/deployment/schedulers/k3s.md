@@ -243,7 +243,7 @@ dokku scheduler-k3s:set --global letsencrypt-email-prod automated@dokku.sh
 dokku scheduler-k3s:set --global letsencrypt-email-stag automated@dokku.sh
 ```
 
-After enabling and rebuilding, all apps with an `https` port mapping that utilize the related letsencrypt server will be automatically updated to enable ssl. All http requests will then be redirected to https.
+After enabling and rebuilding, all apps with an `http:80` port mapping will have a corresponding `https:443` added and ssl will be automatically enabled. All http requests will then be redirected to https.
 
 ### Customizing the letsencrypt server
 

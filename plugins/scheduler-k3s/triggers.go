@@ -426,6 +426,30 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 				})
 			}
 
+			for _, portMap := range processValues.Web.PortMaps {
+				_, httpOk := portMaps[fmt.Sprintf("http-80-%d", portMap.ContainerPort)]
+				_, httpsOk := portMaps[fmt.Sprintf("https-443-%d", portMap.ContainerPort)]
+				if portMap.Scheme == "http" && !httpsOk && tlsEnabled {
+					processValues.Web.PortMaps = append(processValues.Web.PortMaps, ProcessPortMap{
+						ContainerPort: portMap.ContainerPort,
+						HostPort:      443,
+						Name:          fmt.Sprintf("https-443-%d", portMap.ContainerPort),
+						Protocol:      PortmapProtocol_TCP,
+						Scheme:        "https",
+					})
+				}
+
+				if portMap.Scheme == "https" && !httpOk {
+					processValues.Web.PortMaps = append(processValues.Web.PortMaps, ProcessPortMap{
+						ContainerPort: portMap.ContainerPort,
+						HostPort:      80,
+						Name:          fmt.Sprintf("http-80-%d", portMap.ContainerPort),
+						Protocol:      PortmapProtocol_TCP,
+						Scheme:        "http",
+					})
+				}
+			}
+
 			sort.Sort(NameSorter(processValues.Web.PortMaps))
 			sort.Strings(processValues.Web.Domains)
 		}
