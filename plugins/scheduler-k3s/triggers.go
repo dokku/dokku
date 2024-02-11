@@ -417,17 +417,12 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 					protocol = PortmapProtocol_UDP
 				}
 
-				redirecToHttps := false
-				if _, ok := portMaps[fmt.Sprintf("https-443-%d", portMap.ContainerPort)]; ok && portMap.Scheme == "http" {
-					redirecToHttps = true
-				}
 				processValues.Web.PortMaps = append(processValues.Web.PortMaps, ProcessPortMap{
-					ContainerPort:   portMap.ContainerPort,
-					HostPort:        portMap.HostPort,
-					Name:            portMap.String(),
-					Protocol:        protocol,
-					RedirectToHttps: redirecToHttps,
-					Scheme:          portMap.Scheme,
+					ContainerPort: portMap.ContainerPort,
+					HostPort:      portMap.HostPort,
+					Name:          portMap.String(),
+					Protocol:      protocol,
+					Scheme:        portMap.Scheme,
 				})
 			}
 

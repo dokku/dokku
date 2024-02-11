@@ -18,6 +18,9 @@ metadata:
     {{ $k }}: {{ $v | quote }}
     {{- end }}
     {{- end }}
+    {{- if $config.web.tls.enabled }}
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    {{- end }}
   labels:
     app.kubernetes.io/instance: {{ $.Values.global.app_name }}-{{ $processName }}
     app.kubernetes.io/name: {{ $processName }}
@@ -26,7 +29,7 @@ metadata:
   namespace: {{ $.Values.global.namespace }}
 spec:
   ingressClassName: nginx
-  {{- if and $config.web.tls.enabled (eq $port_map.scheme "https") }}
+  {{- if $config.web.tls.enabled }}
   tls:
     - hosts:
       {{- range $ddx, $domain := $config.web.domains }}
