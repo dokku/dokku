@@ -54,6 +54,10 @@ fn-run() {
     esac
   done
 
+  if [[ "$DOKKU_DISABLE_TTY" == "true" ]] && [[ "$DOKKU_FORCE_TTY" == "true" ]]; then
+    dokku_log_fail "Cannot specify both --force-tty and --no-tty"
+  fi
+
   verify_app_name "$APP"
 
   local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
