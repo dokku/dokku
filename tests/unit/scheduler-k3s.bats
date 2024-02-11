@@ -50,10 +50,17 @@ install_k3s() {
   assert_output_contains "Login Succeeded"
 
   INGRESS_CLASS="${INGRESS_CLASS:-traefik}"
-  run /bin/bash -c "dokku scheduler-k3s:initialize --ingress-class $INGRESS_CLASS"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
+  if [[ "$TAINT_SCHEDULING" == "true" ]]; then
+    run /bin/bash -c "dokku scheduler-k3s:initialize --ingress-class $INGRESS_CLASS --taint-scheduling"
+    echo "output: $output"
+    echo "status: $status"
+    assert_success
+  else
+    run /bin/bash -c "dokku scheduler-k3s:initialize --ingress-class $INGRESS_CLASS"
+    echo "output: $output"
+    echo "status: $status"
+    assert_success
+  fi
 }
 
 uninstall_k3s() {
@@ -63,12 +70,36 @@ uninstall_k3s() {
   assert_success
 }
 
-@test "(scheduler-k3s) install" {
+@test "(scheduler-k3s) install traefik" {
   if [[ -z "$DOCKERHUB_USERNAME" ]] || [[ -z "$DOCKERHUB_TOKEN" ]]; then
     skip "skipping due to missing docker.io credentials DOCKERHUB_USERNAME:DOCKERHUB_TOKEN"
   fi
 
   install_k3s
+}
+
+@test "(scheduler-k3s) install nginx" {
+  if [[ -z "$DOCKERHUB_USERNAME" ]] || [[ -z "$DOCKERHUB_TOKEN" ]]; then
+    skip "skipping due to missing docker.io credentials DOCKERHUB_USERNAME:DOCKERHUB_TOKEN"
+  fi
+
+  INGRESS_CLASS=nginx install_k3s
+}
+
+@test "(scheduler-k3s) install traefik with taint" {
+  if [[ -z "$DOCKERHUB_USERNAME" ]] || [[ -z "$DOCKERHUB_TOKEN" ]]; then
+    skip "skipping due to missing docker.io credentials DOCKERHUB_USERNAME:DOCKERHUB_TOKEN"
+  fi
+
+  TAINT_SCHEDULING=true install_k3s
+}
+
+@test "(scheduler-k3s) install nginx with taint" {
+  if [[ -z "$DOCKERHUB_USERNAME" ]] || [[ -z "$DOCKERHUB_TOKEN" ]]; then
+    skip "skipping due to missing docker.io credentials DOCKERHUB_USERNAME:DOCKERHUB_TOKEN"
+  fi
+
+  INGRESS_CLASS=nginx TAINT_SCHEDULING=true install_k3s
 }
 
 @test "(scheduler-k3s) deploy traefik" {
