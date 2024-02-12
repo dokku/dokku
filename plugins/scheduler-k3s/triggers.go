@@ -351,7 +351,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 			},
 			Namespace: namespace,
 			Network: GlobalNetwork{
-				IngressClass: common.PropertyGetDefault("scheduler-k3s", "--global", "ingress-class", DefaultIngressClass),
+				IngressClass: getGlobalIngressClass(),
 				PrimaryPort:  primaryPort,
 			},
 			Secrets: map[string]string{},
@@ -417,18 +417,37 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 					protocol = PortmapProtocol_UDP
 				}
 
-				redirecToHttps := false
-				if _, ok := portMaps[fmt.Sprintf("https-443-%d", portMap.ContainerPort)]; ok && portMap.Scheme == "http" {
-					redirecToHttps = true
-				}
 				processValues.Web.PortMaps = append(processValues.Web.PortMaps, ProcessPortMap{
-					ContainerPort:   portMap.ContainerPort,
-					HostPort:        portMap.HostPort,
-					Name:            portMap.String(),
-					Protocol:        protocol,
-					RedirectToHttps: redirecToHttps,
-					Scheme:          portMap.Scheme,
+					ContainerPort: portMap.ContainerPort,
+					HostPort:      portMap.HostPort,
+					Name:          portMap.String(),
+					Protocol:      protocol,
+					Scheme:        portMap.Scheme,
 				})
+			}
+
+			for _, portMap := range processValues.Web.PortMaps {
+				_, httpOk := portMaps[fmt.Sprintf("http-80-%d", portMap.ContainerPort)]
+				_, httpsOk := portMaps[fmt.Sprintf("https-443-%d", portMap.ContainerPort)]
+				if portMap.Scheme == "http" && !httpsOk && tlsEnabled {
+					processValues.Web.PortMaps = append(processValues.Web.PortMaps, ProcessPortMap{
+						ContainerPort: portMap.ContainerPort,
+						HostPort:      443,
+						Name:          fmt.Sprintf("https-443-%d", portMap.ContainerPort),
+						Protocol:      PortmapProtocol_TCP,
+						Scheme:        "https",
+					})
+				}
+
+				if portMap.Scheme == "https" && !httpOk {
+					processValues.Web.PortMaps = append(processValues.Web.PortMaps, ProcessPortMap{
+						ContainerPort: portMap.ContainerPort,
+						HostPort:      80,
+						Name:          fmt.Sprintf("http-80-%d", portMap.ContainerPort),
+						Protocol:      PortmapProtocol_TCP,
+						Scheme:        "http",
+					})
+				}
 			}
 
 			sort.Sort(NameSorter(processValues.Web.PortMaps))

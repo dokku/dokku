@@ -149,16 +149,18 @@ func applyClusterIssuers(ctx context.Context) error {
 	clusterIssuerValues := ClusterIssuerValues{
 		ClusterIssuers: map[string]ClusterIssuer{
 			"letsencrypt-stag": {
-				Email:   letsencryptEmailStag,
-				Enabled: letsencryptEmailStag != "",
-				Name:    "letsencrypt-stag",
-				Server:  "https://acme-staging-v02.api.letsencrypt.org/directory",
+				Email:        letsencryptEmailStag,
+				Enabled:      letsencryptEmailStag != "",
+				IngressClass: getGlobalIngressClass(),
+				Name:         "letsencrypt-stag",
+				Server:       "https://acme-staging-v02.api.letsencrypt.org/directory",
 			},
 			"letsencrypt-prod": {
-				Email:   letsencryptEmailProd,
-				Enabled: letsencryptEmailProd != "",
-				Name:    "letsencrypt-prod",
-				Server:  "https://acme-v02.api.letsencrypt.org/directory",
+				Email:        letsencryptEmailProd,
+				Enabled:      letsencryptEmailProd != "",
+				IngressClass: getGlobalIngressClass(),
+				Name:         "letsencrypt-prod",
+				Server:       "https://acme-v02.api.letsencrypt.org/directory",
 			},
 		},
 	}
@@ -496,7 +498,7 @@ func getComputedImagePullSecrets(appName string) string {
 }
 
 func getGlobalIngressClass() string {
-	return common.PropertyGetDefault("scheduler-k3s", "global", "ingress-class", DefaultIngressClass)
+	return common.PropertyGetDefault("scheduler-k3s", "--global", "ingress-class", DefaultIngressClass)
 }
 
 func getIngressAnnotations(appName string, processType string) (map[string]string, error) {
