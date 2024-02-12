@@ -212,6 +212,7 @@ func getFormations(appName string) (FormationSlice, error) {
 		formations = append(formations, formation)
 	}
 
+	sort.Sort(formations)
 	return formations, nil
 }
 
@@ -236,7 +237,6 @@ func scaleReport(appName string) error {
 		content = append(content, "proctype=qty", "--------=---")
 	}
 
-	sort.Sort(formations)
 	for _, formation := range formations {
 		content = append(content, fmt.Sprintf("%s=%d", formation.ProcessType, formation.Quantity))
 	}

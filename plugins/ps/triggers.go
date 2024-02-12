@@ -6,7 +6,6 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"sort"
 	"strconv"
 	"strings"
 
@@ -298,7 +297,6 @@ func TriggerPsCurrentScale(appName string) error {
 		return err
 	}
 
-	sort.Sort(formations)
 	lines := []string{}
 	for _, formation := range formations {
 		lines = append(lines, fmt.Sprintf("%s=%d", formation.ProcessType, formation.Quantity))
