@@ -125,7 +125,7 @@ func parseProcessTuples(processTuples []string) (FormationSlice, error) {
 	formations := FormationSlice{}
 
 	for _, processTuple := range processTuples {
-		s := strings.Split(processTuple, "=")
+		s := strings.SplitN(processTuple, "=", 2)
 		if len(s) == 1 {
 			return formations, fmt.Errorf("Missing count for process type %s", processTuple)
 		}
