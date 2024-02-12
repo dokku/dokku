@@ -71,6 +71,7 @@ EOF
   run /bin/bash -c "dokku --quiet ps:scale $TEST_APP"
   output=$(echo "$output" | tr -s " ")
   echo "output: ($output)"
+  echo "status: $status"
   assert_output $'cron: 0\ncustom: 0\nrelease: 0\nweb: 1\nworker: 0'
 
   pushd $TMP
@@ -81,10 +82,23 @@ EOF
   run /bin/bash -c "dokku --quiet ps:scale $TEST_APP"
   output=$(echo "$output" | tr -s " ")
   echo "output: ($output)"
+  echo "status: $status"
   assert_output $'cron: 0\ncustom: 0\nrelease: 0\nscaletest: 0\nweb: 1\nworker: 0'
 
   popd
   rm -rf "$TMP"
+}
+
+@test "(ps:scale) ps:scale formatting" {
+  echo "web=4
+worker=1
+beat                                                                            =0
+web                                                                             =0" >/var/lib/dokku/config/ps/$TEST_APP/scale
+
+  run /bin/bash -c "dokku --quiet ps:scale $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output $'beat: 0\nweb:  4\nworker: 1'
 }
 
 @test "(ps) handle windows newlines in procfile" {

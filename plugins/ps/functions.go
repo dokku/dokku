@@ -12,30 +12,11 @@ import (
 
 	"github.com/dokku/dokku/plugins/common"
 	dockeroptions "github.com/dokku/dokku/plugins/docker-options"
-	"github.com/ryanuber/columnize"
 )
 
 func canScaleApp(appName string) bool {
 	canScale := common.PropertyGetDefault("ps", appName, "can-scale", "true")
 	return common.ToBool(canScale)
-}
-
-func getProcessStatus(appName string) map[string]string {
-	statuses := make(map[string]string)
-	containerFiles := common.ListFilesWithPrefix(common.AppRoot(appName), "CONTAINER.")
-	for _, filename := range containerFiles {
-		containerID := common.ReadFirstLine(filename)
-		containerStatus, _ := common.DockerInspect(containerID, "{{ .State.Status }}")
-		process := strings.TrimPrefix(filename, fmt.Sprintf("%s/CONTAINER.", common.AppRoot(appName)))
-
-		if containerStatus == "" {
-			containerStatus = "missing"
-		}
-
-		statuses[process] = fmt.Sprintf("%s (CID: %s)", containerStatus, containerID[0:11])
-	}
-
-	return statuses
 }
 
 func getProcfileCommand(procfilePath string, processType string, port int) (string, error) {
@@ -143,18 +124,24 @@ func isValidRestartPolicy(policy string) bool {
 func parseProcessTuples(processTuples []string) (FormationSlice, error) {
 	formations := FormationSlice{}
 
+	foundFormations := map[string]bool{}
 	for _, processTuple := range processTuples {
-		s := strings.Split(processTuple, "=")
+		s := strings.SplitN(processTuple, "=", 2)
 		if len(s) == 1 {
 			return formations, fmt.Errorf("Missing count for process type %s", processTuple)
 		}
 
-		processType := s[0]
-		quantity, err := strconv.Atoi(s[1])
+		processType := strings.TrimSpace(s[0])
+		quantity, err := strconv.Atoi(strings.TrimSpace(s[1]))
 		if err != nil {
 			return formations, fmt.Errorf("Invalid count for process type %s", s[0])
 		}
 
+		if foundFormations[processType] {
+			continue
+		}
+
+		foundFormations[processType] = true
 		formations = append(formations, &Formation{
 			ProcessType: processType,
 			Quantity:    quantity,
@@ -211,7 +198,22 @@ func getFormations(appName string) (FormationSlice, error) {
 		return formations, err
 	}
 
-	return append(formations, oldFormations...), nil
+	foundProcessTypes := map[string]bool{}
+	for _, formation := range formations {
+		foundProcessTypes[formation.ProcessType] = true
+	}
+
+	for _, formation := range oldFormations {
+		if foundProcessTypes[formation.ProcessType] {
+			continue
+		}
+
+		foundProcessTypes[formation.ProcessType] = true
+		formations = append(formations, formation)
+	}
+
+	sort.Sort(formations)
+	return formations, nil
 }
 
 func restorePrep() error {
@@ -229,18 +231,12 @@ func scaleReport(appName string) error {
 	}
 
 	common.LogInfo1Quiet(fmt.Sprintf("Scaling for %s", appName))
-	config := columnize.DefaultConfig()
-	config.Delim = "="
-	config.Glue = ": "
-	config.Prefix = "    "
-	config.Empty = ""
 
 	content := []string{}
 	if os.Getenv("DOKKU_QUIET_OUTPUT") == "" {
 		content = append(content, "proctype=qty", "--------=---")
 	}
 
-	sort.Sort(formations)
 	for _, formation := range formations {
 		content = append(content, fmt.Sprintf("%s=%d", formation.ProcessType, formation.Quantity))
 	}

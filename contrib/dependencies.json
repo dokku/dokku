@@ -1,107 +1,107 @@
 {
-    "dependencies": [
-        {
-            "name": "docker-image-labeler",
-            "version": "0.6.1",
-            "urls": {
-                "amd64": "https://github.com/dokku/docker-image-labeler/releases/download/v0.6.1/docker-image-labeler_0.6.1_linux_amd64.tgz",
-                "arm64": "https://github.com/dokku/docker-image-labeler/releases/download/v0.6.1/docker-image-labeler_0.6.1_linux_arm64.tgz",
-                "arm": "https://github.com/dokku/docker-image-labeler/releases/download/v0.6.1/docker-image-labeler_0.6.1_linux_armhf.tgz"
-            }
-        },
-        {
-            "name": "docker-container-healthchecker",
-            "version": "0.7.2",
-            "urls": {
-                "amd64": "https://github.com/dokku/docker-container-healthchecker/releases/download/v0.7.2/docker-container-healthchecker_0.7.2_linux_amd64.tgz",
-                "arm64": "https://github.com/dokku/docker-container-healthchecker/releases/download/v0.7.2/docker-container-healthchecker_0.7.2_linux_arm64.tgz",
-                "arm": "https://github.com/dokku/docker-container-healthchecker/releases/download/v0.7.2/docker-container-healthchecker_0.7.2_linux_armhf.tgz"
-            }
-        },
-        {
-            "name": "lambda-builder",
-            "version": "0.5.0",
-            "urls": {
-                "amd64": "https://github.com/dokku/lambda-builder/releases/download/v0.5.0/lambda-builder_0.5.0_linux_amd64.tgz",
-                "arm64": "https://github.com/dokku/lambda-builder/releases/download/v0.5.0/lambda-builder_0.5.0_linux_arm64.tgz",
-                "arm": "https://github.com/dokku/lambda-builder/releases/download/v0.5.0/lambda-builder_0.5.0_linux_armhf.tgz"
-            }
-        },
-        {
-            "name": "netrc",
-            "version": "0.7.1",
-            "urls": {
-                "amd64": "https://github.com/dokku/netrc/releases/download/v0.7.1/netrc_0.7.1_linux_amd64.tgz",
-                "arm64": "https://github.com/dokku/netrc/releases/download/v0.7.1/netrc_0.7.1_linux_arm64.tgz",
-                "arm": "https://github.com/dokku/netrc/releases/download/v0.7.1/netrc_0.7.1_linux_armhf.tgz"
-            }
-        },
-        {
-            "name": "procfile-util",
-            "version": "0.16.0",
-            "urls": {
-                "amd64": "https://github.com/dokku/procfile-util/releases/download/v0.16.0/procfile-util_0.16.0_linux_amd64.tgz",
-                "arm64": "https://github.com/dokku/procfile-util/releases/download/v0.16.0/procfile-util_0.16.0_linux_arm64.tgz",
-                "arm": "https://github.com/dokku/procfile-util/releases/download/v0.16.0/procfile-util_0.16.0_linux_armhf.tgz"
-            }
-        },
-        {
-            "name": "sshcommand",
-            "version": "0.17.1",
-            "urls": {
-                "amd64": "https://github.com/dokku/sshcommand/releases/download/v0.17.1/sshcommand_0.17.1_linux_x86_64.tgz",
-                "arm64": "https://github.com/dokku/sshcommand/releases/download/v0.17.1/sshcommand_0.17.1_linux_x86_64.tgz",
-                "arm": "https://github.com/dokku/sshcommand/releases/download/v0.17.1/sshcommand_0.17.1_linux_x86_64.tgz"
-            }
-        }
-    ],
-    "predependencies": [
-        {
-            "name": "gliderlabs-sigil",
-            "version": "0.10.1",
-            "urls": {
-                "amd64": "https://github.com/gliderlabs/sigil/releases/download/v0.10.1/gliderlabs-sigil_0.10.1_linux_amd64.tgz",
-                "arm64": "https://github.com/gliderlabs/sigil/releases/download/v0.10.1/gliderlabs-sigil_0.10.1_linux_arm64.tgz",
-                "arm": "https://github.com/gliderlabs/sigil/releases/download/v0.10.1/gliderlabs-sigil_0.10.1_linux_armhf.tgz"
-            }
-        },
-        {
-            "name": "plugn",
-            "version": "0.12.0",
-            "urls": {
-                "amd64": "https://github.com/dokku/plugn/releases/download/v0.12.0/plugn_0.12.0_linux_amd64.tgz",
-                "arm64": "https://github.com/dokku/plugn/releases/download/v0.12.0/plugn_0.12.0_linux_arm64.tgz",
-                "arm": "https://github.com/dokku/plugn/releases/download/v0.12.0/plugn_0.12.0_linux_armhf.tgz"
-            }
-        }
-    ],
-    "recommendations": [
-        {
-            "name": "dokku-event-listener",
-            "version": "0.15.0",
-            "urls": {
-                "amd64": "https://github.com/dokku/dokku-event-listener/releases/download/v0.15.0/dokku-event-listener_0.15.0_linux_amd64.tgz",
-                "arm64": "https://github.com/dokku/dokku-event-listener/releases/download/v0.15.0/dokku-event-listener_0.15.0_linux_arm64.tgz",
-                "arm": "https://github.com/dokku/dokku-event-listener/releases/download/v0.15.0/dokku-event-listener_0.15.0_linux_armhf.tgz"
-            }
-        },
-        {
-            "name": "dokku-update",
-            "version": "0.7.2",
-            "urls": {
-                "amd64": "https://github.com/dokku/dokku-update/releases/download/v0.7.2/dokku-update_0.7.2_linux_x86_64.tgz",
-                "arm64": "https://github.com/dokku/dokku-update/releases/download/v0.7.2/dokku-update_0.7.2_linux_x86_64.tgz",
-                "arm": "https://github.com/dokku/dokku-update/releases/download/v0.7.2/dokku-update_0.7.2_linux_x86_64.tgz"
-            }
-        },
-        {
-            "name": "herokuish",
-            "version": "0.7.1",
-            "urls": {
-                "amd64": "https://github.com/gliderlabs/herokuish/releases/download/v0.7.1/herokuish_0.7.1_linux_x86_64.tgz",
-                "arm64": "https://github.com/gliderlabs/herokuish/releases/download/v0.7.1/herokuish_0.7.1_linux_x86_64.tgz",
-                "arm": "https://github.com/gliderlabs/herokuish/releases/download/v0.7.1/herokuish_0.7.1_linux_x86_64.tgz"
-            }
-        }
-    ]
+  "dependencies": [
+    {
+      "name": "docker-image-labeler",
+      "version": "0.6.1",
+      "urls": {
+        "amd64": "https://github.com/dokku/docker-image-labeler/releases/download/v0.6.1/docker-image-labeler_0.6.1_linux_amd64.tgz",
+        "arm64": "https://github.com/dokku/docker-image-labeler/releases/download/v0.6.1/docker-image-labeler_0.6.1_linux_arm64.tgz",
+        "arm": "https://github.com/dokku/docker-image-labeler/releases/download/v0.6.1/docker-image-labeler_0.6.1_linux_armhf.tgz"
+      }
+    },
+    {
+      "name": "docker-container-healthchecker",
+      "version": "0.7.2",
+      "urls": {
+        "amd64": "https://github.com/dokku/docker-container-healthchecker/releases/download/v0.7.2/docker-container-healthchecker_0.7.2_linux_amd64.tgz",
+        "arm64": "https://github.com/dokku/docker-container-healthchecker/releases/download/v0.7.2/docker-container-healthchecker_0.7.2_linux_arm64.tgz",
+        "arm": "https://github.com/dokku/docker-container-healthchecker/releases/download/v0.7.2/docker-container-healthchecker_0.7.2_linux_armhf.tgz"
+      }
+    },
+    {
+      "name": "lambda-builder",
+      "version": "0.5.0",
+      "urls": {
+        "amd64": "https://github.com/dokku/lambda-builder/releases/download/v0.5.0/lambda-builder_0.5.0_linux_amd64.tgz",
+        "arm64": "https://github.com/dokku/lambda-builder/releases/download/v0.5.0/lambda-builder_0.5.0_linux_arm64.tgz",
+        "arm": "https://github.com/dokku/lambda-builder/releases/download/v0.5.0/lambda-builder_0.5.0_linux_armhf.tgz"
+      }
+    },
+    {
+      "name": "netrc",
+      "version": "0.7.1",
+      "urls": {
+        "amd64": "https://github.com/dokku/netrc/releases/download/v0.7.1/netrc_0.7.1_linux_amd64.tgz",
+        "arm64": "https://github.com/dokku/netrc/releases/download/v0.7.1/netrc_0.7.1_linux_arm64.tgz",
+        "arm": "https://github.com/dokku/netrc/releases/download/v0.7.1/netrc_0.7.1_linux_armhf.tgz"
+      }
+    },
+    {
+      "name": "procfile-util",
+      "version": "0.17.1",
+      "urls": {
+        "amd64": "https://github.com/dokku/procfile-util/releases/download/v0.17.1/procfile-util_0.17.1_linux_amd64.tgz",
+        "arm64": "https://github.com/dokku/procfile-util/releases/download/v0.17.1/procfile-util_0.17.1_linux_arm64.tgz",
+        "arm": "https://github.com/dokku/procfile-util/releases/download/v0.17.1/procfile-util_0.17.1_linux_armhf.tgz"
+      }
+    },
+    {
+      "name": "sshcommand",
+      "version": "0.17.1",
+      "urls": {
+        "amd64": "https://github.com/dokku/sshcommand/releases/download/v0.17.1/sshcommand_0.17.1_linux_x86_64.tgz",
+        "arm64": "https://github.com/dokku/sshcommand/releases/download/v0.17.1/sshcommand_0.17.1_linux_x86_64.tgz",
+        "arm": "https://github.com/dokku/sshcommand/releases/download/v0.17.1/sshcommand_0.17.1_linux_x86_64.tgz"
+      }
+    }
+  ],
+  "predependencies": [
+    {
+      "name": "gliderlabs-sigil",
+      "version": "0.10.1",
+      "urls": {
+        "amd64": "https://github.com/gliderlabs/sigil/releases/download/v0.10.1/gliderlabs-sigil_0.10.1_linux_amd64.tgz",
+        "arm64": "https://github.com/gliderlabs/sigil/releases/download/v0.10.1/gliderlabs-sigil_0.10.1_linux_arm64.tgz",
+        "arm": "https://github.com/gliderlabs/sigil/releases/download/v0.10.1/gliderlabs-sigil_0.10.1_linux_armhf.tgz"
+      }
+    },
+    {
+      "name": "plugn",
+      "version": "0.12.0",
+      "urls": {
+        "amd64": "https://github.com/dokku/plugn/releases/download/v0.12.0/plugn_0.12.0_linux_amd64.tgz",
+        "arm64": "https://github.com/dokku/plugn/releases/download/v0.12.0/plugn_0.12.0_linux_arm64.tgz",
+        "arm": "https://github.com/dokku/plugn/releases/download/v0.12.0/plugn_0.12.0_linux_armhf.tgz"
+      }
+    }
+  ],
+  "recommendations": [
+    {
+      "name": "dokku-event-listener",
+      "version": "0.15.0",
+      "urls": {
+        "amd64": "https://github.com/dokku/dokku-event-listener/releases/download/v0.15.0/dokku-event-listener_0.15.0_linux_amd64.tgz",
+        "arm64": "https://github.com/dokku/dokku-event-listener/releases/download/v0.15.0/dokku-event-listener_0.15.0_linux_arm64.tgz",
+        "arm": "https://github.com/dokku/dokku-event-listener/releases/download/v0.15.0/dokku-event-listener_0.15.0_linux_armhf.tgz"
+      }
+    },
+    {
+      "name": "dokku-update",
+      "version": "0.7.2",
+      "urls": {
+        "amd64": "https://github.com/dokku/dokku-update/releases/download/v0.7.2/dokku-update_0.7.2_linux_x86_64.tgz",
+        "arm64": "https://github.com/dokku/dokku-update/releases/download/v0.7.2/dokku-update_0.7.2_linux_x86_64.tgz",
+        "arm": "https://github.com/dokku/dokku-update/releases/download/v0.7.2/dokku-update_0.7.2_linux_x86_64.tgz"
+      }
+    },
+    {
+      "name": "herokuish",
+      "version": "0.7.1",
+      "urls": {
+        "amd64": "https://github.com/gliderlabs/herokuish/releases/download/v0.7.1/herokuish_0.7.1_linux_x86_64.tgz",
+        "arm64": "https://github.com/gliderlabs/herokuish/releases/download/v0.7.1/herokuish_0.7.1_linux_x86_64.tgz",
+        "arm": "https://github.com/gliderlabs/herokuish/releases/download/v0.7.1/herokuish_0.7.1_linux_x86_64.tgz"
+      }
+    }
+  ]
 }
