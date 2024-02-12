@@ -36,11 +36,13 @@ func main() {
 	case "ports", "ports:help":
 		usage()
 	case "help":
-		command := common.NewShellCmd(fmt.Sprintf("ps -o command= %d", os.Getppid()))
-		command.ShowOutput = false
-		output, err := command.Output()
-
-		if err == nil && strings.Contains(string(output), "--all") {
+		result, err := common.CallExecCommand(common.ExecCommandInput{
+			Command:       "ps",
+			Args:          []string{"-o", "command=", strconv.Itoa(os.Getppid())},
+			CaptureOutput: true,
+			StreamStdio:   false,
+		})
+		if err == nil && strings.Contains(result.StdoutContents(), "--all") {
 			fmt.Println(helpContent)
 		} else {
 			fmt.Print("\n    ports, Manage ports for an app\n")
