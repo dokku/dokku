@@ -59,7 +59,7 @@ func FetchCronEntries(appName string) ([]TemplateCommand, error) {
 	commands := []TemplateCommand{}
 	appJSON, err := appjson.GetAppJSON(appName)
 	if err != nil {
-		return commands, err
+		return commands, fmt.Errorf("Unable to fetch app.json for app %s: %s", appName, err.Error())
 	}
 
 	if appJSON.Cron == nil {
@@ -70,7 +70,7 @@ func FetchCronEntries(appName string) ([]TemplateCommand, error) {
 		parser := cronparser.NewParser(cronparser.Minute | cronparser.Hour | cronparser.Dom | cronparser.Month | cronparser.Dow | cronparser.Descriptor)
 		_, err := parser.Parse(c.Schedule)
 		if err != nil {
-			return commands, err
+			return commands, fmt.Errorf("Invalid cron schedule %s: %s", c.Schedule, err.Error())
 		}
 
 		commands = append(commands, TemplateCommand{
