@@ -45,6 +45,7 @@ type GlobalValues struct {
 type GlobalImage struct {
 	ImagePullSecrets string `yaml:"image_pull_secrets"`
 	Name             string `yaml:"name"`
+	PullSecretBase64 string `yaml:"pull_secret_base64"`
 	Type             string `yaml:"type"`
 	WorkingDir       string `yaml:"working_dir"`
 }
