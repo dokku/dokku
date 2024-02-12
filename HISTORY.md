@@ -1,5 +1,42 @@
 # History
 
+## 0.33.6
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.33.6/bootstrap.sh
+sudo DOKKU_TAG=v0.33.6 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #6589: @josegonzalez Use image pull secrets instead of registries.yaml to reference private repositories when deploying via k3s
+- #6581: @josegonzalez Fix issues in tls handling when deploying via k3s
+- #6582: @josegonzalez Correctly handle extra whitespace in scale file contents
+- #6390: @renweibo Prefer systemctl over sv when both exist while restarting nginx
+- #6579: @josegonzalez Ensure k3s can be installed with taints
+
+### New Features
+
+- #6585: @josegonzalez Add more context to errors in fetching cron entries
+- #6583: @josegonzalez Add WithContext functions for all subprocess-related code
+
+### Refactors
+
+- #6584: @josegonzalez Use new CallExecCommand when checking to see how help is being called
+
+### Dependencies
+
+- #6586: @dependabot[bot] chore(deps): bump mvdan.cc/sh/v3 from 3.7.0 to 3.8.0 in /plugins/cron
+- #6587: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.8 to 9.5.9 in /docs/_build
+- #6381: @dependabot[bot] chore(deps): bump actions/upload-artifact from 3 to 4
+- #6578: @josegonzalez Bump go modules
+
+### Other
+
+- #6576: @Tashows Allow creating a detached container with TTY enabled for attaching remote terminal
+
 ## 0.33.5
 
 Install/update via the bootstrap script:
