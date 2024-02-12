@@ -28,7 +28,7 @@ require (
 	k8s.io/kubectl v0.28.4
 	k8s.io/kubernetes v1.29.1
 	k8s.io/utils v0.0.0-20240102154912-e7106e64919e
-	mvdan.cc/sh/v3 v3.7.0
+	mvdan.cc/sh/v3 v3.8.0
 )
 
 require (
@@ -152,13 +152,13 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.19.0 // indirect
 	golang.org/x/mod v0.14.0 // indirect
-	golang.org/x/net v0.19.0 // indirect
+	golang.org/x/net v0.20.0 // indirect
 	golang.org/x/oauth2 v0.12.0 // indirect
 	golang.org/x/sys v0.17.0 // indirect
 	golang.org/x/term v0.17.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
-	golang.org/x/tools v0.16.1 // indirect
+	golang.org/x/tools v0.17.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230911183012-2d3300fd4832 // indirect
 	google.golang.org/grpc v1.59.0 // indirect
