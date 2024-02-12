@@ -88,6 +88,7 @@ func pushToRegistry(appName string, tag int, imageID string, imageRepo string) e
 	imageTag, _ := common.GetRunningImageTag(appName, "")
 
 	fullImage := fmt.Sprintf("%s%s:%d", registryServer, imageRepo, tag)
+	latestImage := fmt.Sprintf("%s%s:latest", registryServer, imageRepo)
 
 	common.LogVerboseQuiet(fmt.Sprintf("Tagging %s:%d in registry format", imageRepo, tag))
 	if !dockerTag(imageID, fullImage) {
@@ -100,14 +101,22 @@ func pushToRegistry(appName string, tag int, imageID string, imageRepo string) e
 		return errors.New("Unable to tag image")
 	}
 
-	// For the future, we should also add the ability to create the remote repository
-	// This is only really important for registries that do not support creation on push
-	// Examples include AWS and Quay.io
+	// Tagging the image as latest
+	common.LogVerboseQuiet(fmt.Sprintf("Tagging %s as latest in registry format", imageRepo))
+	if !dockerTag(imageID, latestImage) {
+		return errors.New("Unable to tag image as latest")
+	}
 
 	common.LogVerboseQuiet(fmt.Sprintf("Pushing %s", fullImage))
 	if !dockerPush(fullImage) {
 		// TODO: better error
 		return errors.New("Unable to push image")
+	}
+
+	// Pushing the latest tag
+	common.LogVerboseQuiet(fmt.Sprintf("Pushing %s", latestImage))
+	if !dockerPush(latestImage) {
+		return errors.New("Unable to push image with latest tag")
 	}
 
 	// Only clean up when the scheduler is not docker-local
