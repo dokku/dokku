@@ -42,7 +42,6 @@ var (
 const DefaultIngressClass = "traefik"
 const GlobalProcessType = "--global"
 const KubeConfigPath = "/etc/rancher/k3s/k3s.yaml"
-const RegistryConfigPath = "/etc/rancher/k3s/registries.yaml"
 
 var (
 	runtimeScheme  = runtime.NewScheme()

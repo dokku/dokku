@@ -219,7 +219,7 @@ The default value may be set by passing an empty value for the option:
 dokku scheduler-k3s:set node-js-app image-pull-secrets
 ```
 
-The `image-pull-secrets` property can also be set globally. The global default is empty string, and k3s will use the local `registries.yaml` for any private registry pulls.
+The `image-pull-secrets` property can also be set globally. The global default is empty string, and k3s will use Dokku's locally configured `~/.docker/config.json` for any private registry pulls.
 
 ```shell
 dokku scheduler-k3s:set --global image-pull-secrets 60s

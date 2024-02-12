@@ -23,11 +23,8 @@ import (
 	"github.com/dokku/dokku/plugins/config"
 	"github.com/dokku/dokku/plugins/cron"
 	"github.com/fatih/color"
-	"github.com/hashicorp/go-multierror"
 	"github.com/kballard/go-shellquote"
-	"github.com/rancher/wharfie/pkg/registries"
 	"github.com/ryanuber/columnize"
-	"gopkg.in/yaml.v3"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/kubernetes/pkg/client/conditions"
@@ -78,88 +75,6 @@ func TriggerPostDelete(appName string) error {
 	return propertyErr
 }
 
-// TriggerPostRegistryLogin updates the `/etc/rancher/k3s/registries.yaml` to include
-// auth information for the registry. Note that if the file does not exist, it won't be updated.
-func TriggerPostRegistryLogin(server string, username string) error {
-	if !common.FileExists("/usr/local/bin/k3s") {
-		return nil
-	}
-
-	password := os.Getenv("DOCKER_REGISTRY_PASS")
-
-	yamlFile, err := os.ReadFile(RegistryConfigPath)
-	if err != nil {
-		return fmt.Errorf("Unable to read existing registries.yaml: %w", err)
-	}
-
-	var registry registries.Registry
-	err = yaml.Unmarshal(yamlFile, &registry)
-	if err != nil {
-		return fmt.Errorf("Unable to unmarshal registry configuration from yaml: %w", err)
-	}
-
-	common.LogInfo1("Updating k3s configuration")
-	if registry.Auths == nil {
-		registry.Auths = map[string]registries.AuthConfig{}
-	}
-
-	if server == "docker.io" {
-		server = "registry-1.docker.io"
-	}
-
-	registry.Auths[server] = registries.AuthConfig{
-		Username: username,
-		Password: password,
-	}
-
-	data, err := yaml.Marshal(&registry)
-	if err != nil {
-		return fmt.Errorf("Unable to marshal registry configuration to yaml: %w", err)
-	}
-
-	if err := os.WriteFile(RegistryConfigPath, data, os.FileMode(0644)); err != nil {
-		return fmt.Errorf("Unable to write registry configuration to file: %w", err)
-	}
-
-	ctx, cancel := context.WithCancel(context.Background())
-	signals := make(chan os.Signal, 1)
-	signal.Notify(signals, os.Interrupt, syscall.SIGHUP,
-		syscall.SIGINT,
-		syscall.SIGQUIT,
-		syscall.SIGTERM)
-	go func() {
-		<-signals
-		cancel()
-	}()
-
-	clientset, err := NewKubernetesClient()
-	if err != nil {
-		return fmt.Errorf("Error creating kubernetes client: %w", err)
-	}
-
-	nodes, err := clientset.ListNodes(ctx, ListNodesInput{})
-	if err != nil {
-		return fmt.Errorf("Error listing nodes: %w", err)
-	}
-
-	var result error
-	for _, node := range nodes {
-		remoteHost, ok := node.Annotations["dokku.com/remote-host"]
-		if !ok {
-			continue
-		}
-
-		err := copyRegistryToNode(ctx, remoteHost)
-		if err != nil {
-			wrappedErr := fmt.Errorf("Error copying registry to node: %w", err)
-			result = multierror.Append(result, wrappedErr)
-			common.LogWarn(wrappedErr.Error())
-		}
-	}
-
-	return result
-}
-
 // TriggerSchedulerDeploy deploys an image tag for a given application
 func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) error {
 	if scheduler != "k3s" {
@@ -208,8 +123,6 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 		return fmt.Errorf("Error parsing rollback-on-failure value as boolean: %w", err)
 	}
 
-	imagePullSecrets := getComputedImagePullSecrets(appName)
-
 	imageSourceType := "dockerfile"
 	if common.IsImageCnbBased(image) {
 		imageSourceType = "pack"
@@ -256,7 +169,22 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 	}
 
 	deploymentId := time.Now().Unix()
-	globalTemplateFiles := []string{"service-account", "secret"}
+	pullSecretBase64 := base64.StdEncoding.EncodeToString([]byte(""))
+	imagePullSecrets := getComputedImagePullSecrets(appName)
+	if imagePullSecrets == "" {
+		dockerConfigPath := filepath.Join(os.Getenv("DOKKU_ROOT"), ".docker/config.json")
+		if fi, err := os.Stat(dockerConfigPath); err == nil && !fi.IsDir() {
+			b, err := os.ReadFile(dockerConfigPath)
+			if err != nil {
+				return fmt.Errorf("Error reading docker config: %w", err)
+			}
+
+			imagePullSecrets = fmt.Sprintf("image-pull-%s.%d", appName, deploymentId)
+			pullSecretBase64 = base64.StdEncoding.EncodeToString(b)
+		}
+	}
+
+	globalTemplateFiles := []string{"service-account", "secret", "image-pull-secret"}
 	for _, templateName := range globalTemplateFiles {
 		b, err := templates.ReadFile(fmt.Sprintf("templates/chart/%s.yaml", templateName))
 		if err != nil {
@@ -345,6 +273,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 			DeploymentID: fmt.Sprint(deploymentId),
 			Image: GlobalImage{
 				ImagePullSecrets: imagePullSecrets,
+				PullSecretBase64: pullSecretBase64,
 				Name:             image,
 				Type:             imageSourceType,
 				WorkingDir:       workingDir,

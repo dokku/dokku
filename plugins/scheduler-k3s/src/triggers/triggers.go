@@ -35,10 +35,6 @@ func main() {
 	case "post-delete":
 		appName := flag.Arg(0)
 		err = scheduler_k3s.TriggerPostDelete(appName)
-	case "post-registry-login":
-		server := flag.Arg(0)
-		username := flag.Arg(1)
-		err = scheduler_k3s.TriggerPostRegistryLogin(server, username)
 	case "report":
 		appName := flag.Arg(0)
 		err = scheduler_k3s.ReportSingleApp(appName, "", "")

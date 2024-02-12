@@ -1120,10 +1120,6 @@ func isK3sInstalled() error {
 		return fmt.Errorf("k3s binary is not available")
 	}
 
-	if !common.FileExists(RegistryConfigPath) {
-		return fmt.Errorf("k3s registry config is not available")
-	}
-
 	if !common.FileExists(KubeConfigPath) {
 		return fmt.Errorf("k3s kubeconfig is not available")
 	}

@@ -241,27 +241,6 @@ func CommandInitialize(ingressClass string, serverIP string, taintScheduling boo
 		return fmt.Errorf("Invalid exit code from k3s installer command: %d", installerCmd.ExitCode)
 	}
 
-	if err := common.TouchFile(RegistryConfigPath); err != nil {
-		return fmt.Errorf("Error creating initial registries.yaml file")
-	}
-
-	common.LogInfo2Quiet("Setting registries.yaml permissions")
-	registryAclCmd, err := common.CallExecCommand(common.ExecCommandInput{
-		Command: "setfacl",
-		Args: []string{
-			"-m",
-			"user:dokku:rwx",
-			RegistryConfigPath,
-		},
-		StreamStdio: true,
-	})
-	if err != nil {
-		return fmt.Errorf("Unable to call setfacl command: %w", err)
-	}
-	if registryAclCmd.ExitCode != 0 {
-		return fmt.Errorf("Invalid exit code from setfacl command: %d", registryAclCmd.ExitCode)
-	}
-
 	clientset, err := NewKubernetesClient()
 	if err != nil {
 		return fmt.Errorf("Unable to create kubernetes client: %w", err)
@@ -570,11 +549,6 @@ func CommandClusterAdd(role string, remoteHost string, serverIP string, allowUkn
 	}
 	if len(nodes) == 0 {
 		return fmt.Errorf("Unable to find node after joining cluster, node will not be annotated/labeled appropriately access registry secrets")
-	}
-
-	err = copyRegistryToNode(ctx, remoteHost)
-	if err != nil {
-		return fmt.Errorf("Error copying registries.yaml to remote host: %w", err)
 	}
 
 	labels := ServerLabels
