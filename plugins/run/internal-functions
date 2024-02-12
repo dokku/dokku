@@ -21,6 +21,10 @@ fn-run() {
         export DOKKU_DISABLE_TTY=true
         shift
         ;;
+      --force-tty)
+        export DOKKU_FORCE_TTY=true
+        shift
+        ;;
       --cron-id)
         if [[ ! $2 ]]; then
           dokku_log_warn "expected $1 to have an argument"
@@ -49,6 +53,10 @@ fn-run() {
         ;;
     esac
   done
+
+  if [[ "$DOKKU_DISABLE_TTY" == "true" ]] && [[ "$DOKKU_FORCE_TTY" == "true" ]]; then
+    dokku_log_fail "Cannot specify both --force-tty and --no-tty"
+  fi
 
   verify_app_name "$APP"
 
