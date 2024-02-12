@@ -124,6 +124,7 @@ func isValidRestartPolicy(policy string) bool {
 func parseProcessTuples(processTuples []string) (FormationSlice, error) {
 	formations := FormationSlice{}
 
+	foundFormations := map[string]bool{}
 	for _, processTuple := range processTuples {
 		s := strings.SplitN(processTuple, "=", 2)
 		if len(s) == 1 {
@@ -136,6 +137,11 @@ func parseProcessTuples(processTuples []string) (FormationSlice, error) {
 			return formations, fmt.Errorf("Invalid count for process type %s", s[0])
 		}
 
+		if foundFormations[processType] {
+			continue
+		}
+
+		foundFormations[processType] = true
 		formations = append(formations, &Formation{
 			ProcessType: processType,
 			Quantity:    quantity,
@@ -192,7 +198,21 @@ func getFormations(appName string) (FormationSlice, error) {
 		return formations, err
 	}
 
-	return append(formations, oldFormations...), nil
+	foundProcessTypes := map[string]bool{}
+	for _, formation := range formations {
+		foundProcessTypes[formation.ProcessType] = true
+	}
+
+	for _, formation := range oldFormations {
+		if foundProcessTypes[formation.ProcessType] {
+			continue
+		}
+
+		foundProcessTypes[formation.ProcessType] = true
+		formations = append(formations, formation)
+	}
+
+	return formations, nil
 }
 
 func restorePrep() error {
