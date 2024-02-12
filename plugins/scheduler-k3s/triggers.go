@@ -351,7 +351,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 			},
 			Namespace: namespace,
 			Network: GlobalNetwork{
-				IngressClass: common.PropertyGetDefault("scheduler-k3s", "--global", "ingress-class", DefaultIngressClass),
+				IngressClass: getGlobalIngressClass(),
 				PrimaryPort:  primaryPort,
 			},
 			Secrets: map[string]string{},
