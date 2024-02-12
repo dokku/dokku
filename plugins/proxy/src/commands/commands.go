@@ -18,8 +18,8 @@ Manage the proxy integration for an app
 Additional commands:`
 
 	helpContent = `
-	proxy:build-config [--parallel count] [--all|<app>], (Re)builds config for a given app
-	proxy:clear-config [--all|<app>], Clears config for a given app
+    proxy:build-config [--parallel count] [--all|<app>], (Re)builds config for a given app
+    proxy:clear-config [--all|<app>], Clears config for a given app
     proxy:disable <app>, Disable proxy for app
     proxy:enable <app>, Enable proxy for app
     proxy:report [<app>] [<flag>], Displays a proxy report for one or more apps
@@ -36,11 +36,13 @@ func main() {
 	case "proxy", "proxy:help":
 		usage()
 	case "help":
-		command := common.NewShellCmd(fmt.Sprintf("ps -o command= %d", os.Getppid()))
-		command.ShowOutput = false
-		output, err := command.Output()
-
-		if err == nil && strings.Contains(string(output), "--all") {
+		result, err := common.CallExecCommand(common.ExecCommandInput{
+			Command:       "ps",
+			Args:          []string{"-o", "command=", strconv.Itoa(os.Getppid())},
+			CaptureOutput: true,
+			StreamStdio:   false,
+		})
+		if err == nil && strings.Contains(result.StdoutContents(), "--all") {
 			fmt.Println(helpContent)
 		} else {
 			fmt.Print("\n    proxy, Manage the proxy integration for an app\n")
