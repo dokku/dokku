@@ -93,7 +93,7 @@ EOF
   echo "web=4
 worker=1
 beat                                                                            =0
-web                                                                             =0" > /var/lib/dokku/config/ps/$TEST_APP/scale
+web                                                                             =0" >/var/lib/dokku/config/ps/$TEST_APP/scale
 
   run /bin/bash -c "dokku --quiet ps:scale $TEST_APP"
   echo "output: $output"
