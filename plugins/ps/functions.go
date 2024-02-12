@@ -130,8 +130,8 @@ func parseProcessTuples(processTuples []string) (FormationSlice, error) {
 			return formations, fmt.Errorf("Missing count for process type %s", processTuple)
 		}
 
-		processType := s[0]
-		quantity, err := strconv.Atoi(s[1])
+		processType := strings.TrimSpace(s[0])
+		quantity, err := strconv.Atoi(strings.TrimSpace(s[1]))
 		if err != nil {
 			return formations, fmt.Errorf("Invalid count for process type %s", s[0])
 		}
