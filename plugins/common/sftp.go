@@ -33,12 +33,17 @@ type SftpCopyInput struct {
 
 // CallSftpCopy copies a file to a remote host via sftp
 func CallSftpCopy(input SftpCopyInput) (SftpCopyResult, error) {
+	return CallSftpCopyWithContext(context.Background(), input)
+}
+
+// CallSftpCopyWithContext copies a file to a remote host via sftp with the given context
+func CallSftpCopyWithContext(ctx context.Context, input SftpCopyInput) (SftpCopyResult, error) {
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, os.Interrupt, syscall.SIGHUP,
 		syscall.SIGINT,
 		syscall.SIGQUIT,
 		syscall.SIGTERM)
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(ctx)
 	go func() {
 		<-signals
 		cancel()

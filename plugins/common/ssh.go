@@ -43,9 +43,18 @@ type SshCommandInput struct {
 	// RemoteHost is the remote host to connect to
 	RemoteHost string
 
+	// Stdin is the stdin of the command
+	Stdin io.Reader
+
 	// StreamStdio prints stdout and stderr directly to os.Stdout/err as
 	// the command runs.
 	StreamStdio bool
+
+	// StreamStdout prints stdout directly to os.Stdout as the command runs.
+	StreamStdout bool
+
+	// StreamStderr prints stderr directly to os.Stderr as the command runs.
+	StreamStderr bool
 
 	// Sudo runs the command with sudo -n -u root
 	Sudo bool
@@ -53,12 +62,17 @@ type SshCommandInput struct {
 
 // CallSshCommand executes a command on a remote host via ssh
 func CallSshCommand(input SshCommandInput) (SshResult, error) {
+	return CallSshCommandWithContext(context.Background(), input)
+}
+
+// CallSshCommand executes a command on a remote host via ssh with the given context
+func CallSshCommandWithContext(ctx context.Context, input SshCommandInput) (SshResult, error) {
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, os.Interrupt, syscall.SIGHUP,
 		syscall.SIGINT,
 		syscall.SIGQUIT,
 		syscall.SIGTERM)
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(ctx)
 	go func() {
 		<-signals
 		cancel()
@@ -137,12 +151,20 @@ func CallSshCommand(input SshCommandInput) (SshResult, error) {
 		cmd.PrintCommand = true
 	}
 
-	if isatty {
+	if input.Stdin != nil {
+		cmd.Stdin = input.Stdin
+	} else if isatty {
 		cmd.Stdin = os.Stdin
 	}
 
 	if input.StreamStdio {
 		cmd.StreamStdio = true
+	}
+	if input.StreamStdout {
+		cmd.StdOutWriter = os.Stdout
+	}
+	if input.StreamStderr {
+		cmd.StdErrWriter = os.Stderr
 	}
 
 	res, err := cmd.Execute(ctx)

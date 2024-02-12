@@ -22,6 +22,8 @@ type ShellCmd struct {
 }
 
 // NewShellCmd returns a new ShellCmd struct
+//
+// Deprecated: use CallExecCommand instead
 func NewShellCmd(command string) *ShellCmd {
 	items := strings.Split(command, " ")
 	cmd := items[0]
@@ -30,6 +32,8 @@ func NewShellCmd(command string) *ShellCmd {
 }
 
 // NewShellCmdWithArgs returns a new ShellCmd struct
+//
+// Deprecated: use CallExecCommand instead
 func NewShellCmdWithArgs(cmd string, args ...string) *ShellCmd {
 	commandString := strings.Join(append([]string{cmd}, args...), " ")
 
@@ -87,12 +91,16 @@ func (sc *ShellCmd) CombinedOutput() ([]byte, error) {
 }
 
 // PlugnTrigger fire the given plugn trigger with the given args
+//
+// Deprecated: use CallPlugnTrigger instead
 func PlugnTrigger(triggerName string, args ...string) error {
 	LogDebug(fmt.Sprintf("plugn trigger %s %v", triggerName, args))
 	return PlugnTriggerSetup(triggerName, args...).Run()
 }
 
 // PlugnTriggerOutput fire the given plugn trigger with the given args
+//
+// Deprecated: use CallPlugnTrigger with CaptureOutput=true instead
 func PlugnTriggerOutput(triggerName string, args ...string) ([]byte, error) {
 	LogDebug(fmt.Sprintf("plugn trigger %s %v", triggerName, args))
 	rE, wE, _ := os.Pipe()
@@ -125,12 +133,16 @@ func PlugnTriggerOutput(triggerName string, args ...string) ([]byte, error) {
 }
 
 // PlugnTriggerOutputAsString fires the given plugn trigger with the given args and returns the string contents instead of bytes
+//
+// Deprecated: use CallPlugnTrigger with CaptureOutput=true instead
 func PlugnTriggerOutputAsString(triggerName string, args ...string) (string, error) {
 	b, err := PlugnTriggerOutput(triggerName, args...)
 	return strings.TrimSpace(string(b[:])), err
 }
 
 // PlugnTriggerSetup sets up a plugn trigger call
+//
+// Deprecated: use CallPlugnTrigger instead
 func PlugnTriggerSetup(triggerName string, args ...string) *sh.Session {
 	shellArgs := make([]interface{}, len(args)+2)
 	shellArgs[0] = "trigger"
