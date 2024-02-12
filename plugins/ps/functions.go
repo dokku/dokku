@@ -12,30 +12,11 @@ import (
 
 	"github.com/dokku/dokku/plugins/common"
 	dockeroptions "github.com/dokku/dokku/plugins/docker-options"
-	"github.com/ryanuber/columnize"
 )
 
 func canScaleApp(appName string) bool {
 	canScale := common.PropertyGetDefault("ps", appName, "can-scale", "true")
 	return common.ToBool(canScale)
-}
-
-func getProcessStatus(appName string) map[string]string {
-	statuses := make(map[string]string)
-	containerFiles := common.ListFilesWithPrefix(common.AppRoot(appName), "CONTAINER.")
-	for _, filename := range containerFiles {
-		containerID := common.ReadFirstLine(filename)
-		containerStatus, _ := common.DockerInspect(containerID, "{{ .State.Status }}")
-		process := strings.TrimPrefix(filename, fmt.Sprintf("%s/CONTAINER.", common.AppRoot(appName)))
-
-		if containerStatus == "" {
-			containerStatus = "missing"
-		}
-
-		statuses[process] = fmt.Sprintf("%s (CID: %s)", containerStatus, containerID[0:11])
-	}
-
-	return statuses
 }
 
 func getProcfileCommand(procfilePath string, processType string, port int) (string, error) {
@@ -229,11 +210,6 @@ func scaleReport(appName string) error {
 	}
 
 	common.LogInfo1Quiet(fmt.Sprintf("Scaling for %s", appName))
-	config := columnize.DefaultConfig()
-	config.Delim = "="
-	config.Glue = ": "
-	config.Prefix = "    "
-	config.Empty = ""
 
 	content := []string{}
 	if os.Getenv("DOKKU_QUIET_OUTPUT") == "" {
