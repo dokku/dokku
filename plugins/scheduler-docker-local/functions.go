@@ -20,11 +20,8 @@ func deleteCrontab() error {
 		Args:    []string{"-l", "-u", "dokku"},
 		Sudo:    true,
 	})
-	if err != nil {
-		return fmt.Errorf("Unable to remove schedule file: %w", err)
-	}
-	if result.ExitCode != 0 {
-		return fmt.Errorf("Unable to remove schedule file: %s", result.StderrContents())
+	if err != nil || result.ExitCode != 0 {
+		return nil
 	}
 
 	result, err = common.CallExecCommand(common.ExecCommandInput{
