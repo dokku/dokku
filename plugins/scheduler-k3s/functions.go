@@ -338,7 +338,6 @@ func extractStartCommand(input StartCommandInput) string {
 		Trigger:       "config-get",
 		Args:          []string{input.AppName, "DOKKU_START_CMD"},
 		CaptureOutput: true,
-		StreamStdio:   false,
 	})
 	if err == nil && resp.ExitCode == 0 && len(resp.Stdout) > 0 {
 		command = strings.TrimSpace(resp.Stdout)
@@ -349,7 +348,6 @@ func extractStartCommand(input StartCommandInput) string {
 			Trigger:       "config-get",
 			Args:          []string{input.AppName, "DOKKU_DOCKERFILE_START_CMD"},
 			CaptureOutput: true,
-			StreamStdio:   false,
 		})
 		if err == nil && resp.ExitCode == 0 && len(resp.Stdout) > 0 {
 			command = strings.TrimSpace(resp.Stdout)

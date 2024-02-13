@@ -53,7 +53,6 @@ func main() {
 			Command:       "ps",
 			Args:          []string{"-o", "command=", strconv.Itoa(os.Getppid())},
 			CaptureOutput: true,
-			StreamStdio:   false,
 		})
 		if err == nil && strings.Contains(result.StdoutContents(), "--all") {
 			fmt.Println(helpContent)

@@ -54,10 +54,9 @@ func CommandLogin(server string, username string, password string, passwordStdin
 	}
 
 	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
-		Trigger:       "post-registry-login",
-		Args:          []string{server, username},
-		StreamStdio:   true,
-		CaptureOutput: false,
+		Trigger:     "post-registry-login",
+		Args:        []string{server, username},
+		StreamStdio: true,
 		Env: map[string]string{
 			"DOCKER_REGISTRY_PASS": password,
 		},

@@ -49,7 +49,6 @@ func TriggerDockerArgsProcessDeploy(appName string) error {
 			Command:       common.DockerBin(),
 			Args:          []string{"system", "info", "--format", "{{ .LoggingDriver }}"},
 			CaptureOutput: true,
-			StreamStdio:   false,
 		})
 
 		if !allowedDrivers[result.StdoutContents()] {

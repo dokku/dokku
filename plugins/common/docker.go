@@ -21,10 +21,9 @@ func ContainerIsRunning(containerID string) bool {
 // ContainerRemove runs 'docker container remove' against an existing container
 func ContainerRemove(containerID string) bool {
 	result, err := CallExecCommand(ExecCommandInput{
-		Command:       DockerBin(),
-		Args:          []string{"container", "remove", "-f", containerID},
-		CaptureOutput: false,
-		StreamStdio:   false,
+		Command:      DockerBin(),
+		Args:         []string{"container", "remove", "-f", containerID},
+		StreamStderr: true,
 	})
 	if err != nil {
 		return false
@@ -35,10 +34,8 @@ func ContainerRemove(containerID string) bool {
 // ContainerExists checks to see if a container exists
 func ContainerExists(containerID string) bool {
 	result, err := CallExecCommand(ExecCommandInput{
-		Command:       DockerBin(),
-		Args:          []string{"container", "inspect", containerID},
-		CaptureOutput: false,
-		StreamStdio:   false,
+		Command: DockerBin(),
+		Args:    []string{"container", "inspect", containerID},
 	})
 	if err != nil {
 		return false
@@ -138,7 +135,6 @@ func CopyFromImage(appName string, image string, source string, destination stri
 		Command:       "tail",
 		Args:          []string{"-c1", destination},
 		CaptureOutput: true,
-		StreamStdio:   false,
 	})
 	if err != nil || result.ExitCode != 0 {
 		return fmt.Errorf("Unable to append trailing newline to copied file: %v", result.Stderr)
@@ -250,7 +246,6 @@ func DockerInspect(containerOrImageID, format string) (output string, err error)
 		Command:       DockerBin(),
 		Args:          []string{"inspect", "--format", format, containerOrImageID},
 		CaptureOutput: true,
-		StreamStdio:   false,
 	})
 	if err != nil {
 		return "", err

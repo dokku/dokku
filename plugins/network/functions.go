@@ -62,7 +62,6 @@ func isContainerInNetwork(containerID string, networkName string) bool {
 		Command:       common.DockerBin(),
 		Args:          []string{"container", "inspect", "--format", "{{range $net, $v := .NetworkSettings.Networks}}{{println $net}}{{end}}", containerID},
 		CaptureOutput: true,
-		StreamStdio:   false,
 	})
 
 	if err != nil {
@@ -133,7 +132,6 @@ func listNetworks() ([]string, error) {
 		Command:       common.DockerBin(),
 		Args:          []string{"network", "ls", "--format", "{{ .Name }}"},
 		CaptureOutput: true,
-		StreamStdio:   false,
 	})
 	if err != nil {
 		common.LogVerboseQuiet(result.StderrContents())

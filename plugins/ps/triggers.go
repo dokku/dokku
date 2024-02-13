@@ -106,7 +106,6 @@ func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
 		Command:       "procfile-util",
 		Args:          []string{"check", "-P", processSpecificProcfile},
 		CaptureOutput: true,
-		StreamStdio:   false,
 	})
 	if err != nil {
 		return fmt.Errorf(result.StderrContents())
