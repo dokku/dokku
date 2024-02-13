@@ -18,6 +18,19 @@ func ContainerIsRunning(containerID string) bool {
 	return strings.TrimSpace(string(b[:])) == "true"
 }
 
+// ContainerStart runs 'docker container start' against an existing container
+func ContainerStart(containerID string) bool {
+	result, err := CallExecCommand(ExecCommandInput{
+		Command:      DockerBin(),
+		Args:         []string{"container", "start", containerID},
+		StreamStderr: true,
+	})
+	if err != nil {
+		return false
+	}
+	return result.ExitCode == 0
+}
+
 // ContainerRemove runs 'docker container remove' against an existing container
 func ContainerRemove(containerID string) bool {
 	result, err := CallExecCommand(ExecCommandInput{
@@ -36,6 +49,19 @@ func ContainerExists(containerID string) bool {
 	result, err := CallExecCommand(ExecCommandInput{
 		Command: DockerBin(),
 		Args:    []string{"container", "inspect", containerID},
+	})
+	if err != nil {
+		return false
+	}
+	return result.ExitCode == 0
+}
+
+// ContainerWait runs 'docker container wait' against an existing container
+func ContainerWait(containerID string) bool {
+	result, err := CallExecCommand(ExecCommandInput{
+		Command:      DockerBin(),
+		Args:         []string{"container", "wait", containerID},
+		StreamStderr: true,
 	})
 	if err != nil {
 		return false
