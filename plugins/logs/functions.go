@@ -38,8 +38,7 @@ const vectorOldContainerName = "vector"
 
 func getComposeFile() ([]byte, error) {
 	result, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
-		Trigger:       "vector-template-source",
-		CaptureOutput: true,
+		Trigger: "vector-template-source",
 	})
 	if err == nil && result.ExitCode == 0 && strings.TrimSpace(result.Stdout) != "" {
 		contents, err := os.ReadFile(strings.TrimSpace(result.Stdout))

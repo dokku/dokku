@@ -23,8 +23,8 @@ type ExecCommandInput struct {
 	// Args are the arguments to pass to the command
 	Args []string
 
-	// CaptureOutput determines whether to capture the output of the command
-	CaptureOutput bool
+	// DisableStdioBuffer disables the stdio buffer
+	DisableStdioBuffer bool
 
 	// Env is the environment variables to pass to the command
 	Env map[string]string
@@ -95,7 +95,7 @@ func CallExecCommandWithContext(ctx context.Context, input ExecCommandInput) (Ex
 	// being captured, then color output can be forced.
 	isatty := !color.NoColor
 	env := os.Environ()
-	if isatty && !input.CaptureOutput {
+	if isatty && input.DisableStdioBuffer {
 		env = append(env, "FORCE_TTY=1")
 	}
 	if input.Env != nil {
@@ -115,7 +115,7 @@ func CallExecCommandWithContext(ctx context.Context, input ExecCommandInput) (Ex
 		Command:            command,
 		Args:               commandArgs,
 		Env:                env,
-		DisableStdioBuffer: !input.CaptureOutput,
+		DisableStdioBuffer: input.DisableStdioBuffer,
 	}
 
 	if os.Getenv("DOKKU_TRACE") == "1" {

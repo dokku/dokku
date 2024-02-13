@@ -46,10 +46,8 @@ func TriggerDockerArgsProcessDeploy(appName string) error {
 
 	if !hasDriverOpt {
 		result, _ := common.CallExecCommand(common.ExecCommandInput{
-			Command:       common.DockerBin(),
-			Args:          []string{"system", "info", "--format", "{{ .LoggingDriver }}"},
-			CaptureOutput: true,
-			StreamStdio:   false,
+			Command: common.DockerBin(),
+			Args:    []string{"system", "info", "--format", "{{ .LoggingDriver }}"},
 		})
 
 		if !allowedDrivers[result.StdoutContents()] {

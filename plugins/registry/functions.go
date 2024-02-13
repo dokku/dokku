@@ -124,20 +124,18 @@ func pushToRegistry(appName string, tag int, imageID string, imageRepo string) e
 
 func dockerTag(imageID string, imageTag string) bool {
 	result, err := common.CallExecCommand(common.ExecCommandInput{
-		Command:       common.DockerBin(),
-		Args:          []string{"image", "tag", imageID, imageTag},
-		CaptureOutput: false,
-		StreamStdio:   true,
+		Command:     common.DockerBin(),
+		Args:        []string{"image", "tag", imageID, imageTag},
+		StreamStdio: true,
 	})
 	return err == nil && result.ExitCode == 0
 }
 
 func dockerPush(imageTag string) bool {
 	result, err := common.CallExecCommand(common.ExecCommandInput{
-		Command:       common.DockerBin(),
-		Args:          []string{"image", "push", imageTag},
-		CaptureOutput: false,
-		StreamStdio:   true,
+		Command:     common.DockerBin(),
+		Args:        []string{"image", "push", imageTag},
+		StreamStdio: true,
 	})
 	return err == nil && result.ExitCode == 0
 }

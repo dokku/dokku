@@ -531,20 +531,18 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 
 	common.LogInfo1("Running post-deploy")
 	_, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
-		Args:          []string{appName, "", "", imageTag},
-		CaptureOutput: false,
-		StreamStdio:   true,
-		Trigger:       "core-post-deploy",
+		Args:        []string{appName, "", "", imageTag},
+		StreamStdio: true,
+		Trigger:     "core-post-deploy",
 	})
 	if err != nil {
 		return fmt.Errorf("Error running core-post-deploy: %w", err)
 
 	}
 	_, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
-		Args:          []string{appName, "", "", imageTag},
-		CaptureOutput: false,
-		StreamStdio:   true,
-		Trigger:       "post-deploy",
+		Args:        []string{appName, "", "", imageTag},
+		StreamStdio: true,
+		Trigger:     "post-deploy",
 	})
 	if err != nil {
 		return fmt.Errorf("Error running post-deploy: %w", err)
@@ -803,17 +801,13 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 	dokkuRmContainer := os.Getenv("DOKKU_RM_CONTAINER")
 	if dokkuRmContainer == "" {
 		resp, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
-			Trigger:       "config-get",
-			Args:          []string{appName, "DOKKU_RM_CONTAINER"},
-			CaptureOutput: true,
-			StreamStdio:   false,
+			Trigger: "config-get",
+			Args:    []string{appName, "DOKKU_RM_CONTAINER"},
 		})
 		if err != nil {
 			resp, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
-				Trigger:       "config-get-global",
-				Args:          []string{"DOKKU_RM_CONTAINER"},
-				CaptureOutput: true,
-				StreamStdio:   false,
+				Trigger: "config-get-global",
+				Args:    []string{"DOKKU_RM_CONTAINER"},
 			})
 			if err == nil {
 				dokkuRmContainer = strings.TrimSpace(resp.Stdout)
@@ -862,10 +856,8 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 		}
 	} else if len(args) == 1 {
 		resp, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
-			Trigger:       "procfile-get-command",
-			Args:          []string{appName, args[0], "5000"},
-			CaptureOutput: true,
-			StreamStdio:   false,
+			Trigger: "procfile-get-command",
+			Args:    []string{appName, args[0], "5000"},
 		})
 		if err == nil && resp.Stdout != "" {
 			common.LogInfo1Quiet(fmt.Sprintf("Found '%s' in Procfile, running that command", args[0]))

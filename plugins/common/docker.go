@@ -21,10 +21,9 @@ func ContainerIsRunning(containerID string) bool {
 // ContainerRemove runs 'docker container remove' against an existing container
 func ContainerRemove(containerID string) bool {
 	result, err := CallExecCommand(ExecCommandInput{
-		Command:       DockerBin(),
-		Args:          []string{"container", "remove", "-f", containerID},
-		CaptureOutput: false,
-		StreamStdio:   false,
+		Command:      DockerBin(),
+		Args:         []string{"container", "remove", "-f", containerID},
+		StreamStderr: true,
 	})
 	if err != nil {
 		return false
@@ -35,10 +34,8 @@ func ContainerRemove(containerID string) bool {
 // ContainerExists checks to see if a container exists
 func ContainerExists(containerID string) bool {
 	result, err := CallExecCommand(ExecCommandInput{
-		Command:       DockerBin(),
-		Args:          []string{"container", "inspect", containerID},
-		CaptureOutput: false,
-		StreamStdio:   false,
+		Command: DockerBin(),
+		Args:    []string{"container", "inspect", containerID},
 	})
 	if err != nil {
 		return false
@@ -135,10 +132,8 @@ func CopyFromImage(appName string, image string, source string, destination stri
 
 	// add trailing newline for certain places where file parsing depends on it
 	result, err := CallExecCommand(ExecCommandInput{
-		Command:       "tail",
-		Args:          []string{"-c1", destination},
-		CaptureOutput: true,
-		StreamStdio:   false,
+		Command: "tail",
+		Args:    []string{"-c1", destination},
 	})
 	if err != nil || result.ExitCode != 0 {
 		return fmt.Errorf("Unable to append trailing newline to copied file: %v", result.Stderr)
@@ -247,10 +242,8 @@ func DockerContainerCreate(image string, containerCreateArgs []string) (string, 
 // DockerInspect runs an inspect command with a given format against a container or image ID
 func DockerInspect(containerOrImageID, format string) (output string, err error) {
 	result, err := CallExecCommand(ExecCommandInput{
-		Command:       DockerBin(),
-		Args:          []string{"inspect", "--format", format, containerOrImageID},
-		CaptureOutput: true,
-		StreamStdio:   false,
+		Command: DockerBin(),
+		Args:    []string{"inspect", "--format", format, containerOrImageID},
 	})
 	if err != nil {
 		return "", err
@@ -277,9 +270,8 @@ func GetWorkingDir(appName string, image string) string {
 
 func IsComposeInstalled() bool {
 	result, err := CallExecCommand(ExecCommandInput{
-		Command:       DockerBin(),
-		Args:          []string{"info", "--format", "{{range .ClientInfo.Plugins}}{{if eq .Name \"compose\"}}true{{end}}{{end}}')"},
-		CaptureOutput: true,
+		Command: DockerBin(),
+		Args:    []string{"info", "--format", "{{range .ClientInfo.Plugins}}{{if eq .Name \"compose\"}}true{{end}}{{end}}')"},
 	})
 	return err == nil && result.ExitCode == 0
 }
