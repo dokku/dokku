@@ -7,8 +7,6 @@ import (
 	"os"
 	"strings"
 	"time"
-
-	"github.com/codeskyblue/go-sh"
 )
 
 // ContainerIsRunning checks to see if a container is running
@@ -20,41 +18,32 @@ func ContainerIsRunning(containerID string) bool {
 	return strings.TrimSpace(string(b[:])) == "true"
 }
 
-// ContainerStart runs 'docker container start' against an existing container
-// whether that container is running or not
-func ContainerStart(containerID string) bool {
-	cmd := sh.Command(DockerBin(), "container", "start", containerID)
-	cmd.Stdout = nil
-	cmd.Stderr = nil
-	if err := cmd.Run(); err != nil {
-		return false
-	}
-
-	return true
-}
-
 // ContainerRemove runs 'docker container remove' against an existing container
 func ContainerRemove(containerID string) bool {
-	cmd := sh.Command(DockerBin(), "container", "remove", "-f", containerID)
-	cmd.Stdout = nil
-	cmd.Stderr = nil
-	if err := cmd.Run(); err != nil {
+	result, err := CallExecCommand(ExecCommandInput{
+		Command:       DockerBin(),
+		Args:          []string{"container", "remove", "-f", containerID},
+		CaptureOutput: false,
+		StreamStdio:   false,
+	})
+	if err != nil {
 		return false
 	}
-
-	return true
+	return result.ExitCode == 0
 }
 
 // ContainerExists checks to see if a container exists
 func ContainerExists(containerID string) bool {
-	cmd := sh.Command(DockerBin(), "container", "inspect", containerID)
-	cmd.Stdout = nil
-	cmd.Stderr = nil
-	if err := cmd.Run(); err != nil {
+	result, err := CallExecCommand(ExecCommandInput{
+		Command:       DockerBin(),
+		Args:          []string{"container", "inspect", containerID},
+		CaptureOutput: false,
+		StreamStdio:   false,
+	})
+	if err != nil {
 		return false
 	}
-
-	return true
+	return result.ExitCode == 0
 }
 
 // ContainerWaitTilReady will wait timeout seconds and then check if a container is running
@@ -145,8 +134,17 @@ func CopyFromImage(appName string, image string, source string, destination stri
 	dos2unixCmd.Execute()
 
 	// add trailing newline for certain places where file parsing depends on it
-	b, err := sh.Command("tail", "-c1", destination).Output()
-	if string(b) != "" {
+	result, err := CallExecCommand(ExecCommandInput{
+		Command:       "tail",
+		Args:          []string{"-c1", destination},
+		CaptureOutput: true,
+		StreamStdio:   false,
+	})
+	if err != nil || result.ExitCode != 0 {
+		return fmt.Errorf("Unable to append trailing newline to copied file: %v", result.Stderr)
+	}
+
+	if result.Stdout != "" {
 		f, err := os.OpenFile(destination, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
 			return err
@@ -248,11 +246,17 @@ func DockerContainerCreate(image string, containerCreateArgs []string) (string, 
 
 // DockerInspect runs an inspect command with a given format against a container or image ID
 func DockerInspect(containerOrImageID, format string) (output string, err error) {
-	b, err := sh.Command(DockerBin(), "inspect", "--format", format, containerOrImageID).Output()
+	result, err := CallExecCommand(ExecCommandInput{
+		Command:       DockerBin(),
+		Args:          []string{"inspect", "--format", format, containerOrImageID},
+		CaptureOutput: true,
+		StreamStdio:   false,
+	})
 	if err != nil {
 		return "", err
 	}
-	output = strings.TrimSpace(string(b[:]))
+
+	output = result.StdoutContents()
 	if strings.HasPrefix(output, "'") && strings.HasSuffix(output, "'") {
 		output = strings.TrimSuffix(strings.TrimPrefix(output, "'"), "'")
 	}
