@@ -801,15 +801,13 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 	dokkuRmContainer := os.Getenv("DOKKU_RM_CONTAINER")
 	if dokkuRmContainer == "" {
 		resp, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
-			Trigger:       "config-get",
-			Args:          []string{appName, "DOKKU_RM_CONTAINER"},
-			CaptureOutput: true,
+			Trigger: "config-get",
+			Args:    []string{appName, "DOKKU_RM_CONTAINER"},
 		})
 		if err != nil {
 			resp, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
-				Trigger:       "config-get-global",
-				Args:          []string{"DOKKU_RM_CONTAINER"},
-				CaptureOutput: true,
+				Trigger: "config-get-global",
+				Args:    []string{"DOKKU_RM_CONTAINER"},
 			})
 			if err == nil {
 				dokkuRmContainer = strings.TrimSpace(resp.Stdout)
@@ -858,9 +856,8 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 		}
 	} else if len(args) == 1 {
 		resp, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
-			Trigger:       "procfile-get-command",
-			Args:          []string{appName, args[0], "5000"},
-			CaptureOutput: true,
+			Trigger: "procfile-get-command",
+			Args:    []string{appName, args[0], "5000"},
 		})
 		if err == nil && resp.Stdout != "" {
 			common.LogInfo1Quiet(fmt.Sprintf("Found '%s' in Procfile, running that command", args[0]))

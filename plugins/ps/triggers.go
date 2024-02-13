@@ -103,9 +103,8 @@ func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
 	}
 
 	result, err := common.CallExecCommand(common.ExecCommandInput{
-		Command:       "procfile-util",
-		Args:          []string{"check", "-P", processSpecificProcfile},
-		CaptureOutput: true,
+		Command: "procfile-util",
+		Args:    []string{"check", "-P", processSpecificProcfile},
 	})
 	if err != nil {
 		return fmt.Errorf(result.StderrContents())

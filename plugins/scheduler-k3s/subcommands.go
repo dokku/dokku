@@ -356,10 +356,7 @@ func CommandClusterAdd(role string, remoteHost string, serverIP string, allowUkn
 
 	k3sVersionCmd, err := common.CallExecCommand(common.ExecCommandInput{
 		Command: "k3s",
-		Args: []string{
-			"--version",
-		},
-		CaptureOutput: true,
+		Args:    []string{"--version"},
 	})
 	if err != nil {
 		return fmt.Errorf("Unable to call k3s version command: %w", err)

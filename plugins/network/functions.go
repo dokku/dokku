@@ -59,9 +59,8 @@ func attachAppToNetwork(containerID string, networkName string, appName string, 
 // isContainerInNetwork returns true if the container is already attached to the specified network
 func isContainerInNetwork(containerID string, networkName string) bool {
 	result, err := common.CallExecCommand(common.ExecCommandInput{
-		Command:       common.DockerBin(),
-		Args:          []string{"container", "inspect", "--format", "{{range $net, $v := .NetworkSettings.Networks}}{{println $net}}{{end}}", containerID},
-		CaptureOutput: true,
+		Command: common.DockerBin(),
+		Args:    []string{"container", "inspect", "--format", "{{range $net, $v := .NetworkSettings.Networks}}{{println $net}}{{end}}", containerID},
 	})
 
 	if err != nil {
@@ -129,9 +128,8 @@ func networkExists(networkName string) (bool, error) {
 // listNetworks returns a list of docker networks
 func listNetworks() ([]string, error) {
 	result, err := common.CallExecCommand(common.ExecCommandInput{
-		Command:       common.DockerBin(),
-		Args:          []string{"network", "ls", "--format", "{{ .Name }}"},
-		CaptureOutput: true,
+		Command: common.DockerBin(),
+		Args:    []string{"network", "ls", "--format", "{{ .Name }}"},
 	})
 	if err != nil {
 		common.LogVerboseQuiet(result.StderrContents())
