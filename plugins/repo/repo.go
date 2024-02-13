@@ -2,8 +2,6 @@ package repo
 
 import (
 	"fmt"
-	"os"
-	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
 )
@@ -33,18 +31,16 @@ func PurgeCache(appName string) error {
 	if len(containerIDs) > 0 {
 		common.DockerRemoveContainers(containerIDs)
 	}
-	purgeCacheCmd := common.NewShellCmd(strings.Join([]string{
-		common.DockerBin(),
-		"volume",
-		"rm", "-f", fmt.Sprintf("cache-%s", appName)}, " "))
-	purgeCacheCmd.ShowOutput = false
-	purgeCacheCmd.Command.Stderr = os.Stderr
-	if !purgeCacheCmd.Execute() {
-		exitCode := 1
-		if purgeCacheCmd.ExitError != nil {
-			exitCode = purgeCacheCmd.ExitError.ExitCode()
-		}
-		return &PurgeCacheFailed{exitCode}
+	result, err := common.CallExecCommand(common.ExecCommandInput{
+		Command:      common.DockerBin(),
+		Args:         []string{"volume", "rm", "-f", fmt.Sprintf("cache-%s", appName)},
+		StreamStderr: true,
+	})
+	if err != nil {
+		return fmt.Errorf("Unable to remove cache volume: %w", err)
+	}
+	if result.ExitCode != 0 {
+		return &PurgeCacheFailed{result.ExitCode}
 	}
 
 	return nil

@@ -1,7 +1,6 @@
 package network
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"strings"
@@ -16,7 +15,6 @@ func attachAppToNetwork(containerID string, networkName string, appName string, 
 	}
 
 	cmdParts := []string{
-		common.DockerBin(),
 		"network",
 		"connect",
 	}
@@ -43,14 +41,16 @@ func attachAppToNetwork(containerID string, networkName string, appName string, 
 
 	cmdParts = append(cmdParts, networkName)
 	cmdParts = append(cmdParts, containerID)
-	attachCmd := common.NewShellCmd(strings.Join(cmdParts, " "))
-	var stderr bytes.Buffer
-	attachCmd.ShowOutput = false
-	attachCmd.Command.Stderr = &stderr
-	_, err := attachCmd.Output()
+
+	result, err := common.CallExecCommand(common.ExecCommandInput{
+		Command: common.DockerBin(),
+		Args:    cmdParts,
+	})
 	if err != nil {
-		err = errors.New(strings.TrimSpace(stderr.String()))
-		return fmt.Errorf("Unable to attach container to network: %v", err.Error())
+		return fmt.Errorf("Unable to attach container to network: %w", err)
+	}
+	if result.ExitCode != 0 {
+		return fmt.Errorf("Unable to attach container to network: %s", result.StderrContents())
 	}
 
 	return nil
