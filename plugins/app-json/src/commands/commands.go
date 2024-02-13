@@ -19,8 +19,7 @@ Additional commands:`
 
 	helpContent = `
     app-json:report [<app>] [<flag>], Displays a app-json report for one or more apps
-    app-json:set <app> <property> (<value>), Set or clear a app-json property for an app
-`
+    app-json:set <app> <property> (<value>), Set or clear a app-json property for an app`
 )
 
 func main() {

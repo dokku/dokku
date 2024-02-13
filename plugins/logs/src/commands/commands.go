@@ -28,8 +28,7 @@ Additional commands:`
     logs:set [--global|<app>] <key> <value>, Set or clear a logs property for an app
     logs:vector-logs [--num num] [--tail], Display vector log output
     logs:vector-start, Start the vector logging container
-    logs:vector-stop, Stop the vector logging container
-`
+    logs:vector-stop, Stop the vector logging container`
 )
 
 func main() {

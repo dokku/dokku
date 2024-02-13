@@ -23,8 +23,7 @@ Additional commands:`
     proxy:disable <app>, Disable proxy for app
     proxy:enable <app>, Enable proxy for app
     proxy:report [<app>] [<flag>], Displays a proxy report for one or more apps
-    proxy:set <app> <proxy-type>, Set proxy type for app
-`
+    proxy:set <app> <proxy-type>, Set proxy type for app`
 )
 
 func main() {

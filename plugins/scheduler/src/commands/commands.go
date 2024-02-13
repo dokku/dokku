@@ -19,8 +19,7 @@ Additional commands:`
 
 	helpContent = `
     scheduler:report [<app>] [<flag>], Displays a scheduler report for one or more apps
-    scheduler:set <app> <property> (<value>), Set or clear a scheduler property for an app
-`
+    scheduler:set <app> <property> (<value>), Set or clear a scheduler property for an app`
 )
 
 func main() {
