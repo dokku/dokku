@@ -23,8 +23,7 @@ Additional commands:`
     ports:clear <app>, Clear all port mappings for an app
     ports:remove <app> [<host-port>|<scheme>:<host-port>:<container-port>...], Remove specific port mappings from an app
     ports:set <app> [<scheme>:<host-port>:<container-port>...], Set port mappings for an app
-    ports:report [<app>] [<flag>], Displays a ports report for one or more apps
-`
+    ports:report [<app>] [<flag>], Displays a ports report for one or more apps`
 )
 
 func main() {

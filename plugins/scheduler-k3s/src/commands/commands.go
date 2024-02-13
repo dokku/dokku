@@ -28,8 +28,7 @@ Additional commands:`
     scheduler-k3s:report [<app>] [<flag>], Displays a scheduler-k3s report for one or more apps
     scheduler-k3s:set <app> <property> (<value>), Set or clear a scheduler-k3s property for an app
     scheduler-k3s:show-kubeconfig, Displays the kubeconfig for remote usage
-    scheduler-k3s:uninstall, Uninstalls k3s from the Dokku server
-`
+    scheduler-k3s:uninstall, Uninstalls k3s from the Dokku server`
 )
 
 func main() {

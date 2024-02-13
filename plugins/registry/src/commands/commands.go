@@ -20,8 +20,7 @@ Additional commands:`
 	helpContent = `
     registry:login [--password-stdin] <server> <username> [<password>], Login to a docker registry
     registry:report [<app>] [<flag>], Displays a registry report for one or more apps
-    registry:set <app> <property> (<value>), Set or clear a registry property for an app
-`
+    registry:set <app> <property> (<value>), Set or clear a registry property for an app`
 )
 
 func main() {

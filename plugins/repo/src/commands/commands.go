@@ -19,8 +19,7 @@ Additional commands:`
 
 	helpContent = `
     repo:gc <app>, Runs 'git gc --aggressive' against the application's repo
-    repo:purge-cache <app>, Deletes the contents of the build cache stored in the repository
-`
+    repo:purge-cache <app>, Deletes the contents of the build cache stored in the repository`
 )
 
 func main() {

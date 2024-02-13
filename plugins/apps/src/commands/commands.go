@@ -28,8 +28,7 @@ Additional commands:`
     apps:locked <app>, Checks if an app is locked for deployment
     apps:rename <old-app> <new-app>, Rename an app
     apps:report [<app>] [<flag>], Display report about an app
-    apps:unlock <app>, Unlocks an app for deployment
-`
+    apps:unlock <app>, Unlocks an app for deployment`
 )
 
 func main() {

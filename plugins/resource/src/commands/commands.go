@@ -22,8 +22,7 @@ Additional commands:`
     resource:limit-clear [--process-type <process-type>] <app>, Limit resources for a given app/process-type combination
     resource:report [<app>] [<flag>], Displays a resource report for one or more apps
     resource:reserve [--process-type <process-type>] [RESOURCE_OPTS...] <app>, Reserve resources for a given app/process-type combination
-    resource:reserve-clear [--process-type <process-type>] <app>, Reserve resources for a given app/process-type combination
-`
+    resource:reserve-clear [--process-type <process-type>] <app>, Reserve resources for a given app/process-type combination`
 )
 
 func main() {

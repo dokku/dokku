@@ -27,8 +27,7 @@ Additional commands:`
     config:keys [--merged] (<app>|--global), Show keys set in environment
     config:show [--merged] (<app>|--global), Show keys set in environment
     config:set [--encoded] [--no-restart] (<app>|--global) KEY1=VALUE1 [KEY2=VALUE2 ...], Set one or more config vars
-    config:unset [--no-restart] (<app>|--global) KEY1 [KEY2 ...], Unset one or more config vars
-`
+    config:unset [--no-restart] (<app>|--global) KEY1 [KEY2 ...], Unset one or more config vars`
 )
 
 func main() {

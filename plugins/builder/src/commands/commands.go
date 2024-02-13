@@ -19,8 +19,7 @@ Additional commands:`
 
 	helpContent = `
     builder:report [<app>] [<flag>], Displays a builder report for one or more apps
-    builder:set <app> <property> (<value>), Set or clear a builder property for an app
-`
+    builder:set <app> <property> (<value>), Set or clear a builder property for an app`
 )
 
 func main() {
