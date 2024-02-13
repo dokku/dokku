@@ -1,7 +1,6 @@
 package appjson
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -332,13 +331,16 @@ func executeScript(appName string, image string, imageTag string, phase string) 
 		fmt.Sprintf("LABEL com.dokku.%s-phase=true", phase),
 	}...)
 	commitArgs = append(commitArgs, containerID, image)
-	containerCommitCmd := common.NewShellCmdWithArgs(
-		common.DockerBin(),
-		commitArgs...,
-	)
-	containerCommitCmd.ShowOutput = false
-	containerCommitCmd.Command.Stderr = os.Stderr
-	if !containerCommitCmd.Execute() {
+	result, err := common.CallExecCommand(common.ExecCommandInput{
+		Command:      common.DockerBin(),
+		Args:         commitArgs,
+		StreamStderr: true,
+	})
+	if err != nil {
+		return fmt.Errorf("Commiting of '%s' to image failed: %w", phase, err)
+	}
+
+	if result.ExitCode != 0 {
 		return fmt.Errorf("Commiting of '%s' to image failed: %s", phase, command)
 	}
 
@@ -390,34 +392,11 @@ func getCommandFromImage(image string) (string, error) {
 }
 
 func waitForExecution(containerID string) bool {
-	containerStartCmd := common.NewShellCmdWithArgs(
-		common.DockerBin(),
-		"container",
-		"start",
-		containerID,
-	)
-	containerStartCmd.ShowOutput = false
-	containerStartCmd.Command.Stderr = os.Stderr
-	if !containerStartCmd.Execute() {
+	if !common.ContainerStart(containerID) {
 		return false
 	}
 
-	containerWaitCmd := common.NewShellCmdWithArgs(
-		common.DockerBin(),
-		"container",
-		"wait",
-		containerID,
-	)
-
-	containerWaitCmd.ShowOutput = false
-	containerWaitCmd.Command.Stderr = os.Stderr
-	b, err := containerWaitCmd.Output()
-	if err != nil {
-		return false
-	}
-
-	containerExitCode := strings.TrimSpace(string(b[:]))
-	return containerExitCode == "0"
+	return common.ContainerWait(containerID)
 }
 
 func createdContainerID(appName string, dockerArgs []string, image string, command []string, phase string) (string, error) {
@@ -440,21 +419,19 @@ func createdContainerID(appName string, dockerArgs []string, image string, comma
 		return "", err
 	}
 
-	containerCreateCmd := common.NewShellCmdWithArgs(
-		common.DockerBin(),
-		arguments...,
-	)
-	var stderr bytes.Buffer
-	containerCreateCmd.Env = env
-	containerCreateCmd.ShowOutput = false
-	containerCreateCmd.Command.Stderr = &stderr
-
-	b, err = containerCreateCmd.Output()
+	result, err := common.CallExecCommand(common.ExecCommandInput{
+		Command: common.DockerBin(),
+		Args:    arguments,
+		Env:     env,
+	})
 	if err != nil {
-		return "", errors.New(stderr.String())
+		return "", err
+	}
+	if result.ExitCode != 0 {
+		return "", errors.New(result.StderrContents())
 	}
 
-	containerID := strings.TrimSpace(string(b))
+	containerID := result.StdoutContents()
 	err = common.PlugnTrigger("post-container-create", []string{"app", containerID, appName, phase}...)
 	return containerID, err
 }

@@ -42,6 +42,12 @@ type ExecCommandInput struct {
 	// StreamStderr prints stderr directly to os.Stderr as the command runs.
 	StreamStderr bool
 
+	// StdoutWriter is the writer to write stdout to
+	StdoutWriter io.Writer
+
+	// StderrWriter is the writer to write stderr to
+	StderrWriter io.Writer
+
 	// Sudo runs the command with sudo -n -u root
 	Sudo bool
 }
@@ -136,6 +142,12 @@ func CallExecCommandWithContext(ctx context.Context, input ExecCommandInput) (Ex
 	}
 	if input.StreamStderr {
 		cmd.StdErrWriter = os.Stderr
+	}
+	if input.StdoutWriter != nil {
+		cmd.StdOutWriter = input.StdoutWriter
+	}
+	if input.StderrWriter != nil {
+		cmd.StdErrWriter = input.StderrWriter
 	}
 
 	res, err := cmd.Execute(ctx)
