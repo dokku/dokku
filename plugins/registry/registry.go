@@ -6,6 +6,7 @@ var (
 		"image-repo":      "",
 		"push-on-release": "false",
 		"server":          "",
+		"push-extra-tags": "",
 	}
 
 	// GlobalProperties is a map of all valid global registry properties
@@ -13,5 +14,6 @@ var (
 		"image-repo-template": true,
 		"push-on-release":     true,
 		"server":              true,
+		"push-extra-tags":     true,
 	}
 )

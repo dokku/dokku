@@ -81,6 +81,15 @@ func incrementTagVersion(appName string) (int, error) {
 	return version, nil
 }
 
+func getRegistryPushExtraTagsForApp(appName string) string {
+	value := common.PropertyGet("registry", appName, "push-extra-tags")
+	common.LogVerboseQuiet(fmt.Sprintf("VALUE IS: %s", value))
+	if value == "" {
+		value = common.PropertyGet("registry", "--global", "push-extra-tags")
+	}
+	return value
+}
+
 func pushToRegistry(appName string, tag int, imageID string, imageRepo string) error {
 	common.LogVerboseQuiet("Retrieving image info for app")
 
@@ -88,7 +97,6 @@ func pushToRegistry(appName string, tag int, imageID string, imageRepo string) e
 	imageTag, _ := common.GetRunningImageTag(appName, "")
 
 	fullImage := fmt.Sprintf("%s%s:%d", registryServer, imageRepo, tag)
-	latestImage := fmt.Sprintf("%s%s:latest", registryServer, imageRepo)
 
 	common.LogVerboseQuiet(fmt.Sprintf("Tagging %s:%d in registry format", imageRepo, tag))
 	if !dockerTag(imageID, fullImage) {
@@ -101,22 +109,26 @@ func pushToRegistry(appName string, tag int, imageID string, imageRepo string) e
 		return errors.New("Unable to tag image")
 	}
 
-	// Tagging the image as latest
-	common.LogVerboseQuiet(fmt.Sprintf("Tagging %s as latest in registry format", imageRepo))
-	if !dockerTag(imageID, latestImage) {
-		return errors.New("Unable to tag image as latest")
+	extraTags := getRegistryPushExtraTagsForApp(appName)
+	if extraTags != "" {
+		extraTagsArray := strings.Split(extraTags, ",")
+		for _, extraTag := range extraTagsArray {
+			extraTagImage := fmt.Sprintf("%s%s:%s", registryServer, imageRepo, extraTag)
+			common.LogVerboseQuiet(fmt.Sprintf("Tagging %s as %s in registry format", imageRepo, extraTag))
+			if !dockerTag(imageID, extraTagImage) {
+				return errors.New(fmt.Sprintf("Unable to tag image as %s", extraTag))
+			}
+			common.LogVerboseQuiet(fmt.Sprintf("Pushing %s", extraTagImage))
+			if !dockerPush(extraTagImage) {
+				return errors.New(fmt.Sprintf("Unable to push image with %s tag", tag))
+			}
+		}
 	}
 
 	common.LogVerboseQuiet(fmt.Sprintf("Pushing %s", fullImage))
 	if !dockerPush(fullImage) {
 		// TODO: better error
 		return errors.New("Unable to push image")
-	}
-
-	// Pushing the latest tag
-	common.LogVerboseQuiet(fmt.Sprintf("Pushing %s", latestImage))
-	if !dockerPush(latestImage) {
-		return errors.New("Unable to push image with latest tag")
 	}
 
 	// Only clean up when the scheduler is not docker-local
