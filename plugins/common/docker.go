@@ -1,8 +1,6 @@
 package common
 
 import (
-	"bytes"
-	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -108,32 +106,20 @@ func CopyFromImage(appName string, image string, source string, destination stri
 	if err != nil {
 		return fmt.Errorf("Unable to create temporary container: %v", err)
 	}
+	defer ContainerRemove(containerID)
 
 	// docker cp exits with status 1 when run as non-root user when it tries to chown the file
 	// after successfully copying the file. Thus, we suppress stderr.
 	// ref: https://github.com/dotcloud/docker/issues/3986
-	containerCopyCmd := NewShellCmd(strings.Join([]string{
-		DockerBin(),
-		"container",
-		"cp",
-		fmt.Sprintf("%s:%s", containerID, source),
-		tmpFile.Name(),
-	}, " "))
-	containerCopyCmd.ShowOutput = false
-	fileCopied := containerCopyCmd.Execute()
-
-	containerRemoveCmd := NewShellCmd(strings.Join([]string{
-		DockerBin(),
-		"container",
-		"rm",
-		"--force",
-		containerID,
-	}, " "))
-	containerRemoveCmd.ShowOutput = false
-	containerRemoveCmd.Execute()
-
-	if !fileCopied {
-		return fmt.Errorf("Unable to copy file %s from image", source)
+	result, err := CallExecCommand(ExecCommandInput{
+		Command: DockerBin(),
+		Args:    []string{"container", "cp", fmt.Sprintf("%s:%s", containerID, source), tmpFile.Name()},
+	})
+	if err != nil {
+		return fmt.Errorf("Unable to copy file %s from image: %w", source, err)
+	}
+	if result.ExitCode != 0 {
+		return fmt.Errorf("Unable to copy file %s from image: %v", source, result.StderrContents())
 	}
 
 	fi, err := os.Stat(tmpFile.Name())
@@ -146,18 +132,13 @@ func CopyFromImage(appName string, image string, source string, destination stri
 	}
 
 	// workaround when owner is root. seems to only happen when running inside docker
-	dos2unixCmd := NewShellCmd(strings.Join([]string{
-		"dos2unix",
-		"-l",
-		"-n",
-		tmpFile.Name(),
-		destination,
-	}, " "))
-	dos2unixCmd.ShowOutput = false
-	dos2unixCmd.Execute()
+	CallExecCommand(ExecCommandInput{
+		Command: "dos2unix",
+		Args:    []string{"-l", "-n", tmpFile.Name(), destination},
+	}) // nolint: errcheck
 
 	// add trailing newline for certain places where file parsing depends on it
-	result, err := CallExecCommand(ExecCommandInput{
+	result, err = CallExecCommand(ExecCommandInput{
 		Command: "tail",
 		Args:    []string{"-c1", destination},
 	})
@@ -244,25 +225,26 @@ func DockerCleanup(appName string, forceCleanup bool) error {
 
 // DockerContainerCreate creates a new container and returns the container ID
 func DockerContainerCreate(image string, containerCreateArgs []string) (string, error) {
-	cmd := []string{
-		DockerBin(),
+	args := []string{
 		"container",
 		"create",
 	}
 
-	cmd = append(cmd, containerCreateArgs...)
-	cmd = append(cmd, image)
+	args = append(args, containerCreateArgs...)
+	args = append(args, image)
 
-	var stderr bytes.Buffer
-	containerCreateCmd := NewShellCmd(strings.Join(cmd, " "))
-	containerCreateCmd.ShowOutput = false
-	containerCreateCmd.Command.Stderr = &stderr
-	b, err := containerCreateCmd.Output()
+	result, err := CallExecCommand(ExecCommandInput{
+		Command: DockerBin(),
+		Args:    args,
+	})
 	if err != nil {
-		return "", errors.New(strings.TrimSpace(stderr.String()))
+		return "", fmt.Errorf("Unable to create container: %w", err)
+	}
+	if result.ExitCode != 0 {
+		return "", fmt.Errorf("Unable to create container: %s", result.StderrContents())
 	}
 
-	return strings.TrimSpace(string(b[:])), nil
+	return result.StdoutContents(), nil
 }
 
 // DockerInspect runs an inspect command with a given format against a container or image ID
@@ -359,21 +341,22 @@ func RemoveImages(imageIDs []string) error {
 		return nil
 	}
 
-	command := []string{
-		DockerBin(),
+	args := []string{
 		"image",
 		"rm",
 	}
 
-	command = append(command, imageIDs...)
+	args = append(args, imageIDs...)
 
-	var stderr bytes.Buffer
-	rmCmd := NewShellCmd(strings.Join(command, " "))
-	rmCmd.ShowOutput = false
-	rmCmd.Command.Stderr = &stderr
-	rmCmd.Execute()
-	if _, err := rmCmd.Output(); err != nil {
-		return errors.New(strings.TrimSpace(stderr.String()))
+	result, err := CallExecCommand(ExecCommandInput{
+		Command: DockerBin(),
+		Args:    args,
+	})
+	if err != nil {
+		return fmt.Errorf("Unable to remove images: %w", err)
+	}
+	if result.ExitCode != 0 {
+		return fmt.Errorf("Unable to remove images: %s", result.StderrContents())
 	}
 
 	return nil
@@ -381,15 +364,16 @@ func RemoveImages(imageIDs []string) error {
 
 // VerifyImage returns true if docker image exists in local repo
 func VerifyImage(image string) bool {
-	imageCmd := NewShellCmd(strings.Join([]string{DockerBin(), "image", "inspect", image}, " "))
-	imageCmd.ShowOutput = false
-	return imageCmd.Execute()
+	result, err := CallExecCommand(ExecCommandInput{
+		Command: DockerBin(),
+		Args:    []string{"image", "inspect", image},
+	})
+	return err == nil && result.ExitCode == 0
 }
 
 // DockerFilterContainers returns a slice of container IDs based on the passed in filters
 func DockerFilterContainers(filters []string) ([]string, error) {
-	command := []string{
-		DockerBin(),
+	args := []string{
 		"container",
 		"ls",
 		"--quiet",
@@ -397,27 +381,27 @@ func DockerFilterContainers(filters []string) ([]string, error) {
 	}
 
 	for _, filter := range filters {
-		command = append(command, "--filter", filter)
+		args = append(args, "--filter", filter)
 	}
 
-	var stderr bytes.Buffer
-	listCmd := NewShellCmd(strings.Join(command, " "))
-	listCmd.ShowOutput = false
-	listCmd.Command.Stderr = &stderr
-	b, err := listCmd.Output()
-
+	result, err := CallExecCommand(ExecCommandInput{
+		Command: DockerBin(),
+		Args:    args,
+	})
 	if err != nil {
-		return []string{}, errors.New(strings.TrimSpace(stderr.String()))
+		return []string{}, fmt.Errorf("Unable to filter containers: %w", err)
+	}
+	if result.ExitCode != 0 {
+		return []string{}, fmt.Errorf("Unable to filter containers: %s", result.StderrContents())
 	}
 
-	output := strings.Split(strings.TrimSpace(string(b[:])), "\n")
+	output := strings.Split(result.StdoutContents(), "\n")
 	return output, nil
 }
 
 // DockerFilterImages returns a slice of image IDs based on the passed in filters
 func DockerFilterImages(filters []string) ([]string, error) {
-	command := []string{
-		DockerBin(),
+	args := []string{
 		"image",
 		"ls",
 		"--quiet",
@@ -425,20 +409,21 @@ func DockerFilterImages(filters []string) ([]string, error) {
 	}
 
 	for _, filter := range filters {
-		command = append(command, "--filter", filter)
+		args = append(args, "--filter", filter)
 	}
 
-	var stderr bytes.Buffer
-	listCmd := NewShellCmd(strings.Join(command, " "))
-	listCmd.ShowOutput = false
-	listCmd.Command.Stderr = &stderr
-	b, err := listCmd.Output()
-
+	result, err := CallExecCommand(ExecCommandInput{
+		Command: DockerBin(),
+		Args:    args,
+	})
 	if err != nil {
-		return []string{}, errors.New(strings.TrimSpace(stderr.String()))
+		return []string{}, fmt.Errorf("Unable to filter images: %w", err)
+	}
+	if result.ExitCode != 0 {
+		return []string{}, fmt.Errorf("Unable to filter images: %s", result.StderrContents())
 	}
 
-	output := strings.Split(strings.TrimSpace(string(b[:])), "\n")
+	output := strings.Split(result.StdoutContents(), "\n")
 	return output, nil
 }
 
@@ -455,8 +440,7 @@ func listContainers(status string, appName string) ([]string, error) {
 }
 
 func pruneUnusedImages(appName string) {
-	command := []string{
-		DockerBin(),
+	args := []string{
 		"image",
 		"prune",
 		"--all",
@@ -465,26 +449,23 @@ func pruneUnusedImages(appName string) {
 		fmt.Sprintf("label=com.dokku.app-name=%v", appName),
 	}
 
-	var stderr bytes.Buffer
-	pruneCmd := NewShellCmd(strings.Join(command, " "))
-	pruneCmd.ShowOutput = false
-	pruneCmd.Command.Stderr = &stderr
-	pruneCmd.Execute()
+	CallExecCommand(ExecCommandInput{
+		Command: DockerBin(),
+		Args:    args,
+	}) // nolint: errcheck
 }
 
 // DockerRemoveContainers will call `docker container rm` on the specified containers
 func DockerRemoveContainers(containerIDs []string) {
-	command := []string{
-		DockerBin(),
+	args := []string{
 		"container",
 		"rm",
 	}
 
-	command = append(command, containerIDs...)
+	args = append(args, containerIDs...)
 
-	var stderr bytes.Buffer
-	rmCmd := NewShellCmd(strings.Join(command, " "))
-	rmCmd.ShowOutput = false
-	rmCmd.Command.Stderr = &stderr
-	rmCmd.Execute()
+	CallExecCommand(ExecCommandInput{
+		Command: DockerBin(),
+		Args:    args,
+	}) // nolint: errcheck
 }

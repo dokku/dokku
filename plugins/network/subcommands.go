@@ -1,7 +1,6 @@
 package network
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"os"
@@ -13,22 +12,15 @@ import (
 // CommandCreate is an alias for "docker network create"
 func CommandCreate(networkName string) error {
 	common.LogInfo1Quiet(fmt.Sprintf("Creating network %v", networkName))
-	createCmd := common.NewShellCmd(strings.Join([]string{
-		common.DockerBin(),
-		"network",
-		"create",
-		"--attachable",
-		"--label",
-		fmt.Sprintf("com.dokku.network-name=%v", networkName),
-		networkName,
-	}, " "))
-	var stderr bytes.Buffer
-	createCmd.ShowOutput = false
-	createCmd.Command.Stderr = &stderr
-	_, err := createCmd.Output()
-
+	result, err := common.CallExecCommand(common.ExecCommandInput{
+		Command: common.DockerBin(),
+		Args:    []string{"network", "create", "--attachable", "--label", fmt.Sprintf("com.dokku.network-name=%v", networkName), networkName},
+	})
 	if err != nil {
-		err = errors.New(strings.TrimSpace(stderr.String()))
+		return fmt.Errorf("Unable to create network: %w", err)
+	}
+	if result.ExitCode != 0 {
+		return fmt.Errorf("Unable to create network: %s", result.StderrContents())
 	}
 
 	return err
@@ -47,22 +39,18 @@ func CommandDestroy(networkName string, forceDestroy bool) error {
 	}
 
 	common.LogInfo1Quiet(fmt.Sprintf("Destroying network %v", networkName))
-	destroyCmd := common.NewShellCmd(strings.Join([]string{
-		common.DockerBin(),
-		"network",
-		"rm",
-		networkName,
-	}, " "))
-	var stderr bytes.Buffer
-	destroyCmd.ShowOutput = false
-	destroyCmd.Command.Stderr = &stderr
-	_, err := destroyCmd.Output()
-
+	result, err := common.CallExecCommand(common.ExecCommandInput{
+		Command: common.DockerBin(),
+		Args:    []string{"network", "rm", networkName},
+	})
 	if err != nil {
-		err = errors.New(strings.TrimSpace(stderr.String()))
+		return fmt.Errorf("Unable to destroy network: %w", err)
+	}
+	if result.ExitCode != 0 {
+		return fmt.Errorf("Unable to destroy network: %s", result.StderrContents())
 	}
 
-	return err
+	return nil
 }
 
 // CommandExists checks if a network exists
