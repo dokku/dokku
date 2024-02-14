@@ -320,6 +320,38 @@ By default, Dokku assumes that all it controls all actions on the cluster, and t
 dokku scheduler-k3s:show-kubeconfig
 ```
 
+### Interacting with an external Kubernetes cluster
+
+While the k3s scheduler plugin is designed to work with a Dokku-managed k3s cluster, Dokku can be configured to interact with any Kubernetes cluster by setting the global `kubeconfig-path` to a path to a custom kubeconfig on the Dokku server. This property is only available at a global level.
+
+```shell
+dokku scheduler-k3s:set --global kubeconfig-path /path/to/custom/kubeconfig
+```
+
+To set the default value, omit the value from the `scheduler-k3s:set` call:
+
+```shell
+dokku scheduler-k3s:set --global kubeconfig-path
+```
+
+The default value for the `kubeconfig-path` is the k3s kubeconfig located at `/etc/rancher/k3s/k3s.yaml`.
+
+### Customizing the Kubernetes context
+
+When interacting with a custom Kubeconfig, the `kube-context` property can be set to specify a specific context within the kubeconfig to use. This property is available only at the global leve.
+
+```shell
+dokku scheduler-k3s:set --global kube-context lollipop
+```
+
+To set the default value, omit the value from the `scheduler-k3s:set` call:
+
+```shell
+dokku scheduler-k3s:set --global kube-context
+```
+
+The default value for the `kube-context` is an empty string, and will result in Dokku using the current context within the kubeconfig.
+
 ## Scheduler Interface
 
 The following sections describe implemented and unimplemented scheduler functionality for the `k3s` scheduler.

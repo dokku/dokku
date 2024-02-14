@@ -1142,12 +1142,25 @@ func installHelm(ctx context.Context) error {
 	return nil
 }
 
+func isKubernetesAvailable() error {
+	client, err := NewKubernetesClient()
+	if err != nil {
+		return fmt.Errorf("Error creating kubernetes client: %w", err)
+	}
+
+	if err := client.Ping(); err != nil {
+		return fmt.Errorf("Error pinging kubernetes: %w", err)
+	}
+
+	return nil
+}
+
 func isK3sInstalled() error {
 	if !common.FileExists("/usr/local/bin/k3s") {
 		return fmt.Errorf("k3s binary is not available")
 	}
 
-	if !common.FileExists(KubeConfigPath) {
+	if !common.FileExists(getKubeconfigPath()) {
 		return fmt.Errorf("k3s kubeconfig is not available")
 	}
 
