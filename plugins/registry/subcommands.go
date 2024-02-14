@@ -40,10 +40,10 @@ func CommandLogin(server string, username string, password string, passwordStdin
 	buffer.Write([]byte(password + "\n"))
 
 	result, err := common.CallExecCommand(common.ExecCommandInput{
-		Command:      common.DockerBin(),
-		Args:         []string{"login", "--username", username, "--password-stdin", server},
-		Stdin:        &buffer,
-		StreamStderr: true,
+		Command:     common.DockerBin(),
+		Args:        []string{"login", "--username", username, "--password-stdin", server},
+		Stdin:       &buffer,
+		StreamStdio: true,
 	})
 	if err != nil {
 		return fmt.Errorf("Unable to run docker login: %w", err)
