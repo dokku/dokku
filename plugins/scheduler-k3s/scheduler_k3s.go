@@ -136,7 +136,7 @@ var ServerLabels = map[string]string{
 }
 
 var WorkerLabels = map[string]string{
-	"node-role.kubernetes.io/role": "worker",
+	"node-role.kubernetes.io/worker": "worker",
 }
 
 //go:embed templates/*
