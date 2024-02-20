@@ -1159,6 +1159,24 @@ func TriggerSchedulerPostDelete(scheduler string, appName string) error {
 		return nil
 	}
 
+	dataErr := common.RemoveAppDataDirectory("logs", appName)
+	propertyErr := common.PropertyDestroy("logs", appName)
+
+	if dataErr != nil {
+		return dataErr
+	}
+
+	if propertyErr != nil {
+		return propertyErr
+	}
+
+	if isK3sKubernetes() {
+		if err := isK3sInstalled(); err != nil {
+			common.LogWarn("k3s is not installed, skipping")
+			return nil
+		}
+	}
+
 	if err := isKubernetesAvailable(); err != nil {
 		return fmt.Errorf("kubernetes api not available: %w", err)
 	}
