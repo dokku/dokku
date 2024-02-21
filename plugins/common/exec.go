@@ -125,7 +125,11 @@ func CallExecCommandWithContext(ctx context.Context, input ExecCommandInput) (Ex
 	}
 
 	if os.Getenv("DOKKU_TRACE") == "1" {
-		cmd.PrintCommand = true
+		argsSt := ""
+		if len(cmd.Args) > 0 {
+			argsSt = strings.Join(cmd.Args, " ")
+		}
+		LogWarn(fmt.Sprintf("exec: %s %s", cmd.Command, argsSt))
 	}
 
 	if input.Stdin != nil {
