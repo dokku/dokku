@@ -833,46 +833,66 @@ func getProcessResources(appName string, processType string) (ProcessResourcesMa
 			Memory: "512Mi",
 		},
 	}
-	cpuLimit, err := common.PlugnTriggerOutputAsString("resource-get-property", []string{appName, processType, "limit", "cpu"}...)
-	if err != nil && cpuLimit != "" && cpuLimit != "0" {
-		_, err := resource.ParseQuantity(cpuLimit)
+
+	emptyValues := map[string]bool{
+		"":    true,
+		"0":   true,
+		"0m":  true,
+		"0Mi": true,
+	}
+
+	result, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "resource-get-property",
+		Args:    []string{appName, processType, "limit", "cpu"},
+	})
+	if err == nil && !emptyValues[result.StdoutContents()] {
+		quantity, err := resource.ParseQuantity(result.StdoutContents())
 		if err != nil {
 			return ProcessResourcesMap{}, fmt.Errorf("Error parsing cpu limit: %w", err)
 		}
-		processResources.Limits.CPU = cpuLimit
+		processResources.Limits.CPU = quantity.String()
 	}
 	nvidiaGpuLimit, err := common.PlugnTriggerOutputAsString("resource-get-property", []string{appName, processType, "limit", "nvidia-gpu"}...)
-	if err != nil && nvidiaGpuLimit != "" && nvidiaGpuLimit != "0" {
+	if err == nil && nvidiaGpuLimit != "" && nvidiaGpuLimit != "0" {
 		_, err := resource.ParseQuantity(nvidiaGpuLimit)
 		if err != nil {
 			return ProcessResourcesMap{}, fmt.Errorf("Error parsing nvidia-gpu limit: %w", err)
 		}
 		processResources.Limits.NvidiaGPU = nvidiaGpuLimit
 	}
-	memoryLimit, err := common.PlugnTriggerOutputAsString("resource-get-property", []string{appName, processType, "limit", "memory"}...)
-	if err != nil && memoryLimit != "" && memoryLimit != "0" {
-		_, err := resource.ParseQuantity(memoryLimit)
+	result, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "resource-get-property",
+		Args:    []string{appName, processType, "limit", "memory"},
+	})
+	if err == nil && !emptyValues[result.StdoutContents()] {
+		quantity, err := parseMemoryQuantity(result.StdoutContents())
 		if err != nil {
 			return ProcessResourcesMap{}, fmt.Errorf("Error parsing memory limit: %w", err)
 		}
-		processResources.Limits.Memory = memoryLimit
+		processResources.Limits.Memory = quantity
 	}
 
-	cpuRequest, err := common.PlugnTriggerOutputAsString("resource-get-property", []string{appName, processType, "reserve", "cpu"}...)
-	if err != nil && cpuRequest != "" && cpuRequest != "0" {
-		_, err := resource.ParseQuantity(cpuRequest)
+	result, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "resource-get-property",
+		Args:    []string{appName, processType, "reserve", "cpu"},
+	})
+	if err == nil && !emptyValues[result.StdoutContents()] {
+		quantity, err := resource.ParseQuantity(result.StdoutContents())
 		if err != nil {
 			return ProcessResourcesMap{}, fmt.Errorf("Error parsing cpu request: %w", err)
 		}
-		processResources.Requests.CPU = cpuRequest
+		processResources.Requests.CPU = quantity.String()
 	}
-	memoryRequest, err := common.PlugnTriggerOutputAsString("resource-get-property", []string{appName, processType, "reserve", "memory"}...)
-	if err != nil && memoryRequest != "" && memoryRequest != "0" {
-		_, err := resource.ParseQuantity(memoryRequest)
+	result, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "resource-get-property",
+		Args:    []string{appName, processType, "reserve", "memory"},
+	})
+	if err == nil && !emptyValues[result.StdoutContents()] {
+		quantity, err := parseMemoryQuantity(result.StdoutContents())
 		if err != nil {
 			return ProcessResourcesMap{}, fmt.Errorf("Error parsing memory request: %w", err)
 		}
-		processResources.Requests.Memory = memoryRequest
+		processResources.Requests.Memory = quantity
 	}
 
 	return processResources, nil
@@ -1180,6 +1200,19 @@ func kubernetesNodeToNode(node v1.Node) Node {
 		RemoteHost: remoteHost,
 		Version:    node.Status.NodeInfo.KubeletVersion,
 	}
+}
+
+// parseMemoryQuantity parses a string into a valid memory quantity
+func parseMemoryQuantity(input string) (string, error) {
+	if _, err := strconv.ParseInt(input, 10, 64); err == nil {
+		input = fmt.Sprintf("%sMi", input)
+	}
+	quantity, err := resource.ParseQuantity(input)
+	if err != nil {
+		return "", err
+	}
+
+	return quantity.String(), nil
 }
 
 func uninstallHelperCommands(ctx context.Context) error {
