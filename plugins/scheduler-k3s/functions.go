@@ -824,13 +824,10 @@ func getProcessHealtchecks(healthchecks []appjson.Healthcheck, primaryPort int32
 
 func getProcessResources(appName string, processType string) (ProcessResourcesMap, error) {
 	processResources := ProcessResourcesMap{
-		Limits: ProcessResources{
-			CPU:    "1000m",
-			Memory: "512Mi",
-		},
+		Limits: ProcessResources{},
 		Requests: ProcessResources{
-			CPU:    "1000m",
-			Memory: "512Mi",
+			CPU:    "100m",
+			Memory: "128Mi",
 		},
 	}
 
