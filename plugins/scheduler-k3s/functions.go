@@ -850,7 +850,9 @@ func getProcessResources(appName string, processType string) (ProcessResourcesMa
 		if err != nil {
 			return ProcessResourcesMap{}, fmt.Errorf("Error parsing cpu limit: %w", err)
 		}
-		processResources.Limits.CPU = quantity.String()
+		if quantity.MilliValue() != 0 {
+			processResources.Limits.CPU = quantity.String()
+		}
 	}
 	nvidiaGpuLimit, err := common.PlugnTriggerOutputAsString("resource-get-property", []string{appName, processType, "limit", "nvidia-gpu"}...)
 	if err == nil && nvidiaGpuLimit != "" && nvidiaGpuLimit != "0" {
@@ -869,7 +871,9 @@ func getProcessResources(appName string, processType string) (ProcessResourcesMa
 		if err != nil {
 			return ProcessResourcesMap{}, fmt.Errorf("Error parsing memory limit: %w", err)
 		}
-		processResources.Limits.Memory = quantity
+		if quantity != "0Mi" {
+			processResources.Limits.Memory = quantity
+		}
 	}
 
 	result, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
@@ -881,7 +885,9 @@ func getProcessResources(appName string, processType string) (ProcessResourcesMa
 		if err != nil {
 			return ProcessResourcesMap{}, fmt.Errorf("Error parsing cpu request: %w", err)
 		}
-		processResources.Requests.CPU = quantity.String()
+		if quantity.MilliValue() != 0 {
+			processResources.Requests.CPU = quantity.String()
+		}
 	}
 	result, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
 		Trigger: "resource-get-property",
@@ -892,7 +898,9 @@ func getProcessResources(appName string, processType string) (ProcessResourcesMa
 		if err != nil {
 			return ProcessResourcesMap{}, fmt.Errorf("Error parsing memory request: %w", err)
 		}
-		processResources.Requests.Memory = quantity
+		if quantity != "0Mi" {
+			processResources.Requests.Memory = quantity
+		}
 	}
 
 	return processResources, nil
