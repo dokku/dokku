@@ -361,20 +361,12 @@ App logs for the `logs` command are fetched by Dokku from running containers via
 
 ### Supported Resource Management Properties
 
-The `k3s` scheduler supports a minimal list of resource _limits_ and _reservations_. The following properties are supported:
-
-#### Resource Limits
-
-> [!NOTE]
-> Cron tasks retrieve resource limits based on the computed cron task ID. If unspecified, the default will be 1 CPU and 512m RAM.
+The `k3s` scheduler supports a minimal list of resource _limits_ and _reservations_:
 
 - cpu: is specified in number of CPUs a process can access.
-- memory: should be specified with a suffix of `b` (bytes), `k` (kilobytes), `m` (megabytes), `g` (gigabytes). Default unit is `m` (megabytes).
+- memory: should be specified with a suffix of `b` (bytes), `Ki` (kilobytes), `Mi` (megabytes), `Gi` (gigabytes). Default unit is `Mi` (megabytes).
 
-#### Resource Reservations
+If unspecified for any task, the default reservation will be `.1` CPU and `128Mi` RAM, with no limit set for either CPU or RAM. This is to avoid issues with overscheduling pods on a cluster. To avoid issues, set more specific values for at least resource reservations. If unbounded utilization is desired, set CPU and Memory to `0m` and `0Mi`, respectively.
 
 > [!NOTE]
-> Cron tasks retrieve resource reservations based on the computed cron task ID. If unspecified, the default will be 1 CPU and 512m RAM.
-
-- cpu: is specified in number of CPUs a process can access.
-- memory: should be specified with a suffix of `b` (bytes), `k` (kilobytes), `m` (megabytes), `g` (gigabytes). Default unit is `m` (megabytes).
+> Cron tasks retrieve resource limits based on the computed cron task ID.

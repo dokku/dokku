@@ -2,7 +2,10 @@ package common
 
 import (
 	"context"
+	"fmt"
 	"io"
+	"os"
+	"strings"
 )
 
 // PlugnTriggerInput is the input for CallPlugnTrigger
@@ -41,7 +44,7 @@ func CallPlugnTrigger(input PlugnTriggerInput) (ExecCommandResponse, error) {
 func CallPlugnTriggerWithContext(ctx context.Context, input PlugnTriggerInput) (ExecCommandResponse, error) {
 	args := []string{"trigger", input.Trigger}
 	args = append(args, input.Args...)
-	return CallExecCommandWithContext(ctx, ExecCommandInput{
+	result, err := CallExecCommandWithContext(ctx, ExecCommandInput{
 		Command:            "plugn",
 		Args:               args,
 		DisableStdioBuffer: input.DisableStdioBuffer,
@@ -51,4 +54,15 @@ func CallPlugnTriggerWithContext(ctx context.Context, input PlugnTriggerInput) (
 		StreamStdout:       input.StreamStdout,
 		StreamStderr:       input.StreamStderr,
 	})
+
+	if os.Getenv("DOKKU_TRACE") == "1" {
+		for _, line := range strings.Split(result.Stderr, "\n") {
+			LogDebug(fmt.Sprintf("plugn trigger %s stderr: %s", input.Trigger, line))
+		}
+		for _, line := range strings.Split(result.Stdout, "\n") {
+			LogDebug(fmt.Sprintf("plugn trigger %s stdout: %s", input.Trigger, line))
+		}
+	}
+
+	return result, err
 }

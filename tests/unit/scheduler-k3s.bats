@@ -70,22 +70,6 @@ uninstall_k3s() {
   assert_success
 }
 
-@test "(scheduler-k3s) install traefik" {
-  if [[ -z "$DOCKERHUB_USERNAME" ]] || [[ -z "$DOCKERHUB_TOKEN" ]]; then
-    skip "skipping due to missing docker.io credentials DOCKERHUB_USERNAME:DOCKERHUB_TOKEN"
-  fi
-
-  install_k3s
-}
-
-@test "(scheduler-k3s) install nginx" {
-  if [[ -z "$DOCKERHUB_USERNAME" ]] || [[ -z "$DOCKERHUB_TOKEN" ]]; then
-    skip "skipping due to missing docker.io credentials DOCKERHUB_USERNAME:DOCKERHUB_TOKEN"
-  fi
-
-  INGRESS_CLASS=nginx install_k3s
-}
-
 @test "(scheduler-k3s) install traefik with taint" {
   if [[ -z "$DOCKERHUB_USERNAME" ]] || [[ -z "$DOCKERHUB_TOKEN" ]]; then
     skip "skipping due to missing docker.io credentials DOCKERHUB_USERNAME:DOCKERHUB_TOKEN"
@@ -102,7 +86,7 @@ uninstall_k3s() {
   INGRESS_CLASS=nginx TAINT_SCHEDULING=true install_k3s
 }
 
-@test "(scheduler-k3s) deploy traefik" {
+@test "(scheduler-k3s) deploy traefik [resource]" {
   if [[ -z "$DOCKERHUB_USERNAME" ]] || [[ -z "$DOCKERHUB_TOKEN" ]]; then
     skip "skipping due to missing docker.io credentials DOCKERHUB_USERNAME:DOCKERHUB_TOKEN"
   fi
@@ -130,6 +114,77 @@ uninstall_k3s() {
   assert_success
 
   assert_http_localhost_response "http" "$TEST_APP.dokku.me" "80" "" "python/http.server"
+
+  # include resource tests
+  run /bin/bash -c "kubectl get pods -o=jsonpath='{.items[*]..resources.requests.cpu}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "100m"
+
+  run /bin/bash -c "kubectl get pods -o=jsonpath='{.items[*]..resources.requests.memory}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "128Mi"
+
+  run /bin/bash -c "kubectl get pods -o=jsonpath='{.items[*]..resources.limits.cpu}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "kubectl get pods -o=jsonpath='{.items[*]..resources.limits.memory}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku resource:reserve $TEST_APP --memory 300 --cpu 0m --process-type web"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku resource:limit $TEST_APP --memory 512 --process-type web"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "sleep 20"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  assert_http_localhost_response "http" "$TEST_APP.dokku.me" "80" "" "python/http.server"
+
+  run /bin/bash -c "kubectl get pods -o=jsonpath='{.items[*]..resources.requests.cpu}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "kubectl get pods -o=jsonpath='{.items[*]..resources.requests.memory}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "300Mi"
+
+  run /bin/bash -c "kubectl get pods -o=jsonpath='{.items[*]..resources.limits.cpu}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "kubectl get pods -o=jsonpath='{.items[*]..resources.limits.memory}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "512Mi"
 }
 
 @test "(scheduler-k3s) deploy nginx" {
