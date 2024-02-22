@@ -832,10 +832,8 @@ func getProcessResources(appName string, processType string) (ProcessResourcesMa
 	}
 
 	emptyValues := map[string]bool{
-		"":    true,
-		"0":   true,
-		"0m":  true,
-		"0Mi": true,
+		"":  true,
+		"0": true,
 	}
 
 	result, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
@@ -849,6 +847,8 @@ func getProcessResources(appName string, processType string) (ProcessResourcesMa
 		}
 		if quantity.MilliValue() != 0 {
 			processResources.Limits.CPU = quantity.String()
+		} else {
+			processResources.Limits.CPU = ""
 		}
 	}
 	nvidiaGpuLimit, err := common.PlugnTriggerOutputAsString("resource-get-property", []string{appName, processType, "limit", "nvidia-gpu"}...)
@@ -870,6 +870,8 @@ func getProcessResources(appName string, processType string) (ProcessResourcesMa
 		}
 		if quantity != "0Mi" {
 			processResources.Limits.Memory = quantity
+		} else {
+			processResources.Limits.Memory = ""
 		}
 	}
 
@@ -884,6 +886,8 @@ func getProcessResources(appName string, processType string) (ProcessResourcesMa
 		}
 		if quantity.MilliValue() != 0 {
 			processResources.Requests.CPU = quantity.String()
+		} else {
+			processResources.Requests.CPU = ""
 		}
 	}
 	result, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
@@ -897,6 +901,8 @@ func getProcessResources(appName string, processType string) (ProcessResourcesMa
 		}
 		if quantity != "0Mi" {
 			processResources.Requests.Memory = quantity
+		} else {
+			processResources.Requests.Memory = ""
 		}
 	}
 

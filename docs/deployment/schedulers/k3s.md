@@ -366,7 +366,7 @@ The `k3s` scheduler supports a minimal list of resource _limits_ and _reservatio
 - cpu: is specified in number of CPUs a process can access.
 - memory: should be specified with a suffix of `b` (bytes), `Ki` (kilobytes), `Mi` (megabytes), `Gi` (gigabytes). Default unit is `Mi` (megabytes).
 
-If unspecified for any task, the default reservation will be .1 CPU and 128Mi RAM, with no limit set for either CPU or RAM. This is to avoid issues with overscheduling pods on a cluster. To avoid issues, set more specific values for at least resource reservations.
+If unspecified for any task, the default reservation will be `.1` CPU and `128Mi` RAM, with no limit set for either CPU or RAM. This is to avoid issues with overscheduling pods on a cluster. To avoid issues, set more specific values for at least resource reservations. If unbounded utilization is desired, set CPU and Memory to `0m` and `0Mi`, respectively.
 
 > [!NOTE]
 > Cron tasks retrieve resource limits based on the computed cron task ID.
