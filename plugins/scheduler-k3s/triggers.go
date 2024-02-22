@@ -1214,6 +1214,12 @@ func TriggerSchedulerStop(scheduler string, appName string) error {
 
 	clientset, err := NewKubernetesClient()
 	if err != nil {
+		if isK3sKubernetes() {
+			if err := isK3sInstalled(); err != nil {
+				common.LogWarn("k3s is not installed, skipping")
+				return nil
+			}
+		}
 		return fmt.Errorf("Error creating kubernetes client: %w", err)
 	}
 
