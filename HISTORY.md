@@ -1,5 +1,40 @@
 # History
 
+## 0.33.7
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.33.7/bootstrap.sh
+sudo DOKKU_TAG=v0.33.7 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #6608: @josegonzalez Fix issue with setting k3s resource values and lower the initial default values
+- #6607: @josegonzalez Call sed in unbuffered form to ensure log output is streamed to stdout
+- #6600: @josegonzalez Use correct label key for worker nodes
+- #6593: @josegonzalez Remove extra trailing newline to fix govet issue
+
+### New Features
+
+- #6595: @josegonzalez Add ability for users to specify alternative kubeconfig and kubecontext
+
+### Refactors
+
+- #6594: @josegonzalez Remove all calls to common.NewShellCmd
+- #6592: @josegonzalez Remove all calls to common.NewShellCmdWithArgs
+- #6591: @josegonzalez Always capture stdout/stderr when executing subprocesses
+- #6590: @josegonzalez Remove all direct usage of go-sh outside of plugin trigger setup
+
+### Dependencies
+
+- #6609: @dependabot[bot] chore(deps): bump google.golang.org/grpc from 1.61.1 to 1.62.0 in /tests/apps/gogrpc
+- #6604: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.9 to 9.5.10 in /docs/_build
+- #6603: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 42.0.2 to 42.0.4
+- #6601: @dependabot[bot] chore(deps): bump helm.sh/helm/v3 from 3.13.3 to 3.14.1 in /plugins/scheduler-k3s
+- #6596: @dependabot[bot] chore(deps): bump google.golang.org/grpc from 1.61.0 to 1.61.1 in /tests/apps/gogrpc
+
 ## 0.33.6
 
 Install/update via the bootstrap script:
