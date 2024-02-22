@@ -414,6 +414,10 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 		return fmt.Errorf("Error creating kubernetes client: %w", err)
 	}
 
+	if err := clientset.Ping(); err != nil {
+		return fmt.Errorf("kubernetes api not available: %w", err)
+	}
+
 	cronJobs, err := clientset.ListCronJobs(ctx, ListCronJobsInput{
 		LabelSelector: fmt.Sprintf("app.kubernetes.io/part-of=%s", appName),
 		Namespace:     namespace,
@@ -573,6 +577,10 @@ func TriggerSchedulerEnter(scheduler string, appName string, processType string,
 		return fmt.Errorf("Error creating kubernetes client: %w", err)
 	}
 
+	if err := clientset.Ping(); err != nil {
+		return fmt.Errorf("kubernetes api not available: %w", err)
+	}
+
 	namespace := getComputedNamespace(appName)
 	labelSelector := []string{fmt.Sprintf("app.kubernetes.io/part-of=%s", appName)}
 	processIndex := 1
@@ -662,6 +670,10 @@ func TriggerSchedulerLogs(scheduler string, appName string, processType string, 
 	clientset, err := NewKubernetesClient()
 	if err != nil {
 		return fmt.Errorf("Error creating kubernetes client: %w", err)
+	}
+
+	if err := clientset.Ping(); err != nil {
+		return fmt.Errorf("kubernetes api not available: %w", err)
 	}
 
 	labelSelector := []string{fmt.Sprintf("app.kubernetes.io/part-of=%s", appName)}
@@ -926,6 +938,10 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 		return fmt.Errorf("Error creating kubernetes client: %w", err)
 	}
 
+	if err := clientset.Ping(); err != nil {
+		return fmt.Errorf("kubernetes api not available: %w", err)
+	}
+
 	ctx, cancel := context.WithCancel(context.Background())
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, os.Interrupt, syscall.SIGHUP,
@@ -1078,6 +1094,10 @@ func TriggerSchedulerRunList(scheduler string, appName string, format string) er
 		return fmt.Errorf("Error creating kubernetes client: %w", err)
 	}
 
+	if err := clientset.Ping(); err != nil {
+		return fmt.Errorf("kubernetes api not available: %w", err)
+	}
+
 	namespace := getComputedNamespace(appName)
 	cronJobs, err := clientset.ListCronJobs(ctx, ListCronJobsInput{
 		LabelSelector: fmt.Sprintf("app.kubernetes.io/part-of=%s", appName),
@@ -1139,9 +1159,26 @@ func TriggerSchedulerPostDelete(scheduler string, appName string) error {
 		return nil
 	}
 
-	if err := isK3sInstalled(); err != nil {
-		common.LogWarn(fmt.Sprintf("Skipping app deletion: %s", err.Error()))
-		return nil
+	dataErr := common.RemoveAppDataDirectory("logs", appName)
+	propertyErr := common.PropertyDestroy("logs", appName)
+
+	if dataErr != nil {
+		return dataErr
+	}
+
+	if propertyErr != nil {
+		return propertyErr
+	}
+
+	if isK3sKubernetes() {
+		if err := isK3sInstalled(); err != nil {
+			common.LogWarn("k3s is not installed, skipping")
+			return nil
+		}
+	}
+
+	if err := isKubernetesAvailable(); err != nil {
+		return fmt.Errorf("kubernetes api not available: %w", err)
 	}
 
 	namespace := getComputedNamespace(appName)
@@ -1164,11 +1201,6 @@ func TriggerSchedulerStop(scheduler string, appName string) error {
 		return nil
 	}
 
-	if err := isK3sInstalled(); err != nil {
-		common.LogWarn(fmt.Sprintf("Skipping app stop: %s", err.Error()))
-		return nil
-	}
-
 	ctx, cancel := context.WithCancel(context.Background())
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, os.Interrupt, syscall.SIGHUP,
@@ -1182,7 +1214,17 @@ func TriggerSchedulerStop(scheduler string, appName string) error {
 
 	clientset, err := NewKubernetesClient()
 	if err != nil {
+		if isK3sKubernetes() {
+			if err := isK3sInstalled(); err != nil {
+				common.LogWarn("k3s is not installed, skipping")
+				return nil
+			}
+		}
 		return fmt.Errorf("Error creating kubernetes client: %w", err)
+	}
+
+	if err := clientset.Ping(); err != nil {
+		return fmt.Errorf("kubernetes api not available: %w", err)
 	}
 
 	namespace := getComputedNamespace(appName)

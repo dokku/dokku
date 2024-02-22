@@ -17,6 +17,8 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 		"--scheduler-k3s-computed-image-pull-secrets":   reportComputedImagePullSecrets,
 		"--scheduler-k3s-image-pull-secrets":            reportImagePullSecrets,
 		"--scheduler-k3s-global-image-pull-secrets":     reportGlobalImagePullSecrets,
+		"--scheduler-k3s-global-kubeconfig-path":        reportGlobalKubeconfigPath,
+		"--scheduler-k3s-global-kube-context":           reportGlobalKubeContext,
 		"--scheduler-k3s-computed-letsencrypt-server":   reportComputedLetsencryptServer,
 		"--scheduler-k3s-letsencrypt-server":            reportLetsencryptServer,
 		"--scheduler-k3s-global-letsencrypt-server":     reportGlobalLetsencryptServer,
@@ -71,6 +73,13 @@ func reportGlobalIngressClass(appName string) string {
 	return getGlobalIngressClass()
 }
 
+func reportGlobalKubeconfigPath(appName string) string {
+	return getKubeconfigPath()
+}
+
+func reportGlobalKubeContext(appName string) string {
+	return getKubeContext()
+}
 func reportComputedLetsencryptServer(appName string) string {
 	return getComputedLetsencryptServer(appName)
 }
