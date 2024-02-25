@@ -1,8 +1,10 @@
 {{- $processName := "PROCESS_NAME" }}
 {{- $config := index .Values.processes "PROCESS_NAME" }}
 {{- $mappings := dict }}
+{{- if eq $processName "web" }}
 {{- range $pdx, $port_map := $config.web.port_maps }}
 {{- $mappings := set $mappings $port_map.name "true" }}
+{{- end }}
 {{- end }}
 ---
 apiVersion: apps/v1
