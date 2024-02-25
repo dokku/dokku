@@ -20,6 +20,9 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
+  assert_output_contains "Executing predeploy task from app.json: touch /app/predeploy.test"
+  assert_output_contains "Executing postdeploy task from app.json: touch /app/postdeploy.test"
+  assert_output_contains "Executing prebuild task from app.json: touch /app/prebuild.test" 0
 
   run docker inspect "${TEST_APP}.web.1" --format "{{json .Config.Cmd}}"
   echo "output: $output"
@@ -37,13 +40,10 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  CID=$(docker ps -a -q -f "ancestor=dokku/${TEST_APP}" -f "label=dokku_phase_script=postdeploy")
-  DOCKER_COMMIT_LABEL_ARGS=("--change" "LABEL org.label-schema.schema-version=1.0" "--change" "LABEL org.label-schema.vendor=dokku" "--change" "LABEL com.dokku.app-name=$TEST_APP")
-  IMAGE_ID=$(docker commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" $CID dokku-test/${TEST_APP})
-  run /bin/bash -c "docker run --rm $IMAGE_ID ls /app/postdeploy.test"
+  run /bin/bash -c "dokku run $TEST_APP ls /app/postdeploy.test"
   echo "output: $output"
   echo "status: $status"
-  assert_success
+  assert_failure
 }
 
 @test "(app-json) app.json scripts postdeploy" {
