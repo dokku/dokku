@@ -59,7 +59,7 @@ teardown() {
   echo "status: $status"
   assert_failure
 
-  run /bin/bash -c "dokku ports:add $TEST_APP http:12345:5003 http:12345:5004"
+  run /bin/bash -c "dokku ports:add $TEST_APP http:12345:5002 http:12345:5004"
   echo "output: $output"
   echo "status: $status"
   assert_failure

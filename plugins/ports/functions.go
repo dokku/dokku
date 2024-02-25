@@ -353,7 +353,7 @@ func parsePortMapString(stringPortMap string) ([]PortMap, error) {
 		})
 	}
 
-	return uniquePortMaps(portMaps), nil
+	return portMaps, nil
 }
 
 // removePortMaps removes specific port mappings from an app
@@ -406,8 +406,12 @@ func reusesSchemeHostPort(portMaps []PortMap) error {
 
 // setPortMaps sets the port maps for an app
 func setPortMaps(appName string, portMaps []PortMap) error {
+	if err := reusesSchemeHostPort(portMaps); err != nil {
+		return fmt.Errorf("Error validating port mappings: %s", err)
+	}
+
 	var value []string
-	for _, portMap := range uniquePortMaps(portMaps) {
+	for _, portMap := range portMaps {
 		if portMap.AllowsPersistence() {
 			continue
 		}
