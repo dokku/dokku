@@ -117,7 +117,7 @@ func pushToRegistry(appName string, tag int, imageID string, imageRepo string) e
 			}
 			defer func() {
 				common.LogVerboseQuiet(fmt.Sprintf("Untagging extra tag %s", extraTag))
-				if err := common.RemoveImages(extraTagImage); err != nil {
+				if err := common.RemoveImages([]string{extraTagImage}); err != nil {
 					common.LogWarn(fmt.Sprintf("Unable to untag extra tag %s", extraTag, err.Error()))
 				}
 			}()
