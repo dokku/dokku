@@ -18,6 +18,7 @@ use (
 	./plugins/registry
 	./plugins/repo
 	./plugins/resource
+	./plugins/run
 	./plugins/scheduler
 	./plugins/scheduler-docker-local
 	./plugins/scheduler-k3s

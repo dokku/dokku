@@ -2,7 +2,7 @@
 
 ```
 run [-e|--env KEY=VALUE] [--no-tty] <app> <cmd>              # Run a command in a new container using the current app image
-run:detached [-e|-env KEY=VALUE] [--no-tty] <app> <cmd>      # Run a command in a new detached container using the current app image
+run:detached [-e|-env KEY=VALUE] [--tty] <app> <cmd>      # Run a command in a new detached container using the current app image
 run:list [--format json|stdout] [<app>]                      # List all run containers for an app
 run:logs <app|--container CONTAINER> [-h] [-t] [-n num] [-q] # Display recent log output for run containers
 run:stop <app|--container CONTAINER>                         # Stops all run containers for an app or a specified run container
@@ -21,7 +21,10 @@ The `run` command can be used to run a one-off process for a specific command. T
 
 ```shell
 # runs `ls -lah` in the `/app` directory of the app `node-js-app`
-dokku run node-js-app ls -lah
+dokku run node-js-app ls
+
+# to use commands with flags on them, separate the app name from the command with a `--`
+dokku run node-js-app -- ls -lah
 
 # optionally, run can be passed custom environment variables
 dokku run --env "NODE_ENV=development" --env "PATH=/custom/path" node-js-app npm run mytask
@@ -47,7 +50,7 @@ dokku run my-app console
 Containers may have specific labels attached. In order to avoid issues with dokku internals, do not use any labels beginning with either `com.dokku` or `org.label-schema`.
 
 ```shell
-dokku --label=com.example.test-label=value run node-js-app ls -lah
+dokku --label=com.example.test-label=value run node-js-app ls
 ```
 
 #### Disabling TTY
@@ -58,7 +61,7 @@ dokku --label=com.example.test-label=value run node-js-app ls -lah
 One-off containers default to interactive mode where possible. To disable this behavior, specify the `--no-tty` flag:
 
 ```shell
-dokku run --no-tty node-js-app ls -lah
+dokku run --no-tty node-js-app ls
 ```
 
 ### Running a detached container
@@ -69,7 +72,7 @@ dokku run --no-tty node-js-app ls -lah
 Finally, a container can be run in "detached" mode via the `run:detached` Dokku command. Running a process in detached mode will immediately return a `CONTAINER_ID`. Detached containers are run without a tty and are also removed at the end of process execution.
 
 ```shell
-dokku run:detached node-js-app ls -lah
+dokku run:detached node-js-app ls
 # returns the ID of the new container
 ```
 
