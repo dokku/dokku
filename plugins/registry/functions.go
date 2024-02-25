@@ -117,13 +117,17 @@ func pushToRegistry(appName string, tag int, imageID string, imageRepo string) e
 			if !dockerTag(imageID, extraTagImage) {
 				return errors.New(fmt.Sprintf("Unable to tag image as %s", extraTag))
 			}
+			func() {
+				defer func() {
+					common.LogVerboseQuiet(fmt.Sprintf("Untagging extra tag %s", extraTag))
+					if !dockerRemoveTag(extraTagImage) {
+						common.LogWarn(fmt.Sprintf("Unable to untag extra tag %s", extraTag))
+					}
+				}()
+			}()
 			common.LogVerboseQuiet(fmt.Sprintf("Pushing %s", extraTagImage))
 			if !dockerPush(extraTagImage) {
 				return errors.New(fmt.Sprintf("Unable to push image with %s tag", extraTag))
-			}
-			common.LogVerboseQuiet(fmt.Sprintf("Untagging extra tag %s", extraTag))
-			if !dockerRemoveTag(extraTagImage) {
-				return errors.New(fmt.Sprintf("Unable to untag extra tag %s", extraTag))
 			}
 		}
 	}
