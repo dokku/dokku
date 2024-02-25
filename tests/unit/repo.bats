@@ -49,22 +49,12 @@ teardown() {
   echo "status: $status"
   assert_output 1
 
-  run /bin/bash -c "find $DOKKU_ROOT/$TEST_APP/cache -type f | wc -l"
-  echo "count: '$output'"
-  echo "status: $status"
-  assert_output 0
-
   run /bin/bash -c "dokku repo:purge-cache $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
   run /bin/bash -c "docker volume ls -q --filter label=com.dokku.app-name=$TEST_APP | wc -l"
-  echo "count: '$output'"
-  echo "status: $status"
-  assert_output 0
-
-  run /bin/bash -c "find $DOKKU_ROOT/$TEST_APP/cache -type f | wc -l"
   echo "count: '$output'"
   echo "status: $status"
   assert_output 0

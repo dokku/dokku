@@ -47,11 +47,6 @@ func constructScript(command string, shell string, isHerokuishImage bool, isCnbI
 			"if [[ -d '/app/.profile.d' ]]; then",
 			"  for file in /app/.profile.d/*; do source $file; done;",
 			"fi;",
-
-			"if [[ -d '/cache' ]]; then",
-			"  rm -rf /tmp/cache ;",
-			"  ln -sf /cache /tmp/cache;",
-			"fi;",
 		}...)
 	}
 
@@ -66,14 +61,6 @@ func constructScript(command string, shell string, isHerokuishImage bool, isCnbI
 	}
 
 	script = append(script, fmt.Sprintf("%s || exit 1;", command))
-
-	if isHerokuishImage && !isCnbImage {
-		script = append(script, []string{
-			"if [[ -d '/cache' ]]; then",
-			"  rm -f /tmp/cache;",
-			"fi;",
-		}...)
-	}
 
 	return []string{shell, "-c", strings.Join(script, " ")}
 }
@@ -164,7 +151,12 @@ func cleanupDeploymentContainer(appName string, containerID string, phase string
 	if phase != "predeploy" {
 		os.Setenv("DOKKU_SKIP_IMAGE_RETIRE", "true")
 	}
-	return common.PlugnTrigger("scheduler-register-retired", []string{appName, containerID}...)
+
+	if !common.ContainerRemove(containerID) {
+		return fmt.Errorf("Failed to remove %s execution container", phase)
+	}
+
+	return nil
 }
 
 func executeScript(appName string, image string, imageTag string, phase string) error {
@@ -209,12 +201,6 @@ func executeScript(appName string, image string, imageTag string, phase string) 
 		imageSourceType = "herokuish"
 	} else if isCnbImage {
 		imageSourceType = "pack"
-	}
-
-	cacheDir := fmt.Sprintf("%s/cache", common.AppRoot(appName))
-	cacheHostDir := fmt.Sprintf("%s/cache", common.AppHostRoot(appName))
-	if !common.DirectoryExists(cacheDir) {
-		os.MkdirAll(cacheDir, 0755)
 	}
 
 	var dockerArgs []string
@@ -275,7 +261,9 @@ func executeScript(appName string, image string, imageTag string, phase string) 
 	}
 
 	dockerArgs = append(dockerArgs, "--label=dokku_phase_script="+phase)
-	dockerArgs = append(dockerArgs, "-v", cacheHostDir+":/cache")
+	if isHerokuishImage && !isCnbImage {
+		dockerArgs = append(dockerArgs, "-v", fmt.Sprintf("cache-%s:/tmp/cache", appName))
+	}
 	if os.Getenv("DOKKU_TRACE") != "" {
 		dockerArgs = append(dockerArgs, "--env", "DOKKU_TRACE="+os.Getenv("DOKKU_TRACE"))
 	}
