@@ -2,7 +2,7 @@
 
 ```
 run [-e|--env KEY=VALUE] [--no-tty] <app> <cmd>              # Run a command in a new container using the current app image
-run:detached [-e|-env KEY=VALUE] [--no-tty] <app> <cmd>      # Run a command in a new detached container using the current app image
+run:detached [-e|-env KEY=VALUE] [--force-tty] <app> <cmd>         # Run a command in a new detached container using the current app image
 run:list [--format json|stdout] [<app>]                      # List all run containers for an app
 run:logs <app|--container CONTAINER> [-h] [-t] [-n num] [-q] # Display recent log output for run containers
 run:stop <app|--container CONTAINER>                         # Stops all run containers for an app or a specified run container
@@ -71,6 +71,12 @@ Finally, a container can be run in "detached" mode via the `run:detached` Dokku 
 ```shell
 dokku run:detached node-js-app ls -lah
 # returns the ID of the new container
+```
+
+To start a detached container with a tty, specify the `--force-tty` flag. Containers will still exit upon command termination, but can be attached to as long as they are running.
+
+```shell
+dokku run:detached --force-tty node-js-app bash
 ```
 
 ### Displaying one-off container logs
