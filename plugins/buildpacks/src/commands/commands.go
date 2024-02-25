@@ -24,8 +24,7 @@ Additional commands:`
     buildpacks:remove <app> <buildpack>, Remove a buildpack set on the app
     buildpacks:report [<app>] [<flag>], Displays a buildpack report for one or more apps
     buildpacks:set [--index 1] <app> <buildpack>, Set new app buildpack at a given position defaulting to the first buildpack if no index is specified
-    buildpacks:set-property [--global|<app>] <key> <value>, Set or clear a buildpacks property for an app
-`
+    buildpacks:set-property [--global|<app>] <key> <value>, Set or clear a buildpacks property for an app`
 )
 
 func main() {
@@ -38,10 +37,8 @@ func main() {
 		usage()
 	case "help":
 		result, err := common.CallExecCommand(common.ExecCommandInput{
-			Command:       "ps",
-			Args:          []string{"-o", "command=", strconv.Itoa(os.Getppid())},
-			CaptureOutput: true,
-			StreamStdio:   false,
+			Command: "ps",
+			Args:    []string{"-o", "command=", strconv.Itoa(os.Getppid())},
 		})
 		if err == nil && strings.Contains(result.StdoutContents(), "--all") {
 			fmt.Println(helpContent)

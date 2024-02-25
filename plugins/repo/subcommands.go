@@ -1,6 +1,8 @@
 package repo
 
 import (
+	"fmt"
+
 	"github.com/dokku/dokku/plugins/common"
 )
 
@@ -14,9 +16,20 @@ func CommandGc(appName string) error {
 	cmdEnv := map[string]string{
 		"GIT_DIR": appRoot,
 	}
-	gitGcCmd := common.NewShellCmd("git gc --aggressive")
-	gitGcCmd.Env = cmdEnv
-	gitGcCmd.Execute()
+
+	result, err := common.CallExecCommand(common.ExecCommandInput{
+		Command:     "git",
+		Args:        []string{"gc", "--aggressive"},
+		Env:         cmdEnv,
+		StreamStdio: true,
+	})
+	if err != nil {
+		return fmt.Errorf("Unable to run git gc: %w", err)
+	}
+	if result.ExitCode != 0 {
+		return fmt.Errorf("Unable to run git gc: %s", result.StderrContents())
+	}
+
 	return nil
 }
 

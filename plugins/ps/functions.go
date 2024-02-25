@@ -1,7 +1,6 @@
 package ps
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"os"
@@ -24,26 +23,18 @@ func getProcfileCommand(procfilePath string, processType string, port int) (stri
 		return "", errors.New("No procfile found")
 	}
 
-	shellCmd := common.NewShellCmd(strings.Join([]string{
-		"procfile-util",
-		"show",
-		"--procfile",
-		procfilePath,
-		"--process-type",
-		processType,
-		"--default-port",
-		strconv.Itoa(port),
-	}, " "))
-	var stderr bytes.Buffer
-	shellCmd.ShowOutput = false
-	shellCmd.Command.Stderr = &stderr
-	b, err := shellCmd.Output()
-
+	result, err := common.CallExecCommand(common.ExecCommandInput{
+		Command: "procfile-util",
+		Args:    []string{"show", "--procfile", procfilePath, "--process-type", processType, "--default-port", strconv.Itoa(port)},
+	})
 	if err != nil {
-		return "", fmt.Errorf(strings.TrimSpace(stderr.String()))
+		return "", fmt.Errorf("Error running procfile-util: %s", err)
+	}
+	if result.ExitCode != 0 {
+		return "", fmt.Errorf("Error running procfile-util: %s", result.StderrContents())
 	}
 
-	return strings.TrimSpace(string(b[:])), nil
+	return result.StdoutContents(), nil
 }
 
 func getProcfilePath(appName string) string {
@@ -154,22 +145,18 @@ func parseProcessTuples(processTuples []string) (FormationSlice, error) {
 func processesInProcfile(procfilePath string) (map[string]bool, error) {
 	processes := map[string]bool{}
 
-	shellCmd := common.NewShellCmd(strings.Join([]string{
-		"procfile-util",
-		"list",
-		"--procfile",
-		procfilePath,
-	}, " "))
-	var stderr bytes.Buffer
-	shellCmd.ShowOutput = false
-	shellCmd.Command.Stderr = &stderr
-	b, err := shellCmd.Output()
-
+	result, err := common.CallExecCommand(common.ExecCommandInput{
+		Command: "procfile-util",
+		Args:    []string{"list", "--procfile", procfilePath},
+	})
 	if err != nil {
-		return processes, fmt.Errorf(strings.TrimSpace(stderr.String()))
+		return processes, fmt.Errorf("Error listing processes: %s", err)
+	}
+	if result.ExitCode != 0 {
+		return processes, fmt.Errorf("Error listing processes: %s", result.StderrContents())
 	}
 
-	for _, s := range strings.Split(strings.TrimSpace(string(b[:])), "\n") {
+	for _, s := range strings.Split(result.StdoutContents(), "\n") {
 		processes[s] = true
 	}
 

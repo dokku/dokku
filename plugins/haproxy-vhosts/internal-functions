@@ -44,7 +44,7 @@ fn-haproxy-template-compose-file() {
 }
 
 fn-haproxy-image() {
-  fn-plugin-property-get-default "haproxy" "--global" "image" "byjg/easy-haproxy:4.3.0"
+  fn-plugin-property-get-default "haproxy" "--global" "image" "$(grep "FROM" "$PLUGIN_AVAILABLE_PATH/haproxy-vhosts/Dockerfile" | awk '{print $2}')"
 }
 
 fn-haproxy-log-level() {

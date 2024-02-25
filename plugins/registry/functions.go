@@ -4,12 +4,10 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
 	"text/template"
 
-	"github.com/codeskyblue/go-sh"
 	"github.com/dokku/dokku/plugins/common"
 )
 
@@ -152,25 +150,21 @@ func pushToRegistry(appName string, tag int, imageID string, imageRepo string) e
 }
 
 func dockerTag(imageID string, imageTag string) bool {
-	cmd := sh.Command(common.DockerBin(), "image", "tag", imageID, imageTag)
-	cmd.Stdout = nil
-	cmd.Stderr = nil
-	if err := cmd.Run(); err != nil {
-		return false
-	}
-
-	return true
+	result, err := common.CallExecCommand(common.ExecCommandInput{
+		Command:     common.DockerBin(),
+		Args:        []string{"image", "tag", imageID, imageTag},
+		StreamStdio: true,
+	})
+	return err == nil && result.ExitCode == 0
 }
 
 func dockerPush(imageTag string) bool {
-	cmd := sh.Command(common.DockerBin(), "image", "push", imageTag)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	if err := cmd.Run(); err != nil {
-		return false
-	}
-
-	return true
+	result, err := common.CallExecCommand(common.ExecCommandInput{
+		Command:     common.DockerBin(),
+		Args:        []string{"image", "push", imageTag},
+		StreamStdio: true,
+	})
+	return err == nil && result.ExitCode == 0
 }
 
 func imageCleanup(appName string, imageRepo string, imageTag string, tag int) {

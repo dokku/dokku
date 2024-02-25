@@ -31,8 +31,8 @@ type SshCommandInput struct {
 	// Args are the arguments to pass to the command.
 	Args []string
 
-	// CaptureOutput saves any output from in the TaskResult
-	CaptureOutput bool
+	// DisableStdioBuffer disables the stdio buffer
+	DisableStdioBuffer bool
 
 	// Env is a list of environment variables to add to the current environment
 	Env map[string]string
@@ -137,7 +137,7 @@ func CallSshCommandWithContext(ctx context.Context, input SshCommandInput) (SshR
 		Command:            input.Command,
 		Args:               input.Args,
 		Env:                env,
-		DisableStdioBuffer: !input.CaptureOutput,
+		DisableStdioBuffer: input.DisableStdioBuffer,
 		AllowUknownHosts:   input.AllowUknownHosts,
 		Hostname:           u.Hostname(),
 		Port:               uint(port),

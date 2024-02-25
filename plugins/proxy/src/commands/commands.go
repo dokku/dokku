@@ -23,8 +23,7 @@ Additional commands:`
     proxy:disable <app>, Disable proxy for app
     proxy:enable <app>, Enable proxy for app
     proxy:report [<app>] [<flag>], Displays a proxy report for one or more apps
-    proxy:set <app> <proxy-type>, Set proxy type for app
-`
+    proxy:set <app> <proxy-type>, Set proxy type for app`
 )
 
 func main() {
@@ -37,10 +36,8 @@ func main() {
 		usage()
 	case "help":
 		result, err := common.CallExecCommand(common.ExecCommandInput{
-			Command:       "ps",
-			Args:          []string{"-o", "command=", strconv.Itoa(os.Getppid())},
-			CaptureOutput: true,
-			StreamStdio:   false,
+			Command: "ps",
+			Args:    []string{"-o", "command=", strconv.Itoa(os.Getppid())},
 		})
 		if err == nil && strings.Contains(result.StdoutContents(), "--all") {
 			fmt.Println(helpContent)

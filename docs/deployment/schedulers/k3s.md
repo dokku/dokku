@@ -219,7 +219,7 @@ The default value may be set by passing an empty value for the option:
 dokku scheduler-k3s:set node-js-app image-pull-secrets
 ```
 
-The `image-pull-secrets` property can also be set globally. The global default is empty string, and k3s will use the local `registries.yaml` for any private registry pulls.
+The `image-pull-secrets` property can also be set globally. The global default is empty string, and k3s will use Dokku's locally configured `~/.docker/config.json` for any private registry pulls.
 
 ```shell
 dokku scheduler-k3s:set --global image-pull-secrets 60s
@@ -243,7 +243,7 @@ dokku scheduler-k3s:set --global letsencrypt-email-prod automated@dokku.sh
 dokku scheduler-k3s:set --global letsencrypt-email-stag automated@dokku.sh
 ```
 
-After enabling and rebuilding, all apps with an `https` port mapping that utilize the related letsencrypt server will be automatically updated to enable ssl. All http requests will then be redirected to https.
+After enabling and rebuilding, all apps with an `http:80` port mapping will have a corresponding `https:443` added and ssl will be automatically enabled. All http requests will then be redirected to https.
 
 ### Customizing the letsencrypt server
 
@@ -320,6 +320,38 @@ By default, Dokku assumes that all it controls all actions on the cluster, and t
 dokku scheduler-k3s:show-kubeconfig
 ```
 
+### Interacting with an external Kubernetes cluster
+
+While the k3s scheduler plugin is designed to work with a Dokku-managed k3s cluster, Dokku can be configured to interact with any Kubernetes cluster by setting the global `kubeconfig-path` to a path to a custom kubeconfig on the Dokku server. This property is only available at a global level.
+
+```shell
+dokku scheduler-k3s:set --global kubeconfig-path /path/to/custom/kubeconfig
+```
+
+To set the default value, omit the value from the `scheduler-k3s:set` call:
+
+```shell
+dokku scheduler-k3s:set --global kubeconfig-path
+```
+
+The default value for the `kubeconfig-path` is the k3s kubeconfig located at `/etc/rancher/k3s/k3s.yaml`.
+
+### Customizing the Kubernetes context
+
+When interacting with a custom Kubeconfig, the `kube-context` property can be set to specify a specific context within the kubeconfig to use. This property is available only at the global leve.
+
+```shell
+dokku scheduler-k3s:set --global kube-context lollipop
+```
+
+To set the default value, omit the value from the `scheduler-k3s:set` call:
+
+```shell
+dokku scheduler-k3s:set --global kube-context
+```
+
+The default value for the `kube-context` is an empty string, and will result in Dokku using the current context within the kubeconfig.
+
 ## Scheduler Interface
 
 The following sections describe implemented and unimplemented scheduler functionality for the `k3s` scheduler.
@@ -361,20 +393,12 @@ App logs for the `logs` command are fetched by Dokku from running containers via
 
 ### Supported Resource Management Properties
 
-The `k3s` scheduler supports a minimal list of resource _limits_ and _reservations_. The following properties are supported:
-
-#### Resource Limits
-
-> [!NOTE]
-> Cron tasks retrieve resource limits based on the computed cron task ID. If unspecified, the default will be 1 CPU and 512m RAM.
+The `k3s` scheduler supports a minimal list of resource _limits_ and _reservations_:
 
 - cpu: is specified in number of CPUs a process can access.
-- memory: should be specified with a suffix of `b` (bytes), `k` (kilobytes), `m` (megabytes), `g` (gigabytes). Default unit is `m` (megabytes).
+- memory: should be specified with a suffix of `b` (bytes), `Ki` (kilobytes), `Mi` (megabytes), `Gi` (gigabytes). Default unit is `Mi` (megabytes).
 
-#### Resource Reservations
+If unspecified for any task, the default reservation will be `.1` CPU and `128Mi` RAM, with no limit set for either CPU or RAM. This is to avoid issues with overscheduling pods on a cluster. To avoid issues, set more specific values for at least resource reservations. If unbounded utilization is desired, set CPU and Memory to `0m` and `0Mi`, respectively.
 
 > [!NOTE]
-> Cron tasks retrieve resource reservations based on the computed cron task ID. If unspecified, the default will be 1 CPU and 512m RAM.
-
-- cpu: is specified in number of CPUs a process can access.
-- memory: should be specified with a suffix of `b` (bytes), `k` (kilobytes), `m` (megabytes), `g` (gigabytes). Default unit is `m` (megabytes).
+> Cron tasks retrieve resource limits based on the computed cron task ID.

@@ -58,7 +58,7 @@ jobs:
           PACKER_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Get changed files in the docs folder
         id: changed-files-specific
-        uses: tj-actions/changed-files@v42.0.2
+        uses: tj-actions/changed-files@v42.0.4
         with:
           files: contrib/images/digitalocean/**
       - name: Run `packer validate`

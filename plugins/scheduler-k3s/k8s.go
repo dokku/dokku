@@ -22,10 +22,21 @@ import (
 	"k8s.io/utils/ptr"
 )
 
+func getKubeconfigPath() string {
+	return common.PropertyGetDefault("scheduler-k3s", "--global", "kubeconfig-path", KubeConfigPath)
+}
+
+func getKubeContext() string {
+	return common.PropertyGetDefault("scheduler-k3s", "--global", "kube-context", DefaultKubeContext)
+}
+
 // KubernetesClient is a wrapper around the Kubernetes client
 type KubernetesClient struct {
 	// Client is the Kubernetes client
 	Client kubernetes.Clientset
+
+	// KubeConfigPath is the path to the Kubernetes config
+	KubeConfigPath string
 
 	// RestClient is the Kubernetes REST client
 	RestClient rest.Interface
@@ -36,7 +47,9 @@ type KubernetesClient struct {
 
 // NewKubernetesClient creates a new Kubernetes client
 func NewKubernetesClient() (KubernetesClient, error) {
-	clientConfig := KubernetesClientConfig()
+	kubeconfigPath := getKubeconfigPath()
+	kubeContext := getKubeContext()
+	clientConfig := KubernetesClientConfig(kubeconfigPath, kubeContext)
 	restConf, err := clientConfig.ClientConfig()
 	if err != nil {
 		return KubernetesClient{}, err
@@ -60,17 +73,29 @@ func NewKubernetesClient() (KubernetesClient, error) {
 	}
 
 	return KubernetesClient{
-		Client:     *client,
-		RestConfig: *restConf,
-		RestClient: restClient,
+		Client:         *client,
+		KubeConfigPath: kubeconfigPath,
+		RestConfig:     *restConf,
+		RestClient:     restClient,
 	}, nil
 }
 
 // KubernetesClientConfig returns a Kubernetes client config
-func KubernetesClientConfig() clientcmd.ClientConfig {
+func KubernetesClientConfig(kubeconfigPath string, kubecontext string) clientcmd.ClientConfig {
+	configOverrides := clientcmd.ConfigOverrides{ClusterInfo: clientcmdapi.Cluster{Server: ""}}
+	if kubecontext != "" {
+		configOverrides.CurrentContext = kubecontext
+	}
+
 	return clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
-		&clientcmd.ClientConfigLoadingRules{ExplicitPath: KubeConfigPath},
-		&clientcmd.ConfigOverrides{ClusterInfo: clientcmdapi.Cluster{Server: ""}})
+		&clientcmd.ClientConfigLoadingRules{ExplicitPath: kubeconfigPath},
+		&configOverrides,
+	)
+}
+
+func (k KubernetesClient) Ping() error {
+	_, err := k.Client.Discovery().ServerVersion()
+	return err
 }
 
 // AnnotateNodeInput contains all the information needed to annotates a Kubernetes node
@@ -110,16 +135,23 @@ type ApplyKubernetesManifestInput struct {
 }
 
 func (k KubernetesClient) ApplyKubernetesManifest(ctx context.Context, input ApplyKubernetesManifestInput) error {
+	args := []string{
+		"apply",
+		"-f",
+		input.Manifest,
+	}
+
+	if kubeContext := getKubeContext(); kubeContext != "" {
+		args = append([]string{"--context", kubeContext}, args...)
+	}
+
+	if kubeconfigPath := getKubeconfigPath(); kubeconfigPath != "" {
+		args = append([]string{"--kubeconfig", kubeconfigPath}, args...)
+	}
+
 	upgradeCmd, err := common.CallExecCommand(common.ExecCommandInput{
-		Command: "kubectl",
-		Args: []string{
-			"apply",
-			"-f",
-			input.Manifest,
-		},
-		Env: map[string]string{
-			"KUBECONFIG": KubeConfigPath,
-		},
+		Command:     "kubectl",
+		Args:        args,
 		StreamStdio: true,
 	})
 	if err != nil {

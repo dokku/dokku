@@ -174,22 +174,27 @@ func LogVerboseQuietContainerLogsTail(containerID string, lines int, tail bool) 
 		args = append(args, "--follow")
 	}
 
-	sc := NewShellCmdWithArgs(DockerBin(), args...)
 	var mu sync.Mutex
-	sc.Command.Stdout = &writer{
-		mu:     &mu,
-		source: "stdout",
-	}
-	sc.Command.Stderr = &writer{
-		mu:     &mu,
-		source: "stderr",
-	}
+	result, err := CallExecCommand(ExecCommandInput{
+		Command:            DockerBin(),
+		Args:               args,
+		DisableStdioBuffer: true,
+		StdoutWriter: &writer{
+			mu:     &mu,
+			source: "stdout",
+		},
+		StderrWriter: &writer{
+			mu:     &mu,
+			source: "stderr",
+		},
+	})
 
-	if err := sc.Command.Start(); err != nil {
+	if err != nil {
 		LogExclaim(fmt.Sprintf("Failed to fetch container logs: %s", containerID))
+		return
 	}
 
-	if err := sc.Command.Wait(); err != nil {
+	if !tail && result.ExitCode != 0 {
 		LogExclaim(fmt.Sprintf("Failed to fetch container logs: %s", containerID))
 	}
 }

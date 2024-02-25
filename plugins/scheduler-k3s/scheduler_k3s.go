@@ -29,6 +29,8 @@ var (
 		"deploy-timeout":         true,
 		"image-pull-secrets":     true,
 		"ingress-class":          true,
+		"kube-context":           true,
+		"kubeconfig-path":        true,
 		"letsencrypt-server":     true,
 		"letsencrypt-email-prod": true,
 		"letsencrypt-email-stag": true,
@@ -42,7 +44,7 @@ var (
 const DefaultIngressClass = "traefik"
 const GlobalProcessType = "--global"
 const KubeConfigPath = "/etc/rancher/k3s/k3s.yaml"
-const RegistryConfigPath = "/etc/rancher/k3s/registries.yaml"
+const DefaultKubeContext = ""
 
 var (
 	runtimeScheme  = runtime.NewScheme()
@@ -137,7 +139,7 @@ var ServerLabels = map[string]string{
 }
 
 var WorkerLabels = map[string]string{
-	"node-role.kubernetes.io/role": "worker",
+	"node-role.kubernetes.io/worker": "worker",
 }
 
 //go:embed templates/*

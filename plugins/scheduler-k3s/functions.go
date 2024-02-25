@@ -149,16 +149,18 @@ func applyClusterIssuers(ctx context.Context) error {
 	clusterIssuerValues := ClusterIssuerValues{
 		ClusterIssuers: map[string]ClusterIssuer{
 			"letsencrypt-stag": {
-				Email:   letsencryptEmailStag,
-				Enabled: letsencryptEmailStag != "",
-				Name:    "letsencrypt-stag",
-				Server:  "https://acme-staging-v02.api.letsencrypt.org/directory",
+				Email:        letsencryptEmailStag,
+				Enabled:      letsencryptEmailStag != "",
+				IngressClass: getGlobalIngressClass(),
+				Name:         "letsencrypt-stag",
+				Server:       "https://acme-staging-v02.api.letsencrypt.org/directory",
 			},
 			"letsencrypt-prod": {
-				Email:   letsencryptEmailProd,
-				Enabled: letsencryptEmailProd != "",
-				Name:    "letsencrypt-prod",
-				Server:  "https://acme-v02.api.letsencrypt.org/directory",
+				Email:        letsencryptEmailProd,
+				Enabled:      letsencryptEmailProd != "",
+				IngressClass: getGlobalIngressClass(),
+				Name:         "letsencrypt-prod",
+				Server:       "https://acme-v02.api.letsencrypt.org/directory",
 			},
 		},
 	}
@@ -333,10 +335,8 @@ func extractStartCommand(input StartCommandInput) string {
 	}
 
 	resp, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
-		Trigger:       "config-get",
-		Args:          []string{input.AppName, "DOKKU_START_CMD"},
-		CaptureOutput: true,
-		StreamStdio:   false,
+		Trigger: "config-get",
+		Args:    []string{input.AppName, "DOKKU_START_CMD"},
 	})
 	if err == nil && resp.ExitCode == 0 && len(resp.Stdout) > 0 {
 		command = strings.TrimSpace(resp.Stdout)
@@ -344,10 +344,8 @@ func extractStartCommand(input StartCommandInput) string {
 
 	if input.ImageSourceType == "dockerfile" {
 		resp, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
-			Trigger:       "config-get",
-			Args:          []string{input.AppName, "DOKKU_DOCKERFILE_START_CMD"},
-			CaptureOutput: true,
-			StreamStdio:   false,
+			Trigger: "config-get",
+			Args:    []string{input.AppName, "DOKKU_DOCKERFILE_START_CMD"},
 		})
 		if err == nil && resp.ExitCode == 0 && len(resp.Stdout) > 0 {
 			command = strings.TrimSpace(resp.Stdout)
@@ -496,7 +494,7 @@ func getComputedImagePullSecrets(appName string) string {
 }
 
 func getGlobalIngressClass() string {
-	return common.PropertyGetDefault("scheduler-k3s", "global", "ingress-class", DefaultIngressClass)
+	return common.PropertyGetDefault("scheduler-k3s", "--global", "ingress-class", DefaultIngressClass)
 }
 
 func getIngressAnnotations(appName string, processType string) (map[string]string, error) {
@@ -826,55 +824,86 @@ func getProcessHealtchecks(healthchecks []appjson.Healthcheck, primaryPort int32
 
 func getProcessResources(appName string, processType string) (ProcessResourcesMap, error) {
 	processResources := ProcessResourcesMap{
-		Limits: ProcessResources{
-			CPU:    "1000m",
-			Memory: "512Mi",
-		},
+		Limits: ProcessResources{},
 		Requests: ProcessResources{
-			CPU:    "1000m",
-			Memory: "512Mi",
+			CPU:    "100m",
+			Memory: "128Mi",
 		},
 	}
-	cpuLimit, err := common.PlugnTriggerOutputAsString("resource-get-property", []string{appName, processType, "limit", "cpu"}...)
-	if err != nil && cpuLimit != "" && cpuLimit != "0" {
-		_, err := resource.ParseQuantity(cpuLimit)
+
+	emptyValues := map[string]bool{
+		"":  true,
+		"0": true,
+	}
+
+	result, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "resource-get-property",
+		Args:    []string{appName, processType, "limit", "cpu"},
+	})
+	if err == nil && !emptyValues[result.StdoutContents()] {
+		quantity, err := resource.ParseQuantity(result.StdoutContents())
 		if err != nil {
 			return ProcessResourcesMap{}, fmt.Errorf("Error parsing cpu limit: %w", err)
 		}
-		processResources.Limits.CPU = cpuLimit
+		if quantity.MilliValue() != 0 {
+			processResources.Limits.CPU = quantity.String()
+		} else {
+			processResources.Limits.CPU = ""
+		}
 	}
 	nvidiaGpuLimit, err := common.PlugnTriggerOutputAsString("resource-get-property", []string{appName, processType, "limit", "nvidia-gpu"}...)
-	if err != nil && nvidiaGpuLimit != "" && nvidiaGpuLimit != "0" {
+	if err == nil && nvidiaGpuLimit != "" && nvidiaGpuLimit != "0" {
 		_, err := resource.ParseQuantity(nvidiaGpuLimit)
 		if err != nil {
 			return ProcessResourcesMap{}, fmt.Errorf("Error parsing nvidia-gpu limit: %w", err)
 		}
 		processResources.Limits.NvidiaGPU = nvidiaGpuLimit
 	}
-	memoryLimit, err := common.PlugnTriggerOutputAsString("resource-get-property", []string{appName, processType, "limit", "memory"}...)
-	if err != nil && memoryLimit != "" && memoryLimit != "0" {
-		_, err := resource.ParseQuantity(memoryLimit)
+	result, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "resource-get-property",
+		Args:    []string{appName, processType, "limit", "memory"},
+	})
+	if err == nil && !emptyValues[result.StdoutContents()] {
+		quantity, err := parseMemoryQuantity(result.StdoutContents())
 		if err != nil {
 			return ProcessResourcesMap{}, fmt.Errorf("Error parsing memory limit: %w", err)
 		}
-		processResources.Limits.Memory = memoryLimit
+		if quantity != "0Mi" {
+			processResources.Limits.Memory = quantity
+		} else {
+			processResources.Limits.Memory = ""
+		}
 	}
 
-	cpuRequest, err := common.PlugnTriggerOutputAsString("resource-get-property", []string{appName, processType, "reserve", "cpu"}...)
-	if err != nil && cpuRequest != "" && cpuRequest != "0" {
-		_, err := resource.ParseQuantity(cpuRequest)
+	result, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "resource-get-property",
+		Args:    []string{appName, processType, "reserve", "cpu"},
+	})
+	if err == nil && !emptyValues[result.StdoutContents()] {
+		quantity, err := resource.ParseQuantity(result.StdoutContents())
 		if err != nil {
 			return ProcessResourcesMap{}, fmt.Errorf("Error parsing cpu request: %w", err)
 		}
-		processResources.Requests.CPU = cpuRequest
+		if quantity.MilliValue() != 0 {
+			processResources.Requests.CPU = quantity.String()
+		} else {
+			processResources.Requests.CPU = ""
+		}
 	}
-	memoryRequest, err := common.PlugnTriggerOutputAsString("resource-get-property", []string{appName, processType, "reserve", "memory"}...)
-	if err != nil && memoryRequest != "" && memoryRequest != "0" {
-		_, err := resource.ParseQuantity(memoryRequest)
+	result, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "resource-get-property",
+		Args:    []string{appName, processType, "reserve", "memory"},
+	})
+	if err == nil && !emptyValues[result.StdoutContents()] {
+		quantity, err := parseMemoryQuantity(result.StdoutContents())
 		if err != nil {
 			return ProcessResourcesMap{}, fmt.Errorf("Error parsing memory request: %w", err)
 		}
-		processResources.Requests.Memory = memoryRequest
+		if quantity != "0Mi" {
+			processResources.Requests.Memory = quantity
+		} else {
+			processResources.Requests.Memory = ""
+		}
 	}
 
 	return processResources, nil
@@ -1113,20 +1142,36 @@ func installHelm(ctx context.Context) error {
 	return nil
 }
 
+// isKubernetesAvailable returns an error if kubernetes api is not available
+func isKubernetesAvailable() error {
+	client, err := NewKubernetesClient()
+	if err != nil {
+		return fmt.Errorf("Error creating kubernetes client: %w", err)
+	}
+
+	if err := client.Ping(); err != nil {
+		return fmt.Errorf("Error pinging kubernetes: %w", err)
+	}
+
+	return nil
+}
+
+// isK3sInstalled returns an error if k3s is not installed
 func isK3sInstalled() error {
 	if !common.FileExists("/usr/local/bin/k3s") {
 		return fmt.Errorf("k3s binary is not available")
 	}
 
-	if !common.FileExists(RegistryConfigPath) {
-		return fmt.Errorf("k3s registry config is not available")
-	}
-
-	if !common.FileExists(KubeConfigPath) {
+	if !common.FileExists(getKubeconfigPath()) {
 		return fmt.Errorf("k3s kubeconfig is not available")
 	}
 
 	return nil
+}
+
+// isK3sKubernetes returns true if the current kubernetes cluster is configured to be k3s
+func isK3sKubernetes() bool {
+	return getKubeconfigPath() == KubeConfigPath
 }
 
 func isPodReady(ctx context.Context, clientset KubernetesClient, podName, namespace string) wait.ConditionWithContextFunc {
@@ -1186,6 +1231,19 @@ func kubernetesNodeToNode(node v1.Node) Node {
 		RemoteHost: remoteHost,
 		Version:    node.Status.NodeInfo.KubeletVersion,
 	}
+}
+
+// parseMemoryQuantity parses a string into a valid memory quantity
+func parseMemoryQuantity(input string) (string, error) {
+	if _, err := strconv.ParseInt(input, 10, 64); err == nil {
+		input = fmt.Sprintf("%sMi", input)
+	}
+	quantity, err := resource.ParseQuantity(input)
+	if err != nil {
+		return "", err
+	}
+
+	return quantity.String(), nil
 }
 
 func uninstallHelperCommands(ctx context.Context) error {

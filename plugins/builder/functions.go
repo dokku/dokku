@@ -1,8 +1,7 @@
 package builder
 
 import (
-	"bytes"
-	"errors"
+	"fmt"
 	"os"
 	"path"
 	"strings"
@@ -11,25 +10,18 @@ import (
 )
 
 func listImagesByImageRepo(imageRepo string) ([]string, error) {
-	command := []string{
-		common.DockerBin(),
-		"image",
-		"ls",
-		"--quiet",
-		imageRepo,
-	}
-
-	var stderr bytes.Buffer
-	listCmd := common.NewShellCmd(strings.Join(command, " "))
-	listCmd.ShowOutput = false
-	listCmd.Command.Stderr = &stderr
-	b, err := listCmd.Output()
-
+	result, err := common.CallExecCommand(common.ExecCommandInput{
+		Command: common.DockerBin(),
+		Args:    []string{"image", "ls", "--quiet", imageRepo},
+	})
 	if err != nil {
-		return []string{}, errors.New(strings.TrimSpace(stderr.String()))
+		return []string{}, fmt.Errorf("Unable to list images: %w", err)
+	}
+	if result.ExitCode != 0 {
+		return []string{}, fmt.Errorf("Unable to list images: %s", result.StderrContents())
 	}
 
-	output := strings.Split(strings.TrimSpace(string(b[:])), "\n")
+	output := strings.Split(result.StdoutContents(), "\n")
 	return output, nil
 }
 

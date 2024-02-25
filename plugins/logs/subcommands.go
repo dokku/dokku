@@ -104,7 +104,7 @@ func CommandVectorStart(vectorImage string) error {
 	}
 
 	if vectorImage == "" {
-		vectorImage = common.PropertyGetDefault("logs", "--global", "vector-image", VectorImage)
+		vectorImage = common.PropertyGetDefault("logs", "--global", "vector-image", getComputedVectorImage())
 	}
 
 	common.LogVerbose("Starting vector container")

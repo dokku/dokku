@@ -1,7 +1,14 @@
 {{- $processName := "PROCESS_NAME" }}
 {{- $config := index .Values.processes "PROCESS_NAME" }}
 {{- if and $config.web.domains (eq $.Values.global.network.ingress_class "traefik") }}
+{{- $mappings := dict }}
 {{- range $pdx, $port_map := $config.web.port_maps }}
+{{- $mappings := set $mappings $port_map.name "true" }}
+{{- end }}
+{{- range $pdx, $port_map := $config.web.port_maps }}
+{{- if and (eq $port_map.scheme "https") (hasKey $mappings (printf "http-80-%.0f" $port_map.container_port)) }}
+{{- continue }}
+{{- end }}
 ---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
@@ -26,16 +33,15 @@ metadata:
   namespace: {{ $.Values.global.namespace }}
 spec:
   entryPoints:
-  {{- if and $config.web.tls.enabled (eq $port_map.scheme "https") }}
+  {{- if $config.web.tls.enabled }}
   - websecure
-  {{- else }}
-  - web
   {{- end }}
+  - web
   routes:
     {{- range $ddx, $domain := $config.web.domains }}
     - kind: Rule
       match: Host(`{{ $domain }}`)
-      {{- if and $config.web.tls.enabled (and (eq $port_map.scheme "http") $port_map.redirect_to_https) }}
+      {{- if $config.web.tls.enabled }}
       middlewares:
         - name: {{ $.Values.global.app_name}}-{{ $processName }}-redirect-to-https
           namespace: {{ $.Values.global.namespace }}
@@ -47,7 +53,7 @@ spec:
         port: {{ $port_map.name }}
         scheme: http
     {{- end }}
-  {{- if and $config.web.tls.enabled (eq $port_map.scheme "https") }}
+  {{- if $config.web.tls.enabled }}
   tls:
     secretName: tls-{{ $.Values.global.app_name }}-{{ $processName }}
   {{- end }}

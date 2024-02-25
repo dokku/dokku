@@ -46,7 +46,7 @@ fn-caddy-template-compose-file() {
 }
 
 fn-caddy-image() {
-  fn-plugin-property-get-default "caddy" "--global" "image" "lucaslorentz/caddy-docker-proxy:2.8"
+  fn-plugin-property-get-default "caddy" "--global" "image" "$(grep "FROM" "$PLUGIN_AVAILABLE_PATH/caddy-vhosts/Dockerfile" | awk '{print $2}')"
 }
 
 fn-caddy-letsencrypt-email() {

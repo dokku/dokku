@@ -9,7 +9,6 @@ import (
 	"strconv"
 	"strings"
 
-	sh "github.com/codeskyblue/go-sh"
 	"github.com/dokku/dokku/plugins/common"
 	"github.com/dokku/dokku/plugins/config"
 	dockeroptions "github.com/dokku/dokku/plugins/docker-options"
@@ -103,8 +102,15 @@ func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
 		}
 	}
 
-	if b, err := sh.Command("procfile-util", "check", "-P", processSpecificProcfile).CombinedOutput(); err != nil {
-		return fmt.Errorf(strings.TrimSpace(string(b[:])))
+	result, err := common.CallExecCommand(common.ExecCommandInput{
+		Command: "procfile-util",
+		Args:    []string{"check", "-P", processSpecificProcfile},
+	})
+	if err != nil {
+		return fmt.Errorf(result.StderrContents())
+	}
+	if result.ExitCode != 0 {
+		return fmt.Errorf("Invalid Procfile: %s", result.StderrContents())
 	}
 	return nil
 }

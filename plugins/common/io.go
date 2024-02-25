@@ -38,15 +38,16 @@ func Copy(src, dst string) error {
 	}
 
 	// ensure file has the correct line endings
-	dos2unixCmd := NewShellCmd(strings.Join([]string{
-		"dos2unix",
-		"-l",
-		"-n",
-		src,
-		dst,
-	}, " "))
-	dos2unixCmd.ShowOutput = false
-	dos2unixCmd.Execute()
+	result, err := CallExecCommand(ExecCommandInput{
+		Command: "dos2unix",
+		Args:    []string{"-l", "-n", src, dst},
+	})
+	if err != nil {
+		return fmt.Errorf("Error running dos2unix: %s", err)
+	}
+	if result.ExitCode != 0 {
+		return fmt.Errorf("Error running dos2unix: %s", result.StderrContents())
+	}
 
 	// ensure file permissions are correct
 	b, err := os.ReadFile(dst)

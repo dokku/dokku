@@ -1,0 +1,1 @@
+FROM lucaslorentz/caddy-docker-proxy:2.8

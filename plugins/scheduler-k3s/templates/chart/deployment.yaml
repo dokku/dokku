@@ -1,5 +1,9 @@
 {{- $processName := "PROCESS_NAME" }}
 {{- $config := index .Values.processes "PROCESS_NAME" }}
+{{- $mappings := dict }}
+{{- range $pdx, $port_map := $config.web.port_maps }}
+{{- $mappings := set $mappings $port_map.name "true" }}
+{{- end }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -76,6 +80,9 @@ spec:
         {{- if eq $processName "web" }}
         ports:
         {{- range $pdx, $port_map := $config.web.port_maps }}
+        {{- if and (eq $port_map.scheme "https") (hasKey $mappings (printf "http-80-%.0f" $port_map.container_port)) }}
+        {{- continue }}
+        {{- end }}
         - containerPort: {{ $port_map.container_port }}
           name: {{ $port_map.name }}
           protocol: {{ $port_map.protocol }}
@@ -118,6 +125,7 @@ spec:
         workingDir: {{ $.Values.global.image.working_dir }}
         {{- end }}
       {{- if $.Values.global.image.image_pull_secrets }}
-      imagePullSecrets: {{ $.Values.global.image.image_pull_secrets }}
+      imagePullSecrets:
+      - name: {{ $.Values.global.image.image_pull_secrets }}
       {{- end }}
       serviceAccountName: {{ $.Values.global.app_name }}

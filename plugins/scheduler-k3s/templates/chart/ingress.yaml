@@ -1,7 +1,14 @@
 {{- $processName := "PROCESS_NAME" }}
 {{- $config := index .Values.processes "PROCESS_NAME" }}
 {{- if and $config.web.domains (eq $.Values.global.network.ingress_class "nginx") }}
+{{- $mappings := dict }}
 {{- range $pdx, $port_map := $config.web.port_maps }}
+{{- $mappings := set $mappings $port_map.name "true" }}
+{{- end }}
+{{- range $pdx, $port_map := $config.web.port_maps }}
+{{- if and (eq $port_map.scheme "https") (hasKey $mappings (printf "http-80-%.0f" $port_map.container_port)) }}
+{{- continue }}
+{{- end }}
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -18,6 +25,9 @@ metadata:
     {{ $k }}: {{ $v | quote }}
     {{- end }}
     {{- end }}
+    {{- if $config.web.tls.enabled }}
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    {{- end }}
   labels:
     app.kubernetes.io/instance: {{ $.Values.global.app_name }}-{{ $processName }}
     app.kubernetes.io/name: {{ $processName }}
@@ -26,7 +36,7 @@ metadata:
   namespace: {{ $.Values.global.namespace }}
 spec:
   ingressClassName: nginx
-  {{- if and $config.web.tls.enabled (eq $port_map.scheme "https") }}
+  {{- if $config.web.tls.enabled }}
   tls:
     - hosts:
       {{- range $ddx, $domain := $config.web.domains }}

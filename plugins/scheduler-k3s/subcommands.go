@@ -241,27 +241,6 @@ func CommandInitialize(ingressClass string, serverIP string, taintScheduling boo
 		return fmt.Errorf("Invalid exit code from k3s installer command: %d", installerCmd.ExitCode)
 	}
 
-	if err := common.TouchFile(RegistryConfigPath); err != nil {
-		return fmt.Errorf("Error creating initial registries.yaml file")
-	}
-
-	common.LogInfo2Quiet("Setting registries.yaml permissions")
-	registryAclCmd, err := common.CallExecCommand(common.ExecCommandInput{
-		Command: "setfacl",
-		Args: []string{
-			"-m",
-			"user:dokku:rwx",
-			RegistryConfigPath,
-		},
-		StreamStdio: true,
-	})
-	if err != nil {
-		return fmt.Errorf("Unable to call setfacl command: %w", err)
-	}
-	if registryAclCmd.ExitCode != 0 {
-		return fmt.Errorf("Invalid exit code from setfacl command: %d", registryAclCmd.ExitCode)
-	}
-
 	clientset, err := NewKubernetesClient()
 	if err != nil {
 		return fmt.Errorf("Unable to create kubernetes client: %w", err)
@@ -336,7 +315,16 @@ func CommandInitialize(ingressClass string, serverIP string, taintScheduling boo
 // CommandClusterAdd adds a server to the k3s cluster
 func CommandClusterAdd(role string, remoteHost string, serverIP string, allowUknownHosts bool, taintScheduling bool) error {
 	if err := isK3sInstalled(); err != nil {
-		return fmt.Errorf("k3s not installed, cannot join cluster")
+		return fmt.Errorf("k3s not installed, cannot add node to cluster: %w", err)
+	}
+
+	clientset, err := NewKubernetesClient()
+	if err != nil {
+		return fmt.Errorf("Unable to create kubernetes client: %w", err)
+	}
+
+	if err := clientset.Ping(); err != nil {
+		return fmt.Errorf("kubernetes api not available, cannot add node to cluster: %w", err)
 	}
 
 	if role != "server" && role != "worker" {
@@ -377,10 +365,7 @@ func CommandClusterAdd(role string, remoteHost string, serverIP string, allowUkn
 
 	k3sVersionCmd, err := common.CallExecCommand(common.ExecCommandInput{
 		Command: "k3s",
-		Args: []string{
-			"--version",
-		},
-		CaptureOutput: true,
+		Args:    []string{"--version"},
 	})
 	if err != nil {
 		return fmt.Errorf("Unable to call k3s version command: %w", err)
@@ -554,11 +539,6 @@ func CommandClusterAdd(role string, remoteHost string, serverIP string, allowUkn
 		return fmt.Errorf("Invalid exit code from k3s installer command over ssh: %d", joinCmd.ExitCode)
 	}
 
-	clientset, err := NewKubernetesClient()
-	if err != nil {
-		return fmt.Errorf("Unable to create kubernetes client: %w", err)
-	}
-
 	common.LogInfo2Quiet("Waiting for node to exist")
 	nodes, err := waitForNodeToExist(ctx, WaitForNodeToExistInput{
 		Clientset:  clientset,
@@ -570,11 +550,6 @@ func CommandClusterAdd(role string, remoteHost string, serverIP string, allowUkn
 	}
 	if len(nodes) == 0 {
 		return fmt.Errorf("Unable to find node after joining cluster, node will not be annotated/labeled appropriately access registry secrets")
-	}
-
-	err = copyRegistryToNode(ctx, remoteHost)
-	if err != nil {
-		return fmt.Errorf("Error copying registries.yaml to remote host: %w", err)
 	}
 
 	labels := ServerLabels
@@ -617,9 +592,6 @@ func CommandClusterList(format string) error {
 	if format != "stdout" && format != "json" {
 		return fmt.Errorf("Invalid format: %s", format)
 	}
-	if err := isK3sInstalled(); err != nil {
-		return fmt.Errorf("k3s not installed, cannot list cluster nodes")
-	}
 
 	ctx, cancel := context.WithCancel(context.Background())
 	signals := make(chan os.Signal, 1)
@@ -635,6 +607,10 @@ func CommandClusterList(format string) error {
 	clientset, err := NewKubernetesClient()
 	if err != nil {
 		return fmt.Errorf("Unable to create kubernetes client: %w", err)
+	}
+
+	if err := clientset.Ping(); err != nil {
+		return fmt.Errorf("kubernetes api not available, cannot list cluster nodes: %w", err)
 	}
 
 	nodes, err := clientset.ListNodes(ctx, ListNodesInput{})
@@ -670,7 +646,7 @@ func CommandClusterList(format string) error {
 // CommandClusterRemove removes a node from the k3s cluster
 func CommandClusterRemove(nodeName string) error {
 	if err := isK3sInstalled(); err != nil {
-		return fmt.Errorf("k3s not installed, cannot remove node")
+		return fmt.Errorf("k3s not installed, cannot remove node from cluster: %w", err)
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -688,6 +664,10 @@ func CommandClusterRemove(nodeName string) error {
 	clientset, err := NewKubernetesClient()
 	if err != nil {
 		return fmt.Errorf("Unable to create kubernetes client: %w", err)
+	}
+
+	if err := clientset.Ping(); err != nil {
+		return fmt.Errorf("kubernetes api not available: %w", err)
 	}
 
 	common.LogVerboseQuiet("Getting node remote connection information")
@@ -759,11 +739,12 @@ func CommandSet(appName string, property string, value string) error {
 
 // CommandShowKubeconfig displays the kubeconfig file contents
 func CommandShowKubeconfig() error {
-	if !common.FileExists(KubeConfigPath) {
-		return fmt.Errorf("Kubeconfig file does not exist: %s", KubeConfigPath)
+	kubeconfigPath := getKubeconfigPath()
+	if !common.FileExists(kubeconfigPath) {
+		return fmt.Errorf("Kubeconfig file does not exist: %s", kubeconfigPath)
 	}
 
-	b, err := os.ReadFile(KubeConfigPath)
+	b, err := os.ReadFile(kubeconfigPath)
 	if err != nil {
 		return fmt.Errorf("Unable to read kubeconfig file: %w", err)
 	}
@@ -775,7 +756,7 @@ func CommandShowKubeconfig() error {
 
 func CommandUninstall() error {
 	if err := isK3sInstalled(); err != nil {
-		return fmt.Errorf("k3s not installed, cannot uninstall")
+		return fmt.Errorf("k3s not installed, cannot uninstall: %w", err)
 	}
 
 	common.LogInfo1("Uninstalling k3s")

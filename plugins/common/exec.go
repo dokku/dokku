@@ -23,8 +23,8 @@ type ExecCommandInput struct {
 	// Args are the arguments to pass to the command
 	Args []string
 
-	// CaptureOutput determines whether to capture the output of the command
-	CaptureOutput bool
+	// DisableStdioBuffer disables the stdio buffer
+	DisableStdioBuffer bool
 
 	// Env is the environment variables to pass to the command
 	Env map[string]string
@@ -41,6 +41,12 @@ type ExecCommandInput struct {
 
 	// StreamStderr prints stderr directly to os.Stderr as the command runs.
 	StreamStderr bool
+
+	// StdoutWriter is the writer to write stdout to
+	StdoutWriter io.Writer
+
+	// StderrWriter is the writer to write stderr to
+	StderrWriter io.Writer
 
 	// Sudo runs the command with sudo -n -u root
 	Sudo bool
@@ -95,7 +101,7 @@ func CallExecCommandWithContext(ctx context.Context, input ExecCommandInput) (Ex
 	// being captured, then color output can be forced.
 	isatty := !color.NoColor
 	env := os.Environ()
-	if isatty && !input.CaptureOutput {
+	if isatty && input.DisableStdioBuffer {
 		env = append(env, "FORCE_TTY=1")
 	}
 	if input.Env != nil {
@@ -115,11 +121,15 @@ func CallExecCommandWithContext(ctx context.Context, input ExecCommandInput) (Ex
 		Command:            command,
 		Args:               commandArgs,
 		Env:                env,
-		DisableStdioBuffer: !input.CaptureOutput,
+		DisableStdioBuffer: input.DisableStdioBuffer,
 	}
 
 	if os.Getenv("DOKKU_TRACE") == "1" {
-		cmd.PrintCommand = true
+		argsSt := ""
+		if len(cmd.Args) > 0 {
+			argsSt = strings.Join(cmd.Args, " ")
+		}
+		LogWarn(fmt.Sprintf("exec: %s %s", cmd.Command, argsSt))
 	}
 
 	if input.Stdin != nil {
@@ -136,6 +146,12 @@ func CallExecCommandWithContext(ctx context.Context, input ExecCommandInput) (Ex
 	}
 	if input.StreamStderr {
 		cmd.StdErrWriter = os.Stderr
+	}
+	if input.StdoutWriter != nil {
+		cmd.StdOutWriter = input.StdoutWriter
+	}
+	if input.StderrWriter != nil {
+		cmd.StdErrWriter = input.StderrWriter
 	}
 
 	res, err := cmd.Execute(ctx)

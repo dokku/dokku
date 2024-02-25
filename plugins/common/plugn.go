@@ -2,7 +2,10 @@ package common
 
 import (
 	"context"
+	"fmt"
 	"io"
+	"os"
+	"strings"
 )
 
 // PlugnTriggerInput is the input for CallPlugnTrigger
@@ -10,8 +13,8 @@ type PlugnTriggerInput struct {
 	// Args are the arguments to pass to the trigger
 	Args []string
 
-	// CaptureOutput determines whether to capture the output of the trigger
-	CaptureOutput bool
+	// DisableStdioBuffer disables the stdio buffer
+	DisableStdioBuffer bool
 
 	// Env is the environment variables to pass to the trigger
 	Env map[string]string
@@ -41,14 +44,25 @@ func CallPlugnTrigger(input PlugnTriggerInput) (ExecCommandResponse, error) {
 func CallPlugnTriggerWithContext(ctx context.Context, input PlugnTriggerInput) (ExecCommandResponse, error) {
 	args := []string{"trigger", input.Trigger}
 	args = append(args, input.Args...)
-	return CallExecCommandWithContext(ctx, ExecCommandInput{
-		Command:       "plugn",
-		Args:          args,
-		CaptureOutput: input.CaptureOutput,
-		Env:           input.Env,
-		Stdin:         input.Stdin,
-		StreamStdio:   input.StreamStdio,
-		StreamStdout:  input.StreamStdout,
-		StreamStderr:  input.StreamStderr,
+	result, err := CallExecCommandWithContext(ctx, ExecCommandInput{
+		Command:            "plugn",
+		Args:               args,
+		DisableStdioBuffer: input.DisableStdioBuffer,
+		Env:                input.Env,
+		Stdin:              input.Stdin,
+		StreamStdio:        input.StreamStdio,
+		StreamStdout:       input.StreamStdout,
+		StreamStderr:       input.StreamStderr,
 	})
+
+	if os.Getenv("DOKKU_TRACE") == "1" {
+		for _, line := range strings.Split(result.Stderr, "\n") {
+			LogDebug(fmt.Sprintf("plugn trigger %s stderr: %s", input.Trigger, line))
+		}
+		for _, line := range strings.Split(result.Stdout, "\n") {
+			LogDebug(fmt.Sprintf("plugn trigger %s stdout: %s", input.Trigger, line))
+		}
+	}
+
+	return result, err
 }

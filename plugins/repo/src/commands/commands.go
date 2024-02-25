@@ -19,8 +19,7 @@ Additional commands:`
 
 	helpContent = `
     repo:gc <app>, Runs 'git gc --aggressive' against the application's repo
-    repo:purge-cache <app>, Deletes the contents of the build cache stored in the repository
-`
+    repo:purge-cache <app>, Deletes the contents of the build cache stored in the repository`
 )
 
 func main() {
@@ -33,10 +32,8 @@ func main() {
 		usage()
 	case "help":
 		result, err := common.CallExecCommand(common.ExecCommandInput{
-			Command:       "ps",
-			Args:          []string{"-o", "command=", strconv.Itoa(os.Getppid())},
-			CaptureOutput: true,
-			StreamStdio:   false,
+			Command: "ps",
+			Args:    []string{"-o", "command=", strconv.Itoa(os.Getppid())},
 		})
 		if err == nil && strings.Contains(result.StdoutContents(), "--all") {
 			fmt.Println(helpContent)

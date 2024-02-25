@@ -1,14 +1,11 @@
 package network
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
-
-	sh "github.com/codeskyblue/go-sh"
 )
 
 // attachAppToNetwork attaches a container to a network
@@ -18,7 +15,6 @@ func attachAppToNetwork(containerID string, networkName string, appName string, 
 	}
 
 	cmdParts := []string{
-		common.DockerBin(),
 		"network",
 		"connect",
 	}
@@ -45,14 +41,16 @@ func attachAppToNetwork(containerID string, networkName string, appName string, 
 
 	cmdParts = append(cmdParts, networkName)
 	cmdParts = append(cmdParts, containerID)
-	attachCmd := common.NewShellCmd(strings.Join(cmdParts, " "))
-	var stderr bytes.Buffer
-	attachCmd.ShowOutput = false
-	attachCmd.Command.Stderr = &stderr
-	_, err := attachCmd.Output()
+
+	result, err := common.CallExecCommand(common.ExecCommandInput{
+		Command: common.DockerBin(),
+		Args:    cmdParts,
+	})
 	if err != nil {
-		err = errors.New(strings.TrimSpace(stderr.String()))
-		return fmt.Errorf("Unable to attach container to network: %v", err.Error())
+		return fmt.Errorf("Unable to attach container to network: %w", err)
+	}
+	if result.ExitCode != 0 {
+		return fmt.Errorf("Unable to attach container to network: %s", result.StderrContents())
 	}
 
 	return nil
@@ -60,20 +58,21 @@ func attachAppToNetwork(containerID string, networkName string, appName string, 
 
 // isContainerInNetwork returns true if the container is already attached to the specified network
 func isContainerInNetwork(containerID string, networkName string) bool {
-	b, err := sh.Command(
-		common.DockerBin(),
-		"container",
-		"inspect",
-		"--format",
-		"{{range $net, $v := .NetworkSettings.Networks}}{{println $net}}{{end}}",
-		containerID,
-	).Output()
+	result, err := common.CallExecCommand(common.ExecCommandInput{
+		Command: common.DockerBin(),
+		Args:    []string{"container", "inspect", "--format", "{{range $net, $v := .NetworkSettings.Networks}}{{println $net}}{{end}}", containerID},
+	})
+
 	if err != nil {
-		common.LogVerboseQuiet(fmt.Sprintf("Error checking container networking status:%v", err.Error()))
+		common.LogVerboseQuiet(fmt.Sprintf("Error checking container networking status: %v", err.Error()))
+		return false
+	}
+	if result.ExitCode != 0 {
+		common.LogVerboseQuiet(fmt.Sprintf("Error checking container networking status: %v", result.StderrContents()))
 		return false
 	}
 
-	for _, line := range strings.Split(strings.TrimSpace(string(b[:])), "\n") {
+	for _, line := range strings.Split(result.StdoutContents(), "\n") {
 		network := strings.TrimSpace(line)
 		if network == "" {
 			continue
@@ -128,15 +127,19 @@ func networkExists(networkName string) (bool, error) {
 
 // listNetworks returns a list of docker networks
 func listNetworks() ([]string, error) {
-	b, err := sh.Command(common.DockerBin(), "network", "ls", "--format", "{{ .Name }}").Output()
-	output := strings.TrimSpace(string(b[:]))
-
-	networks := []string{}
+	result, err := common.CallExecCommand(common.ExecCommandInput{
+		Command: common.DockerBin(),
+		Args:    []string{"network", "ls", "--format", "{{ .Name }}"},
+	})
 	if err != nil {
-		common.LogVerboseQuiet(output)
-		return networks, err
+		common.LogVerboseQuiet(result.StderrContents())
+		return []string{}, err
+	}
+	if result.ExitCode != 0 {
+		common.LogVerboseQuiet(result.StderrContents())
+		return []string{}, fmt.Errorf("Unable to list networks")
 	}
 
-	networks = strings.Split(output, "\n")
+	networks := strings.Split(result.StdoutContents(), "\n")
 	return networks, nil
 }

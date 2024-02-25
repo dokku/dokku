@@ -20,8 +20,7 @@ Additional commands:`
 	helpContent = `
     cron:list <app> [--format json|stdout], List scheduled cron tasks for an app
     cron:report [<app>] [<flag>], Display report about an app
-    cron:run <app> <cron_id> [--detach], Run a cron task on the fly
-`
+    cron:run <app> <cron_id> [--detach], Run a cron task on the fly`
 )
 
 func main() {
@@ -34,10 +33,8 @@ func main() {
 		usage()
 	case "help":
 		result, err := common.CallExecCommand(common.ExecCommandInput{
-			Command:       "ps",
-			Args:          []string{"-o", "command=", strconv.Itoa(os.Getppid())},
-			CaptureOutput: true,
-			StreamStdio:   false,
+			Command: "ps",
+			Args:    []string{"-o", "command=", strconv.Itoa(os.Getppid())},
 		})
 		if err == nil && strings.Contains(result.StdoutContents(), "--all") {
 			fmt.Println(helpContent)

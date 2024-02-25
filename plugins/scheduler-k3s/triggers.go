@@ -23,11 +23,8 @@ import (
 	"github.com/dokku/dokku/plugins/config"
 	"github.com/dokku/dokku/plugins/cron"
 	"github.com/fatih/color"
-	"github.com/hashicorp/go-multierror"
 	"github.com/kballard/go-shellquote"
-	"github.com/rancher/wharfie/pkg/registries"
 	"github.com/ryanuber/columnize"
-	"gopkg.in/yaml.v3"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/kubernetes/pkg/client/conditions"
@@ -78,88 +75,6 @@ func TriggerPostDelete(appName string) error {
 	return propertyErr
 }
 
-// TriggerPostRegistryLogin updates the `/etc/rancher/k3s/registries.yaml` to include
-// auth information for the registry. Note that if the file does not exist, it won't be updated.
-func TriggerPostRegistryLogin(server string, username string) error {
-	if !common.FileExists("/usr/local/bin/k3s") {
-		return nil
-	}
-
-	password := os.Getenv("DOCKER_REGISTRY_PASS")
-
-	yamlFile, err := os.ReadFile(RegistryConfigPath)
-	if err != nil {
-		return fmt.Errorf("Unable to read existing registries.yaml: %w", err)
-	}
-
-	var registry registries.Registry
-	err = yaml.Unmarshal(yamlFile, &registry)
-	if err != nil {
-		return fmt.Errorf("Unable to unmarshal registry configuration from yaml: %w", err)
-	}
-
-	common.LogInfo1("Updating k3s configuration")
-	if registry.Auths == nil {
-		registry.Auths = map[string]registries.AuthConfig{}
-	}
-
-	if server == "docker.io" {
-		server = "registry-1.docker.io"
-	}
-
-	registry.Auths[server] = registries.AuthConfig{
-		Username: username,
-		Password: password,
-	}
-
-	data, err := yaml.Marshal(&registry)
-	if err != nil {
-		return fmt.Errorf("Unable to marshal registry configuration to yaml: %w", err)
-	}
-
-	if err := os.WriteFile(RegistryConfigPath, data, os.FileMode(0644)); err != nil {
-		return fmt.Errorf("Unable to write registry configuration to file: %w", err)
-	}
-
-	ctx, cancel := context.WithCancel(context.Background())
-	signals := make(chan os.Signal, 1)
-	signal.Notify(signals, os.Interrupt, syscall.SIGHUP,
-		syscall.SIGINT,
-		syscall.SIGQUIT,
-		syscall.SIGTERM)
-	go func() {
-		<-signals
-		cancel()
-	}()
-
-	clientset, err := NewKubernetesClient()
-	if err != nil {
-		return fmt.Errorf("Error creating kubernetes client: %w", err)
-	}
-
-	nodes, err := clientset.ListNodes(ctx, ListNodesInput{})
-	if err != nil {
-		return fmt.Errorf("Error listing nodes: %w", err)
-	}
-
-	var result error
-	for _, node := range nodes {
-		remoteHost, ok := node.Annotations["dokku.com/remote-host"]
-		if !ok {
-			continue
-		}
-
-		err := copyRegistryToNode(ctx, remoteHost)
-		if err != nil {
-			wrappedErr := fmt.Errorf("Error copying registry to node: %w", err)
-			result = multierror.Append(result, wrappedErr)
-			common.LogWarn(wrappedErr.Error())
-		}
-	}
-
-	return result
-}
-
 // TriggerSchedulerDeploy deploys an image tag for a given application
 func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) error {
 	if scheduler != "k3s" {
@@ -208,8 +123,6 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 		return fmt.Errorf("Error parsing rollback-on-failure value as boolean: %w", err)
 	}
 
-	imagePullSecrets := getComputedImagePullSecrets(appName)
-
 	imageSourceType := "dockerfile"
 	if common.IsImageCnbBased(image) {
 		imageSourceType = "pack"
@@ -256,7 +169,22 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 	}
 
 	deploymentId := time.Now().Unix()
-	globalTemplateFiles := []string{"service-account", "secret"}
+	pullSecretBase64 := base64.StdEncoding.EncodeToString([]byte(""))
+	imagePullSecrets := getComputedImagePullSecrets(appName)
+	if imagePullSecrets == "" {
+		dockerConfigPath := filepath.Join(os.Getenv("DOKKU_ROOT"), ".docker/config.json")
+		if fi, err := os.Stat(dockerConfigPath); err == nil && !fi.IsDir() {
+			b, err := os.ReadFile(dockerConfigPath)
+			if err != nil {
+				return fmt.Errorf("Error reading docker config: %w", err)
+			}
+
+			imagePullSecrets = fmt.Sprintf("image-pull-%s.%d", appName, deploymentId)
+			pullSecretBase64 = base64.StdEncoding.EncodeToString(b)
+		}
+	}
+
+	globalTemplateFiles := []string{"service-account", "secret", "image-pull-secret"}
 	for _, templateName := range globalTemplateFiles {
 		b, err := templates.ReadFile(fmt.Sprintf("templates/chart/%s.yaml", templateName))
 		if err != nil {
@@ -345,13 +273,14 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 			DeploymentID: fmt.Sprint(deploymentId),
 			Image: GlobalImage{
 				ImagePullSecrets: imagePullSecrets,
+				PullSecretBase64: pullSecretBase64,
 				Name:             image,
 				Type:             imageSourceType,
 				WorkingDir:       workingDir,
 			},
 			Namespace: namespace,
 			Network: GlobalNetwork{
-				IngressClass: common.PropertyGetDefault("scheduler-k3s", "--global", "ingress-class", DefaultIngressClass),
+				IngressClass: getGlobalIngressClass(),
 				PrimaryPort:  primaryPort,
 			},
 			Secrets: map[string]string{},
@@ -417,18 +346,37 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 					protocol = PortmapProtocol_UDP
 				}
 
-				redirecToHttps := false
-				if _, ok := portMaps[fmt.Sprintf("https-443-%d", portMap.ContainerPort)]; ok && portMap.Scheme == "http" {
-					redirecToHttps = true
-				}
 				processValues.Web.PortMaps = append(processValues.Web.PortMaps, ProcessPortMap{
-					ContainerPort:   portMap.ContainerPort,
-					HostPort:        portMap.HostPort,
-					Name:            portMap.String(),
-					Protocol:        protocol,
-					RedirectToHttps: redirecToHttps,
-					Scheme:          portMap.Scheme,
+					ContainerPort: portMap.ContainerPort,
+					HostPort:      portMap.HostPort,
+					Name:          portMap.String(),
+					Protocol:      protocol,
+					Scheme:        portMap.Scheme,
 				})
+			}
+
+			for _, portMap := range processValues.Web.PortMaps {
+				_, httpOk := portMaps[fmt.Sprintf("http-80-%d", portMap.ContainerPort)]
+				_, httpsOk := portMaps[fmt.Sprintf("https-443-%d", portMap.ContainerPort)]
+				if portMap.Scheme == "http" && !httpsOk && tlsEnabled {
+					processValues.Web.PortMaps = append(processValues.Web.PortMaps, ProcessPortMap{
+						ContainerPort: portMap.ContainerPort,
+						HostPort:      443,
+						Name:          fmt.Sprintf("https-443-%d", portMap.ContainerPort),
+						Protocol:      PortmapProtocol_TCP,
+						Scheme:        "https",
+					})
+				}
+
+				if portMap.Scheme == "https" && !httpOk {
+					processValues.Web.PortMaps = append(processValues.Web.PortMaps, ProcessPortMap{
+						ContainerPort: portMap.ContainerPort,
+						HostPort:      80,
+						Name:          fmt.Sprintf("http-80-%d", portMap.ContainerPort),
+						Protocol:      PortmapProtocol_TCP,
+						Scheme:        "http",
+					})
+				}
 			}
 
 			sort.Sort(NameSorter(processValues.Web.PortMaps))
@@ -464,6 +412,10 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 	clientset, err := NewKubernetesClient()
 	if err != nil {
 		return fmt.Errorf("Error creating kubernetes client: %w", err)
+	}
+
+	if err := clientset.Ping(); err != nil {
+		return fmt.Errorf("kubernetes api not available: %w", err)
 	}
 
 	cronJobs, err := clientset.ListCronJobs(ctx, ListCronJobsInput{
@@ -583,20 +535,18 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 
 	common.LogInfo1("Running post-deploy")
 	_, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
-		Args:          []string{appName, "", "", imageTag},
-		CaptureOutput: false,
-		StreamStdio:   true,
-		Trigger:       "core-post-deploy",
+		Args:        []string{appName, "", "", imageTag},
+		StreamStdio: true,
+		Trigger:     "core-post-deploy",
 	})
 	if err != nil {
 		return fmt.Errorf("Error running core-post-deploy: %w", err)
 
 	}
 	_, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
-		Args:          []string{appName, "", "", imageTag},
-		CaptureOutput: false,
-		StreamStdio:   true,
-		Trigger:       "post-deploy",
+		Args:        []string{appName, "", "", imageTag},
+		StreamStdio: true,
+		Trigger:     "post-deploy",
 	})
 	if err != nil {
 		return fmt.Errorf("Error running post-deploy: %w", err)
@@ -625,6 +575,10 @@ func TriggerSchedulerEnter(scheduler string, appName string, processType string,
 	clientset, err := NewKubernetesClient()
 	if err != nil {
 		return fmt.Errorf("Error creating kubernetes client: %w", err)
+	}
+
+	if err := clientset.Ping(); err != nil {
+		return fmt.Errorf("kubernetes api not available: %w", err)
 	}
 
 	namespace := getComputedNamespace(appName)
@@ -716,6 +670,10 @@ func TriggerSchedulerLogs(scheduler string, appName string, processType string, 
 	clientset, err := NewKubernetesClient()
 	if err != nil {
 		return fmt.Errorf("Error creating kubernetes client: %w", err)
+	}
+
+	if err := clientset.Ping(); err != nil {
+		return fmt.Errorf("kubernetes api not available: %w", err)
 	}
 
 	labelSelector := []string{fmt.Sprintf("app.kubernetes.io/part-of=%s", appName)}
@@ -855,17 +813,13 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 	dokkuRmContainer := os.Getenv("DOKKU_RM_CONTAINER")
 	if dokkuRmContainer == "" {
 		resp, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
-			Trigger:       "config-get",
-			Args:          []string{appName, "DOKKU_RM_CONTAINER"},
-			CaptureOutput: true,
-			StreamStdio:   false,
+			Trigger: "config-get",
+			Args:    []string{appName, "DOKKU_RM_CONTAINER"},
 		})
 		if err != nil {
 			resp, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
-				Trigger:       "config-get-global",
-				Args:          []string{"DOKKU_RM_CONTAINER"},
-				CaptureOutput: true,
-				StreamStdio:   false,
+				Trigger: "config-get-global",
+				Args:    []string{"DOKKU_RM_CONTAINER"},
 			})
 			if err == nil {
 				dokkuRmContainer = strings.TrimSpace(resp.Stdout)
@@ -914,10 +868,8 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 		}
 	} else if len(args) == 1 {
 		resp, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
-			Trigger:       "procfile-get-command",
-			Args:          []string{appName, args[0], "5000"},
-			CaptureOutput: true,
-			StreamStdio:   false,
+			Trigger: "procfile-get-command",
+			Args:    []string{appName, args[0], "5000"},
 		})
 		if err == nil && resp.Stdout != "" {
 			common.LogInfo1Quiet(fmt.Sprintf("Found '%s' in Procfile, running that command", args[0]))
@@ -984,6 +936,10 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 	clientset, err := NewKubernetesClient()
 	if err != nil {
 		return fmt.Errorf("Error creating kubernetes client: %w", err)
+	}
+
+	if err := clientset.Ping(); err != nil {
+		return fmt.Errorf("kubernetes api not available: %w", err)
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -1138,6 +1094,10 @@ func TriggerSchedulerRunList(scheduler string, appName string, format string) er
 		return fmt.Errorf("Error creating kubernetes client: %w", err)
 	}
 
+	if err := clientset.Ping(); err != nil {
+		return fmt.Errorf("kubernetes api not available: %w", err)
+	}
+
 	namespace := getComputedNamespace(appName)
 	cronJobs, err := clientset.ListCronJobs(ctx, ListCronJobsInput{
 		LabelSelector: fmt.Sprintf("app.kubernetes.io/part-of=%s", appName),
@@ -1199,9 +1159,26 @@ func TriggerSchedulerPostDelete(scheduler string, appName string) error {
 		return nil
 	}
 
-	if err := isK3sInstalled(); err != nil {
-		common.LogWarn(fmt.Sprintf("Skipping app deletion: %s", err.Error()))
-		return nil
+	dataErr := common.RemoveAppDataDirectory("logs", appName)
+	propertyErr := common.PropertyDestroy("logs", appName)
+
+	if dataErr != nil {
+		return dataErr
+	}
+
+	if propertyErr != nil {
+		return propertyErr
+	}
+
+	if isK3sKubernetes() {
+		if err := isK3sInstalled(); err != nil {
+			common.LogWarn("k3s is not installed, skipping")
+			return nil
+		}
+	}
+
+	if err := isKubernetesAvailable(); err != nil {
+		return fmt.Errorf("kubernetes api not available: %w", err)
 	}
 
 	namespace := getComputedNamespace(appName)
@@ -1224,11 +1201,6 @@ func TriggerSchedulerStop(scheduler string, appName string) error {
 		return nil
 	}
 
-	if err := isK3sInstalled(); err != nil {
-		common.LogWarn(fmt.Sprintf("Skipping app stop: %s", err.Error()))
-		return nil
-	}
-
 	ctx, cancel := context.WithCancel(context.Background())
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, os.Interrupt, syscall.SIGHUP,
@@ -1242,7 +1214,17 @@ func TriggerSchedulerStop(scheduler string, appName string) error {
 
 	clientset, err := NewKubernetesClient()
 	if err != nil {
+		if isK3sKubernetes() {
+			if err := isK3sInstalled(); err != nil {
+				common.LogWarn("k3s is not installed, skipping")
+				return nil
+			}
+		}
 		return fmt.Errorf("Error creating kubernetes client: %w", err)
+	}
+
+	if err := clientset.Ping(); err != nil {
+		return fmt.Errorf("kubernetes api not available: %w", err)
 	}
 
 	namespace := getComputedNamespace(appName)

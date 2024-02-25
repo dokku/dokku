@@ -111,7 +111,8 @@ spec:
             workingDir: {{ $.Values.global.image.working_dir }}
             {{- end }}
           {{- if $.Values.global.image.image_pull_secrets }}
-          imagePullSecrets: {{ $.Values.global.image.image_pull_secrets }}
+          imagePullSecrets:
+          - name: {{ $.Values.global.image.image_pull_secrets }}
           {{- end }}
           restartPolicy: Never
           serviceAccountName: {{ $.Values.global.app_name }}

@@ -26,8 +26,7 @@ Additional commands:`
     network:rebuild <app>, Rebuilds network settings for an app
     network:rebuildall, Rebuild network settings for all apps
     network:report [<app>] [<flag>], Displays a network report for one or more apps
-    network:set <app> <property> (<value>...), Set or clear a network property for an app
-`
+    network:set <app> <property> (<value>...), Set or clear a network property for an app`
 )
 
 func main() {
@@ -40,10 +39,8 @@ func main() {
 		usage()
 	case "help":
 		result, err := common.CallExecCommand(common.ExecCommandInput{
-			Command:       "ps",
-			Args:          []string{"-o", "command=", strconv.Itoa(os.Getppid())},
-			CaptureOutput: true,
-			StreamStdio:   false,
+			Command: "ps",
+			Args:    []string{"-o", "command=", strconv.Itoa(os.Getppid())},
 		})
 		if err == nil && strings.Contains(result.StdoutContents(), "--all") {
 			fmt.Println(helpContent)

@@ -45,6 +45,7 @@ type GlobalValues struct {
 type GlobalImage struct {
 	ImagePullSecrets string `yaml:"image_pull_secrets"`
 	Name             string `yaml:"name"`
+	PullSecretBase64 string `yaml:"pull_secret_base64"`
 	Type             string `yaml:"type"`
 	WorkingDir       string `yaml:"working_dir"`
 }
@@ -161,12 +162,11 @@ type ProcessCron struct {
 }
 
 type ProcessPortMap struct {
-	ContainerPort   int32           `yaml:"container_port"`
-	HostPort        int32           `yaml:"host_port"`
-	Scheme          string          `yaml:"scheme"`
-	Protocol        PortmapProtocol `yaml:"protocol"`
-	Name            string          `yaml:"name"`
-	RedirectToHttps bool            `yaml:"redirect_to_https"`
+	ContainerPort int32           `yaml:"container_port"`
+	HostPort      int32           `yaml:"host_port"`
+	Scheme        string          `yaml:"scheme"`
+	Protocol      PortmapProtocol `yaml:"protocol"`
+	Name          string          `yaml:"name"`
 }
 
 type PortmapProtocol string

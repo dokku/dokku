@@ -29,7 +29,7 @@ require (
 	github.com/ryanuber/columnize v2.1.2+incompatible // indirect
 	golang.org/x/crypto v0.19.0 // indirect
 	golang.org/x/sys v0.17.0 // indirect
-	mvdan.cc/sh/v3 v3.7.0 // indirect
+	mvdan.cc/sh/v3 v3.8.0 // indirect
 )
 
 replace github.com/dokku/dokku/plugins/app-json => ../app-json

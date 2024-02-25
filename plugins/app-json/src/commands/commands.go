@@ -19,8 +19,7 @@ Additional commands:`
 
 	helpContent = `
     app-json:report [<app>] [<flag>], Displays a app-json report for one or more apps
-    app-json:set <app> <property> (<value>), Set or clear a app-json property for an app
-`
+    app-json:set <app> <property> (<value>), Set or clear a app-json property for an app`
 )
 
 func main() {
@@ -33,10 +32,8 @@ func main() {
 		usage()
 	case "help":
 		result, err := common.CallExecCommand(common.ExecCommandInput{
-			Command:       "ps",
-			Args:          []string{"-o", "command=", strconv.Itoa(os.Getppid())},
-			CaptureOutput: true,
-			StreamStdio:   false,
+			Command: "ps",
+			Args:    []string{"-o", "command=", strconv.Itoa(os.Getppid())},
 		})
 		if err == nil && strings.Contains(result.StdoutContents(), "--all") {
 			fmt.Println(helpContent)

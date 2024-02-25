@@ -15,17 +15,25 @@ import (
 )
 
 func deleteCrontab() error {
-	command := common.NewShellCmd("sudo /usr/bin/crontab -l -u dokku")
-	command.ShowOutput = false
-	if !command.Execute() {
+	result, err := common.CallExecCommand(common.ExecCommandInput{
+		Command: "/usr/bin/crontab",
+		Args:    []string{"-l", "-u", "dokku"},
+		Sudo:    true,
+	})
+	if err != nil || result.ExitCode != 0 {
 		return nil
 	}
 
-	command = common.NewShellCmd("sudo /usr/bin/crontab -r -u dokku")
-	command.ShowOutput = false
-	out, err := command.CombinedOutput()
+	result, err = common.CallExecCommand(common.ExecCommandInput{
+		Command: "/usr/bin/crontab",
+		Args:    []string{"-r", "-u", "dokku"},
+		Sudo:    true,
+	})
 	if err != nil {
-		return fmt.Errorf("Unable to remove schedule file: %v", string(out))
+		return fmt.Errorf("Unable to remove schedule file: %w", err)
+	}
+	if result.ExitCode != 0 {
+		return fmt.Errorf("Unable to remove schedule file: %s", result.StderrContents())
 	}
 
 	common.LogInfo1("Removed")
@@ -139,11 +147,16 @@ func writeCronEntries() error {
 		return fmt.Errorf("Unable to template out schedule file: %v", err)
 	}
 
-	command := common.NewShellCmd(fmt.Sprintf("sudo /usr/bin/crontab -u dokku %s", tmpFile.Name()))
-	command.ShowOutput = false
-	out, err := command.CombinedOutput()
+	result, err := common.CallExecCommand(common.ExecCommandInput{
+		Command: "/usr/bin/crontab",
+		Args:    []string{"-u", "dokku", tmpFile.Name()},
+		Sudo:    true,
+	})
 	if err != nil {
-		return fmt.Errorf("Unable to update schedule file: %s", string(out))
+		return fmt.Errorf("Unable to update schedule file: %w", err)
+	}
+	if result.ExitCode != 0 {
+		return fmt.Errorf("Unable to update schedule file: %s", result.StderrContents())
 	}
 
 	common.LogInfo1("Updated schedule file")

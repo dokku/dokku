@@ -28,8 +28,7 @@ Additional commands:`
     apps:locked <app>, Checks if an app is locked for deployment
     apps:rename <old-app> <new-app>, Rename an app
     apps:report [<app>] [<flag>], Display report about an app
-    apps:unlock <app>, Unlocks an app for deployment
-`
+    apps:unlock <app>, Unlocks an app for deployment`
 )
 
 func main() {
@@ -50,10 +49,8 @@ func main() {
 		usage()
 	case "help":
 		result, err := common.CallExecCommand(common.ExecCommandInput{
-			Command:       "ps",
-			Args:          []string{"-o", "command=", strconv.Itoa(os.Getppid())},
-			CaptureOutput: true,
-			StreamStdio:   false,
+			Command: "ps",
+			Args:    []string{"-o", "command=", strconv.Itoa(os.Getppid())},
 		})
 		if err == nil && strings.Contains(result.StdoutContents(), "--all") {
 			fmt.Println(helpContent)

@@ -2,6 +2,7 @@ package ports
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
@@ -29,6 +30,16 @@ func CommandAdd(appName string, portMapStrings []string) error {
 	portMaps, err := parsePortMapString(strings.Join(portMapStrings, " "))
 	if err != nil {
 		return err
+	}
+
+	if err := reusesSchemeHostPort(portMaps); err != nil {
+		return fmt.Errorf("Error validating new port mappings: %s", err)
+	}
+
+	existingPortMaps := getPortMaps(appName)
+	allPortMaps := append(existingPortMaps, portMaps...)
+	if err := reusesSchemeHostPort(allPortMaps); err != nil {
+		return fmt.Errorf("Error validating all port mappings: %s", err)
 	}
 
 	if err := addPortMaps(appName, portMaps); err != nil {
@@ -86,6 +97,10 @@ func CommandSet(appName string, portMapStrings []string) error {
 	portMaps, err := parsePortMapString(strings.Join(portMapStrings, " "))
 	if err != nil {
 		return err
+	}
+
+	if err := reusesSchemeHostPort(portMaps); err != nil {
+		return fmt.Errorf("Error validating port mappings: %s", err)
 	}
 
 	if err := setPortMaps(appName, portMaps); err != nil {

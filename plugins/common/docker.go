@@ -1,14 +1,10 @@
 package common
 
 import (
-	"bytes"
-	"errors"
 	"fmt"
 	"os"
 	"strings"
 	"time"
-
-	"github.com/codeskyblue/go-sh"
 )
 
 // ContainerIsRunning checks to see if a container is running
@@ -21,40 +17,54 @@ func ContainerIsRunning(containerID string) bool {
 }
 
 // ContainerStart runs 'docker container start' against an existing container
-// whether that container is running or not
 func ContainerStart(containerID string) bool {
-	cmd := sh.Command(DockerBin(), "container", "start", containerID)
-	cmd.Stdout = nil
-	cmd.Stderr = nil
-	if err := cmd.Run(); err != nil {
+	result, err := CallExecCommand(ExecCommandInput{
+		Command:      DockerBin(),
+		Args:         []string{"container", "start", containerID},
+		StreamStderr: true,
+	})
+	if err != nil {
 		return false
 	}
-
-	return true
+	return result.ExitCode == 0
 }
 
 // ContainerRemove runs 'docker container remove' against an existing container
 func ContainerRemove(containerID string) bool {
-	cmd := sh.Command(DockerBin(), "container", "remove", "-f", containerID)
-	cmd.Stdout = nil
-	cmd.Stderr = nil
-	if err := cmd.Run(); err != nil {
+	result, err := CallExecCommand(ExecCommandInput{
+		Command:      DockerBin(),
+		Args:         []string{"container", "remove", "-f", containerID},
+		StreamStderr: true,
+	})
+	if err != nil {
 		return false
 	}
-
-	return true
+	return result.ExitCode == 0
 }
 
 // ContainerExists checks to see if a container exists
 func ContainerExists(containerID string) bool {
-	cmd := sh.Command(DockerBin(), "container", "inspect", containerID)
-	cmd.Stdout = nil
-	cmd.Stderr = nil
-	if err := cmd.Run(); err != nil {
+	result, err := CallExecCommand(ExecCommandInput{
+		Command: DockerBin(),
+		Args:    []string{"container", "inspect", containerID},
+	})
+	if err != nil {
 		return false
 	}
+	return result.ExitCode == 0
+}
 
-	return true
+// ContainerWait runs 'docker container wait' against an existing container
+func ContainerWait(containerID string) bool {
+	result, err := CallExecCommand(ExecCommandInput{
+		Command:      DockerBin(),
+		Args:         []string{"container", "wait", containerID},
+		StreamStderr: true,
+	})
+	if err != nil {
+		return false
+	}
+	return result.ExitCode == 0
 }
 
 // ContainerWaitTilReady will wait timeout seconds and then check if a container is running
@@ -96,32 +106,20 @@ func CopyFromImage(appName string, image string, source string, destination stri
 	if err != nil {
 		return fmt.Errorf("Unable to create temporary container: %v", err)
 	}
+	defer ContainerRemove(containerID)
 
 	// docker cp exits with status 1 when run as non-root user when it tries to chown the file
 	// after successfully copying the file. Thus, we suppress stderr.
 	// ref: https://github.com/dotcloud/docker/issues/3986
-	containerCopyCmd := NewShellCmd(strings.Join([]string{
-		DockerBin(),
-		"container",
-		"cp",
-		fmt.Sprintf("%s:%s", containerID, source),
-		tmpFile.Name(),
-	}, " "))
-	containerCopyCmd.ShowOutput = false
-	fileCopied := containerCopyCmd.Execute()
-
-	containerRemoveCmd := NewShellCmd(strings.Join([]string{
-		DockerBin(),
-		"container",
-		"rm",
-		"--force",
-		containerID,
-	}, " "))
-	containerRemoveCmd.ShowOutput = false
-	containerRemoveCmd.Execute()
-
-	if !fileCopied {
-		return fmt.Errorf("Unable to copy file %s from image", source)
+	result, err := CallExecCommand(ExecCommandInput{
+		Command: DockerBin(),
+		Args:    []string{"container", "cp", fmt.Sprintf("%s:%s", containerID, source), tmpFile.Name()},
+	})
+	if err != nil {
+		return fmt.Errorf("Unable to copy file %s from image: %w", source, err)
+	}
+	if result.ExitCode != 0 {
+		return fmt.Errorf("Unable to copy file %s from image: %v", source, result.StderrContents())
 	}
 
 	fi, err := os.Stat(tmpFile.Name())
@@ -134,19 +132,21 @@ func CopyFromImage(appName string, image string, source string, destination stri
 	}
 
 	// workaround when owner is root. seems to only happen when running inside docker
-	dos2unixCmd := NewShellCmd(strings.Join([]string{
-		"dos2unix",
-		"-l",
-		"-n",
-		tmpFile.Name(),
-		destination,
-	}, " "))
-	dos2unixCmd.ShowOutput = false
-	dos2unixCmd.Execute()
+	CallExecCommand(ExecCommandInput{
+		Command: "dos2unix",
+		Args:    []string{"-l", "-n", tmpFile.Name(), destination},
+	}) // nolint: errcheck
 
 	// add trailing newline for certain places where file parsing depends on it
-	b, err := sh.Command("tail", "-c1", destination).Output()
-	if string(b) != "" {
+	result, err = CallExecCommand(ExecCommandInput{
+		Command: "tail",
+		Args:    []string{"-c1", destination},
+	})
+	if err != nil || result.ExitCode != 0 {
+		return fmt.Errorf("Unable to append trailing newline to copied file: %v", result.Stderr)
+	}
+
+	if result.Stdout != "" {
 		f, err := os.OpenFile(destination, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
 			return err
@@ -225,34 +225,39 @@ func DockerCleanup(appName string, forceCleanup bool) error {
 
 // DockerContainerCreate creates a new container and returns the container ID
 func DockerContainerCreate(image string, containerCreateArgs []string) (string, error) {
-	cmd := []string{
-		DockerBin(),
+	args := []string{
 		"container",
 		"create",
 	}
 
-	cmd = append(cmd, containerCreateArgs...)
-	cmd = append(cmd, image)
+	args = append(args, containerCreateArgs...)
+	args = append(args, image)
 
-	var stderr bytes.Buffer
-	containerCreateCmd := NewShellCmd(strings.Join(cmd, " "))
-	containerCreateCmd.ShowOutput = false
-	containerCreateCmd.Command.Stderr = &stderr
-	b, err := containerCreateCmd.Output()
+	result, err := CallExecCommand(ExecCommandInput{
+		Command: DockerBin(),
+		Args:    args,
+	})
 	if err != nil {
-		return "", errors.New(strings.TrimSpace(stderr.String()))
+		return "", fmt.Errorf("Unable to create container: %w", err)
+	}
+	if result.ExitCode != 0 {
+		return "", fmt.Errorf("Unable to create container: %s", result.StderrContents())
 	}
 
-	return strings.TrimSpace(string(b[:])), nil
+	return result.StdoutContents(), nil
 }
 
 // DockerInspect runs an inspect command with a given format against a container or image ID
 func DockerInspect(containerOrImageID, format string) (output string, err error) {
-	b, err := sh.Command(DockerBin(), "inspect", "--format", format, containerOrImageID).Output()
+	result, err := CallExecCommand(ExecCommandInput{
+		Command: DockerBin(),
+		Args:    []string{"inspect", "--format", format, containerOrImageID},
+	})
 	if err != nil {
 		return "", err
 	}
-	output = strings.TrimSpace(string(b[:]))
+
+	output = result.StdoutContents()
 	if strings.HasPrefix(output, "'") && strings.HasSuffix(output, "'") {
 		output = strings.TrimSuffix(strings.TrimPrefix(output, "'"), "'")
 	}
@@ -273,9 +278,8 @@ func GetWorkingDir(appName string, image string) string {
 
 func IsComposeInstalled() bool {
 	result, err := CallExecCommand(ExecCommandInput{
-		Command:       DockerBin(),
-		Args:          []string{"info", "--format", "{{range .ClientInfo.Plugins}}{{if eq .Name \"compose\"}}true{{end}}{{end}}')"},
-		CaptureOutput: true,
+		Command: DockerBin(),
+		Args:    []string{"info", "--format", "{{range .ClientInfo.Plugins}}{{if eq .Name \"compose\"}}true{{end}}{{end}}')"},
 	})
 	return err == nil && result.ExitCode == 0
 }
@@ -337,21 +341,22 @@ func RemoveImages(imageIDs []string) error {
 		return nil
 	}
 
-	command := []string{
-		DockerBin(),
+	args := []string{
 		"image",
 		"rm",
 	}
 
-	command = append(command, imageIDs...)
+	args = append(args, imageIDs...)
 
-	var stderr bytes.Buffer
-	rmCmd := NewShellCmd(strings.Join(command, " "))
-	rmCmd.ShowOutput = false
-	rmCmd.Command.Stderr = &stderr
-	rmCmd.Execute()
-	if _, err := rmCmd.Output(); err != nil {
-		return errors.New(strings.TrimSpace(stderr.String()))
+	result, err := CallExecCommand(ExecCommandInput{
+		Command: DockerBin(),
+		Args:    args,
+	})
+	if err != nil {
+		return fmt.Errorf("Unable to remove images: %w", err)
+	}
+	if result.ExitCode != 0 {
+		return fmt.Errorf("Unable to remove images: %s", result.StderrContents())
 	}
 
 	return nil
@@ -359,15 +364,16 @@ func RemoveImages(imageIDs []string) error {
 
 // VerifyImage returns true if docker image exists in local repo
 func VerifyImage(image string) bool {
-	imageCmd := NewShellCmd(strings.Join([]string{DockerBin(), "image", "inspect", image}, " "))
-	imageCmd.ShowOutput = false
-	return imageCmd.Execute()
+	result, err := CallExecCommand(ExecCommandInput{
+		Command: DockerBin(),
+		Args:    []string{"image", "inspect", image},
+	})
+	return err == nil && result.ExitCode == 0
 }
 
 // DockerFilterContainers returns a slice of container IDs based on the passed in filters
 func DockerFilterContainers(filters []string) ([]string, error) {
-	command := []string{
-		DockerBin(),
+	args := []string{
 		"container",
 		"ls",
 		"--quiet",
@@ -375,27 +381,27 @@ func DockerFilterContainers(filters []string) ([]string, error) {
 	}
 
 	for _, filter := range filters {
-		command = append(command, "--filter", filter)
+		args = append(args, "--filter", filter)
 	}
 
-	var stderr bytes.Buffer
-	listCmd := NewShellCmd(strings.Join(command, " "))
-	listCmd.ShowOutput = false
-	listCmd.Command.Stderr = &stderr
-	b, err := listCmd.Output()
-
+	result, err := CallExecCommand(ExecCommandInput{
+		Command: DockerBin(),
+		Args:    args,
+	})
 	if err != nil {
-		return []string{}, errors.New(strings.TrimSpace(stderr.String()))
+		return []string{}, fmt.Errorf("Unable to filter containers: %w", err)
+	}
+	if result.ExitCode != 0 {
+		return []string{}, fmt.Errorf("Unable to filter containers: %s", result.StderrContents())
 	}
 
-	output := strings.Split(strings.TrimSpace(string(b[:])), "\n")
+	output := strings.Split(result.StdoutContents(), "\n")
 	return output, nil
 }
 
 // DockerFilterImages returns a slice of image IDs based on the passed in filters
 func DockerFilterImages(filters []string) ([]string, error) {
-	command := []string{
-		DockerBin(),
+	args := []string{
 		"image",
 		"ls",
 		"--quiet",
@@ -403,20 +409,21 @@ func DockerFilterImages(filters []string) ([]string, error) {
 	}
 
 	for _, filter := range filters {
-		command = append(command, "--filter", filter)
+		args = append(args, "--filter", filter)
 	}
 
-	var stderr bytes.Buffer
-	listCmd := NewShellCmd(strings.Join(command, " "))
-	listCmd.ShowOutput = false
-	listCmd.Command.Stderr = &stderr
-	b, err := listCmd.Output()
-
+	result, err := CallExecCommand(ExecCommandInput{
+		Command: DockerBin(),
+		Args:    args,
+	})
 	if err != nil {
-		return []string{}, errors.New(strings.TrimSpace(stderr.String()))
+		return []string{}, fmt.Errorf("Unable to filter images: %w", err)
+	}
+	if result.ExitCode != 0 {
+		return []string{}, fmt.Errorf("Unable to filter images: %s", result.StderrContents())
 	}
 
-	output := strings.Split(strings.TrimSpace(string(b[:])), "\n")
+	output := strings.Split(result.StdoutContents(), "\n")
 	return output, nil
 }
 
@@ -433,8 +440,7 @@ func listContainers(status string, appName string) ([]string, error) {
 }
 
 func pruneUnusedImages(appName string) {
-	command := []string{
-		DockerBin(),
+	args := []string{
 		"image",
 		"prune",
 		"--all",
@@ -443,26 +449,23 @@ func pruneUnusedImages(appName string) {
 		fmt.Sprintf("label=com.dokku.app-name=%v", appName),
 	}
 
-	var stderr bytes.Buffer
-	pruneCmd := NewShellCmd(strings.Join(command, " "))
-	pruneCmd.ShowOutput = false
-	pruneCmd.Command.Stderr = &stderr
-	pruneCmd.Execute()
+	CallExecCommand(ExecCommandInput{
+		Command: DockerBin(),
+		Args:    args,
+	}) // nolint: errcheck
 }
 
 // DockerRemoveContainers will call `docker container rm` on the specified containers
 func DockerRemoveContainers(containerIDs []string) {
-	command := []string{
-		DockerBin(),
+	args := []string{
 		"container",
 		"rm",
 	}
 
-	command = append(command, containerIDs...)
+	args = append(args, containerIDs...)
 
-	var stderr bytes.Buffer
-	rmCmd := NewShellCmd(strings.Join(command, " "))
-	rmCmd.ShowOutput = false
-	rmCmd.Command.Stderr = &stderr
-	rmCmd.Execute()
+	CallExecCommand(ExecCommandInput{
+		Command: DockerBin(),
+		Args:    args,
+	}) // nolint: errcheck
 }
