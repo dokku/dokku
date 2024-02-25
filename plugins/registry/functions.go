@@ -111,7 +111,6 @@ func pushToRegistry(appName string, tag int, imageID string, imageRepo string) e
 		extraTagsArray := strings.Split(extraTags, ",")
 		for _, extraTag := range extraTagsArray {
 			extraTagImage := fmt.Sprintf("%s%s:%s", registryServer, imageRepo, extraTag)
-			imagesToRemove = append(imagesToRemove, extraTagImage)
 			common.LogVerboseQuiet(fmt.Sprintf("Tagging %s as %s in registry format", imageRepo, extraTag))
 			if !dockerTag(imageID, extraTagImage) {
 				return errors.New(fmt.Sprintf("Unable to tag image as %s", extraTag))
