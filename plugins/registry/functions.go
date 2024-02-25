@@ -111,8 +111,10 @@ func pushToRegistry(appName string, tag int, imageID string, imageRepo string) e
 	extraTags := getRegistryPushExtraTagsForApp(appName)
 	if extraTags != "" {
 		extraTagsArray := strings.Split(extraTags, ",")
+		imagesToRemove := []string{}
 		for _, extraTag := range extraTagsArray {
 			extraTagImage := fmt.Sprintf("%s%s:%s", registryServer, imageRepo, extraTag)
+			imagesToRemove = append(imagesToRemove, extraTagImage)
 			common.LogVerboseQuiet(fmt.Sprintf("Tagging %s as %s in registry format", imageRepo, extraTag))
 			if !dockerTag(imageID, extraTagImage) {
 				return errors.New(fmt.Sprintf("Unable to tag image as %s", extraTag))
@@ -120,7 +122,7 @@ func pushToRegistry(appName string, tag int, imageID string, imageRepo string) e
 			func() {
 				defer func() {
 					common.LogVerboseQuiet(fmt.Sprintf("Untagging extra tag %s", extraTag))
-					if !dockerRemoveTag(extraTagImage) {
+					if !common.RemoveImages(imagesToRemove) {
 						common.LogWarn(fmt.Sprintf("Unable to untag extra tag %s", extraTag))
 					}
 				}()
@@ -154,17 +156,6 @@ func pushToRegistry(appName string, tag int, imageID string, imageRepo string) e
 
 func dockerTag(imageID string, imageTag string) bool {
 	cmd := sh.Command(common.DockerBin(), "image", "tag", imageID, imageTag)
-	cmd.Stdout = nil
-	cmd.Stderr = nil
-	if err := cmd.Run(); err != nil {
-		return false
-	}
-
-	return true
-}
-
-func dockerRemoveTag(image string) bool {
-	cmd := sh.Command(common.DockerBin(), "image", "remove", image)
 	cmd.Stdout = nil
 	cmd.Stderr = nil
 	if err := cmd.Run(); err != nil {
