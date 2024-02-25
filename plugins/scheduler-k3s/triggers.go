@@ -179,7 +179,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 				return fmt.Errorf("Error reading docker config: %w", err)
 			}
 
-			imagePullSecrets = fmt.Sprintf("image-pull-%s.%d", appName, deploymentId)
+			imagePullSecrets = fmt.Sprintf("%s.ims.%d", appName, deploymentId)
 			pullSecretBase64 = base64.StdEncoding.EncodeToString(b)
 		}
 	}
