@@ -6,9 +6,14 @@ import (
 
 // PortMap is a struct that contains a scheme:host-port:container-port mapping
 type PortMap struct {
-	ContainerPort int    `json:"container_port"`
-	HostPort      int    `json:"host_port"`
-	Scheme        string `json:"scheme"`
+	// ContainerPort is the port on the container
+	ContainerPort int `json:"container_port"`
+
+	// HostPort is the port on the host
+	HostPort int `json:"host_port"`
+
+	// Scheme is the scheme of the port mapping
+	Scheme string `json:"scheme"`
 }
 
 func (p PortMap) String() string {

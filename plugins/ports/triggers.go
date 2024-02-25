@@ -87,6 +87,8 @@ func TriggerPortsGet(appName string, format string) error {
 		persisted = append(persisted, portMap)
 	}
 
+	persisted = uniquePortMaps(persisted)
+
 	if format == "json" {
 		b, err := json.Marshal(persisted)
 		if err != nil {
@@ -206,6 +208,8 @@ func TriggerPostCertsUpdate(appName string) error {
 			http80Ports = append(http80Ports, portMap)
 		}
 	}
+
+	http80Ports = uniquePortMaps(http80Ports)
 
 	if len(http80Ports) > 0 {
 		var https443Ports []PortMap

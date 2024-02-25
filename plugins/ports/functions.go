@@ -14,6 +14,7 @@ import (
 	"github.com/ryanuber/columnize"
 )
 
+// addPortMaps adds port mappings to an app
 func addPortMaps(appName string, portMaps []PortMap) error {
 	allPortMaps := getPortMaps(appName)
 	allPortMaps = append(allPortMaps, portMaps...)
@@ -21,6 +22,7 @@ func addPortMaps(appName string, portMaps []PortMap) error {
 	return setPortMaps(appName, allPortMaps)
 }
 
+// clearPorts clears all port mappings for an app
 func clearPorts(appName string) error {
 	if err := common.PropertyDelete("ports", appName, "map"); err != nil {
 		return err
@@ -29,6 +31,7 @@ func clearPorts(appName string) error {
 	return common.PropertyDelete("ports", appName, "map-detected")
 }
 
+// doesCertExist checks if a cert exists for an app
 func doesCertExist(appName string) bool {
 	certsExists, _ := common.PlugnTriggerOutputAsString("certs-exists", []string{appName}...)
 	if certsExists == "true" {
@@ -39,6 +42,7 @@ func doesCertExist(appName string) bool {
 	return certsForce == "true"
 }
 
+// filterAppPortMaps filters the port mappings for an app
 func filterAppPortMaps(appName string, scheme string, hostPort int) []PortMap {
 	var filteredPortMaps []PortMap
 	for _, portMap := range getPortMaps(appName) {
@@ -50,6 +54,7 @@ func filterAppPortMaps(appName string, scheme string, hostPort int) []PortMap {
 	return filteredPortMaps
 }
 
+// getAvailablePort gets an available port
 func getAvailablePort() int {
 	addr, err := net.ResolveTCPAddr("tcp", "localhost:0")
 	if err != nil {
@@ -70,6 +75,7 @@ func getAvailablePort() int {
 	}
 }
 
+// getComputedProxyPort gets the computed proxy port for an app
 func getComputedProxyPort(appName string) int {
 	port := getProxyPort(appName)
 	if port == 0 {
@@ -79,6 +85,7 @@ func getComputedProxyPort(appName string) int {
 	return port
 }
 
+// getComputedProxySSLPort gets the computed proxy ssl port for an app
 func getComputedProxySSLPort(appName string) int {
 	port := getProxySSLPort(appName)
 	if port == 0 {
@@ -88,6 +95,7 @@ func getComputedProxySSLPort(appName string) int {
 	return port
 }
 
+// getDetectedPortMaps gets the detected port mappings for an app
 func getDetectedPortMaps(appName string) []PortMap {
 	basePort := getComputedProxyPort(appName)
 	if basePort == 0 {
@@ -145,6 +153,7 @@ func getDetectedPortMaps(appName string) []PortMap {
 	return portMaps
 }
 
+// getGlobalProxyPort gets the global proxy port
 func getGlobalProxyPort() int {
 	port := 0
 	b, _ := common.PlugnTriggerOutput("config-get-global", []string{"DOKKU_PROXY_PORT"}...)
@@ -155,6 +164,7 @@ func getGlobalProxyPort() int {
 	return port
 }
 
+// getGlobalProxySSLPort gets the global proxy ssl port
 func getGlobalProxySSLPort() int {
 	port := 0
 	b, _ := common.PlugnTriggerOutput("config-get-global", []string{"DOKKU_PROXY_SSL_PORT"}...)
@@ -165,6 +175,7 @@ func getGlobalProxySSLPort() int {
 	return port
 }
 
+// getPortMaps gets the port mappings for an app
 func getPortMaps(appName string) []PortMap {
 	value, err := common.PropertyListGet("ports", appName, "map")
 	if err != nil {
@@ -175,6 +186,7 @@ func getPortMaps(appName string) []PortMap {
 	return portMaps
 }
 
+// getProxyPort gets the proxy port for an app
 func getProxyPort(appName string) int {
 	port := 0
 	b, _ := common.PlugnTriggerOutput("config-get", []string{appName, "DOKKU_PROXY_PORT"}...)
@@ -185,6 +197,7 @@ func getProxyPort(appName string) int {
 	return port
 }
 
+// getProxySSLPort gets the proxy ssl port for an app
 func getProxySSLPort(appName string) int {
 	port := 0
 	b, _ := common.PlugnTriggerOutput("config-get", []string{appName, "DOKKU_PROXY_SSL_PORT"}...)
@@ -195,6 +208,7 @@ func getProxySSLPort(appName string) int {
 	return port
 }
 
+// initializeProxyPort initializes the proxy port for an app
 func initializeProxyPort(appName string) error {
 	port := getProxyPort(appName)
 	if port != 0 {
@@ -219,6 +233,7 @@ func initializeProxyPort(appName string) error {
 	return nil
 }
 
+// initializeProxySSLPort initializes the proxy ssl port for an app
 func initializeProxySSLPort(appName string) error {
 	port := getProxySSLPort(appName)
 	if port != 0 {
@@ -246,10 +261,12 @@ func initializeProxySSLPort(appName string) error {
 	return nil
 }
 
+// inRange checks if a value is within a range
 func inRange(value int, min int, max int) bool {
 	return min < value && value < max
 }
 
+// isAppVhostEnabled checks if the app vhost is enabled
 func isAppVhostEnabled(appName string) bool {
 	if err := common.PlugnTrigger("domains-vhost-enabled", []string{appName}...); err != nil {
 		return false
@@ -257,6 +274,7 @@ func isAppVhostEnabled(appName string) bool {
 	return true
 }
 
+// listAppPortMaps lists the port mappings for an app
 func listAppPortMaps(appName string) error {
 	portMaps := getPortMaps(appName)
 
@@ -283,6 +301,7 @@ func listAppPortMaps(appName string) error {
 	return nil
 }
 
+// parsePortMapString parses a port map string into a slice of PortMap structs
 func parsePortMapString(stringPortMap string) ([]PortMap, error) {
 	var portMaps []PortMap
 
@@ -337,6 +356,7 @@ func parsePortMapString(stringPortMap string) ([]PortMap, error) {
 	return uniquePortMaps(portMaps), nil
 }
 
+// removePortMaps removes specific port mappings from an app
 func removePortMaps(appName string, portMaps []PortMap) error {
 	toRemove := map[string]bool{}
 	toRemoveByPort := map[int]bool{}
@@ -369,6 +389,22 @@ func removePortMaps(appName string, portMaps []PortMap) error {
 	return setPortMaps(appName, toSet)
 }
 
+// reusesSchemeHostPort returns true if the port maps reuse the same scheme:host-port
+func reusesSchemeHostPort(portMaps []PortMap) error {
+	found := map[string]bool{}
+
+	for _, portMap := range portMaps {
+		key := fmt.Sprintf("%s:%d", portMap.Scheme, portMap.HostPort)
+		if found[key] {
+			return fmt.Errorf("The same scheme:host-port is being reused: %s", key)
+		}
+		found[key] = true
+	}
+
+	return nil
+}
+
+// setPortMaps sets the port maps for an app
 func setPortMaps(appName string, portMaps []PortMap) error {
 	var value []string
 	for _, portMap := range uniquePortMaps(portMaps) {
@@ -383,6 +419,7 @@ func setPortMaps(appName string, portMaps []PortMap) error {
 	return common.PropertyListWrite("ports", appName, "map", value)
 }
 
+// setProxyPort sets the proxy port for an app
 func setProxyPort(appName string, port int) error {
 	return common.EnvWrap(func() error {
 		entries := map[string]string{
@@ -392,6 +429,7 @@ func setProxyPort(appName string, port int) error {
 	}, map[string]string{"DOKKU_QUIET_OUTPUT": "1"})
 }
 
+// setProxySSLPort sets the proxy ssl port for an app
 func setProxySSLPort(appName string, port int) error {
 	return common.EnvWrap(func() error {
 		entries := map[string]string{
@@ -401,18 +439,20 @@ func setProxySSLPort(appName string, port int) error {
 	}, map[string]string{"DOKKU_QUIET_OUTPUT": "1"})
 }
 
+// uniquePortMaps returns a unique set of port maps
 func uniquePortMaps(portMaps []PortMap) []PortMap {
-	var unique []PortMap
-	existingPortMaps := map[string]bool{}
+	uniquePortMaps := []PortMap{}
+	found := map[string]bool{}
 
 	for _, portMap := range portMaps {
-		if existingPortMaps[portMap.String()] {
+		key := fmt.Sprintf("%s:%d", portMap.Scheme, portMap.HostPort)
+		if found[key] {
 			continue
 		}
 
-		existingPortMaps[portMap.String()] = true
-		unique = append(unique, portMap)
+		found[key] = true
+		uniquePortMaps = append(uniquePortMaps, portMap)
 	}
 
-	return unique
+	return uniquePortMaps
 }

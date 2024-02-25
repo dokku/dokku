@@ -54,6 +54,26 @@ teardown() {
   echo "status: $status"
   assert_success
 
+  run /bin/bash -c "dokku ports:set $TEST_APP http:8080:5000 https:8443:5000 http:1234:5001 http:1234:5002"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku ports:add $TEST_APP http:12345:5003 http:12345:5004"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku ports:add $TEST_APP http:1234:5003 http:12345:5004"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku ports:add $TEST_APP http:1234:5001"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
   run /bin/bash -c "dokku --quiet ports:report $TEST_APP --ports-map"
   echo "output: $output"
   echo "status: $status"
