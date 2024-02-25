@@ -32,20 +32,6 @@ dokku scheduler:set node-js-app selected
 
 Many builders only produce amd64-compatible images. The docker-local scheduler will automatically detect these and run them via the `--platform=linux/amd64` on arm64 deploy targets.
 
-### Disabling chown of persistent storage
-
-The `scheduler-docker-local` plugin will ensure your storage mounts are owned by either `herokuishuser` or the overridden value you have set in `DOKKU_APP_USER`. You may disable this by running the following `scheduler-docker-local:set` command for your application:
-
-```shell
-dokku scheduler-docker-local:set node-js-app disable-chown true
-```
-
-Once set, you may re-enable it by setting a blank value for `disable-chown`:
-
-```shell
-dokku scheduler-docker-local:set node-js-app disable-chown
-```
-
 ### Disabling the init process
 
 The `scheduler-docker-local` injects an init process by default via the `--init`. For some apps - such as those where the built docker image uses S6 as the init - this may be undesirable and cause issues with process starts. You may disable this by running the following `scheduler-docker-local:set` command for your application:
