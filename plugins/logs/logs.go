@@ -25,8 +25,11 @@ var (
 	}
 )
 
-// VectorImage contains the default vector image to run
-const VectorImage = "timberio/vector:0.35.X-debian"
+// VectorDockerfile is the contents of the default Dockerfile
+// containing the version of vector Dokku uses
+//
+//go:embed Dockerfile
+var VectorDockerfile string
 
 // VectorDefaultSink contains the default sink in use for vector log shipping
 const VectorDefaultSink = "blackhole://?print_interval_secs=1"

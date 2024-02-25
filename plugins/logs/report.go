@@ -44,7 +44,7 @@ func reportGlobalMaxSize(appName string) string {
 }
 
 func reportVectorGlobalImage(appName string) string {
-	return common.PropertyGetDefault("logs", "--global", "vector-image", VectorImage)
+	return getComputedVectorImage()
 }
 
 func reportGlobalVectorSink(appName string) string {

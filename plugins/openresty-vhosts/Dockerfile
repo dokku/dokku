@@ -1,0 +1,1 @@
+FROM dokku/openresty-docker-proxy:0.6.0
