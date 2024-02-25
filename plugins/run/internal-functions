@@ -5,6 +5,8 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 fn-run() {
   declare desc="runs command in container"
+  declare CMD="$1"
+  shift 1
 
   declare APP=""
   local CRON_ID
@@ -54,6 +56,10 @@ fn-run() {
     esac
   done
 
+  if [[ "$CMD" == "run:detached" ]] && [[ "$DOKKU_FORCE_TTY" != "true" ]]; then
+    export DOKKU_DISABLE_TTY=true
+  fi
+
   if [[ "$DOKKU_DISABLE_TTY" == "true" ]] && [[ "$DOKKU_FORCE_TTY" == "true" ]]; then
     dokku_log_fail "Cannot specify both --force-tty and --no-tty"
   fi
@@ -70,7 +76,7 @@ cmd-run() {
   [[ "$1" == "$cmd" ]] && shift 1
 
   export DOKKU_RM_CONTAINER=1
-  fn-run "$@"
+  fn-run "$cmd" "$@"
 }
 
 cmd-run-detached() {
@@ -79,9 +85,8 @@ cmd-run-detached() {
   [[ "$1" == "$cmd" ]] && shift 1
 
   export DOKKU_DETACH_CONTAINER=1
-  export DOKKU_DISABLE_TTY=true
   export DOKKU_RM_CONTAINER=1
-  fn-run "$@"
+  fn-run "$cmd" "$@"
 }
 
 cmd-run-list() {
