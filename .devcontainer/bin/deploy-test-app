@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+main() {
+  declare APP="${1:-test}"
+
+  if ! dokku apps:exists $APP; then
+    dokku apps:create $APP
+  fi
+
+  dokku builder-herokuish:set $APP allowed true
+  dokku git:sync --build $APP https://github.com/dokku/smoke-test-app.git
+}
+
+main "$@"
