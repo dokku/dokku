@@ -83,7 +83,6 @@ func incrementTagVersion(appName string) (int, error) {
 
 func getRegistryPushExtraTagsForApp(appName string) string {
 	value := common.PropertyGet("registry", appName, "push-extra-tags")
-	common.LogVerboseQuiet(fmt.Sprintf("VALUE IS: %s", value))
 	if value == "" {
 		value = common.PropertyGet("registry", "--global", "push-extra-tags")
 	}
