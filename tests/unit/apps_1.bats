@@ -178,6 +178,14 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
+  run /bin/bash -c "dokku config:set --no-restart $TEST_APP KEY=VALUE-$TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  run /bin/bash -c "dokku docker-options:add $TEST_APP deploy --no-healthcheck"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
   run /bin/bash -c "dokku git:set $TEST_APP deploy-branch SOME_BRANCH_NAME"
   echo "output: $output"
   echo "status: $status"
@@ -204,6 +212,16 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output "https://github.com/heroku/heroku-buildpack-ruby.git"
+  run /bin/bash -c "dokku config:get great-test-name KEY"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "VALUE-$TEST_APP"
+  run /bin/bash -c "dokku docker-options:report great-test-name deploy --docker-options-deploy"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "--no-healthcheck"
   run /bin/bash -c "dokku git:report great-test-name --git-deploy-branch"
   echo "output: $output"
   echo "status: $status"
