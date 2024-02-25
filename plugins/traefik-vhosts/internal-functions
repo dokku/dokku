@@ -76,7 +76,7 @@ fn-traefik-dashboard-enabled() {
 }
 
 fn-traefik-image() {
-  fn-plugin-property-get-default "traefik" "--global" "image" "traefik:v2.10"
+  fn-plugin-property-get-default "traefik" "--global" "image" "$(grep "FROM" "$PLUGIN_AVAILABLE_PATH/traefik-vhosts/Dockerfile" | awk '{print $2}')"
 }
 
 fn-traefik-letsencrypt-email() {

@@ -121,6 +121,17 @@ func startVectorContainer(vectorImage string) error {
 	return nil
 }
 
+func getComputedVectorImage() string {
+	return common.PropertyGetDefault("logs", "--global", "vector-image", getDefaultVectorImage())
+}
+
+// getDefaultVectorImage returns the default image used for the vector container
+func getDefaultVectorImage() string {
+	contents := strings.TrimSpace(VectorDockerfile)
+	parts := strings.SplitN(contents, " ", 2)
+	return parts[1]
+}
+
 func stopVectorContainer() error {
 	if !common.IsComposeInstalled() {
 		return errors.New("Required docker compose plugin is not installed")
@@ -159,7 +170,7 @@ func stopVectorContainer() error {
 	data := vectorTemplateData{
 		DokkuLibRoot: dokkuLibRoot,
 		DokkuLogsDir: dokkuLogsDir,
-		VectorImage:  VectorImage,
+		VectorImage:  getComputedVectorImage(),
 	}
 
 	if err := tmpl.Execute(tmpFile, data); err != nil {
