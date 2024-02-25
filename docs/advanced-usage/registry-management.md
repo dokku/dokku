@@ -138,7 +138,7 @@ dokku registry:set --global push-on-release
 
 ### Push extra tags 
 
-To push the image on release with extra tags, set the `push-extra-tags` to a comma-separated list of tags via the `registry:set` command. The default value for this property is `false`. Setting the property will result in the image being tagged with extra tags every release.
+To push the image on release with extra tags, set the `push-extra-tags` to a comma-separated list of tags via the `registry:set` command. The default value for this property is empty. Setting the property will result in the image being tagged with extra tags every release.
 
 ```shell
 # multiple-tags
