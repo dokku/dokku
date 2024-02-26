@@ -112,6 +112,14 @@ var HelmCharts = []HelmChart{
 		RepoURL:         "https://kubernetes.github.io/ingress-nginx",
 		Version:         "4.7.5",
 	},
+	{
+		ChartPath:       "keda",
+		CreateNamespace: true,
+		Namespace:       "keda",
+		ReleaseName:     "keda",
+		RepoURL:         "https://kedacore.github.io/charts",
+		Version:         "2.13.1",
+	},
 }
 
 type HelmRepository struct {
