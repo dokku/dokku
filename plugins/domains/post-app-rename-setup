@@ -7,9 +7,9 @@ trigger-domains-post-app-rename-setup() {
   declare trigger="post-app-rename-setup"
   declare OLD_APP="$1" NEW_APP="$2"
 
-  if [[ -f "$DOKKU_ROOT/$NEW_APP/VHOST" ]]; then
+  if [[ -f "$DOKKU_ROOT/$OLD_APP/VHOST" ]]; then
     while read -r VHOST || [[ -n "$VHOST" ]]; do
-      sed -i -e "s/$OLD_APP.$VHOST/$NEW_APP.$VHOST/g" "$DOKKU_ROOT/$NEW_APP/VHOST"
+      sed -e "s/$OLD_APP.$VHOST/$NEW_APP.$VHOST/g" "$DOKKU_ROOT/$OLD_APP/VHOST" >"$DOKKU_ROOT/$NEW_APP/VHOST"
     done <"$DOKKU_ROOT/VHOST"
   fi
 }
