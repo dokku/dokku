@@ -7,9 +7,7 @@ kind: ScaledObject
 metadata:
   annotations:
     app.kubernetes.io/version: {{ $.Values.global.deploment_id | quote }}
-    dokku.com/builder-type: {{ $.Values.global.image.type }}
     dokku.com/managed: "true"
-    kubectl.kubernetes.io/default-container: {{ $.Values.global.app_name }}-{{ $processName }}
     {{- if and $.Values.global.annotations $.Values.global.annotations.keda_scaled_object }}
     {{- range $k, $v := $.Values.global.annotations.keda_scaled_object }}
     {{ $k }}: {{ $v | quote }}
@@ -21,7 +19,7 @@ metadata:
     {{- end }}
     {{- end }}
   labels:
-    app.kubernetes.io/instance: {{ $.Values.global.app_name }}-{{ $processName }}-scaled-object
+    app.kubernetes.io/instance: {{ $.Values.global.app_name }}-{{ $processName }}
     app.kubernetes.io/name: {{ $processName }}
     app.kubernetes.io/part-of: {{ $.Values.global.app_name }}
   name: {{ $.Values.global.app_name}}-{{ $processName }}
@@ -40,6 +38,8 @@ spec:
     failureThreshold: 3
     replicas: {{ $config.replicas }}
   triggers:
-  {{- toYaml $config.autoscaling.triggers | nindent 4 }}
+  {{- with $config.autoscaling.triggers }}
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
 {{- end }}
 {{- end }}

@@ -399,7 +399,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 
 		values.Processes[processType] = processValues
 
-		templateFiles := []string{"deployment", "scaled-object"}
+		templateFiles := []string{"deployment", "keda-scaled-object"}
 		if processType == "web" {
 			templateFiles = append(templateFiles, "service", "certificate", "ingress", "ingress-route", "https-redirect-middleware")
 		}

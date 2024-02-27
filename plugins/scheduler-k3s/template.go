@@ -70,18 +70,20 @@ type ProcessValues struct {
 }
 
 type ProcessAnnotations struct {
-	CertificateAnnotations         map[string]string `yaml:"certificate,omitempty"`
-	CronJobAnnotations             map[string]string `yaml:"cronjob,omitempty"`
-	DeploymentAnnotations          map[string]string `yaml:"deployment,omitempty"`
-	IngressAnnotations             map[string]string `yaml:"ingress,omitempty"`
-	JobAnnotations                 map[string]string `yaml:"job,omitempty"`
-	KedaScalingObjectAnnotations   map[string]string `yaml:"keda_scaled_object,omitempty"`
-	PodAnnotations                 map[string]string `yaml:"pod,omitempty"`
-	SecretAnnotations              map[string]string `yaml:"secret,omitempty"`
-	ServiceAccountAnnotations      map[string]string `yaml:"serviceaccount,omitempty"`
-	ServiceAnnotations             map[string]string `yaml:"service,omitempty"`
-	TraefikIngressRouteAnnotations map[string]string `yaml:"traefik_ingressroute,omitempty"`
-	TraefikMiddlewareAnnotations   map[string]string `yaml:"traefik_middleware,omitempty"`
+	CertificateAnnotations               map[string]string `yaml:"certificate,omitempty"`
+	CronJobAnnotations                   map[string]string `yaml:"cronjob,omitempty"`
+	DeploymentAnnotations                map[string]string `yaml:"deployment,omitempty"`
+	IngressAnnotations                   map[string]string `yaml:"ingress,omitempty"`
+	JobAnnotations                       map[string]string `yaml:"job,omitempty"`
+	KedaScalingObjectAnnotations         map[string]string `yaml:"keda_scaled_object,omitempty"`
+	KedaSecretAnnotations                map[string]string `yaml:"keda_secret,omitempty"`
+	KedaTriggerAuthenticationAnnotations map[string]string `yaml:"keda_trigger_authentication,omitempty"`
+	PodAnnotations                       map[string]string `yaml:"pod,omitempty"`
+	SecretAnnotations                    map[string]string `yaml:"secret,omitempty"`
+	ServiceAccountAnnotations            map[string]string `yaml:"serviceaccount,omitempty"`
+	ServiceAnnotations                   map[string]string `yaml:"service,omitempty"`
+	TraefikIngressRouteAnnotations       map[string]string `yaml:"traefik_ingressroute,omitempty"`
+	TraefikMiddlewareAnnotations         map[string]string `yaml:"traefik_middleware,omitempty"`
 }
 
 // ProcessAutoscaling contains the autoscaling configuration for a process

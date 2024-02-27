@@ -404,6 +404,18 @@ func getAnnotations(appName string, processType string) (ProcessAnnotations, err
 	}
 	annotations.KedaScalingObjectAnnotations = kedaScalingObjectAnnotations
 
+	kedaSecretAnnotations, err := getAnnotation(appName, processType, "keda_secret")
+	if err != nil {
+		return annotations, err
+	}
+	annotations.KedaSecretAnnotations = kedaSecretAnnotations
+
+	kedaTriggerAuthenticationAnnotations, err := getAnnotation(appName, processType, "keda_trigger_authentication")
+	if err != nil {
+		return annotations, err
+	}
+	annotations.KedaTriggerAuthenticationAnnotations = kedaTriggerAuthenticationAnnotations
+
 	podAnnotations, err := getAnnotation(appName, processType, "pod")
 	if err != nil {
 		return annotations, err
