@@ -1,6 +1,7 @@
 {{- $processName := "PROCESS_NAME" }}
 {{- $config := index .Values.processes "PROCESS_NAME" }}
 {{- if and $config.autoscaling (and $config.autoscaling.enabled (eq $config.autoscaling.type "keda")) }}
+{{- if .Capabilities.APIVersions.Has "keda.sh/v1alpha1" -}}
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
 metadata:
@@ -40,4 +41,5 @@ spec:
     replicas: {{ $config.replicas }}
   triggers:
   {{- toYaml $config.autoscaling.triggers | nindent 4 }}
+{{- end }}
 {{- end }}
