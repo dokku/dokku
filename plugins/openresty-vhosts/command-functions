@@ -55,6 +55,7 @@ cmd-openresty-report-single() {
     "--openresty-proxy-buffers: $(fn-openresty-proxy-buffers "$APP")"
     "--openresty-proxy-busy-buffers-size: $(fn-openresty-proxy-busy-buffers-size "$APP")"
     "--openresty-proxy-read-timeout: $(fn-openresty-proxy-read-timeout "$APP")"
+    "--openresty-underscore-in-headers: $(fn-openresty-underscore-in-headers "$APP")"
     "--openresty-x-forwarded-for-value: $(fn-openresty-x-forwarded-for-value "$APP")"
     "--openresty-x-forwarded-port-value: $(fn-openresty-x-forwarded-port-value "$APP")"
     "--openresty-x-forwarded-proto-value: $(fn-openresty-x-forwarded-proto-value "$APP")"

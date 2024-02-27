@@ -298,6 +298,23 @@ func GlobalProxyReadTimeout() string {
 	return common.PropertyGetDefault("nginx", "--global", "proxy-read-timeout", "60s")
 }
 
+func AppUnderscoreInHeaders(appName string) string {
+	return common.PropertyGet("nginx", appName, "underscore-in-headers")
+}
+
+func ComputedUnderscoreInHeaders(appName string) string {
+	appValue := AppUnderscoreInHeaders(appName)
+	if appValue != "" {
+		return appValue
+	}
+
+	return GlobalUnderscoreInHeaders()
+}
+
+func GlobalUnderscoreInHeaders() string {
+	return common.PropertyGetDefault("nginx", "--global", "underscore-in-headers", "off")
+}
+
 func AppXForwardedForValue(appName string) string {
 	return common.PropertyGet("nginx", appName, "x-forwarded-for-value")
 }

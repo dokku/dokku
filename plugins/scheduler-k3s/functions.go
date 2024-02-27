@@ -581,6 +581,15 @@ func getIngressAnnotations(appName string, processType string) (map[string]strin
 			annotation: "nginx.ingress.kubernetes.io/proxy-read-timeout",
 			getter:     nginxvhosts.ComputedProxyReadTimeout,
 		},
+		"underscore-in-headers": {
+			getter: nginxvhosts.ComputedUnderscoreInHeaders,
+			locationSnippet: func(value string) string {
+				if value == "" {
+					return ""
+				}
+				return fmt.Sprintf("underscores_in_headers %s;", value)
+			},
+		},
 		"x-forwarded-for-value": {
 			getter: nginxvhosts.ComputedXForwardedForValue,
 			locationSnippet: func(value string) string {

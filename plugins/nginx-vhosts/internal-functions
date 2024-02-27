@@ -347,6 +347,27 @@ fn-nginx-global-proxy-read-timeout() {
   fn-get-property --app "$APP" --global "proxy-read-timeout"
 }
 
+fn-nginx-underscore-in-headers() {
+  declare desc="get the configured underscore in headers value"
+  declare APP="$1"
+
+  fn-get-property --app "$APP" "underscore-in-headers"
+}
+
+fn-nginx-computed-underscore-in-headers() {
+  declare desc="get the computed underscore in headers value"
+  declare APP="$1"
+
+  fn-get-property --app "$APP" --computed "underscore-in-headers"
+}
+
+fn-nginx-global-underscore-in-headers() {
+  declare desc="get the global underscore in headers value"
+  declare APP="$1"
+
+  fn-get-property --app "$APP" --global "underscore-in-headers"
+}
+
 fn-nginx-x-forwarded-for-value() {
   declare desc="get the configured x-forwarded-for value"
   declare APP="$1"

@@ -160,6 +160,8 @@ trigger-openresty-vhosts-docker-args-process-deploy() {
   [[ -n "$value" ]] && output="$output '--label=openresty.proxy-send-timeout=$value'"
   value="$(fn-openresty-send-timeout "$APP")"
   [[ -n "$value" ]] && output="$output '--label=openresty.send-timeout=$value'"
+  value="$(fn-openresty-underscore-in-headers "$APP")"
+  [[ -n "$value" ]] && output="$output '--label=openresty.underscore-in-headers=$value'"
   value="$(fn-openresty-x-forwarded-for-value "$APP")"
   [[ -n "$value" ]] && output="$output '--label=openresty.x-forwarded-for-value=$value'"
   value="$(fn-openresty-x-forwarded-port-value "$APP")"
