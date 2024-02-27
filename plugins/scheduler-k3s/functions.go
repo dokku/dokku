@@ -1,6 +1,7 @@
 package scheduler_k3s
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -10,6 +11,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"text/template"
 	"time"
 
 	appjson "github.com/dokku/dokku/plugins/app-json"
@@ -442,8 +444,8 @@ func getAnnotations(appName string, processType string) (ProcessAnnotations, err
 }
 
 // getAutoscaling retrieves autoscaling config for a given app and process type
-func getAutoscaling(appName string, processName string, replicas int) (ProcessAutoscaling, error) {
-	config, ok, err := appjson.GetAutoscalingConfig(appName, processName, replicas)
+func getAutoscaling(appName string, processType string, replicas int) (ProcessAutoscaling, error) {
+	config, ok, err := appjson.GetAutoscalingConfig(appName, processType, replicas)
 	if err != nil {
 		common.LogWarn(fmt.Sprintf("Error getting autoscaling config for %s: %v", appName, err))
 		return ProcessAutoscaling{}, err
@@ -454,12 +456,32 @@ func getAutoscaling(appName string, processName string, replicas int) (ProcessAu
 		return ProcessAutoscaling{}, nil
 	}
 
+	replacements := map[string]string{
+		"APP_NAME":        appName,
+		"PROCESS_TYPE":    processType,
+		"DEPLOYMENT_NAME": fmt.Sprintf("%s-%s", appName, processType),
+	}
+
 	triggers := []ProcessAutoscalingTrigger{}
 	for _, trigger := range config.Triggers {
+		metadata := map[string]string{}
+		for key, value := range trigger.Metadata {
+			tmpl, err := template.New("").Delims("[[", "]]").Parse(value)
+			if err != nil {
+				return ProcessAutoscaling{}, fmt.Errorf("Error parsing autoscaling trigger metadata: %w", err)
+			}
+
+			var output bytes.Buffer
+			if err := tmpl.Execute(&output, replacements); err != nil {
+				return ProcessAutoscaling{}, fmt.Errorf("Error executing autoscaling trigger metadata template: %w", err)
+			}
+			metadata[key] = output.String()
+		}
+
 		triggers = append(triggers, ProcessAutoscalingTrigger{
 			Name:     trigger.Name,
 			Type:     trigger.Type,
-			Metadata: trigger.Metadata,
+			Metadata: metadata,
 		})
 	}
 

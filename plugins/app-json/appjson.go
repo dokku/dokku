@@ -98,7 +98,7 @@ type FormationAutoscalingTrigger struct {
 	Type string `json:"type,omitempty"`
 
 	// Metadata is a map of metadata to use for the trigger
-	Metadata map[string]interface{} `json:"metadata,omitempty"`
+	Metadata map[string]string `json:"metadata,omitempty"`
 }
 
 // Healthcheck is a struct that represents a single healthcheck from an app.json file

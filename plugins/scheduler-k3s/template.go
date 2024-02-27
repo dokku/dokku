@@ -117,7 +117,7 @@ type ProcessAutoscalingTrigger struct {
 	Type string `yaml:"type"`
 
 	// Metadata is a map of key-value pairs that can be used to store arbitrary trigger data
-	Metadata map[string]interface{} `yaml:"metadata,omitempty"`
+	Metadata map[string]string `yaml:"metadata,omitempty"`
 }
 
 type ProcessHealthchecks struct {
