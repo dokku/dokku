@@ -583,7 +583,7 @@ func getIngressAnnotations(appName string, processType string) (map[string]strin
 		},
 		"underscore-in-headers": {
 			getter: nginxvhosts.ComputedUnderscoreInHeaders,
-			locationSnippet: func(value string) string {
+			serverSnippet: func(value string) string {
 				if value == "" {
 					return ""
 				}
