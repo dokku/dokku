@@ -142,7 +142,7 @@ teardown() {
   run /bin/bash -c "dokku nginx:show-config $TEST_APP"
   echo "output: $output"
   echo "status: $status"
-  assert_output_contains "off;"
+  assert_output_contains "access_log  off;"
 
   run /bin/bash -c "dokku nginx:set $TEST_APP access-log-format"
   run /bin/bash -c "dokku nginx:set $TEST_APP access-log-path"
