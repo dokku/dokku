@@ -27,6 +27,7 @@ import (
 	"k8s.io/client-go/tools/remotecommand"
 	"k8s.io/kubectl/pkg/util/term"
 	"k8s.io/kubernetes/pkg/client/conditions"
+	"k8s.io/utils/ptr"
 	"mvdan.cc/sh/v3/shell"
 )
 
@@ -395,6 +396,12 @@ func getAnnotations(appName string, processType string) (ProcessAnnotations, err
 	}
 	annotations.JobAnnotations = jobAnnotations
 
+	kedaScalingObjectAnnotations, err := getAnnotation(appName, processType, "keda_scaled_object")
+	if err != nil {
+		return annotations, err
+	}
+	annotations.KedaScalingObjectAnnotations = kedaScalingObjectAnnotations
+
 	podAnnotations, err := getAnnotation(appName, processType, "pod")
 	if err != nil {
 		return annotations, err
@@ -432,6 +439,41 @@ func getAnnotations(appName string, processType string) (ProcessAnnotations, err
 	annotations.TraefikMiddlewareAnnotations = traefikMiddlewareAnnotations
 
 	return annotations, nil
+}
+
+// getAutoscaling retrieves autoscaling config for a given app and process type
+func getAutoscaling(appName string, processName string, replicas int) (ProcessAutoscaling, error) {
+	config, ok, err := appjson.GetAutoscalingConfig(appName, processName, replicas)
+	if err != nil {
+		common.LogWarn(fmt.Sprintf("Error getting autoscaling config for %s: %v", appName, err))
+		return ProcessAutoscaling{}, err
+	}
+
+	if !ok {
+		common.LogWarn(fmt.Sprintf("No autoscaling config found for %s", appName))
+		return ProcessAutoscaling{}, nil
+	}
+
+	triggers := []ProcessAutoscalingTrigger{}
+	for _, trigger := range config.Triggers {
+		triggers = append(triggers, ProcessAutoscalingTrigger{
+			Name:     trigger.Name,
+			Type:     trigger.Type,
+			Metadata: trigger.Metadata,
+		})
+	}
+
+	autoscaling := ProcessAutoscaling{
+		CooldownPeriodSeconds:  ptr.Deref(config.CooldownPeriodSeconds, 300),
+		Enabled:                len(triggers) > 0,
+		MaxReplicas:            ptr.Deref(config.MaxQuantity, 0),
+		MinReplicas:            ptr.Deref(config.MinQuantity, 0),
+		PollingIntervalSeconds: ptr.Deref(config.PollingIntervalSeconds, 30),
+		Triggers:               triggers,
+		Type:                   "keda",
+	}
+
+	return autoscaling, nil
 }
 
 // getGlobalAnnotations retrieves global annotations for a given app

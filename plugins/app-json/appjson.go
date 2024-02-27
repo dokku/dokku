@@ -3,10 +3,12 @@ package appjson
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"os"
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
+	"k8s.io/utils/ptr"
 )
 
 var (
@@ -59,11 +61,44 @@ type CronCommand struct {
 
 // Formation is a struct that represents the scale for a process from an app.json file
 type Formation struct {
+	// Autoscaling is whether or not to enable autoscaling
+	Autoscaling *FormationAutoscaling `json:"autoscaling"`
+
 	// Quantity is the number of processes to run
 	Quantity *int `json:"quantity"`
 
 	// MaxParallel is the maximum number of processes to start in parallel
 	MaxParallel *int `json:"max_parallel"`
+}
+
+// FormationAutoscaling is a struct that represents the autoscaling configuration for a process from an app.json file
+type FormationAutoscaling struct {
+	// CoolDownSeconds is the number of seconds to wait before scaling again
+	CooldownPeriodSeconds *int `json:"cooldown_period_seconds,omitempty"`
+
+	// MaxQuantity is the maximum number of processes to run
+	MaxQuantity *int `json:"max_quantity,omitempty"`
+
+	// MinQuantity is the minimum number of processes to run
+	MinQuantity *int `json:"min_quantity,omitempty"`
+
+	// PollingIntervalSeconds is the number of seconds to wait between autoscaling checks
+	PollingIntervalSeconds *int `json:"polling_interval_seconds,omitempty"`
+
+	// Triggers is a list of triggers to use for autoscaling
+	Triggers []FormationAutoscalingTrigger `json:"triggers,omitempty"`
+}
+
+// FormationAutoscalingTrigger is a struct that represents a single autoscaling trigger from an app.json file
+type FormationAutoscalingTrigger struct {
+	// Name is the name of the trigger
+	Name string `json:"name,omitempty"`
+
+	// Type is the type of the trigger
+	Type string `json:"type,omitempty"`
+
+	// Metadata is a map of metadata to use for the trigger
+	Metadata map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // Healthcheck is a struct that represents a single healthcheck from an app.json file
@@ -180,4 +215,46 @@ func GetAppJSON(appName string) (AppJSON, error) {
 	}
 
 	return appJSON, nil
+}
+
+func GetAutoscalingConfig(appName string, processType string, replicas int) (FormationAutoscaling, bool, error) {
+	appJSON, err := GetAppJSON(appName)
+	if err != nil {
+		return FormationAutoscaling{}, false, err
+	}
+
+	common.LogWarn(fmt.Sprintf("appJSON: %v", appJSON))
+
+	formation, ok := appJSON.Formation[processType]
+	if !ok {
+		return FormationAutoscaling{}, false, nil
+	}
+
+	if formation.Autoscaling == nil {
+		return FormationAutoscaling{}, false, nil
+	}
+
+	autoscaling := *formation.Autoscaling
+	if autoscaling.CooldownPeriodSeconds == nil {
+		autoscaling.CooldownPeriodSeconds = ptr.To(300)
+	}
+
+	if autoscaling.MinQuantity == nil {
+		autoscaling.MinQuantity = ptr.To(replicas)
+	}
+
+	if autoscaling.MaxQuantity == nil {
+		defaultValue := math.Max(float64(replicas), float64(*autoscaling.MinQuantity))
+		autoscaling.MaxQuantity = ptr.To(int(defaultValue))
+	}
+
+	if autoscaling.PollingIntervalSeconds == nil {
+		autoscaling.PollingIntervalSeconds = ptr.To(30)
+	}
+
+	if len(autoscaling.Triggers) == 0 {
+		return FormationAutoscaling{}, false, nil
+	}
+
+	return autoscaling, true, nil
 }

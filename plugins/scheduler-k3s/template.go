@@ -59,6 +59,7 @@ type GlobalNetwork struct {
 type ProcessValues struct {
 	Annotations  ProcessAnnotations  `yaml:"annotations,omitempty"`
 	Args         []string            `yaml:"args,omitempty"`
+	Autoscaling  ProcessAutoscaling  `yaml:"autoscaling,omitempty"`
 	Cron         ProcessCron         `yaml:"cron,omitempty"`
 	Healthchecks ProcessHealthchecks `yaml:"healthchecks,omitempty"`
 	Labels       ProcessLabels       `yaml:"labels,omitempty"`
@@ -74,12 +75,49 @@ type ProcessAnnotations struct {
 	DeploymentAnnotations          map[string]string `yaml:"deployment,omitempty"`
 	IngressAnnotations             map[string]string `yaml:"ingress,omitempty"`
 	JobAnnotations                 map[string]string `yaml:"job,omitempty"`
+	KedaScalingObjectAnnotations   map[string]string `yaml:"keda_scaled_object,omitempty"`
 	PodAnnotations                 map[string]string `yaml:"pod,omitempty"`
 	SecretAnnotations              map[string]string `yaml:"secret,omitempty"`
 	ServiceAccountAnnotations      map[string]string `yaml:"serviceaccount,omitempty"`
 	ServiceAnnotations             map[string]string `yaml:"service,omitempty"`
 	TraefikIngressRouteAnnotations map[string]string `yaml:"traefik_ingressroute,omitempty"`
 	TraefikMiddlewareAnnotations   map[string]string `yaml:"traefik_middleware,omitempty"`
+}
+
+// ProcessAutoscaling contains the autoscaling configuration for a process
+type ProcessAutoscaling struct {
+	// CooldownPeriodSeconds is the number of seconds after a scaling event before another can be triggered
+	CooldownPeriodSeconds int `yaml:"cooldown_period_seconds,omitempty"`
+
+	// Enabled is a flag to enable autoscaling
+	Enabled bool `yaml:"enabled"`
+
+	// MaxReplicas is the maximum number of replicas to scale to
+	MaxReplicas int `yaml:"max_replicas,omitempty"`
+
+	// MinReplicas is the minimum number of replicas to scale to
+	MinReplicas int `yaml:"min_replicas,omitempty"`
+
+	// PollingIntervalSeconds is the number of seconds between polling for new metrics
+	PollingIntervalSeconds int `yaml:"polling_interval_seconds,omitempty"`
+
+	// Triggers is a list of triggers to use for autoscaling
+	Triggers []ProcessAutoscalingTrigger `yaml:"triggers,omitempty"`
+
+	// Type is the type of autoscaling to use
+	Type string `yaml:"type"`
+}
+
+// ProcessAutoscalingTrigger is a trigger to use for autoscaling
+type ProcessAutoscalingTrigger struct {
+	// Name is the name of the trigger
+	Name string `yaml:"name"`
+
+	// Type is the type of trigger to use
+	Type string `yaml:"type"`
+
+	// Metadata is a map of key-value pairs that can be used to store arbitrary trigger data
+	Metadata map[string]interface{} `yaml:"metadata,omitempty"`
 }
 
 type ProcessHealthchecks struct {

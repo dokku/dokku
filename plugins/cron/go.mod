@@ -30,6 +30,7 @@ require (
 	golang.org/x/crypto v0.21.0 // indirect
 	golang.org/x/sync v0.6.0 // indirect
 	golang.org/x/sys v0.18.0 // indirect
+	k8s.io/utils v0.0.0-20240102154912-e7106e64919e // indirect
 )
 
 replace github.com/dokku/dokku/plugins/app-json => ../app-json

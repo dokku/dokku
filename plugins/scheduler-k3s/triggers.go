@@ -327,8 +327,14 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 			return fmt.Errorf("Error getting process labels: %w", err)
 		}
 
+		autoscaling, err := getAutoscaling(appName, processType, int(processCount))
+		if err != nil {
+			return fmt.Errorf("Error getting autoscaling: %w", err)
+		}
+
 		processValues := ProcessValues{
 			Annotations:  annotations,
+			Autoscaling:  autoscaling,
 			Args:         args,
 			Healthchecks: processHealthchecks,
 			Labels:       labels,
@@ -336,6 +342,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 			Replicas:     int32(processCount),
 			Resources:    processResources,
 		}
+
 		if processType == "web" {
 			processValues.Web = ProcessWeb{
 				Domains:  domains,
@@ -392,7 +399,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 
 		values.Processes[processType] = processValues
 
-		templateFiles := []string{"deployment"}
+		templateFiles := []string{"deployment", "scaled-object"}
 		if processType == "web" {
 			templateFiles = append(templateFiles, "service", "certificate", "ingress", "ingress-route", "https-redirect-middleware")
 		}
