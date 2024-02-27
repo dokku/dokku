@@ -60,7 +60,7 @@ teardown() {
   run /bin/bash -c "dokku nginx:show-config $TEST_APP"
   echo "output: $output"
   echo "status: $status"
-  assert_output_contains "off;"
+  assert_output_contains "access_log  off;"
 
   run /bin/bash -c "dokku nginx:set $TEST_APP access-log-path"
   echo "output: $output"
@@ -75,7 +75,7 @@ teardown() {
   run /bin/bash -c "dokku nginx:show-config $TEST_APP"
   echo "output: $output"
   echo "status: $status"
-  assert_output_contains "off;" 0
+  assert_output_contains "access_log  off;" 0
 
   run /bin/bash -c "dokku nginx:set $TEST_APP error-log-path off"
   echo "output: $output"
@@ -90,7 +90,7 @@ teardown() {
   run /bin/bash -c "dokku nginx:show-config $TEST_APP"
   echo "output: $output"
   echo "status: $status"
-  assert_output_contains "off;"
+  assert_output_contains "error_log   off;"
 
   run /bin/bash -c "dokku nginx:set $TEST_APP error-log-path"
   echo "output: $output"
@@ -105,7 +105,7 @@ teardown() {
   run /bin/bash -c "dokku nginx:show-config $TEST_APP"
   echo "output: $output"
   echo "status: $status"
-  assert_output_contains "off;" 0
+  assert_output_contains "error_log   off;" 0
 }
 
 @test "(nginx-vhosts) access-log-format" {
@@ -142,7 +142,7 @@ teardown() {
   run /bin/bash -c "dokku nginx:show-config $TEST_APP"
   echo "output: $output"
   echo "status: $status"
-  assert_output_contains "off;"
+  assert_output_contains "access_log  off;"
 
   run /bin/bash -c "dokku nginx:set $TEST_APP access-log-format"
   run /bin/bash -c "dokku nginx:set $TEST_APP access-log-path"

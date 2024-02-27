@@ -69,6 +69,8 @@ func appValue(appName string, property string) string {
 		value = nginx_vhosts.AppProxyBusyBuffersSize(appName)
 	case "proxy-read-timeout":
 		value = nginx_vhosts.AppProxyReadTimeout(appName)
+	case "underscore-in-headers":
+		value = nginx_vhosts.AppUnderscoreInHeaders(appName)
 	case "x-forwarded-for-value":
 		value = nginx_vhosts.AppXForwardedForValue(appName)
 	case "x-forwarded-port-value":
@@ -119,6 +121,8 @@ func computedValue(appName string, property string) string {
 		value = nginx_vhosts.ComputedProxyBusyBuffersSize(appName)
 	case "proxy-read-timeout":
 		value = nginx_vhosts.ComputedProxyReadTimeout(appName)
+	case "underscore-in-headers":
+		value = nginx_vhosts.ComputedUnderscoreInHeaders(appName)
 	case "x-forwarded-for-value":
 		value = nginx_vhosts.ComputedXForwardedForValue(appName)
 	case "x-forwarded-port-value":
@@ -169,6 +173,8 @@ func globalValue(appName string, property string) string {
 		value = nginx_vhosts.GlobalProxyBusyBuffersSize()
 	case "proxy-read-timeout":
 		value = nginx_vhosts.GlobalProxyReadTimeout()
+	case "underscore-in-headers":
+		value = nginx_vhosts.GlobalUnderscoreInHeaders()
 	case "x-forwarded-for-value":
 		value = nginx_vhosts.GlobalXForwardedForValue()
 	case "x-forwarded-port-value":

@@ -224,6 +224,13 @@ fn-openresty-template-compose-file() {
   sigil -f "$COMPOSE_TEMPLATE" "${SIGIL_PARAMS[@]}" | cat -s >"$OUTPUT_PATH"
 }
 
+fn-openresty-underscore-in-headers() {
+  declare desc="get the configured underscore in headers value"
+  declare APP="$1"
+
+  fn-plugin-property-get-default "openresty" "$APP" "underscore-in-headers" "off"
+}
+
 fn-openresty-x-forwarded-for-value() {
   declare desc="get the configured x-forwarded-for value"
   declare APP="$1"
