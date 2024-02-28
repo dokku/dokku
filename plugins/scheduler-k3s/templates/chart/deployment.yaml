@@ -15,20 +15,14 @@ metadata:
     dokku.com/builder-type: {{ $.Values.global.image.type }}
     dokku.com/managed: "true"
     kubectl.kubernetes.io/default-container: {{ $.Values.global.app_name }}-{{ $processName }}
-    {{- if and $.Values.global.annotations $.Values.global.annotations.deployment }}
-    {{- range $k, $v := $.Values.global.annotations.deployment }}
-    {{ $k }}: {{ $v | quote }}
-    {{- end }}
-    {{- end }}
-    {{- if and $config.annotations $config.annotations.deployment }}
-    {{- range $k, $v := $config.annotations.deployment }}
-    {{ $k }}: {{ $v | quote }}
-    {{- end }}
-    {{- end }}
+    {{ include "print.annotations" (dict "config" $.Values.global "key" "deployment") | indent 4 }}
+    {{ include "print.annotations" (dict "config" $config "key" "deployment") | indent 4 }}
   labels:
     app.kubernetes.io/instance: {{ $.Values.global.app_name }}-{{ $processName }}
     app.kubernetes.io/name: {{ $processName }}
     app.kubernetes.io/part-of: {{ $.Values.global.app_name }}
+    {{ include "print.labels" (dict "config" $.Values.global "key" "deployment") | indent 4 }}
+    {{ include "print.labels" (dict "config" $config "key" "deployment") | indent 4 }}
   name: {{ $.Values.global.app_name }}-{{ $processName }}
   namespace: {{ $.Values.global.namespace }}
 spec:
@@ -39,6 +33,8 @@ spec:
       app.kubernetes.io/instance: {{ $.Values.global.app_name }}-{{ $processName }}
       app.kubernetes.io/name: {{ $processName }}
       app.kubernetes.io/part-of: {{ $.Values.global.app_name }}
+      {{ include "print.labels" (dict "config" $.Values.global "key" "pod") | indent 6 }}
+      {{ include "print.labels" (dict "config" $config "key" "pod") | indent 6 }}
   strategy: {}
   template:
     metadata:
@@ -47,20 +43,14 @@ spec:
         dokku.com/builder-type: {{ $.Values.global.image.type }}
         dokku.com/managed: "true"
         kubectl.kubernetes.io/default-container: {{ $.Values.global.app_name }}-{{ $processName }}
-        {{- if and $.Values.global.annotations $.Values.global.annotations.pod }}
-        {{- range $k, $v := $.Values.global.annotations.pod }}
-        {{ $k }}: {{ $v | quote }}
-        {{- end }}
-        {{- end }}
-        {{- if and $config.annotations $config.annotations.pod }}
-        {{- range $k, $v := $config.annotations.pod }}
-        {{ $k }}: {{ $v | quote }}
-        {{- end }}
-        {{- end }}
+        {{ include "print.annotations" (dict "config" $.Values.global "key" "pod") | indent 8 }}
+        {{ include "print.annotations" (dict "config" $config "key" "pod") | indent 8 }}
       labels:
         app.kubernetes.io/instance: {{ $.Values.global.app_name }}-{{ $processName }}
         app.kubernetes.io/name: {{ $processName }}
         app.kubernetes.io/part-of: {{ $.Values.global.app_name }}
+        {{ include "print.labels" (dict "config" $.Values.global "key" "pod") | indent 8 }}
+        {{ include "print.labels" (dict "config" $config "key" "pod") | indent 8 }}
     spec:
       containers:
       - args:

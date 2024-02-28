@@ -6,20 +6,14 @@ kind: Service
 metadata:
   annotations:
     dokku.com/managed: "true"
-    {{- if and $.Values.global.annotations $.Values.global.annotations.service }}
-    {{- range $k, $v := $.Values.global.annotations.service }}
-    {{ $k }}: {{ $v | quote }}
-    {{- end }}
-    {{- end }}
-    {{- if and $config.annotations $config.annotations.service }}
-    {{- range $k, $v := $config.annotations.service }}
-    {{ $k }}: {{ $v | quote }}
-    {{- end }}
-    {{- end }}
+    {{ include "print.annotations" (dict "config" $.Values.global "key" "service") | indent 4 }}
+    {{ include "print.annotations" (dict "config" $config "key" "service") | indent 4 }}
   labels:
     app.kubernetes.io/instance: {{ $.Values.global.app_name }}-{{ $processName }}
     app.kubernetes.io/name: {{ $processName }}
     app.kubernetes.io/part-of: {{ $.Values.global.app_name }}
+    {{ include "print.labels" (dict "config" $.Values.global "key" "service") | indent 4 }}
+    {{ include "print.labels" (dict "config" $config "key" "service") | indent 4 }}
   name: {{ $.Values.global.app_name }}-{{ $processName }}
   namespace: {{ $.Values.global.namespace }}
 spec:

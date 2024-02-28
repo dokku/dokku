@@ -7,19 +7,13 @@ kind: Certificate
 metadata:
   annotations:
     dokku.com/managed: "true"
-    {{- if and $.Values.global.annotations $.Values.global.annotations.certificate }}
-    {{- range $k, $v := $.Values.global.annotations.certificate }}
-    {{ $k }}: {{ $v | quote }}
-    {{- end }}
-    {{- end }}
-    {{- if and $config.annotations $config.annotations.certificate }}
-    {{- range $k, $v := $config.annotations.certificate }}
-    {{ $k }}: {{ $v | quote }}
-    {{- end }}
-    {{- end }}
+    {{ include "print.annotations" (dict "config" $.Values.global "key" "certificate") | indent 4 }}
+    {{ include "print.annotations" (dict "config" $config "key" "certificate") | indent 4 }}
   labels:
     app.kubernetes.io/name: {{ $.Values.global.app_name }}-{{ $processName }}
     app.kubernetes.io/part-of: {{ $.Values.global.app_name }}
+    {{ include "print.labels" (dict "config" $.Values.global "key" "certificate") | indent 4 }}
+    {{ include "print.labels" (dict "config" $config "key" "certificate") | indent 4 }}
   name: {{ $.Values.global.app_name }}-{{ $processName }}
   namespace: {{ $.Values.global.namespace }}
 spec:
@@ -33,6 +27,8 @@ spec:
     labels:
       app.kubernetes.io/name: {{ $.Values.global.app_name }}-{{ $processName }}
       app.kubernetes.io/part-of: {{ $.Values.global.app_name }}
+      {{ include "print.labels" (dict "config" $.Values.global "key" "secret") | indent 6 }}
+      {{ include "print.labels" (dict "config" $config "key" "secret") | indent 6 }}
   dnsNames:
     {{- range $config.web.domains }}
     - {{ . }}

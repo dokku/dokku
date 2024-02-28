@@ -493,6 +493,21 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 		values.Global.Secrets[key] = base64.StdEncoding.EncodeToString([]byte(value))
 	}
 
+	b, err := templates.ReadFile("templates/chart/_helpers.tpl")
+	if err != nil {
+		return fmt.Errorf("Error reading _helpers template: %w", err)
+	}
+
+	helpersFile := filepath.Join(chartDir, "templates", "_helpers.tpl")
+	err = os.WriteFile(helpersFile, b, os.FileMode(0644))
+	if err != nil {
+		return fmt.Errorf("Error writing _helpers template: %w", err)
+	}
+
+	if os.Getenv("DOKKU_TRACE") == "1" {
+		common.CatFile(helpersFile)
+	}
+
 	err = writeYaml(WriteYamlInput{
 		Object: values,
 		Path:   filepath.Join(chartDir, "values.yaml"),
