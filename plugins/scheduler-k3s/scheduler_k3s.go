@@ -45,6 +45,7 @@ const DefaultIngressClass = "traefik"
 const GlobalProcessType = "--global"
 const KubeConfigPath = "/etc/rancher/k3s/k3s.yaml"
 const DefaultKubeContext = ""
+const TriggerAuthPropertyPrefix = "trigger-auth."
 
 var (
 	runtimeScheme  = runtime.NewScheme()

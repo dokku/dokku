@@ -65,7 +65,7 @@ func CommandAutoscalingAuthSet(appName string, trigger string, metadata map[stri
 	}
 
 	if len(metadata) == 0 {
-		properties, err := common.PropertyGetAllByPrefix("scheduler-k3s", appName, fmt.Sprintf("trigger-auth.%s.", trigger))
+		properties, err := common.PropertyGetAllByPrefix("scheduler-k3s", appName, fmt.Sprintf("%s%s.", TriggerAuthPropertyPrefix, trigger))
 		if err != nil {
 			return fmt.Errorf("Unable to get property list: %w", err)
 		}
@@ -79,7 +79,7 @@ func CommandAutoscalingAuthSet(appName string, trigger string, metadata map[stri
 	}
 
 	for key, value := range metadata {
-		if err := common.PropertyWrite("scheduler-k3s", appName, fmt.Sprintf("trigger-auth.%s.%s", trigger, key), value); err != nil {
+		if err := common.PropertyWrite("scheduler-k3s", appName, fmt.Sprintf("%s%s.%s", TriggerAuthPropertyPrefix, trigger, key), value); err != nil {
 			return fmt.Errorf("Unable to set property: %w", err)
 		}
 	}

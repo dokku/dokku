@@ -536,14 +536,14 @@ func getAutoscaling(input GetAutoscalingInput) (ProcessAutoscaling, error) {
 
 // getKedaValues retrieves keda values for a given app and process type
 func getKedaValues(appName string) (GlobalKedaValues, error) {
-	properties, err := common.PropertyGetAllByPrefix("scheduler-k3s", appName, "trigger-auth-")
+	properties, err := common.PropertyGetAllByPrefix("scheduler-k3s", appName, TriggerAuthPropertyPrefix)
 	if err != nil {
 		return GlobalKedaValues{}, fmt.Errorf("Error getting trigger-auth properties: %w", err)
 	}
 
 	auths := map[string]KedaAuthentication{}
 	for key, value := range properties {
-		parts := strings.SplitN(strings.TrimPrefix(key, "trigger-auth-"), ":", 2)
+		parts := strings.SplitN(strings.TrimPrefix(key, TriggerAuthPropertyPrefix), ".", 2)
 		if len(parts) != 2 {
 			return GlobalKedaValues{}, fmt.Errorf("Invalid trigger-auth property format: %s", key)
 		}
