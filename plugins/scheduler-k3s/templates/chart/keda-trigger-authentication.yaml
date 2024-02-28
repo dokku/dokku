@@ -22,7 +22,7 @@ spec:
   secretTargetRef:
   {{- range $k, $v := $config.secrets }}
   - key: {{ $k }}
-    name: keda-app-auth-{{ $config.type }}
+    name: kta-{{ $.Values.global.app_name }}-{{ $config.type }}
     parameter: {{ $k }}
   {{- end }}
 {{- end }}
