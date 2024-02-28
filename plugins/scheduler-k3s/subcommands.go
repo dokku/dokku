@@ -58,6 +58,34 @@ func CommandAnnotationsSet(appName string, processType string, resourceType stri
 	return nil
 }
 
+// CommandAutoscalingAuthSet set or clear a scheduler-k3s autoscaling keda trigger authentication object for an app
+func CommandAutoscalingAuthSet(appName string, trigger string, metadata map[string]string, global bool) error {
+	if global {
+		appName = "--global"
+	}
+
+	if len(metadata) == 0 {
+		properties, err := common.PropertyGetAllByPrefix("scheduler-k3s", appName, fmt.Sprintf("trigger-auth.%s.", trigger))
+		if err != nil {
+			return fmt.Errorf("Unable to get property list: %w", err)
+		}
+
+		for key := range properties {
+			if err := common.PropertyDelete("scheduler-k3s", appName, key); err != nil {
+				return fmt.Errorf("Unable to delete property: %w", err)
+			}
+		}
+		return nil
+	}
+
+	for key, value := range metadata {
+		if err := common.PropertyWrite("scheduler-k3s", appName, fmt.Sprintf("trigger-auth.%s.%s", trigger, key), value); err != nil {
+			return fmt.Errorf("Unable to set property: %w", err)
+		}
+	}
+	return nil
+}
+
 // CommandInitialize initializes a k3s cluster on the local server
 func CommandInitialize(ingressClass string, serverIP string, taintScheduling bool) error {
 	if ingressClass != "nginx" && ingressClass != "traefik" {

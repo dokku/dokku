@@ -17,6 +17,7 @@ Manage scheduler-k3s settings for an app
 Additional commands:`
 
 	helpContent = `
+    scheduler-k3s:autoscaling-auth:set <app|--global> <trigger> [<--metadata key=value>...], Set or clear a scheduler-k3s autoscaling keda trigger authentication object for an app
     scheduler-k3s:annotations:set <app|--global> <property> (<value>) [--process-type PROCESS_TYPE] <--resource-type RESOURCE_TYPE>, Set or clear an annotation for a given app/process-type/resource-type combination
     scheduler-k3s:cluster-add [--insecure-allow-unknown-hosts] [--server-ip SERVER_IP] [--taint-scheduling] <ssh://user@host:port>, Adds a server node to a Dokku-managed cluster
     scheduler-k3s:cluster-list [--format json|stdout], Lists all nodes in a Dokku-managed cluster
