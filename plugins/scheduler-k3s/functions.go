@@ -3,6 +3,7 @@ package scheduler_k3s
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"net"
@@ -508,6 +509,41 @@ func getAutoscaling(appName string, processType string, replicas int) (ProcessAu
 	}
 
 	return autoscaling, nil
+}
+
+// getKedaValues retrieves keda values for a given app and process type
+func getKedaValues(appName string) (GlobalKedaValues, error) {
+	properties, err := common.PropertyGetAllByPrefix("scheduler-k3s", appName, "trigger-auth-")
+	if err != nil {
+		return GlobalKedaValues{}, fmt.Errorf("Error getting trigger-auth properties: %w", err)
+	}
+
+	auths := map[string]KedaAuthentication{}
+	for key, value := range properties {
+		parts := strings.SplitN(strings.TrimPrefix(key, "trigger-auth-"), ":", 2)
+		if len(parts) != 2 {
+			return GlobalKedaValues{}, fmt.Errorf("Invalid trigger-auth property format: %s", key)
+		}
+
+		authType := parts[0]
+		secretKey := parts[1]
+		if len(secretKey) == 0 {
+			return GlobalKedaValues{}, fmt.Errorf("Invalid trigger-auth property format: %s", key)
+		}
+
+		if _, ok := auths[authType]; !ok {
+			auths[authType] = KedaAuthentication{
+				Type:    authType,
+				Secrets: make(map[string]string),
+			}
+		}
+
+		auths[authType].Secrets[secretKey] = base64.StdEncoding.EncodeToString([]byte(value))
+	}
+
+	return GlobalKedaValues{
+		Authentications: auths,
+	}, nil
 }
 
 // getGlobalAnnotations retrieves global annotations for a given app

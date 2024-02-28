@@ -1,5 +1,5 @@
 {{- if .Capabilities.APIVersions.Has "keda.sh/v1alpha1" -}}
-{{- range $type, $config := .Values.global.keda.auth }}
+{{- $config := index .Values.global.keda.authentications "AUTH_NAME" }}
 ---
 apiVersion: keda.sh/v1alpha1
 kind: TriggerAuthentication
@@ -12,23 +12,17 @@ metadata:
     {{ $k }}: {{ $v | quote }}
     {{- end }}
     {{- end }}
-    {{- if and $config.annotations $config.annotations.keda_trigger_authentication }}
-    {{- range $k, $v := $config.annotations.keda_trigger_authentication }}
-    {{ $k }}: {{ $v | quote }}
-    {{- end }}
-    {{- end }}
   labels:
-    app.kubernetes.io/instance: {{ $.Values.global.app_name }}-{{ $type }}
-    app.kubernetes.io/name: {{ $type }}
+    app.kubernetes.io/instance: {{ $.Values.global.app_name }}-{{ $config.type }}
+    app.kubernetes.io/name: {{ $config.type }}
     app.kubernetes.io/part-of: {{ $.Values.global.app_name }}
-  name: {{ $.Values.global.app_name }}-{{ $type }}
+  name: {{ $.Values.global.app_name }}-{{ $config.type }}
   namespace: {{ $.Values.global.namespace }}
 spec:
   secretTargetRef:
-  {{- range $key := $config.secrets }}
-  - parameter: {{ $key }}
-    name: app-auth-{{ $type }}
-    key: {{ $key }}
+  {{- range $k, $v := $config.secrets }}
+  - key: {{ $k }}
+    name: app-auth-{{ $config.type }}
+    parameter: {{ $k }}
   {{- end }}
-{{- end }}
 {{- end }}
