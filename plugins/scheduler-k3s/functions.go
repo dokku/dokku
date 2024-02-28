@@ -678,67 +678,67 @@ func getIngressAnnotations(appName string, processType string) (map[string]strin
 // getLabels retrieves labels for a given app and process type
 func getLabels(appName string, processType string) (ProcessLabels, error) {
 	labels := ProcessLabels{}
-	certificateLabels, err := getAnnotation(appName, processType, "certificate")
+	certificateLabels, err := getLabel(appName, processType, "certificate")
 	if err != nil {
 		return labels, err
 	}
 	labels.CertificateLabels = certificateLabels
 
-	cronJobLabels, err := getAnnotation(appName, processType, "cronjob")
+	cronJobLabels, err := getLabel(appName, processType, "cronjob")
 	if err != nil {
 		return labels, err
 	}
 	labels.CronJobLabels = cronJobLabels
 
-	deploymentLabels, err := getAnnotation(appName, processType, "deployment")
+	deploymentLabels, err := getLabel(appName, processType, "deployment")
 	if err != nil {
 		return labels, err
 	}
 	labels.DeploymentLabels = deploymentLabels
 
-	ingressLabels, err := getIngressAnnotations(appName, processType)
+	ingressLabels, err := getLabel(appName, processType, "ingress")
 	if err != nil {
 		return labels, err
 	}
 	labels.IngressLabels = ingressLabels
 
-	jobLabels, err := getAnnotation(appName, processType, "job")
+	jobLabels, err := getLabel(appName, processType, "job")
 	if err != nil {
 		return labels, err
 	}
 	labels.JobLabels = jobLabels
 
-	podLabels, err := getAnnotation(appName, processType, "pod")
+	podLabels, err := getLabel(appName, processType, "pod")
 	if err != nil {
 		return labels, err
 	}
 	labels.PodLabels = podLabels
 
-	secretLabels, err := getAnnotation(appName, processType, "secret")
+	secretLabels, err := getLabel(appName, processType, "secret")
 	if err != nil {
 		return labels, err
 	}
 	labels.SecretLabels = secretLabels
 
-	serviceLabels, err := getAnnotation(appName, processType, "service")
+	serviceLabels, err := getLabel(appName, processType, "service")
 	if err != nil {
 		return labels, err
 	}
 	labels.ServiceLabels = serviceLabels
 
-	serviceAccountLabels, err := getAnnotation(appName, processType, "serviceaccount")
+	serviceAccountLabels, err := getLabel(appName, processType, "serviceaccount")
 	if err != nil {
 		return labels, err
 	}
 	labels.ServiceAccountLabels = serviceAccountLabels
 
-	traefikIngressRouteLabels, err := getAnnotation(appName, processType, "traefik_ingressroute")
+	traefikIngressRouteLabels, err := getLabel(appName, processType, "traefik_ingressroute")
 	if err != nil {
 		return labels, err
 	}
 	labels.TraefikIngressRouteLabels = traefikIngressRouteLabels
 
-	traefikMiddlewareLabels, err := getAnnotation(appName, processType, "traefik_middleware")
+	traefikMiddlewareLabels, err := getLabel(appName, processType, "traefik_middleware")
 	if err != nil {
 		return labels, err
 	}
