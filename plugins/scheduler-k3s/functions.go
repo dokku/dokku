@@ -456,23 +456,38 @@ func getAnnotations(appName string, processType string) (ProcessAnnotations, err
 	return annotations, nil
 }
 
+// GetAutoscalingInput contains all the information needed to get autoscaling config
+type GetAutoscalingInput struct {
+	// AppName is the name of the app
+	AppName string
+
+	// ProcessType is the process type
+	ProcessType string
+
+	// Replicas is the number of replicas
+	Replicas int
+
+	// KedaValues is the keda values
+	KedaValues GlobalKedaValues
+}
+
 // getAutoscaling retrieves autoscaling config for a given app and process type
-func getAutoscaling(appName string, processType string, replicas int) (ProcessAutoscaling, error) {
-	config, ok, err := appjson.GetAutoscalingConfig(appName, processType, replicas)
+func getAutoscaling(input GetAutoscalingInput) (ProcessAutoscaling, error) {
+	config, ok, err := appjson.GetAutoscalingConfig(input.AppName, input.ProcessType, input.Replicas)
 	if err != nil {
-		common.LogWarn(fmt.Sprintf("Error getting autoscaling config for %s: %v", appName, err))
+		common.LogWarn(fmt.Sprintf("Error getting autoscaling config for %s: %v", input.AppName, err))
 		return ProcessAutoscaling{}, err
 	}
 
 	if !ok {
-		common.LogWarn(fmt.Sprintf("No autoscaling config found for %s", appName))
+		common.LogWarn(fmt.Sprintf("No autoscaling config found for %s", input.AppName))
 		return ProcessAutoscaling{}, nil
 	}
 
 	replacements := map[string]string{
-		"APP_NAME":        appName,
-		"PROCESS_TYPE":    processType,
-		"DEPLOYMENT_NAME": fmt.Sprintf("%s-%s", appName, processType),
+		"APP_NAME":        input.AppName,
+		"PROCESS_TYPE":    input.ProcessType,
+		"DEPLOYMENT_NAME": fmt.Sprintf("%s-%s", input.AppName, input.ProcessType),
 	}
 
 	triggers := []ProcessAutoscalingTrigger{}
@@ -491,11 +506,19 @@ func getAutoscaling(appName string, processType string, replicas int) (ProcessAu
 			metadata[key] = output.String()
 		}
 
-		triggers = append(triggers, ProcessAutoscalingTrigger{
+		trigger := ProcessAutoscalingTrigger{
 			Name:     trigger.Name,
 			Type:     trigger.Type,
 			Metadata: metadata,
-		})
+		}
+
+		if _, ok := input.KedaValues.Authentications[trigger.Type]; ok {
+			trigger.AuthenticationRef = &ProcessAutoscalingTriggerAuthenticationRef{
+				Name: fmt.Sprintf("%s-%s", input.AppName, trigger.Type),
+			}
+		}
+
+		triggers = append(triggers, trigger)
 	}
 
 	autoscaling := ProcessAutoscaling{
