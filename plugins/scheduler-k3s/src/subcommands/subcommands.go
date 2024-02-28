@@ -18,13 +18,22 @@ func main() {
 
 	var err error
 	switch subcommand {
-	case "initialize":
-		args := flag.NewFlagSet("scheduler-k3s:initialize", flag.ExitOnError)
-		taintScheduling := args.Bool("taint-scheduling", false, "taint-scheduling: add a taint against scheduling app workloads")
-		serverIP := args.String("server-ip", "", "server-ip: IP address of the dokku server node")
-		ingressClass := args.String("ingress-class", "traefik", "ingress-class: ingress-class to use for all outbound traffic")
+	case "annotations:set":
+		args := flag.NewFlagSet("scheduler-k3s:annotations:set", flag.ExitOnError)
+		global := args.Bool("global", false, "--global: set a global property")
+		processType := args.String("process-type", "", "--process-type: scope to process-type")
+		resourceType := args.String("resource-type", "", "--resource-type: scope to resource-type")
 		args.Parse(os.Args[2:])
-		err = scheduler_k3s.CommandInitialize(*ingressClass, *serverIP, *taintScheduling)
+		appName := args.Arg(0)
+		property := args.Arg(1)
+		value := args.Arg(2)
+		if *global {
+			appName = "--global"
+			property = args.Arg(0)
+			value = args.Arg(1)
+		}
+
+		err = scheduler_k3s.CommandAnnotationsSet(appName, *processType, *resourceType, property, value)
 	case "cluster-add":
 		args := flag.NewFlagSet("scheduler-k3s:cluster-add", flag.ExitOnError)
 		allowUknownHosts := args.Bool("insecure-allow-unknown-hosts", false, "insecure-allow-unknown-hosts: allow unknown hosts")
@@ -44,6 +53,13 @@ func main() {
 		args.Parse(os.Args[2:])
 		nodeName := args.Arg(0)
 		err = scheduler_k3s.CommandClusterRemove(nodeName)
+	case "initialize":
+		args := flag.NewFlagSet("scheduler-k3s:initialize", flag.ExitOnError)
+		taintScheduling := args.Bool("taint-scheduling", false, "taint-scheduling: add a taint against scheduling app workloads")
+		serverIP := args.String("server-ip", "", "server-ip: IP address of the dokku server node")
+		ingressClass := args.String("ingress-class", "traefik", "ingress-class: ingress-class to use for all outbound traffic")
+		args.Parse(os.Args[2:])
+		err = scheduler_k3s.CommandInitialize(*ingressClass, *serverIP, *taintScheduling)
 	case "report":
 		args := flag.NewFlagSet("scheduler-k3s:report", flag.ExitOnError)
 		format := args.String("format", "stdout", "format: [ stdout | json ]")

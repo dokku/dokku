@@ -7,9 +7,6 @@ import (
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
-	scheduler_k3s "github.com/dokku/dokku/plugins/scheduler-k3s"
-
-	flag "github.com/spf13/pflag"
 )
 
 const (
@@ -49,28 +46,6 @@ func main() {
 			fmt.Println(helpContent)
 		} else {
 			fmt.Print("\n    scheduler-k3s, Manage scheduler-k3s settings for an app\n")
-		}
-	case "scheduler-k3s:annotations:set":
-		args := flag.NewFlagSet("scheduler-k3s:annotations:set", flag.ExitOnError)
-		global := args.Bool("global", false, "--global: set a global property")
-		processType := args.String("process-type", "", "--process-type: scope to process-type")
-		resourceType := args.String("resource-type", "", "--resource-type: scope to resource-type")
-		err := args.Parse(os.Args[2:])
-		if err != nil {
-			common.LogFailWithError(err)
-		}
-
-		appName := args.Arg(0)
-		property := args.Arg(1)
-		value := args.Arg(2)
-		if *global {
-			appName = "--global"
-			property = args.Arg(0)
-			value = args.Arg(1)
-		}
-
-		if err := scheduler_k3s.CommandAnnotationsSet(appName, *processType, *resourceType, property, value); err != nil {
-			common.LogFailWithError(err)
 		}
 	default:
 		dokkuNotImplementExitCode, err := strconv.Atoi(os.Getenv("DOKKU_NOT_IMPLEMENTED_EXIT"))
