@@ -512,9 +512,14 @@ func getAutoscaling(input GetAutoscalingInput) (ProcessAutoscaling, error) {
 			Metadata: metadata,
 		}
 
-		if _, ok := input.KedaValues.Authentications[trigger.Type]; ok {
+		if auth, ok := input.KedaValues.Authentications[trigger.Type]; ok {
 			trigger.AuthenticationRef = &ProcessAutoscalingTriggerAuthenticationRef{
-				Name: fmt.Sprintf("%s-%s", input.AppName, trigger.Type),
+				Name: auth.Name,
+			}
+		} else if auth, ok := input.KedaValues.GlobalAuthentications[trigger.Type]; ok {
+			trigger.AuthenticationRef = &ProcessAutoscalingTriggerAuthenticationRef{
+				Name: auth.Name,
+				Kind: "ClusterTriggerAuthentication",
 			}
 		}
 
@@ -535,7 +540,7 @@ func getAutoscaling(input GetAutoscalingInput) (ProcessAutoscaling, error) {
 }
 
 // getKedaValues retrieves keda values for a given app and process type
-func getKedaValues(appName string) (GlobalKedaValues, error) {
+func getKedaValues(ctx context.Context, clientset KubernetesClient, appName string) (GlobalKedaValues, error) {
 	properties, err := common.PropertyGetAllByPrefix("scheduler-k3s", appName, TriggerAuthPropertyPrefix)
 	if err != nil {
 		return GlobalKedaValues{}, fmt.Errorf("Error getting trigger-auth properties: %w", err)
@@ -556,6 +561,7 @@ func getKedaValues(appName string) (GlobalKedaValues, error) {
 
 		if _, ok := auths[authType]; !ok {
 			auths[authType] = KedaAuthentication{
+				Name:    fmt.Sprintf("%s-%s", appName, authType),
 				Type:    authType,
 				Secrets: make(map[string]string),
 			}
@@ -564,8 +570,27 @@ func getKedaValues(appName string) (GlobalKedaValues, error) {
 		auths[authType].Secrets[secretKey] = base64.StdEncoding.EncodeToString([]byte(value))
 	}
 
+	items, err := clientset.ListClusterTriggerAuthentications(ctx, ListClusterTriggerAuthenticationsInput{})
+	if err != nil {
+		return GlobalKedaValues{}, fmt.Errorf("Error listing cluster trigger authentications: %w", err)
+	}
+
+	globalAuths := map[string]KedaAuthentication{}
+	for _, item := range items {
+		if !strings.HasPrefix(item.Name, "global-auth-") {
+			continue
+		}
+
+		authType := strings.TrimPrefix(item.Name, "global-auth-")
+		globalAuths[authType] = KedaAuthentication{
+			Name: item.Name,
+			Type: authType,
+		}
+	}
+
 	return GlobalKedaValues{
-		Authentications: auths,
+		Authentications:       auths,
+		GlobalAuthentications: globalAuths,
 	}, nil
 }
 

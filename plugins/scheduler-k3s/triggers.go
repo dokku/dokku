@@ -266,7 +266,16 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 		return fmt.Errorf("Error getting global labels: %w", err)
 	}
 
-	kedaValues, err := getKedaValues(appName)
+	clientset, err := NewKubernetesClient()
+	if err != nil {
+		return fmt.Errorf("Error creating kubernetes client: %w", err)
+	}
+
+	if err := clientset.Ping(); err != nil {
+		return fmt.Errorf("kubernetes api not available: %w", err)
+	}
+
+	kedaValues, err := getKedaValues(ctx, clientset, appName)
 	if err != nil {
 		return fmt.Errorf("Error getting keda values: %w", err)
 	}
@@ -452,15 +461,6 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 				common.CatFile(filename)
 			}
 		}
-	}
-
-	clientset, err := NewKubernetesClient()
-	if err != nil {
-		return fmt.Errorf("Error creating kubernetes client: %w", err)
-	}
-
-	if err := clientset.Ping(); err != nil {
-		return fmt.Errorf("kubernetes api not available: %w", err)
 	}
 
 	cronJobs, err := clientset.ListCronJobs(ctx, ListCronJobsInput{

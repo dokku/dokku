@@ -61,10 +61,16 @@ type GlobalNetwork struct {
 type GlobalKedaValues struct {
 	// Authentications is a map of authentication objects to use for keda
 	Authentications map[string]KedaAuthentication `yaml:"authentications"`
+
+	// GlobalAuthentications is a map of global authentication objects to use for keda
+	GlobalAuthentications map[string]KedaAuthentication `yaml:"global_authentications"`
 }
 
 // KedaAuthentication contains the authentication configuration for keda
 type KedaAuthentication struct {
+	// Name is the name of the authentication object
+	Name string `yaml:"name"`
+
 	// Type is the type of authentication to use
 	Type string `yaml:"type"`
 
@@ -145,6 +151,9 @@ type ProcessAutoscalingTrigger struct {
 type ProcessAutoscalingTriggerAuthenticationRef struct {
 	// Name is the name of the authentication object
 	Name string `yaml:"name"`
+
+	// Kind is the kind of authentication object
+	Kind string `yaml:"kind,omitempty"`
 }
 
 type ProcessHealthchecks struct {

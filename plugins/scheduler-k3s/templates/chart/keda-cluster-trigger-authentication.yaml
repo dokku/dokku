@@ -1,0 +1,26 @@
+{{- if .Capabilities.APIVersions.Has "keda.sh/v1alpha1" -}}
+---
+apiVersion: keda.sh/v1alpha1
+kind: ClusterTriggerAuthentication
+metadata:
+  annotations:
+    app.kubernetes.io/version: {{ $.Values.global.deploment_id | quote }}
+    dokku.com/managed: "true"
+    {{- if and $.Values.global.annotations $.Values.global.annotations.keda_trigger_authentication }}
+    {{- range $k, $v := $.Values.global.annotations.keda_trigger_authentication }}
+    {{ $k }}: {{ $v | quote }}
+    {{- end }}
+    {{- end }}
+  labels:
+    app.kubernetes.io/instance: {{ $.Values.type }}
+    app.kubernetes.io/name: {{ $.Values.type }}
+    app.kubernetes.io/part-of: cluster
+  name: {{ $.Values.type }}
+spec:
+  secretTargetRef:
+  {{- range $k, $v := $.Values.secrets }}
+  - key: {{ $k }}
+    name: ckta-{{ $.Values.type }}
+    parameter: {{ $k }}
+  {{- end }}
+{{- end }}
