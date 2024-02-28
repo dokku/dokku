@@ -734,6 +734,16 @@ func CommandReport(appName string, format string, infoFlag string) error {
 // CommandSet set or clear a scheduler-k3s property for an app
 func CommandSet(appName string, property string, value string) error {
 	common.CommandPropertySet("scheduler-k3s", appName, property, value, DefaultProperties, GlobalProperties)
+
+	letsencryptProperties := map[string]bool{
+		"letsencrypt-email-prod": true,
+		"letsencrypt-email-stag": true,
+		"letsencrypt-server":     true,
+	}
+	if appName == "--global" && letsencryptProperties[property] {
+		return applyClusterIssuers(context.Background())
+	}
+
 	return nil
 }
 
