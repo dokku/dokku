@@ -15,8 +15,8 @@ kind: Ingress
 metadata:
   annotations:
     dokku.com/managed: "true"
-    {{- if and $.Values.global.annotations $.Values.global.annotations.deployment }}
-    {{- range $k, $v := $.Values.global.annotations.deployment }}
+    {{- if and $.Values.global.annotations $.Values.global.annotations.ingress }}
+    {{- range $k, $v := $.Values.global.annotations.ingress }}
     {{ $k }}: {{ $v | quote }}
     {{- end }}
     {{- end }}
