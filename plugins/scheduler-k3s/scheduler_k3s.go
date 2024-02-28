@@ -150,7 +150,7 @@ var WorkerLabels = map[string]string{
 	"node-role.kubernetes.io/worker": "worker",
 }
 
-//go:embed templates/*
+//go:embed all:templates
 var templates embed.FS
 
 func init() {
