@@ -675,6 +675,103 @@ func getIngressAnnotations(appName string, processType string) (map[string]strin
 	return annotations, nil
 }
 
+// getLabels retrieves labels for a given app and process type
+func getLabels(appName string, processType string) (ProcessLabels, error) {
+	labels := ProcessLabels{}
+	certificateLabels, err := getAnnotation(appName, processType, "certificate")
+	if err != nil {
+		return labels, err
+	}
+	labels.CertificateLabels = certificateLabels
+
+	cronJobLabels, err := getAnnotation(appName, processType, "cronjob")
+	if err != nil {
+		return labels, err
+	}
+	labels.CronJobLabels = cronJobLabels
+
+	deploymentLabels, err := getAnnotation(appName, processType, "deployment")
+	if err != nil {
+		return labels, err
+	}
+	labels.DeploymentLabels = deploymentLabels
+
+	ingressLabels, err := getIngressAnnotations(appName, processType)
+	if err != nil {
+		return labels, err
+	}
+	labels.IngressLabels = ingressLabels
+
+	jobLabels, err := getAnnotation(appName, processType, "job")
+	if err != nil {
+		return labels, err
+	}
+	labels.JobLabels = jobLabels
+
+	podLabels, err := getAnnotation(appName, processType, "pod")
+	if err != nil {
+		return labels, err
+	}
+	labels.PodLabels = podLabels
+
+	secretLabels, err := getAnnotation(appName, processType, "secret")
+	if err != nil {
+		return labels, err
+	}
+	labels.SecretLabels = secretLabels
+
+	serviceLabels, err := getAnnotation(appName, processType, "service")
+	if err != nil {
+		return labels, err
+	}
+	labels.ServiceLabels = serviceLabels
+
+	serviceAccountLabels, err := getAnnotation(appName, processType, "serviceaccount")
+	if err != nil {
+		return labels, err
+	}
+	labels.ServiceAccountLabels = serviceAccountLabels
+
+	traefikIngressRouteLabels, err := getAnnotation(appName, processType, "traefik_ingressroute")
+	if err != nil {
+		return labels, err
+	}
+	labels.TraefikIngressRouteLabels = traefikIngressRouteLabels
+
+	traefikMiddlewareLabels, err := getAnnotation(appName, processType, "traefik_middleware")
+	if err != nil {
+		return labels, err
+	}
+	labels.TraefikMiddlewareLabels = traefikMiddlewareLabels
+
+	return labels, nil
+}
+
+// getGlobalLabel retrieves global labels for a given app
+func getGlobalLabel(appName string) (ProcessLabels, error) {
+	return getLabels(appName, GlobalProcessType)
+}
+
+// getLabel retrieves an label for a given app, process type, and resource type
+func getLabel(appName string, processType string, resourceType string) (map[string]string, error) {
+	labels := map[string]string{}
+	labelsList, err := common.PropertyListGet("scheduler-k3s", appName, fmt.Sprintf("labels.%s.%s", processType, resourceType))
+	if err != nil {
+		return labels, err
+	}
+
+	for _, label := range labelsList {
+		parts := strings.SplitN(label, ": ", 2)
+		if len(parts) != 2 {
+			return labels, fmt.Errorf("Invalid label format: %s", label)
+		}
+
+		labels[parts[0]] = parts[1]
+	}
+
+	return labels, nil
+}
+
 func getLetsencryptServer(appName string) string {
 	return common.PropertyGetDefault("scheduler-k3s", appName, "letsencrypt-server", "")
 }

@@ -60,6 +60,22 @@ func main() {
 		ingressClass := args.String("ingress-class", "traefik", "ingress-class: ingress-class to use for all outbound traffic")
 		args.Parse(os.Args[2:])
 		err = scheduler_k3s.CommandInitialize(*ingressClass, *serverIP, *taintScheduling)
+	case "labels:set":
+		args := flag.NewFlagSet("scheduler-k3s:labels:set", flag.ExitOnError)
+		global := args.Bool("global", false, "--global: set a global property")
+		processType := args.String("process-type", "", "--process-type: scope to process-type")
+		resourceType := args.String("resource-type", "", "--resource-type: scope to resource-type")
+		args.Parse(os.Args[2:])
+		appName := args.Arg(0)
+		property := args.Arg(1)
+		value := args.Arg(2)
+		if *global {
+			appName = "--global"
+			property = args.Arg(0)
+			value = args.Arg(1)
+		}
+
+		err = scheduler_k3s.CommandLabelsSet(appName, *processType, *resourceType, property, value)
 	case "report":
 		args := flag.NewFlagSet("scheduler-k3s:report", flag.ExitOnError)
 		format := args.String("format", "stdout", "format: [ stdout | json ]")

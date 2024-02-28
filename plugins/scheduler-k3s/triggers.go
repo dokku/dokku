@@ -316,10 +316,16 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 			return fmt.Errorf("Error getting process annotations: %w", err)
 		}
 
+		labels, err := getLabels(appName, processType)
+		if err != nil {
+			return fmt.Errorf("Error getting process labels: %w", err)
+		}
+
 		processValues := ProcessValues{
 			Annotations:  annotations,
 			Args:         args,
 			Healthchecks: processHealthchecks,
+			Labels:       labels,
 			ProcessType:  ProcessType_Worker,
 			Replicas:     int32(processCount),
 			Resources:    processResources,
@@ -458,6 +464,11 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 			return fmt.Errorf("Error getting process annotations: %w", err)
 		}
 
+		labels, err := getLabels(appName, cronEntry.ID)
+		if err != nil {
+			return fmt.Errorf("Error getting process labels: %w", err)
+		}
+
 		processValues := ProcessValues{
 			Args:        words,
 			Annotations: annotations,
@@ -466,6 +477,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 				Schedule: cronEntry.Schedule,
 				Suffix:   suffix,
 			},
+			Labels:      labels,
 			ProcessType: ProcessType_Cron,
 			Replicas:    1,
 			Resources:   processResources,
