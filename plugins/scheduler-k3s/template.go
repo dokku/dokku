@@ -69,7 +69,7 @@ type KedaAuthentication struct {
 	Type string `yaml:"type"`
 
 	// Secrets is a map of secrets to use for authentication
-	Secrets map[string]string `yaml:"secrets"`
+	Secrets map[string]string `yaml:"secrets,omitempty"`
 }
 
 type ProcessValues struct {
