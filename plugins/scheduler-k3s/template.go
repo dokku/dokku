@@ -37,6 +37,7 @@ type GlobalValues struct {
 	AppName      string             `yaml:"app_name"`
 	DeploymentID string             `yaml:"deploment_id"`
 	Image        GlobalImage        `yaml:"image"`
+	Labels       ProcessLabels      `yaml:"labels,omitempty"`
 	Namespace    string             `yaml:"namespace"`
 	Network      GlobalNetwork      `yaml:"network"`
 	Secrets      map[string]string  `yaml:"secrets,omitempty"`

@@ -261,6 +261,11 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 		return fmt.Errorf("Error getting global annotations: %w", err)
 	}
 
+	globalLabels, err := getGlobalLabel(appName)
+	if err != nil {
+		return fmt.Errorf("Error getting global labels: %w", err)
+	}
+
 	values := &AppValues{
 		Global: GlobalValues{
 			Annotations:  globalAnnotations,
@@ -273,6 +278,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 				Type:             imageSourceType,
 				WorkingDir:       workingDir,
 			},
+			Labels:    globalLabels,
 			Namespace: namespace,
 			Network: GlobalNetwork{
 				IngressClass: getGlobalIngressClass(),
