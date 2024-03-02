@@ -261,6 +261,11 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 		return fmt.Errorf("Error getting global annotations: %w", err)
 	}
 
+	globalLabels, err := getGlobalLabel(appName)
+	if err != nil {
+		return fmt.Errorf("Error getting global labels: %w", err)
+	}
+
 	values := &AppValues{
 		Global: GlobalValues{
 			Annotations:  globalAnnotations,
@@ -273,6 +278,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 				Type:             imageSourceType,
 				WorkingDir:       workingDir,
 			},
+			Labels:    globalLabels,
 			Namespace: namespace,
 			Network: GlobalNetwork{
 				IngressClass: getGlobalIngressClass(),
@@ -316,10 +322,16 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 			return fmt.Errorf("Error getting process annotations: %w", err)
 		}
 
+		labels, err := getLabels(appName, processType)
+		if err != nil {
+			return fmt.Errorf("Error getting process labels: %w", err)
+		}
+
 		processValues := ProcessValues{
 			Annotations:  annotations,
 			Args:         args,
 			Healthchecks: processHealthchecks,
+			Labels:       labels,
 			ProcessType:  ProcessType_Worker,
 			Replicas:     int32(processCount),
 			Resources:    processResources,
@@ -458,6 +470,11 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 			return fmt.Errorf("Error getting process annotations: %w", err)
 		}
 
+		labels, err := getLabels(appName, cronEntry.ID)
+		if err != nil {
+			return fmt.Errorf("Error getting process labels: %w", err)
+		}
+
 		processValues := ProcessValues{
 			Args:        words,
 			Annotations: annotations,
@@ -466,6 +483,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 				Schedule: cronEntry.Schedule,
 				Suffix:   suffix,
 			},
+			Labels:      labels,
 			ProcessType: ProcessType_Cron,
 			Replicas:    1,
 			Resources:   processResources,
@@ -491,6 +509,21 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 
 	for key, value := range env.Map() {
 		values.Global.Secrets[key] = base64.StdEncoding.EncodeToString([]byte(value))
+	}
+
+	b, err := templates.ReadFile("templates/chart/_helpers.tpl")
+	if err != nil {
+		return fmt.Errorf("Error reading _helpers template: %w", err)
+	}
+
+	helpersFile := filepath.Join(chartDir, "templates", "_helpers.tpl")
+	err = os.WriteFile(helpersFile, b, os.FileMode(0644))
+	if err != nil {
+		return fmt.Errorf("Error writing _helpers template: %w", err)
+	}
+
+	if os.Getenv("DOKKU_TRACE") == "1" {
+		common.CatFile(helpersFile)
 	}
 
 	err = writeYaml(WriteYamlInput{

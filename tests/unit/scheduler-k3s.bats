@@ -244,6 +244,11 @@ uninstall_k3s() {
   echo "status: $status"
   assert_success
 
+  run /bin/bash -c "dokku scheduler-k3s:annotations:set $TEST_APP --resource-type job test.dokku.com/resource-type job"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku scheduler-k3s:annotations:set $TEST_APP --resource-type deployment test.dokku.com/resource-type deployment"
   echo "output: $output"
   echo "status: $status"
@@ -288,7 +293,7 @@ uninstall_k3s() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "pod"
+  assert_output "job"
 
   run /bin/bash -c "kubectl get secret -o json | jq -r '.items[0].metadata.annotations.\"test.dokku.com/resource-type\"'"
   echo "output: $output"

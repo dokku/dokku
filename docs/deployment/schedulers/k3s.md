@@ -271,9 +271,14 @@ The default value may be set by passing an empty value for the option.
 dokku scheduler-k3s:set --global letsencrypt-server staging
 ```
 
-### Customizing Resource Annotations
+### Customizing Annotations and Labels
 
-Dokku injects certain resources into each created resource by default, but it may be necessary to inject others for tighter integration with third-party tools. The `scheduler-k3s:annotations:set` command can be used to perform this task. The command takes an app name and a required `--resource-type` flag.
+> [!NOTE]
+> The cron ID is used as the process type if your app deploys any cron tasks
+
+#### Setting Annotations
+
+Dokku injects certain annotations into each created resource by default, but it may be necessary to inject others for tighter integration with third-party tools. The `scheduler-k3s:annotations:set` command can be used to perform this task. The command takes an app name and a required `--resource-type` flag.
 
 ```shell
 dokku scheduler-k3s:annotations:set node-js-app annotation.key annotation.value --resource-type deployment
@@ -281,18 +286,8 @@ dokku scheduler-k3s:annotations:set node-js-app annotation.key annotation.value 
 
 If not specified, the annotation will be applied to all processes within an app, though it may be further scoped to a specific process type via the `--process-type` flag. 
 
-> [!NOTE]
-> The cron ID is used as the process type if your app deploys any cron tasks
-
 ```shell
 dokku scheduler-k3s:annotations:set node-js-app annotation.key annotation.value --resource-type deployment --process-type web
-```
-
-To unset an annotation, pass an empty value:
-
-```shell
-dokku scheduler-k3s:annotations:set node-js-app annotation.key --resource-type deployment
-dokku scheduler-k3s:annotations:set node-js-app annotation.key --resource-type deployment --process-type web
 ```
 
 The following resource types are supported:
@@ -308,6 +303,52 @@ The following resource types are supported:
 - `serviceaccount`
 - `traefik_ingressroute`
 - `traefik_middleware`
+
+#### Removing an annotation
+
+To unset an annotation, pass an empty value:
+
+```shell
+dokku scheduler-k3s:annotations:set node-js-app annotation.key --resource-type deployment
+dokku scheduler-k3s:annotations:set node-js-app annotation.key --resource-type deployment --process-type web
+```
+
+#### Setting Labels
+
+Dokku injects certain labels into each created resource by default, but it may be necessary to inject others for tighter integration with third-party tools. The `scheduler-k3s:labels:set` command can be used to perform this task. The command takes an app name and a required `--resource-type` flag.
+
+```shell
+dokku scheduler-k3s:labels:set node-js-app label.key label.value --resource-type deployment
+```
+
+If not specified, the label will be applied to all processes within an app, though it may be further scoped to a specific process type via the `--process-type` flag. 
+
+```shell
+dokku scheduler-k3s:labels:set node-js-app label.key label.value --resource-type deployment --process-type web
+```
+
+The following resource types are supported:
+
+- `certificate`
+- `cronjob`
+- `deployment`
+- `ingress`
+- `job`
+- `pod`
+- `secret`
+- `service`
+- `serviceaccount`
+- `traefik_ingressroute`
+- `traefik_middleware`
+
+#### Removing a label
+
+To unset an label, pass an empty value:
+
+```shell
+dokku scheduler-k3s:annotations:set node-js-app label.key --resource-type deployment
+dokku scheduler-k3s:labels:set node-js-app label.key --resource-type deployment --process-type web
+```
 
 ### Using kubectl remotely
 

@@ -713,6 +713,47 @@ func CommandClusterRemove(nodeName string) error {
 	return nil
 }
 
+// CommandLabelsSet set or clear a scheduler-k3s label for an app
+func CommandLabelsSet(appName string, processType string, resourceType string, key string, value string) error {
+	if resourceType == "" {
+		return fmt.Errorf("Missing resource-type")
+	}
+
+	if processType == "" {
+		processType = GlobalProcessType
+	}
+
+	property := fmt.Sprintf("labels.%s.%s", processType, resourceType)
+	labelsList, err := common.PropertyListGet("scheduler-k3s", appName, property)
+	if err != nil {
+		return fmt.Errorf("Unable to get property list: %w", err)
+	}
+
+	labels := []string{}
+	for _, annotation := range labelsList {
+		parts := strings.SplitN(annotation, ": ", 2)
+		if len(parts) != 2 {
+			return fmt.Errorf("Invalid annotation: %s", annotation)
+		}
+		if key == parts[0] {
+			continue
+		}
+
+		labels = append(labels, annotation)
+	}
+
+	if value != "" {
+		labels = append(labels, fmt.Sprintf("%s: %s", key, value))
+	}
+
+	sort.Strings(labels)
+	if err := common.PropertyListWrite("scheduler-k3s", appName, property, labels); err != nil {
+		return fmt.Errorf("Unable to write property list: %w", err)
+	}
+
+	return nil
+}
+
 // CommandReport displays a scheduler-k3s report for one or more apps
 func CommandReport(appName string, format string, infoFlag string) error {
 	if len(appName) == 0 {

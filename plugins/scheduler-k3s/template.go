@@ -37,6 +37,7 @@ type GlobalValues struct {
 	AppName      string             `yaml:"app_name"`
 	DeploymentID string             `yaml:"deploment_id"`
 	Image        GlobalImage        `yaml:"image"`
+	Labels       ProcessLabels      `yaml:"labels,omitempty"`
 	Namespace    string             `yaml:"namespace"`
 	Network      GlobalNetwork      `yaml:"network"`
 	Secrets      map[string]string  `yaml:"secrets,omitempty"`
@@ -60,6 +61,7 @@ type ProcessValues struct {
 	Args         []string            `yaml:"args,omitempty"`
 	Cron         ProcessCron         `yaml:"cron,omitempty"`
 	Healthchecks ProcessHealthchecks `yaml:"healthchecks,omitempty"`
+	Labels       ProcessLabels       `yaml:"labels,omitempty"`
 	ProcessType  ProcessType         `yaml:"process_type"`
 	Replicas     int32               `yaml:"replicas"`
 	Resources    ProcessResourcesMap `yaml:"resources,omitempty"`
@@ -128,6 +130,20 @@ const (
 	URISchemeHTTP  URIScheme = "HTTP"
 	URISchemeHTTPS URIScheme = "HTTPS"
 )
+
+type ProcessLabels struct {
+	CertificateLabels         map[string]string `yaml:"certificate,omitempty"`
+	CronJobLabels             map[string]string `yaml:"cronjob,omitempty"`
+	DeploymentLabels          map[string]string `yaml:"deployment,omitempty"`
+	IngressLabels             map[string]string `yaml:"ingress,omitempty"`
+	JobLabels                 map[string]string `yaml:"job,omitempty"`
+	PodLabels                 map[string]string `yaml:"pod,omitempty"`
+	SecretLabels              map[string]string `yaml:"secret,omitempty"`
+	ServiceAccountLabels      map[string]string `yaml:"serviceaccount,omitempty"`
+	ServiceLabels             map[string]string `yaml:"service,omitempty"`
+	TraefikIngressRouteLabels map[string]string `yaml:"traefik_ingressroute,omitempty"`
+	TraefikMiddlewareLabels   map[string]string `yaml:"traefik_middleware,omitempty"`
+}
 
 type ProcessWeb struct {
 	Domains  []string         `yaml:"domains,omitempty"`

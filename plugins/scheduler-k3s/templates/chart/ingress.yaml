@@ -15,23 +15,17 @@ kind: Ingress
 metadata:
   annotations:
     dokku.com/managed: "true"
-    {{- if and $.Values.global.annotations $.Values.global.annotations.ingress }}
-    {{- range $k, $v := $.Values.global.annotations.ingress }}
-    {{ $k }}: {{ $v | quote }}
-    {{- end }}
-    {{- end }}
-    {{- if and $config.annotations $config.annotations.ingress }}
-    {{- range $k, $v := $config.annotations.ingress }}
-    {{ $k }}: {{ $v | quote }}
-    {{- end }}
-    {{- end }}
     {{- if $config.web.tls.enabled }}
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     {{- end }}
+    {{ include "print.annotations" (dict "config" $.Values.global "key" "ingress") | indent 4 }}
+    {{ include "print.annotations" (dict "config" $config "key" "ingress") | indent 4 }}
   labels:
     app.kubernetes.io/instance: {{ $.Values.global.app_name }}-{{ $processName }}
     app.kubernetes.io/name: {{ $processName }}
     app.kubernetes.io/part-of: {{ $.Values.global.app_name }}
+    {{ include "print.labels" (dict "config" $.Values.global "key" "ingress") | indent 4 }}
+    {{ include "print.labels" (dict "config" $config "key" "ingress") | indent 4 }}
   name: {{ $.Values.global.app_name }}-{{ $processName }}-{{ $port_map.name }}
   namespace: {{ $.Values.global.namespace }}
 spec:
