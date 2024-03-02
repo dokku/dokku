@@ -9,7 +9,7 @@ docker pull dokku/dokku:0.33.7
 Next, run the image.
 
 ```shell
-docker container run \
+docker container run -d \
   --env DOKKU_HOSTNAME=dokku.me \
   --env DOKKU_HOST_ROOT=/var/lib/dokku/home/dokku \
   --env DOKKU_LIB_HOST_ROOT=/var/lib/dokku/var/lib/dokku \
