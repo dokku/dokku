@@ -128,6 +128,7 @@ The following plugins are available and provided by Dokku maintainers.  Please f
 | [Litestream](https://github.com/AxelTheGerman/dokku-litestream)<sup>4</sup>                       | [AxelTheGerman][]     | 0.27.0+               |
 | [Monit (Health Checks)](https://github.com/mbreit/dokku-monit)                                    | [mbreit][]            | 0.8.0+                |
 | [Monit](https://github.com/cjblomqvist/dokku-monit)                                               | [cjblomqvist][]       | 0.3.x                 |
+| [Multicast DNS (mDNS)](https://github.com/calyhre/dokku-mdns)                                     | [calyhre][]           | 0.33.0+               |
 | [Nuke Containers](https://github.com/dokku-community/dokku-nuke)                                  | [josegonzalez][]      | 0.4.0+                |
 | [Proctype Filter](https://github.com/michaelshobbs/dokku-proctype-filter)                         | [michaelshobbs][]     | 0.4.0+                |
 | [robots.txt](https://notabug.org/candlewaster/dokku-robots.txt)                                   | [candlewaster][]      | 0.4.x                 |
@@ -258,6 +259,7 @@ The following plugins are no longer maintained by their developers.
 [basgys]: https://github.com/basgys
 [benjamin-dobell]: https://github.com/benjamin-dobell
 [blag]: https://github.com/blag
+[calyhre]: https://github.com/calyhre
 [cameron-martin]: https://github.com/cameron-martin
 [candlewaster]: https://notabug.org/candlewaster
 [cedricziel]: https://github.com/cedricziel
