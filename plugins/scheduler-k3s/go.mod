@@ -195,3 +195,5 @@ replace github.com/dokku/dokku/plugins/config => ../config
 replace github.com/dokku/dokku/plugins/cron => ../cron
 
 replace github.com/dokku/dokku/plugins/nginx-vhosts => ../nginx-vhosts
+
+replace github.com/joho/godotenv => github.com/joho/godotenv v1.2.0
