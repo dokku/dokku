@@ -26,7 +26,7 @@ Builders run a detection script against a source code repository, and the first 
 
 ### Overriding the auto-selected builder
 
-If desired, the builder can be specified via the `builder:set` command by speifying a value for `selected`. The selected builder will always be used.
+If desired, the builder can be specified via the `builder:set` command by specifying a value for `selected`. The selected builder will always be used.
 
 ```shell
 dokku builder:set node-js-app selected dockerfile
