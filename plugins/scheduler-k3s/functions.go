@@ -122,6 +122,118 @@ type WaitForPodToExistInput struct {
 	LabelSelector string
 }
 
+// applyKedaClusterTriggerAuthentications applies keda cluster trigger authentications chart to the cluster
+func applyKedaClusterTriggerAuthentications(ctx context.Context, triggerType string, metadata map[string]string) error {
+	chartDir, err := os.MkdirTemp("", "keda-cluster-trigger-authentications-chart-")
+	if err != nil {
+		return fmt.Errorf("Error creating keda-cluster-trigger-authentications chart directory: %w", err)
+	}
+	defer os.RemoveAll(chartDir)
+
+	// create the chart.yaml
+	chart := &Chart{
+		ApiVersion: "v2",
+		AppVersion: "1.0.0",
+		Icon:       "https://dokku.com/assets/dokku-logo.svg",
+		Name:       fmt.Sprintf("keda-cluster-trigger-authentications-%s", triggerType),
+		Version:    "0.0.1",
+	}
+
+	err = writeYaml(WriteYamlInput{
+		Object: chart,
+		Path:   filepath.Join(chartDir, "Chart.yaml"),
+	})
+	if err != nil {
+		return fmt.Errorf("Error writing keda-cluster-trigger-authentications chart: %w", err)
+	}
+
+	// create the values.yaml
+	values := ClusterKedaValues{
+		Secrets: map[string]string{},
+		Type:    triggerType,
+	}
+
+	for key, value := range metadata {
+		values.Secrets[key] = base64.StdEncoding.EncodeToString([]byte(value))
+	}
+
+	if err := os.MkdirAll(filepath.Join(chartDir, "templates"), os.FileMode(0755)); err != nil {
+		return fmt.Errorf("Error creating keda-cluster-trigger-authentications chart templates directory: %w", err)
+	}
+
+	err = writeYaml(WriteYamlInput{
+		Object: values,
+		Path:   filepath.Join(chartDir, "values.yaml"),
+	})
+	if err != nil {
+		return fmt.Errorf("Error writing chart: %w", err)
+	}
+
+	templateFiles := []string{"keda-cluster-trigger-authentication", "keda-cluster-secret"}
+	for _, template := range templateFiles {
+		b, err := templates.ReadFile(fmt.Sprintf("templates/chart/%s.yaml", template))
+		if err != nil {
+			return fmt.Errorf("Error reading %s template: %w", template, err)
+		}
+
+		filename := filepath.Join(chartDir, "templates", fmt.Sprintf("%s.yaml", template))
+		err = os.WriteFile(filename, b, os.FileMode(0644))
+		if err != nil {
+			return fmt.Errorf("Error writing %s template: %w", template, err)
+		}
+
+		if os.Getenv("DOKKU_TRACE") == "1" {
+			common.CatFile(filename)
+		}
+	}
+
+	b, err := templates.ReadFile("templates/chart/_helpers.tpl")
+	if err != nil {
+		return fmt.Errorf("Error reading _helpers template: %w", err)
+	}
+
+	helpersFile := filepath.Join(chartDir, "templates", "_helpers.tpl")
+	err = os.WriteFile(helpersFile, b, os.FileMode(0644))
+	if err != nil {
+		return fmt.Errorf("Error writing _helpers template: %w", err)
+	}
+
+	if os.Getenv("DOKKU_TRACE") == "1" {
+		common.CatFile(helpersFile)
+	}
+
+	// install the chart
+	helmAgent, err := NewHelmAgent("keda", DeployLogPrinter)
+	if err != nil {
+		return fmt.Errorf("Error creating helm agent: %w", err)
+	}
+
+	chartPath, err := filepath.Abs(chartDir)
+	if err != nil {
+		return fmt.Errorf("Error getting chart path: %w", err)
+	}
+
+	timeoutDuration, err := time.ParseDuration("300s")
+	if err != nil {
+		return fmt.Errorf("Error parsing deploy timeout duration: %w", err)
+	}
+
+	err = helmAgent.InstallOrUpgradeChart(ctx, ChartInput{
+		ChartPath:         chartPath,
+		Namespace:         "keda",
+		ReleaseName:       fmt.Sprintf("keda-cluster-trigger-authentications-%s", triggerType),
+		RollbackOnFailure: true,
+		Timeout:           timeoutDuration,
+	})
+	if err != nil {
+		return fmt.Errorf("Error installing keda-cluster-trigger-authentications-%s chart: %w", triggerType, err)
+	}
+
+	common.LogInfo1Quiet(fmt.Sprintf("Applied keda-cluster-trigger-authentications-%s chart", triggerType))
+
+	return nil
+}
+
 func applyClusterIssuers(ctx context.Context) error {
 	chartDir, err := os.MkdirTemp("", "cluster-issuer-chart-")
 	if err != nil {

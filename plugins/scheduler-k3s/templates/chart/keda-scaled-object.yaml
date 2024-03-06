@@ -8,20 +8,14 @@ metadata:
   annotations:
     app.kubernetes.io/version: {{ $.Values.global.deploment_id | quote }}
     dokku.com/managed: "true"
-    {{- if and $.Values.global.annotations $.Values.global.annotations.keda_scaled_object }}
-    {{- range $k, $v := $.Values.global.annotations.keda_scaled_object }}
-    {{ $k }}: {{ $v | quote }}
-    {{- end }}
-    {{- end }}
-    {{- if and $config.annotations $config.annotations.keda_scaled_object }}
-    {{- range $k, $v := $config.annotations.keda_scaled_object }}
-    {{ $k }}: {{ $v | quote }}
-    {{- end }}
-    {{- end }}
+    {{ include "print.annotations" (dict "config" $.Values.global "key" "keda_scaled_object") | indent 4 }}
+    {{ include "print.annotations" (dict "config" $config "key" "keda_scaled_object") | indent 4 }}
   labels:
     app.kubernetes.io/instance: {{ $.Values.global.app_name }}-{{ $processName }}
     app.kubernetes.io/name: {{ $processName }}
     app.kubernetes.io/part-of: {{ $.Values.global.app_name }}
+    {{ include "print.labels" (dict "config" $.Values.global "key" "keda_scaled_object") | indent 4 }}
+    {{ include "print.labels" (dict "config" $config "key" "keda_scaled_object") | indent 4 }}
   name: {{ $.Values.global.app_name}}-{{ $processName }}
   namespace: {{ $.Values.global.namespace }}
 spec:

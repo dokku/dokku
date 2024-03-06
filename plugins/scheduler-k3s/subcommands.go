@@ -75,6 +75,19 @@ func CommandAutoscalingAuthSet(appName string, trigger string, metadata map[stri
 				return fmt.Errorf("Unable to delete property: %w", err)
 			}
 		}
+
+		if appName == "--global" {
+			helmAgent, err := NewHelmAgent("keda", DeployLogPrinter)
+			if err != nil {
+				return fmt.Errorf("Unable to create helm agent: %w", err)
+			}
+
+			releaseName := fmt.Sprintf("keda-cluster-trigger-authentications-%s", trigger)
+			if err := helmAgent.UninstallChart(releaseName); err != nil {
+				return fmt.Errorf("Unable to uninstall chart: %w", err)
+			}
+		}
+
 		return nil
 	}
 
@@ -83,6 +96,14 @@ func CommandAutoscalingAuthSet(appName string, trigger string, metadata map[stri
 			return fmt.Errorf("Unable to set property: %w", err)
 		}
 	}
+
+	if appName == "--global" {
+		err := applyKedaClusterTriggerAuthentications(context.Background(), trigger, metadata)
+		if err != nil {
+			return fmt.Errorf("Unable to install chart: %w", err)
+		}
+	}
+
 	return nil
 }
 

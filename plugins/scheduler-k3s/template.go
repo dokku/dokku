@@ -27,6 +27,14 @@ type ClusterIssuerValues struct {
 	ClusterIssuers map[string]ClusterIssuer `yaml:"cluster_issuers"`
 }
 
+type ClusterKedaValues struct {
+	Global struct {
+		Annotations ProcessAnnotations `yaml:"annotations,omitempty"`
+	} `yaml:"global"`
+	Secrets map[string]string `yaml:"secrets"`
+	Type    string            `yaml:"type"`
+}
+
 type AppValues struct {
 	Global    GlobalValues             `yaml:"global"`
 	Processes map[string]ProcessValues `yaml:"processes"`
