@@ -4,9 +4,10 @@
 > New as of 0.23.0
 
 ```
-cron:list <app> [--format json|stdout] # List scheduled cron tasks for an app
-cron:report [<app>] [<flag>]           # Display report about an app
-cron:run <app> <cron_id> [--detach]    # Run a cron task on the fly
+cron:list <app> [--format json|stdout]  # List scheduled cron tasks for an app
+cron:report [<app>] [<flag>]            # Display report about an app
+cron:run <app> <cron_id> [--detach]     # Run a cron task on the fly
+cron:set [--global|<app>] <key> <value> # Set or clear a cron property for an app
 ```
 
 ## Usage
