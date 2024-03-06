@@ -11,29 +11,29 @@
     },
     {
       "name": "docker-container-healthchecker",
-      "version": "0.7.2",
+      "version": "0.9.0",
       "urls": {
-        "amd64": "https://github.com/dokku/docker-container-healthchecker/releases/download/v0.7.2/docker-container-healthchecker_0.7.2_linux_amd64.tgz",
-        "arm64": "https://github.com/dokku/docker-container-healthchecker/releases/download/v0.7.2/docker-container-healthchecker_0.7.2_linux_arm64.tgz",
-        "arm": "https://github.com/dokku/docker-container-healthchecker/releases/download/v0.7.2/docker-container-healthchecker_0.7.2_linux_armhf.tgz"
+        "amd64": "https://github.com/dokku/docker-container-healthchecker/releases/download/v0.9.0/docker-container-healthchecker_0.9.0_linux_amd64.tgz",
+        "arm64": "https://github.com/dokku/docker-container-healthchecker/releases/download/v0.9.0/docker-container-healthchecker_0.9.0_linux_arm64.tgz",
+        "arm": "https://github.com/dokku/docker-container-healthchecker/releases/download/v0.9.0/docker-container-healthchecker_0.9.0_linux_armhf.tgz"
       }
     },
     {
       "name": "lambda-builder",
-      "version": "0.5.0",
+      "version": "0.6.0",
       "urls": {
-        "amd64": "https://github.com/dokku/lambda-builder/releases/download/v0.5.0/lambda-builder_0.5.0_linux_amd64.tgz",
-        "arm64": "https://github.com/dokku/lambda-builder/releases/download/v0.5.0/lambda-builder_0.5.0_linux_arm64.tgz",
-        "arm": "https://github.com/dokku/lambda-builder/releases/download/v0.5.0/lambda-builder_0.5.0_linux_armhf.tgz"
+        "amd64": "https://github.com/dokku/lambda-builder/releases/download/v0.6.0/lambda-builder_0.6.0_linux_amd64.tgz",
+        "arm64": "https://github.com/dokku/lambda-builder/releases/download/v0.6.0/lambda-builder_0.6.0_linux_arm64.tgz",
+        "arm": "https://github.com/dokku/lambda-builder/releases/download/v0.6.0/lambda-builder_0.6.0_linux_armhf.tgz"
       }
     },
     {
       "name": "netrc",
-      "version": "0.7.1",
+      "version": "0.8.0",
       "urls": {
-        "amd64": "https://github.com/dokku/netrc/releases/download/v0.7.1/netrc_0.7.1_linux_amd64.tgz",
-        "arm64": "https://github.com/dokku/netrc/releases/download/v0.7.1/netrc_0.7.1_linux_arm64.tgz",
-        "arm": "https://github.com/dokku/netrc/releases/download/v0.7.1/netrc_0.7.1_linux_armhf.tgz"
+        "amd64": "https://github.com/dokku/netrc/releases/download/v0.8.0/netrc_0.8.0_linux_amd64.tgz",
+        "arm64": "https://github.com/dokku/netrc/releases/download/v0.8.0/netrc_0.8.0_linux_arm64.tgz",
+        "arm": "https://github.com/dokku/netrc/releases/download/v0.8.0/netrc_0.8.0_linux_armhf.tgz"
       }
     },
     {
@@ -67,11 +67,11 @@
     },
     {
       "name": "plugn",
-      "version": "0.12.0",
+      "version": "0.13.0",
       "urls": {
-        "amd64": "https://github.com/dokku/plugn/releases/download/v0.12.0/plugn_0.12.0_linux_amd64.tgz",
-        "arm64": "https://github.com/dokku/plugn/releases/download/v0.12.0/plugn_0.12.0_linux_arm64.tgz",
-        "arm": "https://github.com/dokku/plugn/releases/download/v0.12.0/plugn_0.12.0_linux_armhf.tgz"
+        "amd64": "https://github.com/dokku/plugn/releases/download/v0.13.0/plugn_0.13.0_linux_amd64.tgz",
+        "arm64": "https://github.com/dokku/plugn/releases/download/v0.13.0/plugn_0.13.0_linux_arm64.tgz",
+        "arm": "https://github.com/dokku/plugn/releases/download/v0.13.0/plugn_0.13.0_linux_armhf.tgz"
       }
     }
   ],
@@ -96,11 +96,11 @@
     },
     {
       "name": "herokuish",
-      "version": "0.7.1",
+      "version": "0.7.3",
       "urls": {
-        "amd64": "https://github.com/gliderlabs/herokuish/releases/download/v0.7.1/herokuish_0.7.1_linux_x86_64.tgz",
-        "arm64": "https://github.com/gliderlabs/herokuish/releases/download/v0.7.1/herokuish_0.7.1_linux_x86_64.tgz",
-        "arm": "https://github.com/gliderlabs/herokuish/releases/download/v0.7.1/herokuish_0.7.1_linux_x86_64.tgz"
+        "amd64": "https://github.com/gliderlabs/herokuish/releases/download/v0.7.3/herokuish_0.7.3_linux_x86_64.tgz",
+        "arm64": "https://github.com/gliderlabs/herokuish/releases/download/v0.7.3/herokuish_0.7.3_linux_x86_64.tgz",
+        "arm": "https://github.com/gliderlabs/herokuish/releases/download/v0.7.3/herokuish_0.7.3_linux_x86_64.tgz"
       }
     }
   ]
