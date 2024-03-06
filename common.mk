@@ -28,10 +28,10 @@ clean:
 	find . -xtype l -delete
 
 commands: **/**/commands.go
-	GOARCH=$(GOARCH) go build -ldflags="-s -w" $(GO_ARGS) -o commands src/commands/commands.go
+	GOARCH=$(GOARCH) go build -mod=readonly -ldflags="-s -w" $(GO_ARGS) -o commands src/commands/commands.go
 
 subcommands:
-	GOARCH=$(GOARCH) go build -ldflags="-s -w" $(GO_ARGS) -o subcommands/subcommands src/subcommands/subcommands.go
+	GOARCH=$(GOARCH) go build -mod=readonly -ldflags="-s -w" $(GO_ARGS) -o subcommands/subcommands src/subcommands/subcommands.go
 	$(MAKE) $(SUBCOMMANDS)
 
 subcommands/%:
@@ -41,7 +41,7 @@ src-clean:
 	rm -rf .gitignore src vendor Makefile *.go glide.* go.sum go.mod
 
 triggers:
-	GOARCH=$(GOARCH) go build -ldflags="-s -w" $(GO_ARGS) -o triggers src/triggers/triggers.go
+	GOARCH=$(GOARCH) go build -mod=readonly -ldflags="-s -w" $(GO_ARGS) -o triggers src/triggers/triggers.go
 	$(MAKE) $(TRIGGERS)
 
 triggers/%:
