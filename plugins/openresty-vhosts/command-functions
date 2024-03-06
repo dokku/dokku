@@ -37,6 +37,7 @@ cmd-openresty-report-single() {
   local flag_map=(
     "--openresty-access-log-format: $(fn-openresty-access-log-format "$APP")"
     "--openresty-access-log-path: $(fn-openresty-access-log-path "$APP")"
+    "--openresty-allowed-letsencrypt-domains-func-base64: $(fn-openresty-allowed-letsencrypt-domains-func-base64)"
     "--openresty-bind-address-ipv4: $(fn-openresty-bind-address-ipv4 "$APP")"
     "--openresty-bind-address-ipv6: $(fn-openresty-bind-address-ipv6 "$APP")"
     "--openresty-client-max-body-size: $(fn-openresty-client-max-body-size "$APP")"

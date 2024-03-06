@@ -148,6 +148,50 @@ dokku openresty:set --global letsencrypt-server https://acme-staging-v02.api.let
 
 After enabling, the OpenResty container will need to be restarted and apps will need to be rebuilt to retrieve certificates from the new server.
 
+#### Limiting letsencrypt to certain domains
+
+> [!WARNING]
+> Changing this value may cause OpenResty to fail to start if the value is not valid. Caution should be exercised when changing this value from the defaults.
+
+In cases where your server's IP may have invalid domains pointing at it, limiting letsencrypt to certain allowed domains may be desirable to reduce spam requests on the Letsencrypt servers. The default is to allow all domains to have certificates retrieved, but this can be limited by specifying the `allowed-letsencrypt-domains-func-base64` global property.
+
+The default internal value for `allowed-letsencrypt-domains-func-base64` is the base64 representation of `return true`, and is meant to be the body of a lua function that return a boolean value.
+
+```shell
+value="$(echo 'return true' | base64 -w 0)"
+dokku openresty:set --global allowed-letsencrypt-domains-func-base64 $value
+```
+
+As this is a global value, once changed, OpenResty should be stopped and started again for the value to take effect:
+
+```shell
+dokku openresty:stop
+dokku openresty:start
+```
+
+A more complex example would be to limit provisioning of certificates to domains in a specific list. The body of the lua function has access to a variable `domain`, and we can use it like so:
+
+```shell
+body='allowed_domains = {"domain.com", "extra-domain.com"}
+
+for index, value in ipairs(allowed_domains) do
+  if value == domain then
+    return true
+  end
+end
+
+return false
+'
+value="$(echo "$body" | base64 -w 0)"
+dokku openresty:set --global allowed-letsencrypt-domains-func-base64 $value
+```
+
+To reset the value to the default, simply specify a blank value prior to restarting OpenResty:
+
+```shell
+dokku openresty:set --global allowed-letsencrypt-domains-func-base64
+```
+
 ## Displaying OpenResty reports for an app
 
 You can get a report about the app's OpenResty config using the `openresty:report` command:
