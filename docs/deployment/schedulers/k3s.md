@@ -5,10 +5,12 @@
 
 ```
 scheduler-k3s:annotations:set <app|--global> <property> (<value>) [--process-type PROCESS_TYPE] <--resource-type RESOURCE_TYPE>, Set or clear an annotation for a given app/process-type/resource-type combination
+scheduler-k3s:autoscaling-auth:set <app|--global> <trigger> [<--metadata key=value>...], Set or clear a scheduler-k3s autoscaling keda trigger authentication resource for an app
 scheduler-k3s:cluster-add [ssh://user@host:port]    # Adds a server node to a Dokku-managed cluster
 scheduler-k3s:cluster-list                          # Lists all nodes in a Dokku-managed cluster
 scheduler-k3s:cluster-remove [node-id]              # Removes client node to a Dokku-managed cluster
 scheduler-k3s:initialize                            # Initializes a cluster
+scheduler-k3s:labels:set <app|--global> <property> (<value>) [--process-type PROCESS_TYPE] <--resource-type RESOURCE_TYPE>, Set or clear a label for a given app/process-type/resource-type combination
 scheduler-k3s:report [<app>] [<flag>]               # Displays a scheduler-k3s report for one or more apps
 scheduler-k3s:set [<app>|--global] <key> (<value>)  # Set or clear a scheduler-k3s property for an app or the scheduler
 scheduler-k3s:show-kubeconfig                       # Displays the kubeconfig for remote usage
@@ -231,7 +233,9 @@ The default value may be set by passing an empty value for the option.
 dokku scheduler-k3s:set --global image-pull-secrets
 ```
 
-### Enabling letsencrypt integration
+### SSL Certificates
+
+#### Enabling letsencrypt integration
 
 By default, letsencrypt is disabled and https port mappings are ignored. To enable, set the `letsencrypt-email-prod` or `letsencrypt-email-stag` property with the `--global` flag:
 
@@ -245,7 +249,7 @@ dokku scheduler-k3s:set --global letsencrypt-email-stag automated@dokku.sh
 
 After enabling and rebuilding, all apps with an `http:80` port mapping will have a corresponding `https:443` added and ssl will be automatically enabled. All http requests will then be redirected to https.
 
-### Customizing the letsencrypt server
+#### Customizing the letsencrypt server
 
 The letsencrypt integration is set to the production letsencrypt server by default. This can be changed on an app-level by setting the `letsencrypt-server` property with the `scheduler-k3s:set` command
 
@@ -348,6 +352,117 @@ To unset an label, pass an empty value:
 ```shell
 dokku scheduler-k3s:annotations:set node-js-app label.key --resource-type deployment
 dokku scheduler-k3s:labels:set node-js-app label.key --resource-type deployment --process-type web
+```
+
+### Autoscaling
+
+#### Workload Autoscaling
+
+> [!IMPORTANT]
+> New as of 0.33.8
+> Users with older installations will need to manually install Keda.
+
+Autoscaling in k3s is managed by [Keda](https://keda.sh/), which integrates with a variety of external metric providers to allow for autoscaling application workloads.
+
+To enable autoscaling, use the `app.json` `formations.$PROCESS_TYPE.autoscaling` key to manage rules. In addition to the existing configuration used for process management, each process type in the `formations.$PROCESS_TYPE.autoscaling` key can have the following keys:
+
+- `min_quantity`: The minimum number of instances the application can run. If not specified, the `quantity` specified for the app is used.
+- `max_quantity`: The maximum number of instances the application can run. If not specified, the higher value of `quantity` and the `min_quantity` is used.
+- `polling_interval_seconds`: (default: 30) The interval to wait for polling each of the configured triggers
+- `cooldown_seconds`: (default: 300) The number of seconds to wait in between each scaling event
+- `triggers`: A list of autoscaling triggers.
+
+Autoscaling triggers are passed as is to Keda, and should match the configuration keda uses for a given [scaler](https://keda.sh/docs/2.13/scalers/). Below is an example for [datadog](https://keda.sh/docs/2.13/scalers/datadog/#example-2---driving-scale-directly):
+
+```json
+{
+    "formations": {
+        "web": {
+            "autoscaling": {
+                "min_quantity": 1,
+                "max_quantity": 10,
+                "triggers": [
+                    {
+                        "name": "name-for-trigger",
+                        "type": "datadog",
+                        "metadata": {
+                            "query": "per_second(sum:http.requests{service:myservice1}).rollup(max, 300))/180,per_second(sum:http.backlog{service:myservice1}).rollup(max, 300)/30",
+                            "queryValue": "1",
+                            "queryAggregator": "max"
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}
+```
+
+Each value in the `metadata` stanza can use the following interpolated strings:
+
+- `DOKKU_DEPLOYMENT_NAME`: The name of the deployment being scaled
+- `DOKKU_PROCESS_TYPE`: The name of the process being scaled
+- `DOKKU_APP_NAME`: The name of the app being scaled
+
+#### Workload Autoscaling Authentication
+
+Most Keda triggers require some form of authentication to query for data. In the Kubernetes API, they are represented by `TriggerAuthentication` and `ClusterTriggerAuthentication` resources. Dokku can manage these via the `scheduler-k3s:autoscaling-auth` commands, and includes generated resources with each helm release generated by a deploy.
+
+If no app-specific authentication is provided for a given trigger type, Dokku will fallback to any globally defined `ClusterTriggerAuthentication` resources. Autoscaling triggers within an app all share the same `TriggerAuthentication` resources, while `ClusterTriggerAuthentication` resources can be shared across all apps deployed by Dokku within a given cluster. 
+
+##### Creating Authentication Resources
+
+Users can specify custom authentication resources directly via the Kubernetes api _or_ use the `scheduler-k3s:autoscaling-auth:set` command to create the resources in the Kubernetes cluster.
+
+```shell
+dokku scheduler-k3s:autoscaling-auth:set $APP $TRIGGER --metadata apiKey=some-api-key --metadata appKey=some-app-key
+```
+
+For example, the following will configure the authentication for all datadog triggers on the specified app:
+
+```shell
+dokku scheduler-k3s:autoscaling-auth:set node-js-app datadog --metadata apiKey=1234567890 --metadata appKey=asdfghjkl --metadata datadogSite=us5.datadoghq.com
+```
+
+After execution, Dokku will include the following resources for each specified trigger with the helm release generated on subsequent app deploys:
+
+- `Secret`: an Opaque `Secret` resource storing the authentication credentials
+- `TriggerAuthentication`: A `TriggerAuthentication` resource that references the secret for use by triggers
+
+If the `--global` flag is specified instead of an app name, a custom helm chart is created on the fly with the above resources.
+
+##### Removing Authentication Resources
+
+To remove a configured authenticatin resource, run the `scheduler-k3s:autoscaling-auth:set` command with no parameters specified. Subsequent deploys will not include these resources.
+
+```shell
+dokku scheduler-k3s:autoscaling-auth:set $APP $TRIGGER_TYPE
+```
+
+##### Displaying an Authentication Resource report
+
+To see a list of authentication resources managed by Dokku, run the `scheduler-k3s:autoscaling-auth:report` command.
+
+```shell
+dokku scheduler-k3s:autoscaling-auth:report $APP
+```
+
+```
+====> $APP autoscaling-auth report
+      datadog: configured
+```
+
+By default, the report will not display configured parameters - making it safe to include in Dokku report output. To include parameters, add the `--include-parameters` flag:
+
+```shell
+dokku scheduler-k3s:autoscaling-auth:report $APP --include-parameters
+```
+
+```
+====> $APP autoscaling-auth report
+      datadog:        configured
+      datadog-apiKey: some-api-key
+      datadog-appKey: some-app-key
 ```
 
 ### Using kubectl remotely
