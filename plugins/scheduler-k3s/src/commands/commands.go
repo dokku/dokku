@@ -23,6 +23,7 @@ Additional commands:`
     scheduler-k3s:cluster-list [--format json|stdout], Lists all nodes in a Dokku-managed cluster
     scheduler-k3s:cluster-remove [node-id], Removes client node to a Dokku-managed cluster
     scheduler-k3s:initialize [--server-ip SERVER_IP] [--taint-scheduling], Initializes a cluster
+    scheduler-k3s:labels:set <app|--global> <property> (<value>) [--process-type PROCESS_TYPE] <--resource-type RESOURCE_TYPE>, Set or clear a label for a given app/process-type/resource-type combination
     scheduler-k3s:report [<app>] [<flag>], Displays a scheduler-k3s report for one or more apps
     scheduler-k3s:set <app> <property> (<value>), Set or clear a scheduler-k3s property for an app
     scheduler-k3s:show-kubeconfig, Displays the kubeconfig for remote usage
