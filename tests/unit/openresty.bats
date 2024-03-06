@@ -138,6 +138,73 @@ teardown() {
   assert_output "http:80:5000 https:443:5000"
 }
 
+@test "(openresty) allowed-domains" {
+  run /bin/bash -c "dokku proxy:set $TEST_APP openresty"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  value="$(echo 'return true' | base64 -w 0)"
+  run /bin/bash -c "dokku openresty:set --global allowed-letsencrypt-domains-func-base64 $value"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku openresty:start"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker exec openresty-openresty-1 /usr/local/openresty/nginx/sbin/nginx -t"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  body='allowed_domains = {"domain.com", "extra-domain.com"}
+  for index, value in ipairs(allowed_domains) do
+    if value == domain then
+      return true
+    end
+  end
+  return false
+  '
+  value="$(echo "$body" | base64 -w 0)"
+  run /bin/bash -c "dokku openresty:set --global allowed-letsencrypt-domains-func-base64 $value"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku openresty:stop"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku openresty:start"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker exec openresty-openresty-1 /usr/local/openresty/nginx/sbin/nginx -t"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku openresty:set --global allowed-letsencrypt-domains-func-base64"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku openresty:stop"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku openresty:start"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
 @test "(openresty) includes" {
   run /bin/bash -c "dokku proxy:set $TEST_APP openresty"
   echo "output: $output"

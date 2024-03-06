@@ -26,6 +26,12 @@ fn-openresty-access-log-path() {
   fn-plugin-property-get-default "openresty" "$APP" "access-log-path" "${OPENRESTY_LOG_ROOT}/${APP}-access.log"
 }
 
+fn-fn-openresty-allowed-letsencrypt-domains-func-base64() {
+  declare desc="get the configured allowed domains func base64"
+
+  fn-plugin-property-get-default "openresty" "--global" "allowed-letsencrypt-domains-func-base64" "return true" | base64 -w 0
+}
+
 fn-openresty-bind-address-ipv4() {
   declare desc="get the configured ipv4 bind address"
   declare APP="$1"
@@ -220,6 +226,11 @@ fn-openresty-template-compose-file() {
     OPENRESTY_IMAGE="$(fn-openresty-image)"
     OPENRESTY_LETSENCRYPT_EMAIL="$(fn-openresty-letsencrypt-email)"
     OPENRESTY_LETSENCRYPT_SERVER="$(fn-openresty-letsencrypt-server)")
+
+  local ALLOWED_DOMAINS_FUNC_BASE64="$(fn-fn-openresty-allowed-letsencrypt-domains-func-base64)"
+  if [[ -n "$ALLOWED_DOMAINS_FUNC_BASE64" ]]; then
+    SIGIL_PARAMS+=(ALLOWED_DOMAINS_FUNC_BASE64="$ALLOWED_DOMAINS_FUNC_BASE64")
+  fi
 
   sigil -f "$COMPOSE_TEMPLATE" "${SIGIL_PARAMS[@]}" | cat -s >"$OUTPUT_PATH"
 }
