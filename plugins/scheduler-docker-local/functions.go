@@ -16,18 +16,16 @@ import (
 
 func deleteCrontab() error {
 	result, err := common.CallExecCommand(common.ExecCommandInput{
-		Command: "/usr/bin/crontab",
+		Command: "crontab",
 		Args:    []string{"-l", "-u", "dokku"},
-		Sudo:    true,
 	})
 	if err != nil || result.ExitCode != 0 {
 		return nil
 	}
 
 	result, err = common.CallExecCommand(common.ExecCommandInput{
-		Command: "/usr/bin/crontab",
+		Command: "crontab",
 		Args:    []string{"-r", "-u", "dokku"},
-		Sudo:    true,
 	})
 	if err != nil {
 		return fmt.Errorf("Unable to remove schedule file: %w", err)
@@ -148,9 +146,8 @@ func writeCronEntries() error {
 	}
 
 	result, err := common.CallExecCommand(common.ExecCommandInput{
-		Command: "/usr/bin/crontab",
+		Command: "crontab",
 		Args:    []string{"-u", "dokku", tmpFile.Name()},
-		Sudo:    true,
 	})
 	if err != nil {
 		return fmt.Errorf("Unable to update schedule file: %w", err)
