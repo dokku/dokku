@@ -41,7 +41,7 @@ teardown() {
   run /bin/bash -c "test -f /etc/sudoers.d/dokku-cron"
   echo "output: $output"
   echo "status: $status"
-  assert_success
+  assert_failure
 }
 
 @test "(cron) invalid [missing-keys]" {
