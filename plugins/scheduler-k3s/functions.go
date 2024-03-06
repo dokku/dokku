@@ -19,10 +19,12 @@ import (
 	"github.com/dokku/dokku/plugins/common"
 	nginxvhosts "github.com/dokku/dokku/plugins/nginx-vhosts"
 	resty "github.com/go-resty/resty/v2"
+	kedav1alpha1 "github.com/kedacore/keda/v2/apis/keda/v1alpha1"
 	"golang.org/x/sync/errgroup"
 	"gopkg.in/yaml.v3"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/core/v1"
+	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
@@ -686,7 +688,14 @@ func getKedaValues(ctx context.Context, clientset KubernetesClient, appName stri
 
 	items, err := clientset.ListClusterTriggerAuthentications(ctx, ListClusterTriggerAuthenticationsInput{})
 	if err != nil {
-		return GlobalKedaValues{}, fmt.Errorf("Error listing cluster trigger authentications: %w", err)
+		if !k8serrors.IsNotFound(err) {
+			return GlobalKedaValues{}, fmt.Errorf("Error listing cluster trigger authentications: %w", err)
+		}
+
+		common.LogWarn(fmt.Sprintf("Error listing cluster trigger authentications: %v", err))
+		common.LogWarn("Continuing with no cluster trigger authentications")
+		common.LogWarn("This may be due to the keda helm chart not being installed")
+		items = []kedav1alpha1.ClusterTriggerAuthentication{}
 	}
 
 	globalAuths := map[string]KedaAuthentication{}
