@@ -86,7 +86,7 @@ uninstall_k3s() {
   INGRESS_CLASS=nginx TAINT_SCHEDULING=true install_k3s
 }
 
-@test "(scheduler-k3s) deploy traefik [resource]" {
+@test "(scheduler-k3s) deploy traefik [resource] [autoscaling]" {
   if [[ -z "$DOCKERHUB_USERNAME" ]] || [[ -z "$DOCKERHUB_TOKEN" ]]; then
     skip "skipping due to missing docker.io credentials DOCKERHUB_USERNAME:DOCKERHUB_TOKEN"
   fi
@@ -103,6 +103,11 @@ uninstall_k3s() {
   echo "status: $status"
   assert_success
 
+  run /bin/bash -c "dokku scheduler-k3s:autoscaling-auth:set node-js-app memory --metadata some-key=1234567890 --metadata some-value=asdfghjkl"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku git:sync --build $TEST_APP https://github.com/dokku/smoke-test-app.git"
   echo "output: $output"
   echo "status: $status"
@@ -114,6 +119,43 @@ uninstall_k3s() {
   assert_success
 
   assert_http_localhost_response "http" "$TEST_APP.dokku.me" "80" "" "python/http.server"
+
+  # include autoscaling tests
+  run /bin/bash -c "kubectl get scaledobjects.keda.sh $TEST_APP-web -o=jsonpath='{.spec.triggers[0].authenticationRef.name}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "$TEST_APP-memory"
+
+  run /bin/bash -c "kubectl get triggerauthentications.keda.sh $TEST_APP-memory -o=jsonpath='{.spec.secretTargetRef[0].key}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "some-key"
+
+  run /bin/bash -c "kubectl get triggerauthentications.keda.sh $TEST_APP-memory -o=jsonpath='{.spec.secretTargetRef[0].name}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "kta-test-memory"
+
+  run /bin/bash -c "kubectl get triggerauthentications.keda.sh $TEST_APP-memory -o=jsonpath='{.spec.secretTargetRef[0].parameter}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "some-key"
+
+  run /bin/bash -c "kubectl get secret kta-$TEST_APP-memory -o=jsonpath='{.data.some-key}' | base64 --decode"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "1234567890"
+
+  run /bin/bash -c "kubectl get secret kta-$TEST_APP-memory -o=jsonpath='{.data.some-value}' | base64 --decode"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "asdfghjkl"
 
   # include resource tests
   run /bin/bash -c "kubectl get pods -o=jsonpath='{.items[*]..resources.requests.cpu}'"
