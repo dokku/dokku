@@ -9,7 +9,6 @@ pkgs=(apt-transport-https
   curl
   jq
   linux-image-extra-virtual
-  software-properties-common
 )
 
 echo '--> Updating apt repositories'

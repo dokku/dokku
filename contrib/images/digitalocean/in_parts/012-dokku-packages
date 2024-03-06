@@ -15,7 +15,6 @@ pkgs=(apache2-utils
   netcat
   net-tools
 
-  software-properties-common
   parallel
   python3-software-properties
   rsync
