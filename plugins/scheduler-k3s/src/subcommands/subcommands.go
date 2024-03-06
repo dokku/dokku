@@ -41,6 +41,10 @@ func main() {
 		args.Parse(os.Args[2:])
 		appName := args.Arg(0)
 		trigger := args.Arg(1)
+		if *global {
+			appName = "--global"
+			trigger = args.Arg(0)
+		}
 		err = scheduler_k3s.CommandAutoscalingAuthSet(appName, trigger, *metadata, *global)
 	case "cluster-add":
 		args := flag.NewFlagSet("scheduler-k3s:cluster-add", flag.ExitOnError)
