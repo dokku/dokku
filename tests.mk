@@ -182,7 +182,7 @@ go-test-plugin:
 		-v $$PWD:$(GO_REPO_ROOT) \
 		-w $(GO_REPO_ROOT) \
 		$(BUILD_IMAGE) \
-		bash -c "cd plugins/$(PLUGIN_NAME) && go get github.com/onsi/gomega && go test -v -p 1 -race " || exit $$?
+		bash -c "cd plugins/$(PLUGIN_NAME) && go get github.com/onsi/gomega && go test -v -p 1 -race -mod=readonly " || exit $$?
 
 unit-tests: go-tests
 	@echo running bats unit tests...
