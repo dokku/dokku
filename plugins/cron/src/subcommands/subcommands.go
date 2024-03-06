@@ -40,6 +40,19 @@ func main() {
 		appName := args.Arg(0)
 		cronID := args.Arg(1)
 		err = cron.CommandRun(appName, cronID, *detached)
+	case "set":
+		args := flag.NewFlagSet("cron:set", flag.ExitOnError)
+		global := args.Bool("global", false, "--global: set a global property")
+		args.Parse(os.Args[2:])
+		appName := args.Arg(0)
+		property := args.Arg(1)
+		value := args.Arg(2)
+		if *global {
+			appName = "--global"
+			property = args.Arg(0)
+			value = args.Arg(1)
+		}
+		err = cron.CommandSet(appName, property, value)
 	default:
 		err = fmt.Errorf("Invalid plugin subcommand call: %s", subcommand)
 	}
