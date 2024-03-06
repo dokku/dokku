@@ -138,6 +138,40 @@ func PropertyGetAll(pluginName string, appName string) (map[string]string, error
 	return properties, nil
 }
 
+// PropertyGetAllByPrefix returns a map of all properties for a given app with a specified prefix
+func PropertyGetAllByPrefix(pluginName string, appName string, prefix string) (map[string]string, error) {
+	properties := make(map[string]string)
+	pluginAppConfigRoot := getPluginAppPropertyPath(pluginName, appName)
+
+	fi, err := os.Stat(pluginAppConfigRoot)
+	if err != nil {
+		return properties, nil
+	}
+
+	if !fi.IsDir() {
+		return properties, errors.New("Specified property path is not a directory")
+	}
+
+	files, err := os.ReadDir(pluginAppConfigRoot)
+	if err != nil {
+		return properties, err
+	}
+
+	for _, file := range files {
+		if file.IsDir() {
+			continue
+		}
+		property := file.Name()
+		if !strings.HasPrefix(property, prefix) {
+			continue
+		}
+
+		properties[property] = PropertyGet(pluginName, appName, property)
+	}
+
+	return properties, nil
+}
+
 // PropertyGetDefault returns the value for a given property with a specified default value
 func PropertyGetDefault(pluginName, appName, property, defaultValue string) (val string) {
 	if !PropertyExists(pluginName, appName, property) {

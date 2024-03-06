@@ -266,11 +266,26 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 		return fmt.Errorf("Error getting global labels: %w", err)
 	}
 
+	clientset, err := NewKubernetesClient()
+	if err != nil {
+		return fmt.Errorf("Error creating kubernetes client: %w", err)
+	}
+
+	if err := clientset.Ping(); err != nil {
+		return fmt.Errorf("kubernetes api not available: %w", err)
+	}
+
+	kedaValues, err := getKedaValues(ctx, clientset, appName)
+	if err != nil {
+		return fmt.Errorf("Error getting keda values: %w", err)
+	}
+
 	values := &AppValues{
 		Global: GlobalValues{
 			Annotations:  globalAnnotations,
 			AppName:      appName,
 			DeploymentID: fmt.Sprint(deploymentId),
+			Keda:         kedaValues,
 			Image: GlobalImage{
 				ImagePullSecrets: imagePullSecrets,
 				PullSecretBase64: pullSecretBase64,
@@ -287,6 +302,27 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 			Secrets: map[string]string{},
 		},
 		Processes: map[string]ProcessValues{},
+	}
+
+	for authName := range kedaValues.Authentications {
+		templateFiles := []string{"keda-secret", "keda-trigger-authentication"}
+		for _, templateName := range templateFiles {
+			b, err := templates.ReadFile(fmt.Sprintf("templates/chart/%s.yaml", templateName))
+			if err != nil {
+				return fmt.Errorf("Error reading %s template: %w", templateName, err)
+			}
+
+			filename := filepath.Join(chartDir, "templates", fmt.Sprintf("%s-%s.yaml", templateName, authName))
+			contents := strings.ReplaceAll(string(b), "AUTH_NAME", authName)
+			err = os.WriteFile(filename, []byte(contents), os.FileMode(0644))
+			if err != nil {
+				return fmt.Errorf("Error writing %s template: %w", templateName, err)
+			}
+
+			if os.Getenv("DOKKU_TRACE") == "1" {
+				common.CatFile(filename)
+			}
+		}
 	}
 
 	for processType, processCount := range processes {
@@ -327,8 +363,19 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 			return fmt.Errorf("Error getting process labels: %w", err)
 		}
 
+		autoscaling, err := getAutoscaling(GetAutoscalingInput{
+			AppName:     appName,
+			ProcessType: processType,
+			Replicas:    int(processCount),
+			KedaValues:  kedaValues,
+		})
+		if err != nil {
+			return fmt.Errorf("Error getting autoscaling: %w", err)
+		}
+
 		processValues := ProcessValues{
 			Annotations:  annotations,
+			Autoscaling:  autoscaling,
 			Args:         args,
 			Healthchecks: processHealthchecks,
 			Labels:       labels,
@@ -336,6 +383,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 			Replicas:     int32(processCount),
 			Resources:    processResources,
 		}
+
 		if processType == "web" {
 			processValues.Web = ProcessWeb{
 				Domains:  domains,
@@ -392,7 +440,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 
 		values.Processes[processType] = processValues
 
-		templateFiles := []string{"deployment"}
+		templateFiles := []string{"deployment", "keda-scaled-object"}
 		if processType == "web" {
 			templateFiles = append(templateFiles, "service", "certificate", "ingress", "ingress-route", "https-redirect-middleware")
 		}
@@ -413,16 +461,6 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 				common.CatFile(filename)
 			}
 		}
-
-	}
-
-	clientset, err := NewKubernetesClient()
-	if err != nil {
-		return fmt.Errorf("Error creating kubernetes client: %w", err)
-	}
-
-	if err := clientset.Ping(); err != nil {
-		return fmt.Errorf("kubernetes api not available: %w", err)
 	}
 
 	cronJobs, err := clientset.ListCronJobs(ctx, ListCronJobsInput{

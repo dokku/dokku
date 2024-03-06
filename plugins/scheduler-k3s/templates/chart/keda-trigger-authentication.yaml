@@ -1,0 +1,28 @@
+{{- if .Capabilities.APIVersions.Has "keda.sh/v1alpha1" -}}
+{{- $config := index .Values.global.keda.authentications "AUTH_NAME" }}
+---
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  annotations:
+    app.kubernetes.io/version: {{ $.Values.global.deploment_id | quote }}
+    dokku.com/managed: "true"
+    {{- if and $.Values.global.annotations $.Values.global.annotations.keda_trigger_authentication }}
+    {{- range $k, $v := $.Values.global.annotations.keda_trigger_authentication }}
+    {{ $k }}: {{ $v | quote }}
+    {{- end }}
+    {{- end }}
+  labels:
+    app.kubernetes.io/instance: {{ $.Values.global.app_name }}-{{ $config.type }}
+    app.kubernetes.io/name: {{ $config.type }}
+    app.kubernetes.io/part-of: {{ $.Values.global.app_name }}
+  name: {{ $.Values.global.app_name }}-{{ $config.type }}
+  namespace: {{ $.Values.global.namespace }}
+spec:
+  secretTargetRef:
+  {{- range $k, $v := $config.secrets }}
+  - key: {{ $k }}
+    name: kta-{{ $.Values.global.app_name }}-{{ $config.type }}
+    parameter: {{ $k }}
+  {{- end }}
+{{- end }}

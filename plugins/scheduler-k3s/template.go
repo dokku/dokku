@@ -27,6 +27,14 @@ type ClusterIssuerValues struct {
 	ClusterIssuers map[string]ClusterIssuer `yaml:"cluster_issuers"`
 }
 
+type ClusterKedaValues struct {
+	Global struct {
+		Annotations ProcessAnnotations `yaml:"annotations,omitempty"`
+	} `yaml:"global"`
+	Secrets map[string]string `yaml:"secrets"`
+	Type    string            `yaml:"type"`
+}
+
 type AppValues struct {
 	Global    GlobalValues             `yaml:"global"`
 	Processes map[string]ProcessValues `yaml:"processes"`
@@ -38,6 +46,7 @@ type GlobalValues struct {
 	DeploymentID string             `yaml:"deploment_id"`
 	Image        GlobalImage        `yaml:"image"`
 	Labels       ProcessLabels      `yaml:"labels,omitempty"`
+	Keda         GlobalKedaValues   `yaml:"keda"`
 	Namespace    string             `yaml:"namespace"`
 	Network      GlobalNetwork      `yaml:"network"`
 	Secrets      map[string]string  `yaml:"secrets,omitempty"`
@@ -56,9 +65,41 @@ type GlobalNetwork struct {
 	PrimaryPort  int32  `yaml:"primary_port"`
 }
 
+// GlobalKedaValues contains the global keda configuration
+type GlobalKedaValues struct {
+	// Authentications is a map of authentication objects to use for keda
+	Authentications map[string]KedaAuthentication `yaml:"authentications"`
+
+	// GlobalAuthentications is a map of global authentication objects to use for keda
+	GlobalAuthentications map[string]KedaAuthentication `yaml:"global_authentications"`
+}
+
+// KedaAuthentication contains the authentication configuration for keda
+type KedaAuthentication struct {
+	// Name is the name of the authentication object
+	Name string `yaml:"name"`
+
+	// Kind is the kind of authentication object
+	Kind KedaAuthenticationKind `yaml:"kind,omitempty"`
+
+	// Type is the type of authentication to use
+	Type string `yaml:"type"`
+
+	// Secrets is a map of secrets to use for authentication
+	Secrets map[string]string `yaml:"secrets,omitempty"`
+}
+
+type KedaAuthenticationKind string
+
+const (
+	KedaAuthenticationKind_ClusterTriggerAuthentication KedaAuthenticationKind = "ClusterTriggerAuthentication"
+	KedaAuthenticationKind_TriggerAuthentication        KedaAuthenticationKind = "TriggerAuthentication"
+)
+
 type ProcessValues struct {
 	Annotations  ProcessAnnotations  `yaml:"annotations,omitempty"`
 	Args         []string            `yaml:"args,omitempty"`
+	Autoscaling  ProcessAutoscaling  `yaml:"autoscaling,omitempty"`
 	Cron         ProcessCron         `yaml:"cron,omitempty"`
 	Healthchecks ProcessHealthchecks `yaml:"healthchecks,omitempty"`
 	Labels       ProcessLabels       `yaml:"labels,omitempty"`
@@ -69,17 +110,68 @@ type ProcessValues struct {
 }
 
 type ProcessAnnotations struct {
-	CertificateAnnotations         map[string]string `yaml:"certificate,omitempty"`
-	CronJobAnnotations             map[string]string `yaml:"cronjob,omitempty"`
-	DeploymentAnnotations          map[string]string `yaml:"deployment,omitempty"`
-	IngressAnnotations             map[string]string `yaml:"ingress,omitempty"`
-	JobAnnotations                 map[string]string `yaml:"job,omitempty"`
-	PodAnnotations                 map[string]string `yaml:"pod,omitempty"`
-	SecretAnnotations              map[string]string `yaml:"secret,omitempty"`
-	ServiceAccountAnnotations      map[string]string `yaml:"serviceaccount,omitempty"`
-	ServiceAnnotations             map[string]string `yaml:"service,omitempty"`
-	TraefikIngressRouteAnnotations map[string]string `yaml:"traefik_ingressroute,omitempty"`
-	TraefikMiddlewareAnnotations   map[string]string `yaml:"traefik_middleware,omitempty"`
+	CertificateAnnotations               map[string]string `yaml:"certificate,omitempty"`
+	CronJobAnnotations                   map[string]string `yaml:"cronjob,omitempty"`
+	DeploymentAnnotations                map[string]string `yaml:"deployment,omitempty"`
+	IngressAnnotations                   map[string]string `yaml:"ingress,omitempty"`
+	JobAnnotations                       map[string]string `yaml:"job,omitempty"`
+	KedaScalingObjectAnnotations         map[string]string `yaml:"keda_scaled_object,omitempty"`
+	KedaSecretAnnotations                map[string]string `yaml:"keda_secret,omitempty"`
+	KedaTriggerAuthenticationAnnotations map[string]string `yaml:"keda_trigger_authentication,omitempty"`
+	PodAnnotations                       map[string]string `yaml:"pod,omitempty"`
+	SecretAnnotations                    map[string]string `yaml:"secret,omitempty"`
+	ServiceAccountAnnotations            map[string]string `yaml:"serviceaccount,omitempty"`
+	ServiceAnnotations                   map[string]string `yaml:"service,omitempty"`
+	TraefikIngressRouteAnnotations       map[string]string `yaml:"traefik_ingressroute,omitempty"`
+	TraefikMiddlewareAnnotations         map[string]string `yaml:"traefik_middleware,omitempty"`
+}
+
+// ProcessAutoscaling contains the autoscaling configuration for a process
+type ProcessAutoscaling struct {
+	// CooldownPeriodSeconds is the number of seconds after a scaling event before another can be triggered
+	CooldownPeriodSeconds int `yaml:"cooldown_period_seconds,omitempty"`
+
+	// Enabled is a flag to enable autoscaling
+	Enabled bool `yaml:"enabled"`
+
+	// MaxReplicas is the maximum number of replicas to scale to
+	MaxReplicas int `yaml:"max_replicas,omitempty"`
+
+	// MinReplicas is the minimum number of replicas to scale to
+	MinReplicas int `yaml:"min_replicas,omitempty"`
+
+	// PollingIntervalSeconds is the number of seconds between polling for new metrics
+	PollingIntervalSeconds int `yaml:"polling_interval_seconds,omitempty"`
+
+	// Triggers is a list of triggers to use for autoscaling
+	Triggers []ProcessAutoscalingTrigger `yaml:"triggers,omitempty"`
+
+	// Type is the type of autoscaling to use
+	Type string `yaml:"type"`
+}
+
+// ProcessAutoscalingTrigger is a trigger to use for autoscaling
+type ProcessAutoscalingTrigger struct {
+	// Name is the name of the trigger
+	Name string `yaml:"name"`
+
+	// Type is the type of trigger to use
+	Type string `yaml:"type"`
+
+	// Metadata is a map of key-value pairs that can be used to store arbitrary trigger data
+	Metadata map[string]string `yaml:"metadata,omitempty"`
+
+	// AuthenticationRef is a reference to an authentication object
+	AuthenticationRef *ProcessAutoscalingTriggerAuthenticationRef `yaml:"authenticationRef,omitempty"`
+}
+
+// ProcessAutoscalingTriggerAuthenticationRef is a reference to an authentication object
+type ProcessAutoscalingTriggerAuthenticationRef struct {
+	// Name is the name of the authentication object
+	Name string `yaml:"name"`
+
+	// Kind is the kind of authentication object
+	Kind string `yaml:"kind,omitempty"`
 }
 
 type ProcessHealthchecks struct {

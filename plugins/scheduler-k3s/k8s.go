@@ -7,6 +7,7 @@ import (
 
 	"github.com/dokku/dokku/plugins/common"
 	"github.com/go-openapi/jsonpointer"
+	kedav1alpha1 "github.com/kedacore/keda/v2/apis/keda/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
 	autoscalingv1 "k8s.io/api/autoscaling/v1"
 	batchv1 "k8s.io/api/batch/v1"
@@ -15,6 +16,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
@@ -34,6 +36,9 @@ func getKubeContext() string {
 type KubernetesClient struct {
 	// Client is the Kubernetes client
 	Client kubernetes.Clientset
+
+	// DynamicClient is the Kubernetes dynamic client
+	DynamicClient dynamic.Interface
 
 	// KubeConfigPath is the path to the Kubernetes config
 	KubeConfigPath string
@@ -72,8 +77,14 @@ func NewKubernetesClient() (KubernetesClient, error) {
 		return KubernetesClient{}, err
 	}
 
+	dynamicClient, err := dynamic.NewForConfig(restConf)
+	if err != nil {
+		return KubernetesClient{}, err
+	}
+
 	return KubernetesClient{
 		Client:         *client,
+		DynamicClient:  dynamicClient,
 		KubeConfigPath: kubeconfigPath,
 		RestConfig:     *restConf,
 		RestClient:     restClient,
@@ -337,6 +348,44 @@ func (k KubernetesClient) LabelNode(ctx context.Context, input LabelNodeInput) e
 	return nil
 }
 
+// ListClusterTriggerAuthenticationsInput contains all the information needed to list Kubernetes trigger authentications
+type ListClusterTriggerAuthenticationsInput struct {
+	// Namespace is the Kubernetes namespace
+	Namespace string
+
+	// LabelSelector is the Kubernetes label selector
+	LabelSelector string
+}
+
+// ListClusterTriggerAuthentications lists Kubernetes trigger authentications
+func (k KubernetesClient) ListClusterTriggerAuthentications(ctx context.Context, input ListClusterTriggerAuthenticationsInput) ([]kedav1alpha1.ClusterTriggerAuthentication, error) {
+	listOptions := metav1.ListOptions{LabelSelector: input.LabelSelector}
+
+	gvr := schema.GroupVersionResource{
+		Group:    "keda.sh",
+		Version:  "v1alpha1",
+		Resource: "clustertriggerauthentications",
+	}
+
+	response, err := k.DynamicClient.Resource(gvr).Namespace(input.Namespace).List(ctx, listOptions)
+	if err != nil {
+		return []kedav1alpha1.ClusterTriggerAuthentication{}, err
+	}
+
+	triggerAuthentications := []kedav1alpha1.ClusterTriggerAuthentication{}
+	for _, triggerAuthentication := range response.Items {
+		var ta kedav1alpha1.ClusterTriggerAuthentication
+		err := runtime.DefaultUnstructuredConverter.FromUnstructured(triggerAuthentication.Object, &ta)
+		if err != nil {
+			return []kedav1alpha1.ClusterTriggerAuthentication{}, err
+		}
+
+		triggerAuthentications = append(triggerAuthentications, ta)
+	}
+
+	return triggerAuthentications, nil
+}
+
 // ListCronJobsInput contains all the information needed to list Kubernetes cron jobs
 type ListCronJobsInput struct {
 	// LabelSelector is the Kubernetes label selector
@@ -449,6 +498,44 @@ func (k KubernetesClient) ListPods(ctx context.Context, input ListPodsInput) ([]
 	}
 
 	return podList.Items, err
+}
+
+// ListTriggerAuthenticationsInput contains all the information needed to list Kubernetes trigger authentications
+type ListTriggerAuthenticationsInput struct {
+	// Namespace is the Kubernetes namespace
+	Namespace string
+
+	// LabelSelector is the Kubernetes label selector
+	LabelSelector string
+}
+
+// ListTriggerAuthentications lists Kubernetes trigger authentications
+func (k KubernetesClient) ListTriggerAuthentications(ctx context.Context, input ListTriggerAuthenticationsInput) ([]kedav1alpha1.TriggerAuthentication, error) {
+	listOptions := metav1.ListOptions{LabelSelector: input.LabelSelector}
+
+	gvr := schema.GroupVersionResource{
+		Group:    "keda.sh",
+		Version:  "v1alpha1",
+		Resource: "triggerauthentications",
+	}
+
+	response, err := k.DynamicClient.Resource(gvr).Namespace(input.Namespace).List(ctx, listOptions)
+	if err != nil {
+		return []kedav1alpha1.TriggerAuthentication{}, err
+	}
+
+	triggerAuthentications := []kedav1alpha1.TriggerAuthentication{}
+	for _, triggerAuthentication := range response.Items {
+		var ta kedav1alpha1.TriggerAuthentication
+		err := runtime.DefaultUnstructuredConverter.FromUnstructured(triggerAuthentication.Object, &ta)
+		if err != nil {
+			return []kedav1alpha1.TriggerAuthentication{}, err
+		}
+
+		triggerAuthentications = append(triggerAuthentications, ta)
+	}
+
+	return triggerAuthentications, nil
 }
 
 // ScaleDeploymentInput contains all the information needed to scale a Kubernetes deployment

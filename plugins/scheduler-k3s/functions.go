@@ -1,7 +1,9 @@
 package scheduler_k3s
 
 import (
+	"bytes"
 	"context"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"net"
@@ -10,6 +12,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"text/template"
 	"time"
 
 	appjson "github.com/dokku/dokku/plugins/app-json"
@@ -27,6 +30,7 @@ import (
 	"k8s.io/client-go/tools/remotecommand"
 	"k8s.io/kubectl/pkg/util/term"
 	"k8s.io/kubernetes/pkg/client/conditions"
+	"k8s.io/utils/ptr"
 	"mvdan.cc/sh/v3/shell"
 )
 
@@ -116,6 +120,118 @@ type WaitForPodToExistInput struct {
 	RetryCount    int
 	PodName       string
 	LabelSelector string
+}
+
+// applyKedaClusterTriggerAuthentications applies keda cluster trigger authentications chart to the cluster
+func applyKedaClusterTriggerAuthentications(ctx context.Context, triggerType string, metadata map[string]string) error {
+	chartDir, err := os.MkdirTemp("", "keda-cluster-trigger-authentications-chart-")
+	if err != nil {
+		return fmt.Errorf("Error creating keda-cluster-trigger-authentications chart directory: %w", err)
+	}
+	defer os.RemoveAll(chartDir)
+
+	// create the chart.yaml
+	chart := &Chart{
+		ApiVersion: "v2",
+		AppVersion: "1.0.0",
+		Icon:       "https://dokku.com/assets/dokku-logo.svg",
+		Name:       fmt.Sprintf("keda-cluster-trigger-authentications-%s", triggerType),
+		Version:    "0.0.1",
+	}
+
+	err = writeYaml(WriteYamlInput{
+		Object: chart,
+		Path:   filepath.Join(chartDir, "Chart.yaml"),
+	})
+	if err != nil {
+		return fmt.Errorf("Error writing keda-cluster-trigger-authentications chart: %w", err)
+	}
+
+	// create the values.yaml
+	values := ClusterKedaValues{
+		Secrets: map[string]string{},
+		Type:    triggerType,
+	}
+
+	for key, value := range metadata {
+		values.Secrets[key] = base64.StdEncoding.EncodeToString([]byte(value))
+	}
+
+	if err := os.MkdirAll(filepath.Join(chartDir, "templates"), os.FileMode(0755)); err != nil {
+		return fmt.Errorf("Error creating keda-cluster-trigger-authentications chart templates directory: %w", err)
+	}
+
+	err = writeYaml(WriteYamlInput{
+		Object: values,
+		Path:   filepath.Join(chartDir, "values.yaml"),
+	})
+	if err != nil {
+		return fmt.Errorf("Error writing chart: %w", err)
+	}
+
+	templateFiles := []string{"keda-cluster-trigger-authentication", "keda-cluster-secret"}
+	for _, template := range templateFiles {
+		b, err := templates.ReadFile(fmt.Sprintf("templates/chart/%s.yaml", template))
+		if err != nil {
+			return fmt.Errorf("Error reading %s template: %w", template, err)
+		}
+
+		filename := filepath.Join(chartDir, "templates", fmt.Sprintf("%s.yaml", template))
+		err = os.WriteFile(filename, b, os.FileMode(0644))
+		if err != nil {
+			return fmt.Errorf("Error writing %s template: %w", template, err)
+		}
+
+		if os.Getenv("DOKKU_TRACE") == "1" {
+			common.CatFile(filename)
+		}
+	}
+
+	b, err := templates.ReadFile("templates/chart/_helpers.tpl")
+	if err != nil {
+		return fmt.Errorf("Error reading _helpers template: %w", err)
+	}
+
+	helpersFile := filepath.Join(chartDir, "templates", "_helpers.tpl")
+	err = os.WriteFile(helpersFile, b, os.FileMode(0644))
+	if err != nil {
+		return fmt.Errorf("Error writing _helpers template: %w", err)
+	}
+
+	if os.Getenv("DOKKU_TRACE") == "1" {
+		common.CatFile(helpersFile)
+	}
+
+	// install the chart
+	helmAgent, err := NewHelmAgent("keda", DeployLogPrinter)
+	if err != nil {
+		return fmt.Errorf("Error creating helm agent: %w", err)
+	}
+
+	chartPath, err := filepath.Abs(chartDir)
+	if err != nil {
+		return fmt.Errorf("Error getting chart path: %w", err)
+	}
+
+	timeoutDuration, err := time.ParseDuration("300s")
+	if err != nil {
+		return fmt.Errorf("Error parsing deploy timeout duration: %w", err)
+	}
+
+	err = helmAgent.InstallOrUpgradeChart(ctx, ChartInput{
+		ChartPath:         chartPath,
+		Namespace:         "keda",
+		ReleaseName:       fmt.Sprintf("keda-cluster-trigger-authentications-%s", triggerType),
+		RollbackOnFailure: true,
+		Timeout:           timeoutDuration,
+	})
+	if err != nil {
+		return fmt.Errorf("Error installing keda-cluster-trigger-authentications-%s chart: %w", triggerType, err)
+	}
+
+	common.LogInfo1Quiet(fmt.Sprintf("Applied keda-cluster-trigger-authentications-%s chart", triggerType))
+
+	return nil
 }
 
 func applyClusterIssuers(ctx context.Context) error {
@@ -395,6 +511,24 @@ func getAnnotations(appName string, processType string) (ProcessAnnotations, err
 	}
 	annotations.JobAnnotations = jobAnnotations
 
+	kedaScalingObjectAnnotations, err := getAnnotation(appName, processType, "keda_scaled_object")
+	if err != nil {
+		return annotations, err
+	}
+	annotations.KedaScalingObjectAnnotations = kedaScalingObjectAnnotations
+
+	kedaSecretAnnotations, err := getAnnotation(appName, processType, "keda_secret")
+	if err != nil {
+		return annotations, err
+	}
+	annotations.KedaSecretAnnotations = kedaSecretAnnotations
+
+	kedaTriggerAuthenticationAnnotations, err := getAnnotation(appName, processType, "keda_trigger_authentication")
+	if err != nil {
+		return annotations, err
+	}
+	annotations.KedaTriggerAuthenticationAnnotations = kedaTriggerAuthenticationAnnotations
+
 	podAnnotations, err := getAnnotation(appName, processType, "pod")
 	if err != nil {
 		return annotations, err
@@ -432,6 +566,147 @@ func getAnnotations(appName string, processType string) (ProcessAnnotations, err
 	annotations.TraefikMiddlewareAnnotations = traefikMiddlewareAnnotations
 
 	return annotations, nil
+}
+
+// GetAutoscalingInput contains all the information needed to get autoscaling config
+type GetAutoscalingInput struct {
+	// AppName is the name of the app
+	AppName string
+
+	// ProcessType is the process type
+	ProcessType string
+
+	// Replicas is the number of replicas
+	Replicas int
+
+	// KedaValues is the keda values
+	KedaValues GlobalKedaValues
+}
+
+// getAutoscaling retrieves autoscaling config for a given app and process type
+func getAutoscaling(input GetAutoscalingInput) (ProcessAutoscaling, error) {
+	config, ok, err := appjson.GetAutoscalingConfig(input.AppName, input.ProcessType, input.Replicas)
+	if err != nil {
+		common.LogWarn(fmt.Sprintf("Error getting autoscaling config for %s: %v", input.AppName, err))
+		return ProcessAutoscaling{}, err
+	}
+
+	if !ok {
+		common.LogWarn(fmt.Sprintf("No autoscaling config found for %s", input.AppName))
+		return ProcessAutoscaling{}, nil
+	}
+
+	replacements := map[string]string{
+		"APP_NAME":        input.AppName,
+		"PROCESS_TYPE":    input.ProcessType,
+		"DEPLOYMENT_NAME": fmt.Sprintf("%s-%s", input.AppName, input.ProcessType),
+	}
+
+	triggers := []ProcessAutoscalingTrigger{}
+	for _, trigger := range config.Triggers {
+		metadata := map[string]string{}
+		for key, value := range trigger.Metadata {
+			tmpl, err := template.New("").Delims("[[", "]]").Parse(value)
+			if err != nil {
+				return ProcessAutoscaling{}, fmt.Errorf("Error parsing autoscaling trigger metadata: %w", err)
+			}
+
+			var output bytes.Buffer
+			if err := tmpl.Execute(&output, replacements); err != nil {
+				return ProcessAutoscaling{}, fmt.Errorf("Error executing autoscaling trigger metadata template: %w", err)
+			}
+			metadata[key] = output.String()
+		}
+
+		trigger := ProcessAutoscalingTrigger{
+			Name:     trigger.Name,
+			Type:     trigger.Type,
+			Metadata: metadata,
+		}
+
+		if auth, ok := input.KedaValues.Authentications[trigger.Type]; ok {
+			trigger.AuthenticationRef = &ProcessAutoscalingTriggerAuthenticationRef{
+				Name: auth.Name,
+				Kind: string(auth.Kind),
+			}
+		} else if auth, ok := input.KedaValues.GlobalAuthentications[trigger.Type]; ok {
+			trigger.AuthenticationRef = &ProcessAutoscalingTriggerAuthenticationRef{
+				Name: auth.Name,
+				Kind: string(auth.Kind),
+			}
+		}
+
+		triggers = append(triggers, trigger)
+	}
+
+	autoscaling := ProcessAutoscaling{
+		CooldownPeriodSeconds:  ptr.Deref(config.CooldownPeriodSeconds, 300),
+		Enabled:                len(triggers) > 0,
+		MaxReplicas:            ptr.Deref(config.MaxQuantity, 0),
+		MinReplicas:            ptr.Deref(config.MinQuantity, 0),
+		PollingIntervalSeconds: ptr.Deref(config.PollingIntervalSeconds, 30),
+		Triggers:               triggers,
+		Type:                   "keda",
+	}
+
+	return autoscaling, nil
+}
+
+// getKedaValues retrieves keda values for a given app and process type
+func getKedaValues(ctx context.Context, clientset KubernetesClient, appName string) (GlobalKedaValues, error) {
+	properties, err := common.PropertyGetAllByPrefix("scheduler-k3s", appName, TriggerAuthPropertyPrefix)
+	if err != nil {
+		return GlobalKedaValues{}, fmt.Errorf("Error getting trigger-auth properties: %w", err)
+	}
+
+	auths := map[string]KedaAuthentication{}
+	for key, value := range properties {
+		parts := strings.SplitN(strings.TrimPrefix(key, TriggerAuthPropertyPrefix), ".", 2)
+		if len(parts) != 2 {
+			return GlobalKedaValues{}, fmt.Errorf("Invalid trigger-auth property format: %s", key)
+		}
+
+		authType := parts[0]
+		secretKey := parts[1]
+		if len(secretKey) == 0 {
+			return GlobalKedaValues{}, fmt.Errorf("Invalid trigger-auth property format: %s", key)
+		}
+
+		if _, ok := auths[authType]; !ok {
+			auths[authType] = KedaAuthentication{
+				Name:    fmt.Sprintf("%s-%s", appName, authType),
+				Type:    authType,
+				Kind:    KedaAuthenticationKind_TriggerAuthentication,
+				Secrets: make(map[string]string),
+			}
+		}
+
+		auths[authType].Secrets[secretKey] = base64.StdEncoding.EncodeToString([]byte(value))
+	}
+
+	items, err := clientset.ListClusterTriggerAuthentications(ctx, ListClusterTriggerAuthenticationsInput{})
+	if err != nil {
+		return GlobalKedaValues{}, fmt.Errorf("Error listing cluster trigger authentications: %w", err)
+	}
+
+	globalAuths := map[string]KedaAuthentication{}
+	for _, item := range items {
+		if !strings.HasPrefix(item.Name, "global-auth-") {
+			continue
+		}
+
+		authType := strings.TrimPrefix(item.Name, "global-auth-")
+		globalAuths[authType] = KedaAuthentication{
+			Name: item.Name,
+			Kind: KedaAuthenticationKind_ClusterTriggerAuthentication,
+			Type: authType,
+		}
+	}
+
+	return GlobalKedaValues{
+		Authentications:       auths,
+		GlobalAuthentications: globalAuths,
+	}, nil
 }
 
 // getGlobalAnnotations retrieves global annotations for a given app

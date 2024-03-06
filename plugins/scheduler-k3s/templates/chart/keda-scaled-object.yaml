@@ -1,0 +1,39 @@
+{{- $processName := "PROCESS_NAME" }}
+{{- $config := index .Values.processes "PROCESS_NAME" }}
+{{- if and $config.autoscaling (and $config.autoscaling.enabled (eq $config.autoscaling.type "keda")) }}
+{{- if .Capabilities.APIVersions.Has "keda.sh/v1alpha1" -}}
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  annotations:
+    app.kubernetes.io/version: {{ $.Values.global.deploment_id | quote }}
+    dokku.com/managed: "true"
+    {{ include "print.annotations" (dict "config" $.Values.global "key" "keda_scaled_object") | indent 4 }}
+    {{ include "print.annotations" (dict "config" $config "key" "keda_scaled_object") | indent 4 }}
+  labels:
+    app.kubernetes.io/instance: {{ $.Values.global.app_name }}-{{ $processName }}
+    app.kubernetes.io/name: {{ $processName }}
+    app.kubernetes.io/part-of: {{ $.Values.global.app_name }}
+    {{ include "print.labels" (dict "config" $.Values.global "key" "keda_scaled_object") | indent 4 }}
+    {{ include "print.labels" (dict "config" $config "key" "keda_scaled_object") | indent 4 }}
+  name: {{ $.Values.global.app_name}}-{{ $processName }}
+  namespace: {{ $.Values.global.namespace }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ $.Values.global.app_name }}-{{ $processName }}
+    envSourceContainerName: {{ $.Values.global.app_name }}-{{ $processName }}
+  cooldownPeriod: {{ $config.autoscaling.cooldown_period_seconds }}
+  pollingInterval: {{ $config.autoscaling.polling_interval_seconds }}
+  minReplicaCount: {{ $config.autoscaling.min_replicas }}
+  maxReplicaCount: {{ $config.autoscaling.max_replicas }}
+  fallback:
+    failureThreshold: 3
+    replicas: {{ $config.replicas }}
+  triggers:
+  {{- with $config.autoscaling.triggers }}
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end }}
+{{- end }}

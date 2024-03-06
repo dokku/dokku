@@ -1,6 +1,9 @@
 package scheduler_k3s
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/dokku/dokku/plugins/common"
 )
 
@@ -43,6 +46,37 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 	uppercaseFirstCharacter := true
 	infoFlags := common.CollectReport(appName, infoFlag, flags)
 	return common.ReportSingleApp("scheduler-k3s", appName, infoFlag, infoFlags, flagKeys, format, trimPrefix, uppercaseFirstCharacter)
+}
+
+// ReportAutoscalingAuthSingleApp is an internal function that displays the scheduler-k3s autoscaling-auth report for one app
+func ReportAutoscalingAuthSingleApp(appName string, format string, includeMetadata bool) error {
+	properties, err := common.PropertyGetAllByPrefix("scheduler-k3s", appName, TriggerAuthPropertyPrefix)
+	if err != nil {
+		return fmt.Errorf("Unable to get property list: %w", err)
+	}
+
+	infoFlags := map[string]string{}
+	for key, value := range properties {
+		metadataKey := strings.TrimPrefix(key, TriggerAuthPropertyPrefix)
+		authType := strings.SplitN(metadataKey, ".", 2)[0]
+		if authType == "" {
+			continue
+		}
+
+		infoFlags[authType] = "configured"
+		if includeMetadata {
+			infoFlags[strings.ReplaceAll(metadataKey, ".", "-")] = value
+		}
+	}
+
+	flagKeys := []string{}
+	for flagKey := range infoFlags {
+		flagKeys = append(flagKeys, flagKey)
+	}
+
+	trimPrefix := false
+	uppercaseFirstCharacter := true
+	return common.ReportSingleApp("scheduler-k3s", appName, "", infoFlags, flagKeys, format, trimPrefix, uppercaseFirstCharacter)
 }
 
 func reportComputedDeployTimeout(appName string) string {

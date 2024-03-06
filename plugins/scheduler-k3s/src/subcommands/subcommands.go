@@ -34,6 +34,26 @@ func main() {
 		}
 
 		err = scheduler_k3s.CommandAnnotationsSet(appName, *processType, *resourceType, property, value)
+	case "autoscaling-auth:set":
+		args := flag.NewFlagSet("scheduler-k3s:autoscaling-auth:set", flag.ExitOnError)
+		global := args.Bool("global", false, "--global: set a global property")
+		metadata := args.StringToString("metadata", map[string]string{}, "--metadata: a key=value map of parameter metadata")
+		args.Parse(os.Args[2:])
+		appName := args.Arg(0)
+		trigger := args.Arg(1)
+		if *global {
+			appName = "--global"
+			trigger = args.Arg(0)
+		}
+		err = scheduler_k3s.CommandAutoscalingAuthSet(appName, trigger, *metadata, *global)
+	case "autoscaling-auth:report":
+		args := flag.NewFlagSet("scheduler-k3s:autoscaling-auth:report", flag.ExitOnError)
+		global := args.Bool("global", false, "--global: show a global report")
+		includeMetadata := args.Bool("include-metadata", false, "--include-metadata: include metadata in the report")
+		format := args.String("format", "stdout", "format: [ stdout | json ]")
+		args.Parse(os.Args[2:])
+		appName := args.Arg(0)
+		err = scheduler_k3s.CommandAutoscalingAuthReport(appName, *format, *global, *includeMetadata)
 	case "cluster-add":
 		args := flag.NewFlagSet("scheduler-k3s:cluster-add", flag.ExitOnError)
 		allowUknownHosts := args.Bool("insecure-allow-unknown-hosts", false, "insecure-allow-unknown-hosts: allow unknown hosts")
