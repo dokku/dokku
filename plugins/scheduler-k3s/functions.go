@@ -515,11 +515,12 @@ func getAutoscaling(input GetAutoscalingInput) (ProcessAutoscaling, error) {
 		if auth, ok := input.KedaValues.Authentications[trigger.Type]; ok {
 			trigger.AuthenticationRef = &ProcessAutoscalingTriggerAuthenticationRef{
 				Name: auth.Name,
+				Kind: string(auth.Kind),
 			}
 		} else if auth, ok := input.KedaValues.GlobalAuthentications[trigger.Type]; ok {
 			trigger.AuthenticationRef = &ProcessAutoscalingTriggerAuthenticationRef{
 				Name: auth.Name,
-				Kind: "ClusterTriggerAuthentication",
+				Kind: string(auth.Kind),
 			}
 		}
 
@@ -563,6 +564,7 @@ func getKedaValues(ctx context.Context, clientset KubernetesClient, appName stri
 			auths[authType] = KedaAuthentication{
 				Name:    fmt.Sprintf("%s-%s", appName, authType),
 				Type:    authType,
+				Kind:    KedaAuthenticationKind_TriggerAuthentication,
 				Secrets: make(map[string]string),
 			}
 		}
@@ -584,6 +586,7 @@ func getKedaValues(ctx context.Context, clientset KubernetesClient, appName stri
 		authType := strings.TrimPrefix(item.Name, "global-auth-")
 		globalAuths[authType] = KedaAuthentication{
 			Name: item.Name,
+			Kind: KedaAuthenticationKind_ClusterTriggerAuthentication,
 			Type: authType,
 		}
 	}

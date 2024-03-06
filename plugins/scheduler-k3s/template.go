@@ -71,12 +71,22 @@ type KedaAuthentication struct {
 	// Name is the name of the authentication object
 	Name string `yaml:"name"`
 
+	// Kind is the kind of authentication object
+	Kind KedaAuthenticationKind `yaml:"kind,omitempty"`
+
 	// Type is the type of authentication to use
 	Type string `yaml:"type"`
 
 	// Secrets is a map of secrets to use for authentication
 	Secrets map[string]string `yaml:"secrets,omitempty"`
 }
+
+type KedaAuthenticationKind string
+
+const (
+	KedaAuthenticationKind_ClusterTriggerAuthentication KedaAuthenticationKind = "ClusterTriggerAuthentication"
+	KedaAuthenticationKind_TriggerAuthentication        KedaAuthenticationKind = "TriggerAuthentication"
+)
 
 type ProcessValues struct {
 	Annotations  ProcessAnnotations  `yaml:"annotations,omitempty"`
