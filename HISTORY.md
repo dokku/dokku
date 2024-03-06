@@ -1,5 +1,80 @@
 # History
 
+## 0.33.8
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.33.8/bootstrap.sh
+sudo DOKKU_TAG=v0.33.8 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #6675: @josegonzalez Remove the need for executing crontab as root
+- #6660: @josegonzalez Handle case where systemctl isn't in /usr/bin
+- #6659: @josegonzalez Add missing cron:set command
+- #6658: @josegonzalez Execute go get/build with mod in readonly mode
+- #6642: @josegonzalez Use correct annotations key for the ingress chart
+- #6631: @josegonzalez Correctly use cache volume for herokuish builds
+- #6629: @josegonzalez Use smaller reference to image pull secrets in secret naming
+- #6628: @josegonzalez Ensure non-web processes do not attempt to perform web logic in k3s templates
+- #6623: @josegonzalez Do not allow reusing the same scheme:host-port mappings when setting ports
+- #6624: @taraszka Install jq in vagrant vm
+- #6614: @josegonzalez Correct issue where --force-tty was not properly supported by run:detached calls
+
+### New Features
+
+- #6673: @josegonzalez Add image version as label to built images
+- #6640: @josegonzalez Add initial support for injecting keda addons
+- #6662: @josegonzalez Allow limiting letsencrypt to certain domains when using openresty as a proxy
+- #6643: @josegonzalez Add ability to add extra labels
+- #6639: @josegonzalez Add support for setting underscores-in-headers for nginx, openresty, and k3s
+- #6634: @josegonzalez feat: install keda addon in k3s cluster
+- #6616: @josegonzalez Ensure referenced images get updated by dependabot
+- #6613: @josegonzalez Add a helper binary to deploy a test app for local development
+
+### Refactors
+
+- #6644: @josegonzalez Only apply the cluster issuers helm chart when setting letsencrypt properties
+- #6641: @josegonzalez Rename image pull secrets to standardize on secret naming pattern
+- #6626: @josegonzalez Copy code into initial base image via docker build
+
+### Documentation
+
+- #6656: @holamendi Fix typo in builder management docs
+- #6652: @Calyhre Added dokku-mdns to list of community plugins
+- #6649: @undercontr Added detach flag to Docker installation documentation
+
+### Dependencies
+
+- #6671: @josegonzalez Update dokku dependencies
+- #6672: @dependabot[bot] chore(deps): bump golang from 1.22.0 to 1.22.1 in /tests/apps/go-fail-predeploy
+- #6670: @dependabot[bot] chore(deps): bump google.golang.org/grpc from 1.62.0 to 1.62.1 in /tests/apps/gogrpc
+- #6669: @dependabot[bot] chore(deps): bump google.golang.org/protobuf from 1.32.0 to 1.33.0 in /tests/apps/gogrpc
+- #6668: @dependabot[bot] chore(deps): bump golang from 1.22.0 to 1.22.1 in /tests/apps/zombies-dockerfile-tini
+- #6667: @dependabot[bot] chore(deps): bump golang from 1.22.0 to 1.22.1 in /tests/apps/gogrpc
+- #6664: @dependabot[bot] chore(deps): bump golang from 1.22.0 to 1.22.1 in /tests/apps/go-fail-postdeploy
+- #6666: @dependabot[bot] chore(deps): bump pyparsing from 3.1.1 to 3.1.2 in /docs/_build
+- #6665: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.12 to 9.5.13 in /docs/_build
+- #6663: @dependabot[bot] chore(deps): bump golang from 1.22.0 to 1.22.1 in /tests/apps/zombies-dockerfile-no-tini
+- #6661: @josegonzalez Bump go modules
+- #6654: @dependabot[bot] chore(deps): bump pymdown-extensions from 10.7 to 10.7.1 in /docs/_build
+- #6653: @dependabot[bot] chore(deps): bump golang.org/x/crypto from 0.20.0 to 0.21.0 in /plugins/common
+- #6651: @dependabot[bot] chore(deps): bump python-dateutil from 2.9.0 to 2.9.0.post0 in /docs/_build
+- #6648: @dependabot[bot] chore(deps): bump python-dateutil from 2.8.2 to 2.9.0 in /docs/_build
+- #6645: @dependabot[bot] chore(deps): bump rack from 2.2.8 to 2.2.8.1 in /tests/apps/ruby
+- #6646: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.11 to 9.5.12 in /docs/_build
+- #6638: @josegonzalez chore: bump go modules
+- #6635: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 42.0.4 to 42.0.5
+- #6636: @dependabot[bot] chore(deps): bump timberio/vector from 0.36.X-debian to 0.36.0-debian in /plugins/logs
+- #6637: @dependabot[bot] chore(deps): bump golang.org/x/crypto from 0.19.0 to 0.20.0 in /plugins/common
+- #6619: @dependabot[bot] chore(deps): bump traefik from v2.10 to 2.11 in /plugins/traefik-vhosts
+- #6622: @josegonzalez chore(deps): bump timberio/vector from 0.35.X-debian to 0.36.X-debian in /plugins/logs
+- #6618: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.10 to 9.5.11 in /docs/_build
+- #6621: @dependabot[bot] chore(deps): bump byjg/easy-haproxy from 4.3.0 to 4.4.0 in /plugins/haproxy-vhosts
+- #6610: @dependabot[bot] chore(deps): bump helm.sh/helm/v3 from 3.14.1 to 3.14.2 in /plugins/scheduler-k3s
+
 ## 0.33.7
 
 Install/update via the bootstrap script:
