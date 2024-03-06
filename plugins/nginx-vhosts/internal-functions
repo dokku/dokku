@@ -529,10 +529,15 @@ fn-nginx-vhosts-nginx-init-cmd() {
     NGINX_INIT_NAME=openresty
   fi
 
+  local systemctl_path=/bin/systemctl
+  if [[ -x /usr/bin/systemctl ]]; then
+    systemctl_path=/usr/bin/systemctl
+  fi
+
   case "$DOKKU_DISTRO" in
     debian | raspbian)
-      if [[ -x /usr/bin/systemctl ]]; then
-        sudo /usr/bin/systemctl "$CMD" "$NGINX_INIT_NAME"
+      if [[ -x "$systemctl_path" ]]; then
+        sudo "$systemctl_path" "$CMD" "$NGINX_INIT_NAME"
       else
         sudo /usr/sbin/invoke-rc.d "$NGINX_INIT_NAME" "$CMD"
       fi
@@ -540,8 +545,8 @@ fn-nginx-vhosts-nginx-init-cmd() {
 
     ubuntu)
       # support docker-based installations
-      if [[ -x /usr/bin/systemctl ]]; then
-        sudo /usr/bin/systemctl "$CMD" "$NGINX_INIT_NAME"
+      if [[ -x "$systemctl_path" ]]; then
+        sudo "$systemctl_path" "$CMD" "$NGINX_INIT_NAME"
       elif [[ -x /usr/bin/sv ]]; then
         sudo /usr/bin/sv "$CMD" "$NGINX_INIT_NAME"
       elif [[ "$CMD" == "enable" ]] || [[ "$CMD" == "disable" ]]; then
@@ -552,7 +557,7 @@ fn-nginx-vhosts-nginx-init-cmd() {
       ;;
 
     arch)
-      sudo /usr/bin/systemctl "$CMD" "$NGINX_INIT_NAME"
+      sudo "$systemctl_path" "$CMD" "$NGINX_INIT_NAME"
       ;;
   esac
 }

@@ -66,19 +66,24 @@ trigger-nginx-vhosts-install() {
     NGINX_SUDOERS_FILE="/etc/sudoers.d/dokku-openresty"
   fi
 
+  local systemctl_path=/bin/systemctl
+  if [[ -x /usr/bin/systemctl ]]; then
+    systemctl_path=/usr/bin/systemctl
+  fi
+
   local mode="0440"
   case "$DOKKU_DISTRO" in
     debian | raspbian)
-      if [[ -x /usr/bin/systemctl ]]; then
-        echo "%dokku ALL=(ALL) NOPASSWD:/usr/bin/systemctl enable $NGINX_INIT_NAME, /usr/bin/systemctl disable $NGINX_INIT_NAME, /usr/bin/systemctl reload $NGINX_INIT_NAME, /usr/bin/systemctl start $NGINX_INIT_NAME, /usr/bin/systemctl stop $NGINX_INIT_NAME, $NGINX_BIN -t, $NGINX_BIN -t -c *" >"$NGINX_SUDOERS_FILE"
+      if [[ -x "$systemctl_path" ]]; then
+        echo "%dokku ALL=(ALL) NOPASSWD:$systemctl_path enable $NGINX_INIT_NAME, $systemctl_path disable $NGINX_INIT_NAME, $systemctl_path reload $NGINX_INIT_NAME, $systemctl_path start $NGINX_INIT_NAME, $systemctl_path stop $NGINX_INIT_NAME, $NGINX_BIN -t, $NGINX_BIN -t -c *" >"$NGINX_SUDOERS_FILE"
       else
         echo "%dokku ALL=(ALL) NOPASSWD:/usr/sbin/invoke-rc.d $NGINX_INIT_NAME enable, /usr/sbin/invoke-rc.d $NGINX_INIT_NAME disable, /usr/sbin/invoke-rc.d $NGINX_INIT_NAME reload, /usr/sbin/invoke-rc.d $NGINX_INIT_NAME start, /usr/sbin/invoke-rc.d $NGINX_INIT_NAME stop, $NGINX_BIN -t, ${NGINX_BIN} -t -c *" >"$NGINX_SUDOERS_FILE"
       fi
       ;;
 
     ubuntu)
-      if [[ -x /usr/bin/systemctl ]]; then
-        echo "%dokku ALL=(ALL) NOPASSWD:/usr/bin/systemctl enable $NGINX_INIT_NAME, /usr/bin/systemctl disable $NGINX_INIT_NAME, /usr/bin/systemctl reload $NGINX_INIT_NAME, /usr/bin/systemctl start $NGINX_INIT_NAME, /usr/bin/systemctl stop $NGINX_INIT_NAME, $NGINX_BIN -t, $NGINX_BIN -t -c *" >"$NGINX_SUDOERS_FILE"
+      if [[ -x "$systemctl_path" ]]; then
+        echo "%dokku ALL=(ALL) NOPASSWD:$systemctl_path enable $NGINX_INIT_NAME, $systemctl_path disable $NGINX_INIT_NAME, $systemctl_path reload $NGINX_INIT_NAME, $systemctl_path start $NGINX_INIT_NAME, $systemctl_path stop $NGINX_INIT_NAME, $NGINX_BIN -t, $NGINX_BIN -t -c *" >"$NGINX_SUDOERS_FILE"
       elif [[ -x /usr/bin/sv ]]; then
         echo "%dokku ALL=(ALL) NOPASSWD:/usr/bin/sv enable $NGINX_INIT_NAME, /usr/bin/sv disable $NGINX_INIT_NAME, /usr/bin/sv reload $NGINX_INIT_NAME, /usr/bin/sv start $NGINX_INIT_NAME, /usr/bin/sv stop $NGINX_INIT_NAME, $NGINX_BIN -t, $NGINX_BIN -t -c *" >"$NGINX_SUDOERS_FILE"
       else
@@ -87,7 +92,7 @@ trigger-nginx-vhosts-install() {
       ;;
 
     arch)
-      echo "%dokku ALL=(ALL) NOPASSWD:/usr/bin/systemctl enable $NGINX_INIT_NAME, /usr/bin/systemctl disable $NGINX_INIT_NAME, /usr/bin/systemctl reload $NGINX_INIT_NAME, /usr/bin/systemctl start $NGINX_INIT_NAME, /usr/bin/systemctl stop $NGINX_INIT_NAME, $NGINX_BIN -t, $NGINX_BIN -t -c *" >"$NGINX_SUDOERS_FILE"
+      echo "%dokku ALL=(ALL) NOPASSWD:$systemctl_path enable $NGINX_INIT_NAME, $systemctl_path disable $NGINX_INIT_NAME, $systemctl_path reload $NGINX_INIT_NAME, $systemctl_path start $NGINX_INIT_NAME, $systemctl_path stop $NGINX_INIT_NAME, $NGINX_BIN -t, $NGINX_BIN -t -c *" >"$NGINX_SUDOERS_FILE"
       ;;
   esac
 
