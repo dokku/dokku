@@ -6,6 +6,7 @@
 ```
 scheduler-k3s:annotations:set <app|--global> <property> (<value>) [--process-type PROCESS_TYPE] <--resource-type RESOURCE_TYPE>, Set or clear an annotation for a given app/process-type/resource-type combination
 scheduler-k3s:autoscaling-auth:set <app|--global> <trigger> [<--metadata key=value>...], Set or clear a scheduler-k3s autoscaling keda trigger authentication resource for an app
+scheduler-k3s:autoscaling-auth:report <app|--global> [--format stdout|json] [--include-metadata] # Displays a scheduler-k3s autoscaling auth report for an app
 scheduler-k3s:cluster-add [ssh://user@host:port]    # Adds a server node to a Dokku-managed cluster
 scheduler-k3s:cluster-list                          # Lists all nodes in a Dokku-managed cluster
 scheduler-k3s:cluster-remove [node-id]              # Removes client node to a Dokku-managed cluster
@@ -433,7 +434,7 @@ If the `--global` flag is specified instead of an app name, a custom helm chart 
 
 ##### Removing Authentication Resources
 
-To remove a configured authenticatin resource, run the `scheduler-k3s:autoscaling-auth:set` command with no parameters specified. Subsequent deploys will not include these resources.
+To remove a configured authenticatin resource, run the `scheduler-k3s:autoscaling-auth:set` command with no metadata specified. Subsequent deploys will not include these resources.
 
 ```shell
 dokku scheduler-k3s:autoscaling-auth:set $APP $TRIGGER_TYPE
@@ -444,7 +445,7 @@ dokku scheduler-k3s:autoscaling-auth:set $APP $TRIGGER_TYPE
 To see a list of authentication resources managed by Dokku, run the `scheduler-k3s:autoscaling-auth:report` command.
 
 ```shell
-dokku scheduler-k3s:autoscaling-auth:report $APP
+dokku scheduler-k3s:autoscaling-auth:report node-js-app
 ```
 
 ```
@@ -452,17 +453,18 @@ dokku scheduler-k3s:autoscaling-auth:report $APP
       datadog: configured
 ```
 
-By default, the report will not display configured parameters - making it safe to include in Dokku report output. To include parameters, add the `--include-parameters` flag:
+By default, the report will not display configured metadata - making it safe to include in Dokku report output. To include metadata and their values, add the `--include-metadata` flag:
 
 ```shell
-dokku scheduler-k3s:autoscaling-auth:report $APP --include-parameters
+dokku scheduler-k3s:autoscaling-auth:report node-js-app --include-metadata
 ```
 
 ```
-====> $APP autoscaling-auth report
-      datadog:        configured
-      datadog-apiKey: some-api-key
-      datadog-appKey: some-app-key
+====> node-js-app autoscaling-auth report
+      Datadog:                       configured
+      Datadog apiKey:                1234567890
+      Datadog appKey:                asdfghjkl
+      Datadog datadogSite:           us5.datadoghq.com
 ```
 
 ### Using kubectl remotely

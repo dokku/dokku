@@ -86,6 +86,29 @@ func CommandAutoscalingAuthSet(appName string, trigger string, metadata map[stri
 	return nil
 }
 
+// CommandAutoscalingAuthReport displays a scheduler-k3s autoscaling keda trigger authentication report for one or more apps
+func CommandAutoscalingAuthReport(appName string, format string, global bool, includeMetadata bool) error {
+	if len(appName) == 0 && !global {
+		return fmt.Errorf("Missing required app name or --global flag")
+	}
+
+	if len(appName) > 0 && global {
+		return fmt.Errorf("Cannot specify both app name and --global flag")
+	}
+
+	if !global {
+		if err := common.VerifyAppName(appName); err != nil {
+			return err
+		}
+	}
+
+	if len(appName) > 0 {
+		return ReportAutoscalingAuthSingleApp(appName, format, includeMetadata)
+	}
+
+	return ReportAutoscalingAuthSingleApp("--global", format, includeMetadata)
+}
+
 // CommandInitialize initializes a k3s cluster on the local server
 func CommandInitialize(ingressClass string, serverIP string, taintScheduling bool) error {
 	if ingressClass != "nginx" && ingressClass != "traefik" {
