@@ -223,8 +223,6 @@ func GetAutoscalingConfig(appName string, processType string, replicas int) (For
 		return FormationAutoscaling{}, false, err
 	}
 
-	common.LogWarn(fmt.Sprintf("appJSON: %v", appJSON))
-
 	formation, ok := appJSON.Formation[processType]
 	if !ok {
 		return FormationAutoscaling{}, false, nil
