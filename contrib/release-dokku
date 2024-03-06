@@ -390,12 +390,14 @@ fn-build-docker-image() {
       --platform linux/arm64,linux/amd64 \
       --progress plain \
       --push \
+      --label "org.opencontainers.image.version=$VERSION" \
       --tag "dokku/dokku:latest" \
       --tag "dokku/dokku:$VERSION" .
   elif [[ "$SKIP_IMAGE_BUILD" != "true" ]]; then
     docker buildx build \
       --platform linux/arm64,linux/amd64 \
       --progress plain \
+      --label "org.opencontainers.image.version=$VERSION" \
       --tag "dokku/dokku:latest" \
       --tag "dokku/dokku:$(echo "$VERSION" | tr + -)" .
   fi
