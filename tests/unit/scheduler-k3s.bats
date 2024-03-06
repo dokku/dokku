@@ -103,7 +103,7 @@ uninstall_k3s() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku scheduler-k3s:autoscaling-auth:set node-js-app memory --metadata some-key=1234567890 --metadata some-value=asdfghjkl"
+  run /bin/bash -c "dokku scheduler-k3s:autoscaling-auth:set $TEST_APP memory --metadata some-key=1234567890 --metadata some-value=asdfghjkl"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -137,7 +137,7 @@ uninstall_k3s() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "kta-test-memory"
+  assert_output "kta-$TEST_APP-memory"
 
   run /bin/bash -c "kubectl get triggerauthentications.keda.sh $TEST_APP-memory -o=jsonpath='{.spec.secretTargetRef[0].parameter}'"
   echo "output: $output"
