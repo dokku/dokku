@@ -621,3 +621,58 @@ install_nixpacks() {
     curl -sSL https://nixpacks.com/install.sh | FORCE=1 bash
   fi
 }
+
+install_k3s() {
+  run /bin/bash -c "dokku proxy:set --global k3s"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku registry:set --global server hub.docker.com"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku registry:set --global image-repo-template '$DOCKERHUB_USERNAME/{{ .AppName }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku registry:set --global push-on-release true"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku scheduler:set --global selected k3s"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku registry:login docker.io $DOCKERHUB_USERNAME $DOCKERHUB_TOKEN"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Login Succeeded"
+
+  INGRESS_CLASS="${INGRESS_CLASS:-traefik}"
+  if [[ "$TAINT_SCHEDULING" == "true" ]]; then
+    run /bin/bash -c "dokku scheduler-k3s:initialize --ingress-class $INGRESS_CLASS --taint-scheduling"
+    echo "output: $output"
+    echo "status: $status"
+    assert_success
+  else
+    run /bin/bash -c "dokku scheduler-k3s:initialize --ingress-class $INGRESS_CLASS"
+    echo "output: $output"
+    echo "status: $status"
+    assert_success
+  fi
+
+  sleep 20
+}
+
+uninstall_k3s() {
+  run /bin/bash -c "dokku scheduler-k3s:uninstall"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
