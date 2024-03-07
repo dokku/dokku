@@ -365,7 +365,7 @@ dokku scheduler-k3s:labels:set node-js-app label.key --resource-type deployment 
 
 Autoscaling in k3s is managed by [Keda](https://keda.sh/), which integrates with a variety of external metric providers to allow for autoscaling application workloads.
 
-To enable autoscaling, use the `app.json` `formations.$PROCESS_TYPE.autoscaling` key to manage rules. In addition to the existing configuration used for process management, each process type in the `formations.$PROCESS_TYPE.autoscaling` key can have the following keys:
+To enable autoscaling, use the `app.json` `formation.$PROCESS_TYPE.autoscaling` key to manage rules. In addition to the existing configuration used for process management, each process type in the `formation.$PROCESS_TYPE.autoscaling` key can have the following keys:
 
 - `min_quantity`: The minimum number of instances the application can run. If not specified, the `quantity` specified for the app is used.
 - `max_quantity`: The maximum number of instances the application can run. If not specified, the higher value of `quantity` and the `min_quantity` is used.
@@ -377,7 +377,7 @@ Autoscaling triggers are passed as is to Keda, and should match the configuratio
 
 ```json
 {
-    "formations": {
+    "formation": {
         "web": {
             "autoscaling": {
                 "min_quantity": 1,
