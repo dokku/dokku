@@ -203,6 +203,17 @@ dokku_container_log_verbose_quiet() {
   IFS=$OIFS
 }
 
+fn-force-arm64-image() {
+  declare IMAGE="$1"
+  local image_architecture="$("$DOCKER_BIN" image inspect --format '{{.Architecture}}' "$IMAGE")"
+
+  if [[ "$image_architecture" == "amd64" ]] && [[ "$(dpkg --print-architecture 2>/dev/null || true)" != "amd64" ]]; then
+    return 0
+  fi
+
+  return 1
+}
+
 fn-is-valid-app-name() {
   declare desc="verify that the app name matches naming restrictions"
   local APP="$1"
