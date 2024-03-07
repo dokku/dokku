@@ -12,7 +12,6 @@ trigger-builder-nixpacks-builder-release() {
     return
   fi
 
-
   local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
   plugn trigger pre-release-builder "$BUILDER_TYPE" "$APP" "$IMAGE"
 
