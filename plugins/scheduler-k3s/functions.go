@@ -700,15 +700,10 @@ func getKedaValues(ctx context.Context, clientset KubernetesClient, appName stri
 
 	globalAuths := map[string]KedaAuthentication{}
 	for _, item := range items {
-		if !strings.HasPrefix(item.Name, "global-auth-") {
-			continue
-		}
-
-		authType := strings.TrimPrefix(item.Name, "global-auth-")
-		globalAuths[authType] = KedaAuthentication{
+		globalAuths[item.Name] = KedaAuthentication{
 			Name: item.Name,
 			Kind: KedaAuthenticationKind_ClusterTriggerAuthentication,
-			Type: authType,
+			Type: item.Name,
 		}
 	}
 
