@@ -64,6 +64,16 @@ func CommandAutoscalingAuthSet(appName string, trigger string, metadata map[stri
 		appName = "--global"
 	}
 
+	if appName != "--global" {
+		if err := common.VerifyAppName(appName); err != nil {
+			return err
+		}
+	}
+
+	if len(trigger) == 0 {
+		return fmt.Errorf("Missing trigger type argument")
+	}
+
 	if len(metadata) == 0 {
 		properties, err := common.PropertyGetAllByPrefix("scheduler-k3s", appName, fmt.Sprintf("%s%s.", TriggerAuthPropertyPrefix, trigger))
 		if err != nil {
@@ -95,6 +105,9 @@ func CommandAutoscalingAuthSet(appName string, trigger string, metadata map[stri
 		if err := common.PropertyWrite("scheduler-k3s", appName, fmt.Sprintf("%s%s.%s", TriggerAuthPropertyPrefix, trigger, key), value); err != nil {
 			return fmt.Errorf("Unable to set property: %w", err)
 		}
+
+		common.LogInfo1("Trigger authentication settings saved")
+		common.LogVerbose("Resources will be created or updated on next deploy")
 	}
 
 	if appName == "--global" {
