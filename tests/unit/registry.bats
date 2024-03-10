@@ -294,3 +294,30 @@ teardown() {
   echo "status: $status"
   assert_success
 }
+
+@test "(registry) registry:set push-extra-tags" {
+  if [[ -z "$DOCKERHUB_USERNAME" ]] || [[ -z "$DOCKERHUB_TOKEN" ]]; then
+    skip "skipping due to missing docker.io credentials DOCKERHUB_USERNAME:DOCKERHUB_TOKEN"
+  fi
+
+  run /bin/bash -c "dokku registry:set $TEST_APP push-on-release true"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku registry:set $TEST_APP image-repo dokku/test-app"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku registry:set $TEST_APP push-extra-tags foo"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "dokku/test-app:foo"
+}
