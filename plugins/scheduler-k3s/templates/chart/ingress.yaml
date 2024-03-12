@@ -26,11 +26,11 @@ spec:
   {{- if $config.web.tls.enabled }}
   tls:
     - hosts:
-      - {{ $domain.domain | quote }}
+      - {{ $domain.name | quote }}
       secretName: tls-{{ $.Values.global.app_name }}-{{ $processName }}
   {{- end }}
   rules:
-    - host: {{ $domain.domain | quote }}
+    - host: {{ $domain.name | quote }}
       http:
         paths:
           {{- if $config.web.port_maps }}

@@ -244,7 +244,7 @@ type ProcessWeb struct {
 }
 
 type ProcessDomains struct {
-	Name string `yaml:"domain"`
+	Name string `yaml:"name"`
 	Slug string `yaml:"slug"`
 }
 
