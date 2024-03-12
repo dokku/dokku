@@ -8,6 +8,7 @@ kind: Ingress
 metadata:
   annotations:
     dokku.com/managed: "true"
+    dokku.com/ingress-method: "domains"
     {{- if $config.web.tls.enabled }}
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     {{- end }}

@@ -606,7 +606,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 	ingressesToDelete := []string{}
 
 	for _, ingress := range ingresses {
-		ingressIngressMethod := ingress.Labels["dokku.com/ingress-method"]
+		ingressIngressMethod := ingress.Annotations["dokku.com/ingress-method"]
 		if ingressIngressMethod != "domains" {
 			ingressesToDelete = append(ingressesToDelete, ingress.Name)
 		}
