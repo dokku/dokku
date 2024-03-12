@@ -655,17 +655,19 @@ install_k3s() {
   assert_output_contains "Login Succeeded"
 
   INGRESS_CLASS="${INGRESS_CLASS:-traefik}"
+  local args="--ingress-class $INGRESS_CLASS"
   if [[ "$TAINT_SCHEDULING" == "true" ]]; then
-    run /bin/bash -c "dokku scheduler-k3s:initialize --ingress-class $INGRESS_CLASS --taint-scheduling"
-    echo "output: $output"
-    echo "status: $status"
-    assert_success
-  else
-    run /bin/bash -c "dokku scheduler-k3s:initialize --ingress-class $INGRESS_CLASS"
-    echo "output: $output"
-    echo "status: $status"
-    assert_success
+    args="$args --taint-scheduling"
   fi
+
+  if [[ -n "$CI_SERVER_IP" ]]; then
+    args="$args --server-ip $CI_SERVER_IP"
+  fi
+
+  run /bin/bash -c "dokku scheduler-k3s:initialize ${args}"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 
   sleep 20
 }
