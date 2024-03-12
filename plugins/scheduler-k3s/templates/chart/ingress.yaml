@@ -1,14 +1,7 @@
 {{- $processName := "PROCESS_NAME" }}
 {{- $config := index .Values.processes "PROCESS_NAME" }}
 {{- if and $config.web.domains (eq $.Values.global.network.ingress_class "nginx") }}
-{{- $mappings := dict }}
-{{- range $pdx, $port_map := $config.web.port_maps }}
-{{- $mappings := set $mappings $port_map.name "true" }}
-{{- end }}
-{{- range $pdx, $port_map := $config.web.port_maps }}
-{{- if and (eq $port_map.scheme "https") (hasKey $mappings (printf "http-80-%.0f" $port_map.container_port)) }}
-{{- continue }}
-{{- end }}
+{{- range $pdx, $domain := $config.web.domains }}
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -26,30 +19,28 @@ metadata:
     app.kubernetes.io/part-of: {{ $.Values.global.app_name }}
     {{ include "print.labels" (dict "config" $.Values.global "key" "ingress") | indent 4 }}
     {{ include "print.labels" (dict "config" $config "key" "ingress") | indent 4 }}
-  name: {{ $.Values.global.app_name }}-{{ $processName }}-{{ $port_map.name }}
+  name: {{ $.Values.global.app_name }}-{{ $processName }}-{{ $domain.slug }}
   namespace: {{ $.Values.global.namespace }}
 spec:
   ingressClassName: nginx
   {{- if $config.web.tls.enabled }}
   tls:
     - hosts:
-      {{- range $ddx, $domain := $config.web.domains }}
-      - {{ $domain | quote }}
-      {{- end }}
+      - {{ $domain.domain | quote }}
       secretName: tls-{{ $.Values.global.app_name }}-{{ $processName }}
   {{- end }}
   rules:
-    {{- range $ddx, $domain := $config.web.domains }}
-    - host: {{ $domain | quote }}
+    - host: {{ $domain.domain | quote }}
       http:
         paths:
+          {{- if $config.web.port_maps }}
           - backend:
               service:
                 name: {{ $.Values.global.app_name }}-{{ $processName }}
                 port:
-                  name: {{ $port_map.name }}
+                  name: {{ include "primary.port" $config.web.port_maps }}
             pathType: ImplementationSpecific
             path: /
-    {{- end }}
+          {{- end }}
 {{- end }}
 {{- end }}

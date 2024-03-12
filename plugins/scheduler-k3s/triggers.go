@@ -23,6 +23,7 @@ import (
 	"github.com/dokku/dokku/plugins/config"
 	"github.com/dokku/dokku/plugins/cron"
 	"github.com/fatih/color"
+	"github.com/gosimple/slug"
 	"github.com/kballard/go-shellquote"
 	"github.com/ryanuber/columnize"
 	corev1 "k8s.io/api/core/v1"
@@ -36,7 +37,6 @@ func TriggerInstall() error {
 	if err := common.PropertySetup("scheduler-k3s"); err != nil {
 		return fmt.Errorf("Unable to install the scheduler-k3s plugin: %s", err.Error())
 	}
-
 	return nil
 }
 
@@ -385,8 +385,17 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 		}
 
 		if processType == "web" {
+			sort.Strings(domains)
+			domainValues := []ProcessDomains{}
+			for _, domain := range domains {
+				domainValues = append(domainValues, ProcessDomains{
+					Name: domain,
+					Slug: slug.Make(domain),
+				})
+			}
+
 			processValues.Web = ProcessWeb{
-				Domains:  domains,
+				Domains:  domainValues,
 				PortMaps: []ProcessPortMap{},
 				TLS: ProcessTls{
 					Enabled:    tlsEnabled,
@@ -435,7 +444,6 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 			}
 
 			sort.Sort(NameSorter(processValues.Web.PortMaps))
-			sort.Strings(processValues.Web.Domains)
 		}
 
 		values.Processes[processType] = processValues
@@ -587,7 +595,39 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 		return fmt.Errorf("Error parsing deploy timeout duration: %w", err)
 	}
 
-	common.LogExclaim(fmt.Sprintf("Installing %s", appName))
+	ingresses, err := clientset.ListIngresses(ctx, ListIngressesInput{
+		Namespace:     namespace,
+		LabelSelector: fmt.Sprintf("app.kubernetes.io/instance=%s-web", appName),
+	})
+	if err != nil {
+		return fmt.Errorf("Error listing ingresses: %w", err)
+	}
+
+	ingressesToDelete := []string{}
+
+	for _, ingress := range ingresses {
+		ingressIngressMethod := ingress.Labels["dokku.com/ingress-method"]
+		if ingressIngressMethod != "domains" {
+			ingressesToDelete = append(ingressesToDelete, ingress.Name)
+		}
+	}
+
+	if len(ingressesToDelete) > 0 {
+		common.LogWarn("Manually removing non-matching ingress resources")
+	}
+	for _, ingressName := range ingressesToDelete {
+		common.LogVerboseQuiet(fmt.Sprintf("Removing non-matching ingress resource: %s", ingressName))
+		err := clientset.DeleteIngress(ctx, DeleteIngressInput{
+			Name:      ingressName,
+			Namespace: namespace,
+		})
+
+		if err != nil {
+			return fmt.Errorf("Error deleting ingress: %w", err)
+		}
+	}
+
+	common.LogInfo2(fmt.Sprintf("Installing %s", appName))
 	err = helmAgent.InstallOrUpgradeChart(ctx, ChartInput{
 		ChartPath:         chartPath,
 		Namespace:         namespace,

@@ -1,6 +1,7 @@
 package scheduler_k3s
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -290,6 +291,16 @@ func (h *HelmAgent) ListRevisions(ctx context.Context, releaseName string) ([]Re
 	return releases, nil
 }
 
+type DebugRenderer struct {
+}
+
+func (p *DebugRenderer) Run(renderedManifests *bytes.Buffer) (*bytes.Buffer, error) {
+	for _, line := range strings.Split(renderedManifests.String(), "\n") {
+		common.LogWarn(line)
+	}
+	return renderedManifests, nil
+}
+
 func (h *HelmAgent) UpgradeChart(ctx context.Context, input ChartInput) error {
 	namespace := input.Namespace
 	if namespace == "" {
@@ -310,8 +321,11 @@ func (h *HelmAgent) UpgradeChart(ctx context.Context, input ChartInput) error {
 	client.Atomic = input.RollbackOnFailure
 	client.ChartPathOptions = action.ChartPathOptions{}
 	client.CleanupOnFail = true
-	client.DryRun = false
 	client.MaxHistory = 10
+	if os.Getenv("DOKKU_TRACE") == "1" {
+		client.DryRun = true
+		client.PostRenderer = &DebugRenderer{}
+	}
 	client.Namespace = namespace
 	client.Timeout = input.Timeout
 	client.Wait = false

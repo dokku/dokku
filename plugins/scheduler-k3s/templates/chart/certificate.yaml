@@ -30,7 +30,7 @@ spec:
       {{ include "print.labels" (dict "config" $.Values.global "key" "secret") | indent 6 }}
       {{ include "print.labels" (dict "config" $config "key" "secret") | indent 6 }}
   dnsNames:
-    {{- range $config.web.domains }}
-    - {{ . }}
+    {{- range $idx, $domain := $config.web.domains }}
+    - {{ $domain.name }}
     {{- end }}
 {{- end }}
