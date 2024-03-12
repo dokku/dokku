@@ -7,6 +7,7 @@ DOKKU_DOMAIN=${DOKKU_DOMAIN:="dokku.me"}
 echo "=====> set hostname"
 hostname
 internal_ip="$(ifconfig eth0 | grep 'inet ' | awk '{print $2}')"
+echo "CI_SERVER_IP=${internal_ip}" >>"$GITHUB_ENV"
 sudo hostname "$DOKKU_DOMAIN"
 echo "$DOKKU_DOMAIN" | sudo tee /etc/hostname
 hostname
