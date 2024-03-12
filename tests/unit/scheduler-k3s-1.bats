@@ -55,5 +55,10 @@ teardown_() {
   echo "status: $status"
   assert_success
 
-  assert_http_localhost_response "http" "$TEST_APP.dokku.me" "80" "" "python/http.server"
+  run /bin/bash -c "sleep 30"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  assert_http_localhost_response_contains "http" "$TEST_APP.dokku.me" "80" "" "<title>Metabase</title>"
 }
