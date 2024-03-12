@@ -376,7 +376,7 @@ func CommandInitialize(ingressClass string, serverIP string, taintScheduling boo
 			return false
 		}
 
-		if chart.ChartPath == "nginx" && ingressClass == "traefik" {
+		if chart.ChartPath == "ingress-nginx" && ingressClass == "traefik" {
 			return false
 		}
 
