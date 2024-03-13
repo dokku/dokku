@@ -374,7 +374,7 @@ fn-git-clone() {
   trap "rm -rf '$TMP_CLONE_DIR' >/dev/null" RETURN INT TERM EXIT
 
   if [[ "$is_ref" == "true" ]]; then
-    GIT_TERMINAL_PROMPT=0 suppress_output git clone -n "$GIT_REMOTE" "$TMP_WORK_DIR"
+    GIT_TERMINAL_PROMPT=0 suppress_output git clone -n "$GIT_REMOTE" "$TMP_CLONE_DIR"
     fn-git-cmd "$TMP_CLONE_DIR" checkout -qq "$GIT_REF"
   else
     GIT_TERMINAL_PROMPT=0 suppress_output git clone -n --branch "$GIT_REF" "$GIT_REMOTE" "$TMP_CLONE_DIR"
