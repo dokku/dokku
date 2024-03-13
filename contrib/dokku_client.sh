@@ -190,7 +190,13 @@ main() {
   [[ -n "$APP_ARG" ]] && [[ "$APP_ARG" == "--global" ]] && unset APP
   [[ -n "$@" ]] && [[ -n "$APP" ]] && app_arg="--app $APP"
   # echo "ssh -o LogLevel=QUIET -p $DOKKU_PORT -t dokku@$DOKKU_REMOTE_HOST -- $app_arg $@"
-  ssh -o LogLevel=QUIET -p $DOKKU_PORT -t dokku@$DOKKU_REMOTE_HOST -- $app_arg $@ || {
+  local ssh_args=("-o" "LogLevel=QUIET" "-p" "$DOKKU_PORT" "-t" "dokku@$DOKKU_REMOTE_HOST" "--")
+  if [[ -n "$app_arg" ]]; then
+    ssh_args+=("'$app_arg $@'")
+  else
+    ssh_args+=("$@")
+  fi
+  ssh "${ssh_args[@]}" || {
     ssh_exit_code="$?"
     echo " !     Failed to execute dokku command over ssh: exit code $?" 1>&2
     echo " !     If there was no output from Dokku, ensure your configured SSH Key can connect to the remote server" 1>&2
