@@ -107,11 +107,19 @@ fi
 if [[ -n "$SSH_ORIGINAL_COMMAND" ]]; then
   export -n SSH_ORIGINAL_COMMAND
   exit_code=0
-  set -f
-  xargs $0 <<<$SSH_ORIGINAL_COMMAND
-  exit_code=$?
-  set +f
-  exit $exit_code
+  if [[ $1 =~ git-* ]] || [[ $1 =~ git:* ]]; then
+    set -f
+    $0 $SSH_ORIGINAL_COMMAND
+    exit_code=$?
+    set +f
+    exit $?
+  else
+    set -f
+    xargs $0 <<<$SSH_ORIGINAL_COMMAND
+    exit_code=$?
+    set +f
+    exit $exit_code
+  fi
 fi
 
 if ! dokku_auth "$@"; then
