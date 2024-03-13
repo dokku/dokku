@@ -53,8 +53,8 @@ clone_test_plugin() {
 }
 
 remove_test_plugin() {
-  rm -rf $PLUGIN_ENABLED_PATH/$TEST_PLUGIN_NAME $PLUGIN_AVAILABLE_PATH/$TEST_PLUGIN_NAME
-  rm -rf $TEST_PLUGIN_LOCAL_REPO
+  rm -rf "${PLUGIN_ENABLED_PATH:?}/$TEST_PLUGIN_NAME" "${PLUGIN_AVAILABLE_PATH:?}/$TEST_PLUGIN_NAME"
+  rm -rf "$TEST_PLUGIN_LOCAL_REPO"
 }
 
 # test functions
