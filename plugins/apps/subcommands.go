@@ -108,8 +108,8 @@ func CommandLock(appName string) error {
 		return err
 	}
 
-	lockfilePath := fmt.Sprintf("%v/.deploy.lock", common.AppRoot(appName))
-	if _, err := os.Create(lockfilePath); err != nil {
+	lockPath := getLockPath(appName)
+	if _, err := os.Create(lockPath); err != nil {
 		return errors.New("Unable to create deploy lock")
 	}
 
@@ -206,7 +206,7 @@ func CommandUnlock(appName string) error {
 		return err
 	}
 
-	lockfilePath := fmt.Sprintf("%v/.deploy.lock", common.AppRoot(appName))
+	lockfilePath := getLockPath(appName)
 	if _, err := os.Stat(lockfilePath); !os.IsNotExist(err) {
 		common.LogWarn("A deploy may be in progress.")
 		common.LogWarn("Removing the app lock will not stop in progress deploys.")
