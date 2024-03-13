@@ -16,50 +16,7 @@ trigger-scheduler-docker-local-pre-deploy() {
     return
   fi
 
-  scheduler-docker-local-pre-deploy-chown-app "$APP" "$IMAGE_TAG"
   scheduler-docker-local-pre-deploy-precheck "$APP"
-}
-
-scheduler-docker-local-pre-deploy-chown-app() {
-  declare desc="Runs chown against the /app directory for herokuish images"
-  declare APP="$1" IMAGE_TAG="$2"
-  local DOCKER_RUN_LABEL_ARGS="--label=com.dokku.app-name=$APP"
-  local IMAGE DISABLE_CHOWN DOCKER_ARGS DOKKU_APP_TYPE DOKKU_APP_USER APP_PATHS CONTAINER_PATHS
-  declare -a ARG_ARRAY
-
-  IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
-
-  DOKKU_APP_TYPE=$(config_get "$APP" DOKKU_APP_TYPE || true)
-  DOKKU_APP_USER=$(config_get "$APP" DOKKU_APP_USER || true)
-  DOKKU_APP_USER=${DOKKU_APP_USER:="herokuishuser"}
-  APP_PATHS=$(plugn trigger storage-list "$APP" "deploy")
-
-  if [[ -n "$APP_PATHS" ]]; then
-    CONTAINER_PATHS=$(echo "$APP_PATHS" | awk -F ':' '{ print $2 }' | xargs)
-    DOCKER_ARGS=$(: | plugn trigger docker-args-deploy "$APP" "$IMAGE_TAG")
-
-    filterdArgs=("--cpus" "--gpus" "--memory" "--memory-reservation" "--memory-swap" "--publish" "--publish-all" "-p" "-P" "--restart")
-    for filteredArg in "${filterdArgs[@]}"; do
-      # shellcheck disable=SC2001
-      DOCKER_ARGS=$(sed -e "s/$filteredArg=[[:graph:]]\+[[:blank:]]\?//g" <<<"$DOCKER_ARGS")
-
-      # shellcheck disable=SC2001
-      DOCKER_ARGS=$(sed -e "s/$filteredArg\+[[:blank:]][[:graph:]]\+[[:blank:]]\?//g" <<<"$DOCKER_ARGS")
-    done
-
-    eval "ARG_ARRAY=($DOCKER_ARGS)"
-  fi
-
-  if [[ "$DOKKU_APP_TYPE" != "herokuish" ]] || [[ -z "$CONTAINER_PATHS" ]]; then
-    return
-  fi
-
-  DISABLE_CHOWN="$(fn-plugin-property-get "scheduler-docker-local" "$APP" "disable-chown" "")"
-  if [[ "$DISABLE_CHOWN" == "true" ]]; then
-    return
-  fi
-
-  "$DOCKER_BIN" container run --rm "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS "${ARG_ARRAY[@]}" $IMAGE /bin/bash -c "find $CONTAINER_PATHS -not -user $DOKKU_APP_USER -print0 | xargs -0 -r chown -R $DOKKU_APP_USER" || true
 }
 
 scheduler-docker-local-pre-deploy-precheck() {
