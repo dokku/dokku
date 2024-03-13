@@ -16,24 +16,24 @@ trigger-events-install() {
   # exits gracefully if the path already exists
   mkdir -m 775 -p "$DOKKU_LOGS_DIR"
   case "$DOKKU_DISTRO" in
-    arch | debian | raspbian)
-      chgrp dokku "$DOKKU_LOGS_DIR"
-      ;;
-    *)
-      chown syslog:dokku "$DOKKU_LOGS_DIR"
-      ;;
+  arch | debian | raspbian)
+    chgrp dokku "$DOKKU_LOGS_DIR"
+    ;;
+  *)
+    chown syslog:dokku "$DOKKU_LOGS_DIR"
+    ;;
   esac
 
   if [[ ! -f "$DOKKU_EVENTS_LOGFILE" ]]; then
     touch "$DOKKU_EVENTS_LOGFILE"
     case "$DOKKU_DISTRO" in
-      arch | debian | raspbian)
-        chgrp dokku "$DOKKU_EVENTS_LOGFILE"
-        ;;
-      *)
-        # chown syslog:root might not work on SUSE
-        chown syslog:dokku "$DOKKU_EVENTS_LOGFILE"
-        ;;
+    arch | debian | raspbian)
+      chgrp dokku "$DOKKU_EVENTS_LOGFILE"
+      ;;
+    *)
+      # chown syslog:root might not work on SUSE
+      chown syslog:dokku "$DOKKU_EVENTS_LOGFILE"
+      ;;
     esac
     chmod 664 "$DOKKU_EVENTS_LOGFILE"
   fi
@@ -56,16 +56,12 @@ EOF
     cat >"$DOKKU_LOGROTATE_FILE" <<EOF
 $DOKKU_LOGS_DIR/*.log {
         daily
-        rotate 7
         missingok
-        notifempty
-        su syslog dokku
+        rotate 7
         compress
         delaycompress
-        postrotate
-                reload rsyslog &>/dev/null || true
-        endscript
-        create 664 syslog dokku
+        notifempty
+        copytruncate
 }
 EOF
 
