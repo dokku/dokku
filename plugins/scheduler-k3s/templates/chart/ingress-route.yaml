@@ -34,7 +34,7 @@ spec:
   routes:
     {{- range $ddx, $domain := $config.web.domains }}
     - kind: Rule
-      match: Host(`{{ $domain }}`)
+      match: Host(`{{ $domain.name }}`)
       {{- if $config.web.tls.enabled }}
       middlewares:
         - name: {{ $.Values.global.app_name}}-{{ $processName }}-redirect-to-https
