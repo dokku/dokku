@@ -112,7 +112,7 @@ var HelmCharts = []HelmChart{
 		Namespace:       "ingress-nginx",
 		ReleaseName:     "ingress-nginx",
 		RepoURL:         "https://kubernetes.github.io/ingress-nginx",
-		Version:         "4.7.5",
+		Version:         "4.10.0",
 	},
 	{
 		ChartPath:       "keda",
