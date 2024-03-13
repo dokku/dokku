@@ -42,7 +42,7 @@ var (
 	}
 )
 
-const DefaultIngressClass = "traefik"
+const DefaultIngressClass = "nginx"
 const GlobalProcessType = "--global"
 const KubeConfigPath = "/etc/rancher/k3s/k3s.yaml"
 const DefaultKubeContext = ""
