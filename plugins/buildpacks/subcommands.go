@@ -65,7 +65,7 @@ func CommandRemove(appName string, buildpack string, index int) (err error) {
 	}
 
 	buildpack, err = validBuildpackURL(buildpack)
-	if err != nil {
+	if index == 0 && err != nil {
 		return err
 	}
 
