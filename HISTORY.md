@@ -1,5 +1,50 @@
 # History
 
+## 0.33.9
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.33.9/bootstrap.sh
+sudo DOKKU_TAG=v0.33.9 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #6695: @josegonzalez Do not attempt to install both k3s and traefik
+- #6687: @josegonzalez Correct issue where ClusterTriggerAuthentication objects were filtered based on prefix
+- #6686: @josegonzalez Validate input for the autoscaling-auth:set command
+- #6678: @josegonzalez Handle case where most builders didn't detect amd64 images on arm64
+- #6677: @josegonzalez Handle case where keda isn't installed properly
+- #6676: @josegonzalez Drop extra logging call from app-json plugin
+- #6674: @josegonzalez Remove systemd reverse dependency by dropping software-properties-common
+
+### New Features
+
+- #6698: @josegonzalez Upgrade ingress-nginx
+- #6588: @taraszka Add extra tags to every image dokku push when push-extra-tags are set
+- #6680: @josegonzalez Wait until helm charts are installed before marking a deploy as failed or completed
+
+### Documentation
+
+- #6699: @josegonzalez Add a placeholder migration guide for 0.33.0
+- #6682: @josegonzalez Fix reference to formation key in autoscaling example
+
+### Tests
+
+- #6696: @josegonzalez Run k3s tests with a specified server ip
+- #6679: @josegonzalez Split out k3s tests to speed up ci
+
+### Dependencies
+
+- #6697: @dependabot[bot] chore(deps): bump timberio/vector from 0.36.0-debian to 0.36.1-debian in /plugins/logs
+- #6685: @dependabot[bot] chore(deps): bump github.com/go-jose/go-jose/v3 from 3.0.1 to 3.0.3 in /plugins/scheduler-k3s
+- #6692: @dependabot[bot] chore(deps): bump packaging from 23.2 to 24.0 in /docs/_build
+- #6693: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 42.0.7 to 42.1.0
+- #6689: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 42.0.6 to 42.0.7
+- #6683: @dependabot[bot] chore(deps): bump importlib-metadata from 7.0.1 to 7.0.2 in /docs/_build
+- #6684: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 42.0.5 to 42.0.6
+
 ## 0.33.8
 
 Install/update via the bootstrap script:
