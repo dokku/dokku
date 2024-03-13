@@ -79,6 +79,14 @@ func incrementTagVersion(appName string) (int, error) {
 	return version, nil
 }
 
+func getRegistryPushExtraTagsForApp(appName string) string {
+	value := common.PropertyGet("registry", appName, "push-extra-tags")
+	if value == "" {
+		value = common.PropertyGet("registry", "--global", "push-extra-tags")
+	}
+	return value
+}
+
 func pushToRegistry(appName string, tag int, imageID string, imageRepo string) error {
 	common.LogVerboseQuiet("Retrieving image info for app")
 
@@ -98,9 +106,27 @@ func pushToRegistry(appName string, tag int, imageID string, imageRepo string) e
 		return errors.New("Unable to tag image")
 	}
 
-	// For the future, we should also add the ability to create the remote repository
-	// This is only really important for registries that do not support creation on push
-	// Examples include AWS and Quay.io
+	extraTags := getRegistryPushExtraTagsForApp(appName)
+	if extraTags != "" {
+		extraTagsArray := strings.Split(extraTags, ",")
+		for _, extraTag := range extraTagsArray {
+			extraTagImage := fmt.Sprintf("%s%s:%s", registryServer, imageRepo, extraTag)
+			common.LogVerboseQuiet(fmt.Sprintf("Tagging %s as %s in registry format", imageRepo, extraTag))
+			if !dockerTag(imageID, extraTagImage) {
+				return errors.New(fmt.Sprintf("Unable to tag image as %s", extraTag))
+			}
+			defer func() {
+				common.LogVerboseQuiet(fmt.Sprintf("Untagging extra tag %s", extraTag))
+				if err := common.RemoveImages([]string{extraTagImage}); err != nil {
+					common.LogWarn(fmt.Sprintf("Unable to untag extra tag %s", extraTag, err.Error()))
+				}
+			}()
+			common.LogVerboseQuiet(fmt.Sprintf("Pushing %s", extraTagImage))
+			if !dockerPush(extraTagImage) {
+				return errors.New(fmt.Sprintf("Unable to push image with %s tag", extraTag))
+			}
+		}
+	}
 
 	common.LogVerboseQuiet(fmt.Sprintf("Pushing %s", fullImage))
 	if !dockerPush(fullImage) {

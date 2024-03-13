@@ -23,6 +23,7 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 		"--registry-global-image-repo-template": reportGlobalImageRepoTemplate,
 		"--registry-server":                     reportServer,
 		"--registry-tag-version":                reportTagVersion,
+		"--registry-push-extra-tags":            reportPushExtraTags,
 	}
 
 	flagKeys := []string{}
@@ -95,4 +96,8 @@ func reportServer(appName string) string {
 func reportTagVersion(appName string) string {
 	tagVersion := common.PropertyGet("registry", appName, "tag-version")
 	return strings.TrimSpace(tagVersion)
+}
+
+func reportPushExtraTags(appName string) string {
+	return common.PropertyGet("registry", appName, "push-extra-tags")
 }
