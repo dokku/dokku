@@ -668,8 +668,6 @@ install_k3s() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-
-  sleep 20
 }
 
 uninstall_k3s() {

@@ -44,11 +44,6 @@ teardown_() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "sleep 20"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
   assert_http_localhost_response "http" "$TEST_APP.dokku.me" "80" "" "python/http.server"
 
   # include autoscaling tests
@@ -128,11 +123,6 @@ teardown_() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "sleep 20"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
   assert_http_localhost_response "http" "$TEST_APP.dokku.me" "80" "" "python/http.server"
 
   run /bin/bash -c "kubectl get pods -o=jsonpath='{.items[*]..resources.requests.cpu}'"
@@ -178,11 +168,6 @@ teardown_() {
   assert_success
 
   run /bin/bash -c "dokku git:sync --build $TEST_APP https://github.com/dokku/smoke-test-app.git"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run /bin/bash -c "sleep 20"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -233,11 +218,6 @@ teardown_() {
   assert_success
 
   run /bin/bash -c "dokku git:sync --build $TEST_APP https://github.com/dokku/smoke-test-app.git"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run /bin/bash -c "sleep 20"
   echo "output: $output"
   echo "status: $status"
   assert_success

@@ -226,6 +226,7 @@ func applyKedaClusterTriggerAuthentications(ctx context.Context, triggerType str
 		ReleaseName:       fmt.Sprintf("keda-cluster-trigger-authentications-%s", triggerType),
 		RollbackOnFailure: true,
 		Timeout:           timeoutDuration,
+		Wait:              true,
 	})
 	if err != nil {
 		return fmt.Errorf("Error installing keda-cluster-trigger-authentications-%s chart: %w", triggerType, err)
@@ -333,6 +334,7 @@ func applyClusterIssuers(ctx context.Context) error {
 		ReleaseName:       "cluster-issuers",
 		RollbackOnFailure: true,
 		Timeout:           timeoutDuration,
+		Wait:              true,
 	})
 	if err != nil {
 		return fmt.Errorf("Error installing cluster-issuer chart: %w", err)
@@ -1398,6 +1400,11 @@ func installHelmCharts(ctx context.Context, clientset KubernetesClient, shouldIn
 			return fmt.Errorf("Error creating helm agent: %w", err)
 		}
 
+		timeoutDuration, err := time.ParseDuration("300s")
+		if err != nil {
+			return fmt.Errorf("Error parsing deploy timeout duration: %w", err)
+		}
+
 		err = helmAgent.InstallOrUpgradeChart(ctx, ChartInput{
 			ChartPath:   chart.ChartPath,
 			Namespace:   chart.Namespace,
@@ -1405,6 +1412,8 @@ func installHelmCharts(ctx context.Context, clientset KubernetesClient, shouldIn
 			RepoURL:     chart.RepoURL,
 			Values:      values,
 			Version:     chart.Version,
+			Timeout:     timeoutDuration,
+			Wait:        true,
 		})
 		if err != nil {
 			return fmt.Errorf("Error installing chart %s: %w", chart.ChartPath, err)

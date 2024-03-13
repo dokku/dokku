@@ -51,6 +51,7 @@ type ChartInput struct {
 	RepoURL           string
 	RollbackOnFailure bool
 	Timeout           time.Duration
+	Wait              bool
 	Version           string
 	Values            map[string]interface{}
 }
@@ -239,7 +240,7 @@ func (h *HelmAgent) InstallChart(ctx context.Context, input ChartInput) error {
 	client.Namespace = namespace
 	client.ReleaseName = input.ReleaseName
 	client.Timeout = input.Timeout
-	client.Wait = false
+	client.Wait = input.Wait
 
 	settings := cli.New()
 	if input.RepoURL != "" {
@@ -314,7 +315,7 @@ func (h *HelmAgent) UpgradeChart(ctx context.Context, input ChartInput) error {
 	client.MaxHistory = 10
 	client.Namespace = namespace
 	client.Timeout = input.Timeout
-	client.Wait = false
+	client.Wait = input.Wait
 	if input.RepoURL != "" {
 		client.RepoURL = input.RepoURL
 	}

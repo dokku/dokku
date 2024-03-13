@@ -594,6 +594,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 		ReleaseName:       appName,
 		RollbackOnFailure: allowRollbacks,
 		Timeout:           timeoutDuration,
+		Wait:              true,
 	})
 	if err != nil {
 		return err
