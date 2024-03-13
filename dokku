@@ -109,7 +109,7 @@ if [[ -n "$SSH_ORIGINAL_COMMAND" ]]; then
   exit_code=0
   set -f
   xargs $0 <<<$SSH_ORIGINAL_COMMAND
-  echo $?
+  exit_code=$?
   set +f
   exit $exit_code
 fi
