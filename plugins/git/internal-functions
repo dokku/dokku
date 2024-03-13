@@ -196,20 +196,6 @@ cmd-git-sync() {
 
   verify_app_name "$APP"
 
-  local APP_CLONE_ROOT="$DOKKU_LIB_ROOT/data/git/$APP"
-
-  if [[ -d "$APP_CLONE_ROOT" ]]; then
-    if has_tty eq 0; then
-      cmd-git-unlock "$APP"
-      if [[ -d "$APP_CLONE_ROOT" ]]; then
-        dokku_log_fail "Failed to delete existing clone folder"
-        exit 15
-      fi
-    else
-      dokku_log_fail "Run 'git:unlock' to remove the existing temporary clone"
-    fi
-  fi
-
   if [[ -z "$GIT_REMOTE" ]]; then
     dokku_log_fail "Missing GIT_REMOTE parameter"
     return
@@ -231,41 +217,6 @@ cmd-git-sync() {
       plugn trigger receive-app "$APP"
     fi
     plugn trigger deploy-source-set "$APP" "git-sync" "${GIT_REMOTE}#${GIT_REF}"
-  fi
-}
-
-cmd-git-unlock() {
-  declare desc="removes the clone folder for an app"
-  local cmd="git:unlock"
-  [[ "$1" == "$cmd" ]] && shift 1
-  declare APP="$1" FLAG
-
-  for arg in "$@"; do
-    if [[ "$arg" == "--force" ]]; then
-      FLAG="--force"
-      continue
-    fi
-
-    ARGS+=("$arg")
-  done
-
-  local APP_CLONE_ROOT="$DOKKU_LIB_ROOT/data/git/$APP"
-
-  if [[ -d "$APP_CLONE_ROOT" ]]; then
-    if [[ "$FLAG" == "--force" ]]; then
-      fn-git-remove-clone-folder "$APP_CLONE_ROOT"
-    else
-      read -rp "Are you sure that want to delete clone folder (y/n)?" choice
-      case "$choice" in
-        y | Y)
-          fn-git-remove-clone-folder "$APP_CLONE_ROOT"
-          ;;
-        n | N) echo "no" ;;
-        *) echo "please answer with yes or no" ;;
-      esac
-    fi
-  else
-    dokku_log_info1 "No clone folder exists app already unlocked"
   fi
 }
 
@@ -399,7 +350,6 @@ EOF
 fn-git-clone() {
   declare desc="creates an app from remote git repo"
   declare APP="$1" GIT_REMOTE="$2" GIT_REF="$3"
-  local APP_CLONE_ROOT="$DOKKU_LIB_ROOT/data/git/$APP"
   local APP_ROOT="$DOKKU_ROOT/$APP"
   [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
 
@@ -411,20 +361,24 @@ fn-git-clone() {
     GIT_REF="$(fn-git-deploy-branch "$APP")"
   fi
 
-  trap "rm -rf '$APP_CLONE_ROOT' > /dev/null" RETURN INT TERM EXIT
+  local TMP_IS_REF_DIR=$(mktemp -d "/tmp/dokku-ref-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
+  trap "rm -rf '$TMP_IS_REF_DIR' >/dev/null" RETURN INT TERM EXIT
 
   is_ref=true
-  if GIT_TERMINAL_PROMPT=0 git clone --depth 1 -n --branch "$GIT_REF" "$GIT_REMOTE" "$APP_CLONE_ROOT" 2>/dev/null; then
+  if GIT_TERMINAL_PROMPT=0 git clone --depth 1 -n --branch "$GIT_REF" "$GIT_REMOTE" "$TMP_IS_REF_DIR" 2>/dev/null; then
     is_ref=false
   fi
-  rm -rf "$APP_CLONE_ROOT"
+  rm -rf "$TMP_IS_REF_DIR"
+
+  local TMP_CLONE_DIR=$(mktemp -d "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
+  trap "rm -rf '$TMP_CLONE_DIR' >/dev/null" RETURN INT TERM EXIT
 
   if [[ "$is_ref" == "true" ]]; then
-    GIT_TERMINAL_PROMPT=0 suppress_output git clone -n "$GIT_REMOTE" "$APP_CLONE_ROOT"
-    fn-git-cmd "$APP_CLONE_ROOT" checkout -qq "$GIT_REF"
+    GIT_TERMINAL_PROMPT=0 suppress_output git clone -n "$GIT_REMOTE" "$TMP_CLONE_DIR"
+    fn-git-cmd "$TMP_CLONE_DIR" checkout -qq "$GIT_REF"
   else
-    GIT_TERMINAL_PROMPT=0 suppress_output git clone -n --branch "$GIT_REF" "$GIT_REMOTE" "$APP_CLONE_ROOT"
-    if fn-git-cmd "$APP_CLONE_ROOT" show-ref --verify "refs/heads/$GIT_REF" &>/dev/null; then
+    GIT_TERMINAL_PROMPT=0 suppress_output git clone -n --branch "$GIT_REF" "$GIT_REMOTE" "$TMP_CLONE_DIR"
+    if fn-git-cmd "$TMP_CLONE_DIR" show-ref --verify "refs/heads/$GIT_REF" &>/dev/null; then
       dokku_log_verbose "Detected branch, setting deploy-branch to $GIT_REF"
       fn-plugin-property-write "git" "$APP" "deploy-branch" "$GIT_REF"
     fi
@@ -433,13 +387,13 @@ fn-git-clone() {
   DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
   if [[ "$GIT_REF" != "$DOKKU_DEPLOY_BRANCH" ]]; then
     if [[ "$is_ref" == "true" ]]; then
-      fn-git-cmd "$APP_CLONE_ROOT" branch -qq -D "$DOKKU_DEPLOY_BRANCH" 2>/dev/null || true
+      fn-git-cmd "$TMP_CLONE_DIR" branch -qq -D "$DOKKU_DEPLOY_BRANCH" 2>/dev/null || true
     fi
 
-    fn-git-cmd "$APP_CLONE_ROOT" checkout -qq -b "$DOKKU_DEPLOY_BRANCH"
+    fn-git-cmd "$TMP_CLONE_DIR" checkout -qq -b "$DOKKU_DEPLOY_BRANCH"
   fi
 
-  rsync -a "$APP_CLONE_ROOT/.git/" "$APP_ROOT"
+  rsync -a "$TMP_CLONE_DIR/.git/" "$APP_ROOT"
   fn-git-create-hook "$APP"
   fn-git-cmd "$APP_ROOT" config --add core.bare true
 }
