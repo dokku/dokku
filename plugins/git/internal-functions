@@ -196,10 +196,12 @@ cmd-git-sync() {
 
   verify_app_name "$APP"
 
-  if [[ -d "$DOKKU_LIB_ROOT/data/git/$APP" ]]; then
+  local APP_CLONE_ROOT="$DOKKU_LIB_ROOT/data/git/$APP"
+
+  if [[ -d "$APP_CLONE_ROOT" ]]; then
     if has_tty eq 0; then
       cmd-git-unlock "$APP"
-      if [[ -d "$DOKKU_LIB_ROOT/data/git/$APP" ]]; then
+      if [[ -d "$APP_CLONE_ROOT" ]]; then
         dokku_log_fail "Failed to delete existing clone folder"
         exit 15
       fi
@@ -266,6 +268,7 @@ cmd-git-unlock() {
     dokku_log_info1 "No clone folder exists app already unlocked"
   fi
 }
+
 cmd-git-public-key() {
   declare desc="outputs the dokku public deploy key"
   local cmd="git:public-key"
