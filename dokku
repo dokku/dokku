@@ -115,7 +115,7 @@ if [[ -n "$SSH_ORIGINAL_COMMAND" ]]; then
   else
     readarray -t -O "${#ssh_arg_array[@]}" ssh_arg_array < <( printf '%s' "$SSH_ORIGINAL_COMMAND" | xargs -n 1 )
     set -f
-    $O "${ssh_arg_array[@]}"
+    $0 "${ssh_arg_array[@]}"
     exit_code=$?
     set +f
   fi
