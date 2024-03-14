@@ -6,9 +6,11 @@ setup() {
   global_setup
   export "DOKKU_HOST=${DOKKU_DOMAIN}"
   create_app
+  clone_test_plugin
 }
 
 teardown() {
+  remove_test_plugin || true
   destroy_app
   unset DOKKU_HOST
   global_teardown
@@ -310,4 +312,23 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output "dokku"
+}
+
+@test "(client) test-args" {
+  run /bin/bash -c "dokku plugin:install $TEST_PLUGIN_GIT_REPO --name $TEST_PLUGIN_NAME"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku smoke-test-plugin:args bash -c 'echo Hello'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "triggered smoke-test-plugin:args with args: smoke-test-plugin:args, bash, -c, echo Hello"
+
+  run /bin/bash -c "${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh 'smoke-test-plugin:args bash -c \"echo Hello\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "triggered smoke-test-plugin:args with args: smoke-test-plugin:args, bash, -c, echo Hello"
 }

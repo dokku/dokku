@@ -1,22 +1,10 @@
 #!/usr/bin/env bats
 
 load test_helper
-TEST_PLUGIN_NAME=smoke-test-plugin
-TEST_PLUGIN_GIT_REPO=https://github.com/dokku/${TEST_PLUGIN_NAME}.git
-TEST_PLUGIN_LOCAL_REPO="$(mktemp -d)/$TEST_PLUGIN_NAME"
-
-clone_test_plugin() {
-  git clone "$TEST_PLUGIN_GIT_REPO" "$TEST_PLUGIN_LOCAL_REPO"
-}
 
 setup() {
   global_setup
   clone_test_plugin
-}
-
-remove_test_plugin() {
-  rm -rf $PLUGIN_ENABLED_PATH/$TEST_PLUGIN_NAME $PLUGIN_AVAILABLE_PATH/$TEST_PLUGIN_NAME
-  rm -rf $TEST_PLUGIN_LOCAL_REPO
 }
 
 teardown() {
