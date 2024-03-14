@@ -119,3 +119,48 @@ teardown() {
   assert_success
   assert_output_contains "docker-init" 0
 }
+
+@test "(scheduler-docker-local) publish ports" {
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Port publishing may not work as expected with multiple containers" 0
+  assert_output_contains "Port publishing may not work as expected with zero downtime" 0
+
+  run /bin/bash -c "dokku ps:scale $TEST_APP web=2"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Port publishing may not work as expected with multiple containers" 1
+  assert_output_contains "Port publishing may not work as expected with zero downtime" 0
+
+  run /bin/bash -c "dokku ps:scale --skip-deploy $TEST_APP web=2"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Port publishing may not work as expected with multiple containers" 0
+  assert_output_contains "Port publishing may not work as expected with zero downtime" 1
+
+  run /bin/bash -c "dokku checks:disable $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Port publishing may not work as expected with multiple containers" 0
+  assert_output_contains "Port publishing may not work as expected with zero downtime" 0
+}
