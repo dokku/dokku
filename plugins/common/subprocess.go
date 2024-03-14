@@ -4,91 +4,11 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 
 	"github.com/codeskyblue/go-sh"
 )
-
-// ShellCmd represents a shell command to be run for dokku
-type ShellCmd struct {
-	Env           map[string]string
-	Command       *exec.Cmd
-	CommandString string
-	Args          []string
-	ShowOutput    bool
-	ExitError     *exec.ExitError
-}
-
-// NewShellCmd returns a new ShellCmd struct
-//
-// Deprecated: use CallExecCommand instead
-func NewShellCmd(command string) *ShellCmd {
-	items := strings.Split(command, " ")
-	cmd := items[0]
-	args := items[1:]
-	return NewShellCmdWithArgs(cmd, args...)
-}
-
-// NewShellCmdWithArgs returns a new ShellCmd struct
-//
-// Deprecated: use CallExecCommand instead
-func NewShellCmdWithArgs(cmd string, args ...string) *ShellCmd {
-	commandString := strings.Join(append([]string{cmd}, args...), " ")
-
-	return &ShellCmd{
-		Command:       exec.Command(cmd, args...),
-		CommandString: commandString,
-		Args:          args,
-		ShowOutput:    true,
-	}
-}
-
-func (sc *ShellCmd) setup() {
-	env := os.Environ()
-	for k, v := range sc.Env {
-		env = append(env, fmt.Sprintf("%s=%s", k, v))
-	}
-	sc.Command.Env = env
-	if sc.ShowOutput {
-		sc.Command.Stdout = os.Stdout
-		sc.Command.Stderr = os.Stderr
-	}
-}
-
-// Execute is a lightweight wrapper around exec.Command
-func (sc *ShellCmd) Execute() bool {
-	sc.setup()
-
-	if err := sc.Command.Run(); err != nil {
-		exitError, ok := err.(*exec.ExitError)
-		if ok {
-			sc.ExitError = exitError
-		}
-		return false
-	}
-	return true
-}
-
-// Start is a wrapper around exec.Command.Start()
-func (sc *ShellCmd) Start() error {
-	sc.setup()
-
-	return sc.Command.Start()
-}
-
-// Output is a lightweight wrapper around exec.Command.Output()
-func (sc *ShellCmd) Output() ([]byte, error) {
-	sc.setup()
-	return sc.Command.Output()
-}
-
-// CombinedOutput is a lightweight wrapper around exec.Command.CombinedOutput()
-func (sc *ShellCmd) CombinedOutput() ([]byte, error) {
-	sc.setup()
-	return sc.Command.CombinedOutput()
-}
 
 // PlugnTrigger fire the given plugn trigger with the given args
 //
@@ -130,14 +50,6 @@ func PlugnTriggerOutput(triggerName string, args ...string) ([]byte, error) {
 	}
 
 	return readStdout, err
-}
-
-// PlugnTriggerOutputAsString fires the given plugn trigger with the given args and returns the string contents instead of bytes
-//
-// Deprecated: use CallPlugnTrigger with CaptureOutput=true instead
-func PlugnTriggerOutputAsString(triggerName string, args ...string) (string, error) {
-	b, err := PlugnTriggerOutput(triggerName, args...)
-	return strings.TrimSpace(string(b[:])), err
 }
 
 // PlugnTriggerSetup sets up a plugn trigger call
