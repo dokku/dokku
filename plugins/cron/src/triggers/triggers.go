@@ -14,6 +14,7 @@ import (
 func main() {
 	parts := strings.Split(os.Args[0], "/")
 	trigger := parts[len(parts)-1]
+	global := flag.Bool("global", false, "--global: Whether global or app-specific")
 	flag.Parse()
 
 	var err error
@@ -21,6 +22,10 @@ func main() {
 	case "cron-get-property":
 		appName := flag.Arg(0)
 		property := flag.Arg(1)
+		if *global {
+			appName = "--global"
+			property = flag.Arg(0)
+		}
 		err = cron.TriggerCronGetProperty(appName, property)
 	case "install":
 		err = cron.TriggerInstall()
