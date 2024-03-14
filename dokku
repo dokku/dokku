@@ -55,7 +55,7 @@ export DOKKU_SYSTEM_USER=${DOKKU_SYSTEM_USER:="dokku"}
 export DOKKU_API_VERSION=1
 export DOKKU_NOT_IMPLEMENTED_EXIT=10
 export DOKKU_VALID_EXIT=0
-export DOKKU_PID="$BASHPID"
+export DOKKU_PID="${DOKKU_PID:=$$}"
 
 export DOKKU_LOGS_DIR=${DOKKU_LOGS_DIR:="/var/log/dokku"}
 export DOKKU_LOGS_HOST_DIR=${DOKKU_LOGS_HOST_DIR:=$DOKKU_LOGS_DIR}
@@ -88,7 +88,7 @@ fi
 ! has_tty && DOKKU_QUIET_OUTPUT=1
 
 if [[ $(id -un) != "dokku" ]]; then
-  unset TMP TMPDIR TEMP TEMPDIR
+  unset DOKKU_PID TMP TMPDIR TEMP TEMPDIR
   if [[ ! $1 =~ plugin:* ]] && [[ $1 != "ssh-keys:add" ]] && [[ $1 != "ssh-keys:remove" ]] && [[ $1 != "scheduler-k3s:initialize" ]] && [[ $1 != "scheduler-k3s:uninstall" ]]; then
     export SSH_USER=$(id -un)
     sudo -u dokku -E -H "$0" "$@"

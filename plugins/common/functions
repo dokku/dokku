@@ -983,6 +983,7 @@ acquire_advisory_lock() {
       dokku_log_fail "Run 'apps:unlock' to release the existing deploy lock"
     fi
   fi
+  echo "$DOKKU_PID" >"$LOCK_FILE"
 }
 
 release_advisory_lock() {
