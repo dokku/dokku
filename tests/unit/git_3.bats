@@ -394,7 +394,6 @@ teardown() {
   echo "status: $status"
   assert_success
 
-
   run /bin/bash -c "cat /home/dokku/$TEST_APP/refs/heads/master"
   echo "output: $output"
   echo "status: $status"
