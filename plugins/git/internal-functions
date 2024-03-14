@@ -64,7 +64,9 @@ fn-git-from-archive() {
     dokku_log_fail "Invalid archive type specified, valid archive types include: tar, tar.gz, zip"
   fi
 
-  plugn trigger git-from-archive "$APP" "$ARCHIVE_URL" "$ARCHIVE_TYPE" "$USER_NAME" "$USER_EMAIL"
+  if ! plugn trigger git-from-archive "$APP" "$ARCHIVE_URL" "$ARCHIVE_TYPE" "$USER_NAME" "$USER_EMAIL"; then
+    return 1
+  fi
   plugn trigger deploy-source-set "$APP" "$ARCHIVE_TYPE" "$ARCHIVE_URL"
 }
 

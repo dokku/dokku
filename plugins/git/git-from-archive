@@ -33,6 +33,8 @@ trigger-git-git-from-archive() {
   elif [[ "$ARCHIVE_TYPE" == "zip" ]]; then
     dokku_log_verbose "Extracting zipball"
     unzip -d "$TMP_WORK_DIR_3" "$TMP_WORK_DIR_2/src.zip"
+  else
+    dokku_log_fail "Unsupported archive type: $ARCHIVE_TYPE"
   fi
 
   chmod -R u+r "$TMP_WORK_DIR_3"
@@ -51,7 +53,10 @@ trigger-git-git-from-archive() {
     popd &>/dev/null || pushd "/tmp" >/dev/null
   fi
 
-  plugn trigger git-from-directory "$APP" "$TMP_WORK_DIR" "$USER_NAME" "$USER_EMAIL"
+  if ! plugn trigger git-from-directory "$APP" "$TMP_WORK_DIR" "$USER_NAME" "$USER_EMAIL"; then
+    dokku_log_warn "Failed to update git repository from archive"
+    return 1
+  fi
 }
 
 trigger-git-git-from-archive "$@"
