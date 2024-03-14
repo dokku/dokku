@@ -46,7 +46,12 @@ func CommandAdd(appName string, portMapStrings []string) error {
 		return err
 	}
 
-	return common.PlugnTrigger("post-proxy-ports-update", []string{appName, "add"}...)
+	_, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "post-proxy-ports-update",
+		Args:        []string{appName, "add"},
+		StreamStdio: true,
+	})
+	return err
 }
 
 // CommandClear clears all port mappings for an app
@@ -59,7 +64,12 @@ func CommandClear(appName string) error {
 		return err
 	}
 
-	return common.PlugnTrigger("post-proxy-ports-update", []string{appName, "clear"}...)
+	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "post-proxy-ports-update",
+		Args:        []string{appName, "clear"},
+		StreamStdio: true,
+	})
+	return err
 }
 
 // CommandRemove removes specific port mappings from an app
@@ -81,7 +91,12 @@ func CommandRemove(appName string, portMapStrings []string) error {
 		return err
 	}
 
-	return common.PlugnTrigger("post-proxy-ports-update", []string{appName, "remove"}...)
+	_, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "post-proxy-ports-update",
+		Args:        []string{appName, "remove"},
+		StreamStdio: true,
+	})
+	return err
 }
 
 // CommandSet sets port mappings for an app
@@ -107,7 +122,12 @@ func CommandSet(appName string, portMapStrings []string) error {
 		return err
 	}
 
-	return common.PlugnTrigger("post-proxy-ports-update", []string{appName, "set"}...)
+	_, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "post-proxy-ports-update",
+		Args:        []string{appName, "set"},
+		StreamStdio: true,
+	})
+	return err
 }
 
 // CommandReport displays a ports report for one or more apps

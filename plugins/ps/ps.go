@@ -68,7 +68,12 @@ func (d FormationSlice) Less(i, j int) bool {
 
 // Rebuild rebuilds app from base image
 func Rebuild(appName string) error {
-	return common.PlugnTrigger("receive-app", []string{appName}...)
+	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "receive-app",
+		Args:        []string{appName},
+		StreamStdio: true,
+	})
+	return err
 }
 
 // Restart restarts the app
@@ -85,10 +90,20 @@ func Restart(appName string) error {
 
 	if imageTag == "" {
 		common.LogWarn("No deployed-image-tag property saved, falling back to full release-and-deploy")
-		return common.PlugnTrigger("release-and-deploy", []string{appName}...)
+		_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+			Trigger:     "release-and-deploy",
+			Args:        []string{appName},
+			StreamStdio: true,
+		})
+		return err
 	}
 
-	return common.PlugnTrigger("deploy", []string{appName, imageTag}...)
+	_, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "deploy",
+		Args:        []string{appName, imageTag},
+		StreamStdio: true,
+	})
+	return err
 }
 
 // RestartProcess restarts a process type within an app
@@ -105,21 +120,41 @@ func RestartProcess(appName string, processName string) error {
 
 	if imageTag == "" {
 		common.LogWarn("No deployed-image-tag property saved, falling back to full release-and-deploy")
-		return common.PlugnTrigger("release-and-deploy", []string{appName}...)
+		_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+			Trigger:     "release-and-deploy",
+			Args:        []string{appName},
+			StreamStdio: true,
+		})
+		return err
 	}
 
-	return common.PlugnTrigger("deploy", []string{appName, imageTag, processName}...)
+	_, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "deploy",
+		Args:        []string{appName, imageTag, processName},
+		StreamStdio: true,
+	})
+	return err
 }
 
 // Restore ensures an app that should be running is running on boot
 func Restore(appName string) error {
 	scheduler := common.GetAppScheduler(appName)
-	if err := common.PlugnTrigger("scheduler-pre-restore", []string{scheduler, appName}...); err != nil {
+	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "scheduler-pre-restore",
+		Args:        []string{scheduler, appName},
+		StreamStdio: true,
+	})
+	if err != nil {
 		return fmt.Errorf("Error running scheduler-pre-restore: %s", err)
 	}
 
 	common.LogInfo1("Clearing potentially invalid proxy configuration")
-	if err := common.PlugnTrigger("proxy-clear-config", []string{appName}...); err != nil {
+	_, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "proxy-clear-config",
+		Args:        []string{appName},
+		StreamStdio: true,
+	})
+	if err != nil {
 		common.LogWarn(fmt.Sprintf("Error clearing proxy config: %s", err))
 	}
 
@@ -151,7 +186,12 @@ func Start(appName string) error {
 		return nil
 	}
 
-	if err := common.PlugnTrigger("pre-start", []string{appName}...); err != nil {
+	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "pre-start",
+		Args:        []string{appName},
+		StreamStdio: true,
+	})
+	if err != nil {
 		return fmt.Errorf("Failure in pre-start hook: %s", err)
 	}
 
@@ -164,18 +204,24 @@ func Start(appName string) error {
 	}
 
 	if runningState != "true" {
-		if err := common.PlugnTrigger("release-and-deploy", []string{appName, imageTag}...); err != nil {
+		_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+			Trigger:     "release-and-deploy",
+			Args:        []string{appName, imageTag},
+			StreamStdio: true,
+		})
+		if err != nil {
 			return err
 		}
 	} else {
 		common.LogWarn(fmt.Sprintf("App %s already running", appName))
 	}
 
-	if err := common.PlugnTrigger("proxy-build-config", []string{appName}...); err != nil {
-		return err
-	}
-
-	return nil
+	_, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "proxy-build-config",
+		Args:        []string{appName},
+		StreamStdio: true,
+	})
+	return err
 }
 
 // Stop stops the app
@@ -188,13 +234,19 @@ func Stop(appName string) error {
 	common.LogInfo1Quiet(fmt.Sprintf("Stopping %s", appName))
 	scheduler := common.GetAppScheduler(appName)
 
-	if err := common.PlugnTrigger("scheduler-stop", []string{scheduler, appName}...); err != nil {
+	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "scheduler-stop",
+		Args:        []string{scheduler, appName},
+		StreamStdio: true,
+	})
+	if err != nil {
 		return err
 	}
 
-	if err := common.PlugnTrigger("post-stop", []string{appName}...); err != nil {
-		return err
-	}
-
-	return nil
+	_, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "post-stop",
+		Args:        []string{appName},
+		StreamStdio: true,
+	})
+	return err
 }

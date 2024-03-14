@@ -40,7 +40,12 @@ func CommandClone(oldAppName string, newAppName string, skipDeploy bool, ignoreE
 		return err
 	}
 
-	if err := common.PlugnTrigger("post-app-clone-setup", []string{oldAppName, newAppName}...); err != nil {
+	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "post-app-clone-setup",
+		Args:        []string{oldAppName, newAppName},
+		StreamStdio: true,
+	})
+	if err != nil {
 		return err
 	}
 
@@ -48,15 +53,21 @@ func CommandClone(oldAppName string, newAppName string, skipDeploy bool, ignoreE
 		os.Setenv("SKIP_REBUILD", "true")
 	}
 
-	if err := common.PlugnTrigger("git-has-code", []string{newAppName}...); err != nil {
+	_, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "git-has-code",
+		Args:        []string{newAppName},
+		StreamStdio: true,
+	})
+	if err != nil {
 		os.Setenv("SKIP_REBUILD", "true")
 	}
 
-	if err := common.PlugnTrigger("post-app-clone", []string{oldAppName, newAppName}...); err != nil {
-		return err
-	}
-
-	return nil
+	_, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "post-app-clone",
+		Args:        []string{oldAppName, newAppName},
+		StreamStdio: true,
+	})
+	return err
 }
 
 // CommandCreate creates app via command line
@@ -158,7 +169,12 @@ func CommandRename(oldAppName string, newAppName string, skipDeploy bool) error 
 		return err
 	}
 
-	if err := common.PlugnTrigger("post-app-rename-setup", []string{oldAppName, newAppName}...); err != nil {
+	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "post-app-rename-setup",
+		Args:        []string{oldAppName, newAppName},
+		StreamStdio: true,
+	})
+	if err != nil {
 		return err
 	}
 
@@ -171,15 +187,21 @@ func CommandRename(oldAppName string, newAppName string, skipDeploy bool) error 
 		os.Setenv("SKIP_REBUILD", "true")
 	}
 
-	if err := common.PlugnTrigger("git-has-code", []string{newAppName}...); err != nil {
+	_, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "git-has-code",
+		Args:        []string{newAppName},
+		StreamStdio: true,
+	})
+	if err != nil {
 		os.Setenv("SKIP_REBUILD", "true")
 	}
 
-	if err := common.PlugnTrigger("post-app-rename", []string{oldAppName, newAppName}...); err != nil {
-		return err
-	}
-
-	return nil
+	_, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "post-app-rename",
+		Args:        []string{oldAppName, newAppName},
+		StreamStdio: true,
+	})
+	return err
 }
 
 // CommandReport displays an app report for one or more apps

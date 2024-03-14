@@ -11,12 +11,22 @@ const RunInSerial = 0
 
 // BuildConfig rebuilds the proxy config for the specified app
 func BuildConfig(appName string) error {
-	return common.PlugnTrigger("proxy-build-config", []string{appName}...)
+	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "proxy-build-config",
+		Args:        []string{appName},
+		StreamStdio: true,
+	})
+	return err
 }
 
 // ClearConfig clears the proxy config for the specified app
 func ClearConfig(appName string) error {
-	return common.PlugnTrigger("proxy-clear-config", []string{appName}...)
+	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "proxy-clear-config",
+		Args:        []string{appName},
+		StreamStdio: true,
+	})
+	return err
 }
 
 // Disable disables proxy implementations for the specified app
@@ -35,7 +45,12 @@ func Disable(appName string) error {
 		return err
 	}
 
-	return common.PlugnTrigger("proxy-disable", []string{appName}...)
+	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "proxy-disable",
+		Args:        []string{appName},
+		StreamStdio: true,
+	})
+	return err
 }
 
 // Enable enables proxy implementations for the specified app
@@ -50,8 +65,12 @@ func Enable(appName string) error {
 	if err := config.UnsetMany(appName, keys, false); err != nil {
 		return err
 	}
-
-	return common.PlugnTrigger("proxy-enable", []string{appName}...)
+	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "proxy-enable",
+		Args:        []string{appName},
+		StreamStdio: true,
+	})
+	return err
 }
 
 // IsAppProxyEnabled returns true if proxy is enabled; otherwise return false

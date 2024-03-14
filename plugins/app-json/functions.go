@@ -442,7 +442,11 @@ func createdContainerID(appName string, dockerArgs []string, image string, comma
 	}
 
 	containerID := result.StdoutContents()
-	err = common.PlugnTrigger("post-container-create", []string{"app", containerID, appName, phase}...)
+	_, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "post-container-create",
+		Args:        []string{"app", containerID, appName, phase},
+		StreamStdio: true,
+	})
 	return containerID, err
 }
 
@@ -462,12 +466,27 @@ func setScale(appName string, image string) error {
 	}
 
 	if len(args) == 3 {
-		return common.PlugnTrigger("ps-can-scale", []string{appName, "true"}...)
-	}
-
-	if err := common.PlugnTrigger("ps-can-scale", []string{appName, "false"}...); err != nil {
+		_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+			Trigger:     "ps-can-scale",
+			Args:        []string{appName, "true"},
+			StreamStdio: true,
+		})
 		return err
 	}
 
-	return common.PlugnTrigger("ps-set-scale", args...)
+	_, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "ps-can-scale",
+		Args:        []string{appName, "false"},
+		StreamStdio: true,
+	})
+	if err != nil {
+		return err
+	}
+
+	_, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "ps-set-scale",
+		Args:        args,
+		StreamStdio: true,
+	})
+	return err
 }
