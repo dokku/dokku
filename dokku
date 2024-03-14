@@ -188,7 +188,8 @@ execute_dokku_cmd() {
     set -- "$PLUGIN_CMD" "$@"
   fi
 
-  if [[ $PLUGIN_NAME =~ git-* ]] || [[ $PLUGIN_NAME =~ git:* ]]; then
+  if [[ $PLUGIN_NAME =~ git-* ]] || [[ "$PLUGIN_NAME" == "ps:rebuild" ]] || [[ "$PLUGIN_NAME" == "ps:restart" ]] || [[ "$PLUGIN_NAME" == "deploy" ]]; then
+    export DOKKU_REDIRECT_OUTPUT=true
     exec &> >(tee >(tee | logger -i -t "dokku-${DOKKU_PID}"))
   fi
 

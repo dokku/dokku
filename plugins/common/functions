@@ -626,6 +626,11 @@ release_and_deploy() {
   declare desc="main function for releasing and deploying an app"
   source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
+  if [[ "$DOKKU_REDIRECT_OUTPUT" != "true" ]]; then
+    export DOKKU_REDIRECT_OUTPUT=true
+    exec &> >(tee >(tee | logger -i -t "dokku-${DOKKU_PID}"))
+  fi
+
   local APP="$1"
   local IMAGE_TAG="${2:-latest}"
   local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
