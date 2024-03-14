@@ -7,20 +7,33 @@ cmd-builds-output() {
   declare desc="shows build output"
   declare cmd="builds:output"
   [[ "$1" == "$cmd" ]] && shift 1
-  declare APP="$1"
+  declare APP="$1" DEPLOY_ID="$2"
   verify_app_name "$APP"
 
-  local APP_DEPLOY_LOCK_FILE PROCESS_ID
-  APP_DEPLOY_LOCK_FILE="$DOKKU_ROOT/$APP/.deploy.lock"
-  if [[ ! -f "$APP_DEPLOY_LOCK_FILE" ]]; then
-    dokku_log_info1 "No matching app deploy found"
-    return
+  if [[ -z "$DEPLOY_ID" ]] || [[ "$DEPLOY_ID" == "current" ]]; then
+    local APP_DEPLOY_LOCK_FILE PROCESS_ID
+    APP_DEPLOY_LOCK_FILE="$DOKKU_ROOT/$APP/.deploy.lock"
+    if [[ ! -f "$APP_DEPLOY_LOCK_FILE" ]]; then
+      dokku_log_info1 "App not currently deploying"
+      return
+    fi
+
+    DEPLOY_ID="$(cat "$APP_DEPLOY_LOCK_FILE")"
+    if [[ -z "$DEPLOY_ID" ]]; then
+      dokku_log_info1 "No matching app deploy found"
+      return
+    fi
   fi
 
-  PROCESS_ID="$(cat "$APP_DEPLOY_LOCK_FILE")"
-  if [[ -z "$PROCESS_ID" ]]; then
-    dokku_log_info1 "No matching app deploy found"
-    return
+  if [[ -z "$DEPLOY_ID" ]]; then
+    dokku_log_fail "No deploy id specified"
+    return 1
+  fi
+
+  if [[ -x /usr/bin/systemctl ]] || [[ -x /usr/local/bin/systemctl ]]; then
+    journalctl -n1000 -f -b -a -o cat "SYSLOG_IDENTIFIER=dokku-${DEPLOY_ID}"
+  else
+    grep "dokku-${DEPLOY_ID}" /var/log/syslog
   fi
 }
 
