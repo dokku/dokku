@@ -179,11 +179,17 @@ cmd-git-sync() {
   local cmd="git:sync"
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP GIT_REMOTE GIT_REF FLAG
+  local CURRENT_REF DOKKU_DEPLOY_BRANCH SHOULD_BUILD UPDATED_REF
 
   ARGS=()
   for arg in "$@"; do
     if [[ "$arg" == "--build" ]]; then
       FLAG="--build"
+      continue
+    fi
+
+    if [[ "$arg" == "--build-if-changes" ]]; then
+      FLAG="--build-if-changes"
       continue
     fi
 
@@ -202,6 +208,10 @@ cmd-git-sync() {
   fi
 
   local APP_ROOT="$DOKKU_ROOT/$APP"
+
+  DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
+  CURRENT_REF="$(fn-git-cmd "$APP_ROOT" rev-parse "$DOKKU_DEPLOY_BRANCH" 2>/dev/null || true)"
+
   if [[ "$(fn-git-cmd "$APP_ROOT" count-objects)" == "0 objects, 0 kilobytes" ]]; then
     dokku_log_info1_quiet "Cloning $APP from $GIT_REMOTE#$GIT_REF"
     fn-git-clone "$APP" "$GIT_REMOTE" "$GIT_REF"
@@ -209,7 +219,20 @@ cmd-git-sync() {
     fn-git-fetch "$APP" "$GIT_REMOTE" "$GIT_REF"
   fi
 
+  UPDATED_REF="$(fn-git-cmd "$APP_ROOT" rev-parse "$DOKKU_DEPLOY_BRANCH" 2>/dev/null || true)"
+  local SHOULD_BUILD=false
   if [[ "$FLAG" == "--build" ]]; then
+    SHOULD_BUILD=true
+  elif [[ "$FLAG" == "--build-if-changes" ]]; then
+    if [[ "$CURRENT_REF" == "$UPDATED_REF" ]]; then
+      dokku_log_verbose "Skipping build as no changes were detected"
+      return
+    fi
+
+    SHOULD_BUILD=true
+  fi
+
+  if [[ "$SHOULD_BUILD" == "true" ]]; then
     if [[ -n "$GIT_REF" ]]; then
       GIT_REF="$(fn-git-cmd "$APP_ROOT" rev-parse "$GIT_REF")"
       plugn trigger receive-app "$APP" "$GIT_REF"
