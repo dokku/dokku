@@ -735,10 +735,21 @@ func TriggerSchedulerEnter(scheduler string, appName string, processType string,
 	command := args
 	if len(args) == 0 {
 		command = []string{"/bin/bash"}
-		if globalShell, err := common.PlugnTriggerOutputAsString("config-get-global", []string{"DOKKU_APP_SHELL"}...); err == nil && globalShell != "" {
+		results, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+			Trigger: "config-get-global",
+			Args:    []string{"DOKKU_APP_SHELL"},
+		})
+		globalShell := results.StdoutContents()
+		if err == nil && globalShell != "" {
 			command = []string{globalShell}
 		}
-		if appShell, err := common.PlugnTriggerOutputAsString("config-get", []string{appName, "DOKKU_APP_SHELL"}...); err == nil && appShell != "" {
+
+		results, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
+			Trigger: "config-get",
+			Args:    []string{appName, "DOKKU_APP_SHELL"},
+		})
+		appShell := results.StdoutContents()
+		if err == nil && appShell != "" {
 			command = []string{appShell}
 		}
 	}
@@ -967,10 +978,21 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 	command := args
 	if len(args) == 0 {
 		command = []string{"/bin/bash"}
-		if globalShell, err := common.PlugnTriggerOutputAsString("config-get-global", []string{"DOKKU_APP_SHELL"}...); err == nil && globalShell != "" {
+		results, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+			Trigger: "config-get-global",
+			Args:    []string{"DOKKU_APP_SHELL"},
+		})
+		globalShell := results.StdoutContents()
+		if err == nil && globalShell != "" {
 			command = []string{globalShell}
 		}
-		if appShell, err := common.PlugnTriggerOutputAsString("config-get", []string{appName, "DOKKU_APP_SHELL"}...); err == nil && appShell != "" {
+
+		results, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
+			Trigger: "config-get",
+			Args:    []string{appName, "DOKKU_APP_SHELL"},
+		})
+		appShell := results.StdoutContents()
+		if err == nil && appShell != "" {
 			command = []string{appShell}
 		}
 	} else if len(args) == 1 {

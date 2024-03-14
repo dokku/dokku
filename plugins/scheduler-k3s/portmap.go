@@ -29,12 +29,15 @@ func getPortMaps(appName string) (map[string]PortMap, error) {
 	portMaps := []PortMap{}
 
 	allowedMappings := map[string]PortMap{}
-	output, err := common.PlugnTriggerOutputAsString("ports-get", []string{appName, "json"}...)
+	results, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "ports-get",
+		Args:    []string{appName, "json"},
+	})
 	if err != nil {
 		return allowedMappings, err
 	}
 
-	err = json.Unmarshal([]byte(output), &portMaps)
+	err = json.Unmarshal([]byte(results.StdoutContents()), &portMaps)
 	if err != nil {
 		return allowedMappings, err
 	}

@@ -33,13 +33,19 @@ func clearPorts(appName string) error {
 
 // doesCertExist checks if a cert exists for an app
 func doesCertExist(appName string) bool {
-	certsExists, _ := common.PlugnTriggerOutputAsString("certs-exists", []string{appName}...)
-	if certsExists == "true" {
+	results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "certs-exists",
+		Args:    []string{appName},
+	})
+	if results.StdoutContents() == "true" {
 		return true
 	}
 
-	certsForce, _ := common.PlugnTriggerOutputAsString("certs-force", []string{appName}...)
-	return certsForce == "true"
+	results, _ = common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "certs-force",
+		Args:    []string{appName},
+	})
+	return results.StdoutContents() == "true"
 }
 
 // filterAppPortMaps filters the port mappings for an app
@@ -156,8 +162,11 @@ func getDetectedPortMaps(appName string) []PortMap {
 // getGlobalProxyPort gets the global proxy port
 func getGlobalProxyPort() int {
 	port := 0
-	b, _ := common.PlugnTriggerOutput("config-get-global", []string{"DOKKU_PROXY_PORT"}...)
-	if intVar, err := strconv.Atoi(strings.TrimSpace(string(b[:]))); err == nil {
+	results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "config-get-global",
+		Args:    []string{"DOKKU_PROXY_PORT"},
+	})
+	if intVar, err := strconv.Atoi(results.StdoutContents()); err == nil {
 		port = intVar
 	}
 
@@ -167,8 +176,11 @@ func getGlobalProxyPort() int {
 // getGlobalProxySSLPort gets the global proxy ssl port
 func getGlobalProxySSLPort() int {
 	port := 0
-	b, _ := common.PlugnTriggerOutput("config-get-global", []string{"DOKKU_PROXY_SSL_PORT"}...)
-	if intVar, err := strconv.Atoi(strings.TrimSpace(string(b[:]))); err == nil {
+	results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "config-get-global",
+		Args:    []string{"DOKKU_PROXY_SSL_PORT"},
+	})
+	if intVar, err := strconv.Atoi(results.StdoutContents()); err == nil {
 		port = intVar
 	}
 
@@ -189,8 +201,11 @@ func getPortMaps(appName string) []PortMap {
 // getProxyPort gets the proxy port for an app
 func getProxyPort(appName string) int {
 	port := 0
-	b, _ := common.PlugnTriggerOutput("config-get", []string{appName, "DOKKU_PROXY_PORT"}...)
-	if intVar, err := strconv.Atoi(strings.TrimSpace(string(b[:]))); err == nil {
+	results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "config-get",
+		Args:    []string{appName, "DOKKU_PROXY_PORT"},
+	})
+	if intVar, err := strconv.Atoi(results.StdoutContents()); err == nil {
 		port = intVar
 	}
 
@@ -200,8 +215,11 @@ func getProxyPort(appName string) int {
 // getProxySSLPort gets the proxy ssl port for an app
 func getProxySSLPort(appName string) int {
 	port := 0
-	b, _ := common.PlugnTriggerOutput("config-get", []string{appName, "DOKKU_PROXY_SSL_PORT"}...)
-	if intVar, err := strconv.Atoi(strings.TrimSpace(string(b[:]))); err == nil {
+	results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "config-get",
+		Args:    []string{appName, "DOKKU_PROXY_SSL_PORT"},
+	})
+	if intVar, err := strconv.Atoi(results.StdoutContents()); err == nil {
 		port = intVar
 	}
 
