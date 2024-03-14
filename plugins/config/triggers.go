@@ -44,3 +44,43 @@ func TriggerConfigGetGlobal(key string) error {
 
 	return nil
 }
+
+// TriggerPostAppCloneSetup creates new buildpacks files
+func TriggerPostAppCloneSetup(oldAppName string, newAppName string) error {
+	oldEnv, err := LoadAppEnv(oldAppName)
+	if err != nil {
+		return fmt.Errorf("Unable to load old environment: %s", err.Error())
+	}
+
+	newEnv, err := LoadAppEnv(newAppName)
+	if err != nil {
+		return fmt.Errorf("Unable to load new environment: %s", err.Error())
+	}
+
+	newEnv.Merge(oldEnv)
+	if err := newEnv.Write(); err != nil {
+		return fmt.Errorf("Unable to write new environment: %s", err.Error())
+	}
+
+	return nil
+}
+
+// TriggerPostAppRenameSetup renames buildpacks files
+func TriggerPostAppRenameSetup(oldAppName string, newAppName string) error {
+	oldEnv, err := LoadAppEnv(oldAppName)
+	if err != nil {
+		return fmt.Errorf("Unable to load old environment: %s", err.Error())
+	}
+
+	newEnv, err := LoadAppEnv(newAppName)
+	if err != nil {
+		return fmt.Errorf("Unable to load new environment: %s", err.Error())
+	}
+
+	newEnv.Merge(oldEnv)
+	if err := newEnv.Write(); err != nil {
+		return fmt.Errorf("Unable to write new environment: %s", err.Error())
+	}
+
+	return nil
+}

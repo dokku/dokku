@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_AVAILABLE_PATH/docker-options/functions"
+
+trigger-docker-options-post-app-rename-setup() {
+  declare desc="copies docker options over"
+  declare trigger="post-app-rename-setup"
+  declare OLD_APP="$1" NEW_APP="$2"
+
+  declare -a phases
+  phases=("build" "deploy" "run")
+  for phase in "${phases[@]}"; do
+    if [[ -f "$(fn-get-phase-file-path "$OLD_APP" "$phase")" ]]; then
+      cp "$(fn-get-phase-file-path "$OLD_APP" "$phase")" "$(fn-get-phase-file-path "$NEW_APP" "$phase")"
+    fi
+  done
+}
+
+trigger-docker-options-post-app-rename-setup "$@"
