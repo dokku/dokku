@@ -4,16 +4,16 @@ load test_helper
 
 setup() {
   global_setup
-  [[ -f ${DOKKU_ROOT}/ENV ]] && mv -f ${DOKKU_ROOT}/ENV ${DOKKU_ROOT}/ENV.bak
-  sudo -H -u dokku /bin/bash -c "echo 'export global_test=true' > ${DOKKU_ROOT}/ENV"
+  mkdir -p "${DOKKU_LIB_ROOT}/config/--global"
+  [[ -f ${DOKKU_LIB_ROOT}/config/--global/ENV ]] && mv -f ${DOKKU_LIB_ROOT}/config/--global/ENV ${DOKKU_LIB_ROOT}/config/--global/ENV.bak
+  sudo -H -u dokku /bin/bash -c "echo 'export global_test=true' > ${DOKKU_LIB_ROOT}/config/--global/ENV"
   create_app
 }
 
 teardown() {
   destroy_app
-  ls -la ${DOKKU_ROOT}
-  if [[ -f ${DOKKU_ROOT}/ENV.bak ]]; then
-    mv -f ${DOKKU_ROOT}/ENV.bak ${DOKKU_ROOT}/ENV
+  if [[ -f ${DOKKU_LIB_ROOT}/config/--global/ENV.bak ]]; then
+    mv -f ${DOKKU_LIB_ROOT}/config/--global/ENV.bak ${DOKKU_LIB_ROOT}/config/--global/ENV
   fi
   global_teardown
 }
