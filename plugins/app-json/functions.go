@@ -213,8 +213,13 @@ func executeScript(appName string, image string, imageTag string, phase string) 
 	}
 
 	var dockerArgs []string
-	if b, err := common.PlugnTriggerSetup("docker-args-deploy", []string{appName, imageTag}...).SetInput("").Output(); err == nil {
-		words, err := shellquote.Split(strings.TrimSpace(string(b[:])))
+	results, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "docker-args-deploy",
+		Args:    []string{appName, imageTag},
+		Stdin:   strings.NewReader(""),
+	})
+	if err == nil {
+		words, err := shellquote.Split(results.StdoutContents())
 		if err != nil {
 			return err
 		}
@@ -222,8 +227,13 @@ func executeScript(appName string, image string, imageTag string, phase string) 
 		dockerArgs = append(dockerArgs, words...)
 	}
 
-	if b, err := common.PlugnTriggerSetup("docker-args-process-deploy", []string{appName, imageSourceType, imageTag}...).SetInput("").Output(); err == nil {
-		words, err := shellquote.Split(strings.TrimSpace(string(b[:])))
+	results, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "docker-args-process-deploy",
+		Args:    []string{appName, imageSourceType, imageTag},
+		Stdin:   strings.NewReader(""),
+	})
+	if err == nil {
+		words, err := shellquote.Split(results.StdoutContents())
 		if err != nil {
 			return err
 		}
