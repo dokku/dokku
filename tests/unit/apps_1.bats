@@ -217,7 +217,7 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output "VALUE-$TEST_APP"
-  run /bin/bash -c "dokku docker-options:report great-test-name deploy --docker-options-deploy"
+  run /bin/bash -c "dokku docker-options:report great-test-name --docker-options-deploy"
   echo "output: $output"
   echo "status: $status"
   assert_success
