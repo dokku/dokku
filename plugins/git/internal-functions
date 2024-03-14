@@ -193,7 +193,7 @@ cmd-git-from-image() {
   local exit_code=0
   acquire_app_deploy_lock "$APP" "exclusive"
   export DOKKU_LOCK_ACQUIRED=1
-  fn-git-load-image "$APP" "$DOCKER_IMAGE" "$BUILD_DIR" "$USER_NAME" "$USER_EMAIL" || exit_code="$?"
+  fn-git-from-image "$APP" "$DOCKER_IMAGE" "$BUILD_DIR" "$USER_NAME" "$USER_EMAIL" || exit_code="$?"
   release_app_deploy_lock "$APP"
   return "$exit_code"
 }
@@ -235,6 +235,11 @@ cmd-git-sync() {
 
   verify_app_name "$APP"
 
+  if [[ -z "$GIT_REMOTE" ]]; then
+    dokku_log_fail "Missing GIT_REMOTE parameter"
+    return
+  fi
+
   local exit_code=0
   acquire_app_deploy_lock "$APP" "exclusive"
   export DOKKU_LOCK_ACQUIRED=1
@@ -245,23 +250,6 @@ cmd-git-sync() {
 
 fn-git-sync() {
   declare APP="$1" GIT_REMOTE="$2" GIT_REF="$3" FLAG="$4"
-
-  if [[ -d "$DOKKU_LIB_ROOT/data/git/$APP" ]]; then
-    if has_tty eq 0; then
-      cmd-git-unlock "$APP"
-      if [[ -d "$DOKKU_LIB_ROOT/data/git/$APP" ]]; then
-        dokku_log_fail "Failed to delete existing clone folder"
-        exit 15
-      fi
-    else
-      dokku_log_fail "Run 'git:unlock' to remove the existing temporary clone"
-    fi
-  fi
-
-  if [[ -z "$GIT_REMOTE" ]]; then
-    dokku_log_fail "Missing GIT_REMOTE parameter"
-    return
-  fi
 
   local APP_ROOT="$DOKKU_ROOT/$APP"
   DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
