@@ -36,6 +36,14 @@ func main() {
 	case "config-get-global":
 		key := flag.Arg(0)
 		err = config.TriggerConfigGetGlobal(key)
+	case "post-app-clone-setup":
+		oldAppName := flag.Arg(0)
+		newAppName := flag.Arg(1)
+		err = config.TriggerPostAppCloneSetup(oldAppName, newAppName)
+	case "post-app-rename-setup":
+		oldAppName := flag.Arg(0)
+		newAppName := flag.Arg(1)
+		err = config.TriggerPostAppRenameSetup(oldAppName, newAppName)
 	default:
 		err = fmt.Errorf("Invalid plugin trigger call: %s", trigger)
 	}
