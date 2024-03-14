@@ -473,10 +473,11 @@ func extractStartCommand(input StartCommandInput) string {
 	}
 
 	if command == "" {
-		procfileStartCommand, _ := common.PlugnTriggerOutputAsString("procfile-get-command", []string{input.AppName, input.ProcessType, fmt.Sprint(input.Port)}...)
-		if procfileStartCommand != "" {
-			command = procfileStartCommand
-		}
+		results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
+			Trigger: "procfile-get-command",
+			Args:    []string{input.AppName, input.ProcessType, fmt.Sprint(input.Port)},
+		})
+		command = results.StdoutContents()
 	}
 
 	return command
@@ -1238,7 +1239,11 @@ func getProcessResources(appName string, processType string) (ProcessResourcesMa
 			processResources.Limits.CPU = ""
 		}
 	}
-	nvidiaGpuLimit, err := common.PlugnTriggerOutputAsString("resource-get-property", []string{appName, processType, "limit", "nvidia-gpu"}...)
+	response, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "resource-get-property",
+		Args:    []string{appName, processType, "limit", "nvidia-gpu"},
+	})
+	nvidiaGpuLimit := response.StdoutContents()
 	if err == nil && nvidiaGpuLimit != "" && nvidiaGpuLimit != "0" {
 		_, err := resource.ParseQuantity(nvidiaGpuLimit)
 		if err != nil {
