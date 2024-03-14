@@ -211,7 +211,6 @@ cmd-git-sync() {
 
   DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
   CURRENT_REF="$(fn-git-cmd "$APP_ROOT" rev-parse "$DOKKU_DEPLOY_BRANCH" 2>/dev/null || true)"
-  dokku_log_verbose "Current ref for $APP is $CURRENT_REF"
 
   if [[ "$(fn-git-cmd "$APP_ROOT" count-objects)" == "0 objects, 0 kilobytes" ]]; then
     dokku_log_info1_quiet "Cloning $APP from $GIT_REMOTE#$GIT_REF"
@@ -221,8 +220,6 @@ cmd-git-sync() {
   fi
 
   UPDATED_REF="$(fn-git-cmd "$APP_ROOT" rev-parse "$DOKKU_DEPLOY_BRANCH" 2>/dev/null || true)"
-  dokku_log_verbose "Updated ref for $APP is $UPDATED_REF"
-
   local SHOULD_BUILD=false
   if [[ "$FLAG" == "--build" ]]; then
     SHOULD_BUILD=true
