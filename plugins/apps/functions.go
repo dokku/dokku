@@ -38,11 +38,12 @@ func createApp(appName string) error {
 		return err
 	}
 
-	if err := common.PlugnTrigger("post-create", []string{appName}...); err != nil {
-		return err
-	}
-
-	return nil
+	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "post-create",
+		Args:        []string{appName},
+		StreamStdio: true,
+	})
+	return err
 }
 
 // destroys an app
@@ -56,19 +57,41 @@ func destroyApp(appName string) error {
 	common.LogInfo1(fmt.Sprintf("Destroying %s (including all add-ons)", appName))
 
 	imageTag, _ := common.GetRunningImageTag(appName, "")
-	if err := common.PlugnTrigger("pre-delete", []string{appName, imageTag}...); err != nil {
+	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "pre-delete",
+		Args:        []string{appName, imageTag},
+		StreamStdio: true,
+	})
+	if err != nil {
 		return err
 	}
 
 	scheduler := common.GetAppScheduler(appName)
 	removeContainers := "true"
-	if err := common.PlugnTrigger("scheduler-stop", []string{scheduler, appName, removeContainers}...); err != nil {
+	_, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "scheduler-stop",
+		Args:        []string{scheduler, appName, removeContainers},
+		StreamStdio: true,
+	})
+	if err != nil {
 		return err
 	}
-	if err := common.PlugnTrigger("scheduler-post-delete", []string{scheduler, appName, imageTag}...); err != nil {
+
+	_, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "scheduler-post-delete",
+		Args:        []string{scheduler, appName, imageTag},
+		StreamStdio: true,
+	})
+	if err != nil {
 		return err
 	}
-	if err := common.PlugnTrigger("post-delete", []string{appName, imageTag}...); err != nil {
+
+	_, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "post-delete",
+		Args:        []string{appName, imageTag},
+		StreamStdio: true,
+	})
+	if err != nil {
 		return err
 	}
 
@@ -76,7 +99,12 @@ func destroyApp(appName string) error {
 	common.DockerCleanup(appName, forceCleanup)
 
 	common.LogInfo1("Retiring old containers and images")
-	if err := common.PlugnTrigger("scheduler-retire", []string{scheduler, appName}...); err != nil {
+	_, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "scheduler-retire",
+		Args:        []string{scheduler, appName},
+		StreamStdio: true,
+	})
+	if err != nil {
 		return err
 	}
 

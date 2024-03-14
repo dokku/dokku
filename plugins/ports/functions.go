@@ -286,10 +286,12 @@ func inRange(value int, min int, max int) bool {
 
 // isAppVhostEnabled checks if the app vhost is enabled
 func isAppVhostEnabled(appName string) bool {
-	if err := common.PlugnTrigger("domains-vhost-enabled", []string{appName}...); err != nil {
-		return false
-	}
-	return true
+	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "domains-vhost-enabled",
+		Args:        []string{appName},
+		StreamStdio: true,
+	})
+	return err == nil
 }
 
 // listAppPortMaps lists the port mappings for an app

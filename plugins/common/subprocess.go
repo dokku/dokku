@@ -1,60 +1,15 @@
 package common
 
 import (
-	"fmt"
-	"io"
-	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/codeskyblue/go-sh"
 )
 
-// PlugnTrigger fire the given plugn trigger with the given args
-//
-// Deprecated: use CallPlugnTrigger instead
-func PlugnTrigger(triggerName string, args ...string) error {
-	LogDebug(fmt.Sprintf("plugn trigger %s %v", triggerName, args))
-	return PlugnTriggerSetup(triggerName, args...).Run()
-}
-
-// PlugnTriggerOutput fire the given plugn trigger with the given args
-//
-// Deprecated: use CallPlugnTrigger with CaptureOutput=true instead
-func PlugnTriggerOutput(triggerName string, args ...string) ([]byte, error) {
-	LogDebug(fmt.Sprintf("plugn trigger %s %v", triggerName, args))
-	rE, wE, _ := os.Pipe()
-	rO, wO, _ := os.Pipe()
-	session := PlugnTriggerSetup(triggerName, args...)
-	session.Stderr = wE
-	session.Stdout = wO
-	err := session.Run()
-	wE.Close()
-	wO.Close()
-
-	readStderr, _ := io.ReadAll(rE)
-	readStdout, _ := io.ReadAll(rO)
-
-	stderr := string(readStderr[:])
-	if err != nil {
-		err = fmt.Errorf(stderr)
-	}
-
-	if os.Getenv("DOKKU_TRACE") == "1" {
-		for _, line := range strings.Split(stderr, "\n") {
-			LogDebug(fmt.Sprintf("plugn trigger %s stderr: %s", triggerName, line))
-		}
-		for _, line := range strings.Split(string(readStdout[:]), "\n") {
-			LogDebug(fmt.Sprintf("plugn trigger %s stdout: %s", triggerName, line))
-		}
-	}
-
-	return readStdout, err
-}
-
 // PlugnTriggerSetup sets up a plugn trigger call
 //
-// Deprecated: use CallPlugnTrigger instead
+// Deprecated: use CallPlugnTrigger with Stdin instead
 func PlugnTriggerSetup(triggerName string, args ...string) *sh.Session {
 	shellArgs := make([]interface{}, len(args)+2)
 	shellArgs[0] = "trigger"

@@ -210,7 +210,12 @@ func getFormations(appName string) (FormationSlice, error) {
 }
 
 func restorePrep() error {
-	if err := common.PlugnTrigger("proxy-clear-config", []string{"--all"}...); err != nil {
+	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "proxy-clear-config",
+		Args:        []string{"--all"},
+		StreamStdio: true,
+	})
+	if err != nil {
 		return fmt.Errorf("Error clearing proxy config: %s", err)
 	}
 
@@ -266,7 +271,12 @@ func scaleSet(appName string, skipDeploy bool, clearExisting bool, processTuples
 	}
 
 	for _, formation := range formations {
-		if err := common.PlugnTrigger("deploy", []string{appName, imageTag, formation.ProcessType}...); err != nil {
+		_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+			Trigger:     "deploy",
+			Args:        []string{appName, imageTag, formation.ProcessType},
+			StreamStdio: true,
+		})
+		if err != nil {
 			return err
 		}
 	}

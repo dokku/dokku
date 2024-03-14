@@ -227,7 +227,11 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 
 	domains := []string{}
 	if _, ok := processes["web"]; ok {
-		err = common.PlugnTrigger("domains-vhost-enabled", []string{appName}...)
+		_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+			Trigger:     "domains-vhost-enabled",
+			Args:        []string{appName},
+			StreamStdio: true,
+		})
 		if err == nil {
 			results, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
 				Trigger: "domains-list",

@@ -40,9 +40,11 @@ var templates embed.FS
 // GetFailedLogs outputs failed deploy logs for a given app
 func GetFailedLogs(appName string) error {
 	common.LogInfo2Quiet(fmt.Sprintf("%s failed deploy logs", appName))
-	s := common.GetAppScheduler(appName)
-	if err := common.PlugnTrigger("scheduler-logs-failed", s, appName); err != nil {
-		return err
-	}
-	return nil
+	scheduler := common.GetAppScheduler(appName)
+	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "scheduler-logs-failed",
+		Args:        []string{scheduler, appName},
+		StreamStdio: true,
+	})
+	return err
 }

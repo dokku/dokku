@@ -149,7 +149,12 @@ func CommandSetProperty(appName string, property string, value string) error {
 	common.CommandPropertySet("buildpacks", appName, property, value, DefaultProperties, GlobalProperties)
 	if property == "stack" && oldStack != value {
 		if appName != "--global" {
-			return common.PlugnTrigger("post-stack-set", []string{appName, value}...)
+			_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+				Trigger:     "post-stack-set",
+				Args:        []string{appName, value},
+				StreamStdio: true,
+			})
+			return err
 		}
 
 		apps, err := common.DokkuApps()
@@ -157,7 +162,12 @@ func CommandSetProperty(appName string, property string, value string) error {
 			return err
 		}
 		for _, app := range apps {
-			if err := common.PlugnTrigger("post-stack-set", []string{app, value}...); err != nil {
+			_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+				Trigger:     "post-stack-set",
+				Args:        []string{app, value},
+				StreamStdio: true,
+			})
+			if err != nil {
 				return err
 			}
 		}

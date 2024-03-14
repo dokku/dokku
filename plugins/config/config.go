@@ -129,14 +129,24 @@ func UnsetAll(appName string, restart bool) (err error) {
 
 func triggerRestart(appName string) {
 	common.LogInfo1(fmt.Sprintf("Restarting app %s", appName))
-	if err := common.PlugnTrigger("release-and-deploy", appName); err != nil {
+	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "release-and-deploy",
+		Args:        []string{appName},
+		StreamStdio: true,
+	})
+	if err != nil {
 		common.LogWarn(fmt.Sprintf("Failure while restarting app: %s", err))
 	}
 }
 
 func triggerUpdate(appName string, operation string, args []string) {
 	args = append([]string{appName, operation}, args...)
-	if err := common.PlugnTrigger("post-config-update", args...); err != nil {
+	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "post-config-update",
+		Args:        args,
+		StreamStdio: true,
+	})
+	if err != nil {
 		common.LogWarn(fmt.Sprintf("Failure while triggering post-config-update: %s", err))
 	}
 }

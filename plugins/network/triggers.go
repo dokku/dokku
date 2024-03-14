@@ -40,7 +40,12 @@ func TriggerInstall() error {
 		if common.PropertyExists("network", appName, "bind-all-interfaces") {
 			continue
 		}
-		if err := common.PlugnTrigger("proxy-is-enabled", []string{appName}...); err != nil {
+		_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+			Trigger:     "proxy-is-enabled",
+			Args:        []string{appName},
+			StreamStdio: true,
+		})
+		if err != nil {
 			common.LogVerboseQuiet("Setting network property 'bind-all-interfaces' to false")
 			if err := common.PropertyWrite("network", appName, "bind-all-interfaces", "false"); err != nil {
 				common.LogWarn(err.Error())
