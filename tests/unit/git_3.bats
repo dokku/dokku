@@ -144,12 +144,18 @@ teardown() {
   assert_success
 }
 
-@test "(git) git:sync new [--build noarg]" {
+@test "(git) git:sync new [--build noarg] 7" {
   run /bin/bash -c "dokku git:sync --build $TEST_APP https://github.com/dokku/smoke-test-app.git"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output_contains "Application deployed"
+
+  run /bin/bash -c "dokku git:sync --build-if-changes $TEST_APP https://github.com/dokku/smoke-test-app.git"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Skipping build as no changes were detected"
 }
 
 @test "(git) git:sync new [--build branch]" {
@@ -158,6 +164,12 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_contains "Application deployed"
+
+  run /bin/bash -c "dokku git:sync --build-if-changes $TEST_APP https://github.com/dokku/smoke-test-app.git another-branch"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Skipping build as no changes were detected"
 }
 
 @test "(git) git:sync new [--build tag]" {
@@ -166,6 +178,12 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_contains "Application deployed"
+
+  run /bin/bash -c "dokku git:sync --build-if-changes $TEST_APP https://github.com/dokku/smoke-test-app.git 1.0.0"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Skipping build as no changes were detected"
 }
 
 @test "(git) git:sync new [--build commit]" {
@@ -174,6 +192,12 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_contains "Application deployed"
+
+  run /bin/bash -c "dokku git:sync --build-if-changes $TEST_APP https://github.com/dokku/smoke-test-app.git 5c8a5e42bbd7fae98bd657fb17f41c6019b303f9"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Skipping build as no changes were detected"
 }
 
 @test "(git) git:sync existing [errors]" {
@@ -262,6 +286,12 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_contains "Application deployed"
+
+  run /bin/bash -c "dokku git:sync --build-if-changes $TEST_APP https://github.com/dokku/smoke-test-app.git"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Skipping build as no changes were detected"
 }
 
 @test "(git) git:sync existing [--build branch]" {
@@ -275,6 +305,12 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_contains "Application deployed"
+
+  run /bin/bash -c "dokku git:sync --build-if-changes $TEST_APP https://github.com/dokku/smoke-test-app.git another-branch"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Skipping build as no changes were detected"
 }
 
 @test "(git) git:sync existing [--build tag]" {
@@ -288,6 +324,12 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_contains "Application deployed"
+
+  run /bin/bash -c "dokku git:sync --build-if-changes $TEST_APP https://github.com/dokku/smoke-test-app.git 2.0.0"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Skipping build as no changes were detected"
 }
 
 @test "(git) git:sync existing [--build commit]" {
@@ -301,6 +343,12 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_contains "Application deployed"
+
+  run /bin/bash -c "dokku git:sync --build-if-changes $TEST_APP https://github.com/dokku/smoke-test-app.git 5c8a5e42bbd7fae98bd657fb17f41c6019b303f9"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Skipping build as no changes were detected"
 }
 
 @test "(git) git:sync private" {
@@ -328,6 +376,12 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
+
+  run /bin/bash -c "dokku git:sync --build-if-changes $TEST_APP https://github.com/dokku/smoke-test-app-private.git"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Skipping build as no changes were detected"
 }
 
 @test "(git) git:public-key" {
