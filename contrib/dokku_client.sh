@@ -188,14 +188,13 @@ main() {
   [[ " storage:ensure-directory " == *" $CMD "* ]] && unset APP
   [[ "$CMD" =~ events*|plugin*|ssh-keys* ]] && unset APP
   [[ -n "$APP_ARG" ]] && [[ "$APP_ARG" == "--global" ]] && unset APP
-  [[ -n "$@" ]] && [[ -n "$APP" ]] && app_arg="--app $APP"
+  if [[ -n "$@" ]] && [[ -n "$APP" ]]; then
+    set -- "$APP" "$@"
+    set -- "--app" "$@"
+  fi
   # echo "ssh -o LogLevel=QUIET -p $DOKKU_PORT -t dokku@$DOKKU_REMOTE_HOST -- $app_arg $@"
   local ssh_args=("-o" "LogLevel=QUIET" "-p" "$DOKKU_PORT" "-t" "dokku@$DOKKU_REMOTE_HOST" "--")
-  if [[ -n "$app_arg" ]]; then
-    ssh_args+=("'$app_arg $@'")
-  else
-    ssh_args+=("$@")
-  fi
+  ssh_args+=("$@")
   ssh "${ssh_args[@]}" || {
     ssh_exit_code="$?"
     echo " !     Failed to execute dokku command over ssh: exit code $?" 1>&2
