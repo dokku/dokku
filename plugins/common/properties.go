@@ -541,6 +541,10 @@ func PropertySetup(pluginName string) error {
 }
 
 func PropertySetupApp(pluginName string, appName string) error {
+	if err := PropertySetup(pluginName); err != nil {
+		return err
+	}
+
 	if err := makePluginAppPropertyPath(pluginName, appName); err != nil {
 		return fmt.Errorf("Unable to create %s config directory for %s: %s", pluginName, appName, err.Error())
 	}
