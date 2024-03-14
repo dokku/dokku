@@ -68,7 +68,7 @@ fn-scheduler-deploy-process() {
       warned_on_publish=true
       dokku_log_warn "Deploys may fail when publishing ports and scaling to multiple containers. Consider scaling process type $PROC_TYPE to 1."
     fi
-    if  [[ "$DOKKU_CHECKS_DISABLED" != "true" ]] && [[ "$warned_on_publish" == "false" ]]; then
+    if [[ "$DOKKU_CHECKS_DISABLED" != "true" ]] && [[ "$warned_on_publish" == "false" ]]; then
       warned_on_publish=true
       dokku_log_warn "Deploys may fail when publishing ports and enabling zero downtime. Consider disabling zero downtime for process type $PROC_TYPE."
     fi
