@@ -2,6 +2,7 @@ package config
 
 import (
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -12,9 +13,9 @@ import (
 
 var (
 	testAppName      = "test-app-1"
-	dokkuRoot        = common.MustGetEnv("DOKKU_ROOT")
-	testAppDir       = strings.Join([]string{dokkuRoot, testAppName}, "/")
-	globalConfigFile = strings.Join([]string{dokkuRoot, "ENV"}, "/")
+	dokkuLibRoot     = common.MustGetEnv("DOKKU_LIB_ROOT")
+	testAppDir       = filepath.Join(dokkuLibRoot, "config", testAppName)
+	globalConfigFile = filepath.Join(dokkuLibRoot, "config", "--global", "ENV")
 )
 
 func setupTests() (err error) {
