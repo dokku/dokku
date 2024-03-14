@@ -8,12 +8,13 @@ cmd-builds-cancel() {
   declare cmd="builds:cancel"
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1"
+  local APP_DEPLOY_LOCK_FILE PROCESS_ID PROCESS_GROUP_ID
   verify_app_name "$APP"
 
   local APP_DEPLOY_LOCK_FILE PROCESS_ID PROCESS_GROUP_ID
-  APP_DEPLOY_LOCK_FILE="$DOKKU_ROOT/$APP/.deploy.lock"
+  APP_DEPLOY_LOCK_FILE="$DOKKU_LIB_ROOT/data/apps/$APP/.deploy.lock"
   if [[ ! -f "$APP_DEPLOY_LOCK_FILE" ]]; then
-    dokku_log_info1 "No matching app deploy found"
+    dokku_log_info1 "App not currently deploying"
     return
   fi
 
@@ -25,12 +26,12 @@ cmd-builds-cancel() {
 
   PROCESS_GROUP_ID="$(ps -o pgid= "$PROCESS_ID" || true)"
   if [[ -z "$PROCESS_ID" ]]; then
-    dokku_log_info1 "No matching app deploy found"
+    dokku_log_info1 "Unable to find process group id for app deploy"
     return
   fi
 
   dokku_log_info1 "Killing app deploy"
-  kill -quit -- "-${PROCESS_GROUP_ID}" && rm -f "$DOKKU_ROOT/$APP/.deploy.lock"
+  kill -quit -- "-${PROCESS_GROUP_ID}" && rm -f "$APP_DEPLOY_LOCK_FILE"
 }
 
-ps_kill_deploy_cmd "$@"
+cmd-builds-cancel "$@"
