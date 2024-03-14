@@ -80,12 +80,15 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 	if scheduler != "k3s" {
 		return nil
 	}
-	s, err := common.PlugnTriggerOutput("ps-current-scale", []string{appName}...)
+	results, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "ps-current-scale",
+		Args:    []string{appName},
+	})
 	if err != nil {
 		return err
 	}
 
-	processes, err := common.ParseScaleOutput(s)
+	processes, err := common.ParseScaleOutput(results.StdoutBytes())
 	if err != nil {
 		return err
 	}
@@ -226,12 +229,15 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 	if _, ok := processes["web"]; ok {
 		err = common.PlugnTrigger("domains-vhost-enabled", []string{appName}...)
 		if err == nil {
-			b, err := common.PlugnTriggerOutput("domains-list", []string{appName}...)
+			results, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+				Trigger: "domains-list",
+				Args:    []string{appName},
+			})
 			if err != nil {
 				return fmt.Errorf("Error getting domains for deployment: %w", err)
 			}
 
-			for _, domain := range strings.Split(string(b), "\n") {
+			for _, domain := range strings.Split(results.StdoutContents(), "\n") {
 				domain = strings.TrimSpace(domain)
 				if domain != "" {
 					domains = append(domains, domain)

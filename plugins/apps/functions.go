@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/dokku/dokku/plugins/common"
@@ -105,8 +104,11 @@ func maybeCreateApp(appName string) error {
 		return nil
 	}
 
-	b, _ := common.PlugnTriggerOutput("config-get-global", []string{"DOKKU_DISABLE_APP_AUTOCREATION"}...)
-	disableAutocreate := strings.TrimSpace(string(b[:]))
+	results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "config-get-global",
+		Args:    []string{"DOKKU_DISABLE_APP_AUTOCREATION"},
+	})
+	disableAutocreate := results.StdoutContents()
 	if disableAutocreate == "true" {
 		common.LogWarn("App auto-creation disabled.")
 		return fmt.Errorf("Re-enable app auto-creation or create an app with 'dokku apps:create %s'", appName)

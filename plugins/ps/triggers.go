@@ -72,8 +72,11 @@ func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
 	}
 
 	processSpecificProcfile := fmt.Sprintf("%s.%s", existingProcfile, os.Getenv("DOKKU_PID"))
-	b, _ := common.PlugnTriggerOutput("git-get-property", []string{appName, "source-image"}...)
-	appSourceImage := strings.TrimSpace(string(b[:]))
+	results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "git-get-property",
+		Args:    []string{appName, "source-image"},
+	})
+	appSourceImage := results.StdoutContents()
 
 	repoDefaultProcfilePath := path.Join(sourceWorkDir, "Procfile")
 	if appSourceImage == "" {

@@ -101,11 +101,17 @@ func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
 	}
 
 	processSpecificAppJSON := fmt.Sprintf("%s.%s", existingAppJSON, os.Getenv("DOKKU_PID"))
-	b, _ := common.PlugnTriggerOutput("git-get-property", []string{appName, "source-image"}...)
-	appSourceImage := strings.TrimSpace(string(b[:]))
+	results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "git-get-property",
+		Args:    []string{appName, "source-image"},
+	})
+	appSourceImage := results.StdoutContents()
 
-	b, _ = common.PlugnTriggerOutput("builder-get-property", []string{appName, "build-dir"}...)
-	buildDir := strings.TrimSpace(string(b[:]))
+	results, _ = common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "builder-get-property",
+		Args:    []string{appName, "build-dir"},
+	})
+	buildDir := results.StdoutContents()
 
 	repoDefaultAppJSONPath := path.Join(sourceWorkDir, "app.json")
 	if appSourceImage == "" {

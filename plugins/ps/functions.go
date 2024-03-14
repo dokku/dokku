@@ -69,15 +69,21 @@ func getRestartPolicy(appName string) (string, error) {
 
 func getProcessCount(appName string) (int, error) {
 	scheduler := common.GetAppScheduler(appName)
-	b, _ := common.PlugnTriggerOutput("scheduler-app-status", []string{scheduler, appName}...)
-	count := strings.Split(strings.TrimSpace(string(b[:])), " ")[0]
+	results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "scheduler-app-status",
+		Args:    []string{scheduler, appName},
+	})
+	count := strings.Split(results.StdoutContents(), " ")[0]
 	return strconv.Atoi(count)
 }
 
 func getRunningState(appName string) string {
 	scheduler := common.GetAppScheduler(appName)
-	b, _ := common.PlugnTriggerOutput("scheduler-app-status", []string{scheduler, appName}...)
-	return strings.Split(strings.TrimSpace(string(b[:])), " ")[1]
+	results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "scheduler-app-status",
+		Args:    []string{scheduler, appName},
+	})
+	return strings.Split(results.StdoutContents(), " ")[1]
 }
 
 func hasProcfile(appName string) bool {
