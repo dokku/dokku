@@ -88,8 +88,8 @@ fi
 ! has_tty && DOKKU_QUIET_OUTPUT=1
 
 if [[ $(id -un) != "dokku" ]]; then
-  unset DOKKU_PID TMP TMPDIR TEMP TEMPDIR
   if [[ ! $1 =~ plugin:* ]] && [[ $1 != "ssh-keys:add" ]] && [[ $1 != "ssh-keys:remove" ]] && [[ $1 != "scheduler-k3s:initialize" ]] && [[ $1 != "scheduler-k3s:uninstall" ]]; then
+    unset DOKKU_PID TMP TMPDIR TEMP TEMPDIR
     export SSH_USER=$(id -un)
     sudo -u dokku -E -H "$0" "$@"
     exit $?
