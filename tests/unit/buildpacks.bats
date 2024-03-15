@@ -205,7 +205,7 @@ teardown() {
   run /bin/bash -c "dokku --quiet buildpacks:list $TEST_APP | xargs"
   echo "output: $output"
   echo "status: $status"
-  assert_output_contains "https://github.com/heroku/heroku-buildpack-nodejs.git https://github.com/heroku/heroku-buildpack-ruby.git"
+  assert_output "https://github.com/heroku/heroku-buildpack-nodejs.git https://github.com/heroku/heroku-buildpack-ruby.git"
 
   run /bin/bash -c "dokku buildpacks:remove $TEST_APP heroku/nodejs"
   echo "output: $output"
@@ -215,7 +215,7 @@ teardown() {
   run /bin/bash -c "dokku --quiet buildpacks:list $TEST_APP | xargs"
   echo "output: $output"
   echo "status: $status"
-  assert_output_contains "https://github.com/heroku/heroku-buildpack-ruby.git"
+  assert_output "https://github.com/heroku/heroku-buildpack-ruby.git"
 
   run /bin/bash -c "dokku buildpacks:remove $TEST_APP heroku/php"
   echo "output: $output"
@@ -231,6 +231,36 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_output_not_exists
+
+  run /bin/bash -c "dokku buildpacks:add $TEST_APP https://github.com/heroku/heroku-buildpack-nodejs.git"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku buildpacks:add $TEST_APP https://github.com/heroku/heroku-buildpack-ruby.git"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku buildpacks:add $TEST_APP https://github.com/yespark/heroku-imagemagick-buildpack"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku --quiet buildpacks:list $TEST_APP | xargs"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "https://github.com/heroku/heroku-buildpack-nodejs.git https://github.com/heroku/heroku-buildpack-ruby.git https://github.com/yespark/heroku-imagemagick-buildpack"
+
+  run /bin/bash -c "dokku buildpacks:remove $TEST_APP --index 1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku --quiet buildpacks:list $TEST_APP | xargs"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "https://github.com/heroku/heroku-buildpack-ruby.git https://github.com/yespark/heroku-imagemagick-buildpack"
 }
 
 @test "(buildpacks) buildpacks:clear" {

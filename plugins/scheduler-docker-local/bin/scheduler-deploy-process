@@ -47,6 +47,33 @@ fn-scheduler-deploy-process() {
     fi
   fi
 
+  local DOCKER_ARGS
+  DOCKER_ARGS=$(: | plugn trigger docker-args-deploy "$APP" "$IMAGE_TAG" "$PROC_TYPE")
+  DOCKER_ARGS+=$(: | plugn trigger docker-args-process-deploy "$APP" "$IMAGE_SOURCE_TYPE" "$IMAGE_TAG" "$PROC_TYPE")
+  DOCKER_ARGS=" $DOCKER_ARGS "
+  declare -a ARG_ARRAY
+  eval "ARG_ARRAY=($DOCKER_ARGS)"
+
+  local port_published=false
+  for arg in "${ARG_ARRAY[@]}"; do
+    if [[ "$arg" == "-p "* ]] || [[ "$arg" =~ "--publish "* ]] || [[ "$arg" == "-P" ]] || [[ "$arg" =~ "--publish-all"* ]]; then
+      port_published=true
+      break
+    fi
+  done
+
+  if [[ "$port_published" == "true" ]]; then
+    local warned_on_publish=false
+    if [[ "$PROC_COUNT" -gt 1 ]]; then
+      warned_on_publish=true
+      dokku_log_warn "Deploys may fail when publishing ports and scaling to multiple containers. Consider scaling process type $PROC_TYPE to 1."
+    fi
+    if [[ "$DOKKU_CHECKS_DISABLED" != "true" ]] && [[ "$warned_on_publish" == "false" ]]; then
+      warned_on_publish=true
+      dokku_log_warn "Deploys may fail when publishing ports and enabling zero downtime. Consider disabling zero downtime for process type $PROC_TYPE."
+    fi
+  fi
+
   PARALLEL_DEPLOY_COUNT="$(plugn trigger "app-json-process-deploy-parallelism" "$APP" "$PROC_TYPE")"
   DOKKU_CHECKS_DISABLED="$DOKKU_CHECKS_DISABLED" INJECT_INIT_FLAG="$INJECT_INIT_FLAG" parallel --will-cite --halt soon,fail=1 --jobs "$PARALLEL_DEPLOY_COUNT" --ungroup <"$PROCESS_TMP_FILE"
 

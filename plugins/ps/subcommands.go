@@ -18,7 +18,12 @@ func CommandInspect(appName string) error {
 	}
 
 	scheduler := common.GetAppScheduler(appName)
-	return common.PlugnTrigger("scheduler-inspect", []string{scheduler, appName}...)
+	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "scheduler-inspect",
+		Args:        []string{scheduler, appName},
+		StreamStdio: true,
+	})
+	return err
 }
 
 // CommandRebuild rebuilds an app from source
@@ -74,7 +79,11 @@ func CommandRestart(appName string, processName string, allApps bool, parallelCo
 
 // CommandRestore starts previously running apps e.g. after reboot
 func CommandRestore(appName string, allApps bool, parallelCount int) error {
-	if err := common.PlugnTrigger("pre-restore", []string{}...); err != nil {
+	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "pre-restore",
+		StreamStdio: true,
+	})
+	if err != nil {
 		return fmt.Errorf("Error running pre-restore: %s", err)
 	}
 
@@ -124,7 +133,12 @@ func CommandRetire(appName string) error {
 	}
 
 	common.LogInfo1("Retiring old containers and images")
-	return common.PlugnTrigger("scheduler-retire", []string{scheduler, appName}...)
+	_, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "scheduler-retire",
+		Args:        []string{scheduler, appName},
+		StreamStdio: true,
+	})
+	return err
 }
 
 // CommandScale gets or sets how many instances of a given process to run

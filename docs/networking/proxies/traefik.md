@@ -116,16 +116,6 @@ dokku traefik:set --global log-level DEBUG
 
 After modifying, the Traefik container will need to be restarted.
 
-### Setting rule priority
-
-By default, app deployments will result in the newer traefik rules using a higher priority in order to have any newer rules respected by Traefik. Rule priorities will always increase according to the current unix timestamp. The priority may be fixed by setting the app-level `priority` property:
-
-```shell
-dokku traefik:set node-js-app priority 12345
-```
-
-After modifying, the app container will need to be recreated via a `ps:rebuild` or an app deployment.
-
 ### SSL Configuration
 
 The traefik plugin only supports automatic ssl certificates from it's letsencrypt integration. Managed certificates provided by the `certs` plugin are ignored.

@@ -55,7 +55,7 @@ export DOKKU_SYSTEM_USER=${DOKKU_SYSTEM_USER:="dokku"}
 export DOKKU_API_VERSION=1
 export DOKKU_NOT_IMPLEMENTED_EXIT=10
 export DOKKU_VALID_EXIT=0
-export DOKKU_PID="$BASHPID"
+export DOKKU_PID="${DOKKU_PID:=$$}"
 
 export DOKKU_LOGS_DIR=${DOKKU_LOGS_DIR:="/var/log/dokku"}
 export DOKKU_LOGS_HOST_DIR=${DOKKU_LOGS_HOST_DIR:=$DOKKU_LOGS_DIR}
@@ -88,8 +88,8 @@ fi
 ! has_tty && DOKKU_QUIET_OUTPUT=1
 
 if [[ $(id -un) != "dokku" ]]; then
-  unset TMP TMPDIR TEMP TEMPDIR
   if [[ ! $1 =~ plugin:* ]] && [[ $1 != "ssh-keys:add" ]] && [[ $1 != "ssh-keys:remove" ]] && [[ $1 != "scheduler-k3s:initialize" ]] && [[ $1 != "scheduler-k3s:uninstall" ]]; then
+    unset DOKKU_PID TMP TMPDIR TEMP TEMPDIR
     export SSH_USER=$(id -un)
     sudo -u dokku -E -H "$0" "$@"
     exit $?
@@ -106,15 +106,20 @@ fi
 
 if [[ -n "$SSH_ORIGINAL_COMMAND" ]]; then
   export -n SSH_ORIGINAL_COMMAND
-  if [[ $1 =~ config-* ]] || [[ $1 =~ docker-options* ]]; then
-    xargs $0 <<<$SSH_ORIGINAL_COMMAND
-    exit $?
-  else
+  exit_code=0
+  if [[ $1 =~ git-* ]] || [[ $1 =~ git:* ]]; then
     set -f
     $0 $SSH_ORIGINAL_COMMAND
+    exit_code=$?
     set +f
-    exit $?
+  else
+    readarray -t -O "${#ssh_arg_array[@]}" ssh_arg_array < <(printf '%s' "$SSH_ORIGINAL_COMMAND" | xargs -n 1)
+    set -f
+    $0 "${ssh_arg_array[@]}"
+    exit_code=$?
+    set +f
   fi
+  exit $exit_code
 fi
 
 if ! dokku_auth "$@"; then

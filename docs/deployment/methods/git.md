@@ -10,13 +10,12 @@ git:from-archive [--archive-type ARCHIVE_TYPE] <app> <archive-url> [<git-usernam
 git:from-image [--build-dir DIRECTORY] <app> <docker-image> [<git-username> <git-email>] # Updates an app's git repository with a given docker image
 git:generate-deploy-key                           # Generates a deploy ssh key
 git:load-image [--build-dir DIRECTORY] <app> <docker-image> [<git-username> <git-email>] # Updates an app's git repository with a docker image loaded from stdin
-git:sync [--build] <app> <repository> [<git-ref>] # Clone or fetch an app from remote git repo
+git:sync [--build|build-if-changes] <app> <repository> [<git-ref>] # Clone or fetch an app from remote git repo
 git:initialize <app>                              # Initialize a git repository for an app
 git:public-key                                    # Outputs the dokku public deploy key
 git:report [<app>] [<flag>]                       # Displays a git report for one or more apps
 git:set <app> <key> (<value>)                     # Set or clear a git property for an app
 git:status <app>                                  # Show the working tree status for an app
-git:unlock <app> [--force]                        # Removes previous git clone folder for new deployment
 ```
 
 Git-based deployment has been the traditional method of deploying applications in Dokku. As of v0.12.0, Dokku introduces a few ways to customize the experience of deploying via `git push`. A Git-based deployment currently supports building applications via:
@@ -156,6 +155,12 @@ By default, this command does not trigger an application build. To do so during 
 
 ```shell
 dokku git:sync --build node-js-app https://github.com/heroku/node-js-getting-started.git
+```
+
+When running `git:sync` without a reference, it may be useful to only build when there are changes. To do so, specify the `--build-if-changes` flag.
+
+```shell
+dokku git:sync --build-if-changes node-js-app https://github.com/heroku/node-js-getting-started.git
 ```
 
 ### Initializing from private repositories

@@ -12,6 +12,7 @@ services:
       - --entrypoints.https.address=:443
       {{ end }}
       - --providers.docker
+      - --providers.docker.exposedByDefault=false
       - --api={{ $.TRAEFIK_API_ENABLED }}
       - --api.dashboard={{ $.TRAEFIK_DASHBOARD_ENABLED }}
 
@@ -33,6 +34,7 @@ services:
 
       {{ if eq $.TRAEFIK_API_ENABLED "true" }}
       # Dashboard
+      - "traefik.enable=true"
       - "traefik.http.routers.api.rule=Host(`{{ $.TRAEFIK_API_VHOST }}`)"
       - "traefik.http.routers.api.service=api@internal"
       - "traefik.http.routers.api.entrypoints={{ if $.TRAEFIK_LETSENCRYPT_EMAIL }}https{{ else }}http{{ end }}"

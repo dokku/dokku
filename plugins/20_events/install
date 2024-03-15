@@ -56,16 +56,12 @@ EOF
     cat >"$DOKKU_LOGROTATE_FILE" <<EOF
 $DOKKU_LOGS_DIR/*.log {
         daily
-        rotate 7
         missingok
-        notifempty
-        su syslog dokku
+        rotate 7
         compress
         delaycompress
-        postrotate
-                reload rsyslog &>/dev/null || true
-        endscript
-        create 664 syslog dokku
+        notifempty
+        copytruncate
 }
 EOF
 

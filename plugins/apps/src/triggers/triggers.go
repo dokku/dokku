@@ -41,10 +41,17 @@ func main() {
 		oldAppName := flag.Arg(0)
 		newAppName := flag.Arg(1)
 		err = apps.TriggerPostAppCloneSetup(oldAppName, newAppName)
+	case "post-app-rename":
+		oldAppName := flag.Arg(0)
+		newAppName := flag.Arg(1)
+		err = apps.TriggerPostAppRename(oldAppName, newAppName)
 	case "post-app-rename-setup":
 		oldAppName := flag.Arg(0)
 		newAppName := flag.Arg(1)
 		err = apps.TriggerPostAppRenameSetup(oldAppName, newAppName)
+	case "post-create":
+		appName := flag.Arg(0)
+		err = apps.TriggerPostCreate(appName)
 	case "post-delete":
 		appName := flag.Arg(0)
 		err = apps.TriggerPostDelete(appName)

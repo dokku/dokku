@@ -44,7 +44,7 @@ func rewriteBuildpacksFile(sourceWorkDir string) error {
 
 func validBuildpackURL(buildpack string) (string, error) {
 	if buildpack == "" {
-		return buildpack, errors.New("Must specify a buildpack to add")
+		return buildpack, errors.New("Must specify a buildpack url or reference")
 	}
 
 	reHerokuValue := regexp.MustCompile(`(?m)^([\w-]+\/[\w-]+)$`)

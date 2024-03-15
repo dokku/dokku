@@ -110,7 +110,12 @@ func CommandRun(appName string, cronID string, detached bool) error {
 	os.Setenv("DOKKU_RM_CONTAINER", "1")
 	scheduler := common.GetAppScheduler(appName)
 	args := append([]string{scheduler, appName, "0", "--"}, fields...)
-	return common.PlugnTrigger("scheduler-run", args...)
+	_, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "scheduler-run",
+		Args:        args,
+		StreamStdio: true,
+	})
+	return err
 }
 
 // CommandSet set or clear a cron property for an app
@@ -120,5 +125,9 @@ func CommandSet(appName string, property string, value string) error {
 	}
 
 	common.CommandPropertySet("cron", appName, property, value, DefaultProperties, GlobalProperties)
-	return common.PlugnTrigger("cron-write")
+	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "cron-write",
+		StreamStdio: true,
+	})
+	return err
 }

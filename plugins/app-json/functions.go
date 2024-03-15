@@ -102,8 +102,11 @@ func getPhaseScript(appName string, phase string) (string, error) {
 func getReleaseCommand(appName string, image string) string {
 	processType := "release"
 	port := "5000"
-	b, _ := common.PlugnTriggerOutput("procfile-get-command", []string{appName, processType, port}...)
-	return strings.TrimSpace(string(b[:]))
+	results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "procfile-get-command",
+		Args:    []string{appName, processType, port},
+	})
+	return results.StdoutContents()
 }
 
 func getDokkuAppShell(appName string) string {
@@ -114,13 +117,19 @@ func getDokkuAppShell(appName string) string {
 	ctx := context.Background()
 	errs, ctx := errgroup.WithContext(ctx)
 	errs.Go(func() error {
-		b, _ := common.PlugnTriggerOutput("config-get-global", []string{"DOKKU_APP_SHELL"}...)
-		globalShell = strings.TrimSpace(string(b[:]))
+		results, _ := common.CallPlugnTriggerWithContext(ctx, common.PlugnTriggerInput{
+			Trigger: "config-get-global",
+			Args:    []string{"DOKKU_APP_SHELL"},
+		})
+		globalShell = results.StdoutContents()
 		return nil
 	})
 	errs.Go(func() error {
-		b, _ := common.PlugnTriggerOutput("config-get", []string{appName, "DOKKU_APP_SHELL"}...)
-		appShell = strings.TrimSpace(string(b[:]))
+		results, _ := common.CallPlugnTriggerWithContext(ctx, common.PlugnTriggerInput{
+			Trigger: "config-get",
+			Args:    []string{appName, "DOKKU_APP_SHELL"},
+		})
+		appShell = results.StdoutContents()
 		return nil
 	})
 
@@ -204,8 +213,13 @@ func executeScript(appName string, image string, imageTag string, phase string) 
 	}
 
 	var dockerArgs []string
-	if b, err := common.PlugnTriggerSetup("docker-args-deploy", []string{appName, imageTag}...).SetInput("").Output(); err == nil {
-		words, err := shellquote.Split(strings.TrimSpace(string(b[:])))
+	results, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "docker-args-deploy",
+		Args:    []string{appName, imageTag},
+		Stdin:   strings.NewReader(""),
+	})
+	if err == nil {
+		words, err := shellquote.Split(results.StdoutContents())
 		if err != nil {
 			return err
 		}
@@ -213,8 +227,13 @@ func executeScript(appName string, image string, imageTag string, phase string) 
 		dockerArgs = append(dockerArgs, words...)
 	}
 
-	if b, err := common.PlugnTriggerSetup("docker-args-process-deploy", []string{appName, imageSourceType, imageTag}...).SetInput("").Output(); err == nil {
-		words, err := shellquote.Split(strings.TrimSpace(string(b[:])))
+	results, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "docker-args-process-deploy",
+		Args:    []string{appName, imageSourceType, imageTag},
+		Stdin:   strings.NewReader(""),
+	})
+	if err == nil {
+		words, err := shellquote.Split(results.StdoutContents())
 		if err != nil {
 			return err
 		}
@@ -398,12 +417,15 @@ func createdContainerID(appName string, dockerArgs []string, image string, comma
 	arguments = append(arguments, image)
 	arguments = append(arguments, command...)
 
-	b, err := common.PlugnTriggerOutput("config-export", []string{appName, "false", "true", "json"}...)
+	results, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "config-export",
+		Args:    []string{appName, "false", "true", "json"},
+	})
 	if err != nil {
 		return "", err
 	}
 	var env map[string]string
-	if err := json.Unmarshal(b, &env); err != nil {
+	if err := json.Unmarshal(results.StdoutBytes(), &env); err != nil {
 		return "", err
 	}
 
@@ -420,7 +442,11 @@ func createdContainerID(appName string, dockerArgs []string, image string, comma
 	}
 
 	containerID := result.StdoutContents()
-	err = common.PlugnTrigger("post-container-create", []string{"app", containerID, appName, phase}...)
+	_, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "post-container-create",
+		Args:        []string{"app", containerID, appName, phase},
+		StreamStdio: true,
+	})
 	return containerID, err
 }
 
@@ -440,12 +466,27 @@ func setScale(appName string, image string) error {
 	}
 
 	if len(args) == 3 {
-		return common.PlugnTrigger("ps-can-scale", []string{appName, "true"}...)
-	}
-
-	if err := common.PlugnTrigger("ps-can-scale", []string{appName, "false"}...); err != nil {
+		_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+			Trigger:     "ps-can-scale",
+			Args:        []string{appName, "true"},
+			StreamStdio: true,
+		})
 		return err
 	}
 
-	return common.PlugnTrigger("ps-set-scale", args...)
+	_, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "ps-can-scale",
+		Args:        []string{appName, "false"},
+		StreamStdio: true,
+	})
+	if err != nil {
+		return err
+	}
+
+	_, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "ps-set-scale",
+		Args:        args,
+		StreamStdio: true,
+	})
+	return err
 }

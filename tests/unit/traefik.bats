@@ -140,34 +140,6 @@ teardown() {
   assert_success
 }
 
-@test "(traefik) traefik:set priority" {
-  run /bin/bash -c "dokku proxy:set $TEST_APP traefik"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run /bin/bash -c "dokku traefik:set $TEST_APP priority 12345"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run deploy_app
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"traefik.http.services.$TEST_APP-web-http.loadbalancer.server.port\" }}'"
-  echo "output: $output"
-  echo "status: $status"
-  assert_output "5000"
-
-  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"traefik.http.routers.$TEST_APP-web-http.priority\" }}'"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  assert_output "12345"
-}
-
 @test "(traefik) ssl" {
   run /bin/bash -c "dokku builder-herokuish:set $TEST_APP allowed true"
   echo "output: $output"

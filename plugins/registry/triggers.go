@@ -90,7 +90,12 @@ func TriggerPostDelete(appName string) error {
 func TriggerPostReleaseBuilder(appName string, image string) error {
 	parts := strings.Split(image, ":")
 	imageTag := parts[len(parts)-1]
-	if err := common.PlugnTrigger("pre-deploy", []string{appName, imageTag}...); err != nil {
+	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "pre-deploy",
+		Args:        []string{appName, imageTag},
+		StreamStdio: true,
+	})
+	if err != nil {
 		return err
 	}
 
