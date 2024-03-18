@@ -1,5 +1,71 @@
 # History
 
+## 0.34.0
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.34.0/bootstrap.sh
+sudo DOKKU_TAG=v0.34.0 bash bootstrap.sh
+```
+
+See the [0.34.0 migration guide](/docs/appendices/0.34.0-migration-guide.md) for more information on migrating to 0.34.0.
+
+### Bug Fixes
+
+- #6724: @josegonzalez Correctly check if a repository has code or not in git plugin
+- #6721: @josegonzalez Correct issue where cron properties cannot be retrieved if global
+- #6720: @josegonzalez Add nginx-property binary to gitignore
+- #6708: @josegonzalez Correctly handle quoted spaces over ssh
+- #6707: @josegonzalez Correct issue where removing by index failed due to incorrect input validation
+- #6705: @josegonzalez Ensure we cleanup the data directory on app deletion
+- #6703: @josegonzalez Use copytruncate in logrotate commands
+
+### New Features
+
+- #6725: @josegonzalez Warn when publish ports if scaling up or zero downtime is enabled
+- #6719: @josegonzalez Add a make target to copy the dokku binary over
+- #6717: @josegonzalez Add ability to only build synced repo if there are changes
+- #6715: @josegonzalez Add disk utilization to report output
+- #6704: @josegonzalez Switch the default k3s routing layer from traefik to nginx
+
+### Removals
+
+- #6700: @josegonzalez Remove priority property from traefik plugin
+
+### Refactors
+
+- #6714: @josegonzalez Use CallPlugnTrigger instead of PlugnTriggerSetup
+- #6713: @josegonzalez Use CallPlugnTrigger instead of PlugnTrigger 
+- #6712: @josegonzalez Use CallPlugnTrigger instead of PlugnTriggerOutput
+- #6711: @josegonzalez Use CallPlugnTrigger instead of PlugnTriggerOutputAsString
+- #6681: @josegonzalez Migrate to single ingress per app/domain combination when using nginx for k3s proxying
+- #6156: @josegonzalez Migrate the app deploy lock to the data directory
+
+### Documentation
+
+- #6738: @josegonzalez Update migration guide for 0.34.x
+- #6731: @strugee Clarify alternate proxy support status
+
+### Dependencies
+
+- #6736: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.13 to 9.5.14 in /docs/_build
+- #6729: @dependabot[bot] chore(deps): update markdown requirement from <3.6,>=3.2.1 to >=3.2.1,<3.7 in /docs/_build
+- #6728: @dependabot[bot] chore(deps): bump zipp from 3.17.0 to 3.18.1 in /docs/_build
+- #6727: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 42.1.0 to 43.0.0
+- #6723: @dependabot[bot] chore(deps): bump zipp from 3.17.0 to 3.18.0 in /docs/_build
+- #6722: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 42.1.0 to 43.0.0
+- #6710: @dependabot[bot] chore(deps): bump google.golang.org/protobuf from 1.32.0 to 1.33.0 in /plugins/scheduler-k3s
+- #6709: @dependabot[bot] chore(deps): bump zipp from 3.17.0 to 3.18.0 in /docs/_build
+
+### Other
+
+- #6718: @josegonzalez Write current process id to all acquired lock files
+- #6706: @josegonzalez Remove git:unlock command
+- #6650: @bastianh Do not expose all containers via traefik by default
+- #6632: @josegonzalez Simplify file ownership in the container by setting the process ownership during the build process
+- #6630: @josegonzalez Remove unused code for copying cache directories
+
 ## 0.33.9
 
 Install/update via the bootstrap script:
