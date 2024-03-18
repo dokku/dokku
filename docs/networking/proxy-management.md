@@ -12,7 +12,7 @@ proxy:report [<app>] [<flag>]                       # Displays a proxy report fo
 proxy:set [<app>|--global] <proxy-type>                        # Set proxy type for app
 ```
 
-In Dokku 0.5.0, port proxying was decoupled from the `nginx-vhosts` plugin into the proxy plugin. Dokku 0.6.0 introduced the ability to map host ports to specific container ports. In the future this will allow other proxy software - such as HAProxy or Caddy - to be used in place of nginx.
+In Dokku 0.5.0, port proxying was decoupled from the `nginx-vhosts` plugin into the proxy plugin. Dokku 0.6.0 introduced the ability to map host ports to specific container ports. This allows other proxy software - such as HAProxy or Caddy - to be used in place of nginx.
 
 ## Usage
 
