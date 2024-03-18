@@ -58,12 +58,12 @@ By default, Dokku will attempt to auto-detect the IP address of the server. In c
 dokku scheduler-k3s:initialize --server-ip 192.168.20.15
 ```
 
-Dokku's k3s integration natively uses `Traefik` as it's ingress load balancer via [Traefik's CRDs](https://doc.traefik.io/traefik/providers/kubernetes-crd/), but a cluster can be set to use `nginx` via the [ingress-nginx](https://github.com/kubernetes/ingress-nginx) project. Switching to nginx will result in any `nginx` plugin settings being respected, either by turning them into annotations or creating a custom server snippet.
+Dokku's k3s integration natively uses `nginx` as it's ingress load balancer via [ingress-nginx](https://github.com/kubernetes/ingress-nginx). Properties set by the `nginx` plugin will be respected, either by turning them into annotations or creating a custom server/location snippet that the `ingress-nginx` project can use.
 
-To change the ingress, set the `--ingress-class` flag:
+Dokku can also use Traefik on cluster initialization via the [Traefik's CRDs](https://doc.traefik.io/traefik/providers/kubernetes-crd/). To change the ingress, set the `--ingress-class` flag:
 
 ```shell
-dokku scheduler-k3s:initialize --ingress-class nginx
+dokku scheduler-k3s:initialize --ingress-class traefik
 ```
 
 ### Adding nodes to the cluster

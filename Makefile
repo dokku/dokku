@@ -75,9 +75,12 @@ go-clean:
 		fi ;\
 	done
 
-copyfiles:
-	$(MAKE) go-build || exit 1
+copydokku:
 	cp dokku /usr/local/bin/dokku
+	chmod 0755 /usr/local/bin/dokku
+
+copyfiles: copydokku
+	$(MAKE) go-build || exit 1
 	mkdir -p ${CORE_PLUGINS_PATH} ${PLUGINS_PATH}
 	rm -rf ${CORE_PLUGINS_PATH}/*
 	test -d ${CORE_PLUGINS_PATH}/enabled || PLUGIN_PATH=${CORE_PLUGINS_PATH} plugn init

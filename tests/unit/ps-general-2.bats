@@ -111,7 +111,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_failure
-  assert_output_contains "Could not start due to"
+  assert_output_contains "Could not start due to" 2
 
   run /bin/bash -c "dokku ps:set $TEST_APP procfile-path second.Procfile"
   echo "output: $output"

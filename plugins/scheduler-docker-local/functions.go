@@ -65,8 +65,11 @@ func generateCronEntries() ([]cron.TemplateCommand, error) {
 
 	g.Go(func() error {
 		commands := []cron.TemplateCommand{}
-		b, _ := common.PlugnTriggerOutput("cron-entries", "docker-local")
-		for _, line := range strings.Split(strings.TrimSpace(string(b[:])), "\n") {
+		response, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
+			Trigger: "cron-entries",
+			Args:    []string{"docker-local"},
+		})
+		for _, line := range strings.Split(response.StdoutContents(), "\n") {
 			if strings.TrimSpace(line) == "" {
 				results <- []cron.TemplateCommand{}
 				return nil
@@ -121,7 +124,11 @@ func writeCronEntries() error {
 		return deleteCrontab()
 	}
 
-	mailto, _ := common.PlugnTriggerOutputAsString("cron-get-property", []string{"--global", "mailto"}...)
+	results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "cron-get-property",
+		Args:    []string{"--global", "mailto"},
+	})
+	mailto := results.StdoutContents()
 
 	data := map[string]interface{}{
 		"Commands": commands,

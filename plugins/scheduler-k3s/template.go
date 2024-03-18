@@ -238,9 +238,14 @@ type ProcessLabels struct {
 }
 
 type ProcessWeb struct {
-	Domains  []string         `yaml:"domains,omitempty"`
+	Domains  []ProcessDomains `yaml:"domains,omitempty"`
 	PortMaps []ProcessPortMap `yaml:"port_maps,omitempty"`
 	TLS      ProcessTls       `yaml:"tls"`
+}
+
+type ProcessDomains struct {
+	Name string `yaml:"name"`
+	Slug string `yaml:"slug"`
 }
 
 type ProcessResourcesMap struct {

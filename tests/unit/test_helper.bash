@@ -15,6 +15,9 @@ UUID=$(uuidgen)
 TEST_APP="rdmtestapp-${UUID}"
 TEST_NETWORK="test-network-${UUID}"
 SKIPPED_TEST_ERR_MSG="previous test failed! skipping remaining tests..."
+TEST_PLUGIN_NAME=smoke-test-plugin
+TEST_PLUGIN_GIT_REPO=https://github.com/dokku/${TEST_PLUGIN_NAME}.git
+TEST_PLUGIN_LOCAL_REPO="$(mktemp -d)/$TEST_PLUGIN_NAME"
 
 # global setup() and teardown()
 # skips remaining tests on first failure
@@ -43,6 +46,15 @@ cleanup_containers() {
   if [[ -n "$containers" ]]; then
     docker inspect -f '{{ if ne "true" (index .Config.Labels "com.dokku.devcontainer") }}{{.ID}} {{ end }}' $(docker ps -q) | xargs --no-run-if-empty -n1 docker container rm -f || true
   fi
+}
+
+clone_test_plugin() {
+  git clone "$TEST_PLUGIN_GIT_REPO" "$TEST_PLUGIN_LOCAL_REPO"
+}
+
+remove_test_plugin() {
+  rm -rf "${PLUGIN_ENABLED_PATH:?}/$TEST_PLUGIN_NAME" "${PLUGIN_AVAILABLE_PATH:?}/$TEST_PLUGIN_NAME"
+  rm -rf "$TEST_PLUGIN_LOCAL_REPO"
 }
 
 # test functions
@@ -235,6 +247,22 @@ assert_http_localhost_response() {
     echo "output: $output"
     echo "status: $status"
     assert_output "$content"
+  fi
+}
+
+assert_http_localhost_response_contains() {
+  local scheme="$1" domain="$2" port="${3:-80}" path="${4:-}" content="${5:-}" status_code="${6:-200}"
+  run curl --connect-to "$domain:$port:localhost:$port" -kSso /dev/null -w "%{http_code}" "$scheme://$domain:$port$path"
+  echo "curl: curl --connect-to $domain:$port:localhost:$port -kSso /dev/null -w %{http_code} $scheme://$domain:$port$path"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "$status_code"
+
+  if [[ -n "$content" ]]; then
+    run curl --connect-to "$domain:$port:localhost:$port" -kSs "$scheme://$domain:$port$path"
+    echo "output: $output"
+    echo "status: $status"
+    assert_output_contains "$content"
   fi
 }
 

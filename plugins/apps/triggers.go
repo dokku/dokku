@@ -43,6 +43,10 @@ func TriggerInstall() error {
 		return fmt.Errorf("Unable to install the apps plugin: %s", err.Error())
 	}
 
+	if err := common.SetupAppData("apps"); err != nil {
+		return err
+	}
+
 	apps, err := common.UnfilteredDokkuApps()
 	if err != nil {
 		return nil
@@ -79,7 +83,12 @@ func TriggerPostAppCloneSetup(oldAppName string, newAppName string) error {
 		return err
 	}
 
-	return nil
+	return common.CloneAppData("apps", oldAppName, newAppName)
+}
+
+// TriggerPostAppRename removes the old app data
+func TriggerPostAppRename(oldAppName string, newAppName string) error {
+	return common.MigrateAppDataDirectory("apps", oldAppName, newAppName)
 }
 
 // TriggerPostAppRenameSetup renames apps files
@@ -92,14 +101,22 @@ func TriggerPostAppRenameSetup(oldAppName string, newAppName string) error {
 		return err
 	}
 
-	return nil
+	return common.CloneAppData("apps", oldAppName, newAppName)
 }
 
-// TriggerPostDelete is the apps post-delete plugin trigger
+// TriggerPostCreate ensures apps have the correct data directory structure
+func TriggerPostCreate(appName string) error {
+	return common.CreateAppDataDirectory("apps", appName)
+}
+
+// TriggerPostDelete destroys the apps data for a given app container
 func TriggerPostDelete(appName string) error {
-	if err := common.PropertyDestroy("apps", appName); err != nil {
-		common.LogWarn(err.Error())
+	dataErr := common.RemoveAppDataDirectory("apps", appName)
+	propertyErr := common.PropertyDestroy("apps", appName)
+
+	if dataErr != nil {
+		return dataErr
 	}
 
-	return nil
+	return propertyErr
 }

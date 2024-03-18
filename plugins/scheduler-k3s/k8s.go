@@ -12,6 +12,7 @@ import (
 	autoscalingv1 "k8s.io/api/autoscaling/v1"
 	batchv1 "k8s.io/api/batch/v1"
 	v1 "k8s.io/api/core/v1"
+	networkingv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -229,6 +230,20 @@ func (k KubernetesClient) CreateNamespace(ctx context.Context, input CreateNames
 	return *namespace, err
 }
 
+// DeleteIngressInput contains all the information needed to delete a Kubernetes ingress
+type DeleteIngressInput struct {
+	// Name is the Kubernetes ingress name
+	Name string
+
+	// Namespace is the Kubernetes namespace
+	Namespace string
+}
+
+// DeleteIngress deletes a Kubernetes ingress
+func (k KubernetesClient) DeleteIngress(ctx context.Context, input DeleteIngressInput) error {
+	return k.Client.NetworkingV1().Ingresses(input.Namespace).Delete(ctx, input.Name, metav1.DeleteOptions{})
+}
+
 // DeleteJobInput contains all the information needed to delete a Kubernetes job
 type DeleteJobInput struct {
 	// Name is the Kubernetes job name
@@ -436,6 +451,30 @@ func (k KubernetesClient) ListDeployments(ctx context.Context, input ListDeploym
 	}
 
 	return deployments.Items, nil
+}
+
+// ListIngressesInput contains all the information needed to list Kubernetes ingresses
+type ListIngressesInput struct {
+	// Namespace is the Kubernetes namespace
+	Namespace string
+
+	// LabelSelector is the Kubernetes label selector
+	LabelSelector string
+}
+
+// ListIngresses lists Kubernetes ingresses
+func (k KubernetesClient) ListIngresses(ctx context.Context, input ListIngressesInput) ([]networkingv1.Ingress, error) {
+	listOptions := metav1.ListOptions{LabelSelector: input.LabelSelector}
+	ingresses, err := k.Client.NetworkingV1().Ingresses(input.Namespace).List(ctx, listOptions)
+	if err != nil {
+		return []networkingv1.Ingress{}, err
+	}
+
+	if ingresses == nil {
+		return []networkingv1.Ingress{}, errors.New("ingresses is nil")
+	}
+
+	return ingresses.Items, nil
 }
 
 // ListNamespaces lists Kubernetes namespaces

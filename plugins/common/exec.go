@@ -77,6 +77,16 @@ func (ecr ExecCommandResponse) StderrContents() string {
 	return strings.TrimSpace(ecr.Stderr)
 }
 
+// StderrBytes returns the trimmed stderr of the command as bytes
+func (ecr ExecCommandResponse) StderrBytes() []byte {
+	return []byte(ecr.StderrContents())
+}
+
+// StdoutBytes returns the trimmed stdout of the command as bytes
+func (ecr ExecCommandResponse) StdoutBytes() []byte {
+	return []byte(ecr.StdoutContents())
+}
+
 // CallExecCommand executes a command on the local host
 func CallExecCommand(input ExecCommandInput) (ExecCommandResponse, error) {
 	ctx := context.Background()

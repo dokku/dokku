@@ -69,15 +69,21 @@ func getRestartPolicy(appName string) (string, error) {
 
 func getProcessCount(appName string) (int, error) {
 	scheduler := common.GetAppScheduler(appName)
-	b, _ := common.PlugnTriggerOutput("scheduler-app-status", []string{scheduler, appName}...)
-	count := strings.Split(strings.TrimSpace(string(b[:])), " ")[0]
+	results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "scheduler-app-status",
+		Args:    []string{scheduler, appName},
+	})
+	count := strings.Split(results.StdoutContents(), " ")[0]
 	return strconv.Atoi(count)
 }
 
 func getRunningState(appName string) string {
 	scheduler := common.GetAppScheduler(appName)
-	b, _ := common.PlugnTriggerOutput("scheduler-app-status", []string{scheduler, appName}...)
-	return strings.Split(strings.TrimSpace(string(b[:])), " ")[1]
+	results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "scheduler-app-status",
+		Args:    []string{scheduler, appName},
+	})
+	return strings.Split(results.StdoutContents(), " ")[1]
 }
 
 func hasProcfile(appName string) bool {
@@ -204,7 +210,12 @@ func getFormations(appName string) (FormationSlice, error) {
 }
 
 func restorePrep() error {
-	if err := common.PlugnTrigger("proxy-clear-config", []string{"--all"}...); err != nil {
+	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "proxy-clear-config",
+		Args:        []string{"--all"},
+		StreamStdio: true,
+	})
+	if err != nil {
 		return fmt.Errorf("Error clearing proxy config: %s", err)
 	}
 
@@ -260,7 +271,12 @@ func scaleSet(appName string, skipDeploy bool, clearExisting bool, processTuples
 	}
 
 	for _, formation := range formations {
-		if err := common.PlugnTrigger("deploy", []string{appName, imageTag, formation.ProcessType}...); err != nil {
+		_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+			Trigger:     "deploy",
+			Args:        []string{appName, imageTag, formation.ProcessType},
+			StreamStdio: true,
+		})
+		if err != nil {
 			return err
 		}
 	}

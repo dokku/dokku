@@ -40,8 +40,11 @@ func reportComputedStack(appName string) string {
 		return stack
 	}
 
-	b, _ := common.PlugnTriggerOutput("config-get", []string{appName, "DOKKU_IMAGE"}...)
-	if dokkuImage := strings.TrimSpace(string(b[:])); dokkuImage != "" {
+	results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "config-get",
+		Args:    []string{appName, "DOKKU_IMAGE"},
+	})
+	if dokkuImage := results.StdoutContents(); dokkuImage != "" {
 		common.LogWarn("Deprecated: use buildpacks:set-property instead of specifying DOKKU_IMAGE environment variable")
 		return dokkuImage
 	}

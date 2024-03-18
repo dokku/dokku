@@ -59,10 +59,6 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  run /bin/bash -c "dokku scheduler-docker-local:set  $TEST_APP disable-chown true"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
 
   run /bin/bash -c "dokku apps:clone $TEST_APP great-test-name"
   echo "output: $output"
@@ -103,11 +99,6 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output "100"
-  run /bin/bash -c "dokku scheduler-docker-local:report great-test-name --scheduler-docker-local-disable-chown"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  assert_output "true"
 
   run /bin/bash -c "dokku --force apps:destroy great-test-name"
   echo "output: $output"

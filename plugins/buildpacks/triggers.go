@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
 )
@@ -22,8 +21,11 @@ func TriggerBuildpackStackName(appName string) error {
 		return nil
 	}
 
-	b, _ := common.PlugnTriggerOutput("config-get", []string{appName, "DOKKU_IMAGE"}...)
-	dokkuImage := strings.TrimSpace(string(b[:]))
+	results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "config-get",
+		Args:    []string{appName, "DOKKU_IMAGE"},
+	})
+	dokkuImage := results.StdoutContents()
 	if dokkuImage != "" {
 		common.LogWarn("Deprecated: use buildpacks:set-property instead of specifying DOKKU_IMAGE environment variable")
 		fmt.Println(dokkuImage)

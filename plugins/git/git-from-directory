@@ -17,10 +17,9 @@ trigger-git-git-from-directory() {
   local TMP_WORK_DIR_2=$(mktemp -d "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
   trap "rm -rf '$TMP_WORK_DIR' '$TMP_WORK_DIR_2' >/dev/null" RETURN INT TERM EXIT
 
-  local has_code=true
-  local git_objects="$(fn-git-cmd "$APP_ROOT" count-objects 2>/dev/null || true)"
-  if [[ -z "$git_objects" ]] || [[ "$git_objects" == "0 objects, 0 kilobytes" ]]; then
-    local has_code=false
+  local has_code=false
+  if fn-git-cmd "$APP_ROOT" rev-parse "$DOKKU_DEPLOY_BRANCH" >/dev/null 2>&1; then
+    has_code=true
   fi
 
   dokku_log_info1 "Updating git repository with specified build context"

@@ -182,9 +182,11 @@ func DockerCleanup(appName string, forceCleanup bool) error {
 				triggerArgs = []string{"DOKKU_SKIP_CLEANUP"}
 			}
 
-			b, _ := PlugnTriggerOutput(triggerName, triggerArgs...)
-			output := strings.TrimSpace(string(b[:]))
-			if output == "true" {
+			results, _ := CallPlugnTrigger(PlugnTriggerInput{
+				Trigger: triggerName,
+				Args:    triggerArgs,
+			})
+			if results.StdoutContents() == "true" {
 				skipCleanup = true
 			}
 		}
@@ -309,9 +311,12 @@ func IsImageHerokuishBased(image string, appName string) bool {
 
 	dokkuAppUser := ""
 	if len(appName) != 0 {
-		b, err := PlugnTriggerOutput("config-get", []string{appName, "DOKKU_APP_USER"}...)
+		results, err := CallPlugnTrigger(PlugnTriggerInput{
+			Trigger: "config-get",
+			Args:    []string{appName, "DOKKU_APP_USER"},
+		})
 		if err == nil {
-			dokkuAppUser = strings.TrimSpace(string(b))
+			dokkuAppUser = results.StdoutContents()
 		}
 	}
 

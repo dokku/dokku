@@ -944,7 +944,7 @@ acquire_app_deploy_lock() {
   declare desc="acquire advisory lock for use in deploys"
   local APP="$1"
   local LOCK_TYPE="${2:-waiting}"
-  local APP_DEPLOY_LOCK_FILE="$DOKKU_ROOT/$APP/.deploy.lock"
+  local APP_DEPLOY_LOCK_FILE="$DOKKU_LIB_ROOT/data/apps/$APP/.deploy.lock"
   local LOCK_WAITING_MSG="$APP currently has a deploy lock in place. Waiting..."
   local LOCK_FAILED_MSG="$APP currently has a deploy lock in place. Exiting..."
 
@@ -954,7 +954,7 @@ acquire_app_deploy_lock() {
 release_app_deploy_lock() {
   declare desc="release advisory lock used in deploys"
   local APP="$1"
-  local APP_DEPLOY_LOCK_FILE="$DOKKU_ROOT/$APP/.deploy.lock"
+  local APP_DEPLOY_LOCK_FILE="$DOKKU_LIB_ROOT/data/apps/$APP/.deploy.lock"
 
   release_advisory_lock "$APP_DEPLOY_LOCK_FILE"
 }
@@ -983,6 +983,7 @@ acquire_advisory_lock() {
       dokku_log_fail "Run 'apps:unlock' to release the existing deploy lock"
     fi
   fi
+  echo "$DOKKU_PID" >"$LOCK_FILE"
 }
 
 release_advisory_lock() {
@@ -997,13 +998,14 @@ suppress_output() {
   declare desc="suppress all output from a given command unless there is an error"
   local TMP_COMMAND_OUTPUT
   TMP_COMMAND_OUTPUT=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
-  trap "rm -rf '$TMP_COMMAND_OUTPUT' >/dev/null" RETURN
 
   "$@" >"$TMP_COMMAND_OUTPUT" 2>&1 || {
     local exit_code="$?"
     cat "$TMP_COMMAND_OUTPUT"
+    rm -rf "$TMP_COMMAND_OUTPUT" >/dev/null
     return "$exit_code"
   }
+  rm -rf "$TMP_COMMAND_OUTPUT" >/dev/null
   return 0
 }
 
