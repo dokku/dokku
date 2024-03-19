@@ -36,7 +36,7 @@ See the [0.34.0 migration guide](/docs/appendices/0.34.0-migration-guide.md) for
 ### Refactors
 
 - #6714: @josegonzalez Use CallPlugnTrigger instead of PlugnTriggerSetup
-- #6713: @josegonzalez Use CallPlugnTrigger instead of PlugnTrigger 
+- #6713: @josegonzalez Use CallPlugnTrigger instead of PlugnTrigger
 - #6712: @josegonzalez Use CallPlugnTrigger instead of PlugnTriggerOutput
 - #6711: @josegonzalez Use CallPlugnTrigger instead of PlugnTriggerOutputAsString
 - #6681: @josegonzalez Migrate to single ingress per app/domain combination when using nginx for k3s proxying
