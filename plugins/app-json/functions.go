@@ -344,11 +344,11 @@ func executeScript(appName string, image string, imageTag string, phase string) 
 		StreamStderr: true,
 	})
 	if err != nil {
-		return fmt.Errorf("Commiting of '%s' to image failed: %w", phase, err)
+		return fmt.Errorf("Committing of '%s' to image failed: %w", phase, err)
 	}
 
 	if result.ExitCode != 0 {
-		return fmt.Errorf("Commiting of '%s' to image failed: %s", phase, command)
+		return fmt.Errorf("Committing of '%s' to image failed: %s", phase, command)
 	}
 
 	return nil
