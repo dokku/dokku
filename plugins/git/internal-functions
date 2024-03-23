@@ -457,7 +457,7 @@ fn-git-fetch() {
     GIT_TERMINAL_PROMPT=0 fn-git-cmd "$APP_ROOT" fetch --update-head-ok remote "$DOKKU_DEPLOY_BRANCH"
   else
     GIT_TERMINAL_PROMPT=0 fn-git-cmd "$APP_ROOT" fetch --update-head-ok remote
-    fn-git-cmd "$APP_ROOT" update-ref "refs/heads/$DOKKU_DEPLOY_BRANCH" "$GIT_REF"
+    fn-git-cmd "$APP_ROOT" update-ref "refs/heads/$DOKKU_DEPLOY_BRANCH" "$GIT_REF^{commit}"
   fi
 
   fn-git-cmd "$APP_ROOT" config --add core.bare true

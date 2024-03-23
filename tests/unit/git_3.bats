@@ -378,6 +378,30 @@ teardown() {
   assert_output_contains "$SMOKE_TEST_APP_2_0_0_SHA"
 }
 
+@test "(git) git:sync existing [--no-build annotated-tag]" {
+  run /bin/bash -c "dokku git:sync $TEST_APP https://github.com/dokku/smoke-test-app.git 1.0.0"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "cat /home/dokku/$TEST_APP/refs/heads/master"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "$SMOKE_TEST_APP_1_0_0_SHA"
+
+  run /bin/bash -c "dokku git:sync $TEST_APP https://github.com/dokku/smoke-test-app.git 2.0.0-annotated"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "cat /home/dokku/$TEST_APP/refs/heads/master"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "$SMOKE_TEST_APP_2_0_0_SHA"
+}
+
 @test "(git) git:sync existing [--no-build commit]" {
   run /bin/bash -c "dokku git:sync $TEST_APP https://github.com/dokku/smoke-test-app.git 1.0.0"
   echo "output: $output"
