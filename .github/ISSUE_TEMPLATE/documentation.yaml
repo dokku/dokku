@@ -26,4 +26,3 @@ body:
       description: Please paste the output of the command `dokku report` so we know what systems any issue might apply to
     validations:
       required: true
-    
