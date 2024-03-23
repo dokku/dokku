@@ -1,0 +1,29 @@
+---
+name: Documentation Issue
+description: Let us know that something in the docs needs clarification
+labels: ["needs: investigation", "type: documentation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Consider [sponsoring Dokku](https://github.com/sponsors/dokku). Sponsorship goes directly to supporting activities such as fixing bugs and general maintenance.
+  - type: input
+    id: docs-link
+    attributes:
+      label: Link to the documentation page
+      description: Which docs page is impacted?
+  - type: textarea
+    id: description
+    attributes:
+      label: Documentation problem
+      description: Describe what you think is incorrect, not well documented, or missing from the documentation
+    validations:
+      required: true
+  - type: textarea
+    id: report-output
+    attributes:
+      label: dokku report
+      description: Please paste the output of the command `dokku report` so we know what systems any issue might apply to
+    validations:
+      required: true
+    
