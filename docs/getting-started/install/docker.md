@@ -22,6 +22,29 @@ docker container run -d \
   dokku/dokku:0.34.0
 ```
 
+Alternatively, you can use `docker-compose.yml`:
+
+```yaml
+version: "3.8"
+
+services:
+  dokku:
+    image: dokku/dokku:0.34.0
+    container_name: dokku
+    ports:
+      - "3022:22"
+      - "8080:80"
+      - "8443:443"
+    volumes:
+      - "/var/lib/dokku:/mnt/dokku"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    environment:
+      DOKKU_HOSTNAME: dokku.me
+      DOKKU_HOST_ROOT: /var/lib/dokku/home/dokku
+      DOKKU_LIB_HOST_ROOT: /var/lib/dokku/var/lib/dokku
+    restart: unless-stopped
+```
+
 The above command will start a new docker container that is ready when a message similar to `Runit started as PID 12345` appears.
 
 Dokku is run in the following configuration:
