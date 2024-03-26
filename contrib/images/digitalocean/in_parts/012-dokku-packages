@@ -24,7 +24,7 @@ pkgs=(apache2-utils
   unzip
 
   nginx
-  dnsutils
+  bind9-dnsutils
   cgroupfs-mount
   cgroup-lite
   sudo
