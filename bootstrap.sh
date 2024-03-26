@@ -168,10 +168,6 @@ install-dokku-from-deb-package() {
     NO_INSTALL_RECOMMENDS=" --no-install-recommends "
   fi
 
-  echo "--> Initial apt-get update"
-  apt-get update -qq >/dev/null
-  apt-get -qq -y --no-install-recommends install apt-transport-https
-
   if ! command -v docker &>/dev/null; then
     echo "--> Installing docker"
     if uname -r | grep -q linode; then

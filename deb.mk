@@ -11,10 +11,6 @@ endif
 .PHONY: install-from-deb deb-all deb-dokku deb-setup
 
 install-from-deb:
-	@echo "--> Initial apt-get update"
-	sudo apt-get update -qq >/dev/null
-	sudo apt-get -qq -y --no-install-recommends install apt-transport-https
-
 	@echo "--> Installing docker"
 	wget -nv -O - https://get.docker.com/ | sh
 

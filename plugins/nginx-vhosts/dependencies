@@ -2,29 +2,11 @@
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
-nginx_install() {
-  declare desc="install nginx and dnsutils"
-  export DEBIAN_FRONTEND=noninteractive
-  apt-get -qq -y --no-install-recommends install -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" nginx dnsutils
-}
-
 trigger-nginx-vhosts-dependencies() {
   declare desc="installs dependencies for the nginx-vhosts plugin"
   declare trigger="dependencies"
 
   case "$DOKKU_DISTRO" in
-    debian | raspbian)
-      nginx_install
-      ;;
-
-    ubuntu)
-      if command -v nginx &>/dev/null; then
-        return
-      fi
-
-      nginx_install
-      ;;
-
     arch)
       pacman -S --noconfirm --noprogressbar --needed nginx bind-tools
       ;;

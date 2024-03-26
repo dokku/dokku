@@ -4,8 +4,7 @@ set -o errexit
 
 export DEBIAN_FRONTEND=noninteractive
 
-pkgs=(apt-transport-https
-  ca-certificates
+pkgs=(ca-certificates
   curl
   jq
   linux-image-extra-virtual
