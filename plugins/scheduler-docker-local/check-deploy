@@ -153,7 +153,7 @@ trigger-scheduler-docker-local-check-deploy() {
     echo "$content" >"$TMP_APP_JSON_OUTPUT"
   fi
 
-  sudo /usr/bin/docker-container-healthchecker check "$DOKKU_APP_CONTAINER_ID" "${ARG_ARRAY[@]}" || FAILEDCHECKS="$?"
+  sudo $(which docker-container-healthchecker) check "$DOKKU_APP_CONTAINER_ID" "${ARG_ARRAY[@]}" || FAILEDCHECKS="$?"
 
   if [[ $FAILEDCHECKS -gt 0 ]]; then
     "$DOCKER_BIN" container update --restart=no "$DOKKU_APP_CONTAINER_ID" &>/dev/null || true
