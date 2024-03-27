@@ -353,9 +353,9 @@ func loadFromFile(name string, filename string) (env *Env, err error) {
 }
 
 func getAppFile(appName string) (string, error) {
-	return filepath.Join(common.MustGetEnv("DOKKU_ROOT"), appName, "ENV"), nil
+	return filepath.Join(common.MustGetEnv("DOKKU_LIB_ROOT"), "config", appName, "ENV"), nil
 }
 
 func getGlobalFile() string {
-	return filepath.Join(common.MustGetEnv("DOKKU_ROOT"), "ENV")
+	return filepath.Join(common.MustGetEnv("DOKKU_ROOT"), "config", "--global", "ENV")
 }
