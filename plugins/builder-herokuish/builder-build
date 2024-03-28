@@ -48,7 +48,7 @@ trigger-builder-herokuish-builder-build() {
   local DOCKER_BUILD_LABEL_ARGS="--label=org.label-schema.schema-version=1.0 --label=org.label-schema.vendor=dokku --label=com.dokku.app-name=$APP"
   DOKKU_APP_USER=$(config_get "$APP" DOKKU_APP_USER || true)
   DOKKU_APP_USER=${DOKKU_APP_USER:="herokuishuser"}
-  if ! suppress_output "$DOCKER_BIN" image build "${DOCKER_BUILD_LABEL_ARGS[@]}" $DOKKU_GLOBAL_BUILD_ARGS -f "$PLUGIN_AVAILABLE_PATH/builder-herokuish/dockerfiles/copy-source.Dockerfile" --build-arg APP_IMAGE="$DOKKU_IMAGE" --build-arg DOKKU_APP_USER=$DOKKU_APP_USER -t $IMAGE "$SOURCECODE_WORK_DIR"; then
+  if ! suppress_output "$DOCKER_BIN" image build "${DOCKER_BUILD_LABEL_ARGS[@]}" $DOKKU_GLOBAL_BUILD_ARGS -f "$PLUGIN_AVAILABLE_PATH/builder-herokuish/dockerfiles/copy-source.Dockerfile" --build-arg APP_IMAGE="$DOKKU_IMAGE" --build-arg "DOKKU_APP_USER=$DOKKU_APP_USER" --build-arg "TRACE=$DOKKU_TRACE" -t $IMAGE "$SOURCECODE_WORK_DIR"; then
     DOKKU_SKIP_IMAGE_CLEANUP_REGISTRATION=1 plugn trigger scheduler-register-retired "$APP" "$TAR_CID"
     dokku_log_warn "Failure extracting app code"
     return 1
