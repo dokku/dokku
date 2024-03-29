@@ -68,10 +68,16 @@ func main() {
 		err = ps.CommandScale(appName, *skipDeploy, processTuples)
 	case "set":
 		args := flag.NewFlagSet("ps:set", flag.ExitOnError)
+		global := args.Bool("global", false, "--global: set a global property")
 		args.Parse(os.Args[2:])
 		appName := args.Arg(0)
 		property := args.Arg(1)
 		value := args.Arg(2)
+		if *global {
+			appName = "--global"
+			property = args.Arg(0)
+			value = args.Arg(1)
+		}
 		err = ps.CommandSet(appName, property, value)
 	case "start":
 		args := flag.NewFlagSet("ps:start", flag.ExitOnError)

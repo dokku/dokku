@@ -45,6 +45,54 @@ teardown() {
   assert_output_contains "$CID" 6
 }
 
+@test "(ps:set) procfile" {
+  run /bin/bash -c "dokku ps:set --global procfile-path .dokku/Procfile"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:report $TEST_APP --ps-computed-procfile-path"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output ".dokku/Procfile"
+  assert_success
+
+  run /bin/bash -c "dokku ps:report $TEST_APP --ps-global-procfile-path"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output ".dokku/Procfile"
+  assert_success
+
+  run /bin/bash -c "dokku ps:report $TEST_APP --ps-procfile-path"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output ""
+  assert_success
+
+  run /bin/bash -c "dokku ps:set --global procfile-path"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:report $TEST_APP --ps-computed-procfile-path"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "Procfile"
+  assert_success
+
+  run /bin/bash -c "dokku ps:report $TEST_APP --ps-global-procfile-path"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "Procfile"
+  assert_success
+
+  run /bin/bash -c "dokku ps:report $TEST_APP --ps-procfile-path"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output ""
+  assert_success
+}
+
 @test "(ps:scale) procfile commands extraction" {
   source "$PLUGIN_CORE_AVAILABLE_PATH/ps/functions"
   cat <<EOF >"$DOKKU_LIB_ROOT/data/ps/$TEST_APP/Procfile"
