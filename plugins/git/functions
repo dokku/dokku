@@ -15,7 +15,7 @@ git_build_app_repo() {
 
   # clean up after ourselves
   local GIT_BUILD_APP_REPO_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
-  trap "rm -rf '$GIT_BUILD_APP_REPO_TMP_WORK_DIR' >/dev/null" RETURN INT TERM EXIT
+  trap "popd &>/dev/null || true; rm -rf '$GIT_BUILD_APP_REPO_TMP_WORK_DIR' >/dev/null" RETURN INT TERM EXIT
 
   chmod 755 "$GIT_BUILD_APP_REPO_TMP_WORK_DIR"
   unset GIT_DIR GIT_QUARANTINE_PATH GIT_WORK_TREE
