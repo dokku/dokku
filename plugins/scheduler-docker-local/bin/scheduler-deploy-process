@@ -86,10 +86,11 @@ fn-scheduler-deploy-process() {
     local CONTAINER_IDX_OFFSET=$((PROC_COUNT + 1))
   fi
   local container_state_filetype
+  pushd "$DOKKU_ROOT/$APP" >/dev/null
   for container_state_filetype in CONTAINER IP PORT; do
-    cd "$DOKKU_ROOT/$APP"
     find . -maxdepth 1 -name "$container_state_filetype.$PROC_TYPE.*" -printf "%f\n" | sort -t . -k 3 -n | tail -n +$CONTAINER_IDX_OFFSET | xargs rm -f
   done
+  popd &>/dev/null || pushd "/tmp" >/dev/null
 }
 
 main() {
