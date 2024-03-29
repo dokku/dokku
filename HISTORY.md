@@ -1,5 +1,48 @@
 # History
 
+## 0.34.1
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.34.1/bootstrap.sh
+sudo DOKKU_TAG=v0.34.1 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #6775: @josegonzalez Ensure files get created with the correct permissions when building with herokuish
+- #6739: @AndrewKvalheim Dereference annotated git tags when deploying via git:sync
+- #6743: @testwill Fix typo in app-json output
+
+### New Features
+
+- #6768: @josegonzalez Migrate away from transitional packages
+
+### Documentation
+
+- #6763: @iloveitaly Add docker-compose example to installation docs
+- #6757: @josegonzalez Add documentation issue template
+- #6742: @josegonzalez Remove trailing whitespace from history doc
+
+### Dependencies
+
+- #6772: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 43.0.1 to 44.0.0
+- #6766: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.14 to 9.5.15 in /docs/_build
+- #6744: @dependabot[bot] chore(deps): bump github.com/docker/docker from 24.0.7+incompatible to 24.0.9+incompatible in /plugins/scheduler-k3s
+- #6754: @dependabot[bot] chore(deps): bump express from 4.18.3 to 4.19.1 in /tests/apps/dockerfile-app-json-formations
+- #6745: @dependabot[bot] chore(deps): bump express from 4.18.3 to 4.19.1 in /tests/apps/nodejs-express
+- #6746: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 43.0.0 to 43.0.1
+- #6747: @dependabot[bot] chore(deps): bump express from 4.18.3 to 4.19.1 in /tests/apps/.websocket.disabled
+- #6748: @dependabot[bot] chore(deps): bump express from 4.18.3 to 4.19.1 in /tests/apps/nodejs-express-noprocfile
+- #6749: @dependabot[bot] chore(deps): bump express from 4.18.3 to 4.19.1 in /tests/apps/nodejs-express-noappjson
+- #6750: @dependabot[bot] chore(deps): bump express from 4.18.3 to 4.19.1 in /tests/apps/dockerfile-procfile-bad
+- #6751: @dependabot[bot] chore(deps): bump importlib-metadata from 7.0.2 to 7.1.0 in /docs/_build
+- #6752: @dependabot[bot] chore(deps): bump express from 4.18.3 to 4.19.1 in /tests/apps/dockerfile-procfile
+- #6753: @dependabot[bot] chore(deps): bump express from 4.18.3 to 4.19.1 in /tests/apps/gitsubmodules
+- #6741: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.31.1 to 1.32.0 in /plugins/common
+- #6740: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.31.1 to 1.32.0 in /plugins/config
+
 ## 0.34.0
 
 Install/update via the bootstrap script:
