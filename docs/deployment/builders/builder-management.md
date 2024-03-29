@@ -44,6 +44,9 @@ The `selected` property can also be set globally. The global default is an empty
 dokku builder:set --global selected herokuish
 ```
 
+> [!WARNING]
+> Selecting a global builder will result in _all_ applications using that builder unless a manual override is selected.
+
 The default value may be set by passing an empty value for the option.
 
 ```shell
