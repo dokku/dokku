@@ -26,7 +26,7 @@ fn-openresty-access-log-path() {
   fn-plugin-property-get-default "openresty" "$APP" "access-log-path" "${OPENRESTY_LOG_ROOT}/${APP}-access.log"
 }
 
-fn-fn-openresty-allowed-letsencrypt-domains-func-base64() {
+fn-openresty-allowed-letsencrypt-domains-func-base64() {
   declare desc="get the configured allowed domains func base64"
 
   fn-plugin-property-get-default "openresty" "--global" "allowed-letsencrypt-domains-func-base64" "return true" | base64 -w 0
