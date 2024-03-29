@@ -91,10 +91,16 @@ RUN dokku plugin:install https://github.com/dokku/dokku-redis.git redis
 
 ## SSH Key Management
 
-To initialize ssh-keys within the container, use `docker exec` to enter the container and run the appropriate ssh-keys commands.
+To initialize ssh-keys within the container, use `docker exec` to enter the container:
 
 ```shell
 docker exec -it dokku bash
+```
+
+Next, run the appropriate ssh-keys commands:
+
+```shell
+echo "$CONTENTS_OF_YOUR_PUBLIC_SSH_KEY_HERE" | dokku ssh-keys:add KEY_NAME
 ```
 
 Please see the [user management documentation](/docs/deployment/user-management.md) for more information.
