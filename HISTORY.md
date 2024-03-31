@@ -1,5 +1,29 @@
 # History
 
+## 0.34.2
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.34.2/bootstrap.sh
+sudo DOKKU_TAG=v0.34.2 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #6779: @josegonzalez Add --global flag to ps:set
+- #6778: @josegonzalez Popd out of tmp directory after a git push-based deployment
+- #6777: @josegonzalez Use correct function name in openresty:report output
+
+### Documentation
+
+- #6781: @josegonzalez Update builder management docs to warn that globally setting a builder will force all apps to use that builder
+- #6780: @josegonzalez Clarify ssh-keys commands to run when adding ssh keys in docker-based installation
+
+### Other
+
+- #6776: @josegonzalez Use a long git sha in the git:report output
+
 ## 0.34.1
 
 Install/update via the bootstrap script:
