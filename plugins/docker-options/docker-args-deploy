@@ -37,6 +37,14 @@ trigger-docker-options-docker-args() {
         \#*)
           continue
           ;;
+
+        --restart*)
+          if [[ "$PHASE" == "deploy" ]]; then
+            local output="$output $line"
+          fi
+          continue
+          ;;
+
         *)
           case "$IMAGE_SOURCE_TYPE" in
             dockerfile | nixpacks)
