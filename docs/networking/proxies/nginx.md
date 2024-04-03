@@ -177,7 +177,7 @@ Alternatively, you may push an app to your Dokku host with a name like "00-defau
 > [!IMPORTANT]
 > New as of 0.5.0
 
-Dokku uses a templating library by the name of [sigil](https://github.com/gliderlabs/sigil) to generate nginx configuration for each app. This may be overriden by committing the [default configuration template](https://github.com/dokku/dokku/blob/master/plugins/nginx-vhosts/templates/nginx.conf.sigil) to a file named `nginx.conf.sigil` in the root of the app repository.
+Dokku uses a templating library by the name of [sigil](https://github.com/gliderlabs/sigil) to generate nginx configuration for each app. This may be overridden by committing the [default configuration template](https://github.com/dokku/dokku/blob/master/plugins/nginx-vhosts/templates/nginx.conf.sigil) to a file named `nginx.conf.sigil` in the root of the app repository.
 
 When deploying a monorepo, it may be desirable to specify the specific path of the `nginx.conf.sigil` file to use for a given app. This can be done via the `nginx:set` command. If a value is specified and that file does not exist in the app's build directory, Dokku will continue the build process as if the repository has no `nginx.conf.sigil`.
 
@@ -371,7 +371,7 @@ Properties:
 Dokku's default Nginx configuration passes the de-facto standard HTTP headers [`X-Forwarded-For`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-For), [`X-Forwarded-Proto`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Proto), and `X-Forwarded-Port` to your application.
 These headers indicate the IP address of the original client making the request, the protocol of the original request (HTTP or HTTPS), and the port number of the original request, respectively.
 
-If you have another HTTP proxy sitting in between the end user and your server (for example, a load balancer, or a CDN), then the values of these headers will contain information about (e.g. the IP address of) the the closest proxy, and not the end user.
+If you have another HTTP proxy sitting in between the end user and your server (for example, a load balancer, or a CDN), then the values of these headers will contain information about (e.g. the IP address of) the closest proxy, and not the end user.
 
 To fix this, assuming that the other proxy also passes `X-Forwarded-*` headers, which in turn contain information about the end user, you can tell Nginx include those values in the `X-Forwarded-*` headers that it sends to your application. You can do this via `nginx:set`, like so:
 

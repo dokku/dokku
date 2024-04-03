@@ -27,7 +27,7 @@ The `container-type` argument can be one either:
 - If your app has a `Procfile`, the name of a process type in your `Procfile`.
 - If your app has no `Procfile`, the word `web`.
 
-If the specified process type is scaled up to more than one container, then the first container will be automatically selected. this can be overriden by specifying an integer index denoting the desired container, where the first container's index is `1`.
+If the specified process type is scaled up to more than one container, then the first container will be automatically selected. this can be overridden by specifying an integer index denoting the desired container, where the first container's index is `1`.
 
 Additionally, the `enter` command can be executed with no `<container-type>`. If only a single `<container-type>` is defined in the app's Procfile, executing `enter` will drop the terminal into the only running container. This behavior is not supported when specifying a custom command; as described below.
 

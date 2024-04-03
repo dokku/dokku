@@ -115,4 +115,4 @@ Host dokku.docker
   Port 3022
 ```
 
-In the above example, the hostname `127.0.0.1` is being aliased to `dokku.docker`, while the port is being overriden to `3022`. All SSH commands - including git pushes - for the hostname `dokku.docker` will be transparently sent to `127.0.0.1:3022`.
+In the above example, the hostname `127.0.0.1` is being aliased to `dokku.docker`, while the port is being overridden to `3022`. All SSH commands - including git pushes - for the hostname `dokku.docker` will be transparently sent to `127.0.0.1:3022`.
