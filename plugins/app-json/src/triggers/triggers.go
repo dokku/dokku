@@ -56,10 +56,16 @@ func main() {
 		appName := flag.Arg(0)
 		imageTag := flag.Arg(3)
 		err = appjson.TriggerPostDeploy(appName, imageTag)
-	case "pre-deploy":
-		appName := flag.Arg(0)
-		imageTag := flag.Arg(1)
-		err = appjson.TriggerPreDeploy(appName, imageTag)
+	case "post-release-builder":
+		builderType := flag.Arg(0)
+		appName := flag.Arg(1)
+		image := flag.Arg(2)
+		err = appjson.TriggerPostReleaseBuilder(builderType, appName, image)
+	case "pre-release-builder":
+		builderType := flag.Arg(0)
+		appName := flag.Arg(1)
+		image := flag.Arg(2)
+		err = appjson.TriggerPreReleaseBuilder(builderType, appName, image)
 	case "report":
 		appName := flag.Arg(0)
 		err = appjson.ReportSingleApp(appName, "", "")

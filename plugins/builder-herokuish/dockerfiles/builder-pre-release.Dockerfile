@@ -3,6 +3,3 @@ FROM $APP_IMAGE
 
 ARG DOKKU_APP_USER herokuishuser
 COPY --chown=$DOKKU_APP_USER 00-global-env.sh 01-app-env.sh /app/.profile.d/
-RUN TRACE=$TRACE USER=$DOKKU_APP_USER HEROKUISH_DISABLE_CHOWN=false /exec true
-USER $DOKKU_APP_USER
-ENV HEROKUISH_SETUIDGUID false

@@ -90,13 +90,16 @@ func TriggerPostDelete(appName string) error {
 func TriggerPostReleaseBuilder(appName string, image string) error {
 	parts := strings.Split(image, ":")
 	imageTag := parts[len(parts)-1]
-	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
-		Trigger:     "pre-deploy",
-		Args:        []string{appName, imageTag},
-		StreamStdio: true,
-	})
-	if err != nil {
-		return err
+	if common.PlugnTriggerExists("pre-deploy") {
+		common.LogWarn("Deprecated: please upgrade plugin to use 'pre-release-builder' plugin trigger instead of pre-deploy")
+		_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+			Trigger:     "pre-deploy",
+			Args:        []string{appName, imageTag},
+			StreamStdio: true,
+		})
+		if err != nil {
+			return err
+		}
 	}
 
 	imageID, _ := common.DockerInspect(image, "{{ .Id }}")
