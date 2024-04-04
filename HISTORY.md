@@ -1,5 +1,29 @@
 # History
 
+## 0.34.3
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.34.3/bootstrap.sh
+sudo DOKKU_TAG=v0.34.3 bash bootstrap.sh
+```
+
+### New Features
+
+- #6785: @josegonzalez Update herokuish requirement to better support readonly containers
+
+### Documentation
+
+- #6788: @bumblefudge Fix typos in nginx documentation
+- #6789: @crazehang Fix typos in documentation
+
+### Dependencies
+
+- #6786: @dependabot[bot] chore(deps): bump werkzeug from 3.0.1 to 3.0.2 in /tests/apps/python-flask
+- #6787: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.16 to 9.5.17 in /docs/_build
+- #6782: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.15 to 9.5.16 in /docs/_build
+
 ## 0.34.2
 
 Install/update via the bootstrap script:
