@@ -55,10 +55,11 @@ func main() {
 	case "post-stop":
 		appName := flag.Arg(0)
 		err = ps.TriggerPostStop(appName)
-	case "pre-deploy":
-		appName := flag.Arg(0)
-		imageTag := flag.Arg(1)
-		err = ps.TriggerPreDeploy(appName, imageTag)
+	case "post-release-builder":
+		builderType := flag.Arg(0)
+		appName := flag.Arg(1)
+		image := flag.Arg(2)
+		err = ps.TriggerPostReleaseBuilder(builderType, appName, image)
 	case "procfile-get-command":
 		appName := flag.Arg(0)
 		processType := flag.Arg(1)

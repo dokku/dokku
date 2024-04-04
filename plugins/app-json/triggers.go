@@ -212,9 +212,10 @@ func TriggerPostDeploy(appName string, imageTag string) error {
 	return executeScript(appName, image, imageTag, "postdeploy")
 }
 
-// TriggerPreDeploy is a trigger to execute predeploy and release deployment tasks
-func TriggerPreDeploy(appName string, imageTag string) error {
-	image := common.GetAppImageName(appName, imageTag, "")
+// TriggerPostReleaseBuilder is a trigger to execute predeploy and release deployment tasks
+func TriggerPostReleaseBuilder(builderType string, appName string, image string) error {
+	parts := strings.Split(image, ":")
+	imageTag := parts[len(parts)-1]
 	if err := executeScript(appName, image, imageTag, "predeploy"); err != nil {
 		return err
 	}

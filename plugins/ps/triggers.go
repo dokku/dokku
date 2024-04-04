@@ -257,8 +257,8 @@ func TriggerPostStop(appName string) error {
 	})
 }
 
-// TriggerPreDeploy ensures an app has an up to date scale parameters
-func TriggerPreDeploy(appName string, imageTag string) error {
+// TriggerPostReleaseBuilder ensures an app has an up to date scale parameters
+func TriggerPostReleaseBuilder(builderType string, appName string, image string) error {
 	if err := updateScale(appName, false, FormationSlice{}); err != nil {
 		common.LogDebug(fmt.Sprintf("Error generating scale file: %s", err.Error()))
 		return err
