@@ -1934,6 +1934,9 @@ fi
 
 ### `pre-deploy`
 
+> [!WARNING]
+> Deprecated, please use `pre-release-builder` instead
+
 - Description: Allows the running of code before the app's processes are scaled up and after the docker images are prepared.
 - Invoked by: `dokku deploy`
 - Arguments: `$APP $IMAGE_TAG`
