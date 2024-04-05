@@ -2,6 +2,7 @@ package proxy
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
 	"github.com/dokku/dokku/plugins/config"
@@ -87,6 +88,11 @@ func CommandSet(appName string, proxyType string) error {
 
 	if len(proxyType) < 2 {
 		return errors.New("Please specify a proxy type")
+	}
+
+	if strings.Contains(proxyType, ":") {
+		common.LogWarn("Detected potential port mapping instead of proxy type")
+		return errors.New("Consider using ports:set command or specifying a valid proxy")
 	}
 
 	key := "DOKKU_APP_PROXY_TYPE"
