@@ -28,6 +28,14 @@ teardown() {
   assert_output "$help_output"
 }
 
+@test "(proxy:set) invalid port mapping set" {
+  run /bin/bash -c "dokku proxy:set $TEST_APP http:80:80"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Detected potential port mapping instead of proxy type"
+}
+
 @test "(proxy) proxy:build-config/clear-config" {
   run deploy_app
   echo "output: $output"
