@@ -192,7 +192,12 @@ func executeScript(appName string, image string, imageTag string, phase string) 
 		return nil
 	}
 
-	common.LogInfo1(fmt.Sprintf("Executing %s task from %s: %s", phaseName, phaseSource, command))
+	if phase == "predeploy" {
+		common.LogVerbose(fmt.Sprintf("Executing %s task from %s: %s", phaseName, phaseSource, command))
+	} else {
+		common.LogVerbose(fmt.Sprintf("Executing %s task from %s in ephemeral container: %s", phaseName, phaseSource, command))
+	}
+
 	isHerokuishImage := common.IsImageHerokuishBased(image, appName)
 	isCnbImage := common.IsImageCnbBased(image)
 	dockerfileEntrypoint := ""
