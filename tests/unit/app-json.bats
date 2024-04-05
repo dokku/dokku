@@ -21,8 +21,8 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_contains "Executing predeploy task from app.json: touch /app/predeploy.test"
-  assert_output_contains "Executing postdeploy task from app.json: touch /app/postdeploy.test"
-  assert_output_contains "Executing prebuild task from app.json: touch /app/prebuild.test" 0
+  assert_output_contains "Executing postdeploy task from app.json in ephemeral container: touch /app/postdeploy.test"
+  assert_output_contains "Executing prebuild task from app.json in ephemeral container: touch /app/prebuild.test" 0
 
   run docker inspect "${TEST_APP}.web.1" --format "{{json .Config.Cmd}}"
   echo "output: $output"
