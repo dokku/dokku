@@ -38,6 +38,10 @@ func main() {
 	case "report":
 		appName := flag.Arg(0)
 		err = scheduler_k3s.ReportSingleApp(appName, "", "")
+	case "scheduler-app-status":
+		scheduler := flag.Arg(0)
+		appName := flag.Arg(1)
+		err = scheduler_k3s.TriggerSchedulerAppStatus(scheduler, appName)
 	case "scheduler-deploy":
 		scheduler := flag.Arg(0)
 		appName := flag.Arg(1)

@@ -75,6 +75,50 @@ func TriggerPostDelete(appName string) error {
 	return propertyErr
 }
 
+// TriggerSchedulerAppStatus returns the status of an app on the scheduler
+func TriggerSchedulerAppStatus(scheduler string, appName string) error {
+	if scheduler != "k3s" {
+		return nil
+	}
+
+	clientset, err := NewKubernetesClient()
+	if err != nil {
+		return fmt.Errorf("Error creating kubernetes client: %w", err)
+	}
+
+	if err := clientset.Ping(); err != nil {
+		return fmt.Errorf("kubernetes api not available: %w", err)
+	}
+
+	namespace := getComputedNamespace(appName)
+	deployments, err := clientset.ListDeployments(context.Background(), ListDeploymentsInput{
+		Namespace:     namespace,
+		LabelSelector: fmt.Sprintf("app.kubernetes.io/part-of=%s", appName),
+	})
+	if err != nil {
+		return fmt.Errorf("Error listing pods: %w", err)
+	}
+
+	processCount := 0
+	expectedProcesses := 0
+	runningProcesses := 0
+	for _, deployment := range deployments {
+		processCount += int(*deployment.Spec.Replicas)
+		expectedProcesses += int(*deployment.Spec.Replicas)
+		runningProcesses += int(deployment.Status.AvailableReplicas)
+	}
+
+	running := "true"
+	if expectedProcesses == 0 || runningProcesses == 0 {
+		running = "false"
+	} else if runningProcesses < expectedProcesses {
+		running = "mixed"
+	}
+
+	fmt.Printf("%d %s", processCount, running)
+	return nil
+}
+
 // TriggerSchedulerDeploy deploys an image tag for a given application
 func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) error {
 	if scheduler != "k3s" {
