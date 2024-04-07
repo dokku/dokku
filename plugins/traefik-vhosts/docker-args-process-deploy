@@ -7,7 +7,7 @@ set -eo pipefail
 trigger-traefik-vhosts-docker-args-process-deploy() {
   declare desc="nginx-vhosts core-post-deploy plugin trigger"
   declare trigger="docker-args-process-deploy"
-  declare APP="$1" IMAGE_SOURCE_TYPE="$2" IMAGE_TAG="$3" PROC_TYPE="$4" CONTAINER_INDEX="$5" HTTP_ENTRY_POINT="$6" HTTPS_ENTRY_POINT="$7"
+  declare APP="$1" IMAGE_SOURCE_TYPE="$2" IMAGE_TAG="$3" PROC_TYPE="$4" CONTAINER_INDEX="$5"
   local app_domains is_app_listening letsencrypt_email output proxy_container_port proxy_host_port port_map proxy_scheme proxy_schemes traefik_domains
   local proxy_container_http_port proxy_container_http_port_candidate proxy_host_http_port_candidate
   local proxy_container_https_port proxy_container_https_port_candidate proxy_host_https_port_candidate
