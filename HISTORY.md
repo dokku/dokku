@@ -1,5 +1,46 @@
 # History
 
+## 0.34.4
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.34.4/bootstrap.sh
+sudo DOKKU_TAG=v0.34.4 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #6801: @josegonzalez Guard against invalid proxy values due to move of port mapping to ports plugin
+- #6798: @josegonzalez Implement missing scheduler-app-status trigger in k3s scheduler plugin
+- #6791: @josegonzalez Correct issue where pre-deploy scripts do not have root access
+
+### New Features
+
+- #6800: @josegonzalez Update message for deployment tasks that execute in ephemeral containers
+
+### Documentation
+
+- #6799: @josegonzalez Document that a registry is required for k3s usage
+
+### Tests
+
+- #6802: @josegonzalez Update test for new deployment task output
+
+### Dependencies
+
+- #6807: @josegonzalez chore: bump go modules
+- #6805: @dependabot[bot] chore(deps): bump golang.org/x/sync from 0.6.0 to 0.7.0 in /plugins/common
+- #6806: @dependabot[bot] chore(deps): bump golang.org/x/crypto from 0.21.0 to 0.22.0 in /plugins/common
+- #6803: @dependabot[bot] chore(deps): bump golang.org/x/sync from 0.6.0 to 0.7.0 in /plugins/scheduler-docker-local
+- #6804: @dependabot[bot] chore(deps): bump golang.org/x/sync from 0.6.0 to 0.7.0 in /plugins/app-json
+- #6794: @dependabot[bot] chore(deps): bump golang from 1.22.1 to 1.22.2 in /tests/apps/zombies-dockerfile-tini
+- #6796: @dependabot[bot] chore(deps): bump golang from 1.22.1 to 1.22.2 in /tests/apps/gogrpc
+- #6793: @dependabot[bot] chore(deps): bump golang from 1.22.1 to 1.22.2 in /tests/apps/zombies-dockerfile-no-tini
+- #6797: @dependabot[bot] chore(deps): bump golang from 1.22.1 to 1.22.2 in /tests/apps/go-fail-postdeploy
+- #6795: @dependabot[bot] chore(deps): bump google.golang.org/grpc from 1.62.1 to 1.63.0 in /tests/apps/gogrpc
+- #6792: @dependabot[bot] chore(deps): bump golang from 1.22.1 to 1.22.2 in /tests/apps/go-fail-predeploy
+
 ## 0.34.3
 
 Install/update via the bootstrap script:
