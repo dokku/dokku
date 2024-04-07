@@ -7,7 +7,7 @@ set -eo pipefail
 trigger-traefik-vhosts-docker-args-process-deploy() {
   declare desc="nginx-vhosts core-post-deploy plugin trigger"
   declare trigger="docker-args-process-deploy"
-  declare APP="$1" IMAGE_SOURCE_TYPE="$2" IMAGE_TAG="$3" PROC_TYPE="$4" CONTAINER_INDEX="$5"
+  declare APP="$1" IMAGE_SOURCE_TYPE="$2" IMAGE_TAG="$3" PROC_TYPE="$4" CONTAINER_INDEX="$5" HTTP_ENTRY_POINT="$6" HTTPS_ENTRY_POINT="$7"
   local app_domains is_app_listening letsencrypt_email output proxy_container_port proxy_host_port port_map proxy_scheme proxy_schemes traefik_domains
   local proxy_container_http_port proxy_container_http_port_candidate proxy_host_http_port_candidate
   local proxy_container_https_port proxy_container_https_port_candidate proxy_host_https_port_candidate
@@ -96,7 +96,7 @@ trigger-traefik-vhosts-docker-args-process-deploy() {
       fi
 
       output="$output --label traefik.http.services.$APP-$PROC_TYPE-http.loadbalancer.server.port=$proxy_container_http_port"
-      output="$output --label traefik.http.routers.$APP-$PROC_TYPE-http.entrypoints=http"
+      output="$output --label traefik.http.routers.$APP-$PROC_TYPE-http.entrypoints=$(fn-traefik-http-entry-point)"
       output="$output --label traefik.http.routers.$APP-$PROC_TYPE-http.service=$APP-$PROC_TYPE-http"
       if [[ -n "$traefik_domains" ]]; then
         output="$output --label \"traefik.http.routers.$APP-$PROC_TYPE-http.rule=Host(\\\`$traefik_domains\\\`)\""
@@ -111,7 +111,7 @@ trigger-traefik-vhosts-docker-args-process-deploy() {
       fi
 
       output="$output --label traefik.http.services.$APP-$PROC_TYPE-https.loadbalancer.server.port=$proxy_container_https_port"
-      output="$output --label traefik.http.routers.$APP-$PROC_TYPE-https.entrypoints=https"
+      output="$output --label traefik.http.routers.$APP-$PROC_TYPE-https.entrypoints=$(fn-traefik-https-entry-point)"
       output="$output --label traefik.http.routers.$APP-$PROC_TYPE-https.service=$APP-$PROC_TYPE-https"
       output="$output --label traefik.http.routers.$APP-$PROC_TYPE-https.tls.certresolver=leresolver"
       if [[ -n "$traefik_domains" ]]; then

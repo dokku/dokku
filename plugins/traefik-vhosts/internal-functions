@@ -92,3 +92,11 @@ fn-traefik-log-level() {
   log_level="$(fn-plugin-property-get-default "traefik" "--global" "log-level" "ERROR")"
   echo "${log_level^^}"
 }
+
+fn-traefik-http-entry-point() {
+  fn-plugin-property-get-default "traefik" "--global" "http-entry-point" "http"
+}
+
+fn-traefik-https-entry-point() {
+  fn-plugin-property-get-default "traefik" "--global" "https-entry-point" "https"
+}
