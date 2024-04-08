@@ -67,6 +67,17 @@ dokku traefik:stop
 
 The Traefik container will be stopped and removed from the system. If the container is not running, this command will do nothing.
 
+### Changing the Traefik entrypoint names
+
+When you use a self-hosted Traefik instance, your entrypoint names might be different from the default `http` and `https`
+
+Use `traefik:set` to set both `http-entry-point` and `https-entry-point` to custom values
+
+```shell
+dokku traefik:set --global http-entry-point web
+dokku traefik:set --global https-entry-point websecure
+```
+
 ### Showing the Traefik compose config
 
 For debugging purposes, it may be useful to show the Traefik compose config. This can be achieved via the `traefik:show-config` command.
