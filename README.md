@@ -1,6 +1,6 @@
 # Dokku
 
-[![Build Status](https://github.com/dokku/dokku/workflows/CI/badge.svg)](https://github.com/dokku/dokku/actions?query=workflow%3ACI)
+[![Build Status](https://github.com/dokku/dokku/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/dokku/dokku/actions?query=branch%3Amaster)
 [![Ubuntu Package](https://img.shields.io/badge/package-ubuntu-brightgreen.svg?style=flat-square "Ubuntu Package")](https://packagecloud.io/dokku/dokku)
 [![Arch Package](https://img.shields.io/badge/package-arch-brightgreen.svg?style=flat-square "Arch Package")](https://aur.archlinux.org/packages/dokku/)
 [![Slack Group](https://img.shields.io/badge/irc-slack-blue.svg?style=flat-square "Slack Group")](https://slack.dokku.com/)
