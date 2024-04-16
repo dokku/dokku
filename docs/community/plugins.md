@@ -151,6 +151,7 @@ The following plugins are available and provided by Dokku maintainers.  Please f
 | ------------------------------------------------------------------------------------------------- | --------------------- | --------------------- |
 | [Chef cookbook](https://github.com/nickcharlton/dokku-cookbook)                                   | [nickcharlton][]      |                       |
 | [Discourse](https://github.com/badsyntax/dokku-discourse)                                         | [badsyntax][]         | 0.21.4+               |
+| [Tailscale](https://github.com/andrew-womeldorf/dokku-tailscale)                                  | [andrew-womeldorf][]  | 0.34.4+               |
 | [Wordpress](https://github.com/dokku-community/dokku-wordpress)                                   | [dokku-community][]   | 0.4.0+                |
 
 ### Deprecated Plugins
@@ -251,6 +252,7 @@ The following plugins are no longer maintained by their developers.
 [alexanderbeletsky]: https://github.com/alexanderbeletsky
 [alexkruegger]: https://github.com/alexkruegger
 [aluxian]: https://github.com/aluxian
+[andrew-womeldorf]: https://github.com/andrew-womeldorf
 [aomitayo]: https://github.com/aomitayo
 [apmorton]: https://github.com/apmorton
 [artofrawr]: https://github.com/artofrawr
