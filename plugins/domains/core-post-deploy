@@ -8,6 +8,8 @@ trigger-domains-core-post-deploy() {
   declare desc="domains core-post-deploy plugin trigger"
   declare trigger="core-post-deploy"
   declare APP="$1"
+  local RE_IPV4="$(get_ipv4_regex)"
+  local RE_IPV6="$(get_ipv6_regex)"
 
   if [[ "$(plugn trigger proxy-type "$APP")" != "nginx" ]]; then
     return
