@@ -237,3 +237,65 @@ teardown() {
   assert_success
   assert_line '      - "traefik.http.routers.api.middlewares=auth"'
 }
+
+@test "(traefik) change traefik entry point http" {
+  run /bin/bash -c "dokku builder-herokuish:set $TEST_APP allowed true"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku proxy:set $TEST_APP traefik"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku traefik:set --global http-entry-point web"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"traefik.http.routers.$TEST_APP-web-http.entrypoints\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "web"
+
+}
+
+@test "(traefik) change traefik entry point https" {
+  run /bin/bash -c "dokku builder-herokuish:set $TEST_APP allowed true"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku proxy:set $TEST_APP traefik"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku traefik:set --global letsencrypt-email test@example.com"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku traefik:set --global https-entry-point websecure"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"traefik.http.routers.$TEST_APP-web-https.entrypoints\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "websecure"
+}

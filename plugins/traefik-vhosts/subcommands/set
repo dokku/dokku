@@ -9,8 +9,8 @@ cmd-traefik-set() {
   declare cmd="traefik:set"
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1" KEY="$2" VALUE="$3"
-  local VALID_KEYS=("api-enabled" "api-vhost" "dashboard-enabled" "basic-auth-username" "basic-auth-password" "image" "letsencrypt-email" "letsencrypt-server" "log-level")
-  local GLOBAL_KEYS=("api-enabled" "api-vhost" "dashboard"-enabled "basic-auth-username" "basic-auth-password" "image" "letsencrypt-email" "letsencrypt-server" "log-level")
+  local VALID_KEYS=("api-enabled" "api-vhost" "dashboard-enabled" "basic-auth-username" "basic-auth-password" "image" "letsencrypt-email" "letsencrypt-server" "log-level" "http-entry-point" "https-entry-point")
+  local GLOBAL_KEYS=("api-enabled" "api-vhost" "dashboard-enabled" "basic-auth-username" "basic-auth-password" "image" "letsencrypt-email" "letsencrypt-server" "log-level" "http-entry-point" "https-entry-point")
 
   [[ -z "$KEY" ]] && dokku_log_fail "No key specified"
 
