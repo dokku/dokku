@@ -10,7 +10,7 @@ When creating custom plugins:
 2. Check out the [list of triggers](/docs/development/plugin-triggers.md) the plugin can implement
 3. Upload the plugin to GitHub with a repository name following the `dokku-<name>` convention (e.g. `dokku-mariadb`)
 4. Edit [this page](/docs/community/plugins.md) and add a link to the plugin
-5. Subscribe to the [dokku development blog](http://progrium.com) to be notified about API changes and releases
+5. Subscribe to the [dokku development blog](https://dokku.com/blog/) to be notified about API changes and releases
 
 ### Compilable plugins (Golang, Java(?), C, etc.)
 
