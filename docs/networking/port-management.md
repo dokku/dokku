@@ -163,7 +163,7 @@ For example, if the Dokku installation is configured with the domain `dokku.me` 
 ```
 FROM ubuntu:20.04
 EXPOSE 1234
-RUN python -m SimpleHTTPServer 1234
+CMD python -m SimpleHTTPServer 1234
 ```
 
 The application would be exposed to the user at `node-js-app.dokku.me:1234`. If this is not desired, the following application configuration may be applied:
