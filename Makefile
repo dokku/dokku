@@ -153,43 +153,36 @@ man-db:
 	apt-get -qq -y --no-install-recommends install man-db
 
 docker-image-labeler:
-	wget -qO /tmp/docker-image-labeler_latest.tgz ${DOCKER_IMAGE_LABELER_URL}
-	tar xzf /tmp/docker-image-labeler_latest.tgz -C /usr/local/bin
-	mv /usr/local/bin/docker-image-labeler-${TARGETARCH} /usr/local/bin/docker-image-labeler
+	wget -qO /usr/local/bin/docker-image-labeler ${DOCKER_IMAGE_LABELER_URL}
+	chmod +x /usr/local/bin/docker-image-labeler
 
 docker-container-healthchecker:
-	wget -qO /tmp/docker-container-healthchecker_latest.tgz ${DOCKER_CONTAINER_HEALTHCHECKER_URL}
-	tar xzf /tmp/docker-container-healthchecker_latest.tgz -C /usr/local/bin
-	mv /usr/local/bin/docker-container-healthchecker-${TARGETARCH} /usr/local/bin/docker-container-healthchecker
+	wget -qO /usr/local/bin/docker-container-healthchecker ${DOCKER_CONTAINER_HEALTHCHECKER_URL}
+	chmod +x /usr/local/bin/docker-container-healthchecker
 
 lambda-builder:
-	wget -qO /tmp/lambda-builder_latest.tgz ${LAMBDA_BUILDER_URL}
-	tar xzf /tmp/lambda-builder_latest.tgz -C /usr/local/bin
-	mv /usr/local/bin/lambda-builder-${TARGETARCH} /usr/local/bin/lambda-builder
+	wget -qO /usr/local/bin/lambda-builder ${LAMBDA_BUILDER_URL}
+	chmod +x /usr/local/bin/lambda-builder
 
 netrc:
-	wget -qO /tmp/netrc_latest.tgz ${NETRC_URL}
-	tar xzf /tmp/netrc_latest.tgz -C /usr/local/bin
-	mv /usr/local/bin/netrc-${TARGETARCH} /usr/local/bin/netrc
+	wget -qO /usr/local/bin/netrc ${NETRC_URL}
+	chmod +x /usr/local/bin/netrc
 
 procfile-util:
-	wget -qO /tmp/procfile-util_latest.tgz ${PROCFILE_UTIL_URL}
-	tar xzf /tmp/procfile-util_latest.tgz -C /usr/local/bin
-	mv /usr/local/bin/procfile-util-${TARGETARCH} /usr/local/bin/procfile-util
+	wget -qO /usr/local/bin/procfile-util ${PROCFILE_UTIL_URL}
+	chmod +x /usr/local/bin/procfile-util
 
 plugn:
-	wget -qO /tmp/plugn_latest.tgz ${PLUGN_URL}
-	tar xzf /tmp/plugn_latest.tgz -C /usr/local/bin
-	mv /usr/local/bin/plugn-${TARGETARCH} /usr/local/bin/plugn
+	wget -qO /usr/local/bin/plugn ${PLUGN_URL}
+	chmod +x /usr/local/bin/plugn
 
 sigil:
-	wget -qO /tmp/sigil_latest.tgz ${SIGIL_URL}
-	tar xzf /tmp/sigil_latest.tgz -C /usr/local/bin
-	mv /usr/local/bin/gliderlabs-sigil-${TARGETARCH} /usr/local/bin/sigil
+	wget -qO /usr/local/bin/sigil ${SIGIL_URL}
+	chmod +x /usr/local/bin/sigil
 
 sshcommand:
-	wget -qO /tmp/sshcommand_latest.tgz ${SSHCOMMAND_URL}
-	tar xzf /tmp/sshcommand_latest.tgz -C /usr/local/bin
+	wget -qO /usr/local/bin/sshcommand ${SSHCOMMAND_URL}
+	chmod +x /usr/local/bin/sshcommand
 	sshcommand create dokku /usr/local/bin/dokku
 
 docker:
