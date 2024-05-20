@@ -648,3 +648,31 @@ func VerifyAppName(appName string) error {
 
 	return nil
 }
+
+func GetAppJSONPath(appName string) string {
+	directory := filepath.Join(MustGetEnv("DOKKU_LIB_ROOT"), "data", "app-json", appName)
+	return filepath.Join(directory, "app.json")
+}
+
+func HasAppJSON(appName string) bool {
+	appJSONPath := GetAppJSONPath(appName)
+	if FileExists(fmt.Sprintf("%s.%s.missing", appJSONPath, os.Getenv("DOKKU_PID"))) {
+		return false
+	}
+
+	if FileExists(fmt.Sprintf("%s.%s", appJSONPath, os.Getenv("DOKKU_PID"))) {
+		return true
+	}
+
+	return FileExists(appJSONPath)
+}
+
+func GetProcessSpecificAppJSONPath(appName string) string {
+	existingAppJSON := GetAppJSONPath(appName)
+	processSpecificAppJSON := fmt.Sprintf("%s.%s", existingAppJSON, os.Getenv("DOKKU_PID"))
+	if FileExists(processSpecificAppJSON) {
+		return processSpecificAppJSON
+	}
+
+	return existingAppJSON
+}

@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -63,21 +62,6 @@ func constructScript(command string, shell string, isHerokuishImage bool, isCnbI
 	script = append(script, fmt.Sprintf("%s || exit 1;", command))
 
 	return []string{shell, "-c", strings.Join(script, " ")}
-}
-
-func getAppJSONPath(appName string) string {
-	directory := filepath.Join(common.MustGetEnv("DOKKU_LIB_ROOT"), "data", "app-json", appName)
-	return filepath.Join(directory, "app.json")
-}
-
-func getProcessSpecificAppJSONPath(appName string) string {
-	existingAppJSON := getAppJSONPath(appName)
-	processSpecificAppJSON := fmt.Sprintf("%s.%s", existingAppJSON, os.Getenv("DOKKU_PID"))
-	if common.FileExists(processSpecificAppJSON) {
-		return processSpecificAppJSON
-	}
-
-	return existingAppJSON
 }
 
 // getPhaseScript extracts app.json from app image and returns the appropriate json key/value
@@ -141,19 +125,6 @@ func getDokkuAppShell(appName string) string {
 	}
 
 	return shell
-}
-
-func hasAppJSON(appName string) bool {
-	appJSONPath := getAppJSONPath(appName)
-	if common.FileExists(fmt.Sprintf("%s.%s.missing", appJSONPath, os.Getenv("DOKKU_PID"))) {
-		return false
-	}
-
-	if common.FileExists(fmt.Sprintf("%s.%s", appJSONPath, os.Getenv("DOKKU_PID"))) {
-		return true
-	}
-
-	return common.FileExists(appJSONPath)
 }
 
 func cleanupDeploymentContainer(appName string, containerID string, phase string) error {

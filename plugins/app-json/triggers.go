@@ -38,12 +38,12 @@ func TriggerAppJSONProcessDeployParallelism(appName string, processType string) 
 
 // TriggerAppJSONGetContent outputs the contents of the app-json file, if any
 func TriggerAppJSONGetContent(appName string) error {
-	if !hasAppJSON(appName) {
+	if !common.HasAppJSON(appName) {
 		fmt.Print("{}")
 		return nil
 	}
 
-	b, err := os.ReadFile(getProcessSpecificAppJSONPath(appName))
+	b, err := os.ReadFile(common.GetProcessSpecificAppJSONPath(appName))
 	if err != nil {
 		return fmt.Errorf("Cannot read app.json file: %v", err)
 	}
@@ -61,7 +61,7 @@ func TriggerAppJSONGetContent(appName string) error {
 // TriggerCorePostDeploy sets a property to
 // allow the app to be restored on boot
 func TriggerCorePostDeploy(appName string) error {
-	existingAppJSON := getAppJSONPath(appName)
+	existingAppJSON := common.GetAppJSONPath(appName)
 	processSpecificAppJSON := fmt.Sprintf("%s.%s", existingAppJSON, os.Getenv("DOKKU_PID"))
 	if common.FileExists(processSpecificAppJSON) {
 		if err := os.Rename(processSpecificAppJSON, existingAppJSON); err != nil {
@@ -89,7 +89,7 @@ func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
 		appJSONPath = "app.json"
 	}
 
-	existingAppJSON := getAppJSONPath(appName)
+	existingAppJSON := common.GetAppJSONPath(appName)
 	files, err := filepath.Glob(fmt.Sprintf("%s.*", existingAppJSON))
 	if err != nil {
 		return err

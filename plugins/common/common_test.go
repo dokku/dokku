@@ -4,7 +4,7 @@ import (
 	"os"
 	"strings"
 	"testing"
-
+	"path/filepath"
 	. "github.com/onsi/gomega"
 )
 
@@ -24,6 +24,10 @@ func setupTests() (err error) {
 		return err
 	}
 
+	if err := os.Setenv("DOKKU_LIB_ROOT", "/var/lib/dokku/"); err != nil {
+		return err
+	}
+
 	return os.Setenv("PLUGIN_ENABLED_PATH", "/var/lib/dokku/plugins/enabled")
 }
 
@@ -40,6 +44,17 @@ func setupTestApp2() (err error) {
 	Expect(os.MkdirAll(testAppDir2, 0644)).To(Succeed())
 	b := []byte(testEnvLine2 + "\n")
 	if err = os.WriteFile(testEnvFile2, b, 0644); err != nil {
+		return
+	}
+	return
+}
+
+func setupAppJson() (err error) {
+	testAppJson := GetAppJSONPath(testAppName)
+	appJsonDir := filepath.Dir(testAppJson)
+	Expect(os.MkdirAll(appJsonDir, 0644)).To(Succeed())
+	b := []byte("{\"pluginproperties\":{\"nginx\":{\"client-max-body-size\":\"5m\"}}}\n")
+	if err = os.WriteFile(testAppJson, b, 0644); err != nil {
 		return
 	}
 	return
@@ -114,4 +129,16 @@ func TestCommonStripInlineComments(t *testing.T) {
 	Expect(setupTests()).To(Succeed())
 	text := StripInlineComments(strings.Join([]string{testEnvLine, "# testing comment"}, " "))
 	Expect(text).To(Equal(testEnvLine))
+}
+
+func TestPropertyFromAppJson(t *testing.T) {
+	RegisterTestingT(t)
+	Expect(setupTests()).To(Succeed())
+	Expect(setupTestApp()).To(Succeed())
+	textBefore := PropertyGetDefault("nginx", testAppName, "client-max-body-size", "1m")
+	Expect(textBefore).To(Equal("1m"))
+	Expect(setupAppJson()).To(Succeed())
+	textAfter := PropertyGetDefault("nginx", testAppName, "client-max-body-size", "1m")
+	Expect(textAfter).To(Equal("5m"))
+	teardownTestApp()
 }

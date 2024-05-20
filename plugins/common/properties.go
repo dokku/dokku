@@ -9,6 +9,7 @@ import (
 	"reflect"
 	"sort"
 	"strings"
+	"encoding/json"
 )
 
 // CommandPropertySet is a generic function that will set a property for a given plugin/app combination
@@ -103,6 +104,33 @@ func PropertyExists(pluginName string, appName string, property string) bool {
 	return !os.IsNotExist(err)
 }
 
+type appJSONProperties struct {
+	PluginProperties map[string]map[string]string `json:"pluginproperties"`
+}
+
+// GetAppJSON returns the parsed app.json file for a given app
+func getAppJSONProperties(appName string) (appJSONProperties, error) {
+	if !HasAppJSON(appName) {
+		return appJSONProperties{}, nil
+	}
+
+	b, err := os.ReadFile(GetProcessSpecificAppJSONPath(appName))
+	if err != nil {
+		return appJSONProperties{}, fmt.Errorf("Cannot read app.json file: %v", err)
+	}
+
+	if strings.TrimSpace(string(b)) == "" {
+		return appJSONProperties{}, nil
+	}
+
+	var appJSON appJSONProperties
+	if err = json.Unmarshal(b, &appJSON); err != nil {
+		return appJSONProperties{}, fmt.Errorf("Cannot parse app.json: %v", err)
+	}
+
+	return appJSON, nil
+}
+
 // PropertyGet returns the value for a given property
 func PropertyGet(pluginName string, appName string, property string) string {
 	return PropertyGetDefault(pluginName, appName, property, "")
@@ -175,6 +203,16 @@ func PropertyGetAllByPrefix(pluginName string, appName string, prefix string) (m
 // PropertyGetDefault returns the value for a given property with a specified default value
 func PropertyGetDefault(pluginName, appName, property, defaultValue string) (val string) {
 	if !PropertyExists(pluginName, appName, property) {
+		appJSON, err := getAppJSONProperties(appName)
+		if err == nil {
+			pluginProperties, ok := appJSON.PluginProperties[pluginName]
+			if ok {
+					customDefaultValue, ok := pluginProperties[property]
+					if ok {
+						defaultValue = customDefaultValue
+					}
+			}
+		}
 		val = defaultValue
 		return
 	}

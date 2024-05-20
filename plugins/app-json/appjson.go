@@ -191,16 +191,16 @@ func GetAppjsonDirectory(appName string) string {
 
 // GetAppjsonPath returns the path to a given app's extracted app.json file for use by other plugins
 func GetAppjsonPath(appName string) string {
-	return getProcessSpecificAppJSONPath(appName)
+	return common.GetProcessSpecificAppJSONPath(appName)
 }
 
 // GetAppJSON returns the parsed app.json file for a given app
 func GetAppJSON(appName string) (AppJSON, error) {
-	if !hasAppJSON(appName) {
+	if !common.HasAppJSON(appName) {
 		return AppJSON{}, nil
 	}
 
-	b, err := os.ReadFile(getProcessSpecificAppJSONPath(appName))
+	b, err := os.ReadFile(common.GetProcessSpecificAppJSONPath(appName))
 	if err != nil {
 		return AppJSON{}, fmt.Errorf("Cannot read app.json file: %v", err)
 	}
