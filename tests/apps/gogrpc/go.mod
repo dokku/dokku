@@ -11,7 +11,7 @@ require (
 
 require (
 	google.golang.org/grpc/examples v0.0.0-20240118175532-987df1309236
-	google.golang.org/protobuf v1.34.1
+	google.golang.org/protobuf v1.34.2
 )
 
 require google.golang.org/genproto/googleapis/rpc v0.0.0-20240318140521-94a12d6c2237 // indirect
