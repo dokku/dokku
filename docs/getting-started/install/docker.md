@@ -31,6 +31,7 @@ services:
   dokku:
     image: dokku/dokku:0.34.4
     container_name: dokku
+    network_mode: bridge
     ports:
       - "3022:22"
       - "8080:80"
