@@ -1,5 +1,113 @@
 # History
 
+## 0.34.5
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.34.5/bootstrap.sh
+sudo DOKKU_TAG=v0.34.5 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #6835: @erickedji Add missing local RE_IPV4 & RE_IPV6 vars in core-post-deploy
+
+### New Features
+
+- #6808: @Coffee2CodeNL Traefik optional custom http https entrypoints
+
+### Documentation
+
+- #6937: @irth docs: add `network_mode: bridge` to the docker compose example
+- #6871: @chrisjsimpson Update dockerfile example in port management docs
+- #6857: @josegonzalez Update link to dokku development blog
+- #6821: @andrew-womeldorf Add tailscale plugin to community plugin list
+- #6823: @powdahound Remove errant tab character in cron:set help text
+- #6809: @alexislefebvre Update CI badge in readme
+
+### Dependencies
+
+- #6934: @dependabot[bot] chore(deps): bump org.apache.maven.plugins:maven-dependency-plugin from 3.6.1 to 3.7.0 in /tests/apps/java
+- #6935: @dependabot[bot] chore(deps): bump braces from 3.0.2 to 3.0.3 in /tests/apps/multi
+- #6938: @dependabot[bot] chore(deps): bump ruby from 3.3.2 to 3.3.3 in /tests/apps/dockerfile-entrypoint
+- #6922: @dependabot[bot] chore(deps): bump golang.org/x/crypto from 0.23.0 to 0.24.0 in /plugins/common
+- #6929: @dependabot[bot] chore(deps): bump python from 3.12.3-alpine to 3.12.4-alpine in /docs/_build
+- #6925: @dependabot[bot] chore(deps): bump zipp from 3.18.2 to 3.19.2 in /docs/_build
+- #6914: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 44.5.1 to 44.5.2
+- #6916: @dependabot[bot] chore(deps): bump ruby from 3.3.1 to 3.3.2 in /tests/apps/dockerfile-entrypoint
+- #6921: @dependabot[bot] chore(deps): bump golang from 1.22.3 to 1.22.4 in /tests/apps/zombies-dockerfile-no-tini
+- #6920: @dependabot[bot] chore(deps): bump golang from 1.22.3 to 1.22.4 in /tests/apps/zombies-dockerfile-tini
+- #6923: @dependabot[bot] chore(deps): bump golang from 1.22.3 to 1.22.4 in /tests/apps/go-fail-postdeploy
+- #6915: @dependabot[bot] chore(deps): bump lucaslorentz/caddy-docker-proxy from 2.8 to 2.9 in /plugins/caddy-vhosts
+- #6924: @dependabot[bot] chore(deps): bump golang from 1.22.3 to 1.22.4 in /tests/apps/gogrpc
+- #6927: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.24 to 9.5.26 in /docs/_build
+- #6926: @dependabot[bot] chore(deps): bump golang from 1.22.3 to 1.22.4 in /tests/apps/go-fail-predeploy
+- #6930: @dependabot[bot] chore(deps): bump packaging from 24.0 to 24.1 in /docs/_build
+- #6931: @dependabot[bot] chore(deps): bump google.golang.org/protobuf from 1.34.1 to 1.34.2 in /tests/apps/gogrpc
+- #6903: @dependabot[bot] chore(deps): bump requests from 2.31.0 to 2.32.0 in /tests/apps/lambda-python
+- #6901: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.23 to 9.5.24 in /docs/_build
+- #6908: @dependabot[bot] chore(deps): bump watchdog from 4.0.0 to 4.0.1 in /docs/_build
+- #6909: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 44.4.0 to 44.5.1
+- #6873: @dependabot[bot] chore(deps): bump werkzeug from 3.0.2 to 3.0.3 in /tests/apps/python-flask
+- #6892: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 44.3.0 to 44.4.0
+- #6891: @dependabot[bot] chore(deps): bump github.com/fatih/color from 1.16.0 to 1.17.0 in /plugins/common
+- #6886: @dependabot[bot] chore(deps): bump golang from 1.22.2 to 1.22.3 in /tests/apps/gogrpc
+- #6894: @dependabot[bot] chore(deps): bump google.golang.org/grpc from 1.63.2 to 1.64.0 in /tests/apps/gogrpc
+- #6888: @dependabot[bot] chore(deps): bump timberio/vector from 0.36.1-debian to 0.38.0-debian in /plugins/logs
+- #6885: @dependabot[bot] chore(deps): bump golang from 1.22.2 to 1.22.3 in /tests/apps/zombies-dockerfile-tini
+- #6887: @dependabot[bot] chore(deps): bump golang from 1.22.2 to 1.22.3 in /tests/apps/go-fail-postdeploy
+- #6883: @dependabot[bot] chore(deps): bump golang from 1.22.2 to 1.22.3 in /tests/apps/zombies-dockerfile-no-tini
+- #6879: @dependabot[bot] chore(deps): bump google.golang.org/protobuf from 1.34.0 to 1.34.1 in /tests/apps/gogrpc
+- #6874: @dependabot[bot] chore(deps): bump jinja2 from 3.1.3 to 3.1.4 in /tests/apps/python-flask
+- #6876: @dependabot[bot] chore(deps): bump pygments from 2.17.2 to 2.18.0 in /docs/_build
+- #6875: @dependabot[bot] chore(deps): bump dokku/openresty-docker-proxy from 0.7.0 to 0.8.0 in /plugins/openresty-vhosts
+- #6878: @dependabot[bot] chore(deps): bump jinja2 from 3.1.3 to 3.1.4 in /docs/_build
+- #6880: @dependabot[bot] chore(deps): bump golang.org/x/crypto from 0.22.0 to 0.23.0 in /plugins/common
+- #6884: @dependabot[bot] chore(deps): bump golang from 1.22.2 to 1.22.3 in /tests/apps/go-fail-predeploy
+- #6897: @dependabot[bot] chore(deps): bump org.eclipse.jetty:jetty-servlet from 11.0.20 to 11.0.21 in /tests/apps/java
+- #6896: @dependabot[bot] chore(deps): bump zipp from 3.18.1 to 3.18.2 in /docs/_build
+- #6895: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.20 to 9.5.23 in /docs/_build
+- #6858: @dependabot[bot] chore(deps): bump pymdown-extensions from 10.8 to 10.8.1 in /docs/_build
+- #6859: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.19 to 9.5.20 in /docs/_build
+- #6860: @dependabot[bot] chore(deps): bump node from 21-alpine to 22-alpine in /tests/apps/dockerfile-procfile
+- #6861: @dependabot[bot] chore(deps): bump node from 21-alpine to 22-alpine in /tests/apps/dockerfile-procfile-bad
+- #6862: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.33.0 to 1.33.1 in /plugins/common
+- #6863: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.33.0 to 1.33.1 in /plugins/config
+- #6865: @dependabot[bot] chore(deps): bump node from 21-alpine to 22-alpine in /tests/apps/dockerfile
+- #6866: @dependabot[bot] chore(deps): bump google.golang.org/protobuf from 1.33.0 to 1.34.0 in /tests/apps/gogrpc
+- #6867: @dependabot[bot] chore(deps): bump node from 21-alpine to 22-alpine in /tests/apps/dockerfile-noexpose
+- #6868: @dependabot[bot] chore(deps): bump node from 21-alpine to 22-alpine in /tests/apps/dockerfile-app-json-formations
+- #6849: @dependabot[bot] chore(deps): bump mkdocs from 1.5.3 to 1.6.0 in /docs/_build
+- #6852: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.18 to 9.5.19 in /docs/_build
+- #6850: @dependabot[bot] chore(deps): bump ruby from 3.3.0 to 3.3.1 in /tests/apps/dockerfile-entrypoint
+- #6845: @josegonzalez chore: update dependencies
+- #6843: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.32.0 to 1.33.0 in /plugins/common
+- #6844: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.32.0 to 1.33.0 in /plugins/config
+- #6842: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 44.1.0 to 44.3.0
+- #6841: @dependabot[bot] chore(deps): bump pymdown-extensions from 10.7.1 to 10.8 in /docs/_build
+- #6839: @dependabot[bot] chore(deps): bump golang.org/x/net from 0.21.0 to 0.23.0 in /plugins/config
+- #6837: @dependabot[bot] chore(deps): bump golang.org/x/net from 0.21.0 to 0.23.0 in /tests/apps/gogrpc
+- #6838: @dependabot[bot] chore(deps): bump golang.org/x/net from 0.21.0 to 0.23.0 in /plugins/common
+- #6840: @dependabot[bot] chore(deps): bump golang.org/x/net from 0.21.0 to 0.23.0 in /plugins/scheduler-k3s
+- #6836: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 44.0.1 to 44.1.0
+- #6831: @dependabot[bot] chore(deps): bump gunicorn from 21.2.0 to 22.0.0 in /tests/apps/python-flask
+- #6829: @dependabot[bot] chore(deps): bump gunicorn from 20.1.0 to 22.0.0 in /tests/apps/dockerfile-release
+- #6830: @dependabot[bot] chore(deps): bump gunicorn from 21.2.0 to 22.0.0 in /tests/apps/multi
+- #6828: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.17 to 9.5.18 in /docs/_build
+- #6825: @dependabot[bot] chore(deps): bump sqlparse from 0.4.4 to 0.5.0 in /tests/apps/dockerfile-release
+- #6819: @dependabot[bot] chore(deps): bump traefik from 2.11.1 to 2.11.2 in /plugins/traefik-vhosts
+- #6817: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 44.0.0 to 44.0.1
+- #6816: @dependabot[bot] chore(deps): bump python from 3.12.2-alpine to 3.12.3-alpine in /docs/_build
+- #6818: @dependabot[bot] chore(deps): bump traefik from 2.11.0 to 2.11.1 in /plugins/traefik-vhosts
+- #6810: @dependabot[bot] chore(deps): bump flask from 3.0.2 to 3.0.3 in /tests/apps/python-flask
+- #6811: @dependabot[bot] chore(deps): bump flask from 3.0.2 to 3.0.3 in /tests/apps/multi
+- #6812: @dependabot[bot] chore(deps): bump google.golang.org/grpc from 1.63.0 to 1.63.2 in /tests/apps/gogrpc
+
+### Other
+
+- #6855: @kcdragon Update Health Check documentation to include `port`
+
 ## 0.34.4
 
 Install/update via the bootstrap script:
