@@ -54,7 +54,7 @@ sudo DOKKU_REPO=https://github.com/yourusername/dokku.git DOKKU_BRANCH=master ./
 
 ## Custom Herokuish build
 
-Dokku ships with a pre-built version of version of the [Herokuish](https://github.com/gliderlabs/herokuish) component by default. If you want to build your own version you can specify that with an environment variable.
+Dokku ships with a pre-built version of the [Herokuish](https://github.com/gliderlabs/herokuish) component by default. If you want to build your own version you can specify that with an environment variable.
 
 ```shell
 git clone https://github.com/dokku/dokku.git
