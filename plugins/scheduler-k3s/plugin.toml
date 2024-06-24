@@ -1,4 +1,4 @@
 [plugin]
 description = "dokku core scheduler-k3s plugin"
-version = "0.34.5"
+version = "0.34.6"
 [plugin.config]

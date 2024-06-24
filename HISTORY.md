@@ -1,5 +1,29 @@
 # History
 
+## 0.34.6
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.34.6/bootstrap.sh
+sudo DOKKU_TAG=v0.34.6 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #6949: @josegonzalez Set permissions correctly on all files in the builder-release process
+
+### Documentation
+
+- #6948: @anand2312 Fix grammar in docs/getting-started/advanced-installation
+
+### Dependencies
+
+- #6943: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 44.5.2 to 44.5.3
+- #6940: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.26 to 9.5.27 in /docs/_build
+- #6941: @dependabot[bot] chore(deps): bump timberio/vector from 0.38.0-debian to 0.39.0-debian in /plugins/logs
+- #6946: @dependabot[bot] chore(deps): bump importlib-metadata from 7.1.0 to 7.2.0 in /docs/_build
+
 ## 0.34.5
 
 Install/update via the bootstrap script:
