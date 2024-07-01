@@ -7,7 +7,7 @@ require (
 	github.com/dokku/dokku/plugins/common v0.0.0-00010101000000-000000000000
 	github.com/dokku/dokku/plugins/config v0.0.0-00010101000000-000000000000
 	github.com/dokku/dokku/plugins/docker-options v0.0.0-00010101000000-000000000000
-	github.com/gofrs/flock v0.9.0
+	github.com/gofrs/flock v0.11.0
 	github.com/spf13/pflag v1.0.5
 )
 
