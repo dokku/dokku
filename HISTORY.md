@@ -1,5 +1,45 @@
 # History
 
+## 0.34.7
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.34.7/bootstrap.sh
+sudo DOKKU_TAG=v0.34.7 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #6984: @josegonzalez Correctly pass around arguments when displaying container log output
+
+### New Features
+
+- #6992: @josegonzalez feat: add logging when hsts nginx config is not using built-in template
+
+### Dependencies
+
+- #6988: @dependabot[bot] chore(deps): bump django from 5.0.6 to 5.0.7 in /tests/apps/dockerfile-release
+- #6987: @dependabot[bot] chore(deps): bump ruby from 3.3.3 to 3.3.4 in /tests/apps/dockerfile-entrypoint
+- #6972: @dependabot[bot] chore(deps): bump github.com/gofrs/flock from 0.9.0 to 0.12.0 in /plugins/ps
+- #6898: @josegonzalez Update all dependencies in the dokku ecosystem
+- #6978: @dependabot[bot] chore(deps): bump org.eclipse.jetty:jetty-servlet from 11.0.21 to 11.0.22 in /tests/apps/java
+- #6961: @dependabot[bot] chore(deps): bump github.com/gofrs/flock from 0.9.0 to 0.11.0 in /plugins/ps
+- #6981: @dependabot[bot] chore(deps): bump golang.org/x/crypto from 0.24.0 to 0.25.0 in /plugins/common
+- #6980: @dependabot[bot] chore(deps): bump golang from 1.22.4 to 1.22.5 in /tests/apps/gogrpc
+- #6979: @dependabot[bot] chore(deps): bump golang from 1.22.4 to 1.22.5 in /tests/apps/go-fail-postdeploy
+- #6977: @dependabot[bot] chore(deps): bump golang from 1.22.4 to 1.22.5 in /tests/apps/zombies-dockerfile-tini
+- #6976: @dependabot[bot] chore(deps): bump golang from 1.22.4 to 1.22.5 in /tests/apps/zombies-dockerfile-no-tini
+- #6975: @dependabot[bot] chore(deps): bump golang from 1.22.4 to 1.22.5 in /tests/apps/go-fail-predeploy
+- #6971: @dependabot[bot] chore(deps): bump google.golang.org/grpc from 1.64.0 to 1.65.0 in /tests/apps/gogrpc
+- #6963: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.27 to 9.5.28 in /docs/_build
+- #6956: @dependabot[bot] chore(deps): bump importlib-metadata from 7.2.0 to 8.0.0 in /docs/_build
+- #6951: @dependabot[bot] chore(deps): bump org.apache.maven.plugins:maven-dependency-plugin from 3.7.0 to 3.7.1 in /tests/apps/java
+- #6952: @dependabot[bot] chore(deps): bump importlib-metadata from 7.2.0 to 7.2.1 in /docs/_build
+- #6955: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 44.5.3 to 44.5.5
+- #6957: @dependabot[bot] chore(deps): bump djangorestframework from 3.14.0 to 3.15.2 in /tests/apps/dockerfile-release
+- #6958: @dependabot[bot] chore(deps): bump github.com/gofrs/flock from 0.8.1 to 0.9.0 in /plugins/ps
+
 ## 0.34.6
 
 Install/update via the bootstrap script:
