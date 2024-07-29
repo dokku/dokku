@@ -1,13 +1,13 @@
 module github.com/dokku/dokku/plugins/ps
 
 go 1.21
-toolchain go1.22.4
+toolchain go1.22.5
 
 require (
 	github.com/dokku/dokku/plugins/common v0.0.0-00010101000000-000000000000
 	github.com/dokku/dokku/plugins/config v0.0.0-00010101000000-000000000000
 	github.com/dokku/dokku/plugins/docker-options v0.0.0-00010101000000-000000000000
-	github.com/gofrs/flock v0.12.0
+	github.com/gofrs/flock v0.12.1
 	github.com/spf13/pflag v1.0.5
 )
 
