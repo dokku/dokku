@@ -40,7 +40,9 @@ Before upgrading, check the migration guides to get comfortable with new feature
 - [Upgrading to 0.6](/docs/appendices/0.6.0-migration-guide.md)
 - [Upgrading to 0.5](/docs/appendices/0.5.0-migration-guide.md)
 
-## Before upgrading
+## Upgrade Process
+
+### Before upgrading
 
 If you'll be updating docker or the herokuish package simultaneously, it's recommended
 that you stop all applications before upgrading and rebuild afterwards. This is not
@@ -69,16 +71,17 @@ dokku --quiet apps:list | xargs -L1 dokku ps:stop
 dokku --quiet apps | xargs -L1 dokku ps:stop
 ```
 
-## After upgrading
+### Upgrading
 
-After upgrading, you should rebuild the applications to take advantage of any
-new buildpacks that were released:
+> [!IMPORTANT]
+> Unless specified, the `bootstrap.sh` script installs Dokku via a Debian package (`.deb`). Using either the `dokku-update` or `apt` methods are enough to perform an upgrade of Dokku.
 
-```shell
-dokku ps:rebuild --all
-```
+Please read the migration guides for each version in between your currently installed version of Dokku and the version you are upgrading to in order to ensure minimal downtime.
 
-## Upgrading using `dokku-update`
+#### Upgrading using `dokku-update`
+
+> [!WARNING]
+> The `dokku-update` package currently does not support upgrading to a specific version of Dokku. If this is required by a particular migration guide, use the `apt` method for upgrading.
 
 We provide a helpful binary called `dokku-update`. This is a recommended package that:
 
@@ -89,22 +92,32 @@ We provide a helpful binary called `dokku-update`. This is a recommended package
 This binary is available on Debian and RPM-based systems from our package repositories under the name `dokku-update`. When installing from source,
 this is available from a separate Github repository at [dokku/dokku-update](https://github.com/dokku/dokku-update).
 
-## Upgrading using `apt`
+#### Upgrading using `apt`
 
 If Dokku was installed in a Debian or Ubuntu system, via `apt-get install dokku` or `bootstrap.sh`, you can upgrade with `apt-get`:
 
 ```shell
 # update your local apt cache
-sudo apt-get update -qq
+sudo apt-get update
 
 # update dokku and its dependencies
-sudo apt-get -qq -y --no-install-recommends install dokku herokuish sshcommand plugn gliderlabs-sigil dokku-update dokku-event-listener
+sudo apt-get --no-install-recommends install dokku herokuish sshcommand plugn gliderlabs-sigil dokku-update dokku-event-listener
 
 # or just upgrade every package:
 sudo apt-get upgrade
 ```
 
-## Upgrading from source
+To upgrade to a specific version of Dokku, specify it on the `apt-get` call:
+
+```shell
+# specify the version _without_ the `v` prefix
+sudo apt-get dokku=$VERSION
+```
+
+#### Upgrading from source
+
+> [!CAUTION]
+> Dokku is not normally installed from source. Executing a source upgrade when the installation was performed via apt package may result in an inoperable system and will require manual work to get Dokku in a working state.
 
 If you installed Dokku from source (less common), upgrade with:
 
@@ -127,3 +140,13 @@ git clone https://github.com/gliderlabs/herokuish.git
 cd herokuish
 CIRCLECI=true IMAGE_NAME=gliderlabs/herokuish BUILD_TAG=latest make build/docker
 ```
+
+### After upgrading
+
+After upgrading, you should rebuild the applications to take advantage of any
+new buildpacks that were released:
+
+```shell
+dokku ps:rebuild --all
+```
+
