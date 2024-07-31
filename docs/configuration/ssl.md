@@ -128,7 +128,7 @@ dokku certs:report node-js-app --ssl-enabled
 
 ## HSTS Header
 
-The [HSTS header](https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security) is an HTTP header that can inform browsers that all requests to a given site should be made via HTTPS. Dokku does enables this header by default for HTTPS requests.
+The [HSTS header](https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security) is an HTTP header that can inform browsers that all requests to a given site should be made via HTTPS. Dokku enables this header by default for HTTPS requests.
 
 See the [NGINX HSTS documentation](/docs/networking/proxies/nginx.md#hsts-header) for more information on how the HSTS configuration can be managed for your application.
 
