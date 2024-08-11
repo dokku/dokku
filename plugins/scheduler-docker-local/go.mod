@@ -29,6 +29,7 @@ require (
 	golang.org/x/sys v0.22.0 // indirect
 	k8s.io/utils v0.0.0-20240102154912-e7106e64919e // indirect
 	mvdan.cc/sh/v3 v3.8.0 // indirect
+	oras.land/oras-go v1.2.5 // indirect
 )
 
 replace github.com/dokku/dokku/plugins/app-json => ../app-json
