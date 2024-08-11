@@ -153,13 +153,18 @@ The `Procfile` also supports a special `release` command which acts in a similar
 
 #### Changing the `Procfile` location
 
-When deploying a monorepo, it may be desirable to specify the specific path of the `Procfile` file to use for a given app. This can be done via the `ps:set` command. If a value is specified and that file does not exist within the repository, Dokku will continue the build process as if the repository has no `Procfile`.
+The `Procfile` is expected to be found in a specific directory, depending on the deploy approach:
 
-For deploys via the `git:from-image` and `git:load-image` commands, the `Procfile` is extracted from the configured `WORKDIR` property of the image. For all other deploys - git push, `git:from-archive`, `git:sync` - will have the `Procfile` extracted directly from the source code. Both cases will respect the configured `procfile-path` property value.
+- The `WORKDIR` of the Docker image for deploys resulting from `git:from-image` and `git:load-image` commands.
+- The root of the source code tree for all other deploys (git push, `git:from-archive`, `git:sync`).
+
+Sometimes it may be desirable to set a different path for a given app, e.g. when deploying from a monorepo. This can be done via the `procfile-path` property:
 
 ```shell
 dokku ps:set node-js-app procfile-path .dokku/Procfile
 ```
+
+The value is the path to the desired file *relative* to the base search directory, and will never be treated as absolute paths in any context. If that file does not exist within the repository, Dokku will continue the build process as if the repository has no `Procfile`.
 
 The default value may be set by passing an empty value for the option:
 
