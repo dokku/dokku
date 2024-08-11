@@ -1,6 +1,6 @@
 module github.com/dokku/dokku/plugins/ps
 
-go 1.21.0
+go 1.21
 
 toolchain go1.22.5
 
