@@ -164,9 +164,9 @@ Sometimes it may be desirable to set a different path for a given app, e.g. when
 dokku ps:set node-js-app procfile-path .dokku/Procfile
 ```
 
-The value is the path to the desired file *relative* to the base search directory (absolute paths don't work by design). If that file does not exist within the repository, Dokku will continue the build process as if the repository has no `Procfile`.
+The value is the path to the desired file *relative* to the base search directory, and will never be treated as absolute paths in any context. If that file does not exist within the repository, Dokku will continue the build process as if the repository has no `Procfile`.
 
-If a value is set, the default value may be set back by passing an empty value for the property:
+The default value may be set by passing an empty value for the option:
 
 ```shell
 dokku ps:set node-js-app procfile-path

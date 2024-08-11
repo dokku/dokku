@@ -177,26 +177,36 @@ Alternatively, you may push an app to your Dokku host with a name like "00-defau
 > [!IMPORTANT]
 > New as of 0.5.0
 
-Dokku uses a templating library by the name of [sigil](https://github.com/gliderlabs/sigil) to generate nginx configuration for each app. This may be overridden by committing the [default configuration template](https://github.com/dokku/dokku/blob/master/plugins/nginx-vhosts/templates/nginx.conf.sigil) to a file named `nginx.conf.sigil` in the root of the app repository.
+Dokku uses a templating library by the name of [sigil](https://github.com/gliderlabs/sigil) to generate nginx configuration for each app. This may be overridden by committing the [default configuration template](https://github.com/dokku/dokku/blob/master/plugins/nginx-vhosts/templates/nginx.conf.sigil) to a file named `nginx.conf.sigil`.
 
-When deploying a monorepo, it may be desirable to specify the specific path of the `nginx.conf.sigil` file to use for a given app. This can be done via the `nginx:set` command. If a value is specified and that file does not exist in the app's build directory, Dokku will continue the build process as if the repository has no `nginx.conf.sigil`.
+The `nginx.conf.sigil` is expected to be found in a specific directory, depending on the deploy approach:
 
-For deploys via the `git:from-image` and `git:load-image` commands, the `nginx.conf.sigil` is extracted from the configured `WORKDIR` property of the image. For all other deploys - git push, `git:from-archive`, `git:sync` - will have the `nginx.conf.sigil` extracted directly from the source code. Both cases will respect the configured `nginx-conf-sigil-path` property value.
+- The `WORKDIR` of the Docker image for deploys resulting from `git:from-image` and `git:load-image` commands.
+- The root of the source code tree for all other deploys (git push, `git:from-archive`, `git:sync`).
+
+Sometimes it may be desirable to set a different path for a given app, e.g. when deploying from a monorepo. This can be done via the `nginx-conf-sigil-path` property:
 
 ```shell
 dokku nginx:set node-js-app nginx-conf-sigil-path .dokku/nginx.conf.sigil
 ```
 
-This property can also be changed globally, which will take into effect if there is no value at the app level.
+The value is the path to the desired file *relative* to the base search directory, and will never be treated as absolute paths in any context. If that file does not exist within the repository, Dokku will continue the build process as if the repository has no `nginx.conf.sigil`.
 
-```shell
-dokku nginx:set --global nginx-conf-sigil-path .dokku/nginx.conf.sigil
-```
-
-In either case, the value can be reset by specifying an empty value.
+The default value may be set by passing an empty value for the option:
 
 ```shell
 dokku nginx:set node-js-app nginx-conf-sigil-path
+```
+
+The `nginx-conf-sigil-path` property can also be set globally. The global default is `nginx.conf.sigil`, and the global value is used when no app-specific value is set.
+
+```shell
+dokku nginx:set --global nginx-conf-sigil-path nginx.conf.sigil
+```
+
+The default value may be set by passing an empty value for the option.
+
+```shell
 dokku nginx:set --global nginx-conf-sigil-path
 ```
 

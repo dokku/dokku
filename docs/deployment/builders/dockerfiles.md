@@ -37,13 +37,18 @@ dokku ports:clear node-js-app
 
 > The previous method to perform this - via `docker-options:add` - should be removed in favor of the `builder-dockerfile:set` command outlined here.
 
-When deploying a monorepo, it may be desirable to specify the specific path of the `Dockerfile` file to use for a given app. This can be done via the `builder-dockerfile:set` command. If a value is specified and that file does not exist in the app's build directory, then the build will fail.
+The `Dockerfile` is expected to be found in a specific directory, depending on the deploy approach:
 
-For git push, `git:from-archive`, and `git:sync` workflows, the `Dockerfile` is extracted directly from the source code, respecting the configured `dockerfile-path` property value.
+- The `WORKDIR` of the Docker image for deploys resulting from `git:from-image` and `git:load-image` commands.
+- The root of the source code tree for all other deploys (git push, `git:from-archive`, `git:sync`).
+
+Sometimes it may be desirable to set a different path for a given app, e.g. when deploying from a monorepo. This can be done via the `dockerfile-path` property:
 
 ```shell
-dokku builder-dockerfile:set node-js-app dockerfile-path Dockerfile2
+dokku builder-dockerfile:set node-js-app dockerfile-path .dokku/Dockerfile
 ```
+
+The value is the path to the desired file *relative* to the base search directory, and will never be treated as absolute paths in any context. If that file does not exist within the repository, the build will fail.
 
 The default value may be set by passing an empty value for the option:
 
