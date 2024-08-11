@@ -35,7 +35,7 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_contains 'Building with buildpack 1' 0
-  assert_output_contains 'Installing dependencies using Pip'
+  assert_output_contains 'Installing dependencies using pip'
 
   run /bin/bash -c "dokku builder-pack:set $TEST_APP projecttoml-path nonexistent.toml"
   echo "output: $output"
@@ -47,7 +47,7 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_contains 'Building with buildpack 1' 0
-  assert_output_contains 'Installing dependencies using Pip'
+  assert_output_contains 'Installing dependencies using pip'
 
   run /bin/bash -c "dokku builder-pack:set $TEST_APP projecttoml-path project2.toml"
   echo "output: $output"
@@ -59,7 +59,7 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_contains 'Building with buildpack 1'
-  assert_output_contains 'Installing dependencies using Pip' 0
+  assert_output_contains 'Installing dependencies using pip' 0
 
   run /bin/bash -c "dokku builder-pack:set $TEST_APP projecttoml-path"
   echo "output: $output"
@@ -71,7 +71,7 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_contains 'Building with buildpack 1' 0
-  assert_output_contains 'Installing dependencies using Pip'
+  assert_output_contains 'Installing dependencies using pip'
 }
 
 @test "(builder-pack) git:from-image without a Procfile" {
