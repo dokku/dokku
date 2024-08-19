@@ -125,6 +125,7 @@ The following plugins are available and provided by Dokku maintainers.  Please f
 | [Hostname](https://github.com/michaelshobbs/dokku-hostname)                                       | [michaelshobbs][]     | 0.4.0+                |
 | [Hostname](https://github.com/michaelshobbs/dokku-hostname)                                       | [michaelshobbs][]     | 0.4.0+                |
 | [HTTP Auth Secure Apps](https://github.com/matto1990/dokku-secure-apps)                           | [matto1990][]         | 0.4.0+                |
+| [Image Size Limit](https://github.com/Tashows/dokku-image-size-limit)                             | [Tashows][]           |                       |
 | [Litestream](https://github.com/AxelTheGerman/dokku-litestream)<sup>4</sup>                       | [AxelTheGerman][]     | 0.27.0+               |
 | [Monit (Health Checks)](https://github.com/mbreit/dokku-monit)                                    | [mbreit][]            | 0.8.0+                |
 | [Monit](https://github.com/cjblomqvist/dokku-monit)                                               | [cjblomqvist][]       | 0.3.x                 |
@@ -321,6 +322,7 @@ The following plugins are no longer maintained by their developers.
 [sekjun9878]: https://github.com/sekjun9878
 [statianzo]: https://github.com/statianzo
 [stuartpb]: https://github.com/stuartpb
+[Tashows]: https://github.com/Tashows
 [thrashr888]: https://github.com/thrashr888
 [wmluke]: https://github.com/wmluke
 [zenedith]: https://github.com/zenedith
