@@ -1,5 +1,62 @@
 # History
 
+## 0.34.8
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.34.8/bootstrap.sh
+sudo DOKKU_TAG=v0.34.8 bash bootstrap.sh
+```
+
+### Documentation
+
+- #7046: @bakatz Fixes incorrect documentation link for null builder
+- #6983: @polettix Clarify paths used by Dokku when looking for specific files
+- #7012: @DavidTheProgrammer Fix grammar under HSTS Header section in ssl documentation
+- #7019: @josegonzalez Clarify to users that the migration guides should be followed for upgrades
+
+### Tests
+
+- #7039: @josegonzalez Correct case of pip in builder-pack test output
+
+### Dependencies
+
+- #7057: @josegonzalez Update golang dependencies
+- #7048: @dependabot[bot] chore(deps): bump soupsieve from 2.5 to 2.6 in /docs/_build
+- #7041: @dependabot[bot] chore(deps): bump zipp from 3.19.2 to 3.20.0 in /docs/_build
+- #7044: @dependabot[bot] chore(deps): bump gunicorn from 22.0.0 to 23.0.0 in /tests/apps/multi
+- #7042: @dependabot[bot] chore(deps): bump watchdog from 4.0.1 to 4.0.2 in /docs/_build
+- #7043: @dependabot[bot] chore(deps): bump gunicorn from 22.0.0 to 23.0.0 in /tests/apps/python-flask
+- #7045: @dependabot[bot] chore(deps): bump golang.org/x/crypto from 0.25.0 to 0.26.0 in /plugins/common
+- #7050: @dependabot[bot] chore(deps): bump golang from 1.22.6 to 1.23.0 in /tests/apps/zombies-dockerfile-tini
+- #7049: @dependabot[bot] chore(deps): bump golang from 1.22.6 to 1.23.0 in /tests/apps/zombies-dockerfile-no-tini
+- #7051: @dependabot[bot] chore(deps): bump golang from 1.22.6 to 1.23.0 in /tests/apps/go-fail-predeploy
+- #7052: @dependabot[bot] chore(deps): bump golang from 1.22.6 to 1.23.0 in /tests/apps/gogrpc
+- #7053: @dependabot[bot] chore(deps): bump golang from 1.22.6 to 1.23.0 in /tests/apps/go-fail-postdeploy
+- #7022: @dependabot[bot] chore(deps): bump github.com/docker/docker from 24.0.9+incompatible to 25.0.6+incompatible in /plugins/scheduler-k3s
+- #7016: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.34.0 to 1.34.1 in /plugins/config
+- #7036: @dependabot[bot] chore(deps): bump django from 5.0.7 to 5.0.8 in /tests/apps/dockerfile-release
+- #7025: @dependabot[bot] chore(deps): bump golang.org/x/sync from 0.7.0 to 0.8.0 in /plugins/common
+- #7034: @dependabot[bot] chore(deps): bump golang from 1.22.5 to 1.22.6 in /tests/apps/gogrpc
+- #7033: @dependabot[bot] chore(deps): bump golang from 1.22.5 to 1.22.6 in /tests/apps/go-fail-postdeploy
+- #7030: @dependabot[bot] chore(deps): bump golang from 1.22.5 to 1.22.6 in /tests/apps/go-fail-predeploy
+- #7015: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.34.0 to 1.34.1 in /plugins/common
+- #7011: @dependabot[bot] chore(deps): bump pymdown-extensions from 10.8.1 to 10.9 in /docs/_build
+- #7037: @dependabot[bot] chore(deps): bump python from 3.12.4-alpine to 3.12.5-alpine in /docs/_build
+- #7023: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.30 to 9.5.31 in /docs/_build
+- #7032: @dependabot[bot] chore(deps): bump pyyaml from 6.0.1 to 6.0.2 in /docs/_build
+- #7031: @dependabot[bot] chore(deps): bump golang from 1.22.5 to 1.22.6 in /tests/apps/zombies-dockerfile-tini
+- #7021: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 44.5.6 to 44.5.7
+- #7029: @dependabot[bot] chore(deps): bump golang from 1.22.5 to 1.22.6 in /tests/apps/zombies-dockerfile-no-tini
+- #6999: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 44.5.5 to 44.5.6
+- #7002: @dependabot[bot] chore(deps): bump github.com/gofrs/flock from 0.12.0 to 0.12.1 in /plugins/ps
+- #7004: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.28 to 9.5.30 in /docs/_build
+- #7006: @dependabot[bot] chore(deps): bump importlib-metadata from 8.0.0 to 8.2.0 in /docs/_build
+- #7007: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.33.1 to 1.34.0 in /plugins/common
+- #7008: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.33.1 to 1.34.0 in /plugins/config
+- #6996: @dependabot[bot] chore(deps): bump setuptools from 68.0.0 to 70.0.0 in /tests/apps/dockerfile-release
+
 ## 0.34.7
 
 Install/update via the bootstrap script:

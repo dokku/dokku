@@ -3,7 +3,7 @@
 Pull the dokku/dokku image:
 
 ```shell
-docker pull dokku/dokku:0.34.7
+docker pull dokku/dokku:0.34.8
 ```
 
 Next, run the image.
@@ -19,7 +19,7 @@ docker container run -d \
   --publish 8443:443 \
   --volume /var/lib/dokku:/mnt/dokku \
   --volume /var/run/docker.sock:/var/run/docker.sock \
-  dokku/dokku:0.34.7
+  dokku/dokku:0.34.8
 ```
 
 Alternatively, you can use `docker-compose.yml`:
@@ -29,7 +29,7 @@ version: "3.8"
 
 services:
   dokku:
-    image: dokku/dokku:0.34.7
+    image: dokku/dokku:0.34.8
     container_name: dokku
     network_mode: bridge
     ports:
@@ -85,7 +85,7 @@ redis: https://github.com/dokku/dokku-redis.git
 The alternative is to build a custom docker image via a custom Dockerfile. This Dockerfile can run any `plugin:install` command. Note that the version installed at that time will be the one that persists. Below is an example Dockerfile showing this method.
 
 ```Dockerfile
-FROM dokku/dokku:0.34.7
+FROM dokku/dokku:0.34.8
 RUN dokku plugin:install https://github.com/dokku/dokku-postgres.git postgres
 RUN dokku plugin:install https://github.com/dokku/dokku-redis.git redis
 ```
