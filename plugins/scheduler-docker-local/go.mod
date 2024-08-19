@@ -25,11 +25,11 @@ require (
 	github.com/pkg/sftp v1.13.5 // indirect
 	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/ryanuber/columnize v2.1.2+incompatible // indirect
-	golang.org/x/crypto v0.25.0 // indirect
-	golang.org/x/sys v0.22.0 // indirect
+	github.com/stretchr/testify v1.8.4 // indirect
+	golang.org/x/crypto v0.26.0 // indirect
+	golang.org/x/sys v0.23.0 // indirect
 	k8s.io/utils v0.0.0-20240102154912-e7106e64919e // indirect
 	mvdan.cc/sh/v3 v3.8.0 // indirect
-	oras.land/oras-go v1.2.5 // indirect
 )
 
 replace github.com/dokku/dokku/plugins/app-json => ../app-json
