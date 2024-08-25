@@ -1,5 +1,31 @@
 # History
 
+## 0.34.9
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.34.9/bootstrap.sh
+sudo DOKKU_TAG=v0.34.9 bash bootstrap.sh
+```
+
+### Documentation
+
+- #7062: @Tashows List dokku-image-size-limit plugin
+
+### Dependencies
+
+- #7070: @dependabot[bot] chore(deps): bump micromatch from 4.0.5 to 4.0.8 in /tests/apps/multi
+- #7064: @dependabot[bot] chore(deps): bump importlib-metadata from 8.3.0 to 8.4.0 in /docs/_build
+- #7068: @dependabot[bot] chore(deps): bump werkzeug from 3.0.3 to 3.0.4 in /tests/apps/python-flask
+- #7065: @dependabot[bot] chore(deps): bump org.eclipse.jetty:jetty-servlet from 11.0.22 to 11.0.23 in /tests/apps/java
+- #7066: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 44.5.7 to 45.0.0
+- #7067: @dependabot[bot] chore(deps): bump org.apache.maven.plugins:maven-dependency-plugin from 3.7.1 to 3.8.0 in /tests/apps/java
+- #7069: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.32 to 9.5.33 in /docs/_build
+- #7063: @dependabot[bot] chore(deps): bump importlib-metadata from 8.2.0 to 8.3.0 in /docs/_build
+- #7058: @dependabot[bot] chore(deps): update markdown requirement from <3.7,>=3.2.1 to >=3.2.1,<3.8 in /docs/_build
+- #7059: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.31 to 9.5.32 in /docs/_build
+
 ## 0.34.8
 
 Install/update via the bootstrap script:
