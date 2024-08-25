@@ -1,6 +1,6 @@
 module github.com/dokku/dokku/plugins/common
 
-go 1.21
+go 1.23
 
 require (
 	github.com/alexellis/go-execute/v2 v2.2.1
