@@ -16,6 +16,9 @@ cron:set [--global|<app>] <key> <value> # Set or clear a cron property for an ap
 
 Dokku automates scheduled `dokku run` commands via it's `app.json` cron integration.
 
+> [!IMPORTANT]
+> In order for Dokku to run scheduled cron tasks, you must have the `crontab` utility installed on the machine Dokku runs on. On Debian-based systems, you can install it with `sudo apt install cron`.
+
 #### Specifying commands
 
 The `app.json` file for a given app can define a special `cron` key that contains a list of commands to run on given schedules. The following is a simple example `app.json` that effectively runs the command `dokku run $APP npm run send-email` once a day:
