@@ -1,6 +1,6 @@
 module github.com/dokku/dokku/plugins/cron
 
-go 1.21
+go 1.23
 
 require (
 	github.com/dokku/dokku/plugins/app-json v0.0.0-00010101000000-000000000000
@@ -9,7 +9,7 @@ require (
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/spf13/pflag v1.0.5
-	mvdan.cc/sh/v3 v3.8.0
+	mvdan.cc/sh/v3 v3.9.0
 )
 
 require (

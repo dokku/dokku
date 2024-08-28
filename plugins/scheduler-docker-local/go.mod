@@ -1,6 +1,6 @@
 module github.com/dokku/dokku/plugins/scheduler-docker-local
 
-go 1.21
+go 1.23
 
 require (
 	github.com/dokku/dokku/plugins/common v0.0.0-00010101000000-000000000000
@@ -29,7 +29,7 @@ require (
 	golang.org/x/crypto v0.26.0 // indirect
 	golang.org/x/sys v0.23.0 // indirect
 	k8s.io/utils v0.0.0-20240102154912-e7106e64919e // indirect
-	mvdan.cc/sh/v3 v3.8.0 // indirect
+	mvdan.cc/sh/v3 v3.9.0 // indirect
 )
 
 replace github.com/dokku/dokku/plugins/app-json => ../app-json
