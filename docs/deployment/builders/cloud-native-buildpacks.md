@@ -27,7 +27,7 @@ Builds will proceed with the `pack` cli for the app from then on.
 
 ### Caveats
 
-As this functionality is highly experimental, there are a number of caveats. Please note that not all issuesare listed below.
+As this functionality is highly experimental, there are a number of caveats. Please note that not all issues are listed below.
 
 - Specifying specific buildpacks is not currently possible.
     - A future release will add support for specifying buildpacks via the `buildpacks` plugin.
