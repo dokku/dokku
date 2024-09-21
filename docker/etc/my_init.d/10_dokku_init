@@ -20,7 +20,11 @@ log-warn() {
 support-userns() {
   chown 0:0 /usr/bin/sudo
   chmod 4755 /usr/bin/sudo
-  chown 0:0 /usr/lib/sudo/sudoers.so
+  if [[ -f /usr/lib/sudo/sudoers.so ]]; then
+    chown 0:0 /usr/lib/sudo/sudoers.so
+  elif [[ -f /usr/libexec/sudo/sudoers.so ]]; then
+    chown 0:0 /usr/libexec/sudo/sudoers.so
+  fi
   chown -R 0:0 /etc/sudoers
   chown -R 0:0 /etc/sudoers.d
   chown -R 0:0 /run/sshd
@@ -54,6 +58,17 @@ main() {
     fi
   done
 
+  touch /etc/default/dokku
+  echo "export DOKKU_INIT_SYSTEM=sv" >>/etc/default/dokku
+  if [[ -x /usr/local/bin/docker ]]; then
+    echo "export DOCKER_BIN=/usr/local/bin/docker" >>/etc/default/dokku
+  fi
+
+  if [[ -n "$DOKKU_HOST_ROOT" ]]; then
+    echo "export DOKKU_HOST_ROOT=$DOKKU_HOST_ROOT" >>/etc/default/dokku
+    chown dokku:dokku /etc/default/dokku
+  fi
+
   if [[ -f /mnt/dokku/plugin-list ]]; then
     while read line; do
       local plugin_name="$(echo "$line" | awk -F: '{print $1}')"
@@ -65,21 +80,13 @@ main() {
     done </mnt/dokku/plugin-list
   fi
 
+  # run core install triggers to force create any folders that may be missing
+  dokku plugin:install --core
+
   if [[ -n "$DOKKU_HOSTNAME" ]]; then
     echo "dokku dokku/hostname string $DOKKU_HOSTNAME" | debconf-set-selections
     echo "dokku dokku/vhost_enable boolean true" | debconf-set-selections
     dokku --quiet domains:set-global "$DOKKU_HOSTNAME"
-  fi
-
-  if [[ -x /usr/local/bin/docker ]]; then
-    mkdir -p /home/dokku/.dokkurc
-    echo "export DOCKER_BIN=/usr/local/bin/docker" >"/home/dokku/.dokkurc/DOCKER_BIN"
-  fi
-
-  if [[ -n "$DOKKU_HOST_ROOT" ]]; then
-    touch /etc/default/dokku
-    echo "export DOKKU_HOST_ROOT=$DOKKU_HOST_ROOT" >>/etc/default/dokku
-    chown dokku:dokku /etc/default/dokku
   fi
 
   NGINX_ROOT="/etc/nginx"

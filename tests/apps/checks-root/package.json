@@ -2,10 +2,10 @@
   "name": "node-example",
   "version": "0.0.1",
   "dependencies": {
-    "express": "4.x"
+    "express": "5.x"
   },
   "engines": {
-    "node": "4.2.x"
+    "node": "20.17.x"
   },
   "scripts": {
     "start": "node index.js"

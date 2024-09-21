@@ -72,8 +72,39 @@ EOF
     flag_rsyslog_needs_restart=y
   fi
 
-  if [[ -f "$DOKKU_RSYSLOG_FILTER" && "$flag_rsyslog_needs_restart" == "y" ]]; then
-    service rsyslog restart
+  local systemctl_path=/bin/systemctl
+  if [[ -x /usr/bin/systemctl ]]; then
+    systemctl_path=/usr/bin/systemctl
+  fi
+
+  if [[ -f "$DOKKU_RSYSLOG_FILTER" ]] && [[ "$flag_rsyslog_needs_restart" == "y" ]]; then
+    case "$DOKKU_DISTRO" in
+      debian | raspbian)
+        if [[ -x "$systemctl_path" ]]; then
+          systemctl restart rsyslog
+        else
+          /usr/sbin/invoke-rc.d rsyslog restart
+        fi
+        ;;
+      ubuntu)
+        if [[ "$DOKKU_INIT_SYSTEM" == "sv" ]]; then
+          # avoid failing runit init calls on install
+          # the runit binaries are not yet available during dockerfile building
+          true
+        elif [[ -x "$systemctl_path" ]]; then
+          systemctl restart rsyslog
+        elif [[ -x /usr/bin/sv ]]; then
+          # avoid failing runit init calls on install
+          # the runit binaries are not yet available during dockerfile building
+          true
+        else
+          invoke-rc.d rsyslog restart
+        fi
+        ;;
+      arch)
+        systemctl restart rsyslog
+        ;;
+    esac
   fi
 
   [[ ! "$DOKKU_EVENTS" ]] || dokku_log_plugn_trigger_call "$(basename "$0")" "$@"
