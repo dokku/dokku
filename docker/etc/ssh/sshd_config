@@ -97,7 +97,7 @@ ChallengeResponseAuthentication no
 # Also, PAM will deny null passwords by default.  If you need to allow
 # null passwords, add the "     nullok" option to the end of the
 # securityserver.so line in /etc/pam.d/sshd.
-# UsePAM yes
+UsePAM yes
 
 #AllowAgentForwarding yes
 #AllowTcpForwarding yes
