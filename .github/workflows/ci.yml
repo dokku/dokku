@@ -70,7 +70,7 @@ jobs:
       - name: set matrix for build
         id: set-matrix
         run: |
-          json=$(python .github/commands/matrix)
+          json=$(python3 .github/commands/matrix)
           echo $json
           echo "matrix=$json" >> $GITHUB_OUTPUT
 
