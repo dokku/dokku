@@ -71,13 +71,13 @@ main() {
     dokku --quiet domains:set-global "$DOKKU_HOSTNAME"
   fi
 
+  touch /etc/default/dokku
+  echo "export DOKKU_INIT_SYSTEM=sv" >>/etc/default/dokku
   if [[ -x /usr/local/bin/docker ]]; then
-    mkdir -p /home/dokku/.dokkurc
-    echo "export DOCKER_BIN=/usr/local/bin/docker" >"/home/dokku/.dokkurc/DOCKER_BIN"
+    echo "export DOCKER_BIN=/usr/local/bin/docker" >>/etc/default/dokku
   fi
 
   if [[ -n "$DOKKU_HOST_ROOT" ]]; then
-    touch /etc/default/dokku
     echo "export DOKKU_HOST_ROOT=$DOKKU_HOST_ROOT" >>/etc/default/dokku
     chown dokku:dokku /etc/default/dokku
   fi

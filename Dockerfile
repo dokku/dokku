@@ -35,7 +35,7 @@ RUN mkdir -p /etc/apt/keyrings \
   && apt-get update \
   && apt-get upgrade -y \
   && apt-get -y --no-install-recommends --only-upgrade install openssl openssh-server \
-  && apt-get -y --no-install-recommends install rsync "/tmp/dokku-$(dpkg --print-architecture).deb" \
+  && DOKKU_INIT_SYSTEM=sv apt-get -y --no-install-recommends install rsync "/tmp/dokku-$(dpkg --print-architecture).deb" \
   && apt-get purge -y syslog-ng-core \
   && apt-get autoremove -y \
   && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
