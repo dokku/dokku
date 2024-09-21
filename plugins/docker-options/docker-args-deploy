@@ -39,7 +39,7 @@ trigger-docker-options-docker-args() {
           ;;
 
         --restart*)
-          if [[ "$PHASE" == "deploy" ]]; then
+          if [[ "$PHASE" == "DEPLOY" ]]; then
             local output="$output $line"
           fi
           continue
