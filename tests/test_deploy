@@ -13,9 +13,7 @@ REPO="test-$(basename "$APP")-$RANDOM"
 ssh "$REMOTE" events:on
 
 destroy_app() {
-  ssh "$REMOTE" trace:on
   ssh "$REMOTE" apps:destroy "$REPO" --force
-  ssh "$REMOTE" trace:off
   ssh "$REMOTE" events:off
 }
 
