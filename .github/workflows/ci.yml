@@ -167,11 +167,15 @@ jobs:
       - name: ci-setup
         run: ./.github/commands/ci-setup
 
+      - name: docker-container-setup
+        run: |
+          ./tests/ci/setup.sh docker
+
       - name: test docker deploys
         shell: bash
         timeout-minutes: 20
         run: |
-          ./tests/ci/setup.sh docker
+          docker exec dokku bash -c "cat /etc/sudoers.d/dokku-nginx"
           DOKKU_SSH_PORT=3022 sudo -E make -e test-ci-docker
 
   go-tests:
