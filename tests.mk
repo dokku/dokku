@@ -79,6 +79,7 @@ else ifeq ($(shell grep $(DOKKU_DOMAIN) /root/.ssh/config),)
 else
 	sed --in-place 's/Port 22 \r/Port $(DOKKU_SSH_PORT) \r/g' /root/.ssh/config
 	cat /root/.ssh/config
+	chown 600 /root/.ssh/config
 endif
 
 ifneq ($(wildcard /etc/ssh/sshd_config),)
