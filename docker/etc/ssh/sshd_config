@@ -62,7 +62,7 @@ SyslogFacility AUTHPRIV
 
 # To disable tunneled clear text passwords, change to no here! Also,
 # remember to set the UsePAM setting to 'no'.
-#PasswordAuthentication no
+PasswordAuthentication no
 #PermitEmptyPasswords no
 
 # SACL options
