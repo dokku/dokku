@@ -20,6 +20,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # hadolint ignore=DL3005,DL3008
 RUN mkdir -p /etc/apt/keyrings \
   && mkdir -p /etc/apt/keyrings \
+  && apt-get remove -y systemd && apt-get autoremove -y && apt-get update && apt-get install -y --no-install-recommends gpg lsb-release \
   && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg \
   && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null \
   && apt-get update \
@@ -45,6 +46,7 @@ COPY ./docker .
 
 RUN \
   rsync -a /tmp/ / \
+  && chmod +x /usr/local/bin/* \
   && rm -rf /tmp/* \
   && rm /etc/runit/runsvdir/default/sshd/down \
   && chown -R dokku:dokku /home/dokku/ \
@@ -59,7 +61,6 @@ RUN \
   && ln -sf /mnt/dokku/var/lib/dokku/data /var/lib/dokku/data \
   && ln -sf /mnt/dokku/var/lib/dokku/services /var/lib/dokku/services \
   && mv /etc/my_init.d/00_regen_ssh_host_keys.sh /etc/my_init.d/15_regen_ssh_host_keys \
-  && rm -f /usr/bin/systemctl \
   && rm -f /etc/nginx/sites-enabled/default /usr/share/nginx/html/index.html /etc/my_init.d/10_syslog-ng.init \
   && rm -f /usr/local/openresty/nginx/conf/sites-enabled/default /usr/share/openresty/html/index.html \
   && sed -i '/imklog/d' /etc/rsyslog.conf \
