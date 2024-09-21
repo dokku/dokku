@@ -19,7 +19,7 @@ on:
 jobs:
   release:
     name: release
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     env:
       PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
     outputs:
@@ -80,7 +80,7 @@ jobs:
 
   build-digitalocean:
     name: build-digitalocean
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: release
     steps:
       - name: Checkout code
@@ -116,7 +116,7 @@ jobs:
 
   bump-azure:
     name: bump-azure
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: release
     steps:
       - name: Checkout code
