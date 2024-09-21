@@ -80,6 +80,9 @@ main() {
     done </mnt/dokku/plugin-list
   fi
 
+  # run core install triggers to force create any folders that may be missing
+  dokku plugin:install --core
+
   if [[ -n "$DOKKU_HOSTNAME" ]]; then
     echo "dokku dokku/hostname string $DOKKU_HOSTNAME" | debconf-set-selections
     echo "dokku dokku/vhost_enable boolean true" | debconf-set-selections
