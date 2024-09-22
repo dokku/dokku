@@ -160,10 +160,10 @@ Traefik exposes an API and Dashboard, which Dokku disables by default for securi
 > [!WARNING]
 > Users enabling the dashboard should also enable api basic auth.
 
-By default, the api is disabled. To enable, set the `api` property with the `--global` flag:
+By default, the api is disabled. To enable, set the `api-enabled` property with the `--global` flag:
 
 ```shell
-dokku traefik:set --global api true
+dokku traefik:set --global api-enabled true
 ```
 
 After enabling, the Traefik container will need to be restarted.
@@ -173,10 +173,10 @@ After enabling, the Traefik container will need to be restarted.
 > [!WARNING]
 > Users enabling the dashboard should also enable api basic auth.
 
-By default, the dashboard is disabled. To enable, set the `dashboard` property with the `--global` flag:
+By default, the dashboard is disabled. To enable, set the `dashboard-enabled` property with the `--global` flag:
 
 ```shell
-dokku traefik:set --global dashboard true
+dokku traefik:set --global dashboard-enabled true
 ```
 
 After enabling, the Traefik container will need to be restarted.
