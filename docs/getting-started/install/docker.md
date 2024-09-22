@@ -25,8 +25,6 @@ docker container run -d \
 Alternatively, you can use `docker-compose.yml`:
 
 ```yaml
-version: "3.8"
-
 services:
   dokku:
     image: dokku/dokku:0.34.9

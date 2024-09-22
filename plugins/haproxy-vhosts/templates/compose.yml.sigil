@@ -1,6 +1,4 @@
 ---
-version: "3.8"
-
 services:
   haproxy:
     image: "{{ $.HAPROXY_IMAGE }}"
