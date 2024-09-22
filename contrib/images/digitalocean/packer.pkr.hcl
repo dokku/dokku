@@ -12,7 +12,7 @@ variable "dokku_version" {
 }
 
 source "digitalocean" "ubuntu" {
-  image         = "ubuntu-22-04-x64"
+  image         = "ubuntu-24-04-x64"
   region        = "nyc1"
   size          = "s-1vcpu-512mb-10gb"
   ssh_username  = "root"
