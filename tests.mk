@@ -86,7 +86,10 @@ ifneq ($(wildcard /etc/ssh/sshd_config),)
 ifeq ($(shell grep 22333 /etc/ssh/sshd_config),)
 	sed --in-place "s:^Port 22:Port 22 \\nPort 22333:g" /etc/ssh/sshd_config
 endif
+	cat /etc/ssh/sshd_config
 	service ssh restart
+	service ssh status
+	journalctl -u ssh -f -n 1000
 endif
 
 	@echo "-----> Installing SSH public key..."
