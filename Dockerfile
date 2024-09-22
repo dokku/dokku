@@ -29,7 +29,7 @@ RUN mkdir -p /etc/apt/keyrings \
   && echo "dokku dokku/skip_key_file boolean $DOKKU_SKIP_KEY_FILE" | debconf-set-selections \
   && echo "dokku dokku/vhost_enable boolean $DOKKU_VHOST_ENABLE" | debconf-set-selections \
   && curl -sSL https://packagecloud.io/dokku/dokku/gpgkey | apt-key add - \
-  && echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ focal main" | tee /etc/apt/sources.list.d/dokku.list \
+  && echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ noble main" | tee /etc/apt/sources.list.d/dokku.list \
   && mkdir -p /etc/nginx/ \
   && cp /tmp/dhparam.pem /etc/nginx/dhparam.pem \
   && apt-get update \
