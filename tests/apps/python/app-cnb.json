@@ -1,0 +1,21 @@
+{
+  "healthchecks": {
+    "web": [
+      {
+        "attempts": 2,
+        "content": "python/http.server",
+        "name": "check-1",
+        "path": "/",
+        "timeout": 5,
+        "type": "startup",
+        "wait": 2
+      }
+    ]
+  },
+  "scripts": {
+    "dokku": {
+      "postdeploy": "touch /workspace/postdeploy.test",
+      "predeploy": "touch /workspace/predeploy.test"
+    }
+  }
+}
