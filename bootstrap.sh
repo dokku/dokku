@@ -3,7 +3,7 @@ set -eo pipefail
 [[ $TRACE ]] && set -x
 
 # A script to bootstrap dokku.
-# It expects to be run on Ubuntu 20.04/22.04 via 'sudo`
+# It expects to be run on Ubuntu 20.04/22.04/24.04 via 'sudo`
 # If installing a tag higher than 0.3.13, it may install dokku via a package (so long as the package is higher than 0.3.13)
 # It checks out the dokku source code from GitHub into ~/dokku and then runs 'make install' from dokku source.
 
@@ -12,7 +12,7 @@ set -eo pipefail
 # That's good because it prevents our output overlapping with wget's.
 # It also means that we can't run a partially downloaded script.
 
-SUPPORTED_VERSIONS="Debian [10, 11, 12], Ubuntu [18.04, 20.04, 22.04]"
+SUPPORTED_VERSIONS="Debian [10, 11, 12], Ubuntu [20.04, 22.04, 24.04]"
 
 log-fail() {
   declare desc="log fail formatter"
@@ -160,7 +160,7 @@ install-dokku-from-deb-package() {
   local NO_INSTALL_RECOMMENDS=${DOKKU_NO_INSTALL_RECOMMENDS:=""}
   local OS_ID
 
-  if ! in-array "$DOKKU_DISTRO_VERSION" "18.04" "20.04" "22.04" "10" "11" "12"; then
+  if ! in-array "$DOKKU_DISTRO_VERSION" "20.04" "22.04" "24.04" "10" "11" "12"; then
     log-fail "Unsupported Linux distribution. Only the following versions are supported: $SUPPORTED_VERSIONS"
   fi
 
@@ -181,16 +181,16 @@ install-dokku-from-deb-package() {
     wget -nv -O - https://get.docker.com/ | sh
   fi
 
-  OS_ID="$(lsb_release -cs 2>/dev/null || echo "jammy")"
+  OS_ID="$(lsb_release -cs 2>/dev/null || echo "noble")"
   if ! in-array "$DOKKU_DISTRO" "debian" "ubuntu" "raspbian"; then
     DOKKU_DISTRO="ubuntu"
-    OS_ID="jammy"
+    OS_ID="noble"
   fi
 
   if [[ "$DOKKU_DISTRO" == "ubuntu" ]]; then
-    OS_IDS=("focal" "jammy")
+    OS_IDS=("focal" "jammy" "noble")
     if ! in-array "$OS_ID" "${OS_IDS[@]}"; then
-      OS_ID="jammy"
+      OS_ID="noble"
     fi
   elif [[ "$DOKKU_DISTRO" == "debian" ]]; then
     OS_IDS=("stretch" "buster" "bullseye" "bookworm")

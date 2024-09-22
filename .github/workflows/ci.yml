@@ -70,7 +70,7 @@ jobs:
       - name: set matrix for build
         id: set-matrix
         run: |
-          json=$(python .github/commands/matrix)
+          json=$(python3 .github/commands/matrix)
           echo $json
           echo "matrix=$json" >> $GITHUB_OUTPUT
 
@@ -167,11 +167,15 @@ jobs:
       - name: ci-setup
         run: ./.github/commands/ci-setup
 
+      - name: docker-container-setup
+        run: |
+          ./tests/ci/setup.sh docker
+
       - name: test docker deploys
         shell: bash
         timeout-minutes: 20
         run: |
-          ./tests/ci/setup.sh docker
+          docker exec dokku bash -c "cat /etc/sudoers.d/dokku-nginx"
           DOKKU_SSH_PORT=3022 sudo -E make -e test-ci-docker
 
   go-tests:

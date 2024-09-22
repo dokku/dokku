@@ -13,3 +13,4 @@ tmp
 coverage.out
 site
 go.work.sum
+node_modules

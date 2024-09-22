@@ -3,7 +3,7 @@ set -eo pipefail
 
 write-mkdocs() {
   if [[ -f /usr/src/source/contrib/write-mkdocs ]]; then
-    if ! python /usr/src/source/contrib/write-mkdocs; then
+    if ! python3 /usr/src/source/contrib/write-mkdocs; then
       exit 0
     fi
   fi

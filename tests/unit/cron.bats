@@ -87,7 +87,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "python task.py schedule"
+  assert_output_contains "python3 task.py schedule"
 }
 
 @test "(cron) create [single-short]" {
@@ -100,7 +100,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "python task.py daily"
+  assert_output_contains "python3 task.py daily"
 }
 
 @test "(cron) create [multiple]" {
@@ -113,8 +113,8 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "python task.py first"
-  assert_output_contains "python task.py second"
+  assert_output_contains "python3 task.py first"
+  assert_output_contains "python3 task.py second"
 }
 
 @test "(cron) injected entries" {
@@ -255,7 +255,7 @@ template_cron_file_invalid_schedule() {
 {
   "cron": [
     {
-      "command": "python task.py",
+      "command": "python3 task.py",
       "schedule": "@nonstandard"
     }
   ]
@@ -272,7 +272,7 @@ template_cron_file_invalid_schedule_seconds() {
 {
   "cron": [
     {
-      "command": "python task.py",
+      "command": "python3 task.py",
       "schedule": "0 5 * * * *"
     }
   ]
@@ -289,11 +289,11 @@ template_cron_file_valid() {
 {
   "cron": [
     {
-      "command": "python task.py schedule",
+      "command": "python3 task.py schedule",
       "schedule": "5 5 5 5 5"
     },
     {
-      "command": "python task.py schedule now",
+      "command": "python3 task.py schedule now",
       "schedule": "6 5 5 5 5"
     }
   ]
@@ -310,7 +310,7 @@ template_cron_file_valid_single() {
 {
   "cron": [
     {
-      "command": "python task.py schedule",
+      "command": "python3 task.py schedule",
       "schedule": "5 5 5 5 5"
     }
   ]
@@ -326,7 +326,7 @@ template_cron_file_valid_short() {
 {
   "cron": [
     {
-      "command": "python task.py daily",
+      "command": "python3 task.py daily",
       "schedule": "@daily"
     }
   ]
@@ -343,11 +343,11 @@ template_cron_file_valid_multiple() {
 {
   "cron": [
     {
-      "command": "python task.py first",
+      "command": "python3 task.py first",
       "schedule": "5 5 5 5 5"
     },
     {
-      "command": "python task.py second",
+      "command": "python3 task.py second",
       "schedule": "@daily"
     }
   ]

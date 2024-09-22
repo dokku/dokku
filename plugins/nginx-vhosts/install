@@ -82,7 +82,9 @@ trigger-nginx-vhosts-install() {
       ;;
 
     ubuntu)
-      if [[ -x "$systemctl_path" ]]; then
+      if [[ "$DOKKU_INIT_SYSTEM" == "sv" ]]; then
+        echo "%dokku ALL=(ALL) NOPASSWD:/usr/bin/sv enable $NGINX_INIT_NAME, /usr/bin/sv disable $NGINX_INIT_NAME, /usr/bin/sv reload $NGINX_INIT_NAME, /usr/bin/sv start $NGINX_INIT_NAME, /usr/bin/sv stop $NGINX_INIT_NAME, $NGINX_BIN -t, $NGINX_BIN -t -c *" >"$NGINX_SUDOERS_FILE"
+      elif [[ -x "$systemctl_path" ]]; then
         echo "%dokku ALL=(ALL) NOPASSWD:$systemctl_path enable $NGINX_INIT_NAME, $systemctl_path disable $NGINX_INIT_NAME, $systemctl_path reload $NGINX_INIT_NAME, $systemctl_path start $NGINX_INIT_NAME, $systemctl_path stop $NGINX_INIT_NAME, $NGINX_BIN -t, $NGINX_BIN -t -c *" >"$NGINX_SUDOERS_FILE"
       elif [[ -x /usr/bin/sv ]]; then
         echo "%dokku ALL=(ALL) NOPASSWD:/usr/bin/sv enable $NGINX_INIT_NAME, /usr/bin/sv disable $NGINX_INIT_NAME, /usr/bin/sv reload $NGINX_INIT_NAME, /usr/bin/sv start $NGINX_INIT_NAME, /usr/bin/sv stop $NGINX_INIT_NAME, $NGINX_BIN -t, $NGINX_BIN -t -c *" >"$NGINX_SUDOERS_FILE"

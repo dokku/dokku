@@ -13,7 +13,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Cloning repo
         uses: actions/checkout@v3

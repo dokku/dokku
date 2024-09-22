@@ -11,7 +11,7 @@ PROCFILE_UTIL_URL ?= $(shell jq -r --arg name procfile-util  --arg arch $(TARGET
 SIGIL_URL ?= $(shell jq -r --arg name gliderlabs-sigil  --arg arch $(TARGETARCH) '.predependencies[] | select(.name == $$name) | .urls[$$arch]' contrib/dependencies.json)
 SSHCOMMAND_URL ?= $(shell jq -r --arg name sshcommand  --arg arch $(TARGETARCH) '.dependencies[] | select(.name == $$name) | .urls[$$arch]' contrib/dependencies.json)
 STACK_URL ?= https://github.com/gliderlabs/herokuish.git
-PREBUILT_STACK_URL ?= gliderlabs/herokuish:latest-22
+PREBUILT_STACK_URL ?= gliderlabs/herokuish:latest-24
 DOKKU_LIB_ROOT ?= /var/lib/dokku
 PLUGINS_PATH ?= ${DOKKU_LIB_ROOT}/plugins
 CORE_PLUGINS_PATH ?= ${DOKKU_LIB_ROOT}/core-plugins
@@ -131,7 +131,7 @@ plugin-dependencies: plugn procfile-util
 plugins: plugn procfile-util docker
 	sudo -E dokku plugin:install --core
 
-dependencies: apt-update docker-image-labeler docker-container-healthchecker lambda-builder netrc sshcommand plugn procfile-util docker help2man man-db sigil dos2unix jq parallel
+dependencies: apt-update jq docker-image-labeler docker-container-healthchecker lambda-builder netrc sshcommand plugn procfile-util docker help2man man-db sigil dos2unix parallel
 	$(MAKE) -e stack
 
 apt-update:

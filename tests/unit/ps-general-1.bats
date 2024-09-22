@@ -195,6 +195,11 @@ web                                                                             
   assert_success
 
   CID=$(<$DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
+  run /bin/bash -c "docker inspect $CID"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "docker inspect -f '{{ .HostConfig.RestartPolicy.Name }}:{{ .HostConfig.RestartPolicy.MaximumRetryCount }}' $CID"
   echo "output: $output"
   echo "status: $status"

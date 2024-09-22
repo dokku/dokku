@@ -20,7 +20,7 @@ ps_backtrace() {
     fi
     ppid=$(ps -o ppid= $pid)
     ps uww $header_modifier -p $pid
-    if [ $pid -eq 1 ]; then
+    if [ $pid -eq 1 -o $pid -eq 0 ]; then
       break
     fi
     pid=$ppid
