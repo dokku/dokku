@@ -1,4 +1,4 @@
-FROM dokku/build-base:0.2.0 AS builder
+FROM dokku/build-base:0.2.1 AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 
