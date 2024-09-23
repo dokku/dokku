@@ -92,9 +92,10 @@ endif
 	cat /usr/lib/systemd/system/ssh.socket
 	cat /etc/ssh/sshd_config
 	systemctl daemon-reload
-	systemctl reload ssh
-	systemctl restart ssh
-	systemctl status ssh
+	service ssh reload
+	service ssh restart
+	service ssh status
+	cat /etc/init/ssh || true
 	sleep 2
 	journalctl -u ssh -n 1000
 endif
