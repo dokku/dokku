@@ -86,7 +86,11 @@ ifneq ($(wildcard /etc/ssh/sshd_config),)
 ifeq ($(shell grep 22333 /etc/ssh/sshd_config),)
 	sed --in-place "s:^Port 22:Port 22 \\nPort 22333:g" /etc/ssh/sshd_config
 endif
-	service ssh restart
+ifeq ($(shell grep 22333 /usr/lib/systemd/system/ssh.socket),)
+	sed --in-place "s:^ListenStream=22:ListenStream=22 \\nListenStream=22333:g" /usr/lib/systemd/system/ssh.socket
+endif
+	systemctl daemon-reload || true
+	systemctl restart ssh.socket || service ssh restart
 endif
 
 	@echo "-----> Installing SSH public key..."
@@ -116,9 +120,9 @@ endif
 prime-ssh-known-hosts:
 	@echo "-----> Intitial SSH connection to populate known_hosts..."
 	@echo "=====> SSH $(DOKKU_DOMAIN)"
-	ssh -o StrictHostKeyChecking=no dokku@$(DOKKU_DOMAIN) help >/dev/null
+	ssh -o StrictHostKeyChecking=no dokku@$(DOKKU_DOMAIN) help
 	@echo "=====> SSH 127.0.0.1"
-	ssh -o StrictHostKeyChecking=no dokku@127.0.0.1 help >/dev/null
+	ssh -o StrictHostKeyChecking=no dokku@127.0.0.1 help
 
 lint-setup:
 	@mkdir -p test-results/shellcheck tmp/shellcheck

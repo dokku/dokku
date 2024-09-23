@@ -1,7 +1,7 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-BOX_NAME = ENV["BOX_NAME"] || "bento/ubuntu-20.04"
+BOX_NAME = ENV["BOX_NAME"] || "bento/ubuntu-24.04"
 BOX_CPUS = ENV["BOX_CPUS"] || "1"
 BOX_MEMORY = ENV["BOX_MEMORY"] || "1024"
 DOKKU_DOMAIN = ENV["DOKKU_DOMAIN"] || "dokku.me"
@@ -9,7 +9,7 @@ DOKKU_IP = ENV["DOKKU_IP"] || "10.0.0.2"
 PREBUILT_STACK_URL = File.exist?("#{File.dirname(__FILE__)}/stack.tgz") ? 'file:///root/dokku/stack.tgz' : nil
 PUBLIC_KEY_PATH = "#{Dir.home}/.ssh/id_rsa.pub"
 
-make_cmd = "DEBIAN_FRONTEND=noninteractive make -e install"
+make_cmd = "TARGETARCH=$(dpkg --print-architecture) DEBIAN_FRONTEND=noninteractive make -e install"
 if PREBUILT_STACK_URL
   make_cmd = "PREBUILT_STACK_URL='#{PREBUILT_STACK_URL}' #{make_cmd}"
 end

@@ -25,12 +25,12 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku buildpacks:set-property $TEST_APP stack heroku/builder:22"
+  run /bin/bash -c "dokku buildpacks:set-property $TEST_APP stack heroku/builder:24"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP inject_requirements_txt
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP initialize_for_cnb
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -81,9 +81,10 @@ teardown() {
   assert_success
 }
 
-inject_requirements_txt() {
+initialize_for_cnb() {
   local APP="$1"
   local APP_REPO_DIR="$2"
   [[ -z "$APP" ]] && local APP="$TEST_APP"
   echo "flask" >>"$APP_REPO_DIR/requirements.txt"
+  mv "$APP_REPO_DIR/app-cnb.json" "$APP_REPO_DIR/app.json"
 }

@@ -32,7 +32,7 @@
       }
     ]
   },
-  "image": "gliderlabs/herokuish:latest-22",
+  "image": "gliderlabs/herokuish:latest-24",
   "keywords": [
     "nodejs",
     "express",

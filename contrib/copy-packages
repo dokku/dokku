@@ -15,7 +15,7 @@ def download_file(filename, url):
 
 
 def upload_file(filename):
-    versions = ["jammy"]
+    versions = ["noble"]
     cmd_template = "package_cloud push dokku/dokku/ubuntu/{0} {1}"
     for version in versions:
         cmd = cmd_template.format(version, filename)
@@ -25,7 +25,7 @@ def upload_file(filename):
 def main():
     auth = HTTPBasicAuth(PACKAGECLOUD_TOKEN, "")
     base = requests.get(
-        "https://packagecloud.io/api/v1/repos/dokku/dokku/packages/deb/ubuntu/focal.json",
+        "https://packagecloud.io/api/v1/repos/dokku/dokku/packages/deb/ubuntu/jammy.json",
         auth=auth,
     )
     data = base.json()

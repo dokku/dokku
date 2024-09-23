@@ -16,7 +16,7 @@ install-from-deb:
 
 	@echo "--> Installing dokku"
 	wget -qO- https://packagecloud.io/dokku/dokku/gpgkey | sudo tee /etc/apt/trusted.gpg.d/dokku.asc
-	@echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ $(shell lsb_release -cs 2>/dev/null || echo "focal") main" | sudo tee /etc/apt/sources.list.d/dokku.list
+	@echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ $(shell lsb_release -cs 2>/dev/null || echo "noble") main" | sudo tee /etc/apt/sources.list.d/dokku.list
 	sudo apt-get update -qq >/dev/null
 	sudo DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true apt-get -qq -y --no-install-recommends install dokku
 
@@ -27,7 +27,7 @@ deb-all: deb-setup deb-dokku
 deb-setup:
 	@echo "-> Updating deb repository and installing build requirements"
 	@sudo apt-get update -qq >/dev/null
-	@sudo DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true apt-get -qq -y --no-install-recommends install gcc git build-essential wget ruby-dev ruby1.9.1 lintian >/dev/null 2>&1
+	@sudo DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true apt-get -qq -y --no-install-recommends install gcc git build-essential wget ruby-dev lintian >/dev/null 2>&1
 	@command -v fpm >/dev/null || sudo gem install fpm --no-ri --no-rdoc
 	@ssh -o StrictHostKeyChecking=no git@github.com || true
 

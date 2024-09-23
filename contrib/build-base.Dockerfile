@@ -1,8 +1,24 @@
-FROM ubuntu:20.04
+FROM ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update -qq && apt-get -qq -y --no-install-recommends install ca-certificates curl gcc git jq build-essential wget ruby-dev lintian python3 rpm help2man man-db sudo
-RUN curl -sL -o /usr/local/share/ca-certificates/GlobalSignRootCA_R3.crt https://raw.githubusercontent.com/rubygems/rubygems/master/lib/rubygems/ssl_certs/rubygems.org/GlobalSignRootCA_R3.pem
-RUN update-ca-certificates
+RUN apt-get update -qq && apt-get -qq -y --no-install-recommends install \
+    adduser \
+    build-essential \
+    ca-certificates \
+    coreutils \
+    curl \
+    gcc \
+    git \
+    help2man \
+    jq \
+    libc-bin \
+    lintian \
+    man-db \
+    openssh-client \
+    python3 \
+    rpm \
+    ruby-dev \
+    sudo \
+    wget
 RUN command -v fpm || gem install fpm

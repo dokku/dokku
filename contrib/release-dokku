@@ -144,7 +144,7 @@ fn-publish-package() {
       fi
     done
   elif [[ "$DIST" == "ubuntu" ]]; then
-    OS_IDS=("focal" "jammy")
+    OS_IDS=("focal" "jammy" "noble")
     for OS_ID in "${OS_IDS[@]}"; do
       log-info "(release-dokku) pushing ${RELEASE_TYPE} to packagecloud.com/${REPOSITORY}/${DIST}"
       package_cloud push "${REPOSITORY}/${DIST}/${OS_ID}" "$PACKAGE_NAME"
@@ -232,7 +232,7 @@ fn-repo-update() {
   if [[ "$RELEASE" == 'patch' ]]; then
     fn-replace-version "$CURRENT_VERSION" "$NEXT_VERSION" docs/assets/versions.json
   else
-    versions=$(python -c 'import json,sys;d=json.load(sys.stdin);d["max-versions"].append("'"${NEXT_VERSION}"'"); print(json.dumps(d, indent=2, sort_keys=True))' <docs/assets/versions.json)
+    versions=$(python3 -c 'import json,sys;d=json.load(sys.stdin);d["max-versions"].append("'"${NEXT_VERSION}"'"); print(json.dumps(d, indent=2, sort_keys=True))' <docs/assets/versions.json)
     echo "$versions" >docs/assets/versions.json
     git add docs/assets/versions.json
   fi

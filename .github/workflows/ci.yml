@@ -19,7 +19,7 @@ env:
 
 jobs:
   check-commit:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       skip: ${{ steps.check-commit.outputs.skip }}
 
@@ -43,7 +43,7 @@ jobs:
 
   build:
     name: build
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: check-commit
     if: ${{ needs.check-commit.outputs.skip != 'true' }}
     outputs:
@@ -70,7 +70,7 @@ jobs:
       - name: set matrix for build
         id: set-matrix
         run: |
-          json=$(python .github/commands/matrix)
+          json=$(python3 .github/commands/matrix)
           echo $json
           echo "matrix=$json" >> $GITHUB_OUTPUT
 
@@ -83,7 +83,7 @@ jobs:
   build-image-amd64:
     name: build-image.linux/amd64
     needs: build
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
 
     steps:
@@ -97,7 +97,7 @@ jobs:
   build-image-arm64:
     name: build-image.linux/arm64
     needs: build
-    runs-on: buildjet-4vcpu-ubuntu-2204-arm
+    runs-on: buildjet-4vcpu-ubuntu-2404-arm
     timeout-minutes: 20
 
     steps:
@@ -111,7 +111,7 @@ jobs:
   unit-tests:
     name: unit.${{ matrix.index }}
     needs: build
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix: ${{fromJson(needs.build.outputs.matrix)}}
@@ -151,7 +151,7 @@ jobs:
   docker-deploy-tests:
     name: docker
     needs: build
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
 
@@ -167,17 +167,21 @@ jobs:
       - name: ci-setup
         run: ./.github/commands/ci-setup
 
+      - name: docker-container-setup
+        run: |
+          ./tests/ci/setup.sh docker
+
       - name: test docker deploys
         shell: bash
         timeout-minutes: 20
         run: |
-          ./tests/ci/setup.sh docker
+          docker exec dokku bash -c "cat /etc/sudoers.d/dokku-nginx"
           DOKKU_SSH_PORT=3022 sudo -E make -e test-ci-docker
 
   go-tests:
     name: go.${{ matrix.index }}
     needs: build
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -218,7 +222,7 @@ jobs:
   publish-test-results:
     name: publish-test-results
     needs: unit-tests
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     permissions:
       checks: write
     # the build-and-test job might be skipped, we don't need to run this job then
