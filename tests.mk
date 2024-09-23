@@ -89,8 +89,8 @@ endif
 ifeq ($(shell grep 22333 /usr/lib/systemd/system/ssh.socket),)
 	sed --in-place "s:^ListenStream=22:ListenStream=22 \\nListenStream=22333:g" /usr/lib/systemd/system/ssh.socket
 endif
-	systemctl daemon-reload
-	systemctl restart ssh.socket
+	systemctl daemon-reload || true
+	systemctl restart ssh.socket || service ssh restart
 endif
 
 	@echo "-----> Installing SSH public key..."
