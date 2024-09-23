@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 set -eo pipefail
-set -x
 
 DOKKU_DOMAIN=${DOKKU_DOMAIN:="dokku.me"}
 

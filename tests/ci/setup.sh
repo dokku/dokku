@@ -111,7 +111,7 @@ EOF
 
   sleep 5
   echo "-----> Start install ${ROOT_DIR}/build/package/dokku-${architecture}.deb via dpkg"
-  sudo TRACE=1 dpkg -i "${ROOT_DIR}/build/package/dokku-${architecture}.deb"
+  sudo dpkg -i "${ROOT_DIR}/build/package/dokku-${architecture}.deb"
   echo "-----> End install ${ROOT_DIR}/build/package/dokku-${architecture}.deb via dpkg"
 }
 
