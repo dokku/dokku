@@ -1,5 +1,22 @@
 # History
 
+## 0.35.2
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.35.2/bootstrap.sh
+sudo DOKKU_TAG=v0.35.2 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #7191: @josegonzalez Revert to building Dokku on Ubunut 20.04 Focal to hotfix glibc issues
+
+### New Features
+
+- #7190: @josegonzalez Allow setting most nginx properties globally
+
 ## 0.35.1
 
 Install/update via the bootstrap script:
