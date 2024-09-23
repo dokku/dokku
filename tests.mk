@@ -86,7 +86,12 @@ ifneq ($(wildcard /etc/ssh/sshd_config),)
 ifeq ($(shell grep 22333 /etc/ssh/sshd_config),)
 	sed --in-place "s:^Port 22:Port 22 \\nPort 22333:g" /etc/ssh/sshd_config
 endif
+ifeq ($(shell grep 22333 /usr/lib/systemd/system/ssh.socket),)
+	sed --in-place "s:^ListenStream=22:ListenStream=22 \\nListenStream=22333:g" /usr/lib/systemd/system/ssh.socket
+endif
+	cat /usr/lib/systemd/system/ssh.socket
 	cat /etc/ssh/sshd_config
+	systemctl daemon-reload
 	service ssh restart
 	service ssh status
 	journalctl -u ssh -f -n 1000
