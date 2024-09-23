@@ -3,4 +3,7 @@ TRIGGERS = triggers/app-json-process-deploy-parallelism triggers/app-json-get-co
 BUILD = commands subcommands triggers
 PLUGIN_NAME = app-json
 
+goenv:
+	go env
+
 include ../../common.mk

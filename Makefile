@@ -54,7 +54,7 @@ go-build:
 	basedir=$(PWD); \
 	for dir in plugins/*; do \
 		if [ -e $$dir/Makefile ]; then \
-			$(MAKE) -e -C $$dir $(PLUGIN_MAKE_TARGET) || exit $$? ;\
+			GO_ARGS='$(GO_ARGS)' CGO_ENABLED=0 GOOS=linux GOARCH=$(GOARCH) GOWORK=off $(MAKE) -e -C $$dir $(PLUGIN_MAKE_TARGET) || exit $$? ;\
 		fi ;\
 	done
 
@@ -64,7 +64,7 @@ ifndef PLUGIN_NAME
 	$(error PLUGIN_NAME not specified)
 endif
 	if [ -e plugins/$(PLUGIN_NAME)/Makefile ]; then \
-		$(MAKE) -e -C plugins/$(PLUGIN_NAME) $(PLUGIN_MAKE_TARGET) || exit $$? ;\
+		GO_ARGS='$(GO_ARGS)' CGO_ENABLED=0 GOOS=linux GOARCH=$(GOARCH) GOWORK=off $(MAKE) -e -C plugins/$(PLUGIN_NAME) $(PLUGIN_MAKE_TARGET) || exit $$? ;\
 	fi
 
 go-clean:
