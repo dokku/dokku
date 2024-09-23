@@ -1,6 +1,6 @@
 module github.com/dokku/dokku/plugins/scheduler-k3s
 
-go 1.23.0
+go 1.23
 
 require (
 	github.com/cert-manager/cert-manager v1.13.3
