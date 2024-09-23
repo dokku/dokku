@@ -93,10 +93,11 @@ endif
 	cat /etc/ssh/sshd_config
 	systemctl daemon-reload
 	systemctl list-unit-files | sort
+	journalctl -u ssh -n 1000
 	systemctl restart ssh.socket
+	journalctl -u ssh -n 1000
 	service ssh status
 	sleep 2
-	journalctl -u ssh -n 1000
 endif
 
 	@echo "-----> Installing SSH public key..."
