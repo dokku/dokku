@@ -1,5 +1,54 @@
 # History
 
+## 0.35.1
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.35.1/bootstrap.sh
+sudo DOKKU_TAG=v0.35.1 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #7188: @josegonzalez Respect GO environment variables when building to ensure CGO is disabled
+
+### Documentation
+
+- #7187: @josegonzalez Remove reference to old web ui
+
+### Dependencies
+
+- #7115: @dependabot[bot] chore(deps): bump golang.org/x/crypto from 0.26.0 to 0.27.0 in /plugins/common
+- #7160: @dependabot[bot] chore(deps): bump github.com/traefik/traefik/v2 from 2.10.7 to 2.11.9 in /plugins/scheduler-k3s
+- #7094: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.34.1 to 1.34.2 in /plugins/common
+- #7096: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.34.1 to 1.34.2 in /plugins/config
+- #7109: @dependabot[bot] chore(deps): bump watchdog from 4.0.2 to 5.0.2 in /docs/_build
+- #7127: @dependabot[bot] chore(deps): bump python from 3.12.5-alpine to 3.12.6-alpine in /docs/_build
+- #7117: @dependabot[bot] chore(deps): bump golang from 1.23.0 to 1.23.1 in /tests/apps/go-fail-postdeploy
+- #7116: @dependabot[bot] chore(deps): bump golang from 1.23.0 to 1.23.1 in /tests/apps/zombies-dockerfile-tini
+- #7112: @dependabot[bot] chore(deps): bump golang from 1.23.0 to 1.23.1 in /tests/apps/zombies-dockerfile-no-tini
+- #7108: @dependabot[bot] chore(deps): bump org.eclipse.jetty:jetty-servlet from 11.0.23 to 11.0.24 in /tests/apps/java
+- #7113: @dependabot[bot] chore(deps): bump golang from 1.23.0 to 1.23.1 in /tests/apps/go-fail-predeploy
+- #7110: @dependabot[bot] chore(deps): bump ruby from 3.3.4 to 3.3.5 in /tests/apps/dockerfile-entrypoint
+- #7114: @dependabot[bot] chore(deps): bump golang from 1.23.0 to 1.23.1 in /tests/apps/gogrpc
+- #7132: @dependabot[bot] chore(deps): bump express from 4.19.2 to 4.21.0 in /tests/apps/dockerfile-procfile-bad
+- #7133: @dependabot[bot] chore(deps): bump express from 4.19.2 to 4.21.0 in /tests/apps/nodejs-express-noappjson
+- #7134: @dependabot[bot] chore(deps): bump express from 4.19.2 to 4.21.0 in /tests/apps/gitsubmodules
+- #7135: @dependabot[bot] chore(deps): bump express from 4.19.2 to 4.21.0 in /tests/apps/nodejs-express-noprocfile
+- #7136: @dependabot[bot] chore(deps): bump express from 4.19.2 to 4.21.0 in /tests/apps/dockerfile-procfile
+- #7137: @dependabot[bot] chore(deps): bump express from 4.19.2 to 4.21.0 in /tests/apps/dockerfile-app-json-formations
+- #7140: @dependabot[bot] chore(deps): bump express from 4.19.2 to 4.21.0 in /tests/apps/.websocket.disabled
+- #7141: @dependabot[bot] chore(deps): bump express from 4.19.2 to 4.21.0 in /tests/apps/nodejs-express
+- #7161: @dependabot[bot] chore(deps): bump google.golang.org/grpc from 1.65.0 to 1.67.0 in /tests/apps/gogrpc
+- #7153: @dependabot[bot] chore(deps): bump luizm/action-sh-checker from 0.8.0 to 0.9.0
+- #7152: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 45.0.0 to 45.0.2
+- #7079: @dependabot[bot] chore(deps): bump pyparsing from 3.1.2 to 3.1.4 in /docs/_build
+- #7097: @dependabot[bot] chore(deps): bump mkdocs from 1.6.0 to 1.6.1 in /docs/_build
+- #7142: @dependabot[bot] chore(deps): bump importlib-metadata from 8.4.0 to 8.5.0 in /docs/_build
+- #7186: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.33 to 9.5.36 in /docs/_build
+- #7144: @dependabot[bot] chore(deps): bump zipp from 3.20.0 to 3.20.2 in /docs/_build
+
 ## 0.35.0
 
 Install/update via the bootstrap script:
