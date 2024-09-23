@@ -99,7 +99,11 @@ func TriggerInstall() error {
 		return fmt.Errorf("Unable to install the builder plugin: %s", err.Error())
 	}
 
-	return nil
+	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "install-builder-prune",
+	})
+
+	return err
 }
 
 // TriggerPostAppCloneSetup creates new builder files
