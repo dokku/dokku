@@ -92,6 +92,7 @@ endif
 	cat /usr/lib/systemd/system/ssh.socket
 	cat /etc/ssh/sshd_config
 	systemctl daemon-reload
+	systemctl list-unit-files | sort
 	service ssh reload
 	service ssh restart
 	service ssh status
