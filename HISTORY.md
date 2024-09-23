@@ -1,5 +1,72 @@
 # History
 
+## 0.35.0
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.35.0/bootstrap.sh
+sudo DOKKU_TAG=v0.35.0 bash bootstrap.sh
+```
+
+See the [0.35.0 migration guide](/docs/appendices/0.35.0-migration-guide.md) for more information on migrating to 0.35.0.
+
+### Bug Fixes
+
+- #7179: @josegonzalez Remove references to version in compose files
+- #7177: @josegonzalez Reference noble apt repository and not focal
+- #7164: @josegonzalez Remove systemd on docker-based installations
+- #7157: @Cactusbone Fix building in vagrant when jq is not available
+- #7147: @Cactusbone Support older docker versions by setting ARG value with an equal sign
+- #7088: @andreby Handle the case where parent PID is 0
+- #7077: @bakatz Add cron dependency because it's necessary to run scheduled cron jobs
+
+### New Features
+
+- #7185: @josegonzalez Fix vagrant running on arm64 machines
+- #7184: @josegonzalez Clear out docker builder cache once a day
+- #7183: @josegonzalez Error out when the Dockerfile is missing during builder-dockerfile execution
+- #7175: @josegonzalez Upgrade digitalocean image to Ubuntu Noble
+- #7174: @josegonzalez Upgrade vagrant image to Ubuntu Noble
+- #7173: @josegonzalez Upgrade builder docker image to Ubuntu Noble
+- #7166: @josegonzalez Upgrade herokuish from 0.9.2 to 0.10.1
+- #7075: @josegonzalez Upgrade herokuish builder to gliderlabs/herokuish:latest-24
+- #7074: @josegonzalez Upgrade cnb builder to heroku/builder:24
+- #7071: @josegonzalez Bump go version to 1.23.0
+- #6853: @Reggino Support Ubuntu 24.04 LTS
+- #6762: @josegonzalez Upgrade docker compose version in use
+
+### Documentation
+
+- #7180: @josegonzalez Reference actual properties for enabling the traefik api and dashboard
+- #7178: @josegonzalez Fix link to docs site
+- #7101: @strugee Fix typo in CNB documentation
+- #7100: @no0dles SVG gets modified on release
+
+### Tests
+
+- #7176: @josegonzalez Fetch packages installed in ci from Ubuntu Noble repo
+- #7172: @josegonzalez Run CI release processes on Ubuntu Noble
+- #7171: @josegonzalez Run CI on Ubuntu Noble
+- #7170: @josegonzalez Run CI codeql analysis on Ubuntu Noble
+- #7169: @josegonzalez Run CI doc generation on Ubuntu Noble
+- #7168: @josegonzalez Run CI linting on Ubuntu Noble
+- #7073: @josegonzalez Drop codacy
+
+### Dependencies
+
+- #7148: @dependabot[bot] chore(deps): bump dokku/openresty-docker-proxy from 0.8.0 to 0.9.0 in /plugins/openresty-vhosts
+- #7139: @dependabot[bot] chore(deps): bump timberio/vector from 0.39.0-debian to 0.41.1-debian in /plugins/logs
+- #7060: @dependabot[bot] chore(deps): bump mvdan.cc/sh/v3 from 3.8.0 to 3.9.0 in /plugins/cron
+- #7035: @dependabot[bot] chore(deps): bump traefik from 2.11.2 to 3.1.2 in /plugins/traefik-vhosts
+- #7014: @dependabot[bot] chore(deps): bump timberio/vector from 0.39.0-debian to 0.40.0-debian in /plugins/logs
+- #6985: @dependabot[bot] chore(deps): bump github.com/traefik/traefik/v2 from 2.10.7 to 2.11.6 in /plugins/scheduler-k3s
+
+### Other
+
+- #7165: @josegonzalez Upgrade Docker image to Ubuntu Noble 24.04
+- #6784: @josegonzalez Remove --restart docker arguments when not running deploy-phase containers
+
 ## 0.34.9
 
 Install/update via the bootstrap script:
