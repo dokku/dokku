@@ -91,13 +91,15 @@ ifeq ($(shell grep 22333 /usr/lib/systemd/system/ssh.socket),)
 endif
 	cat /usr/lib/systemd/system/ssh.socket
 	cat /etc/ssh/sshd_config
+	service ssh status
 	systemctl daemon-reload
 	systemctl list-unit-files | sort
+	service ssh status
 	journalctl -u ssh -n 1000
 	systemctl restart ssh.socket
+	sleep 2
 	journalctl -u ssh -n 1000
 	service ssh status
-	sleep 2
 endif
 
 	@echo "-----> Installing SSH public key..."
