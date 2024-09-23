@@ -92,9 +92,11 @@ endif
 	cat /usr/lib/systemd/system/ssh.socket
 	cat /etc/ssh/sshd_config
 	systemctl daemon-reload
-	service ssh restart
-	service ssh status
-	journalctl -u ssh -f -n 1000
+	systemctl reload ssh
+	systemctl restart ssh
+	systemctl status ssh
+	sleep 2
+	journalctl -u ssh -n 1000
 endif
 
 	@echo "-----> Installing SSH public key..."
