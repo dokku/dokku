@@ -32,5 +32,3 @@
     # replace dokku.me with a hostname pointed at your server
     dokku domains:set-global dokku.me
     ```
-
-13. Once the web UI has been submitted, you will be redirected to our [application deployment tutorial](/docs/deployment/application-deployment.md), which will guide you through deploying a sample application to your Dokku server.
