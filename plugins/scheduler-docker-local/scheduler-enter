@@ -39,7 +39,7 @@ trigger-scheduler-docker-local-scheduler-enter() {
     esac
   done
 
-  if [[ -z "$CONTAINER_ID" ]] && [[ -z "$CONTAINER_TYPE" ]]; then
+  if [[ -z "$CONTAINER_ID" ]] && [[ -z "$CONTAINER_TYPE" || "$CONTAINER_TYPE" == "--" ]]; then
     AVAILABLE_CONTAINER_TYPES=($(get_app_running_container_types "$APP"))
     if [[ ${#AVAILABLE_CONTAINER_TYPES[@]} -gt 1 ]]; then
       dokku_log_warn "No container type specified."
