@@ -1,5 +1,32 @@
 # History
 
+## 0.35.3
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.35.3/bootstrap.sh
+sudo DOKKU_TAG=v0.35.3 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #7200: @josegonzalez Automatically select a container type if none is specified
+- #7199: @josegonzalez Check if nginx is running before reloading during an app deletion
+- #7198: @josegonzalez Add builder-herokuish to default help output
+- #7197: @josegonzalez Implement missing network:info command
+
+### Tests
+
+- #7201: @josegonzalez Run arm build on 22.04
+
+### Dependencies
+
+- #7193: @dependabot[bot] chore(deps): bump pymdown-extensions from 10.9 to 10.10.1 in /docs/_build
+- #7194: @dependabot[bot] chore(deps): bump traefik from 3.1.2 to 3.1.4 in /plugins/traefik-vhosts
+- #7195: @dependabot[bot] chore(deps): bump dokku/openresty-docker-proxy from 0.9.0 to 0.9.1 in /plugins/openresty-vhosts
+- #7196: @dependabot[bot] chore(deps): bump socket.io from 4.7.5 to 4.8.0 in /tests/apps/.websocket.disabled
+
 ## 0.35.2
 
 Install/update via the bootstrap script:
