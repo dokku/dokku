@@ -4,15 +4,15 @@
 > New as of 0.11.0, Enhanced in 0.20.0
 
 ```
-network:create <network>                 # Creates an attachable docker network
-network:destroy <network>                # Destroys a docker network
-network:exists <network>                 # Checks if a docker network exists
-network:info <network>                   # Outputs information about a docker network
-network:list                             # Lists all docker networks
-network:report [<app>] [<flag>]          # Displays a network report for one or more apps
-network:rebuild <app>                    # Rebuilds network settings for an app
-network:rebuildall                       # Rebuild network settings for all apps
-network:set <app> <key> (<value>)        # Set or clear a network property for an app
+network:create <network>                    # Creates an attachable docker network
+network:destroy <network>                   # Destroys a docker network
+network:exists <network>                    # Checks if a docker network exists
+network:info <network> [--format text|json] # Outputs information about a docker network
+network:list [--format text|json]           # Lists all docker networks
+network:report [<app>] [<flag>]             # Displays a network report for one or more apps
+network:rebuild <app>                       # Rebuilds network settings for an app
+network:rebuildall                          # Rebuild network settings for all apps
+network:set <app> <key> (<value>)           # Set or clear a network property for an app
 ```
 
 The Network plugin allows developers to abstract the concept of container network management, allowing developers to both change what networks a given container is attached to as well as rebuild the configuration on the fly.
@@ -49,6 +49,21 @@ bridge
 host
 none
 test-network
+```
+
+The `network:list` command also takes a `--format` flag, with the valid options including `text` (default) and `json`. The `json` output format can be used for automation purposes:
+
+```shell
+dokku network:list --format json
+```
+
+```
+[
+    {"CreatedAt":"2024-02-25T01:55:24.275184461Z","Driver":"bridge","ID":"d18df2d21433","Internal":false,"IPv6":false,"Labels":{},"Name":"bridge","Scope":"local"},
+    {"CreatedAt":"2024-02-25T01:55:24.275184461Z","Driver":"bridge","ID":"f50fa882e7de","Internal":false,"IPv6":false,"Labels":{},"Name":"test-network","Scope":"local"},
+    {"CreatedAt":"2024-02-25T01:55:24.275184461Z","Driver":"host","ID":"ab6a59291443","Internal":false,"IPv6":false,"Labels":{},"Name":"host","Scope":"local"},
+    {"CreatedAt":"2024-02-25T01:55:24.275184461Z","Driver":"null","ID":"e2506bc8b7d7","Internal":false,"IPv6":false,"Labels":{},"Name":"none","Scope":"local"}
+]
 ```
 
 ### Creating a network
@@ -117,16 +132,30 @@ The `network:exists` command will return non-zero if the network does not exist,
 ### Checking network info
 
 > [!IMPORTANT]
-> New as of 0.20.0, Requires Docker 1.21+
+> New as of 0.35.3
 
 Network information can be retrieved via the `network:info` command. This is a slightly different version of the `docker network` command.
 
 ```shell
-dokku network:info test-network
+dokku network:info bridge
 ```
 
 ```
-// TODO
+=====> bridge network information
+       ID:       d18df2d21433
+       Name:     bridge
+       Driver:   bridge
+       Scope:    local
+```
+
+The `network:info` command also takes a `--format` flag, with the valid options including `text` (default) and `json`. The `json` output format can be used for automation purposes:
+
+```shell
+dokku network:info bridge --format json
+```
+
+```
+{"CreatedAt":"2024-02-25T01:55:24.275184461Z","Driver":"bridge","ID":"d18df2d21433","Internal":false,"IPv6":false,"Labels":{},"Name":"bridge","Scope":"local"}
 ```
 
 ### Routing an app to a known ip:port combination
