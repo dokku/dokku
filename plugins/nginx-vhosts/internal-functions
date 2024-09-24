@@ -523,6 +523,57 @@ fn-nginx-vhosts-nginx-location() {
   echo "$NGINX_LOCATION"
 }
 
+fn-nginx-vhosts-nginx-is-running() {
+  declare desc="check if nginx is running"
+  local NGINX_INIT_NAME
+
+  NGINX_INIT_NAME=nginx
+  if fn-nginx-vhosts-uses-openresty; then
+    NGINX_INIT_NAME=openresty
+  fi
+
+  case "$DOKKU_DISTRO" in
+    debian | raspbian)
+      if [[ -x "$systemctl_path" ]]; then
+        if sudo "$systemctl_path" is-active --quiet "$NGINX_INIT_NAME"; then
+          return 0
+        fi
+      else
+        dokku_log_warn "Checking $NGINX_INIT_NAME status is not possible for init.d managed services"
+        return 0
+      fi
+      ;;
+
+    ubuntu)
+      # support docker-based installations
+      if [[ "$DOKKU_INIT_SYSTEM" == "sv" ]]; then
+        if sudo /usr/bin/sv status $NGINX_INIT_NAME | grep -q "^run:"; then
+          return 0
+        fi
+      elif [[ -x "$systemctl_path" ]]; then
+        if sudo "$systemctl_path" is-active --quiet "$NGINX_INIT_NAME"; then
+          return 0
+        fi
+      elif [[ -x /usr/bin/sv ]]; then
+        if sudo /usr/bin/sv status $NGINX_INIT_NAME | grep -q "^run:"; then
+          return 0
+        fi
+      else
+        dokku_log_warn "Checking $NGINX_INIT_NAME status is not possible for init.d managed services"
+        return 0
+      fi
+      ;;
+
+    arch)
+      if sudo "$systemctl_path" is-active --quiet "$NGINX_INIT_NAME"; then
+        return 0
+      fi
+      ;;
+  esac
+
+  return 1
+}
+
 fn-nginx-vhosts-nginx-init-cmd() {
   declare desc="start nginx for given distros"
   declare CMD="$1"
