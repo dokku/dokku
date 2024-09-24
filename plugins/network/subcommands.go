@@ -1,6 +1,7 @@
 package network
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -74,20 +75,67 @@ func CommandExists(networkName string) error {
 }
 
 // CommandInfo is an alias for "docker network inspect"
-func CommandInfo() error {
-	return nil
-}
+func CommandInfo(networkName string, format string) error {
+	if networkName == "" {
+		return errors.New("No network name specified")
+	}
 
-// CommandList is an alias for "docker network ls"
-func CommandList() error {
-	networks, err := listNetworks()
+	if format != "json" && format != "text" {
+		return errors.New("Invalid format specified, use either text or json")
+	}
+
+	networks, err := getNetworks()
 	if err != nil {
 		return err
 	}
 
+	network, ok := networks[networkName]
+	if !ok {
+		return errors.New("Network does not exist")
+	}
+
+	if format == "json" {
+		out, err := json.Marshal(network)
+		if err != nil {
+			return err
+		}
+		common.Log(string(out))
+		return nil
+	}
+
+	length := 10
+	common.LogInfo2Quiet(fmt.Sprintf("%s network information", networkName))
+	common.LogVerbose(fmt.Sprintf("%s%s", common.RightPad("ID:", length, " "), network.ID))
+	common.LogVerbose(fmt.Sprintf("%s%s", common.RightPad("Name:", length, " "), network.Name))
+	common.LogVerbose(fmt.Sprintf("%s%s", common.RightPad("Driver:", length, " "), network.Driver))
+	common.LogVerbose(fmt.Sprintf("%s%s", common.RightPad("Scope:", length, " "), network.Scope))
+
+	return nil
+}
+
+// CommandList is an alias for "docker network ls"
+func CommandList(format string) error {
+	networks, err := getNetworks()
+	if err != nil {
+		return err
+	}
+
+	if format == "json" {
+		networkList := []DockerNetwork{}
+		for _, network := range networks {
+			networkList = append(networkList, network)
+		}
+		out, err := json.Marshal(networkList)
+		if err != nil {
+			return err
+		}
+		common.Log(string(out))
+		return nil
+	}
+
 	common.LogInfo2Quiet("Networks")
-	for _, networkName := range networks {
-		fmt.Println(networkName)
+	for _, network := range networks {
+		fmt.Println(network.Name)
 	}
 
 	return nil

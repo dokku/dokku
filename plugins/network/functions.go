@@ -1,12 +1,26 @@
 package network
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/dokku/dokku/plugins/common"
 )
+
+type DockerNetwork struct {
+	CreatedAt time.Time
+	Driver    string
+	ID        string
+	Internal  bool
+	IPv6      bool
+	Labels    map[string]string
+	Name      string
+	Scope     string
+}
 
 // attachAppToNetwork attaches a container to a network
 func attachAppToNetwork(containerID string, networkName string, appName string, phase string, processType string) error {
@@ -110,13 +124,13 @@ func networkExists(networkName string) (bool, error) {
 
 	exists := false
 
-	networks, err := listNetworks()
+	networks, err := getNetworks()
 	if err != nil {
 		return false, err
 	}
 
-	for _, n := range networks {
-		if networkName == n {
+	for _, network := range networks {
+		if networkName == network.Name {
 			exists = true
 			break
 		}
@@ -125,21 +139,75 @@ func networkExists(networkName string) (bool, error) {
 	return exists, nil
 }
 
-// listNetworks returns a list of docker networks
-func listNetworks() ([]string, error) {
+// getNetworks returns a list of docker networks
+func getNetworks() (map[string]DockerNetwork, error) {
 	result, err := common.CallExecCommand(common.ExecCommandInput{
 		Command: common.DockerBin(),
-		Args:    []string{"network", "ls", "--format", "{{ .Name }}"},
+		Args:    []string{"network", "ls", "--format", "json"},
 	})
 	if err != nil {
 		common.LogVerboseQuiet(result.StderrContents())
-		return []string{}, err
+		return map[string]DockerNetwork{}, err
 	}
 	if result.ExitCode != 0 {
 		common.LogVerboseQuiet(result.StderrContents())
-		return []string{}, fmt.Errorf("Unable to list networks")
+		return map[string]DockerNetwork{}, fmt.Errorf("Unable to list networks")
 	}
 
-	networks := strings.Split(result.StdoutContents(), "\n")
+	networkLines := strings.Split(result.StdoutContents(), "\n")
+	networks := map[string]DockerNetwork{}
+	for _, line := range networkLines {
+		if line == "" {
+			continue
+		}
+		result := make(map[string]interface{})
+		err := json.Unmarshal([]byte(line), &result)
+		if err != nil {
+			return map[string]DockerNetwork{}, err
+		}
+
+		network := DockerNetwork{
+			Driver: result["Driver"].(string),
+			ID:     result["ID"].(string),
+			Name:   result["Name"].(string),
+			Scope:  result["Scope"].(string),
+			Labels: map[string]string{},
+		}
+
+		if createdAtVal := result["CreatedAt"].(string); createdAtVal != "" {
+			createdAt, err := time.Parse("2006-01-02 15:04:05.999999999 -0700 MST", "2024-02-25 01:55:24.275184461 +0000 UTC")
+			if err == nil {
+				network.CreatedAt = createdAt
+			}
+		}
+
+		if ipv6Val := result["IPv6"].(string); ipv6Val != "" {
+			val, err := strconv.ParseBool(ipv6Val)
+			if err == nil {
+				network.IPv6 = val
+			}
+		}
+		if internalVal := result["Internal"].(string); internalVal != "" {
+			val, err := strconv.ParseBool(internalVal)
+			if err == nil {
+				network.Internal = val
+			}
+		}
+
+		labels := strings.Split(result["Labels"].(string), ",")
+		for _, v := range labels {
+			parts := strings.SplitN(v, "=", 2)
+			if len(parts) != 2 {
+				continue
+			}
+
+			key := parts[0]
+			value := parts[1]
+			network.Labels[key] = value
+		}
+
+		networks[network.Name] = network
+	}
+
 	return networks, nil
 }
