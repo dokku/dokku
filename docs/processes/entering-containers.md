@@ -12,6 +12,9 @@ enter <app>  [<container-type> || --container-id <container-id>]  # Connect to a
 The `enter` command can be used to enter a running container. The following variations of the command exist:
 
 ```shell
+# enter the first container
+dokku enter node-js-app
+
 # enter the web process
 dokku enter node-js-app web
 
