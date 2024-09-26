@@ -72,7 +72,7 @@ Vagrant::configure("2") do |config|
   config.vm.define "dokku-windows", autostart: false do |vm|
     vm.vm.hostname = "#{DOKKU_DOMAIN}"
     vm.vm.network :private_network, ip: DOKKU_IP
-    vm.vm.provision :shell, :inline => "export DEBIAN_FRONTEND=noninteractive && apt-get update -qq >/dev/null && apt-get -qq -y --no-install-recommends install git dos2unix >/dev/null"
+    vm.vm.provision :shell, :inline => "export DEBIAN_FRONTEND=noninteractive && apt-get update -qq >/dev/null && apt-get -qq -y --no-install-recommends install git dos2unix nginx >/dev/null"
     vm.vm.provision :shell, :inline => "cd /vagrant/ && export DOKKU_BRANCH=`git symbolic-ref -q --short HEAD 2>/dev/null` && export DOKKU_TAG=`git describe --tags --exact-match 2>/dev/null` && cd /root/ && cp /vagrant/bootstrap.sh ./ && dos2unix bootstrap.sh && bash bootstrap.sh"
   end
 
