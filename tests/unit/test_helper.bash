@@ -637,7 +637,7 @@ convert_to_dockerfile() {
 }
 
 install_pack() {
-  if ! command -v "pack" &>/dev/null; then
+  if [[ ! -x /usr/bin/pack ]]; then
     add-apt-repository --yes ppa:cncf-buildpacks/pack-cli
     apt-get update
     apt-get --yes install pack-cli
