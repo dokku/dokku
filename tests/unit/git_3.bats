@@ -181,6 +181,11 @@ teardown() {
   assert_success
   assert_output_contains "Application deployed"
 
+  run /bin/bash -c "dokku config:get $TEST_APP GIT_REV"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_exists
+
   run /bin/bash -c "cat /home/dokku/$TEST_APP/refs/heads/master"
   echo "output: $output"
   echo "status: $status"
