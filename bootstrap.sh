@@ -12,7 +12,7 @@ set -eo pipefail
 # That's good because it prevents our output overlapping with wget's.
 # It also means that we can't run a partially downloaded script.
 
-SUPPORTED_VERSIONS="Debian [10, 11, 12], Ubuntu [20.04, 22.04, 24.04]"
+SUPPORTED_VERSIONS="Debian [11, 12], Ubuntu [20.04, 22.04, 24.04]"
 
 log-fail() {
   declare desc="log fail formatter"
@@ -193,14 +193,14 @@ install-dokku-from-deb-package() {
       OS_ID="noble"
     fi
   elif [[ "$DOKKU_DISTRO" == "debian" ]]; then
-    OS_IDS=("stretch" "buster" "bullseye" "bookworm")
+    OS_IDS=("bullseye" "bookworm")
     if ! in-array "$OS_ID" "${OS_IDS[@]}"; then
-      OS_ID="bullseye"
+      OS_ID="bookworm"
     fi
   elif [[ "$DOKKU_DISTRO" == "raspbian" ]]; then
-    OS_IDS=("buster" "bullseye")
+    OS_IDS=("bullseye" "bookworm")
     if ! in-array "$OS_ID" "${OS_IDS[@]}"; then
-      OS_ID="bullseye"
+      OS_ID="bookworm"
     fi
   fi
 

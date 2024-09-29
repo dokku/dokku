@@ -10,7 +10,7 @@ To start using Dokku, you'll need a system that meets the following minimum requ
 
 - A fresh installation of any of the following operating systems:
     - [Ubuntu 20.04/22.04/24.04](https://www.ubuntu.com/download)
-    - [Debian 10+ x64](https://www.debian.org/distrib/)
+    - [Debian 11+ x64](https://www.debian.org/distrib/)
 - A server with one of the following architectures
     - AMD64 (alternatively known as `x86_64`), commonly used for Intel cloud servers
     - ARMV8 (alternatively known as `arm64`), commonly used for Raspberry PI and AWS Graviton
