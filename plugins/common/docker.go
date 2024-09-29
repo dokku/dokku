@@ -3,6 +3,7 @@ package common
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -64,6 +65,17 @@ func ContainerWait(containerID string) bool {
 	if err != nil {
 		return false
 	}
+
+	stdout := result.StdoutContents()
+	if stdout != "0" {
+		exitCode, err := strconv.Atoi(stdout)
+		if err != nil {
+			return false
+		}
+
+		return exitCode == 0
+	}
+
 	return result.ExitCode == 0
 }
 
