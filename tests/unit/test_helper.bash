@@ -587,6 +587,15 @@ add_requirements_txt() {
   echo "flask" >>"$APP_REPO_DIR/requirements.txt"
 }
 
+add_requirements_txt_cnb() {
+  local APP="$1"
+  local APP_REPO_DIR="$2"
+  [[ -z "$APP" ]] && local APP="$TEST_APP"
+
+  mv "$APP_REPO_DIR/app-cnb.json" "$APP_REPO_DIR/app.json"
+  add_requirements_txt "$APP" "$APP_REPO_DIR"
+}
+
 create_network() {
   local NETWORK_NAME="${1:-$TEST_NETWORK}"
 
