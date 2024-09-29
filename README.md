@@ -74,8 +74,8 @@ Support us with a monthly donation and help us continue our activities. [[Become
 
 A fresh VM running any of the following operating systems:
 
-- Ubuntu 20.04 / 22.04 / 24.04 (amd64/arch64) - Any currently supported release
-- Debian 11+ (amd64/arch64)
+- Ubuntu 20.04 / 22.04 / 24.04 (amd64/arm64) - Any currently supported release
+- Debian 11+ (amd64/arm64)
 
 An SSH keypair that can be used for application deployment. If this exists before installation, it will be automatically imported into dokku.
 Otherwise, you will need to import the keypair manually after installation using `dokku ssh-keys:add`.
