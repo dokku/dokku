@@ -1,4 +1,4 @@
 [plugin]
 description = "dokku core caddy-vhosts plugin"
-version = "0.35.3"
+version = "0.35.4"
 [plugin.config]

@@ -1,5 +1,31 @@
 # History
 
+## 0.35.4
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.35.4/bootstrap.sh
+sudo DOKKU_TAG=v0.35.4 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #7209: @josegonzalez Exit non-zero if any deployment tasks fails
+- #7211: @josegonzalez Always set the git rev env var when building an app via git:sync
+- #7208: @josegonzalez Compute path for docker-container-healthchecker
+- #7205: @Cactusbone chore: fix vagrant dokku-windows config
+
+### Tests
+
+- #7210: @josegonzalez Ensure pack binary is installed correctly when running tests in a devcontainer
+
+### Dependencies
+
+- #7206: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.37 to 9.5.38 in /docs/_build
+- #7207: @dependabot[bot] chore(deps): bump pymdown-extensions from 10.10.1 to 10.10.2 in /docs/_build
+- #7203: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.36 to 9.5.37 in /docs/_build
+
 ## 0.35.3
 
 Install/update via the bootstrap script:
