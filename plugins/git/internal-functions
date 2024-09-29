@@ -235,10 +235,11 @@ cmd-git-sync() {
   if [[ "$SHOULD_BUILD" == "true" ]]; then
     if [[ -n "$GIT_REF" ]]; then
       GIT_REF="$(fn-git-cmd "$APP_ROOT" rev-parse "$GIT_REF")"
-      plugn trigger receive-app "$APP" "$GIT_REF"
     else
-      plugn trigger receive-app "$APP"
+      GIT_REF="$UPDATED_REF"
     fi
+
+    plugn trigger receive-app "$APP" "$GIT_REF"
     plugn trigger deploy-source-set "$APP" "git-sync" "${GIT_REMOTE}#${GIT_REF}"
   fi
 }
