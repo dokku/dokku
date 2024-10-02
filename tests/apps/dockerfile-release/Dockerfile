@@ -1,4 +1,4 @@
-FROM python:3.12.6-bookworm
+FROM python:3.12.7-bookworm
 
 RUN pip install --user pipenv
 ENV PATH="${PATH}:/root/.local/bin"
