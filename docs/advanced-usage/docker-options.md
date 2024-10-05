@@ -3,7 +3,9 @@
 > [!IMPORTANT]
 > New as of 0.3.17
 
-Pass [container options](https://docs.docker.com/engine/reference/run/) to the `docker run` command  during Dokku's `build`, `deploy` and `run` phases
+Pass [container options](https://docs.docker.com/engine/reference/run/) to the `docker run`* command  during Dokku's `build`, `deploy` and `run` phases.
+
+*do not confuse `docker run` with `dokku run`. The `dokku run` phase is for one-off containers created by dokku run and cron tasks. The deploy phase is for containers that are created (and subsequently *run* as part of a deploy). See [About Dokku phases](#about-dokku-phases) & issue https://github.com/dokku/dokku/issues/7219.
 
 ```
 docker-options:add <app> <phase(s)> OPTION    # Add Docker option to app for phase (comma-separated phase list)
