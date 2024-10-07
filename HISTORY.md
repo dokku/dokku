@@ -1,5 +1,51 @@
 # History
 
+## 0.35.5
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.35.5/bootstrap.sh
+sudo DOKKU_TAG=v0.35.5 bash bootstrap.sh
+```
+
+### New Features
+
+- #7213: @josegonzalez Release Dokku on supported versions of Debian and Raspbian
+
+### Documentation
+
+- #7241: @josegonzalez Clarify phase utilization in docker-options docs
+- #7240: @josegonzalez Update testing docs to specify that CI is performed on Ubuntu Noble
+- #7218: @josegonzalez Fix reference to arm64
+- #7215: @Lewiscowles1986 Clarify x64 as amd64/arch64 in readme
+
+### Tests
+
+- #7212: @josegonzalez Update python version used in test apps
+
+### Dependencies
+
+- #7243: @dependabot[bot] chore(deps): bump google.golang.org/protobuf from 1.34.2 to 1.35.1 in /tests/apps/gogrpc
+- #7238: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 45.0.2 to 45.0.3
+- #7237: @dependabot[bot] chore(deps): bump traefik from 3.1.4 to 3.1.5 in /plugins/traefik-vhosts
+- #7227: @dependabot[bot] chore(deps): bump google.golang.org/grpc from 1.67.0 to 1.67.1 in /tests/apps/gogrpc
+- #7231: @dependabot[bot] chore(deps): bump pymdown-extensions from 10.11.1 to 10.11.2 in /docs/_build
+- #7228: @dependabot[bot] chore(deps): bump golang from 1.23.1 to 1.23.2 in /tests/apps/go-fail-postdeploy
+- #7229: @dependabot[bot] chore(deps): bump golang from 1.23.1 to 1.23.2 in /tests/apps/zombies-dockerfile-tini
+- #7230: @dependabot[bot] chore(deps): bump python from 3.12.6-bookworm to 3.12.7-bookworm in /tests/apps/dockerfile-release
+- #7232: @dependabot[bot] chore(deps): bump golang from 1.23.1 to 1.23.2 in /tests/apps/go-fail-predeploy
+- #7233: @dependabot[bot] chore(deps): bump python from 3.12.6-alpine to 3.12.7-alpine in /docs/_build
+- #7234: @dependabot[bot] chore(deps): bump golang from 1.23.1 to 1.23.2 in /tests/apps/zombies-dockerfile-no-tini
+- #7235: @dependabot[bot] chore(deps): bump golang from 1.23.1 to 1.23.2 in /tests/apps/gogrpc
+- #7220: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.38 to 9.5.39 in /docs/_build
+- #7221: @dependabot[bot] chore(deps): bump pymdown-extensions from 10.10.2 to 10.11.1 in /docs/_build
+- #7222: @dependabot[bot] chore(deps): bump watchdog from 5.0.2 to 5.0.3 in /docs/_build
+
+### Other
+
+- #7245: @moenoel fix: #7035 broke traefik https router rule
+
 ## 0.35.4
 
 Install/update via the bootstrap script:
