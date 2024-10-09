@@ -34,6 +34,7 @@ main() {
   local DOKKU_PORT=""
   if [[ "$PROC_TYPE" == "web" ]]; then
     ports=($(plugn trigger ports-get "$APP"))
+    local exposed_ports=()
     for port_map in "${ports[@]}"; do
       local scheme="$(echo "$port_map" | cut -d':' -f1)"
       local container_port="$(echo "$port_map" | cut -d':' -f3)"
@@ -41,7 +42,13 @@ main() {
         DOKKU_PORT="${DOKKU_PORT:="$container_port"}"
       fi
 
+      # skip if the exposed_ports array contains container_port
+      if fn-in-array "$container_port" "${exposed_ports[@]}"; then
+        continue
+      fi
+
       if [[ "$DOKKU_NETWORK_BIND_ALL" == "true" ]]; then
+        exposed_ports+=("$container_port")
         DOCKER_ARGS+=" -p $container_port"
       fi
     done
