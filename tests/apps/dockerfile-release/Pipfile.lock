@@ -34,12 +34,12 @@
         },
         "django": {
             "hashes": [
-                "sha256:333a7988f7ca4bc14d360d3d8f6b793704517761ae3813b95432043daec22a45",
-                "sha256:ebe859c9da6fead9c9ee6dbfa4943b04f41342f4cea2c4d8c978ef0d10694f2b"
+                "sha256:6333870d342329b60174da3a60dbd302e533f3b0bb0971516750e974a99b5a39",
+                "sha256:f219576ba53be4e83f485130a7283f0efde06a9f2e3a7c3c5180327549f078fa"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.10'",
-            "version": "==5.0.8"
+            "version": "==5.0.9"
         },
         "djangorestframework": {
             "hashes": [
