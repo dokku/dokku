@@ -187,5 +187,6 @@ upstream {{ $.APP }}-{{ $upstream_port }} {
 {{ $listener_list := $listeners | split ":" }}
 {{ $listener_ip := index $listener_list 0 }}
   server {{ $listener_ip }}:{{ $upstream_port }};{{ end }}
+  keepalive 16;
 }
 {{ end }}{{ end }}
