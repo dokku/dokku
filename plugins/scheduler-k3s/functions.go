@@ -806,6 +806,24 @@ func getIngressAnnotations(appName string, processType string) (map[string]strin
 		"bind-address-ipv6": {
 			getter: nginxvhosts.ComputedBindAddressIPv6,
 		},
+		"client-body-timeout": {
+			getter: nginxvhosts.ComputedClientBodyTimeout,
+			serverSnippet: func(value string) string {
+				if value == "" {
+					return ""
+				}
+				return fmt.Sprintf("client_body_timeout %s;", value)
+			},
+		},
+		"client-header-timeout": {
+			getter: nginxvhosts.ComputedClientHeaderTimeout,
+			serverSnippet: func(value string) string {
+				if value == "" {
+					return ""
+				}
+				return fmt.Sprintf("client_header_timeout %s;", value)
+			},
+		},
 		"client-max-body-size": {
 			annotation: "nginx.ingress.kubernetes.io/proxy-body-size",
 			getter:     nginxvhosts.ComputedClientMaxBodySize,
@@ -835,6 +853,24 @@ func getIngressAnnotations(appName string, processType string) (map[string]strin
 		"hsts": {
 			getter: nginxvhosts.ComputedHSTS,
 		},
+		"keepalive-timeout": {
+			getter: nginxvhosts.ComputedKeepaliveTimeout,
+			serverSnippet: func(value string) string {
+				if value == "" {
+					return ""
+				}
+				return fmt.Sprintf("keepalive_timeout %s;", value)
+			},
+		},
+		"lingering-timeout": {
+			getter: nginxvhosts.ComputedLingeringTimeout,
+			serverSnippet: func(value string) string {
+				if value == "" {
+					return ""
+				}
+				return fmt.Sprintf("lingering_timeout %s;", value)
+			},
+		},
 		"nginx-conf-sigil-path": {
 			getter: nginxvhosts.ComputedNginxConfSigilPath,
 		},
@@ -859,9 +895,26 @@ func getIngressAnnotations(appName string, processType string) (map[string]strin
 				return fmt.Sprintf("proxy_busy_buffers_size %s;", value)
 			},
 		},
+		"proxy-connect-timeout": {
+			annotation: "nginx.ingress.kubernetes.io/proxy-connect-timeout",
+			getter:     nginxvhosts.ComputedProxyConnectTimeout,
+		},
 		"proxy-read-timeout": {
 			annotation: "nginx.ingress.kubernetes.io/proxy-read-timeout",
 			getter:     nginxvhosts.ComputedProxyReadTimeout,
+		},
+		"proxy-send-timeout": {
+			annotation: "nginx.ingress.kubernetes.io/proxy-send-timeout",
+			getter:     nginxvhosts.ComputedProxySendTimeout,
+		},
+		"send-timeout": {
+			getter: nginxvhosts.ComputedSendTimeout,
+			serverSnippet: func(value string) string {
+				if value == "" {
+					return ""
+				}
+				return fmt.Sprintf("send_timeout %s;", value)
+			},
 		},
 		"underscore-in-headers": {
 			getter: nginxvhosts.ComputedUnderscoreInHeaders,

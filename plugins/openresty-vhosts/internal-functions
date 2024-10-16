@@ -46,6 +46,20 @@ fn-openresty-bind-address-ipv6() {
   fn-plugin-property-get-default "openresty" "$APP" "bind-address-ipv6" "::"
 }
 
+fn-openresty-client-body-timeout() {
+  declare desc="get the configured client body timeout"
+  declare APP="$1"
+
+  fn-plugin-property-get-default "openresty" "$APP" "client-body-timeout" "60s"
+}
+
+fn-openresty-client-header-timeout() {
+  declare desc="get the configured client header timeout"
+  declare APP="$1"
+
+  fn-plugin-property-get-default "openresty" "$APP" "client-body-timeout" "60s"
+}
+
 fn-openresty-client-max-body-size() {
   declare desc="get the configured client max body size"
   declare APP="$1"
@@ -121,6 +135,13 @@ fn-openresty-image() {
   fn-plugin-property-get-default "openresty" "--global" "image" "$(grep "FROM" "$PLUGIN_AVAILABLE_PATH/openresty-vhosts/Dockerfile" | awk '{print $2}')"
 }
 
+fn-openresty-keepalive-timeout() {
+  declare desc="get the configured keepalive timeout"
+  declare APP="$1"
+
+  fn-plugin-property-get-default "openresty" "$APP" "keepalive-timeout" "75s"
+}
+
 fn-openresty-letsencrypt-email() {
   fn-plugin-property-get-default "openresty" "--global" "letsencrypt-email" ""
 }
@@ -154,6 +175,13 @@ fn-openresty-logs-usage() {
   echo ""
   echo " -n, --num NUM        # the number of lines to display"
   echo " -t, --tail           # continually stream logs"
+}
+
+fn-openresty-lingering-timeout() {
+  declare desc="get the configured lingering timeout"
+  declare APP="$1"
+
+  fn-plugin-property-get-default "openresty" "$APP" "lingering-timeout" "5s"
 }
 
 fn-openresty-proxy-buffer-size() {
@@ -206,7 +234,7 @@ fn-openresty-proxy-send-timeout() {
 }
 
 fn-openresty-send-timeout() {
-  declare desc="get the configured proxy send timeout"
+  declare desc="get the configured send timeout"
   declare APP="$1"
 
   fn-plugin-property-get-default "openresty" "$APP" "send-timeout" "60s"
