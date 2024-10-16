@@ -88,6 +88,48 @@ fn-nginx-global-bind-address-ipv6() {
   fn-get-property --app "$APP" --global "bind-address-ipv6"
 }
 
+fn-nginx-client-body-timeout() {
+  declare desc="get the configured client body timeout"
+  declare APP="$1"
+
+  fn-get-property --app "$APP" "client-body-timeout"
+}
+
+fn-nginx-computed-client-body-timeout() {
+  declare desc="get the computed client body timeout"
+  declare APP="$1"
+
+  fn-get-property --app "$APP" --computed "client-body-timeout"
+}
+
+fn-nginx-global-client-body-timeout() {
+  declare desc="get the global client body timeout"
+  declare APP="$1"
+
+  fn-get-property --app "$APP" --global "client-body-timeout"
+}
+
+fn-nginx-client-header-timeout() {
+  declare desc="get the configured client header timeout"
+  declare APP="$1"
+
+  fn-get-property --app "$APP" "client-header-timeout"
+}
+
+fn-nginx-computed-client-header-timeout() {
+  declare desc="get the computed client header timeout"
+  declare APP="$1"
+
+  fn-get-property --app "$APP" --computed "client-header-timeout"
+}
+
+fn-nginx-global-client-header-timeout() {
+  declare desc="get the global client header timeout"
+  declare APP="$1"
+
+  fn-get-property --app "$APP" --global "client-header-timeout"
+}
+
 fn-nginx-client-max-body-size() {
   declare desc="get the configured client max body size"
   declare APP="$1"
@@ -228,6 +270,48 @@ fn-nginx-log-root() {
   echo "$NGINX_LOG_ROOT"
 }
 
+fn-nginx-keepalive-timeout() {
+  declare desc="get the configured keepalive timeout"
+  declare APP="$1"
+
+  fn-get-property --app "$APP" "keepalive-timeout"
+}
+
+fn-nginx-computed-keepalive-timeout() {
+  declare desc="get the computed keepalive timeout"
+  declare APP="$1"
+
+  fn-get-property --app "$APP" --computed "keepalive-timeout"
+}
+
+fn-nginx-global-keepalive-timeout() {
+  declare desc="get the global keepalive timeout"
+  declare APP="$1"
+
+  fn-get-property --app "$APP" --global "keepalive-timeout"
+}
+
+fn-nginx-lingering-timeout() {
+  declare desc="get the configured lingering timeout"
+  declare APP="$1"
+
+  fn-get-property --app "$APP" "lingering-timeout"
+}
+
+fn-nginx-computed-lingering-timeout() {
+  declare desc="get the computed lingering timeout"
+  declare APP="$1"
+
+  fn-get-property --app "$APP" --computed "lingering-timeout"
+}
+
+fn-nginx-global-lingering-timeout() {
+  declare desc="get the global lingering timeout"
+  declare APP="$1"
+
+  fn-get-property --app "$APP" --global "lingering-timeout"
+}
+
 fn-nginx-nginx-conf-sigil-path() {
   declare APP="$1"
   fn-get-property --app "$APP" "nginx-conf-sigil-path"
@@ -326,6 +410,27 @@ fn-nginx-global-proxy-busy-buffers-size() {
   fn-get-property --app "$APP" --global "proxy-busy-buffers-size"
 }
 
+fn-nginx-proxy-connect-timeout() {
+  declare desc="get the configured proxy connect timeout"
+  declare APP="$1"
+
+  fn-get-property --app "$APP" "proxy-connect-timeout"
+}
+
+fn-nginx-computed-proxy-connect-timeout() {
+  declare desc="get the computed proxy connect timeout"
+  declare APP="$1"
+
+  fn-get-property --app "$APP" --computed "proxy-connect-timeout"
+}
+
+fn-nginx-global-proxy-connect-timeout() {
+  declare desc="get the global proxy connect timeout"
+  declare APP="$1"
+
+  fn-get-property --app "$APP" --global "proxy-connect-timeout"
+}
+
 fn-nginx-proxy-read-timeout() {
   declare desc="get the configured proxy read timeout"
   declare APP="$1"
@@ -345,6 +450,48 @@ fn-nginx-global-proxy-read-timeout() {
   declare APP="$1"
 
   fn-get-property --app "$APP" --global "proxy-read-timeout"
+}
+
+fn-nginx-proxy-send-timeout() {
+  declare desc="get the configured proxy send timeout"
+  declare APP="$1"
+
+  fn-get-property --app "$APP" "proxy-send-timeout"
+}
+
+fn-nginx-computed-proxy-send-timeout() {
+  declare desc="get the computed proxy send timeout"
+  declare APP="$1"
+
+  fn-get-property --app "$APP" --computed "proxy-send-timeout"
+}
+
+fn-nginx-global-proxy-send-timeout() {
+  declare desc="get the global proxy send timeout"
+  declare APP="$1"
+
+  fn-get-property --app "$APP" --global "proxy-send-timeout"
+}
+
+fn-nginx-send-timeout() {
+  declare desc="get the configured send timeout"
+  declare APP="$1"
+
+  fn-get-property --app "$APP" "send-timeout"
+}
+
+fn-nginx-computed-send-timeout() {
+  declare desc="get the computed send timeout"
+  declare APP="$1"
+
+  fn-get-property --app "$APP" --computed "send-timeout"
+}
+
+fn-nginx-global-send-timeout() {
+  declare desc="get the global send timeout"
+  declare APP="$1"
+
+  fn-get-property --app "$APP" --global "send-timeout"
 }
 
 fn-nginx-underscore-in-headers() {

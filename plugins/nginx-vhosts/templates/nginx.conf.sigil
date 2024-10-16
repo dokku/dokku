@@ -12,6 +12,13 @@ server {
   access_log  {{ $.NGINX_ACCESS_LOG_PATH }}{{ if and ($.NGINX_ACCESS_LOG_FORMAT) (ne $.NGINX_ACCESS_LOG_PATH "off") }} {{ $.NGINX_ACCESS_LOG_FORMAT }}{{ end }};
   error_log   {{ $.NGINX_ERROR_LOG_PATH }};
   underscores_in_headers {{ $.NGINX_UNDERSCORE_IN_HEADERS }};
+
+  client_body_timeout {{ $.CLIENT_BODY_TIMEOUT }};
+  client_header_timeout {{ $.CLIENT_HEADER_TIMEOUT }};
+  keepalive_timeout {{ $.KEEPALIVE_TIMEOUT }};
+  lingering_timeout {{ $.LINGERING_TIMEOUT }};
+  send_timeout {{ $.SEND_TIMEOUT }};
+
 {{ if (and (eq $listen_port "80") ($.SSL_INUSE)) }}
   include {{ $.DOKKU_ROOT }}/{{ $.APP }}/nginx.conf.d/*.conf;
   location / {
@@ -29,7 +36,9 @@ server {
 
     proxy_pass  http://{{ $.APP }}-{{ $upstream_port }};
     proxy_http_version 1.1;
+    proxy_connect_timeout {{ $.PROXY_CONNECT_TIMEOUT }};
     proxy_read_timeout {{ $.PROXY_READ_TIMEOUT }};
+    proxy_send_timeout {{ $.PROXY_SEND_TIMEOUT }};
     proxy_buffer_size {{ $.PROXY_BUFFER_SIZE }};
     proxy_buffering {{ $.PROXY_BUFFERING }};
     proxy_buffers {{ $.PROXY_BUFFERS }};
@@ -81,7 +90,11 @@ server {
   ssl_protocols             TLSv1.2 {{ if eq $.TLS13_SUPPORTED "true" }}TLSv1.3{{ end }};
   ssl_prefer_server_ciphers off;
 
-  keepalive_timeout   70;
+  client_body_timeout {{ $.CLIENT_BODY_TIMEOUT }};
+  client_header_timeout {{ $.CLIENT_HEADER_TIMEOUT }};
+  keepalive_timeout {{ $.KEEPALIVE_TIMEOUT }};
+  lingering_timeout {{ $.LINGERING_TIMEOUT }};
+  send_timeout {{ $.SEND_TIMEOUT }};
 
   location    / {
 
@@ -95,7 +108,9 @@ server {
     proxy_pass  http://{{ $.APP }}-{{ $upstream_port }};
     {{ if eq $.HTTP2_PUSH_SUPPORTED "true" }}http2_push_preload on; {{ end }}
     proxy_http_version 1.1;
+    proxy_connect_timeout {{ $.PROXY_CONNECT_TIMEOUT }};
     proxy_read_timeout {{ $.PROXY_READ_TIMEOUT }};
+    proxy_send_timeout {{ $.PROXY_SEND_TIMEOUT }};
     proxy_buffer_size {{ $.PROXY_BUFFER_SIZE }};
     proxy_buffering {{ $.PROXY_BUFFERING }};
     proxy_buffers {{ $.PROXY_BUFFERS }};

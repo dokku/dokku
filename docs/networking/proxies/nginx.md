@@ -190,7 +190,7 @@ Sometimes it may be desirable to set a different path for a given app, e.g. when
 dokku nginx:set node-js-app nginx-conf-sigil-path .dokku/nginx.conf.sigil
 ```
 
-The value is the path to the desired file *relative* to the base search directory, and will never be treated as absolute paths in any context. If that file does not exist within the repository, Dokku will continue the build process as if the repository has no `nginx.conf.sigil`.
+The value is the path to the desired file _relative_ to the base search directory, and will never be treated as absolute paths in any context. If that file does not exist within the repository, Dokku will continue the build process as if the repository has no `nginx.conf.sigil`.
 
 The default value may be set by passing an empty value for the option:
 
@@ -315,28 +315,35 @@ Changing these value globally or on a per-app basis will require rebuilding the 
 > [!WARNING]
 > Validation is not performed against the values, and they are used as is within Dokku.
 
-| Property                  | Default                               | Type    | Explanation                                                                         | 
+| Property                  | Default                               | Type    | Explanation                                                                         |
 | --------------------------|---------------------------------------|---------|-------------------------------------------------------------------------------------|
 | access-log-format         | empty string                          | string  | Name of custom log format to use (log format must be specified elsewhere)           |
 | access-log-path           | `${NGINX_LOG_ROOT}/${APP}-access.log` | string  | Log path for nginx access logs (set to `off` to disable)                            |
 | bind-address-ipv4         | `0.0.0.0`                             | string  | Default IPv4 address to bind to                                                     |
 | bind-address-ipv6         | `[::]`                                | string  | Default IPv6 address to bind to                                                     |
 | client-max-body-size      | `1m`                                  | string  | Size (with units) of client request body (usually modified for file uploads)        |
+| client-body-timeout       | `60s`                                 | string  | Timeout (with units) for reading the client request body                            |
+| client-header-timeout     | `60s`                                 | string  | Timeout (with units) for reading the client request headers                         |
 | error-log-path            | `${NGINX_LOG_ROOT}/${APP}-error.log`  | string  | Log path for nginx error logs (set to `off` to disable)                             |
 | hsts                      | `true`                                | boolean | Enables or disables HSTS for your application                                       |
 | hsts-include-subdomains   | `true`                                | boolean | Forces the browser to apply the HSTS policy to all app subdomains                   |
 | hsts-max-age              | `15724800`                            | integer | Time in seconds to cache HSTS configuration                                         |
 | hsts-preload              | `false`                               | boolean | Tells the browser to include the domain in their HSTS preload lists                 |
+| keepalive-timeout         | `75s`                                 | string  | Timeout (with units) during which a keep-alive client connection will stay open on the server side |
+| lingering-timeout         | `5s`                                  | string  | Timeout (with units) is the maximum waiting time for more client data to arrive     |
 | nginx-conf-sigil-path     | `nginx.conf.sigil`                    | string  | Path in the repository to the `nginx.conf.sigil` file                               |
 | proxy-buffer-size         | `8k` (# is os pagesize)               | string  | Size of the buffer used for reading the first part of proxied server response       |
 | proxy-buffering           | `on`                                  | string  | Enables or disables buffering of responses from the proxied server                  |
 | proxy-buffers             | `8 8k`                                | string  | Number and size of the buffers used for reading the proxied server response, for a single connection |
 | proxy-busy-buffers-size   | `16k`                                 | string  | Limits the total size of buffers that can be busy sending a response to the client while the response is not yet fully read. |
+| proxy-connect-timeout     | `60s`                                 | string  | Timeout (with units) for establishing a connection to your backend server           |
 | proxy-read-timeout        | `60s`                                 | string  | Timeout (with units) for reading response from your backend server                  |
+| proxy-send-timeout        | `60s`                                 | string  | Timeout (with units) for transmitting a request to your backend server              |
+| send-timeout              | `60s`                                 | string  | Timeout (with units) for transmitting a response to your the client                 |
 | underscore-in-headers     | `off`                                 | string  | Enables or disables the use of underscores in client request header fields.         |
-| x-forwarded-for-value     | `$remote_addr`                        | string  | Used for specifying the header value to set for the `X-Forwarded-For` header         |
-| x-forwarded-port-value    | `$server_port`                        | string  | Used for specifying the header value to set for the `X-Forwarded-Port` header        |
-| x-forwarded-proto-value   | `$scheme`                             | string  | Used for specifying the header value to set for the `X-Forwarded-Proto` header       |
+| x-forwarded-for-value     | `$remote_addr`                        | string  | Used for specifying the header value to set for the `X-Forwarded-For` header        |
+| x-forwarded-port-value    | `$server_port`                        | string  | Used for specifying the header value to set for the `X-Forwarded-Port` header       |
+| x-forwarded-proto-value   | `$scheme`                             | string  | Used for specifying the header value to set for the `X-Forwarded-Proto` header      |
 | x-forwarded-ssl           | empty string                          | string  | Less commonly used alternative to `X-Forwarded-Proto` (valid values: `on` or `off`) |
 
 #### Binding to specific addresses
@@ -376,7 +383,6 @@ Properties:
 - `x-forwarded-port-value`
 - `x-forwarded-proto-value`
 - `x-forwarded-ssl`
-
 
 Dokku's default Nginx configuration passes the de-facto standard HTTP headers [`X-Forwarded-For`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-For), [`X-Forwarded-Proto`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Proto), and `X-Forwarded-Port` to your application.
 These headers indicate the IP address of the original client making the request, the protocol of the original request (HTTP or HTTPS), and the port number of the original request, respectively.
@@ -468,7 +474,6 @@ Properties:
 This property is commonly used to increase the max file upload size.
 
 Changing this value when using the PHP buildpack (or any other buildpack that uses an intermediary server) will require changing the value in the server config shipped with that buildpack. Consult your buildpack documentation for further details.
-
 
 ## Other
 

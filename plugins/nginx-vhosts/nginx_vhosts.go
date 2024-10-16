@@ -76,6 +76,40 @@ func GlobalBindAddressIPv6() string {
 	return common.PropertyGetDefault("nginx", "--global", "bind-address-ipv6", "::")
 }
 
+func AppClientBodyTimeout(appName string) string {
+	return common.PropertyGet("nginx", appName, "client-body-timeout")
+}
+
+func ComputedClientBodyTimeout(appName string) string {
+	appValue := AppClientBodyTimeout(appName)
+	if appValue != "" {
+		return appValue
+	}
+
+	return GlobalClientBodyTimeout()
+}
+
+func GlobalClientBodyTimeout() string {
+	return common.PropertyGetDefault("nginx", "--global", "client-body-timeout", "60s")
+}
+
+func AppClientHeaderTimeout(appName string) string {
+	return common.PropertyGet("nginx", appName, "client-header-timeout")
+}
+
+func ComputedClientHeaderTimeout(appName string) string {
+	appValue := AppClientHeaderTimeout(appName)
+	if appValue != "" {
+		return appValue
+	}
+
+	return GlobalClientHeaderTimeout()
+}
+
+func GlobalClientHeaderTimeout() string {
+	return common.PropertyGetDefault("nginx", "--global", "client-header-timeout", "60s")
+}
+
 func AppClientMaxBodySize(appName string) string {
 	return common.PropertyGet("nginx", appName, "client-max-body-size")
 }
@@ -200,6 +234,40 @@ func AppNginxConfSigilPath(appName string) string {
 	return common.PropertyGet("nginx", appName, "nginx-conf-sigil-path")
 }
 
+func AppKeepaliveTimeout(appName string) string {
+	return common.PropertyGet("nginx", appName, "keepalive-timeout")
+}
+
+func ComputedKeepaliveTimeout(appName string) string {
+	appValue := AppKeepaliveTimeout(appName)
+	if appValue != "" {
+		return appValue
+	}
+
+	return GlobalKeepaliveTimeout()
+}
+
+func GlobalKeepaliveTimeout() string {
+	return common.PropertyGetDefault("nginx", "--global", "keepalive-timeout", "75s")
+}
+
+func AppLingeringTimeout(appName string) string {
+	return common.PropertyGet("nginx", appName, "lingering-timeout")
+}
+
+func ComputedLingeringTimeout(appName string) string {
+	appValue := AppLingeringTimeout(appName)
+	if appValue != "" {
+		return appValue
+	}
+
+	return GlobalLingeringTimeout()
+}
+
+func GlobalLingeringTimeout() string {
+	return common.PropertyGetDefault("nginx", "--global", "lingering-timeout", "5s")
+}
+
 func ComputedNginxConfSigilPath(appName string) string {
 	appValue := AppNginxConfSigilPath(appName)
 	if appValue != "" {
@@ -281,6 +349,23 @@ func GlobalProxyBusyBuffersSize() string {
 	return common.PropertyGetDefault("nginx", "--global", "proxy-busy-buffers-size", fmt.Sprintf("%dk", (os.Getpagesize()/1024)*2))
 }
 
+func AppProxyConnectTimeout(appName string) string {
+	return common.PropertyGet("nginx", appName, "proxy-connect-timeout")
+}
+
+func ComputedProxyConnectTimeout(appName string) string {
+	appValue := AppProxyConnectTimeout(appName)
+	if appValue != "" {
+		return appValue
+	}
+
+	return GlobalProxyConnectTimeout()
+}
+
+func GlobalProxyConnectTimeout() string {
+	return common.PropertyGetDefault("nginx", "--global", "proxy-connect-timeout", "60s")
+}
+
 func AppProxyReadTimeout(appName string) string {
 	return common.PropertyGet("nginx", appName, "proxy-read-timeout")
 }
@@ -296,6 +381,40 @@ func ComputedProxyReadTimeout(appName string) string {
 
 func GlobalProxyReadTimeout() string {
 	return common.PropertyGetDefault("nginx", "--global", "proxy-read-timeout", "60s")
+}
+
+func AppProxySendTimeout(appName string) string {
+	return common.PropertyGet("nginx", appName, "proxy-send-timeout")
+}
+
+func ComputedProxySendTimeout(appName string) string {
+	appValue := AppProxySendTimeout(appName)
+	if appValue != "" {
+		return appValue
+	}
+
+	return GlobalProxySendTimeout()
+}
+
+func GlobalProxySendTimeout() string {
+	return common.PropertyGetDefault("nginx", "--global", "proxy-send-timeout", "60s")
+}
+
+func AppSendTimeout(appName string) string {
+	return common.PropertyGet("nginx", appName, "send-timeout")
+}
+
+func ComputedSendTimeout(appName string) string {
+	appValue := AppSendTimeout(appName)
+	if appValue != "" {
+		return appValue
+	}
+
+	return GlobalSendTimeout()
+}
+
+func GlobalSendTimeout() string {
+	return common.PropertyGetDefault("nginx", "--global", "send-timeout", "60s")
 }
 
 func AppUnderscoreInHeaders(appName string) string {

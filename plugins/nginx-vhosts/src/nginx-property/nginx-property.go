@@ -45,6 +45,10 @@ func appValue(appName string, property string) string {
 		value = nginx_vhosts.AppBindAddressIPv6(appName)
 	case "client-max-body-size":
 		value = nginx_vhosts.AppClientMaxBodySize(appName)
+	case "client-body-timeout":
+		value = nginx_vhosts.AppClientBodyTimeout(appName)
+	case "client-header-timeout":
+		value = nginx_vhosts.AppClientHeaderTimeout(appName)
 	case "disable-custom-config":
 		value = nginx_vhosts.AppDisableCustomConfig(appName)
 	case "error-log-path":
@@ -57,6 +61,10 @@ func appValue(appName string, property string) string {
 		value = nginx_vhosts.AppHSTSPreload(appName)
 	case "hsts":
 		value = nginx_vhosts.AppHSTS(appName)
+	case "keepalive-timeout":
+		value = nginx_vhosts.AppKeepaliveTimeout(appName)
+	case "lingering-timeout":
+		value = nginx_vhosts.AppLingeringTimeout(appName)
 	case "nginx-conf-sigil-path":
 		value = nginx_vhosts.AppNginxConfSigilPath(appName)
 	case "proxy-buffer-size":
@@ -67,8 +75,14 @@ func appValue(appName string, property string) string {
 		value = nginx_vhosts.AppProxyBuffers(appName)
 	case "proxy-busy-buffers-size":
 		value = nginx_vhosts.AppProxyBusyBuffersSize(appName)
+	case "proxy-connect-timeout":
+		value = nginx_vhosts.AppProxyConnectTimeout(appName)
 	case "proxy-read-timeout":
 		value = nginx_vhosts.AppProxyReadTimeout(appName)
+	case "proxy-send-timeout":
+		value = nginx_vhosts.AppProxySendTimeout(appName)
+	case "send-timeout":
+		value = nginx_vhosts.AppSendTimeout(appName)
 	case "underscore-in-headers":
 		value = nginx_vhosts.AppUnderscoreInHeaders(appName)
 	case "x-forwarded-for-value":
@@ -95,6 +109,10 @@ func computedValue(appName string, property string) string {
 		value = nginx_vhosts.ComputedBindAddressIPv4(appName)
 	case "bind-address-ipv6":
 		value = nginx_vhosts.ComputedBindAddressIPv6(appName)
+	case "client-body-timeout":
+		value = nginx_vhosts.ComputedClientBodyTimeout(appName)
+	case "client-header-timeout":
+		value = nginx_vhosts.ComputedClientHeaderTimeout(appName)
 	case "client-max-body-size":
 		value = nginx_vhosts.ComputedClientMaxBodySize(appName)
 	case "disable-custom-config":
@@ -109,6 +127,10 @@ func computedValue(appName string, property string) string {
 		value = nginx_vhosts.ComputedHSTSPreload(appName)
 	case "hsts":
 		value = nginx_vhosts.ComputedHSTS(appName)
+	case "keepalive-timeout":
+		value = nginx_vhosts.ComputedKeepaliveTimeout(appName)
+	case "lingering-timeout":
+		value = nginx_vhosts.ComputedLingeringTimeout(appName)
 	case "nginx-conf-sigil-path":
 		value = nginx_vhosts.ComputedNginxConfSigilPath(appName)
 	case "proxy-buffer-size":
@@ -119,8 +141,14 @@ func computedValue(appName string, property string) string {
 		value = nginx_vhosts.ComputedProxyBuffers(appName)
 	case "proxy-busy-buffers-size":
 		value = nginx_vhosts.ComputedProxyBusyBuffersSize(appName)
+	case "proxy-connect-timeout":
+		value = nginx_vhosts.ComputedProxyConnectTimeout(appName)
 	case "proxy-read-timeout":
 		value = nginx_vhosts.ComputedProxyReadTimeout(appName)
+	case "proxy-send-timeout":
+		value = nginx_vhosts.ComputedProxySendTimeout(appName)
+	case "send-timeout":
+		value = nginx_vhosts.ComputedSendTimeout(appName)
 	case "underscore-in-headers":
 		value = nginx_vhosts.ComputedUnderscoreInHeaders(appName)
 	case "x-forwarded-for-value":
@@ -147,6 +175,10 @@ func globalValue(appName string, property string) string {
 		value = nginx_vhosts.GlobalBindAddressIPv4()
 	case "bind-address-ipv6":
 		value = nginx_vhosts.GlobalBindAddressIPv6()
+	case "client-body-timeout":
+		value = nginx_vhosts.ComputedClientBodyTimeout(appName)
+	case "client-header-timeout":
+		value = nginx_vhosts.ComputedClientHeaderTimeout(appName)
 	case "client-max-body-size":
 		value = nginx_vhosts.GlobalClientMaxBodySize()
 	case "disable-custom-config":
@@ -161,6 +193,10 @@ func globalValue(appName string, property string) string {
 		value = nginx_vhosts.GlobalHSTSPreload()
 	case "hsts":
 		value = nginx_vhosts.GlobalHSTS()
+	case "keepalive-timeout":
+		value = nginx_vhosts.ComputedKeepaliveTimeout(appName)
+	case "lingering-timeout":
+		value = nginx_vhosts.ComputedLingeringTimeout(appName)
 	case "nginx-conf-sigil-path":
 		value = nginx_vhosts.GlobalNginxConfSigilPath()
 	case "proxy-buffer-size":
@@ -171,8 +207,14 @@ func globalValue(appName string, property string) string {
 		value = nginx_vhosts.GlobalProxyBuffers()
 	case "proxy-busy-buffers-size":
 		value = nginx_vhosts.GlobalProxyBusyBuffersSize()
+	case "proxy-connect-timeout":
+		value = nginx_vhosts.GlobalProxyConnectTimeout()
 	case "proxy-read-timeout":
 		value = nginx_vhosts.GlobalProxyReadTimeout()
+	case "proxy-send-timeout":
+		value = nginx_vhosts.GlobalProxySendTimeout()
+	case "send-timeout":
+		value = nginx_vhosts.GlobalSendTimeout()
 	case "underscore-in-headers":
 		value = nginx_vhosts.GlobalUnderscoreInHeaders()
 	case "x-forwarded-for-value":
