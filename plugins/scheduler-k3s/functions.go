@@ -28,9 +28,6 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
-	corev1client "k8s.io/client-go/kubernetes/typed/core/v1"
-	"k8s.io/client-go/tools/remotecommand"
-	"k8s.io/kubectl/pkg/util/term"
 	"k8s.io/kubernetes/pkg/client/conditions"
 	"k8s.io/utils/ptr"
 	"mvdan.cc/sh/v3/shell"
@@ -371,11 +368,6 @@ func createKubernetesNamespace(ctx context.Context, namespaceName string) error 
 }
 
 func enterPod(ctx context.Context, input EnterPodInput) error {
-	coreclient, err := corev1client.NewForConfig(&input.Clientset.RestConfig)
-	if err != nil {
-		return fmt.Errorf("Error creating corev1 client: %w", err)
-	}
-
 	labelSelector := []string{}
 	for k, v := range input.SelectedPod.Labels {
 		labelSelector = append(labelSelector, fmt.Sprintf("%s=%s", k, v))
@@ -385,7 +377,7 @@ func enterPod(ctx context.Context, input EnterPodInput) error {
 		input.WaitTimeout = 5
 	}
 
-	err = waitForPodBySelectorRunning(ctx, WaitForPodBySelectorRunningInput{
+	err := waitForPodBySelectorRunning(ctx, WaitForPodBySelectorRunningInput{
 		Clientset:     input.Clientset,
 		Namespace:     input.SelectedPod.Namespace,
 		LabelSelector: strings.Join(labelSelector, ","),
@@ -405,46 +397,12 @@ func enterPod(ctx context.Context, input EnterPodInput) error {
 		return fmt.Errorf("No container specified and no default container found")
 	}
 
-	req := coreclient.RESTClient().Post().
-		Resource("pods").
-		Namespace(input.SelectedPod.Namespace).
-		Name(input.SelectedPod.Name).
-		SubResource("exec")
-
-	req.Param("container", input.SelectedContainerName)
-	req.Param("stdin", "true")
-	req.Param("stdout", "true")
-	req.Param("stderr", "true")
-	req.Param("tty", "true")
-
-	if input.Entrypoint != "" {
-		req.Param("command", input.Entrypoint)
-	}
-	for _, cmd := range input.Command {
-		req.Param("command", cmd)
-	}
-
-	t := term.TTY{
-		In:  os.Stdin,
-		Out: os.Stdout,
-		Raw: true,
-	}
-	size := t.GetSize()
-	sizeQueue := t.MonitorSize(size)
-
-	return t.Safe(func() error {
-		exec, err := remotecommand.NewSPDYExecutor(&input.Clientset.RestConfig, "POST", req.URL())
-		if err != nil {
-			return fmt.Errorf("Error creating executor: %w", err)
-		}
-
-		return exec.StreamWithContext(ctx, remotecommand.StreamOptions{
-			Stdin:             os.Stdin,
-			Stdout:            os.Stdout,
-			Stderr:            os.Stderr,
-			Tty:               true,
-			TerminalSizeQueue: sizeQueue,
-		})
+	return input.Clientset.ExecCommand(ctx, ExecCommandInput{
+		Command:       input.Command,
+		ContainerName: input.SelectedContainerName,
+		Entrypoint:    input.Entrypoint,
+		Name:          input.SelectedPod.Name,
+		Namespace:     input.SelectedPod.Namespace,
 	})
 }
 

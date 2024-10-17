@@ -74,10 +74,23 @@ nginx_logs() {
     dokku_log_fail "$NGINX_LOGS_TYPE logs are disabled for this app"
   fi
 
+  local tail=false
+  local num=0
   if [[ $3 == "-t" ]]; then
+    tail=true
+  else
+    num=20
+  fi
+
+  local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
+  if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
+    plugn trigger scheduler-nginx-logs "$DOKKU_SCHEDULER" "$APP" "nginx" "$NGINX_LOGS_TYPE" "$tail" "$num"
+  fi
+
+  if [[ "$tail" == "true" ]]; then
     local NGINX_LOGS_ARGS="-F"
   else
-    local NGINX_LOGS_ARGS="-n 20"
+    local NGINX_LOGS_ARGS="-n $num"
   fi
 
   tail "$NGINX_LOGS_ARGS" "$NGINX_LOGS_PATH"
