@@ -1,14 +1,12 @@
 package scheduler_k3s
 
 import (
-	"bufio"
 	"context"
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -22,6 +20,7 @@ import (
 	"github.com/dokku/dokku/plugins/common"
 	"github.com/dokku/dokku/plugins/config"
 	"github.com/dokku/dokku/plugins/cron"
+	nginxvhosts "github.com/dokku/dokku/plugins/nginx-vhosts"
 	"github.com/fatih/color"
 	"github.com/gosimple/slug"
 	"github.com/kballard/go-shellquote"
@@ -29,7 +28,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/kubernetes/pkg/client/conditions"
-	"k8s.io/utils/ptr"
 )
 
 // TriggerInstall runs the install step for the scheduler-k3s plugin
@@ -828,121 +826,68 @@ func TriggerSchedulerLogs(scheduler string, appName string, processType string, 
 		return nil
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	signals := make(chan os.Signal, 1)
-	signal.Notify(signals, os.Interrupt, syscall.SIGHUP,
-		syscall.SIGINT,
-		syscall.SIGQUIT,
-		syscall.SIGTERM)
-	go func() {
-		<-signals
-		cancel()
-	}()
+	clientset, err := NewKubernetesClient()
+	if err != nil {
+		return fmt.Errorf("Error creating kubernetes client: %w", err)
+	}
+
+	return clientset.StreamLogs(context.Background(), StreamLogsInput{
+		DeploymentName: appName,
+		Namespace:      getComputedNamespace(appName),
+		ContainerName:  processType,
+		TailLines:      numLines,
+		Follow:         tail,
+		Quiet:          quiet,
+	})
+}
+
+// TriggerSchedulerProxyLogs displays nginx logs for a given application
+func TriggerSchedulerProxyLogs(scheduler string, appName string, proxyType string, logType string, tail bool, numLines int64) error {
+	if scheduler != "k3s" || proxyType != "nginx" {
+		return nil
+	}
 
 	clientset, err := NewKubernetesClient()
 	if err != nil {
 		return fmt.Errorf("Error creating kubernetes client: %w", err)
 	}
 
-	if err := clientset.Ping(); err != nil {
-		return fmt.Errorf("kubernetes api not available: %w", err)
+	filename := ""
+	if logType == "access" {
+		filename = nginxvhosts.ComputedAccessLogPath(appName)
+	} else if logType == "error" {
+		filename = nginxvhosts.ComputedErrorLogPath(appName)
+	} else {
+		return errors.New("Invalid log type")
 	}
 
-	labelSelector := []string{fmt.Sprintf("app.kubernetes.io/part-of=%s", appName)}
-	processIndex := 0
-	if processType != "" {
-		parts := strings.SplitN(processType, ".", 2)
-		if len(parts) == 2 {
-			processType = parts[0]
-			processIndex, err = strconv.Atoi(parts[1])
-			if err != nil {
-				return fmt.Errorf("Error parsing process index: %w", err)
-			}
-		}
-		labelSelector = append(labelSelector, fmt.Sprintf("app.kubernetes.io/name=%s", processType))
+	command := []string{"tail"}
+	if tail {
+		command = append(command, "-F")
 	}
+	if numLines > 0 {
+		command = append(command, fmt.Sprintf("-n %d", numLines))
+	}
+	command = append(command, filename)
 
-	namespace := getComputedNamespace(appName)
-	pods, err := clientset.ListPods(ctx, ListPodsInput{
-		Namespace:     namespace,
-		LabelSelector: strings.Join(labelSelector, ","),
+	pods, err := clientset.ListPods(context.Background(), ListPodsInput{
+		Namespace:     "ingress-nginx",
+		LabelSelector: "app.kubernetes.io/name=ingress-nginx",
 	})
 	if err != nil {
 		return fmt.Errorf("Error listing pods: %w", err)
 	}
+
 	if len(pods) == 0 {
-		return fmt.Errorf("No pods found for app %s", appName)
+		return errors.New("No pods found for ingress-nginx")
 	}
 
-	ch := make(chan bool)
-
-	if os.Getenv("FORCE_TTY") == "1" {
-		color.NoColor = false
-	}
-
-	colors := []color.Attribute{
-		color.FgRed,
-		color.FgYellow,
-		color.FgGreen,
-		color.FgCyan,
-		color.FgBlue,
-		color.FgMagenta,
-	}
-	// colorIndex := 0
-	for i := 0; i < len(pods); i++ {
-		if processIndex > 0 && i != (processIndex-1) {
-			continue
-		}
-
-		logOptions := v1.PodLogOptions{
-			Follow: tail,
-		}
-		if numLines > 0 {
-			logOptions.TailLines = ptr.To(numLines)
-		}
-
-		podColor := colors[i%len(colors)]
-		dynoText := color.New(podColor).SprintFunc()
-		podName := pods[i].Name
-		podLogs, err := clientset.Client.CoreV1().Pods(namespace).GetLogs(podName, &logOptions).Stream(ctx)
-		if err != nil {
-			return err
-		}
-		buffer := bufio.NewReader(podLogs)
-		go func(ctx context.Context, buffer *bufio.Reader, prettyText func(a ...interface{}) string, ch chan bool) {
-			defer func() {
-				ch <- true
-			}()
-			for {
-				select {
-				case <-ctx.Done(): // if cancel() execute
-					ch <- true
-					return
-				default:
-					str, readErr := buffer.ReadString('\n')
-					if readErr == io.EOF {
-						break
-					}
-
-					if str == "" {
-						continue
-					}
-
-					if !quiet {
-						str = fmt.Sprintf("%s %s", dynoText(fmt.Sprintf("app[%s]:", podName)), str)
-					}
-
-					_, err := fmt.Print(str)
-					if err != nil {
-						return
-					}
-				}
-			}
-		}(ctx, buffer, dynoText, ch)
-	}
-	<-ch
-
-	return nil
+	return clientset.ExecCommand(context.Background(), ExecCommandInput{
+		Command:       command,
+		ContainerName: "ingress-nginx",
+		Name:          pods[0].Name,
+		Namespace:     "ingress-nginx",
+	})
 }
 
 // TriggerSchedulerRun runs a command in an ephemeral container

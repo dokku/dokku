@@ -1,11 +1,19 @@
 package scheduler_k3s
 
 import (
+	"bufio"
 	"context"
 	"errors"
 	"fmt"
+	"io"
+	"os"
+	"os/signal"
+	"strconv"
+	"strings"
+	"syscall"
 
 	"github.com/dokku/dokku/plugins/common"
+	"github.com/fatih/color"
 	"github.com/go-openapi/jsonpointer"
 	kedav1alpha1 "github.com/kedacore/keda/v2/apis/keda/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
@@ -19,9 +27,12 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
+	corev1client "k8s.io/client-go/kubernetes/typed/core/v1"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
+	"k8s.io/client-go/tools/remotecommand"
+	"k8s.io/kubectl/pkg/util/term"
 	"k8s.io/utils/ptr"
 )
 
@@ -283,6 +294,74 @@ type DeleteSecretInput struct {
 // DeleteSecret deletes a Kubernetes secret
 func (k KubernetesClient) DeleteSecret(ctx context.Context, input DeleteSecretInput) error {
 	return k.Client.CoreV1().Secrets(input.Namespace).Delete(ctx, input.Name, metav1.DeleteOptions{})
+}
+
+// ExecCommandInput contains all the information needed to execute a command in a Kubernetes pod
+type ExecCommandInput struct {
+	// Command is the command to execute
+	Command []string
+
+	// ContainerName is the Kubernetes container name
+	ContainerName string
+
+	// Entrypoint is the command entrypoint
+	Entrypoint string
+
+	// Name is the Kubernetes pod name
+	Name string
+
+	// Namespace is the Kubernetes namespace
+	Namespace string
+}
+
+// ExecCommand executes a command in a Kubernetes pod
+func (k KubernetesClient) ExecCommand(ctx context.Context, input ExecCommandInput) error {
+	coreclient, err := corev1client.NewForConfig(&k.RestConfig)
+	if err != nil {
+		return fmt.Errorf("Error creating corev1 client: %w", err)
+	}
+
+	req := coreclient.RESTClient().Post().
+		Resource("pods").
+		Namespace(input.Namespace).
+		Name(input.Name).
+		SubResource("exec")
+
+	req.Param("container", input.ContainerName)
+	req.Param("stdin", "true")
+	req.Param("stdout", "true")
+	req.Param("stderr", "true")
+	req.Param("tty", "true")
+
+	if input.Entrypoint != "" {
+		req.Param("command", input.Entrypoint)
+	}
+	for _, cmd := range input.Command {
+		req.Param("command", cmd)
+	}
+
+	t := term.TTY{
+		In:  os.Stdin,
+		Out: os.Stdout,
+		Raw: true,
+	}
+	size := t.GetSize()
+	sizeQueue := t.MonitorSize(size)
+
+	return t.Safe(func() error {
+		exec, err := remotecommand.NewSPDYExecutor(&k.RestConfig, "POST", req.URL())
+		if err != nil {
+			return fmt.Errorf("Error creating executor: %w", err)
+		}
+
+		return exec.StreamWithContext(ctx, remotecommand.StreamOptions{
+			Stdin:             os.Stdin,
+			Stdout:            os.Stdout,
+			Stderr:            os.Stderr,
+			Tty:               true,
+			TerminalSizeQueue: sizeQueue,
+		})
+	})
 }
 
 // GetNodeInput contains all the information needed to get a Kubernetes node
@@ -603,6 +682,139 @@ func (k KubernetesClient) ScaleDeployment(ctx context.Context, input ScaleDeploy
 	if err != nil {
 		return err
 	}
+
+	return nil
+}
+
+type StreamLogsInput struct {
+	// Namespace is the Kubernetes namespace
+	Namespace string
+
+	// DeploymentName is the Kubernetes deployment name
+	DeploymentName string
+
+	// ContainerName is the Kubernetes container name
+	ContainerName string
+
+	// Follow is whether to follow the logs
+	Follow bool
+
+	// TailLines is the number of lines to tail
+	TailLines int64
+
+	// Quiet is whether to suppress output
+	Quiet bool
+}
+
+func (k KubernetesClient) StreamLogs(ctx context.Context, input StreamLogsInput) error {
+	ctx, cancel := context.WithCancel(ctx)
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, os.Interrupt, syscall.SIGHUP,
+		syscall.SIGINT,
+		syscall.SIGQUIT,
+		syscall.SIGTERM)
+	go func() {
+		<-signals
+		cancel()
+	}()
+
+	if err := k.Ping(); err != nil {
+		return fmt.Errorf("kubernetes api not available: %w", err)
+	}
+
+	labelSelector := []string{fmt.Sprintf("app.kubernetes.io/part-of=%s", input.DeploymentName)}
+	processIndex := 0
+	if input.ContainerName != "" {
+		parts := strings.SplitN(input.ContainerName, ".", 2)
+		if len(parts) == 2 {
+			var err error
+			input.ContainerName = parts[0]
+			processIndex, err = strconv.Atoi(parts[1])
+			if err != nil {
+				return fmt.Errorf("Error parsing process index: %w", err)
+			}
+		}
+		labelSelector = append(labelSelector, fmt.Sprintf("app.kubernetes.io/name=%s", input.ContainerName))
+	}
+
+	pods, err := k.ListPods(ctx, ListPodsInput{
+		Namespace:     input.Namespace,
+		LabelSelector: strings.Join(labelSelector, ","),
+	})
+	if err != nil {
+		return fmt.Errorf("Error listing pods: %w", err)
+	}
+	if len(pods) == 0 {
+		return fmt.Errorf("No pods found for app %s", input.DeploymentName)
+	}
+
+	ch := make(chan bool)
+
+	if os.Getenv("FORCE_TTY") == "1" {
+		color.NoColor = false
+	}
+
+	colors := []color.Attribute{
+		color.FgRed,
+		color.FgYellow,
+		color.FgGreen,
+		color.FgCyan,
+		color.FgBlue,
+		color.FgMagenta,
+	}
+	// colorIndex := 0
+	for i := 0; i < len(pods); i++ {
+		if processIndex > 0 && i != (processIndex-1) {
+			continue
+		}
+
+		logOptions := v1.PodLogOptions{
+			Follow: input.Follow,
+		}
+		if input.TailLines > 0 {
+			logOptions.TailLines = ptr.To(input.TailLines)
+		}
+
+		podColor := colors[i%len(colors)]
+		dynoText := color.New(podColor).SprintFunc()
+		podName := pods[i].Name
+		podLogs, err := k.Client.CoreV1().Pods(input.Namespace).GetLogs(podName, &logOptions).Stream(ctx)
+		if err != nil {
+			return err
+		}
+		buffer := bufio.NewReader(podLogs)
+		go func(ctx context.Context, buffer *bufio.Reader, prettyText func(a ...interface{}) string, ch chan bool) {
+			defer func() {
+				ch <- true
+			}()
+			for {
+				select {
+				case <-ctx.Done(): // if cancel() execute
+					ch <- true
+					return
+				default:
+					str, readErr := buffer.ReadString('\n')
+					if readErr == io.EOF {
+						break
+					}
+
+					if str == "" {
+						continue
+					}
+
+					if !input.Quiet {
+						str = fmt.Sprintf("%s %s", dynoText(fmt.Sprintf("app[%s]:", podName)), str)
+					}
+
+					_, err := fmt.Print(str)
+					if err != nil {
+						return
+					}
+				}
+			}
+		}(ctx, buffer, dynoText, ch)
+	}
+	<-ch
 
 	return nil
 }

@@ -2583,6 +2583,25 @@ DOKKU_SCHEDULER="$1"; APP="$2";
 # TODO
 ```
 
+### `scheduler-proxy-logs`
+
+> [!WARNING]
+> The scheduler plugin trigger apis are under development and may change
+> between minor releases until the 1.0 release.
+- Description: Allows you to run scheduler commands when retrieving failed container logs
+- Invoked by: `dokku nginx:access-logs` and `dokku nginx:error-logs`
+- Arguments: `$DOKKU_SCHEDULER $APP $PROXY_TYPE $LOG_TYPE $TAIL $NUM_LINES`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+DOKKU_SCHEDULER="$1"; APP="$2"; $PROXY_TYPE="$3"; LOG_TYPE="$4"; TAIL="$5"; NUM_LINES="$6"
+
+# TODO
+```
+
 ### `scheduler-pre-restore`
 
 > [!WARNING]

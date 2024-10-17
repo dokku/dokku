@@ -84,6 +84,22 @@ func main() {
 		}
 
 		err = scheduler_k3s.TriggerSchedulerLogs(scheduler, appName, processType, tail, quiet, numLines)
+	case "scheduler-proxy-logs":
+		var tail bool
+		var numLines int64
+		scheduler := flag.Arg(0)
+		appName := flag.Arg(1)
+		proxyType := flag.Arg(2)
+		logType := flag.Arg(3)
+		tail, err = strconv.ParseBool(flag.Arg(4))
+		if err != nil {
+			tail = false
+		}
+		numLines, err = strconv.ParseInt(flag.Arg(5), 10, 64)
+		if err != nil {
+			numLines = 0
+		}
+		err = scheduler_k3s.TriggerSchedulerProxyLogs(scheduler, appName, proxyType, logType, tail, numLines)
 	case "scheduler-stop":
 		scheduler := flag.Arg(0)
 		appName := flag.Arg(1)
