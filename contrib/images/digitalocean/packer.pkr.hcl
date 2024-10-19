@@ -30,6 +30,7 @@ build {
       "echo '--> Waiting until cloud-init is complete'",
       "/usr/bin/cloud-init status --wait",
     ]
+    valid_exit_codes = [0, 2]
   }
 
   provisioner "file" {
