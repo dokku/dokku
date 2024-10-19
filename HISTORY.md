@@ -1,5 +1,50 @@
 # History
 
+## 0.35.6
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.35.6/bootstrap.sh
+sudo DOKKU_TAG=v0.35.6 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #7279: @josegonzalez Allow exit code 2 when waiting for cloud-init to complete
+- #7255: @josegonzalez Do not attempt to expose the same mapped port more than once
+
+### New Features
+
+- #7278: @josegonzalez Allow usage of newer nginx.conf.sigil on older versions of dokku
+- #7271: @josegonzalez Add support for non-local nginx implementations
+- #7269: @josegonzalez Add support for various timeout-related functions to nginx, openresty and k3s plugins
+
+### Dependencies
+
+- #7272: @dependabot[bot] chore(deps): bump node from 22-alpine to 23-alpine in /tests/apps/dockerfile
+- #7273: @dependabot[bot] chore(deps): bump node from 22-alpine to 23-alpine in /tests/apps/dockerfile-procfile
+- #7274: @dependabot[bot] chore(deps): bump node from 22-alpine to 23-alpine in /tests/apps/dockerfile-app-json-formations
+- #7275: @dependabot[bot] chore(deps): bump node from 22-alpine to 23-alpine in /tests/apps/dockerfile-noexpose
+- #7276: @dependabot[bot] chore(deps): bump node from 22-alpine to 23-alpine in /tests/apps/dockerfile-procfile-bad
+- #7270: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.40 to 9.5.41 in /docs/_build
+- #7264: @dependabot[bot] chore(deps): bump pyparsing from 3.1.4 to 3.2.0 in /docs/_build
+- #7244: @dependabot[bot] chore(deps): bump golang.org/x/crypto from 0.27.0 to 0.28.0 in /plugins/common
+- #7260: @dependabot[bot] chore(deps): bump traefik from 3.1.5 to 3.1.6 in /plugins/traefik-vhosts
+- #7259: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.39 to 9.5.40 in /docs/_build
+- #7258: @dependabot[bot] chore(deps): bump markupsafe from 3.0.0 to 3.0.1 in /docs/_build
+- #7254: @dependabot[bot] chore(deps): bump cookie and express in /tests/apps/checks-root
+- #7246: @dependabot[bot] chore(deps): bump python from 3.12.7-alpine to 3.13.0-alpine in /docs/_build
+- #7247: @dependabot[bot] chore(deps): bump python from 3.12.7-bookworm to 3.13.0-bookworm in /tests/apps/dockerfile-release
+- #7248: @dependabot[bot] chore(deps): bump markupsafe from 2.1.5 to 3.0.0 in /docs/_build
+- #7252: @dependabot[bot] chore(deps): bump django from 5.0.8 to 5.0.9 in /tests/apps/dockerfile-release
+
+### Other
+
+- #7282: @josegonzalez Skip ssh key setup when starting docker image
+- #7281: @josegonzalez Set hostname to dokku.me for devcontainer
+- #7280: @josegonzalez Merge changes from digitialocean's image-check script
+
 ## 0.35.5
 
 Install/update via the bootstrap script:
