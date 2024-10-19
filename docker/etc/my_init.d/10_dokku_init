@@ -89,6 +89,9 @@ main() {
     dokku --quiet domains:set-global "$DOKKU_HOSTNAME"
   fi
 
+  echo "dokku dokku/skip_key_file boolean true" | debconf-set-selections
+  echo "dokku dokku/key_file string /root/.ssh/id_rsa.pub" | debconf-set-selections
+
   NGINX_ROOT="/etc/nginx"
   if [[ -x /usr/bin/openresty ]]; then
     NGINX_ROOT="/usr/local/openresty/nginx/conf"
