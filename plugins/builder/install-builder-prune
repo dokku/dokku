@@ -16,7 +16,7 @@ After=docker.service
 [Service]
 Type=oneshot
 User=$DOKKU_SYSTEM_USER
-ExecStart=$DOCKER_BIN builder prune
+ExecStart=$DOCKER_BIN builder prune -f
 
 [Install]
 WantedBy=docker.service
