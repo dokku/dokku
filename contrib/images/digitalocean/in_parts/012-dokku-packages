@@ -12,7 +12,7 @@ pkgs=(apache2-utils
   curl
   man-db
 
-  netcat
+  netcat-traditional
   net-tools
 
   parallel
