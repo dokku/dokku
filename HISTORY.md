@@ -1,5 +1,21 @@
 # History
 
+## 0.35.7
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.35.7/bootstrap.sh
+sudo DOKKU_TAG=v0.35.7 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #7286: @josegonzalez Install netcat-traditional in 24.04 image
+- #7284: @josegonzalez Use correct name for scheduler-proxy-logs trigger
+- #7285: @josegonzalez Ensure builder pruning works when running under docker
+- #7283: @danieldiekmeier Force `docker builder prune` to skip confirmation
+
 ## 0.35.6
 
 Install/update via the bootstrap script:
