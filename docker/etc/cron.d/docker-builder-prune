@@ -1,4 +1,4 @@
 PATH=/usr/local/bin:/usr/bin:/bin
 SHELL=/bin/bash
 
-5 4 * * * root /usr/local/bin/docker builder prune >>/var/log/dokku/builder-prune.log 2>&1
+5 4 * * * root /usr/local/bin/docker builder prune -f >>/var/log/dokku/builder-prune.log 2>&1
