@@ -1,12 +1,14 @@
 package scheduler_k3s
 
 import (
+	"bytes"
 	"context"
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -841,9 +843,102 @@ func TriggerSchedulerLogs(scheduler string, appName string, processType string, 
 	})
 }
 
+// TriggerSchedulerProxyConfig displays nginx config for a given application
+func TriggerSchedulerProxyConfig(scheduler string, appName string, proxyType string) error {
+	if scheduler != "k3s" || proxyType != "k3s" {
+		return nil
+	}
+
+	clientset, err := NewKubernetesClient()
+	if err != nil {
+		return fmt.Errorf("Error creating kubernetes client: %w", err)
+	}
+
+	pods, err := clientset.ListPods(context.Background(), ListPodsInput{
+		Namespace:     "ingress-nginx",
+		LabelSelector: "app.kubernetes.io/name=ingress-nginx",
+	})
+	if err != nil {
+		return fmt.Errorf("Error listing pods: %w", err)
+	}
+
+	if len(pods) == 0 {
+		return errors.New("No pods found for ingress-nginx")
+	}
+
+	var buf bytes.Buffer
+	w := io.MultiWriter(&buf)
+
+	command := []string{"cat", "/etc/nginx/nginx.conf"}
+	err = clientset.ExecCommand(context.Background(), ExecCommandInput{
+		Command:       command,
+		ContainerName: "controller",
+		Name:          pods[0].Name,
+		Namespace:     "ingress-nginx",
+		Stdout:        w,
+	})
+	if err != nil {
+		return fmt.Errorf("Error reading nginx config: %w", err)
+	}
+
+	// split buffer string into lines
+	lines := strings.Split(buf.String(), "\n")
+
+	// get every domain block from the nginx config
+	// domain blocks begin with "## start server DOMAIN_NAME" and end with "## end server DOMAIN_NAME"
+	// each line also may have space characters at the beginning
+	domainBlocks := map[string][]string{}
+	for i, line := range lines {
+		strippedLine := strings.TrimSpace(line)
+		if strings.HasPrefix(strippedLine, "## start server ") {
+			domainName := strings.TrimPrefix(strippedLine, "## start server ")
+			domainBlocks[domainName] = []string{}
+			for _, nextLine := range lines[i+1:] {
+				nextStrippedLine := strings.TrimSpace(nextLine)
+				if strings.HasPrefix(nextStrippedLine, "## end server "+domainName) {
+					break
+				}
+				domainBlocks[domainName] = append(domainBlocks[domainName], nextLine)
+			}
+		}
+	}
+
+	// get all domains for this app
+	domains := []string{}
+	_, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "domains-vhost-enabled",
+		Args:        []string{appName},
+		StreamStdio: true,
+	})
+	if err == nil {
+		results, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+			Trigger: "domains-list",
+			Args:    []string{appName},
+		})
+		if err != nil {
+			return fmt.Errorf("Error getting domains for deployment: %w", err)
+		}
+
+		for _, domain := range strings.Split(results.StdoutContents(), "\n") {
+			domain = strings.TrimSpace(domain)
+			if domain != "" {
+				domains = append(domains, domain)
+			}
+		}
+	}
+
+	for _, domain := range domains {
+		if domainBlock, ok := domainBlocks[domain]; ok {
+			fmt.Println(strings.Join(domainBlock, "\n"))
+		}
+	}
+
+	return err
+}
+
 // TriggerSchedulerProxyLogs displays nginx logs for a given application
 func TriggerSchedulerProxyLogs(scheduler string, appName string, proxyType string, logType string, tail bool, numLines int64) error {
-	if scheduler != "k3s" || proxyType != "nginx" {
+	if scheduler != "k3s" || proxyType != "k3s" {
 		return nil
 	}
 

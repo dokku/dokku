@@ -158,8 +158,21 @@ cmd-nginx-show-config() {
   declare cmd="nginx:show-config"
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1"
+  local proxy_type
 
   verify_app_name "$APP"
+  proxy_type="$(plugn trigger proxy-type "$APP")"
+
+  local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
+  if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
+    plugn trigger scheduler-proxy-config "$DOKKU_SCHEDULER" "$APP" "$proxy_type"
+    return $?
+  fi
+
+  if [[ "$proxy_type" != "nginx" ]]; then
+    dokku_log_fail "This command is only available for apps with the nginx proxy type"
+  fi
+
   if [[ ! -f "$DOKKU_ROOT/$APP/nginx.conf" ]]; then
     dokku_log_fail "No nginx.conf exists for $APP"
   fi

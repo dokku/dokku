@@ -312,6 +312,12 @@ type ExecCommandInput struct {
 
 	// Namespace is the Kubernetes namespace
 	Namespace string
+
+	// Stderr is the error writer
+	Stderr io.Writer
+
+	// Stdout is the output writer
+	Stdout io.Writer
 }
 
 // ExecCommand executes a command in a Kubernetes pod
@@ -340,11 +346,26 @@ func (k KubernetesClient) ExecCommand(ctx context.Context, input ExecCommandInpu
 		req.Param("command", cmd)
 	}
 
+	var stdout io.Writer
+	if input.Stdout == nil {
+		stdout = os.Stdout
+	} else {
+		stdout = input.Stdout
+	}
+
+	var stderr io.Writer
+	if input.Stderr == nil {
+		stderr = os.Stderr
+	} else {
+		stderr = input.Stderr
+	}
+
 	t := term.TTY{
 		In:  os.Stdin,
-		Out: os.Stdout,
+		Out: stdout,
 		Raw: true,
 	}
+
 	size := t.GetSize()
 	sizeQueue := t.MonitorSize(size)
 
@@ -356,8 +377,8 @@ func (k KubernetesClient) ExecCommand(ctx context.Context, input ExecCommandInpu
 
 		return exec.StreamWithContext(ctx, remotecommand.StreamOptions{
 			Stdin:             os.Stdin,
-			Stdout:            os.Stdout,
-			Stderr:            os.Stderr,
+			Stdout:            stdout,
+			Stderr:            stderr,
 			Tty:               true,
 			TerminalSizeQueue: sizeQueue,
 		})

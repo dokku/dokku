@@ -66,6 +66,7 @@ restart_nginx() {
 nginx_logs() {
   declare desc="display app nginx logs"
   declare NGINX_LOGS_TYPE="${1#nginx:}" APP="$2"
+  local proxy_type
 
   local NGINX_LOGS_TYPE=${NGINX_LOGS_TYPE%-logs}
   local NGINX_LOGS_PATH="$("fn-nginx-computed-${NGINX_LOGS_TYPE}-log-path" "$APP")"
@@ -73,6 +74,8 @@ nginx_logs() {
   if [[ "$NGINX_LOGS_PATH" == "off" ]] || [[ "$NGINX_LOGS_PATH" == "/dev/null" ]]; then
     dokku_log_fail "$NGINX_LOGS_TYPE logs are disabled for this app"
   fi
+
+  proxy_type="$(plugn trigger proxy-type "$APP")"
 
   local tail=false
   local num=0
@@ -84,7 +87,7 @@ nginx_logs() {
 
   local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
   if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
-    plugn trigger scheduler-proxy-logs "$DOKKU_SCHEDULER" "$APP" "nginx" "$NGINX_LOGS_TYPE" "$tail" "$num"
+    plugn trigger scheduler-proxy-logs "$DOKKU_SCHEDULER" "$APP" "$proxy_type" "$NGINX_LOGS_TYPE" "$tail" "$num"
     return $?
   fi
 
