@@ -9,6 +9,7 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -741,12 +742,15 @@ func getIngressAnnotations(appName string, processType string) (map[string]strin
 	type annotation struct {
 		annotation      string
 		getter          func(appName string) string
+		modifier        func(value string) string
 		locationSnippet func(value string) string
 		serverSnippet   func(value string) string
 	}
 
 	locationLines := []string{}
 	serverLines := []string{}
+
+	numericOnlyRegex := regexp.MustCompile("[^0-9]")
 
 	properties := map[string]annotation{
 		"access-log-path": {
@@ -856,14 +860,23 @@ func getIngressAnnotations(appName string, processType string) (map[string]strin
 		"proxy-connect-timeout": {
 			annotation: "nginx.ingress.kubernetes.io/proxy-connect-timeout",
 			getter:     nginxvhosts.ComputedProxyConnectTimeout,
+			modifier: func(value string) string {
+				return numericOnlyRegex.ReplaceAllString(value, "")
+			},
 		},
 		"proxy-read-timeout": {
 			annotation: "nginx.ingress.kubernetes.io/proxy-read-timeout",
 			getter:     nginxvhosts.ComputedProxyReadTimeout,
+			modifier: func(value string) string {
+				return numericOnlyRegex.ReplaceAllString(value, "")
+			},
 		},
 		"proxy-send-timeout": {
 			annotation: "nginx.ingress.kubernetes.io/proxy-send-timeout",
 			getter:     nginxvhosts.ComputedProxySendTimeout,
+			modifier: func(value string) string {
+				return numericOnlyRegex.ReplaceAllString(value, "")
+			},
 		},
 		"send-timeout": {
 			getter: nginxvhosts.ComputedSendTimeout,
@@ -923,12 +936,17 @@ func getIngressAnnotations(appName string, processType string) (map[string]strin
 
 	annotations := map[string]string{}
 	for _, newKey := range properties {
+		value := newKey.getter(appName)
+		if newKey.modifier != nil {
+			value = newKey.modifier(value)
+		}
+
 		if newKey.locationSnippet != nil {
-			locationLines = append(locationLines, newKey.locationSnippet(newKey.getter(appName)))
+			locationLines = append(locationLines, newKey.locationSnippet(value))
 		} else if newKey.serverSnippet != nil {
-			serverLines = append(serverLines, newKey.serverSnippet(newKey.getter(appName)))
+			serverLines = append(serverLines, newKey.serverSnippet(value))
 		} else if newKey.annotation != "" {
-			annotations[newKey.annotation] = newKey.getter(appName)
+			annotations[newKey.annotation] = value
 		}
 	}
 
