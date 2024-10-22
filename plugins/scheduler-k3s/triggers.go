@@ -866,7 +866,8 @@ func TriggerSchedulerProxyLogs(scheduler string, appName string, proxyType strin
 		command = append(command, "-F")
 	}
 	if numLines > 0 {
-		command = append(command, fmt.Sprintf("-n %d", numLines))
+		command = append(command, "-n")
+		command = append(command, strconv.FormatInt(numLines, 10))
 	}
 	command = append(command, filename)
 
