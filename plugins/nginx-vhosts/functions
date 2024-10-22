@@ -85,6 +85,7 @@ nginx_logs() {
   local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
   if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
     plugn trigger scheduler-proxy-logs "$DOKKU_SCHEDULER" "$APP" "nginx" "$NGINX_LOGS_TYPE" "$tail" "$num"
+    return $?
   fi
 
   if [[ "$tail" == "true" ]]; then
