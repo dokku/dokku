@@ -528,13 +528,17 @@ This plugin implements various functionality through `plugn` triggers to integra
 - `enter`
 - `deploy`
 - healthchecks
-       - Due to Kubernetes limitations, only a single healthcheck is supported for each of the `liveness`, `readiness`, and `startup` healthchecks
-       - Due to Kubernetes limitations, content checks are not supported
-       - Ports specified in the `app.json` are ignored in favor of the container port on the port mapping detected
+    - Due to Kubernetes limitations, only a single healthcheck is supported for each of the `liveness`, `readiness`, and `startup` healthchecks
+    - Due to Kubernetes limitations, content checks are not supported
+    - Ports specified in the `app.json` are ignored in favor of the container port on the port mapping detected
 - `logs`
+- `nginx`
+    - Properties set by the `nginx` plugin will be respected, either by turning them into annotations or creating a custom server/location snippet that the `ingress-nginx` project can use.
+    - The `nginx:access-logs` and `nginx:error-logs` commands will fetch logs from one running `ingress-nginx` pod.
+    - The `nginx:show-config` command will retrieve any `server` blocks associated with a domain attached to the app from one running `ingress-nginx` pod.
 - `ps:stop`
 - `run`
-       - The `scheduler-post-run` trigger is not always triggered
+    - The `scheduler-post-run` trigger is not always triggered
 - `run:detached`
 - `run:list`
 
