@@ -884,7 +884,7 @@ func TriggerSchedulerProxyLogs(scheduler string, appName string, proxyType strin
 
 	return clientset.ExecCommand(context.Background(), ExecCommandInput{
 		Command:       command,
-		ContainerName: "ingress-nginx",
+		ContainerName: "controller",
 		Name:          pods[0].Name,
 		Namespace:     "ingress-nginx",
 	})
