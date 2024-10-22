@@ -1,5 +1,34 @@
 # History
 
+## 0.35.8
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.35.8/bootstrap.sh
+sudo DOKKU_TAG=v0.35.8 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #7295: @josegonzalez Respect the exit code and pass flags correctly when tailing nginx logs on k3s
+- #7294: @josegonzalez Tail the correct container in the ingress-nginx pod
+- #7293: @josegonzalez Strip non-numeric characters from certain ingress-nginx annotation values
+
+### New Features
+
+- #7296: @josegonzalez Implement nginx:show-config for k3s plugin
+
+### Documentation
+
+- #7297: @josegonzalez Document a required ps:restart in order to apply annotations, labels, and nginx properties
+
+### Dependencies
+
+- #7287: @dependabot[bot] chore(deps): bump mvdan.cc/sh/v3 from 3.9.0 to 3.10.0 in /plugins/cron
+- #7288: @dependabot[bot] chore(deps): bump markupsafe from 3.0.1 to 3.0.2 in /docs/_build
+- #7289: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.41 to 9.5.42 in /docs/_build
+
 ## 0.35.7
 
 Install/update via the bootstrap script:
