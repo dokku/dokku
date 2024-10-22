@@ -28,7 +28,7 @@ require (
 	k8s.io/kubectl v0.29.0
 	k8s.io/kubernetes v1.29.1
 	k8s.io/utils v0.0.0-20240102154912-e7106e64919e
-	mvdan.cc/sh/v3 v3.9.0
+	mvdan.cc/sh/v3 v3.10.0
 )
 
 require (
