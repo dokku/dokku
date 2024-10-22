@@ -4,7 +4,7 @@ go 1.23
 
 require (
 	github.com/alexellis/go-execute/v2 v2.2.1
-	github.com/fatih/color v1.17.0
+	github.com/fatih/color v1.18.0
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/melbahja/goph v1.4.0
 	github.com/onsi/gomega v1.34.2
