@@ -61,7 +61,7 @@ By default, Dokku will attempt to auto-detect the IP address of the server. In c
 dokku scheduler-k3s:initialize --server-ip 192.168.20.15
 ```
 
-Dokku's k3s integration natively uses `nginx` as it's ingress load balancer via [ingress-nginx](https://github.com/kubernetes/ingress-nginx). Properties set by the `nginx` plugin will be respected, either by turning them into annotations or creating a custom server/location snippet that the `ingress-nginx` project can use.
+Dokku's k3s integration natively uses `nginx` as it's ingress load balancer via [ingress-nginx](https://github.com/kubernetes/ingress-nginx). Properties set by the `nginx` plugin will be respected, either by turning them into annotations or creating a custom server/location snippet that the `ingress-nginx` project can use. A `ps:restart` is required after changing nginx properties in order to have them apply to running resources.
 
 Dokku can also use Traefik on cluster initialization via the [Traefik's CRDs](https://doc.traefik.io/traefik/providers/kubernetes-crd/). To change the ingress, set the `--ingress-class` flag:
 
@@ -312,6 +312,8 @@ The following resource types are supported:
 - `traefik_ingressroute`
 - `traefik_middleware`
 
+A `ps:restart` is required after setting annotations in order to have them apply to running resources.
+
 #### Removing an annotation
 
 To unset an annotation, pass an empty value:
@@ -320,6 +322,8 @@ To unset an annotation, pass an empty value:
 dokku scheduler-k3s:annotations:set node-js-app annotation.key --resource-type deployment
 dokku scheduler-k3s:annotations:set node-js-app annotation.key --resource-type deployment --process-type web
 ```
+
+A `ps:restart` is required after removing annotations in order to remove them from running resources.
 
 #### Setting Labels
 
@@ -349,6 +353,8 @@ The following resource types are supported:
 - `traefik_ingressroute`
 - `traefik_middleware`
 
+A `ps:restart` is required after setting labels in order to have them apply to running resources.
+
 #### Removing a label
 
 To unset an label, pass an empty value:
@@ -357,6 +363,8 @@ To unset an label, pass an empty value:
 dokku scheduler-k3s:annotations:set node-js-app label.key --resource-type deployment
 dokku scheduler-k3s:labels:set node-js-app label.key --resource-type deployment --process-type web
 ```
+
+A `ps:restart` is required after removing labels in order to remove them from running resources.
 
 ### Autoscaling
 
@@ -533,7 +541,7 @@ This plugin implements various functionality through `plugn` triggers to integra
     - Ports specified in the `app.json` are ignored in favor of the container port on the port mapping detected
 - `logs`
 - `nginx`
-    - Properties set by the `nginx` plugin will be respected, either by turning them into annotations or creating a custom server/location snippet that the `ingress-nginx` project can use.
+    - Properties set by the `nginx` plugin will be respected, either by turning them into annotations or creating a custom server/location snippet that the `ingress-nginx` project can use. A `ps:restart` after changing any nginx properties is required in order to have them apply.
     - The `nginx:access-logs` and `nginx:error-logs` commands will fetch logs from one running `ingress-nginx` pod.
     - The `nginx:show-config` command will retrieve any `server` blocks associated with a domain attached to the app from one running `ingress-nginx` pod.
 - `ps:stop`
