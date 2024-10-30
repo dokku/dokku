@@ -432,7 +432,7 @@ dokku nginx:set node-js-app error-log-path off
 
 Properties:
 
-- `acccess-log-format`
+- `access-log-format`
 
 Prior to changing the log-format, log formats should be specified at a file such as `/etc/nginx/conf.d/00-log-formats.conf`. This will ensure they are available within your app's nginx context. For instance, the following may be added to the above file. It only needs to be specified once to be used for all apps.
 
