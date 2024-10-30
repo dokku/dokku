@@ -9,7 +9,7 @@ require (
 	github.com/dokku/dokku/plugins/config v0.0.0-00010101000000-000000000000
 	github.com/dokku/dokku/plugins/cron v0.0.0-00010101000000-000000000000
 	github.com/dokku/dokku/plugins/nginx-vhosts v0.0.0-00010101000000-000000000000
-	github.com/fatih/color v1.17.0
+	github.com/fatih/color v1.18.0
 	github.com/go-openapi/jsonpointer v0.20.2
 	github.com/go-resty/resty/v2 v2.11.0
 	github.com/gofrs/flock v0.12.0
