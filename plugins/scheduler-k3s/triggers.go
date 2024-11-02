@@ -1113,7 +1113,7 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 		return fmt.Errorf("Error creating helm agent: %w", err)
 	}
 
-	values, err := helmAgent.GetValues(fmt.Sprintf("dokku-%s", appName))
+	values, err := helmAgent.GetValues(appName)
 	if err != nil {
 		return fmt.Errorf("Error getting helm values: %w", err)
 	}
@@ -1411,7 +1411,7 @@ func TriggerSchedulerPostDelete(scheduler string, appName string) error {
 		return fmt.Errorf("Error creating helm agent: %w", err)
 	}
 
-	err = helmAgent.UninstallChart(fmt.Sprintf("dokku-%s", appName))
+	err = helmAgent.UninstallChart(appName)
 	if err != nil {
 		return fmt.Errorf("Error uninstalling chart: %w", err)
 	}
