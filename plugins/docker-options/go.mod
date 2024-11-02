@@ -6,7 +6,7 @@ require github.com/dokku/dokku/plugins/common v0.0.0-00010101000000-000000000000
 
 require (
 	github.com/alexellis/go-execute/v2 v2.2.1 // indirect
-	github.com/fatih/color v1.17.0 // indirect
+	github.com/fatih/color v1.18.0 // indirect
 	github.com/hashicorp/errwrap v1.0.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/kr/fs v0.1.0 // indirect
