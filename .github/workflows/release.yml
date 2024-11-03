@@ -137,6 +137,19 @@ jobs:
     needs: release
     steps:
       - name: Brew doctor
+        run: |
+          brew doctor || true
+      - name: Brew cleanup
+        run: |
+          echo "====> Untapping homebrew/core"
+          brew untap homebrew/core || true
+          echo "====> Untapping homebrew/cask"
+          brew untap homebrew/cask || true
+          echo "====> Uninstalling openssl@1.1"
+          brew uninstall openssl@1.1 || true
+          echo "====> Uninstalling ruby@3.0"
+          brew uninstall ruby@3.0 || true
+      - name: Brew doctor
         run: brew doctor
       - name: Brew config
         run: brew config
