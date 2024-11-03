@@ -136,6 +136,10 @@ jobs:
     runs-on: macos-latest
     needs: release
     steps:
+      - name: Brew doctor
+        run: brew doctor
+      - name: Brew config
+        run: brew config
       - name: Bump Homebrew Formula
         env:
           HOMEBREW_GITHUB_USERNAME: ${{ secrets.HOMEBREW_GITHUB_USERNAME }}
