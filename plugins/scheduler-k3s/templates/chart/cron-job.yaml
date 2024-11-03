@@ -5,7 +5,7 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   annotations:
-    app.kubernetes.io/version: {{ $.Values.global.deploment_id | quote }}
+    app.kubernetes.io/version: {{ $.Values.global.deployment_id | quote }}
     dokku.com/builder-type: {{ $.Values.global.image.type }}
     dokku.com/cron-id: {{ $config.cron.id }}
     dokku.com/job-suffix: {{ $config.cron.suffix }}
@@ -28,7 +28,7 @@ spec:
   jobTemplate:
     metadata:
       annotations:
-        app.kubernetes.io/version: {{ $.Values.global.deploment_id | quote }}
+        app.kubernetes.io/version: {{ $.Values.global.deployment_id | quote }}
         dokku.com/builder-type: {{ $.Values.global.image.type }}
         dokku.com/cron-id: {{ $config.cron.id }}
         dokku.com/job-suffix: {{ $config.cron.suffix }}
@@ -50,7 +50,7 @@ spec:
       template:
         metadata:
           annotations:
-            app.kubernetes.io/version: {{ $.Values.global.deploment_id | quote }}
+            app.kubernetes.io/version: {{ $.Values.global.deployment_id | quote }}
             dokku.com/builder-type: {{ $.Values.global.image.type }}
             dokku.com/cron-id: {{ $config.cron.id }}
             dokku.com/job-suffix: {{ $config.cron.suffix }}
@@ -73,7 +73,7 @@ spec:
             {{- end }}
             envFrom:
             - secretRef:
-                name: env-{{ $.Values.global.app_name }}.{{ $.Values.global.deploment_id }}
+                name: env-{{ $.Values.global.app_name }}.{{ $.Values.global.deployment_id }}
                 optional: true
             image: {{ $.Values.global.image.name }}
             imagePullPolicy: Always

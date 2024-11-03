@@ -1085,7 +1085,12 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 		return fmt.Errorf("Error getting helm values: %w", err)
 	}
 
-	deploymentIDValue, ok := values["deploment_id"].(string)
+	globalValues, ok := values["global"].(map[string]interface{})
+	if !ok {
+		return errors.New("Global helm values not found")
+	}
+
+	deploymentIDValue, ok := globalValues["deployment_id"].(string)
 	if !ok {
 		return fmt.Errorf("Deployment ID is not a string")
 	}
