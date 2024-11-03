@@ -1,5 +1,39 @@
 # History
 
+## 0.35.9
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.35.9/bootstrap.sh
+sudo DOKKU_TAG=v0.35.9 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #7321: @josegonzalez Allow nginx commands when the scheduler is set to null
+- #7313: @Tashows Remove prefixing releaseName with 'dokku-' in UninstallChart and GetValues calls in  scheduler-k3s/triggers.go
+
+### New Features
+
+- #7322: @josegonzalez Add debugging information to brew bump-formula-pr
+
+### Documentation
+
+- #7312: @toanalien Fix typo in nginx documentation
+
+### Dependencies
+
+- #7320: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.34.2 to 1.35.1 in /plugins/common
+- #7311: @dependabot[bot] chore(deps): bump traefik from 3.1.6 to 3.2.0 in /plugins/traefik-vhosts
+- #7300: @dependabot[bot] chore(deps): bump github.com/fatih/color from 1.17.0 to 1.18.0 in /plugins/common
+- #7319: @dependabot[bot] chore(deps): bump werkzeug from 3.0.6 to 3.1.0 in /tests/apps/python-flask
+- #7317: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.42 to 9.5.43 in /docs/_build
+- #7310: @dependabot[bot] chore(deps): bump pymdown-extensions from 10.11.2 to 10.12 in /docs/_build
+- #7299: @dependabot[bot] chore(deps): bump timberio/vector from 0.41.1-debian to 0.42.0-debian in /plugins/logs
+- #7306: @dependabot[bot] chore(deps): bump org.apache.maven.plugins:maven-dependency-plugin from 3.8.0 to 3.8.1 in /tests/apps/java
+- #7305: @dependabot[bot] chore(deps): bump werkzeug from 3.0.4 to 3.0.6 in /tests/apps/python-flask
+
 ## 0.35.8
 
 Install/update via the bootstrap script:
