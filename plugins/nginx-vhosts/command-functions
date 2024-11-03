@@ -164,7 +164,7 @@ cmd-nginx-show-config() {
   proxy_type="$(plugn trigger proxy-type "$APP")"
 
   local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
-  if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
+  if [[ "$DOKKU_SCHEDULER" != "docker-local" ]] && [[ "$DOKKU_SCHEDULER" != "null" ]]; then
     plugn trigger scheduler-proxy-config "$DOKKU_SCHEDULER" "$APP" "$proxy_type"
     return $?
   fi
