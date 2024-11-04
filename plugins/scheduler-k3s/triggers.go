@@ -817,12 +817,12 @@ func TriggerSchedulerLogs(scheduler string, appName string, processType string, 
 	}
 
 	return clientset.StreamLogs(context.Background(), StreamLogsInput{
-		DeploymentName: appName,
-		Namespace:      getComputedNamespace(appName),
-		ContainerName:  processType,
-		TailLines:      numLines,
-		Follow:         tail,
-		Quiet:          quiet,
+		Namespace:     getComputedNamespace(appName),
+		ContainerName: processType,
+		LabelSelector: []string{fmt.Sprintf("app.kubernetes.io/part-of=%s", appName)},
+		TailLines:     numLines,
+		Follow:        tail,
+		Quiet:         quiet,
 	})
 }
 
@@ -1168,7 +1168,7 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 	}
 
 	batchJobSelector := fmt.Sprintf("batch.kubernetes.io/job-name=%s", createdJob.Name)
-	pods, err := waitForPodToExist(ctx, WaitForPodToExistInput{
+	_, err = waitForPodToExist(ctx, WaitForPodToExistInput{
 		Clientset:     clientset,
 		Namespace:     namespace,
 		RetryCount:    3,
@@ -1203,6 +1203,18 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 				return fmt.Errorf("Error completed pod: %w", err)
 			}
 			selectedPod := pods[0]
+
+			err := clientset.StreamLogs(ctx, StreamLogsInput{
+				ContainerName: processType,
+				Follow:        false,
+				LabelSelector: []string{batchJobSelector},
+				Namespace:     namespace,
+				Quiet:         true,
+				SinceSeconds:  10,
+			})
+			if err != nil {
+				return fmt.Errorf("Error streaming logs: %w", err)
+			}
 			if selectedPod.Status.Phase == v1.PodFailed {
 				for _, status := range selectedPod.Status.ContainerStatuses {
 					if status.Name != fmt.Sprintf("%s-%s", appName, processType) {
@@ -1216,13 +1228,14 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 
 				return fmt.Errorf("Unable to attach as the pod has already exited with a failed exit code")
 			} else if selectedPod.Status.Phase == v1.PodSucceeded {
-				return errors.New("Unable to attach as the pod has already exited with a successful exit code")
+				return nil
 			}
 		}
+
 		return fmt.Errorf("Error waiting for pod to be running: %w", err)
 	}
 
-	pods, err = clientset.ListPods(ctx, ListPodsInput{
+	pods, err := clientset.ListPods(ctx, ListPodsInput{
 		Namespace:     namespace,
 		LabelSelector: batchJobSelector,
 	})
@@ -1250,11 +1263,12 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 		}
 	case v1.PodRunning:
 		return enterPod(ctx, EnterPodInput{
-			Clientset:   clientset,
-			Command:     command,
-			Entrypoint:  entrypoint,
-			SelectedPod: selectedPod,
-			WaitTimeout: 10,
+			AllowCompletion: true,
+			Clientset:       clientset,
+			Command:         command,
+			Entrypoint:      entrypoint,
+			SelectedPod:     selectedPod,
+			WaitTimeout:     10,
 		})
 	default:
 		return fmt.Errorf("Unable to attach as the pod is in an unknown state: %s", selectedPod.Status.Phase)

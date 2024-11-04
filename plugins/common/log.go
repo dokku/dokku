@@ -2,6 +2,7 @@ package common
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"strconv"
 	"strings"
@@ -44,6 +45,30 @@ func (w *writer) Write(bytes []byte) (int, error) {
 	}
 
 	return len(bytes), nil
+}
+
+// PrefixingWriter is a writer that prefixes all writes with a given prefix
+type PrefixingWriter struct {
+	Prefix []byte
+	Writer io.Writer
+}
+
+// Write writes the given bytes to the writer with the prefix
+func (pw *PrefixingWriter) Write(p []byte) (int, error) {
+	if len(p) == 0 {
+		return 0, nil
+	}
+
+	// Perform an "atomic" write of a prefix and p to make sure that it doesn't interleave
+	// sub-line when used concurrently with io.PipeWrite.
+	n, err := pw.Writer.Write(append(pw.Prefix, p...))
+	if n > len(p) {
+		// To comply with the io.Writer interface requirements we must
+		// return a number of bytes written from p (0 <= n <= len(p)),
+		// so we are ignoring the length of the prefix here.
+		return len(p), err
+	}
+	return n, err
 }
 
 // LogFail is the failure log formatter

@@ -10,7 +10,9 @@ import (
 	"os/signal"
 	"strconv"
 	"strings"
+	"sync"
 	"syscall"
+	"time"
 
 	"github.com/dokku/dokku/plugins/common"
 	"github.com/fatih/color"
@@ -19,7 +21,7 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	autoscalingv1 "k8s.io/api/autoscaling/v1"
 	batchv1 "k8s.io/api/batch/v1"
-	v1 "k8s.io/api/core/v1"
+	corev1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -213,14 +215,14 @@ func (k KubernetesClient) CreateJob(ctx context.Context, input CreateJobInput) (
 // CreateNamespaceInput contains all the information needed to create a Kubernetes namespace
 type CreateNamespaceInput struct {
 	// Name is the name of the Kubernetes namespace
-	Name v1.Namespace
+	Name corev1.Namespace
 }
 
 // CreateNamespace creates a Kubernetes namespace
-func (k KubernetesClient) CreateNamespace(ctx context.Context, input CreateNamespaceInput) (v1.Namespace, error) {
+func (k KubernetesClient) CreateNamespace(ctx context.Context, input CreateNamespaceInput) (corev1.Namespace, error) {
 	namespaces, err := k.ListNamespaces(ctx)
 	if err != nil {
-		return v1.Namespace{}, err
+		return corev1.Namespace{}, err
 	}
 
 	for _, namespace := range namespaces {
@@ -231,11 +233,11 @@ func (k KubernetesClient) CreateNamespace(ctx context.Context, input CreateNames
 
 	namespace, err := k.Client.CoreV1().Namespaces().Create(ctx, &input.Name, metav1.CreateOptions{})
 	if err != nil {
-		return v1.Namespace{}, err
+		return corev1.Namespace{}, err
 	}
 
 	if namespace == nil {
-		return v1.Namespace{}, errors.New("namespace is nil")
+		return corev1.Namespace{}, errors.New("namespace is nil")
 	}
 
 	return *namespace, err
@@ -419,14 +421,14 @@ type GetPodInput struct {
 }
 
 // GetJob gets a Kubernetes job
-func (k KubernetesClient) GetPod(ctx context.Context, input GetPodInput) (v1.Pod, error) {
+func (k KubernetesClient) GetPod(ctx context.Context, input GetPodInput) (corev1.Pod, error) {
 	pod, err := k.Client.CoreV1().Pods(input.Namespace).Get(ctx, input.Name, metav1.GetOptions{})
 	if err != nil {
-		return v1.Pod{}, err
+		return corev1.Pod{}, err
 	}
 
 	if pod == nil {
-		return v1.Pod{}, errors.New("pod is nil")
+		return corev1.Pod{}, errors.New("pod is nil")
 	}
 
 	return *pod, err
@@ -578,13 +580,13 @@ func (k KubernetesClient) ListIngresses(ctx context.Context, input ListIngresses
 }
 
 // ListNamespaces lists Kubernetes namespaces
-func (k KubernetesClient) ListNamespaces(ctx context.Context) ([]v1.Namespace, error) {
+func (k KubernetesClient) ListNamespaces(ctx context.Context) ([]corev1.Namespace, error) {
 	namespaces, err := k.Client.CoreV1().Namespaces().List(ctx, metav1.ListOptions{})
 	if err != nil {
-		return []v1.Namespace{}, err
+		return []corev1.Namespace{}, err
 	}
 	if namespaces == nil {
-		return []v1.Namespace{}, errors.New("namespaces is nil")
+		return []corev1.Namespace{}, errors.New("namespaces is nil")
 	}
 
 	return namespaces.Items, nil
@@ -597,7 +599,7 @@ type ListNodesInput struct {
 }
 
 // ListNodes lists Kubernetes nodes
-func (k KubernetesClient) ListNodes(ctx context.Context, input ListNodesInput) ([]v1.Node, error) {
+func (k KubernetesClient) ListNodes(ctx context.Context, input ListNodesInput) ([]corev1.Node, error) {
 	listOptions := metav1.ListOptions{}
 	if input.LabelSelector != "" {
 		common.LogDebug(fmt.Sprintf("Using label selector: %s", input.LabelSelector))
@@ -605,11 +607,11 @@ func (k KubernetesClient) ListNodes(ctx context.Context, input ListNodesInput) (
 	}
 	nodeList, err := k.Client.CoreV1().Nodes().List(ctx, listOptions)
 	if err != nil {
-		return []v1.Node{}, err
+		return []corev1.Node{}, err
 	}
 
 	if nodeList == nil {
-		return []v1.Node{}, errors.New("pod list is nil")
+		return []corev1.Node{}, errors.New("pod list is nil")
 	}
 
 	return nodeList.Items, err
@@ -625,15 +627,15 @@ type ListPodsInput struct {
 }
 
 // ListPods lists Kubernetes pods
-func (k KubernetesClient) ListPods(ctx context.Context, input ListPodsInput) ([]v1.Pod, error) {
+func (k KubernetesClient) ListPods(ctx context.Context, input ListPodsInput) ([]corev1.Pod, error) {
 	listOptions := metav1.ListOptions{LabelSelector: input.LabelSelector}
 	podList, err := k.Client.CoreV1().Pods(input.Namespace).List(ctx, listOptions)
 	if err != nil {
-		return []v1.Pod{}, err
+		return []corev1.Pod{}, err
 	}
 
 	if podList == nil {
-		return []v1.Pod{}, errors.New("pod list is nil")
+		return []corev1.Pod{}, errors.New("pod list is nil")
 	}
 
 	return podList.Items, err
@@ -708,23 +710,26 @@ func (k KubernetesClient) ScaleDeployment(ctx context.Context, input ScaleDeploy
 }
 
 type StreamLogsInput struct {
-	// Namespace is the Kubernetes namespace
-	Namespace string
-
-	// DeploymentName is the Kubernetes deployment name
-	DeploymentName string
-
 	// ContainerName is the Kubernetes container name
 	ContainerName string
 
 	// Follow is whether to follow the logs
 	Follow bool
 
-	// TailLines is the number of lines to tail
-	TailLines int64
+	// LabelSelector is the Kubernetes label selector
+	LabelSelector []string
+
+	// Namespace is the Kubernetes namespace
+	Namespace string
 
 	// Quiet is whether to suppress output
 	Quiet bool
+
+	// SinceSeconds is the number of seconds to go back
+	SinceSeconds int64
+
+	// TailLines is the number of lines to tail
+	TailLines int64
 }
 
 func (k KubernetesClient) StreamLogs(ctx context.Context, input StreamLogsInput) error {
@@ -743,7 +748,7 @@ func (k KubernetesClient) StreamLogs(ctx context.Context, input StreamLogsInput)
 		return fmt.Errorf("kubernetes api not available: %w", err)
 	}
 
-	labelSelector := []string{fmt.Sprintf("app.kubernetes.io/part-of=%s", input.DeploymentName)}
+	labelSelector := input.LabelSelector
 	processIndex := 0
 	if input.ContainerName != "" {
 		parts := strings.SplitN(input.ContainerName, ".", 2)
@@ -766,14 +771,38 @@ func (k KubernetesClient) StreamLogs(ctx context.Context, input StreamLogsInput)
 		return fmt.Errorf("Error listing pods: %w", err)
 	}
 	if len(pods) == 0 {
-		return fmt.Errorf("No pods found for app %s", input.DeploymentName)
+		return fmt.Errorf("No pods found matching specified labels")
 	}
-
-	ch := make(chan bool)
 
 	if os.Getenv("FORCE_TTY") == "1" {
 		color.NoColor = false
 	}
+
+	logOptions := corev1.PodLogOptions{
+		Follow: input.Follow,
+	}
+	if input.TailLines > 0 {
+		logOptions.TailLines = ptr.To(input.TailLines)
+	}
+	if input.SinceSeconds != 0 {
+		// round up to the nearest second
+		sec := int64(time.Duration(input.SinceSeconds * int64(time.Second)).Seconds())
+		logOptions.SinceSeconds = &sec
+	}
+
+	requests := make([]rest.ResponseWrapper, len(pods))
+	for i := 0; i < len(pods); i++ {
+		if processIndex > 0 && i != (processIndex-1) {
+			continue
+		}
+
+		podName := pods[i].Name
+		requests[i] = k.Client.CoreV1().Pods(input.Namespace).GetLogs(podName, &logOptions)
+	}
+
+	reader, writer := io.Pipe()
+	wg := &sync.WaitGroup{}
+	wg.Add(len(requests))
 
 	colors := []color.Attribute{
 		color.FgRed,
@@ -783,59 +812,71 @@ func (k KubernetesClient) StreamLogs(ctx context.Context, input StreamLogsInput)
 		color.FgBlue,
 		color.FgMagenta,
 	}
-	// colorIndex := 0
-	for i := 0; i < len(pods); i++ {
-		if processIndex > 0 && i != (processIndex-1) {
-			continue
-		}
 
-		logOptions := v1.PodLogOptions{
-			Follow: input.Follow,
-		}
-		if input.TailLines > 0 {
-			logOptions.TailLines = ptr.To(input.TailLines)
-		}
-
+	for i := 0; i < len(requests); i++ {
+		request := requests[i]
+		podName := pods[i].Name
 		podColor := colors[i%len(colors)]
 		dynoText := color.New(podColor).SprintFunc()
-		podName := pods[i].Name
-		podLogs, err := k.Client.CoreV1().Pods(input.Namespace).GetLogs(podName, &logOptions).Stream(ctx)
-		if err != nil {
+		prefix := dynoText(fmt.Sprintf("app[%s]: ", podName))
+
+		go func(ctx context.Context, request rest.ResponseWrapper, prefix string) {
+			defer wg.Done()
+
+			out := k.addPrefixingWriter(writer, prefix, input.Quiet)
+			if err := streamLogsFromRequest(ctx, request, out); err != nil {
+				// check if error is context canceled
+				if errors.Is(err, context.Canceled) {
+					writer.Close()
+					return
+				}
+
+				writer.CloseWithError(err)
+				return
+			}
+		}(ctx, request, prefix)
+	}
+
+	go func() {
+		wg.Wait()
+		writer.Close()
+	}()
+
+	_, err = io.Copy(os.Stdout, reader)
+	return err
+}
+
+func (k KubernetesClient) addPrefixingWriter(writer *io.PipeWriter, prefix string, quiet bool) io.Writer {
+	if quiet {
+		return writer
+	}
+
+	return &common.PrefixingWriter{
+		Prefix: []byte(prefix),
+		Writer: writer,
+	}
+}
+
+func streamLogsFromRequest(ctx context.Context, request rest.ResponseWrapper, out io.Writer) error {
+	readCloser, err := request.Stream(ctx)
+	if err != nil {
+		return err
+	}
+	defer readCloser.Close()
+
+	r := bufio.NewReader(readCloser)
+	for {
+		bytes, err := r.ReadBytes('\n')
+
+		if _, err := out.Write(bytes); err != nil {
 			return err
 		}
-		buffer := bufio.NewReader(podLogs)
-		go func(ctx context.Context, buffer *bufio.Reader, prettyText func(a ...interface{}) string, ch chan bool) {
-			defer func() {
-				ch <- true
-			}()
-			for {
-				select {
-				case <-ctx.Done(): // if cancel() execute
-					ch <- true
-					return
-				default:
-					str, readErr := buffer.ReadString('\n')
-					if readErr == io.EOF {
-						break
-					}
 
-					if str == "" {
-						continue
-					}
-
-					if !input.Quiet {
-						str = fmt.Sprintf("%s %s", dynoText(fmt.Sprintf("app[%s]:", podName)), str)
-					}
-
-					_, err := fmt.Print(str)
-					if err != nil {
-						return
-					}
-				}
+		if err != nil {
+			if err != io.EOF {
+				return err
 			}
-		}(ctx, buffer, dynoText, ch)
+			return nil
+		}
 	}
-	<-ch
-
-	return nil
 }
