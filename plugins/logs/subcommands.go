@@ -26,9 +26,10 @@ func CommandDefault(appName string, num int64, process string, tail, quiet bool)
 	n := strconv.FormatInt(num, 10)
 
 	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
-		Args:        []string{s, appName, process, t, q, n},
-		StreamStdio: true,
-		Trigger:     "scheduler-logs",
+		Args:               []string{s, appName, process, t, q, n},
+		DisableStdioBuffer: true,
+		StreamStdio:        true,
+		Trigger:            "scheduler-logs",
 	})
 	return err
 }
