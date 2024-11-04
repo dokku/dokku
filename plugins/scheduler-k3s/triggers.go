@@ -1190,7 +1190,7 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 		Clientset:     clientset,
 		Namespace:     namespace,
 		LabelSelector: batchJobSelector,
-		Timeout:       300,
+		Timeout:       10,
 		Waiter:        isPodReady,
 	})
 	if err != nil {
@@ -1254,6 +1254,7 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 			Command:     command,
 			Entrypoint:  entrypoint,
 			SelectedPod: selectedPod,
+			WaitTimeout: 10,
 		})
 	default:
 		return fmt.Errorf("Unable to attach as the pod is in an unknown state: %s", selectedPod.Status.Phase)
