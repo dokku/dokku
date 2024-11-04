@@ -36,6 +36,9 @@ import (
 
 // EnterPodInput contains all the information needed to enter a pod
 type EnterPodInput struct {
+	// AllowCompletion is whether to allow the command to complete
+	AllowCompletion bool
+
 	// Clientset is the kubernetes clientset
 	Clientset KubernetesClient
 
@@ -106,12 +109,26 @@ type WaitForNodeToExistInput struct {
 }
 
 type WaitForPodBySelectorRunningInput struct {
-	Clientset     KubernetesClient
-	Namespace     string
+	// AllowCompletion is whether to allow the command to complete
+	AllowCompletion bool
+
+	// Clientset is the kubernetes clientset
+	Clientset KubernetesClient
+
+	// Namespace is the namespace to search in
+	Namespace string
+
+	// LabelSelector is the label selector to search for
 	LabelSelector string
-	PodName       string
-	Timeout       float64
-	Waiter        func(ctx context.Context, clientset KubernetesClient, podName, namespace string) wait.ConditionWithContextFunc
+
+	// PodName is the pod name to search for
+	PodName string
+
+	// Timeout is the timeout in seconds to wait for the pod to be ready
+	Timeout float64
+
+	// Waiter is the waiter function
+	Waiter func(ctx context.Context, clientset KubernetesClient, podName, namespace string) wait.ConditionWithContextFunc
 }
 
 type WaitForPodToExistInput struct {
@@ -379,12 +396,13 @@ func enterPod(ctx context.Context, input EnterPodInput) error {
 	}
 
 	err := waitForPodBySelectorRunning(ctx, WaitForPodBySelectorRunningInput{
-		Clientset:     input.Clientset,
-		Namespace:     input.SelectedPod.Namespace,
-		LabelSelector: strings.Join(labelSelector, ","),
-		PodName:       input.SelectedPod.Name,
-		Timeout:       input.WaitTimeout,
-		Waiter:        isPodReady,
+		AllowCompletion: input.AllowCompletion,
+		Clientset:       input.Clientset,
+		Namespace:       input.SelectedPod.Namespace,
+		LabelSelector:   strings.Join(labelSelector, ","),
+		PodName:         input.SelectedPod.Name,
+		Timeout:         input.WaitTimeout,
+		Waiter:          isPodReady,
 	})
 	if err != nil {
 		return fmt.Errorf("Error waiting for pod to be ready: %w", err)
@@ -1604,8 +1622,6 @@ func isK3sKubernetes() bool {
 
 func isPodReady(ctx context.Context, clientset KubernetesClient, podName, namespace string) wait.ConditionWithContextFunc {
 	return func(ctx context.Context) (bool, error) {
-		fmt.Printf(".")
-
 		pod, err := clientset.GetPod(ctx, GetPodInput{
 			Name:      podName,
 			Namespace: namespace,
@@ -1694,7 +1710,7 @@ func waitForPodBySelectorRunning(ctx context.Context, input WaitForPodBySelector
 		RetryCount:    3,
 	})
 	if err != nil {
-		return err
+		return fmt.Errorf("Error waiting for pod to exist: %w", err)
 	}
 
 	if len(pods) == 0 {
@@ -1709,8 +1725,12 @@ func waitForPodBySelectorRunning(ctx context.Context, input WaitForPodBySelector
 
 		if err := wait.PollUntilContextTimeout(ctx, time.Second, timeout, false, input.Waiter(ctx, input.Clientset, pod.Name, pod.Namespace)); err != nil {
 			print("\n")
-			return err
+			if input.AllowCompletion && errors.Is(err, conditions.ErrPodCompleted) {
+				return nil
+			}
+			return fmt.Errorf("Error waiting for pod %s to be running: %w", pod.Name, err)
 		}
+		fmt.Printf(".")
 	}
 	print("\n")
 	return nil
@@ -1757,6 +1777,11 @@ func waitForPodToExist(ctx context.Context, input WaitForPodToExistInput) ([]v1.
 		})
 		if err != nil {
 			time.Sleep(1 * time.Second)
+		}
+
+		if len(pods) == 0 {
+			time.Sleep(1 * time.Second)
+			continue
 		}
 
 		if input.PodName == "" {
