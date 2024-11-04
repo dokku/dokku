@@ -6,7 +6,7 @@ apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
 metadata:
   annotations:
-    app.kubernetes.io/version: {{ $.Values.global.deploment_id | quote }}
+    app.kubernetes.io/version: {{ $.Values.global.deployment_id | quote }}
     dokku.com/managed: "true"
     {{ include "print.annotations" (dict "config" $.Values.global "key" "keda_scaled_object") | indent 4 }}
     {{ include "print.annotations" (dict "config" $config "key" "keda_scaled_object") | indent 4 }}

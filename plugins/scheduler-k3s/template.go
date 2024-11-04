@@ -43,7 +43,7 @@ type AppValues struct {
 type GlobalValues struct {
 	Annotations  ProcessAnnotations `yaml:"annotations,omitempty"`
 	AppName      string             `yaml:"app_name"`
-	DeploymentID string             `yaml:"deploment_id"`
+	DeploymentID string             `yaml:"deployment_id"`
 	Image        GlobalImage        `yaml:"image"`
 	Labels       ProcessLabels      `yaml:"labels,omitempty"`
 	Keda         GlobalKedaValues   `yaml:"keda"`

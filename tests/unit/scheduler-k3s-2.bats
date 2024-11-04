@@ -148,6 +148,18 @@ teardown_() {
   echo "status: $status"
   assert_success
   assert_output "512Mi"
+
+  # include run tests
+  run /bin/bash -c "dokku run $TEST_APP ls -lah"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  # include enter tests
+  run /bin/bash -c "dokku enter $TEST_APP web ls -lah"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 }
 
 @test "(scheduler-k3s) deploy nginx" {

@@ -11,7 +11,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    app.kubernetes.io/version: {{ $.Values.global.deploment_id | quote }}
+    app.kubernetes.io/version: {{ $.Values.global.deployment_id | quote }}
     dokku.com/builder-type: {{ $.Values.global.image.type }}
     dokku.com/managed: "true"
     kubectl.kubernetes.io/default-container: {{ $.Values.global.app_name }}-{{ $processName }}
@@ -39,7 +39,7 @@ spec:
   template:
     metadata:
       annotations:
-        app.kubernetes.io/version: {{ $.Values.global.deploment_id | quote }}
+        app.kubernetes.io/version: {{ $.Values.global.deployment_id | quote }}
         dokku.com/builder-type: {{ $.Values.global.image.type }}
         dokku.com/managed: "true"
         kubectl.kubernetes.io/default-container: {{ $.Values.global.app_name }}-{{ $processName }}
@@ -64,7 +64,7 @@ spec:
         {{- end }}
         envFrom:
         - secretRef:
-            name: env-{{ $.Values.global.app_name }}.{{ $.Values.global.deploment_id }}
+            name: env-{{ $.Values.global.app_name }}.{{ $.Values.global.deployment_id }}
             optional: true
         image: {{ $.Values.global.image.name }}
         imagePullPolicy: Always

@@ -5,7 +5,7 @@ apiVersion: keda.sh/v1alpha1
 kind: TriggerAuthentication
 metadata:
   annotations:
-    app.kubernetes.io/version: {{ $.Values.global.deploment_id | quote }}
+    app.kubernetes.io/version: {{ $.Values.global.deployment_id | quote }}
     dokku.com/managed: "true"
     {{- if and $.Values.global.annotations $.Values.global.annotations.keda_trigger_authentication }}
     {{- range $k, $v := $.Values.global.annotations.keda_trigger_authentication }}
