@@ -1,7 +1,6 @@
 package appjson
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -12,7 +11,6 @@ import (
 
 	"github.com/dokku/dokku/plugins/common"
 	shellquote "github.com/kballard/go-shellquote"
-	"golang.org/x/sync/errgroup"
 )
 
 func constructScript(command string, shell string, isHerokuishImage bool, isCnbImage bool, dockerfileEntrypoint string) []string {
@@ -99,7 +97,7 @@ func getPhaseScript(appName string, phase string) (string, error) {
 }
 
 // getReleaseCommand extracts the release command from a given app's procfile
-func getReleaseCommand(appName string, image string) string {
+func getReleaseCommand(appName string) string {
 	processType := "release"
 	port := "5000"
 	results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
@@ -107,40 +105,6 @@ func getReleaseCommand(appName string, image string) string {
 		Args:    []string{appName, processType, port},
 	})
 	return results.StdoutContents()
-}
-
-func getDokkuAppShell(appName string) string {
-	shell := "/bin/bash"
-	globalShell := ""
-	appShell := ""
-
-	ctx := context.Background()
-	errs, ctx := errgroup.WithContext(ctx)
-	errs.Go(func() error {
-		results, _ := common.CallPlugnTriggerWithContext(ctx, common.PlugnTriggerInput{
-			Trigger: "config-get-global",
-			Args:    []string{"DOKKU_APP_SHELL"},
-		})
-		globalShell = results.StdoutContents()
-		return nil
-	})
-	errs.Go(func() error {
-		results, _ := common.CallPlugnTriggerWithContext(ctx, common.PlugnTriggerInput{
-			Trigger: "config-get",
-			Args:    []string{appName, "DOKKU_APP_SHELL"},
-		})
-		appShell = results.StdoutContents()
-		return nil
-	})
-
-	errs.Wait()
-	if appShell != "" {
-		shell = appShell
-	} else if globalShell != "" {
-		shell = globalShell
-	}
-
-	return shell
 }
 
 func hasAppJSON(appName string) bool {
@@ -156,7 +120,7 @@ func hasAppJSON(appName string) bool {
 	return common.FileExists(appJSONPath)
 }
 
-func cleanupDeploymentContainer(appName string, containerID string, phase string) error {
+func cleanupDeploymentContainer(containerID string, phase string) error {
 	if phase != "predeploy" {
 		os.Setenv("DOKKU_SKIP_IMAGE_RETIRE", "true")
 	}
@@ -177,7 +141,7 @@ func executeScript(appName string, image string, imageTag string, phase string) 
 	command := ""
 	phaseSource := ""
 	if phase == "release" {
-		command = getReleaseCommand(appName, image)
+		command = getReleaseCommand(appName)
 		phaseSource = "Procfile"
 	} else {
 		var err error
@@ -207,7 +171,7 @@ func executeScript(appName string, image string, imageTag string, phase string) 
 		dockerfileCommand, _ = getCommandFromImage(image)
 	}
 
-	dokkuAppShell := getDokkuAppShell(appName)
+	dokkuAppShell := common.GetDokkuAppShell(appName)
 	script := constructScript(command, dokkuAppShell, isHerokuishImage, isCnbImage, dockerfileEntrypoint)
 
 	imageSourceType := "dockerfile"
@@ -304,7 +268,7 @@ func executeScript(appName string, image string, imageTag string, phase string) 
 		return fmt.Errorf("Failed to create %s execution container: %s", phase, err.Error())
 	}
 
-	defer cleanupDeploymentContainer(appName, containerID, phase)
+	defer cleanupDeploymentContainer(containerID, phase)
 
 	if !waitForExecution(containerID) {
 		common.LogInfo2Quiet(fmt.Sprintf("Start of %s %s task (%s) output", appName, phaseName, containerID[0:9]))
@@ -455,7 +419,7 @@ func createdContainerID(appName string, dockerArgs []string, image string, comma
 	return containerID, err
 }
 
-func setScale(appName string, image string) error {
+func setScale(appName string) error {
 	appJSON, err := GetAppJSON(appName)
 	if err != nil {
 		return err
