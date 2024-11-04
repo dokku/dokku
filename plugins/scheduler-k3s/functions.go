@@ -52,7 +52,7 @@ type EnterPodInput struct {
 	SelectedPod v1.Pod
 
 	// WaitTimeout is the timeout to wait for the pod to be ready
-	WaitTimeout int
+	WaitTimeout float64
 }
 
 // Node contains information about a node
@@ -110,7 +110,7 @@ type WaitForPodBySelectorRunningInput struct {
 	Namespace     string
 	LabelSelector string
 	PodName       string
-	Timeout       int
+	Timeout       float64
 	Waiter        func(ctx context.Context, clientset KubernetesClient, podName, namespace string) wait.ConditionWithContextFunc
 }
 
@@ -374,8 +374,8 @@ func enterPod(ctx context.Context, input EnterPodInput) error {
 		labelSelector = append(labelSelector, fmt.Sprintf("%s=%s", k, v))
 	}
 
-	if input.WaitTimeout > 0 {
-		input.WaitTimeout = 5
+	if input.WaitTimeout == 0 {
+		input.WaitTimeout = 10
 	}
 
 	err := waitForPodBySelectorRunning(ctx, WaitForPodBySelectorRunningInput{
@@ -1694,14 +1694,14 @@ func waitForPodBySelectorRunning(ctx context.Context, input WaitForPodBySelector
 		RetryCount:    3,
 	})
 	if err != nil {
-		return fmt.Errorf("Error waiting for pod to exist: %w", err)
+		return err
 	}
 
 	if len(pods) == 0 {
 		return fmt.Errorf("no pods in %s with selector %s", input.Namespace, input.LabelSelector)
 	}
 
-	timeout := time.Duration(input.Timeout) * time.Second
+	timeout := time.Duration(input.Timeout * float64(time.Second))
 	for _, pod := range pods {
 		if input.PodName != "" && pod.Name != input.PodName {
 			break
@@ -1709,7 +1709,7 @@ func waitForPodBySelectorRunning(ctx context.Context, input WaitForPodBySelector
 
 		if err := wait.PollUntilContextTimeout(ctx, time.Second, timeout, false, input.Waiter(ctx, input.Clientset, pod.Name, pod.Namespace)); err != nil {
 			print("\n")
-			return fmt.Errorf("Error waiting for pod to be ready: %w", err)
+			return err
 		}
 	}
 	print("\n")
