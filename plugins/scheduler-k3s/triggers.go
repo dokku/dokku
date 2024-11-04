@@ -1177,11 +1177,6 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 	if err != nil {
 		return fmt.Errorf("Error waiting for pod to exist: %w", err)
 	}
-
-	for _, pod := range pods {
-		common.LogQuiet(pod.Name)
-	}
-
 	if !attachToPod {
 		return nil
 	}
