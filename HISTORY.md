@@ -1,5 +1,29 @@
 # History
 
+## 0.35.10
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.35.10/bootstrap.sh
+sudo DOKKU_TAG=v0.35.10 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #7324: @josegonzalez Correctly pull the deployment id from an app's helm values when executing dokku run under the k3s scheduler
+- #7332: @josegonzalez Drop the pod name from stdout output when creating one-off containers under the k3s scheduler
+- #7331: @josegonzalez Output logs for completed containers launched by the k3s scheduler
+- #7330: @josegonzalez Disable stdio buffering so log coloring happens normally when fetching logs for k3s-scheduler managed apps
+- #7329: @josegonzalez Correctly wait for one-off k3s pods to be ready
+- #7328: @josegonzalez Execute one-off commands with DOKKU_APP_SHELL as the initial command under the k3s scheduler
+- #7323: @josegonzalez Correct errors in brew doctor output when making a formula release
+
+### Dependencies
+
+- #7327: @dependabot[bot] chore(deps): bump watchdog from 5.0.3 to 6.0.0 in /docs/_build
+- #7326: @dependabot[bot] chore(deps): bump werkzeug from 3.1.0 to 3.1.1 in /tests/apps/python-flask
+
 ## 0.35.9
 
 Install/update via the bootstrap script:
