@@ -788,24 +788,7 @@ func TriggerSchedulerEnter(scheduler string, appName string, processType string,
 
 	command := args
 	if len(args) == 0 {
-		command = []string{"/bin/bash"}
-		results, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
-			Trigger: "config-get-global",
-			Args:    []string{"DOKKU_APP_SHELL"},
-		})
-		globalShell := results.StdoutContents()
-		if err == nil && globalShell != "" {
-			command = []string{globalShell}
-		}
-
-		results, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
-			Trigger: "config-get",
-			Args:    []string{appName, "DOKKU_APP_SHELL"},
-		})
-		appShell := results.StdoutContents()
-		if err == nil && appShell != "" {
-			command = []string{appShell}
-		}
+		command = []string{common.GetDokkuAppShell(appName)}
 	}
 
 	entrypoint := ""
@@ -1071,25 +1054,9 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 
 	// todo: do something with docker args
 	command := args
+	commandShell := common.GetDokkuAppShell(appName)
 	if len(args) == 0 {
-		command = []string{"/bin/bash"}
-		results, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
-			Trigger: "config-get-global",
-			Args:    []string{"DOKKU_APP_SHELL"},
-		})
-		globalShell := results.StdoutContents()
-		if err == nil && globalShell != "" {
-			command = []string{globalShell}
-		}
-
-		results, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
-			Trigger: "config-get",
-			Args:    []string{appName, "DOKKU_APP_SHELL"},
-		})
-		appShell := results.StdoutContents()
-		if err == nil && appShell != "" {
-			command = []string{appShell}
-		}
+		command = []string{commandShell}
 	} else if len(args) == 1 {
 		resp, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
 			Trigger: "procfile-get-command",
@@ -1135,7 +1102,7 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 	workingDir := common.GetWorkingDir(appName, image)
 	job, err := templateKubernetesJob(Job{
 		AppName:          appName,
-		Command:          command,
+		Command:          []string{commandShell},
 		DeploymentID:     deploymentID,
 		Entrypoint:       entrypoint,
 		Env:              extraEnv,

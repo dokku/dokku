@@ -226,7 +226,7 @@ func TriggerPostReleaseBuilder(builderType string, appName string, image string)
 		return err
 	}
 
-	if err := setScale(appName, image); err != nil {
+	if err := setScale(appName); err != nil {
 		return err
 	}
 
