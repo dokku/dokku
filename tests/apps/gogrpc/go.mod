@@ -1,6 +1,6 @@
 module github.com/dokku/dokko/tests/apps/gorpc
 
-go 1.23.3
+go 1.23.2
 
 require (
 	golang.org/x/net v0.29.0 // indirect
