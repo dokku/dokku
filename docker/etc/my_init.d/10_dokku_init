@@ -69,6 +69,11 @@ main() {
     chown dokku:dokku /etc/default/dokku
   fi
 
+  if [[ -n "$DOKKU_LIB_HOST_ROOT" ]]; then
+    echo "export DOKKU_LIB_HOST_ROOT=$DOKKU_LIB_HOST_ROOT" >>/etc/default/dokku
+    chown dokku:dokku /etc/default/dokku
+  fi
+
   if [[ -f /mnt/dokku/plugin-list ]]; then
     while read line; do
       local plugin_name="$(echo "$line" | awk -F: '{print $1}')"
