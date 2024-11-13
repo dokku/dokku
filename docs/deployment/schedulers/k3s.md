@@ -10,6 +10,7 @@ scheduler-k3s:autoscaling-auth:report <app|--global> [--format stdout|json] [--i
 scheduler-k3s:cluster-add [ssh://user@host:port]    # Adds a server node to a Dokku-managed cluster
 scheduler-k3s:cluster-list                          # Lists all nodes in a Dokku-managed cluster
 scheduler-k3s:cluster-remove [node-id]              # Removes client node to a Dokku-managed cluster
+scheduler-k3s:ensure-charts                         # Ensures the k3s charts are installed
 scheduler-k3s:initialize                            # Initializes a cluster
 scheduler-k3s:labels:set <app|--global> <property> (<value>) [--process-type PROCESS_TYPE] <--resource-type RESOURCE_TYPE>, Set or clear a label for a given app/process-type/resource-type combination
 scheduler-k3s:report [<app>] [<flag>]               # Displays a scheduler-k3s report for one or more apps
