@@ -61,8 +61,14 @@ type GlobalImage struct {
 }
 
 type GlobalNetwork struct {
+	// IngressClass is the default ingress class to use
 	IngressClass string `yaml:"ingress_class"`
-	PrimaryPort  int32  `yaml:"primary_port"`
+
+	// PrimaryPort is the primary port to use
+	PrimaryPort int32 `yaml:"primary_port"`
+
+	// PrimaryServicePort is the primary service port to use
+	PrimaryServicePort int32 `yaml:"primary_service_port"`
 }
 
 // GlobalKedaValues contains the global keda configuration
@@ -116,6 +122,8 @@ type ProcessAnnotations struct {
 	IngressAnnotations                   map[string]string `yaml:"ingress,omitempty"`
 	JobAnnotations                       map[string]string `yaml:"job,omitempty"`
 	KedaScalingObjectAnnotations         map[string]string `yaml:"keda_scaled_object,omitempty"`
+	KedaHTTPScaledObjectAnnotations      map[string]string `yaml:"keda_http_scaled_object,omitempty"`
+	KedaInterceptorProxyAnnotations      map[string]string `yaml:"keda_interceptor_proxy,omitempty"`
 	KedaSecretAnnotations                map[string]string `yaml:"keda_secret,omitempty"`
 	KedaTriggerAuthenticationAnnotations map[string]string `yaml:"keda_trigger_authentication,omitempty"`
 	PodAnnotations                       map[string]string `yaml:"pod,omitempty"`
@@ -142,6 +150,9 @@ type ProcessAutoscaling struct {
 
 	// PollingIntervalSeconds is the number of seconds between polling for new metrics
 	PollingIntervalSeconds int `yaml:"polling_interval_seconds,omitempty"`
+
+	// HttpTrigger is the http trigger config to use for autoscaling
+	HttpTrigger ProcessAutoscalingTrigger `yaml:"http_trigger,omitempty"`
 
 	// Triggers is a list of triggers to use for autoscaling
 	Triggers []ProcessAutoscalingTrigger `yaml:"triggers,omitempty"`
@@ -224,17 +235,22 @@ const (
 )
 
 type ProcessLabels struct {
-	CertificateLabels         map[string]string `yaml:"certificate,omitempty"`
-	CronJobLabels             map[string]string `yaml:"cronjob,omitempty"`
-	DeploymentLabels          map[string]string `yaml:"deployment,omitempty"`
-	IngressLabels             map[string]string `yaml:"ingress,omitempty"`
-	JobLabels                 map[string]string `yaml:"job,omitempty"`
-	PodLabels                 map[string]string `yaml:"pod,omitempty"`
-	SecretLabels              map[string]string `yaml:"secret,omitempty"`
-	ServiceAccountLabels      map[string]string `yaml:"serviceaccount,omitempty"`
-	ServiceLabels             map[string]string `yaml:"service,omitempty"`
-	TraefikIngressRouteLabels map[string]string `yaml:"traefik_ingressroute,omitempty"`
-	TraefikMiddlewareLabels   map[string]string `yaml:"traefik_middleware,omitempty"`
+	CertificateLabels               map[string]string `yaml:"certificate,omitempty"`
+	CronJobLabels                   map[string]string `yaml:"cronjob,omitempty"`
+	DeploymentLabels                map[string]string `yaml:"deployment,omitempty"`
+	IngressLabels                   map[string]string `yaml:"ingress,omitempty"`
+	JobLabels                       map[string]string `yaml:"job,omitempty"`
+	KedaScalingObjectLabels         map[string]string `yaml:"keda_scaled_object,omitempty"`
+	KedaHTTPScaledObjectLabels      map[string]string `yaml:"keda_http_scaled_object,omitempty"`
+	KedaInterceptorProxyLabels      map[string]string `yaml:"keda_interceptor_proxy,omitempty"`
+	KedaSecretLabels                map[string]string `yaml:"keda_secret,omitempty"`
+	KedaTriggerAuthenticationLabels map[string]string `yaml:"keda_trigger_authentication,omitempty"`
+	PodLabels                       map[string]string `yaml:"pod,omitempty"`
+	SecretLabels                    map[string]string `yaml:"secret,omitempty"`
+	ServiceAccountLabels            map[string]string `yaml:"serviceaccount,omitempty"`
+	ServiceLabels                   map[string]string `yaml:"service,omitempty"`
+	TraefikIngressRouteLabels       map[string]string `yaml:"traefik_ingressroute,omitempty"`
+	TraefikMiddlewareLabels         map[string]string `yaml:"traefik_middleware,omitempty"`
 }
 
 type ProcessWeb struct {

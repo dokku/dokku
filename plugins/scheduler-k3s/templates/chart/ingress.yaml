@@ -1,5 +1,11 @@
 {{- $processName := "PROCESS_NAME" }}
 {{- $config := index .Values.processes "PROCESS_NAME" }}
+{{- $routeToKeda := false }}
+{{- if and (eq $processName "web") (and $config.autoscaling (and $config.autoscaling.enabled (eq $config.autoscaling.type "keda"))) }}
+{{- if and (.Capabilities.APIVersions.Has "http.keda.sh/v1alpha1") $config.autoscaling.http_trigger.type }}
+{{- $routeToKeda = true }}
+{{- end }}
+{{- end }}
 {{- if and $config.web.domains (eq $.Values.global.network.ingress_class "nginx") }}
 {{- range $pdx, $domain := $config.web.domains }}
 ---
@@ -36,11 +42,19 @@ spec:
         paths:
           {{- if $config.web.port_maps }}
           - backend:
+            {{- if $routeToKeda}}
+              service:
+                name: kip-{{ $.Values.global.app_name}}-{{ $processName }}
+                port:
+                  number: 8080
+            pathType: Prefix
+            {{- else }}
               service:
                 name: {{ $.Values.global.app_name }}-{{ $processName }}
                 port:
                   name: {{ include "primary.port" $config.web.port_maps }}
             pathType: ImplementationSpecific
+            {{- end }}
             path: /
           {{- end }}
 {{- end }}

@@ -1,0 +1,55 @@
+{{- $processName := "PROCESS_NAME" }}
+{{- $config := index .Values.processes "PROCESS_NAME" }}
+{{- if and (eq $processName "web") (and $config.autoscaling (and $config.autoscaling.enabled (eq $config.autoscaling.type "keda"))) }}
+{{- if .Capabilities.APIVersions.Has "http.keda.sh/v1alpha1" -}}
+{{- if $config.autoscaling.http_trigger.type }}
+{{- $mappings := dict }}
+{{- range $pdx, $port_map := $config.web.port_maps }}
+{{- $mappings := set $mappings $port_map.name "true" }}
+{{- end }}
+---
+kind: HTTPScaledObject
+apiVersion: http.keda.sh/v1alpha1
+metadata:
+  annotations:
+    app.kubernetes.io/version: {{ $.Values.global.deployment_id | quote }}
+    dokku.com/managed: "true"
+    httpscaledobject.keda.sh/skip-scaledobject-creation: "true"
+    {{ include "print.annotations" (dict "config" $.Values.global "key" "keda_http_scaled_object") | indent 4 }}
+    {{ include "print.annotations" (dict "config" $config "key" "keda_http_scaled_object") | indent 4 }}
+  labels:
+    app.kubernetes.io/instance: {{ $.Values.global.app_name }}-{{ $processName }}
+    app.kubernetes.io/name: {{ $processName }}
+    app.kubernetes.io/part-of: {{ $.Values.global.app_name }}
+    {{ include "print.labels" (dict "config" $.Values.global "key" "keda_http_scaled_object") | indent 4 }}
+    {{ include "print.labels" (dict "config" $config "key" "keda_http_scaled_object") | indent 4 }}
+  name: {{ $.Values.global.app_name}}-{{ $processName }}
+  namespace: {{ $.Values.global.namespace }}
+spec:
+  hosts:
+    {{- range $pdx, $domain := $config.web.domains }}
+    - {{ $domain.name | quote }}
+    {{- end }}
+  scaleTargetRef:
+    name: {{ $.Values.global.app_name }}-{{ $processName }}
+    kind: Deployment
+    apiVersion: apps/v1
+    service: {{ $.Values.global.app_name }}-{{ $processName }}
+    port: {{ $.Values.global.network.primary_service_port }}
+  replicas:
+    min: {{ $config.autoscaling.min_replicas }}
+    max: {{ $config.autoscaling.max_replicas }}
+  scaledownPeriod: {{ get $config.autoscaling.http_trigger.metadata "scaledown_period_seconds" }}
+  scalingMetric:
+    {{- if eq (get $config.autoscaling.http_trigger.metadata "scale_by") "request_rate" }}
+    requestRate:
+      granularity: {{ get $config.autoscaling.http_trigger.metadata "request_rate_granularity_seconds" }}s
+      targetValue: {{ get $config.autoscaling.http_trigger.metadata "request_rate_target_value" }}
+      window: {{ get $config.autoscaling.http_trigger.metadata "request_rate_window_seconds" }}s
+    {{- else }}
+    concurrency:
+      targetValue: {{ get $config.autoscaling.http_trigger.metadata "concurrency_target_value" }}
+    {{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

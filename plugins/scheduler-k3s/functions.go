@@ -584,6 +584,13 @@ func getAutoscaling(input GetAutoscalingInput) (ProcessAutoscaling, error) {
 		"DEPLOYMENT_NAME": fmt.Sprintf("%s-%s", input.AppName, input.ProcessType),
 	}
 
+	validHttpScaleMethods := map[string]bool{
+		"request_rate": true,
+		"concurrency":  true,
+	}
+
+	hasHttpTrigger := false
+	httpTrigger := ProcessAutoscalingTrigger{}
 	triggers := []ProcessAutoscalingTrigger{}
 	for idx, trigger := range config.Triggers {
 		if trigger.Type == "" {
@@ -625,15 +632,55 @@ func getAutoscaling(input GetAutoscalingInput) (ProcessAutoscaling, error) {
 			}
 		}
 
+		if autoscalingTrigger.Type == "http" {
+			if hasHttpTrigger {
+				return ProcessAutoscaling{}, errors.New("Only one http trigger is allowed")
+			}
+
+			hasHttpTrigger = true
+			httpTrigger = autoscalingTrigger
+
+			if _, ok := metadata["scale_by"]; !ok {
+				httpTrigger.Metadata["scale_by"] = "request_rate"
+			}
+
+			if !validHttpScaleMethods[metadata["scale_by"]] {
+				return ProcessAutoscaling{}, fmt.Errorf("Invalid http scale method: %s", metadata["scale_by"])
+			}
+
+			if _, ok := metadata["scaledown_period_seconds"]; !ok {
+				httpTrigger.Metadata["scaledown_period_seconds"] = "300"
+			}
+
+			if _, ok := metadata["request_rate_granularity_seconds"]; !ok {
+				httpTrigger.Metadata["request_rate_granularity_seconds"] = "1"
+			}
+
+			if _, ok := metadata["request_rate_target_value"]; !ok {
+				httpTrigger.Metadata["request_rate_target_value"] = "100"
+			}
+
+			if _, ok := metadata["request_rate_window_seconds"]; !ok {
+				httpTrigger.Metadata["request_rate_window_seconds"] = "60"
+			}
+
+			if _, ok := metadata["concurrency_target_value"]; !ok {
+				httpTrigger.Metadata["concurrency_target_value"] = "100"
+			}
+
+			continue
+		}
+
 		triggers = append(triggers, autoscalingTrigger)
 	}
 
 	autoscaling := ProcessAutoscaling{
 		CooldownPeriodSeconds:  ptr.Deref(config.CooldownPeriodSeconds, 300),
-		Enabled:                len(triggers) > 0,
+		Enabled:                len(triggers) > 0 || hasHttpTrigger,
 		MaxReplicas:            ptr.Deref(config.MaxQuantity, 0),
 		MinReplicas:            ptr.Deref(config.MinQuantity, 0),
 		PollingIntervalSeconds: ptr.Deref(config.PollingIntervalSeconds, 30),
+		HttpTrigger:            httpTrigger,
 		Triggers:               triggers,
 		Type:                   "keda",
 	}
