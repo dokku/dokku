@@ -334,7 +334,8 @@ func (h *HelmAgent) UpgradeChart(ctx context.Context, input ChartInput) error {
 		client.RepoURL = input.RepoURL
 	}
 
-	chart, err := client.ChartPathOptions.LocateChart(input.ChartPath, nil)
+	settings := cli.New()
+	chart, err := client.ChartPathOptions.LocateChart(input.ChartPath, settings)
 	if err != nil {
 		return fmt.Errorf("Error locating chart: %w", err)
 	}
