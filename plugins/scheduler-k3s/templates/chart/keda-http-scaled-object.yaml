@@ -1,8 +1,7 @@
 {{- $processName := "PROCESS_NAME" }}
 {{- $config := index .Values.processes "PROCESS_NAME" }}
 {{- if and (eq $processName "web") (and $config.autoscaling (and $config.autoscaling.enabled (eq $config.autoscaling.type "keda"))) }}
-{{- if .Capabilities.APIVersions.Has "http.keda.sh/v1alpha1" -}}
-{{- if and $config.autoscaling.http_trigger (eq $config.autoscaling.http_trigger.type "http") }}
+{{- if and (.Capabilities.APIVersions.Has "http.keda.sh/v1alpha1") (and $config.autoscaling.http_trigger (eq $config.autoscaling.http_trigger.type "http")) }}
 {{- $mappings := dict }}
 {{- range $pdx, $port_map := $config.web.port_maps }}
 {{- $mappings := set $mappings $port_map.name "true" }}
@@ -50,6 +49,5 @@ spec:
     concurrency:
       targetValue: {{ get $config.autoscaling.http_trigger.metadata "concurrency_target_value" }}
     {{- end }}
-{{- end }}
 {{- end }}
 {{- end }}
