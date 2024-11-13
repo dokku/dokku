@@ -606,24 +606,26 @@ func getAutoscaling(input GetAutoscalingInput) (ProcessAutoscaling, error) {
 		if trigger.Name == "" {
 			trigger.Name = fmt.Sprintf("trigger-%s-%d", trigger.Type, idx+1)
 		}
+
+		autoscalingTrigger := ProcessAutoscalingTrigger{
 			Name:     trigger.Name,
 			Type:     trigger.Type,
 			Metadata: metadata,
 		}
 
 		if auth, ok := input.KedaValues.Authentications[trigger.Type]; ok {
-			trigger.AuthenticationRef = &ProcessAutoscalingTriggerAuthenticationRef{
+			autoscalingTrigger.AuthenticationRef = &ProcessAutoscalingTriggerAuthenticationRef{
 				Name: auth.Name,
 				Kind: string(auth.Kind),
 			}
 		} else if auth, ok := input.KedaValues.GlobalAuthentications[trigger.Type]; ok {
-			trigger.AuthenticationRef = &ProcessAutoscalingTriggerAuthenticationRef{
+			autoscalingTrigger.AuthenticationRef = &ProcessAutoscalingTriggerAuthenticationRef{
 				Name: auth.Name,
 				Kind: string(auth.Kind),
 			}
 		}
 
-		triggers = append(triggers, trigger)
+		triggers = append(triggers, autoscalingTrigger)
 	}
 
 	autoscaling := ProcessAutoscaling{
