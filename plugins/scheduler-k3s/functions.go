@@ -586,6 +586,9 @@ func getAutoscaling(input GetAutoscalingInput) (ProcessAutoscaling, error) {
 
 	triggers := []ProcessAutoscalingTrigger{}
 	for _, trigger := range config.Triggers {
+		if trigger.Type == "" {
+			return ProcessAutoscaling{}, fmt.Errorf("Autoscaling trigger type is required for trigger: index %d", idx)
+		}
 		metadata := map[string]string{}
 		for key, value := range trigger.Metadata {
 			tmpl, err := template.New("").Delims("[[", "]]").Parse(value)
