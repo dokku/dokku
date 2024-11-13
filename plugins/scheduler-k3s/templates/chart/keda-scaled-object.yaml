@@ -2,6 +2,7 @@
 {{- $config := index .Values.processes "PROCESS_NAME" }}
 {{- if and $config.autoscaling (and $config.autoscaling.enabled (eq $config.autoscaling.type "keda")) }}
 {{- if .Capabilities.APIVersions.Has "keda.sh/v1alpha1" -}}
+---
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
 metadata:
@@ -31,9 +32,13 @@ spec:
   fallback:
     failureThreshold: 3
     replicas: {{ $config.replicas }}
+  {{- if $config.autoscaling.triggers }}
   triggers:
   {{- with $config.autoscaling.triggers }}
   {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- else }}
+  triggers: []
   {{- end }}
 {{- end }}
 {{- end }}
