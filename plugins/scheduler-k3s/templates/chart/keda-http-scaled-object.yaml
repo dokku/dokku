@@ -2,7 +2,7 @@
 {{- $config := index .Values.processes "PROCESS_NAME" }}
 {{- if and (eq $processName "web") (and $config.autoscaling (and $config.autoscaling.enabled (eq $config.autoscaling.type "keda"))) }}
 {{- if .Capabilities.APIVersions.Has "http.keda.sh/v1alpha1" -}}
-{{- if $config.autoscaling.http_trigger.type }}
+{{- if and $config.autoscaling.http_trigger (eq $config.autoscaling.http_trigger.type "http") }}
 {{- $mappings := dict }}
 {{- range $pdx, $port_map := $config.web.port_maps }}
 {{- $mappings := set $mappings $port_map.name "true" }}
