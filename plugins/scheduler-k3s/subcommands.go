@@ -844,11 +844,6 @@ func CommandEnsureCharts() error {
 			return false
 		}
 
-		if chart.ReleaseName == "keda-add-ons-http" {
-			common.LogVerbose("Forcing install of keda-add-ons-http")
-			return true
-		}
-
 		helmAgent := namespacedHelmAgents[chart.Namespace]
 		latestRevision, err := helmAgent.InstalledRevision(chart.ReleaseName)
 		if err != nil {
