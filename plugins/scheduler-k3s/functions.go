@@ -585,7 +585,7 @@ func getAutoscaling(input GetAutoscalingInput) (ProcessAutoscaling, error) {
 	}
 
 	triggers := []ProcessAutoscalingTrigger{}
-	for _, trigger := range config.Triggers {
+	for idx, trigger := range config.Triggers {
 		if trigger.Type == "" {
 			return ProcessAutoscaling{}, fmt.Errorf("Autoscaling trigger type is required for trigger: index %d", idx)
 		}
@@ -603,7 +603,9 @@ func getAutoscaling(input GetAutoscalingInput) (ProcessAutoscaling, error) {
 			metadata[key] = output.String()
 		}
 
-		trigger := ProcessAutoscalingTrigger{
+		if trigger.Name == "" {
+			trigger.Name = fmt.Sprintf("trigger-%s-%d", trigger.Type, idx+1)
+		}
 			Name:     trigger.Name,
 			Type:     trigger.Type,
 			Metadata: metadata,
