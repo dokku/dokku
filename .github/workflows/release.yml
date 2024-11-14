@@ -141,6 +141,8 @@ jobs:
           brew doctor || true
       - name: Brew cleanup
         run: |
+          echo "====> Running brew cleanup"
+          brew cleanup || true
           echo "====> Untapping homebrew/core"
           brew untap homebrew/core || true
           echo "====> Untapping homebrew/cask"
@@ -149,6 +151,8 @@ jobs:
           brew uninstall openssl@1.1 || true
           echo "====> Uninstalling ruby@3.0"
           brew uninstall ruby@3.0 || true
+          echo "====> Running brew cleanup"
+          brew cleanup || true
       - name: Brew doctor
         run: brew doctor
       - name: Brew config
