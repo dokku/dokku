@@ -1,5 +1,49 @@
 # History
 
+## 0.35.11
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.35.11/bootstrap.sh
+sudo DOKKU_TAG=v0.35.11 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #7353: @indrat Add missing export DOKKU_LIB_HOST_ROOT when running dokku in container
+
+### New Features
+
+- #7355: @josegonzalez Add support for http-based scaling when deploying on the k3s scheduler
+
+### Documentation
+
+- #7349: @josegonzalez Create .well-known/funding-manifest-urls
+
+### Dependencies
+
+- #7345: @dependabot[bot] chore(deps): bump google.golang.org/grpc from 1.67.1 to 1.68.0 in /tests/apps/gogrpc
+- #7350: @dependabot[bot] chore(deps): bump zipp from 3.20.2 to 3.21.0 in /docs/_build
+- #7351: @dependabot[bot] chore(deps): bump werkzeug from 3.1.2 to 3.1.3 in /tests/apps/python-flask
+- #7347: @dependabot[bot] chore(deps): bump golang.org/x/crypto from 0.28.0 to 0.29.0 in /plugins/common
+- #7348: @dependabot[bot] chore(deps): bump golang.org/x/sync from 0.8.0 to 0.9.0 in /plugins/common
+- #7344: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 45.0.3 to 45.0.4
+- #7343: @dependabot[bot] chore(deps): bump golang.org/x/sync from 0.8.0 to 0.9.0 in /plugins/scheduler-docker-local
+- #7342: @dependabot[bot] chore(deps): bump packaging from 24.1 to 24.2 in /docs/_build
+- #7341: @dependabot[bot] chore(deps): bump golang from 1.23.2 to 1.23.3 in /tests/apps/zombies-dockerfile-tini
+- #7340: @dependabot[bot] chore(deps): bump golang from 1.23.2 to 1.23.3 in /tests/apps/gogrpc
+- #7339: @dependabot[bot] chore(deps): bump golang from 1.23.2 to 1.23.3 in /tests/apps/go-fail-predeploy
+- #7338: @dependabot[bot] chore(deps): bump golang from 1.23.2 to 1.23.3 in /tests/apps/zombies-dockerfile-no-tini
+- #7337: @dependabot[bot] chore(deps): bump golang from 1.23.2 to 1.23.3 in /tests/apps/go-fail-postdeploy
+- #7335: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.43 to 9.5.44 in /docs/_build
+- #7334: @dependabot[bot] chore(deps): bump ruby from 3.3.5 to 3.3.6 in /tests/apps/dockerfile-entrypoint
+- #7333: @dependabot[bot] chore(deps): bump werkzeug from 3.1.1 to 3.1.2 in /tests/apps/python-flask
+
+### Other
+
+- #7357: @josegonzalez Run brew cleanup before running brew doctor
+
 ## 0.35.10
 
 Install/update via the bootstrap script:
