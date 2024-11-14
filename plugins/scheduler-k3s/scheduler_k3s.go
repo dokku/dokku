@@ -122,6 +122,14 @@ var HelmCharts = []HelmChart{
 		RepoURL:         "https://kedacore.github.io/charts",
 		Version:         "2.13.1",
 	},
+	{
+		ChartPath:       "keda-add-ons-http",
+		CreateNamespace: true,
+		Namespace:       "keda",
+		ReleaseName:     "keda-add-ons-http",
+		RepoURL:         "https://kedacore.github.io/charts",
+		Version:         "0.8.0",
+	},
 }
 
 type HelmRepository struct {

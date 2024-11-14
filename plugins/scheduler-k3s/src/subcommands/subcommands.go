@@ -73,6 +73,10 @@ func main() {
 		args.Parse(os.Args[2:])
 		nodeName := args.Arg(0)
 		err = scheduler_k3s.CommandClusterRemove(nodeName)
+	case "ensure-charts":
+		args := flag.NewFlagSet("scheduler-k3s:ensure-charts", flag.ExitOnError)
+		args.Parse(os.Args[2:])
+		err = scheduler_k3s.CommandEnsureCharts()
 	case "initialize":
 		args := flag.NewFlagSet("scheduler-k3s:initialize", flag.ExitOnError)
 		taintScheduling := args.Bool("taint-scheduling", false, "taint-scheduling: add a taint against scheduling app workloads")

@@ -21,6 +21,7 @@ import (
 	"helm.sh/helm/v3/pkg/cli"
 	"helm.sh/helm/v3/pkg/getter"
 	"helm.sh/helm/v3/pkg/kube"
+	"helm.sh/helm/v3/pkg/release"
 	"helm.sh/helm/v3/pkg/repo"
 	"helm.sh/helm/v3/pkg/storage/driver"
 )
@@ -58,9 +59,12 @@ type ChartInput struct {
 }
 
 type Release struct {
-	Name      string
-	Namespace string
-	Version   int
+	AppVersion string
+	Name       string
+	Namespace  string
+	Revision   int
+	Status     release.Status
+	Version    string
 }
 
 type HelmAgent struct {
@@ -269,24 +273,61 @@ func (h *HelmAgent) InstallChart(ctx context.Context, input ChartInput) error {
 	return nil
 }
 
-func (h *HelmAgent) ListRevisions(ctx context.Context, releaseName string) ([]Release, error) {
-	client := action.NewHistory(h.Configuration)
-	response, err := client.Run(releaseName)
+func (h *HelmAgent) InstalledRevision(releaseName string) (Release, error) {
+	revisions, err := h.ListRevisions(ListRevisionsInput{
+		ReleaseName: releaseName,
+		Max:         1,
+	})
 	if err != nil {
-		return nil, fmt.Errorf("Error getting revisions: %w", err)
+		return Release{}, err
+	}
+
+	if len(revisions) == 0 {
+		return Release{}, nil
+	}
+
+	return revisions[0], nil
+}
+
+type ListRevisionsInput struct {
+	ReleaseName string
+	Max         int
+}
+
+func (h *HelmAgent) ListRevisions(input ListRevisionsInput) ([]Release, error) {
+	client := action.NewHistory(h.Configuration)
+	if input.Max > 0 {
+		client.Max = input.Max
 	}
 
 	releases := []Release{}
+	response, err := client.Run(input.ReleaseName)
+	if err != nil {
+		if errors.Is(err, driver.ErrReleaseNotFound) {
+			return releases, nil
+		}
+
+		return nil, fmt.Errorf("Error getting revisions: %w", err)
+	}
+
 	for _, release := range response {
+		appVersion := "MISSING"
+		if release.Chart != nil && release.Chart.Metadata != nil {
+			appVersion = release.Chart.AppVersion()
+		}
+
 		releases = append(releases, Release{
-			Name:      release.Name,
-			Namespace: release.Namespace,
-			Version:   release.Version,
+			AppVersion: appVersion,
+			Name:       release.Name,
+			Namespace:  release.Namespace,
+			Revision:   release.Version,
+			Status:     release.Info.Status,
+			Version:    release.Chart.Metadata.Version,
 		})
 	}
 
 	sort.Slice(releases, func(i, j int) bool {
-		return releases[i].Version < releases[j].Version
+		return releases[i].Revision < releases[j].Revision
 	})
 
 	return releases, nil
@@ -334,7 +375,8 @@ func (h *HelmAgent) UpgradeChart(ctx context.Context, input ChartInput) error {
 		client.RepoURL = input.RepoURL
 	}
 
-	chart, err := client.ChartPathOptions.LocateChart(input.ChartPath, nil)
+	settings := cli.New()
+	chart, err := client.ChartPathOptions.LocateChart(input.ChartPath, settings)
 	if err != nil {
 		return fmt.Errorf("Error locating chart: %w", err)
 	}

@@ -10,6 +10,7 @@ scheduler-k3s:autoscaling-auth:report <app|--global> [--format stdout|json] [--i
 scheduler-k3s:cluster-add [ssh://user@host:port]    # Adds a server node to a Dokku-managed cluster
 scheduler-k3s:cluster-list                          # Lists all nodes in a Dokku-managed cluster
 scheduler-k3s:cluster-remove [node-id]              # Removes client node to a Dokku-managed cluster
+scheduler-k3s:ensure-charts                         # Ensures the k3s charts are installed
 scheduler-k3s:initialize                            # Initializes a cluster
 scheduler-k3s:labels:set <app|--global> <property> (<value>) [--process-type PROCESS_TYPE] <--resource-type RESOURCE_TYPE>, Set or clear a label for a given app/process-type/resource-type combination
 scheduler-k3s:report [<app>] [<flag>]               # Displays a scheduler-k3s report for one or more apps
@@ -415,6 +416,56 @@ Each value in the `metadata` stanza can use the following interpolated strings:
 - `DOKKU_DEPLOYMENT_NAME`: The name of the deployment being scaled
 - `DOKKU_PROCESS_TYPE`: The name of the process being scaled
 - `DOKKU_APP_NAME`: The name of the app being scaled
+
+##### HTTP Autoscaling
+
+In addition to the built-in scalers that Keda provides, Dokku also supports Keda's HTTP Add On. This requires that the addon be properly installed and configured. For existing k3s clusters, this can be performed by the `scheduler-k3s:ensure-charts` command:
+
+```shell
+dokku scheduler-k3s:ensure-charts
+```
+
+> [!NOTE]
+> Users who wish to use this functionality on a cluster not managed by Dokku will need to manually install the `keda-http-add-on` into the `keda` namespace. Please consult the `keda-http-add-on` [install documentation](https://kedacore.github.io/http-add-on/install.html) for further details.
+
+> [!WARNING]
+> If the `keda-http-add-on` chart is not installed, then this trigger will be ignored.
+
+Once the chart is configured, an `http` trigger can be specified like so:
+
+
+```json
+{
+    "formation": {
+        "web": {
+            "autoscaling": {
+                "min_quantity": 1,
+                "max_quantity": 10,
+                "triggers": [
+                    {
+                        "type": "http",
+                        "metadata": {
+                            "scaledown_period_seconds": "150",
+                            "request_rate_target_value": "50"
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}
+```
+
+The following metadata properties are supported with the http autoscaler:
+
+- `scale_by`: (default: `request_rate`) whether to scale by `concurrency` or `request_rate`.
+- `scaledown_period_seconds`: (default: `300`) period to wait after the last reported active before scaling the resource back to 0.
+- `request_rate_granularity_seconds`: (default: `1`) granualarity of the aggregated requests for the request rate calculation.
+- `request_rate_target_value`: (default: `100`) target value for the request rate.
+- `request_rate_window_seconds`: (default: `60`) aggregation window for the request rate calculation.
+- `concurrency_target_value`: (default: `100`) target value for the request concurrency.
+
+Note that due to Keda limitations, scaling is done by _either_ `concurrency` or `request_rate`.
 
 #### Workload Autoscaling Authentication
 

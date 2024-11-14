@@ -798,6 +798,91 @@ func CommandClusterRemove(nodeName string) error {
 	return nil
 }
 
+// CommandEnsureCharts ensures that the required helm charts are installed
+func CommandEnsureCharts() error {
+	ctx, cancel := context.WithCancel(context.Background())
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, os.Interrupt, syscall.SIGHUP,
+		syscall.SIGINT,
+		syscall.SIGQUIT,
+		syscall.SIGTERM)
+	go func() {
+		<-signals
+		cancel()
+	}()
+
+	clientset, err := NewKubernetesClient()
+	if err != nil {
+		return fmt.Errorf("Unable to create kubernetes client: %w", err)
+	}
+
+	ingressClass := getGlobalIngressClass()
+
+	namespacedHelmAgents := map[string]*HelmAgent{}
+	for _, chart := range HelmCharts {
+		_, ok := namespacedHelmAgents[chart.Namespace]
+		if !ok {
+			helmAgent, err := NewHelmAgent(chart.Namespace, DeployLogPrinter)
+			if err != nil {
+				common.LogWarn(fmt.Sprintf("Unable to create helm agent: %s", err.Error()))
+				return err
+			}
+			namespacedHelmAgents[chart.Namespace] = helmAgent
+		}
+	}
+
+	common.LogInfo2Quiet("Installing helm charts")
+	err = installHelmCharts(ctx, clientset, func(chart HelmChart) bool {
+		common.LogInfo1(fmt.Sprintf("Processing chart %s@%s", chart.ReleaseName, chart.Version))
+		if chart.ChartPath == "traefik" && ingressClass == "nginx" {
+			common.LogVerbose("Skipping chart due to ingress-class mismatch")
+			return false
+		}
+
+		if chart.ChartPath == "ingress-nginx" && ingressClass == "traefik" {
+			common.LogVerbose("Skipping chart due to ingress-class mismatch")
+			return false
+		}
+
+		helmAgent := namespacedHelmAgents[chart.Namespace]
+		latestRevision, err := helmAgent.InstalledRevision(chart.ReleaseName)
+		if err != nil {
+			common.LogWarn(fmt.Sprintf("Unable to get installed revision: %s", err))
+			return false
+		}
+
+		if latestRevision.Name == "" {
+			common.LogVerbose("Installing missing chart")
+			return true
+		}
+
+		if latestRevision.Version != chart.Version {
+			common.LogVerbose(fmt.Sprintf("Installing chart due to version mismatch: %s != %s", latestRevision.AppVersion, chart.Version))
+			return false
+		}
+
+		common.LogVerbose("Skipping chart: already installed")
+		return false
+	})
+	if err != nil {
+		return fmt.Errorf("Unable to install helm charts: %w", err)
+	}
+
+	for _, manifest := range KubernetesManifests {
+		common.LogInfo2Quiet(fmt.Sprintf("Installing %s@%s", manifest.Name, manifest.Version))
+		err = clientset.ApplyKubernetesManifest(ctx, ApplyKubernetesManifestInput{
+			Manifest: manifest.Path,
+		})
+		if err != nil {
+			return fmt.Errorf("Unable to apply kubernetes manifest: %w", err)
+		}
+	}
+
+	common.LogInfo2Quiet("Done")
+
+	return nil
+}
+
 // CommandLabelsSet set or clear a scheduler-k3s label for an app
 func CommandLabelsSet(appName string, processType string, resourceType string, key string, value string) error {
 	if resourceType == "" {

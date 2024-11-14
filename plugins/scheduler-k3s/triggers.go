@@ -250,8 +250,10 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 	}
 
 	primaryPort := int32(5000)
+	primaryServicePort := int32(80)
 	for _, portMap := range portMaps {
 		primaryPort = portMap.ContainerPort
+		primaryServicePort = portMap.HostPort
 		if primaryPort != 0 {
 			break
 		}
@@ -350,8 +352,9 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 			Labels:    globalLabels,
 			Namespace: namespace,
 			Network: GlobalNetwork{
-				IngressClass: getGlobalIngressClass(),
-				PrimaryPort:  primaryPort,
+				IngressClass:       getGlobalIngressClass(),
+				PrimaryPort:        primaryPort,
+				PrimaryServicePort: primaryServicePort,
 			},
 			Secrets: map[string]string{},
 		},
@@ -504,7 +507,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 
 		templateFiles := []string{"deployment", "keda-scaled-object"}
 		if processType == "web" {
-			templateFiles = append(templateFiles, "service", "certificate", "ingress", "ingress-route", "https-redirect-middleware")
+			templateFiles = append(templateFiles, "service", "certificate", "ingress", "ingress-route", "https-redirect-middleware", "keda-http-scaled-object", "keda-interceptor-proxy-service")
 		}
 		for _, templateName := range templateFiles {
 			b, err := templates.ReadFile(fmt.Sprintf("templates/chart/%s.yaml", templateName))
