@@ -146,7 +146,7 @@ type ProcessAutoscaling struct {
 	MaxReplicas int `yaml:"max_replicas,omitempty"`
 
 	// MinReplicas is the minimum number of replicas to scale to
-	MinReplicas int `yaml:"min_replicas,omitempty"`
+	MinReplicas int `yaml:"min_replicas"`
 
 	// PollingIntervalSeconds is the number of seconds between polling for new metrics
 	PollingIntervalSeconds int `yaml:"polling_interval_seconds,omitempty"`
