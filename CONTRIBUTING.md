@@ -97,7 +97,7 @@ need to do
 
 ### Which branch to base the work
 
-All changes should be be based on the latest master commit.
+All changes should be based on the latest master commit.
 
 ### Submitting Changes
 

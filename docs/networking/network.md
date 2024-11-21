@@ -284,7 +284,7 @@ The default value may be set by passing an empty value for the option:
 dokku network:set node-js-app tld
 ```
 
-The `tld` property can also be set globally. The global default is emty string, and the global value is used when no app-specific value is set.
+The `tld` property can also be set globally. The global default is empty string, and the global value is used when no app-specific value is set.
 
 ```shell
 dokku network:set --global tld svc.cluster.local
