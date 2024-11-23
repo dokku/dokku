@@ -23,6 +23,7 @@ import (
 	kedav1alpha1 "github.com/kedacore/keda/v2/apis/keda/v1alpha1"
 	"golang.org/x/sync/errgroup"
 	"gopkg.in/yaml.v3"
+	"helm.sh/helm/v3/pkg/strvals"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/core/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
@@ -1493,11 +1494,23 @@ func installHelmCharts(ctx context.Context, clientset KubernetesClient, shouldIn
 			return fmt.Errorf("Error reading values file %s: %w", chart.ReleaseName, err)
 		}
 
-		var values map[string]interface{}
+		values := map[string]interface{}{}
 		if len(contents) > 0 {
 			err = yaml.Unmarshal(contents, &values)
 			if err != nil {
 				return fmt.Errorf("Error unmarshalling values file: %w", err)
+			}
+		}
+
+		chartProperties, err := common.PropertyGetAllByPrefix("scheduler-k3s", "--global", "chart."+chart.ReleaseName+".")
+		if err != nil {
+			return fmt.Errorf("Error getting chart properties: %w", err)
+		}
+		for key, value := range chartProperties {
+			key = strings.TrimPrefix(key, "chart."+chart.ReleaseName+".")
+			strval := fmt.Sprintf("%s=%s", key, value)
+			if err := strvals.ParseInto(strval, values); err != nil {
+				return fmt.Errorf("Error parsing chart property %s: %w", strval, err)
 			}
 		}
 

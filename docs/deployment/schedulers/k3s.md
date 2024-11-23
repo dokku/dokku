@@ -572,6 +572,36 @@ dokku scheduler-k3s:set --global kube-context
 
 The default value for the `kube-context` is an empty string, and will result in Dokku using the current context within the kubeconfig.
 
+### Customizing Helm Chart Properties
+
+Dokku includes a number of helm charts by default with settings that are optimized for Dokku. That said, it may be useful to further customize the charts for a given environment. Users can customize which charts are installed by setting properties prefixed with `chart.$CHART_NAME.` with the `--global` flag.
+
+```shell
+dokku scheduler-k3s:set --global chart.cert-manager.version 1.13.3
+```
+
+> [!NOTE]
+> Properties follow dot-notation, and are expanded according to Helm's internal logic. See the [Helm documentation](https://helm.sh/docs/helm/helm_install/#helm-install) for `helm install` for further details.
+
+
+To unset a chart property, omit the value from the `scheduler-k3s:set` call:
+
+```shell
+dokku scheduler-k3s:set --global chart.cert-manager.version
+```
+
+A `scheduler-k3s:ensure-charts` command with the `--force` flag is required after changing any chart properties in order to have them apply. This will install all charts, not just the ones that have changed.
+
+```shell
+dokku scheduler-k3s:ensure-charts --force
+```
+
+Alternatively, a comma separated list of chart names can be specified to only force install the specified charts:
+
+```shell
+dokku scheduler-k3s:ensure-charts --force --chart-names cert-manager
+```
+
 ## Scheduler Interface
 
 The following sections describe implemented and unimplemented scheduler functionality for the `k3s` scheduler.
