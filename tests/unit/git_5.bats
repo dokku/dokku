@@ -23,7 +23,7 @@ teardown() {
 }
 
 @test "(git) git:from-archive [invalid archive type]" {
-  run /bin/bash -c "dokku git:from-archive --archive-type tarball $TEST_APP http://example.com/src.tar"
+  run /bin/bash -c "dokku git:from-archive --archive-type tar $TEST_APP http://example.com/src.tar"
   echo "output: $output"
   echo "status: $status"
   assert_failure
