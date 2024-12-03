@@ -1,4 +1,4 @@
 [plugin]
 description = "dokku core builder-dockerfile plugin"
-version = "0.35.11"
+version = "0.35.12"
 [plugin.config]

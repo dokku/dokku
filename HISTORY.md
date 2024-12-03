@@ -1,5 +1,41 @@
 # History
 
+## 0.35.12
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.35.12/bootstrap.sh
+sudo DOKKU_TAG=v0.35.12 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #7361: @josegonzalez Allow autoscaling config to have zero min replicas
+
+### New Features
+
+- #7379: @josegonzalez Provide ability to customize chart values via `scheduler-k3s:set`
+
+### Documentation
+
+- #7365: @binchengqu Correct some documentation types
+
+### Dependencies
+
+- #7378: @josegonzalez Update go modules
+- #7376: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.46 to 9.5.47 in /docs/_build
+- #7370: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.35.1 to 1.36.0 in /plugins/common
+- #7377: @dependabot[bot] chore(deps): bump github.com/traefik/traefik/v2 from 2.11.9 to 2.11.14 in /plugins/scheduler-k3s
+- #7369: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.35.1 to 1.36.0 in /plugins/config
+- #7371: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.45 to 9.5.46 in /docs/_build
+- #7366: @dependabot[bot] chore(deps): bump traefik from 3.2.0 to 3.2.1 in /plugins/traefik-vhosts
+- #7364: @dependabot[bot] chore(deps): bump github.com/cert-manager/cert-manager from 1.13.3 to 1.15.4 in /plugins/scheduler-k3s
+- #7363: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.44 to 9.5.45 in /docs/_build
+- #7360: @dependabot[bot] chore(deps): bump flask from 3.0.3 to 3.1.0 in /tests/apps/python-flask
+- #7358: @dependabot[bot] chore(deps): bump google.golang.org/protobuf from 1.35.1 to 1.35.2 in /tests/apps/gogrpc
+- #7359: @dependabot[bot] chore(deps): bump flask from 3.0.3 to 3.1.0 in /tests/apps/multi
+
 ## 0.35.11
 
 Install/update via the bootstrap script:
