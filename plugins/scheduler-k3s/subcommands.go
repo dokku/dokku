@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
+	"slices"
 	"sort"
 	"strings"
 	"syscall"
@@ -799,7 +800,7 @@ func CommandClusterRemove(nodeName string) error {
 }
 
 // CommandEnsureCharts ensures that the required helm charts are installed
-func CommandEnsureCharts() error {
+func CommandEnsureCharts(forceInstall bool, forceChartNames []string) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, os.Interrupt, syscall.SIGHUP,
@@ -842,6 +843,16 @@ func CommandEnsureCharts() error {
 		if chart.ChartPath == "ingress-nginx" && ingressClass == "traefik" {
 			common.LogVerbose("Skipping chart due to ingress-class mismatch")
 			return false
+		}
+
+		if forceInstall {
+			common.LogVerbose("Force installing chart")
+			return true
+		}
+
+		if len(forceChartNames) > 0 && slices.Contains(forceChartNames, chart.ReleaseName) {
+			common.LogVerbose("Force installing chart due to flag")
+			return true
 		}
 
 		helmAgent := namespacedHelmAgents[chart.Namespace]
@@ -944,7 +955,37 @@ func CommandReport(appName string, format string, infoFlag string) error {
 
 // CommandSet set or clear a scheduler-k3s property for an app
 func CommandSet(appName string, property string, value string) error {
-	common.CommandPropertySet("scheduler-k3s", appName, property, value, DefaultProperties, GlobalProperties)
+	validProperties := DefaultProperties
+	globalProperties := GlobalProperties
+	if strings.HasPrefix(property, "chart.") {
+		if appName != "--global" {
+			return fmt.Errorf("Chart properties can only be set globally")
+		}
+
+		chartParts := strings.SplitN(property, ".", 3)
+		if len(chartParts) != 3 {
+			return fmt.Errorf("Invalid chart property, expected format: chart.$CHART_NAME.$PROPERTY: %s", property)
+		}
+
+		if chartParts[1] == "" {
+			return fmt.Errorf("Invalid chart property, missing chart name")
+		}
+
+		chartName := chartParts[1]
+		for _, chart := range HelmCharts {
+			if chart.ReleaseName == chartName {
+				validProperties[property] = ""
+				globalProperties[property] = true
+				break
+			}
+		}
+
+		if _, ok := validProperties[property]; !ok {
+			return fmt.Errorf("Invalid chart property, no matching chart found: %s", property)
+		}
+	}
+
+	common.CommandPropertySet("scheduler-k3s", appName, property, value, validProperties, globalProperties)
 
 	letsencryptProperties := map[string]bool{
 		"letsencrypt-email-prod": true,

@@ -75,8 +75,10 @@ func main() {
 		err = scheduler_k3s.CommandClusterRemove(nodeName)
 	case "ensure-charts":
 		args := flag.NewFlagSet("scheduler-k3s:ensure-charts", flag.ExitOnError)
+		forceInstall := args.Bool("force", false, "--force: force install all charts")
+		chartNames := args.StringSlice("charts", []string{}, "--charts: comma separated list of chart names to force install")
 		args.Parse(os.Args[2:])
-		err = scheduler_k3s.CommandEnsureCharts()
+		err = scheduler_k3s.CommandEnsureCharts(*forceInstall, *chartNames)
 	case "initialize":
 		args := flag.NewFlagSet("scheduler-k3s:initialize", flag.ExitOnError)
 		taintScheduling := args.Bool("taint-scheduling", false, "taint-scheduling: add a taint against scheduling app workloads")

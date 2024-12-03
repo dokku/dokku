@@ -37,6 +37,17 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 		"--scheduler-k3s-global-rollback-on-failure":    reportGlobalRollbackOnFailure,
 	}
 
+	chartProperties, err := common.PropertyGetAllByPrefix("scheduler-k3s", "--global", "chart.")
+	if err != nil {
+		return fmt.Errorf("Unable to get property list: %w", err)
+	}
+	for name, value := range chartProperties {
+		flagName := "--scheduler-k3s-global-" + name
+		flags[flagName] = func(appName string) string {
+			return value
+		}
+	}
+
 	flagKeys := []string{}
 	for flagKey := range flags {
 		flagKeys = append(flagKeys, flagKey)
