@@ -11,11 +11,11 @@ setup() {
   export KUBECONFIG="/etc/rancher/k3s/k3s.yaml"
 }
 
-# teardown_() {
-#   global_teardown
-#   dokku nginx:start
-#   uninstall_k3s || true
-# }
+teardown_() {
+  global_teardown
+  dokku nginx:start
+  uninstall_k3s || true
+}
 
 @test "(scheduler-k3s) deploy traefik [resource] [autoscaling]" {
   if [[ -z "$DOCKERHUB_USERNAME" ]] || [[ -z "$DOCKERHUB_TOKEN" ]]; then
