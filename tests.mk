@@ -179,14 +179,16 @@ go-tests:
 	@$(MAKE) go-test-plugin PLUGIN_NAME=network
 
 go-test-plugin:
+	cd plugins/$(PLUGIN_NAME) && go get github.com/onsi/gomega && DOKKU_ROOT=/home/dokku go test -v -p 1 -race -mod=readonly || exit $$?
+
+go-test-plugin-in-docker:
 	@echo running go unit tests...
 	docker run --rm \
-		-e DOKKU_ROOT=/home/dokku \
 		-e GO111MODULE=on \
 		-v $$PWD:$(GO_REPO_ROOT) \
 		-w $(GO_REPO_ROOT) \
 		$(BUILD_IMAGE) \
-		bash -c "cd plugins/$(PLUGIN_NAME) && go get github.com/onsi/gomega && go test -v -p 1 -race -mod=readonly " || exit $$?
+		bash -c "make go-test-plugin PLUGIN_NAME=$(PLUGIN_NAME)" || exit $$?
 
 unit-tests: go-tests
 	@echo running bats unit tests...
