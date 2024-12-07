@@ -150,13 +150,13 @@ One or more healthchecks can be defined in the `app.json` file - see the [deploy
 {
   "healthchecks": {
     "web": [
-        {
-            "type":        "startup",
-            "name":        "web check",
-            "description": "Checking if the app responds to the /health/ready endpoint",
-            "path":        "/health/ready",
-            "attempts": 3
-        }
+      {
+        "type":        "startup",
+        "name":        "web check",
+        "description": "Checking if the app responds to the /health/ready endpoint",
+        "path":        "/health/ready",
+        "attempts": 3
+      }
     ]
   }
 }
