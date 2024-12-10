@@ -39,7 +39,7 @@ dokku config:set node-js-app KEY="VAL\ WITH\ SPACES"
 Dokku can also read base64 encoded values. That's the easiest way to set a value with newlines or spaces. To set a value with newlines you need to base64 encode it first and pass the `--encoded` flag:
 
 ```shell
-dokku config:set --encoded node-js-app KEY="$(base64 ~/.ssh/id_rsa)"
+dokku config:set --encoded node-js-app KEY="$(base64 -w 0 ~/.ssh/id_rsa)"
 ```
 
 When setting or unsetting environment variables, you may wish to avoid an application restart. This is useful when developing plugins or when setting multiple environment variables in a scripted manner. To do so, use the `--no-restart` flag:
