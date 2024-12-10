@@ -1107,6 +1107,9 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 
 	attachToPod := os.Getenv("DOKKU_DETACH_CONTAINER") != "1"
 	imagePullSecrets := getComputedImagePullSecrets(appName)
+	if imagePullSecrets == "" {
+		imagePullSecrets = fmt.Sprintf("ims-%s.%d", appName, deploymentID)
+	}
 	workingDir := common.GetWorkingDir(appName, image)
 	job, err := templateKubernetesJob(Job{
 		AppName:          appName,
