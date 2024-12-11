@@ -339,7 +339,6 @@ func (k KubernetesClient) ExecCommand(ctx context.Context, input ExecCommandInpu
 	req.Param("stdin", "true")
 	req.Param("stdout", "true")
 	req.Param("stderr", "true")
-	req.Param("tty", "true")
 
 	if input.Entrypoint != "" {
 		req.Param("command", input.Entrypoint)
@@ -370,6 +369,20 @@ func (k KubernetesClient) ExecCommand(ctx context.Context, input ExecCommandInpu
 
 	size := t.GetSize()
 	sizeQueue := t.MonitorSize(size)
+	actuallyTty := sizeQueue != nil
+
+	if actuallyTty {
+		req.Param("tty", "true")
+	} else {
+		req.Param("tty", "false")
+		t = term.TTY{
+			In:  os.Stdin,
+			Out: stdout,
+			Raw: false,
+		}
+		size = t.GetSize()
+		sizeQueue = t.MonitorSize(size)
+	}
 
 	return t.Safe(func() error {
 		exec, err := remotecommand.NewSPDYExecutor(&k.RestConfig, "POST", req.URL())
@@ -381,7 +394,7 @@ func (k KubernetesClient) ExecCommand(ctx context.Context, input ExecCommandInpu
 			Stdin:             os.Stdin,
 			Stdout:            stdout,
 			Stderr:            stderr,
-			Tty:               true,
+			Tty:               actuallyTty,
 			TerminalSizeQueue: sizeQueue,
 		})
 	})
