@@ -40,7 +40,7 @@ DOKKU_DISTRO=$(
 export DOCKER_BIN=${DOCKER_BIN:="docker"}
 
 export DOKKU_IMAGE=${DOKKU_IMAGE:="gliderlabs/herokuish:latest-24"}
-export DOKKU_CNB_BUILDER=${DOKKU_CNB_BUILDER:="heroku/builder:24"}
+export DOKKU_CNB_BUILDER=${DOKKU_CNB_BUILDER:="heroku/builder@sha256:009eeba0c18e6102566cd5653d6007d089dbbab552e1a634dee68ec601aa66d7"}
 export DOKKU_LIB_ROOT=${DOKKU_LIB_PATH:="/var/lib/dokku"}
 
 export PLUGIN_PATH=${PLUGIN_PATH:="$DOKKU_LIB_ROOT/plugins"}
@@ -136,27 +136,27 @@ execute_dokku_cmd() {
   local argv=("$@")
 
   case "$PLUGIN_NAME" in
-    events | events:*)
-      local PLUGIN_NAME=${PLUGIN_NAME/events/20_events}
-      ;;
-    caddy | caddy:*)
-      local PLUGIN_NAME=${PLUGIN_NAME/caddy/caddy-vhosts}
-      ;;
-    haproxy | haproxy:*)
-      local PLUGIN_NAME=${PLUGIN_NAME/haproxy/haproxy-vhosts}
-      ;;
-    nginx | nginx:*)
-      local PLUGIN_NAME=${PLUGIN_NAME/nginx/nginx-vhosts}
-      ;;
-    openresty | openresty:*)
-      local PLUGIN_NAME=${PLUGIN_NAME/openresty/openresty-vhosts}
-      ;;
-    traefik | traefik:*)
-      local PLUGIN_NAME=${PLUGIN_NAME/traefik/traefik-vhosts}
-      ;;
-    deploy | cleanup | url | urls | report)
-      local PLUGIN_NAME="00_dokku-standard"
-      ;;
+  events | events:*)
+    local PLUGIN_NAME=${PLUGIN_NAME/events/20_events}
+    ;;
+  caddy | caddy:*)
+    local PLUGIN_NAME=${PLUGIN_NAME/caddy/caddy-vhosts}
+    ;;
+  haproxy | haproxy:*)
+    local PLUGIN_NAME=${PLUGIN_NAME/haproxy/haproxy-vhosts}
+    ;;
+  nginx | nginx:*)
+    local PLUGIN_NAME=${PLUGIN_NAME/nginx/nginx-vhosts}
+    ;;
+  openresty | openresty:*)
+    local PLUGIN_NAME=${PLUGIN_NAME/openresty/openresty-vhosts}
+    ;;
+  traefik | traefik:*)
+    local PLUGIN_NAME=${PLUGIN_NAME/traefik/traefik-vhosts}
+    ;;
+  deploy | cleanup | url | urls | report)
+    local PLUGIN_NAME="00_dokku-standard"
+    ;;
   esac
 
   if [[ "$(readlink -f "$PLUGIN_ENABLED_PATH/${PLUGIN_NAME%%:*}")" == *core-plugins* ]]; then
@@ -202,63 +202,63 @@ execute_dokku_cmd() {
 }
 
 case "$1" in
-  help | '')
-    export LC_ALL=C # so sort will respect non alpha characters
-    ALL_PLUGIN_COMMANDS=$(find -L "$PLUGIN_PATH/enabled" -name commands 2>/dev/null || true)
+help | '')
+  export LC_ALL=C # so sort will respect non alpha characters
+  ALL_PLUGIN_COMMANDS=$(find -L "$PLUGIN_PATH/enabled" -name commands 2>/dev/null || true)
 
-    # build list of core plugin command files
-    for plugin_command in $ALL_PLUGIN_COMMANDS; do
-      if [[ "$(readlink -f "$plugin_command")" == *core-plugins* ]]; then
-        CORE_PLUGIN_COMMANDS+="$plugin_command "
-      fi
-    done
-    # build list of non-core plugin command files
-    for plugin_command in $ALL_PLUGIN_COMMANDS; do
-      if [[ "$(readlink -f "$plugin_command")" != *core-plugins* ]]; then
-        COMMUNITY_PLUGIN_COMMANDS+="$plugin_command "
-      fi
-    done
+  # build list of core plugin command files
+  for plugin_command in $ALL_PLUGIN_COMMANDS; do
+    if [[ "$(readlink -f "$plugin_command")" == *core-plugins* ]]; then
+      CORE_PLUGIN_COMMANDS+="$plugin_command "
+    fi
+  done
+  # build list of non-core plugin command files
+  for plugin_command in $ALL_PLUGIN_COMMANDS; do
+    if [[ "$(readlink -f "$plugin_command")" != *core-plugins* ]]; then
+      COMMUNITY_PLUGIN_COMMANDS+="$plugin_command "
+    fi
+  done
 
-    # New lines are blank echos for readability
-    dokku_log_quiet "Usage: dokku [--quiet|--trace|--force] COMMAND <app> [command-specific-options]"
-    dokku_log_quiet ""
-    dokku_log_quiet "Primary help options, type \"dokku COMMAND:help\" for more details, or dokku help --all to see all commands."
-    dokku_log_quiet ""
-    dokku_log_quiet "Commands:"
-    dokku_log_quiet ""
+  # New lines are blank echos for readability
+  dokku_log_quiet "Usage: dokku [--quiet|--trace|--force] COMMAND <app> [command-specific-options]"
+  dokku_log_quiet ""
+  dokku_log_quiet "Primary help options, type \"dokku COMMAND:help\" for more details, or dokku help --all to see all commands."
+  dokku_log_quiet ""
+  dokku_log_quiet "Commands:"
+  dokku_log_quiet ""
 
-    if [[ "$2" == "--all" ]]; then
-      for core_plugin_command in $CORE_PLUGIN_COMMANDS; do
-        $core_plugin_command help
-      done | sort | column -c2 -t -s,
+  if [[ "$2" == "--all" ]]; then
+    for core_plugin_command in $CORE_PLUGIN_COMMANDS; do
+      $core_plugin_command help
+    done | sort | column -c2 -t -s,
+    dokku_log_quiet ""
+    dokku_log_quiet "Community plugin commands:"
+    dokku_log_quiet ""
+    for community_plugin_command in $COMMUNITY_PLUGIN_COMMANDS; do
+      $community_plugin_command help
+    done | sort | column -c2 -t -s,
+  else
+    for core_plugin_command in $CORE_PLUGIN_COMMANDS; do
+      $core_plugin_command help
+      # When done, sort, sed cuts arguments out of strings and colum make it pretty
+    done | sort | sed -e '/^.*:/d' -e 's/\s[\[\<\-\(].*,/,/' | column -c2 -t -s,
+    if [[ -n "$COMMUNITY_PLUGIN_COMMANDS" ]]; then
       dokku_log_quiet ""
       dokku_log_quiet "Community plugin commands:"
       dokku_log_quiet ""
       for community_plugin_command in $COMMUNITY_PLUGIN_COMMANDS; do
         $community_plugin_command help
       done | sort | column -c2 -t -s,
-    else
-      for core_plugin_command in $CORE_PLUGIN_COMMANDS; do
-        $core_plugin_command help
-        # When done, sort, sed cuts arguments out of strings and colum make it pretty
-      done | sort | sed -e '/^.*:/d' -e 's/\s[\[\<\-\(].*,/,/' | column -c2 -t -s,
-      if [[ -n "$COMMUNITY_PLUGIN_COMMANDS" ]]; then
-        dokku_log_quiet ""
-        dokku_log_quiet "Community plugin commands:"
-        dokku_log_quiet ""
-        for community_plugin_command in $COMMUNITY_PLUGIN_COMMANDS; do
-          $community_plugin_command help
-        done | sort | column -c2 -t -s,
-      fi
     fi
-    ;;
+  fi
+  ;;
 
-  version | -v | --version)
-    dokku_version
-    ;;
+version | -v | --version)
+  dokku_version
+  ;;
 
-  *)
-    execute_dokku_cmd "$@"
-    ;;
+*)
+  execute_dokku_cmd "$@"
+  ;;
 
 esac

@@ -25,7 +25,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku buildpacks:set-property $TEST_APP stack heroku/builder:24"
+  run /bin/bash -c "dokku buildpacks:set-property $TEST_APP stack heroku/builder@sha256:009eeba0c18e6102566cd5653d6007d089dbbab552e1a634dee68ec601aa66d7"
   echo "output: $output"
   echo "status: $status"
   assert_success
