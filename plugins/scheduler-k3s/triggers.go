@@ -1106,10 +1106,32 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 	}
 
 	attachToPod := os.Getenv("DOKKU_DETACH_CONTAINER") != "1"
+
+	clientset, err := NewKubernetesClient()
+	if err != nil {
+		return fmt.Errorf("Error creating kubernetes client: %w", err)
+	}
+
+	if err := clientset.Ping(); err != nil {
+		return fmt.Errorf("kubernetes api not available: %w", err)
+	}
+
 	imagePullSecrets := getComputedImagePullSecrets(appName)
 	if imagePullSecrets == "" {
 		imagePullSecrets = fmt.Sprintf("ims-%s.%d", appName, deploymentID)
+		_, err := clientset.GetSecret(context.Background(), GetSecretInput{
+			Name:      imagePullSecrets,
+			Namespace: namespace,
+		})
+
+		if err != nil {
+			if _, ok := err.(*NotFoundError); !ok {
+				return fmt.Errorf("Error getting image pull secret: %w", err)
+			}
+			imagePullSecrets = ""
+		}
 	}
+
 	workingDir := common.GetWorkingDir(appName, image)
 	job, err := templateKubernetesJob(Job{
 		AppName:          appName,
@@ -1133,15 +1155,6 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 
 	if os.Getenv("FORCE_TTY") == "1" {
 		color.NoColor = false
-	}
-
-	clientset, err := NewKubernetesClient()
-	if err != nil {
-		return fmt.Errorf("Error creating kubernetes client: %w", err)
-	}
-
-	if err := clientset.Ping(); err != nil {
-		return fmt.Errorf("kubernetes api not available: %w", err)
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
