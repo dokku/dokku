@@ -669,6 +669,14 @@ func getAutoscaling(input GetAutoscalingInput) (ProcessAutoscaling, error) {
 				httpTrigger.Metadata["concurrency_target_value"] = "100"
 			}
 
+			triggers = append(triggers, ProcessAutoscalingTrigger{
+				Name: trigger.Name,
+				Type: "external-push",
+				Metadata: map[string]string{
+					"httpScaledObject": fmt.Sprintf("%s-%s", input.AppName, input.ProcessType),
+					"scalerAddress":    "keda-add-ons-http-external-scaler.keda:9090",
+				},
+			})
 			continue
 		}
 
