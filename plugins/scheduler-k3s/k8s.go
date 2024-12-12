@@ -54,11 +54,11 @@ func (e *NotFoundError) Error() string {
 	return e.Message
 }
 
-type EmptyResultsError struct {
+type NilResponseError struct {
 	Message string
 }
 
-func (e *EmptyResultsError) Error() string {
+func (e *NilResponseError) Error() string {
 	return e.Message
 }
 
@@ -541,8 +541,8 @@ func (k KubernetesClient) ListClusterTriggerAuthentications(ctx context.Context,
 		return []kedav1alpha1.ClusterTriggerAuthentication{}, err
 	}
 
-	if response == nil || len(response.Items) == 0 {
-		return []kedav1alpha1.ClusterTriggerAuthentication{}, &EmptyResultsError{"cluster trigger authentications is nil"}
+	if response == nil {
+		return []kedav1alpha1.ClusterTriggerAuthentication{}, &NilResponseError{"cluster trigger authentications is nil"}
 	}
 
 	triggerAuthentications := []kedav1alpha1.ClusterTriggerAuthentication{}
@@ -580,8 +580,8 @@ func (k KubernetesClient) ListCronJobs(ctx context.Context, input ListCronJobsIn
 		return []batchv1.CronJob{}, err
 	}
 
-	if cronJobs == nil || len(cronJobs.Items) == 0 {
-		return []batchv1.CronJob{}, &EmptyResultsError{"cron jobs is nil"}
+	if cronJobs == nil {
+		return []batchv1.CronJob{}, &NilResponseError{"cron jobs is nil"}
 	}
 
 	return cronJobs.Items, err
@@ -604,8 +604,8 @@ func (k KubernetesClient) ListDeployments(ctx context.Context, input ListDeploym
 		return []appsv1.Deployment{}, err
 	}
 
-	if deployments == nil || len(deployments.Items) == 0 {
-		return []appsv1.Deployment{}, &EmptyResultsError{"deployments list is nil"}
+	if deployments == nil {
+		return []appsv1.Deployment{}, &NilResponseError{"deployments list is nil"}
 	}
 
 	return deployments.Items, nil
@@ -628,8 +628,8 @@ func (k KubernetesClient) ListIngresses(ctx context.Context, input ListIngresses
 		return []networkingv1.Ingress{}, err
 	}
 
-	if ingresses == nil || len(ingresses.Items) == 0 {
-		return []networkingv1.Ingress{}, &EmptyResultsError{"ingresses is nil"}
+	if ingresses == nil {
+		return []networkingv1.Ingress{}, &NilResponseError{"ingresses is nil"}
 	}
 
 	return ingresses.Items, nil
@@ -641,8 +641,8 @@ func (k KubernetesClient) ListNamespaces(ctx context.Context) ([]corev1.Namespac
 	if err != nil {
 		return []corev1.Namespace{}, err
 	}
-	if namespaces == nil || len(namespaces.Items) == 0 {
-		return []corev1.Namespace{}, &EmptyResultsError{"namespaces list is nil"}
+	if namespaces == nil {
+		return []corev1.Namespace{}, &NilResponseError{"namespaces list is nil"}
 	}
 
 	return namespaces.Items, nil
@@ -666,8 +666,8 @@ func (k KubernetesClient) ListNodes(ctx context.Context, input ListNodesInput) (
 		return []corev1.Node{}, err
 	}
 
-	if nodeList == nil || len(nodeList.Items) == 0 {
-		return []corev1.Node{}, &EmptyResultsError{"pod list is nil"}
+	if nodeList == nil {
+		return []corev1.Node{}, &NilResponseError{"pod list is nil"}
 	}
 
 	return nodeList.Items, err
@@ -690,8 +690,8 @@ func (k KubernetesClient) ListPods(ctx context.Context, input ListPodsInput) ([]
 		return []corev1.Pod{}, err
 	}
 
-	if podList == nil || len(podList.Items) == 0 {
-		return []corev1.Pod{}, &EmptyResultsError{"pod list is nil"}
+	if podList == nil {
+		return []corev1.Pod{}, &NilResponseError{"pod list is nil"}
 	}
 
 	return podList.Items, err
@@ -721,8 +721,8 @@ func (k KubernetesClient) ListTriggerAuthentications(ctx context.Context, input 
 		return []kedav1alpha1.TriggerAuthentication{}, err
 	}
 
-	if response == nil || len(response.Items) == 0 {
-		return []kedav1alpha1.TriggerAuthentication{}, &EmptyResultsError{"trigger authentications is nil"}
+	if response == nil {
+		return []kedav1alpha1.TriggerAuthentication{}, &NilResponseError{"trigger authentications is nil"}
 	}
 
 	triggerAuthentications := []kedav1alpha1.TriggerAuthentication{}
