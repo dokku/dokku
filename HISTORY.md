@@ -1,5 +1,51 @@
 # History
 
+## 0.35.13
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.35.13/bootstrap.sh
+sudo DOKKU_TAG=v0.35.13 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #7410: @josegonzalez Only raise nil responses for k8s list calls as errors
+- #7403: @Tashows Properly resolve imagePullSecrets from app and deploymentID if relevant property does not exist
+- #7404: @josegonzalez Correctly handle scale to zero with the Keda http addon
+- #7400: @Tashows Check if tty is actually used and support proper output when it's not
+
+### Documentation
+
+- #7395: @josegonzalez Add documentation for all file formats dokku uses
+- #7399: @nonZero Add -w 0 to base64 call in config:set docs for safe usage in ssh commands
+
+### Tests
+
+- #7380: @josegonzalez Run unit tests outside of docker by default
+
+### Dependencies
+
+- #7409: @dependabot[bot] chore(deps): bump golang.org/x/crypto from 0.30.0 to 0.31.0 in /plugins/docker-options
+- #7405: @dependabot[bot] chore(deps): bump timberio/vector from 0.42.0-debian to 0.43.1-debian in /plugins/logs
+- #7407: @dependabot[bot] chore(deps): bump traefik from 3.2.1 to 3.2.2 in /plugins/traefik-vhosts
+- #7402: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.36.0 to 1.36.1 in /plugins/common
+- #7390: @dependabot[bot] chore(deps): bump golang.org/x/crypto from 0.29.0 to 0.30.0 in /plugins/common
+- #7397: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 45.0.4 to 45.0.5
+- #7398: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.47 to 9.5.48 in /docs/_build
+- #7394: @dependabot[bot] chore(deps): bump django from 5.0.9 to 5.0.10 in /tests/apps/dockerfile-release
+- #7385: @dependabot[bot] chore(deps): bump golang from 1.23.3 to 1.23.4 in /tests/apps/go-fail-predeploy
+- #7386: @dependabot[bot] chore(deps): bump golang from 1.23.3 to 1.23.4 in /tests/apps/zombies-dockerfile-tini
+- #7387: @dependabot[bot] chore(deps): bump google.golang.org/grpc from 1.68.0 to 1.68.1 in /tests/apps/gogrpc
+- #7388: @dependabot[bot] chore(deps): bump python from 3.13.0-alpine to 3.13.1-alpine in /docs/_build
+- #7389: @dependabot[bot] chore(deps): bump six from 1.16.0 to 1.17.0 in /docs/_build
+- #7392: @dependabot[bot] chore(deps): bump golang.org/x/sync from 0.9.0 to 0.10.0 in /plugins/scheduler-docker-local
+- #7393: @dependabot[bot] chore(deps): bump python from 3.13.0-bookworm to 3.13.1-bookworm in /tests/apps/dockerfile-release
+- #7384: @dependabot[bot] chore(deps): bump golang from 1.23.3 to 1.23.4 in /tests/apps/gogrpc
+- #7383: @dependabot[bot] chore(deps): bump golang from 1.23.3 to 1.23.4 in /tests/apps/zombies-dockerfile-no-tini
+- #7382: @dependabot[bot] chore(deps): bump golang from 1.23.3 to 1.23.4 in /tests/apps/go-fail-postdeploy
+
 ## 0.35.12
 
 Install/update via the bootstrap script:
