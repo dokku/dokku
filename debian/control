@@ -5,7 +5,7 @@ Priority: optional
 Architecture: amd64
 Depends: apache2-utils, locales, git, cpio, cron, curl, man-db, netcat, sshcommand, docker-engine-cs (>= 19.03.0) | docker-engine (>= 19.03.0) | docker-io (>= 19.03.0) | docker.io (>= 19.03.0) | docker-ce (>= 19.03.0) | docker-ee (>= 19.03.0) | moby-engine, docker-compose-plugin | moby-compose, docker-buildx-plugin | moby-buildx, docker-container-healthchecker, docker-image-labeler, lambda-builder, net-tools, netrc, parallel, procfile-util, rsync, dos2unix, jq, unzip, util-linux
 Recommends: herokuish, bash-completion, dokku-update, dokku-event-listener
-Pre-Depends: gliderlabs-sigil, nginx (>= 1.8.0) | openresty, bind9-dnsutils, cgroupfs-mount | cgroup-lite, debconf, plugn, sudo, python3, rsyslog
+Pre-Depends: gliderlabs-sigil, nginx (>= 1.8.0) | openresty, bind9-dnsutils, debconf, plugn, sudo, python3, rsyslog
 Maintainer: Jose Diaz-Gonzalez <dokku@josediazgonzalez.com>
 Description: Docker-powered PaaS that helps build and manage the lifecycle of applications
  Dokku is an extensible, open source Platform as a Service
