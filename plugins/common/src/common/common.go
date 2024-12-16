@@ -20,6 +20,12 @@ func main() {
 
 	var err error
 	switch cmd {
+	case "copy-from-image":
+		appName := flag.Arg(1)
+		image := flag.Arg(2)
+		source := flag.Arg(3)
+		destination := flag.Arg(4)
+		err = common.CopyFromImage(appName, image, source, destination)
 	case "docker-cleanup":
 		appName := flag.Arg(1)
 		force := common.ToBool(flag.Arg(2))
