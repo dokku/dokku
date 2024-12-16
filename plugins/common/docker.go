@@ -104,14 +104,6 @@ func CopyFromImage(appName string, image string, source string, destination stri
 		}
 	}
 
-	tmpFile, err := os.CreateTemp(os.TempDir(), fmt.Sprintf("dokku-%s-%s", MustGetEnv("DOKKU_PID"), "CopyFromImage"))
-	if err != nil {
-		return fmt.Errorf("Cannot create temporary file: %v", err)
-	}
-
-	defer tmpFile.Close()
-	defer os.Remove(tmpFile.Name())
-
 	globalRunArgs := MustGetEnv("DOKKU_GLOBAL_RUN_ARGS")
 	createLabelArgs := []string{"--label", fmt.Sprintf("com.dokku.app-name=%s", appName), globalRunArgs}
 	containerID, err := DockerContainerCreate(image, createLabelArgs)
@@ -125,13 +117,50 @@ func CopyFromImage(appName string, image string, source string, destination stri
 	// ref: https://github.com/dotcloud/docker/issues/3986
 	result, err := CallExecCommand(ExecCommandInput{
 		Command: DockerBin(),
-		Args:    []string{"container", "cp", fmt.Sprintf("%s:%s", containerID, source), tmpFile.Name()},
+		Args:    []string{"container", "cp", "--quiet", fmt.Sprintf("%s:%s", containerID, source), "-"},
 	})
 	if err != nil {
 		return fmt.Errorf("Unable to copy file %s from image: %w", source, err)
 	}
 	if result.ExitCode != 0 {
 		return fmt.Errorf("Unable to copy file %s from image: %v", source, result.StderrContents())
+	}
+
+	tarContents := result.StdoutContents()
+	if tarContents == "" {
+		return fmt.Errorf("Unable to copy file %s from image", source)
+	}
+
+	// extract the contents via tar
+	// tar -xOf -
+	result, err = CallExecCommand(ExecCommandInput{
+		Command: "tar",
+		Args:    []string{"-xOf", "-"},
+		Stdin:   strings.NewReader(tarContents),
+	})
+	if err != nil {
+		return fmt.Errorf("Unable to extract contents from tar: %v", err)
+	}
+
+	contents = result.StdoutContents()
+
+	tmpFile, err := os.CreateTemp(os.TempDir(), fmt.Sprintf("dokku-%s-%s", MustGetEnv("DOKKU_PID"), "CopyFromImage"))
+	if err != nil {
+		return fmt.Errorf("Cannot create temporary file: %v", err)
+	}
+
+	defer func() {
+		if err := tmpFile.Close(); err != nil {
+			LogWarn(fmt.Sprintf("Unable to close temporary file: %v", err))
+		}
+		if err := os.Remove(tmpFile.Name()); err != nil {
+			LogWarn(fmt.Sprintf("Unable to remove temporary file: %v", err))
+		}
+	}()
+
+	// write contents to tmpFile
+	if _, err := tmpFile.Write([]byte(contents)); err != nil {
+		return fmt.Errorf("Unable to write to temporary file: %v", err)
 	}
 
 	fi, err := os.Stat(tmpFile.Name())
