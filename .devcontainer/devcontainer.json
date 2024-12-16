@@ -6,6 +6,7 @@
   "containerEnv": {
     "DOKKU_HOSTNAME": "dokku.me",
     "DOKKU_HOST_ROOT": "${localWorkspaceFolder}/tmp/data/home/dokku",
+    "DOKKU_LIB_HOST_ROOT": "${localWorkspaceFolder}/tmp/data/var/lib/dokku",
     "GO_ROOT_MOUNT": "${localWorkspaceFolder}:/go/src/github.com/dokku/dokku"
   },
   "customizations": {
