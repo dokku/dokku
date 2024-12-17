@@ -1142,7 +1142,7 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 		Image:            image,
 		ImagePullSecrets: imagePullSecrets,
 		ImageSourceType:  imageSourceType,
-		Interactive:      attachToPod,
+		Interactive:      attachToPod || os.Getenv("DOKKU_FORCE_TTY") == "true",
 		Labels:           labels,
 		Namespace:        namespace,
 		ProcessType:      processType,
