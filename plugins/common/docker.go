@@ -1,7 +1,10 @@
 package common
 
 import (
+	"archive/tar"
+	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"strconv"
 	"strings"
@@ -132,17 +135,10 @@ func CopyFromImage(appName string, image string, source string, destination stri
 	}
 
 	// extract the contents via tar
-	// tar -xOf -
-	result, err = CallExecCommand(ExecCommandInput{
-		Command: "tar",
-		Args:    []string{"-xOf", "-"},
-		Stdin:   strings.NewReader(tarContents),
-	})
+	content, err := extractTarToString(tarContents)
 	if err != nil {
 		return fmt.Errorf("Unable to extract contents from tar: %v", err)
 	}
-
-	contents = result.StdoutContents()
 
 	tmpFile, err := os.CreateTemp(os.TempDir(), fmt.Sprintf("dokku-%s-%s", MustGetEnv("DOKKU_PID"), "CopyFromImage"))
 	if err != nil {
@@ -199,6 +195,36 @@ func CopyFromImage(appName string, image string, source string, destination stri
 	}
 
 	return nil
+}
+
+// Function to extract tar contents and return them as a string
+func extractTarToString(in string) (string, error) {
+	// Initialize a buffer to accumulate the extracted content
+	var extractedContent bytes.Buffer
+
+	// Create a tar reader from standard input
+	tarReader := tar.NewReader(strings.NewReader(in))
+
+	// Iterate through the files in the tar archive
+	for {
+		// Read the next header (file entry)
+		_, err := tarReader.Next()
+		if err == io.EOF {
+			break // End of archive
+		}
+		if err != nil {
+			return "", fmt.Errorf("error reading tar header: %v", err)
+		}
+
+		// Write the content of the current file into the buffer
+		_, err = io.Copy(&extractedContent, tarReader)
+		if err != nil {
+			return "", fmt.Errorf("error copying file content: %v", err)
+		}
+	}
+
+	// Return the accumulated content as a string
+	return strings.TrimSpace(extractedContent.String()), nil
 }
 
 // DockerBin returns a string which contains a path to the current docker binary
