@@ -385,7 +385,7 @@ func (k KubernetesClient) ExecCommand(ctx context.Context, input ExecCommandInpu
 
 	size := t.GetSize()
 	sizeQueue := t.MonitorSize(size)
-	actuallyTty := (sizeQueue != nil) || os.Getenv("DOKKU_FORCE_TTY") == "true"
+	actuallyTty := (sizeQueue != nil) || common.ToBool(os.Getenv("DOKKU_FORCE_TTY"))
 
 	if actuallyTty {
 		req.Param("tty", "true")
