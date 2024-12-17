@@ -155,7 +155,7 @@ func CopyFromImage(appName string, image string, source string, destination stri
 	}()
 
 	// write contents to tmpFile
-	if _, err := tmpFile.Write([]byte(contents)); err != nil {
+	if _, err := tmpFile.Write([]byte(content)); err != nil {
 		return fmt.Errorf("Unable to write to temporary file: %v", err)
 	}
 
