@@ -1,7 +1,10 @@
 package common
 
 import (
+	"archive/tar"
+	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"strconv"
 	"strings"
@@ -104,14 +107,6 @@ func CopyFromImage(appName string, image string, source string, destination stri
 		}
 	}
 
-	tmpFile, err := os.CreateTemp(os.TempDir(), fmt.Sprintf("dokku-%s-%s", MustGetEnv("DOKKU_PID"), "CopyFromImage"))
-	if err != nil {
-		return fmt.Errorf("Cannot create temporary file: %v", err)
-	}
-
-	defer tmpFile.Close()
-	defer os.Remove(tmpFile.Name())
-
 	globalRunArgs := MustGetEnv("DOKKU_GLOBAL_RUN_ARGS")
 	createLabelArgs := []string{"--label", fmt.Sprintf("com.dokku.app-name=%s", appName), globalRunArgs}
 	containerID, err := DockerContainerCreate(image, createLabelArgs)
@@ -125,13 +120,43 @@ func CopyFromImage(appName string, image string, source string, destination stri
 	// ref: https://github.com/dotcloud/docker/issues/3986
 	result, err := CallExecCommand(ExecCommandInput{
 		Command: DockerBin(),
-		Args:    []string{"container", "cp", fmt.Sprintf("%s:%s", containerID, source), tmpFile.Name()},
+		Args:    []string{"container", "cp", "--quiet", fmt.Sprintf("%s:%s", containerID, source), "-"},
 	})
 	if err != nil {
 		return fmt.Errorf("Unable to copy file %s from image: %w", source, err)
 	}
 	if result.ExitCode != 0 {
 		return fmt.Errorf("Unable to copy file %s from image: %v", source, result.StderrContents())
+	}
+
+	tarContents := result.StdoutContents()
+	if tarContents == "" {
+		return fmt.Errorf("Unable to copy file %s from image", source)
+	}
+
+	// extract the contents via tar
+	content, err := extractTarToString(tarContents)
+	if err != nil {
+		return fmt.Errorf("Unable to extract contents from tar: %v", err)
+	}
+
+	tmpFile, err := os.CreateTemp(os.TempDir(), fmt.Sprintf("dokku-%s-%s", MustGetEnv("DOKKU_PID"), "CopyFromImage"))
+	if err != nil {
+		return fmt.Errorf("Cannot create temporary file: %v", err)
+	}
+
+	defer func() {
+		if err := tmpFile.Close(); err != nil {
+			LogWarn(fmt.Sprintf("Unable to close temporary file: %v", err))
+		}
+		if err := os.Remove(tmpFile.Name()); err != nil {
+			LogWarn(fmt.Sprintf("Unable to remove temporary file: %v", err))
+		}
+	}()
+
+	// write contents to tmpFile
+	if _, err := tmpFile.Write([]byte(content)); err != nil {
+		return fmt.Errorf("Unable to write to temporary file: %v", err)
 	}
 
 	fi, err := os.Stat(tmpFile.Name())
@@ -170,6 +195,36 @@ func CopyFromImage(appName string, image string, source string, destination stri
 	}
 
 	return nil
+}
+
+// Function to extract tar contents and return them as a string
+func extractTarToString(in string) (string, error) {
+	// Initialize a buffer to accumulate the extracted content
+	var extractedContent bytes.Buffer
+
+	// Create a tar reader from standard input
+	tarReader := tar.NewReader(strings.NewReader(in))
+
+	// Iterate through the files in the tar archive
+	for {
+		// Read the next header (file entry)
+		_, err := tarReader.Next()
+		if err == io.EOF {
+			break // End of archive
+		}
+		if err != nil {
+			return "", fmt.Errorf("error reading tar header: %v", err)
+		}
+
+		// Write the content of the current file into the buffer
+		_, err = io.Copy(&extractedContent, tarReader)
+		if err != nil {
+			return "", fmt.Errorf("error copying file content: %v", err)
+		}
+	}
+
+	// Return the accumulated content as a string
+	return strings.TrimSpace(extractedContent.String()), nil
 }
 
 // DockerBin returns a string which contains a path to the current docker binary
