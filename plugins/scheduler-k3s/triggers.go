@@ -1142,7 +1142,7 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 		Image:            image,
 		ImagePullSecrets: imagePullSecrets,
 		ImageSourceType:  imageSourceType,
-		Interactive:      attachToPod,
+		Interactive:      attachToPod || common.ToBool(os.Getenv("DOKKU_FORCE_TTY")),
 		Labels:           labels,
 		Namespace:        namespace,
 		ProcessType:      processType,
@@ -1192,7 +1192,7 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 	}
 
 	batchJobSelector := fmt.Sprintf("batch.kubernetes.io/job-name=%s", createdJob.Name)
-	_, err = waitForPodToExist(ctx, WaitForPodToExistInput{
+	pods, err := waitForPodToExist(ctx, WaitForPodToExistInput{
 		Clientset:     clientset,
 		Namespace:     namespace,
 		RetryCount:    3,
@@ -1202,6 +1202,7 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 		return fmt.Errorf("Error waiting for pod to exist: %w", err)
 	}
 	if !attachToPod {
+		fmt.Println(pods[0].Name)
 		return nil
 	}
 
@@ -1254,7 +1255,7 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 		return fmt.Errorf("Error waiting for pod to be running: %w", err)
 	}
 
-	pods, err := clientset.ListPods(ctx, ListPodsInput{
+	pods, err = clientset.ListPods(ctx, ListPodsInput{
 		Namespace:     namespace,
 		LabelSelector: batchJobSelector,
 	})

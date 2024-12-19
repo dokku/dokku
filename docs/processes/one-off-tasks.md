@@ -66,7 +66,7 @@ dokku run --no-tty node-js-app ls -lah
 > [!IMPORTANT]
 > New as of 0.25.0
 
-Finally, a container can be run in "detached" mode via the `run:detached` Dokku command. Running a process in detached mode will immediately return a `CONTAINER_ID`. Detached containers are run without a tty and are also removed at the end of process execution.
+Finally, a container can be run in "detached" mode via the `run:detached` Dokku command. Running a process in detached mode will immediately return the container name (or pod name when using the k3s scheduler). Detached containers run without a tty by default and are also removed at the end of process execution.
 
 ```shell
 dokku run:detached node-js-app ls -lah
