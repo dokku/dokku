@@ -9,7 +9,11 @@ import (
 
 // TriggerCronGetProperty writes the cron key to stdout for a given app container
 func TriggerCronGetProperty(appName string, key string) error {
-	if key != "mailto" {
+	validProperties := map[string]bool{
+		"mailfrom": true,
+		"mailto":   true,
+	}
+	if !validProperties[key] {
 		return errors.New("Invalid cron property specified")
 	}
 

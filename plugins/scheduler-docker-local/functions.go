@@ -124,14 +124,21 @@ func writeCronEntries() error {
 		return deleteCrontab()
 	}
 
-	results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
+	resultfromResults, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "cron-get-property",
+		Args:    []string{"--global", "mailfrom"},
+	})
+	mailfrom := resultfromResults.StdoutContents()
+
+	mailtoResults, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
 		Trigger: "cron-get-property",
 		Args:    []string{"--global", "mailto"},
 	})
-	mailto := results.StdoutContents()
+	mailto := mailtoResults.StdoutContents()
 
 	data := map[string]interface{}{
 		"Commands": commands,
+		"Mailfrom": mailfrom,
 		"Mailto":   mailto,
 	}
 

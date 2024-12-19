@@ -1,3 +1,6 @@
+{{ if .Mailfrom -}}
+MAILFROM={{ .Mailfrom }}
+{{ end -}}
 {{ if .Mailto -}}
 MAILTO={{ .Mailto }}
 {{ end -}}

@@ -12,12 +12,14 @@ import (
 var (
 	// DefaultProperties is a map of all valid cron properties with corresponding default property values
 	DefaultProperties = map[string]string{
-		"mailto": "",
+		"mailfrom": "",
+		"mailto":   "",
 	}
 
 	// GlobalProperties is a map of all valid global cron properties
 	GlobalProperties = map[string]bool{
-		"mailto": true,
+		"mailfrom": true,
+		"mailto":   true,
 	}
 )
 
