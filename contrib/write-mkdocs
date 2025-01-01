@@ -70,7 +70,7 @@ def get_nav_from_selector(soup: BeautifulSoup, selector: str, docs_dir: str):
                     children = os.listdir(docs_dir + "/" + child_dir)
 
                     children.sort(
-                        key=lambda x: list(map(int, x.split("-")[0].split("."))),
+                        key=lambda x: list(map(int, x.split("-")[0].split("."))) if "." in x else [-1, -1, -1],
                         reverse=True,
                     )
                     children = [child_dir + c for c in children]
