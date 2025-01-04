@@ -233,3 +233,33 @@ dokku logs:set test vector-sink "http://?uri=https%3A//loggerservice.com%3A1234/
 ```
 
 Please read the [sink documentation](https://vector.dev/docs/reference/configuration/sinks/) for your sink of choice to configure the sink as desired.
+
+##### Configuring the app label
+
+Logs shipped by vector include the label `com.dokku.app-name`, which is an alias for the app name. This can be changed via the `app-label-alias` logs property with the `logs:set` command. Specifying a new alias will reload any running vector container.
+
+```shell
+# setting the sink value in quotes is encouraged to avoid
+# issues with ampersand encoding in shell commands
+dokku logs:set node-js-app app-label-alias "app-name"
+```
+
+An alias may be removed by setting an empty value, which will also reload the running vector container.
+
+```shell
+dokku logs:set node-js-app app-label-alias
+```
+
+Only one alias may be specified on a per-app basis at a given time.
+
+App label aliases can also be specified globally by specifying the `--global` flag to `logs:set` with no app name specified:
+
+```shell
+dokku logs:set --global app-label-alias "app-name"
+```
+
+As with app-specific label alias settings, the global value may also be cleared by setting no value.
+
+```shell
+dokku logs:set --global app-label-alias
+```

@@ -257,7 +257,7 @@ func writeVectorConfig() error {
 
 		data.Sources[fmt.Sprintf("docker-source:%s", inflectedAppName)] = vectorSource{
 			Type:          "docker_logs",
-			IncludeLabels: []string{fmt.Sprintf("com.dokku.app-name=%s", appName)},
+			IncludeLabels: []string{fmt.Sprintf("%s=%s", reportComputedAppLabelAlias(appName), appName)},
 		}
 
 		data.Sinks[fmt.Sprintf("docker-sink:%s", inflectedAppName)] = sink
@@ -272,7 +272,7 @@ func writeVectorConfig() error {
 
 		data.Sources["docker-global-source"] = vectorSource{
 			Type:          "docker_logs",
-			IncludeLabels: []string{"com.dokku.app-name"},
+			IncludeLabels: []string{reportGlobalAppLabelAlias("global")},
 		}
 
 		data.Sinks["docker-global-sink"] = sink
