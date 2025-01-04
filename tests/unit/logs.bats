@@ -99,13 +99,13 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_failure
-  assert_output_contains "Invalid property specified, valid properties include: max-size, vector-image, vector-sink"
+  assert_output_contains "Invalid property specified, valid properties include: app-label-alias, max-size, vector-image, vector-sink"
 
   run /bin/bash -c "dokku logs:set $TEST_APP invalid value" 2>&1
   echo "output: $output"
   echo "status: $status"
   assert_failure
-  assert_output_contains "Invalid property specified, valid properties include: max-size, vector-image, vector-sink"
+  assert_output_contains "Invalid property specified, valid properties include: app-label-alias, max-size, vector-image, vector-sink"
 }
 
 @test "(logs) logs:set app" {
