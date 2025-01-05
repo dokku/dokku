@@ -6,8 +6,8 @@
 ```
 domains:add <app> <domain> [<domain> ...]      # Add domains to app
 domains:add-global <domain> [<domain> ...]     # Add global domain names
-domains:clear <app>                            # Clear all domains for app
-domains:clear-global                           # Clear global domain names
+domains:clear <app>                            # Remove all app domains
+domains:clear-global                           # Remove all global domains
 domains:disable <app>                          # Disable VHOST support
 domains:enable <app>                           # Enable VHOST support
 domains:remove <app> <domain> [<domain> ...]   # Remove domains from app
@@ -67,7 +67,7 @@ dokku domains:add node-js-app dokku.me
 # list custom domains for app
 dokku domains:report node-js-app
 
-# clear all custom domains for app
+# delete all domains for app
 dokku domains:clear node-js-app
 
 # remove a custom domain from app

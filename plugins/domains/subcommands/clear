@@ -5,7 +5,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/domains/functions"
 
 cmd-domains-clear() {
-  declare desc="clear all app domains"
+  declare desc="remove all app domains"
   declare cmd="domains:clear"
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1"

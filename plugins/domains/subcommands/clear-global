@@ -5,11 +5,11 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/domains/functions"
 
 cmd-domains-clear-global() {
-  declare desc="clear global domain names via command line"
+  declare desc="remove all global domains"
   declare cmd="domains:clear-global"
   [[ "$1" == "$cmd" ]] && shift 1
 
-  dokku_log_info1_quiet "Clearing global domains"
+  dokku_log_info1_quiet "Deleting global domains"
   domains_clear_global "$@"
 }
 
