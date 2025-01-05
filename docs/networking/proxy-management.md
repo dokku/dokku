@@ -158,6 +158,8 @@ At this time, the following dokku commands are used to interact with a complete 
     - triggers: `pre-enable-vhost`
 - `domains:remove`: Removes a domain from an app.
     - triggers: `post-domains-update`
+- `domains:reset`: Reset app domains to global-configured domains.
+    - triggers: `post-domains-update`
 - `domains:set`: Sets all domains for a given app.
     - triggers: `post-domains-update`
 - `proxy:build-config`: Builds - or rebuilds - external proxy configuration.
