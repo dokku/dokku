@@ -188,7 +188,7 @@ teardown() {
   assert_output_contains a--domain.with--hyphens
 }
 
-@test "(domains) domains:clear" {
+@test "(domains) domains:reset" {
   run /bin/bash -c "dokku domains:add $TEST_APP test.app.${DOKKU_DOMAIN}"
   echo "output: $output"
   echo "status: $status"
@@ -199,7 +199,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku domains:clear $TEST_APP"
+  run /bin/bash -c "dokku domains:reset $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
