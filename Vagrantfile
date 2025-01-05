@@ -39,9 +39,11 @@ Vagrant::configure("2") do |config|
   end
 
   config.vm.define "empty", autostart: false
+  config.vm.synced_folder ".", "/vagrant", type: "nfs", nfs_version: 4, nfs_udp: false
+
 
   config.vm.define "dokku", primary: true do |vm|
-    vm.vm.synced_folder File.dirname(__FILE__), "/root/dokku"
+    vm.vm.synced_folder File.dirname(__FILE__), "/root/dokku", type: "nfs", nfs_version: 4, nfs_udp: false
     vm.vm.hostname = "#{DOKKU_DOMAIN}"
     vm.vm.network :private_network, ip: DOKKU_IP
 
@@ -77,14 +79,14 @@ Vagrant::configure("2") do |config|
   end
 
   config.vm.define "dokku-deb", autostart: false do |vm|
-    vm.vm.synced_folder File.dirname(__FILE__), "/root/dokku"
+    vm.vm.synced_folder File.dirname(__FILE__), "/root/dokku", type: "nfs", nfs_version: 4, nfs_udp: false
     vm.vm.hostname = "#{DOKKU_DOMAIN}"
     vm.vm.network :private_network, ip: DOKKU_IP
     vm.vm.provision :shell, :inline => "cd /root/dokku && make install-from-deb"
   end
 
   config.vm.define "build", autostart: false do |vm|
-    vm.vm.synced_folder File.dirname(__FILE__), "/root/dokku"
+    vm.vm.synced_folder File.dirname(__FILE__), "/root/dokku", type: "nfs", nfs_version: 4, nfs_udp: false
     vm.vm.hostname = "#{DOKKU_DOMAIN}"
     vm.vm.network :private_network, ip: DOKKU_IP
     vm.vm.provision :shell, :inline => "export DEBIAN_FRONTEND=noninteractive && apt-get update -qq >/dev/null && apt-get -qq -y --no-install-recommends install git >/dev/null && cd /root/dokku && #{make_cmd}"
@@ -93,9 +95,9 @@ Vagrant::configure("2") do |config|
 
   config.vm.define "build-arch", autostart: false do |vm|
     vm.vm.box = "bugyt/archlinux"
-    vm.vm.synced_folder File.dirname(__FILE__), "/dokku"
+    vm.vm.synced_folder File.dirname(__FILE__), "/dokku", type: "nfs", nfs_version: 4, nfs_udp: false
     if Pathname.new("#{File.dirname(__FILE__)}/../dokku-arch").exist?
-      vm.vm.synced_folder "#{File.dirname(__FILE__)}/../dokku-arch", "/dokku-arch"
+      vm.vm.synced_folder "#{File.dirname(__FILE__)}/../dokku-arch", "/dokku-arch", type: "nfs", nfs_version: 4, nfs_udp: false
     end
     vm.vm.hostname = "#{DOKKU_DOMAIN}"
     vm.vm.network :private_network, ip: DOKKU_IP
