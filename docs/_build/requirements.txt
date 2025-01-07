@@ -11,7 +11,7 @@ mkdocs-exclude==1.0.2
 mkdocs-material==9.5.49
 mkdocs-material-extensions==1.3.1
 packaging==24.2
-Pygments==2.19.0
+Pygments==2.19.1
 pymdown-extensions==10.13
 pyparsing==3.2.1
 python-dateutil==2.9.0.post0
