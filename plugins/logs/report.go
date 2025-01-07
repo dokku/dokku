@@ -11,12 +11,15 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 	}
 
 	flags := map[string]common.ReportFunc{
-		"--logs-computed-max-size":   reportComputedMaxSize,
-		"--logs-global-max-size":     reportGlobalMaxSize,
-		"--logs-global-vector-sink":  reportGlobalVectorSink,
-		"--logs-max-size":            reportMaxSize,
-		"--logs-vector-global-image": reportVectorGlobalImage,
-		"--logs-vector-sink":         reportVectorSink,
+		"--logs-computed-app-label-alias": reportComputedAppLabelAlias,
+		"--logs-computed-max-size":        reportComputedMaxSize,
+		"--logs-global-app-label-alias":   reportGlobalAppLabelAlias,
+		"--logs-global-max-size":          reportGlobalMaxSize,
+		"--logs-global-vector-sink":       reportGlobalVectorSink,
+		"--logs-app-label-alias":          reportAppLabelAlias,
+		"--logs-max-size":                 reportMaxSize,
+		"--logs-vector-global-image":      reportVectorGlobalImage,
+		"--logs-vector-sink":              reportVectorSink,
 	}
 
 	flagKeys := []string{}
@@ -28,6 +31,23 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 	uppercaseFirstCharacter := true
 	infoFlags := common.CollectReport(appName, infoFlag, flags)
 	return common.ReportSingleApp("logs", appName, infoFlag, infoFlags, flagKeys, format, trimPrefix, uppercaseFirstCharacter)
+}
+
+func reportComputedAppLabelAlias(appName string) string {
+	value := reportAppLabelAlias(appName)
+	if value == "" {
+		value = reportGlobalAppLabelAlias(appName)
+	}
+
+	return value
+}
+
+func reportGlobalAppLabelAlias(appName string) string {
+	return common.PropertyGetDefault("logs", "--global", "app-label-alias", AppLabelAlias)
+}
+
+func reportAppLabelAlias(appName string) string {
+	return common.PropertyGet("logs", appName, "app-label-alias")
 }
 
 func reportComputedMaxSize(appName string) string {

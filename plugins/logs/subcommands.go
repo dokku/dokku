@@ -72,7 +72,13 @@ func CommandSet(appName string, property string, value string) error {
 	}
 
 	common.CommandPropertySet("logs", appName, property, value, DefaultProperties, GlobalProperties)
-	if property == "vector-sink" {
+
+	vectorProperties := map[string]bool{
+		"app-label-alias": true,
+		"vector-sink":     true,
+	}
+
+	if _, ok := vectorProperties[property]; ok {
 		common.LogVerboseQuiet(fmt.Sprintf("Writing updated vector config to %s", filepath.Join(common.GetDataDirectory("logs"), "vector.json")))
 		return writeVectorConfig()
 	}

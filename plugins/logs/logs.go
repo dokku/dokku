@@ -10,18 +10,23 @@ import (
 // MaxSize is the default max retention size for docker logs
 const MaxSize = "10m"
 
+// AppLabelAlias is the property key for the app label alias
+const AppLabelAlias = "com.dokku.app-name"
+
 var (
 	// DefaultProperties is a map of all valid logs properties with corresponding default property values
 	DefaultProperties = map[string]string{
-		"max-size":    "",
-		"vector-sink": "",
+		"app-label-alias": AppLabelAlias,
+		"max-size":        MaxSize,
+		"vector-sink":     "",
 	}
 
 	// GlobalProperties is a map of all valid global logs properties
 	GlobalProperties = map[string]bool{
-		"max-size":     true,
-		"vector-image": true,
-		"vector-sink":  true,
+		"app-label-alias": true,
+		"max-size":        true,
+		"vector-image":    true,
+		"vector-sink":     true,
 	}
 )
 
