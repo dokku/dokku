@@ -1,5 +1,65 @@
 # History
 
+## 0.35.14
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.35.14/bootstrap.sh
+sudo DOKKU_TAG=v0.35.14 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #7441: @turicas Fix Vagrantfile NFS config
+- #7417: @josegonzalez Write contents to stdout before writing to a file
+- #7416: @josegonzalez Add missing DOKKU_LIB_HOST_ROOT to ensure plugins work in devcontainer setup
+- #7412: @josegonzalez Remove cgroups dependencies
+
+### New Features
+
+- #7439: @josegonzalez Allow specifying a custom app label alias when shipping logs via vector
+- #7419: @josegonzalez Add the ability to set a MAILFROM value for local cron emails
+
+### Refactors
+
+- #7415: @josegonzalez Use the golang version of CopyFromImage when copying files in bash
+
+### Documentation
+
+- #7437: @turicas Fix doc generation
+- #7414: @josegonzalez Remove copyright date range
+
+### Dependencies
+
+- #7453: @dependabot[bot] chore(deps): bump pymdown-extensions from 10.13 to 10.14 in /docs/_build
+- #7451: @dependabot[bot] chore(deps): bump golang.org/x/crypto from 0.31.0 to 0.32.0 in /plugins/common
+- #7449: @dependabot[bot] chore(deps): bump pygments from 2.19.0 to 2.19.1 in /docs/_build
+- #7450: @dependabot[bot] chore(deps): bump google.golang.org/protobuf from 1.36.1 to 1.36.2 in /tests/apps/gogrpc
+- #7452: @dependabot[bot] chore(deps): bump traefik from 3.2.3 to 3.3.0 in /plugins/traefik-vhosts
+- #7446: @dependabot[bot] chore(deps): bump github.com/otiai10/copy from 1.14.0 to 1.14.1 in /plugins/common
+- #7445: @dependabot[bot] chore(deps): bump pygments from 2.18.0 to 2.19.0 in /docs/_build
+- #7444: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 45.0.5 to 45.0.6
+- #7436: @dependabot[bot] chore(deps): bump pyparsing from 3.2.0 to 3.2.1 in /docs/_build
+- #7433: @dependabot[bot] chore(deps): bump k8s.io/kubernetes from 1.29.1 to 1.29.7 in /plugins/scheduler-k3s
+- #7429: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.36.1 to 1.36.2 in /plugins/common
+- #7427: @dependabot[bot] chore(deps): bump click from 8.1.7 to 8.1.8 in /docs/_build
+- #7425: @dependabot[bot] chore(deps): bump jinja2 from 3.1.4 to 3.1.5 in /tests/apps/python-flask
+- #7426: @dependabot[bot] chore(deps): bump google.golang.org/protobuf from 1.36.0 to 1.36.1 in /tests/apps/gogrpc
+- #7428: @dependabot[bot] chore(deps): bump jinja2 from 3.1.4 to 3.1.5 in /docs/_build
+- #7430: @dependabot[bot] chore(deps): bump pymdown-extensions from 10.12 to 10.13 in /docs/_build
+- #7432: @dependabot[bot] chore(deps): bump ruby from 3.3.6 to 3.4.1 in /tests/apps/dockerfile-entrypoint
+- #7424: @dependabot[bot] chore(deps): bump google.golang.org/grpc from 1.69.0 to 1.69.2 in /tests/apps/gogrpc
+- #7420: @dependabot[bot] chore(deps): bump google.golang.org/protobuf from 1.35.2 to 1.36.0 in /tests/apps/gogrpc
+- #7421: @dependabot[bot] chore(deps): bump traefik from 3.2.2 to 3.2.3 in /plugins/traefik-vhosts
+- #7418: @dependabot[bot] chore(deps): bump mkdocs-material from 9.5.48 to 9.5.49 in /docs/_build
+- #7411: @dependabot[bot] chore(deps): bump google.golang.org/grpc from 1.68.1 to 1.69.0 in /tests/apps/gogrpc
+
+### Other
+
+- #7434: @turicas Add missing checks:set to checks help
+- #7422: @Tashows Fix detached tty for k3s
+
 ## 0.35.13
 
 Install/update via the bootstrap script:
