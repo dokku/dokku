@@ -1,5 +1,23 @@
 # History
 
+## 0.35.15
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.35.15/bootstrap.sh
+sudo DOKKU_TAG=v0.35.15 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #7455: @turicas Add missing post-delete scripts to checks, caddy-vhosts and haproxy-vhosts
+
+### Dependencies
+
+- #7458: @dependabot[bot] chore(deps): bump traefik from 3.3.0 to 3.3.1 in /plugins/traefik-vhosts
+- #7457: @dependabot[bot] chore(deps): bump google.golang.org/grpc from 1.69.2 to 1.69.4 in /tests/apps/gogrpc
+
 ## 0.35.14
 
 Install/update via the bootstrap script:
