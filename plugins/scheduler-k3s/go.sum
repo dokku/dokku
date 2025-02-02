@@ -112,8 +112,8 @@ github.com/frankban/quicktest v1.14.6 h1:7Xjx+VpznH+oBnejlPUj8oUpdxnVs4f8XU8WnHk
 github.com/frankban/quicktest v1.14.6/go.mod h1:4ptaffx2x8+WTWXmUCuVU6aPUX1/Mz7zb5vbUoiM6w0=
 github.com/fsnotify/fsnotify v1.7.0 h1:8JEhPFa5W2WU7YfeZzPNqzMP6Lwt7L2715Ggo0nosvA=
 github.com/fsnotify/fsnotify v1.7.0/go.mod h1:40Bi/Hjc2AVfZrqy+aj+yEI+/bRxZnMJyTJwOpGvigM=
-github.com/go-acme/lego/v4 v4.20.2 h1:ZwO3oLZb8fL6up1OZVJP3yHuvqhozzlEmyqKmhrPchQ=
-github.com/go-acme/lego/v4 v4.20.2/go.mod h1:foauPlhnhoq8WUphaWx5U04uDc+JGhk4ZZtPz/Vqsjg=
+github.com/go-acme/lego/v4 v4.20.4 h1:yCQGBX9jOfMbriEQUocdYm7EBapdTp8nLXYG8k6SqSU=
+github.com/go-acme/lego/v4 v4.20.4/go.mod h1:foauPlhnhoq8WUphaWx5U04uDc+JGhk4ZZtPz/Vqsjg=
 github.com/go-errors/errors v1.5.1 h1:ZwEMSLRCapFLflTpT7NKaAc7ukJ8ZPEjzlxt8rPN8bk=
 github.com/go-errors/errors v1.5.1/go.mod h1:sIVyrIiJhuEF+Pj9Ebtd6P/rEYROXFi3BopGUQ5a5Og=
 github.com/go-gorp/gorp/v3 v3.1.0 h1:ItKF/Vbuj31dmV4jxA1qblpSwkl9g1typ24xoe70IGs=
@@ -397,8 +397,8 @@ github.com/stretchr/testify v1.9.0 h1:HtqpIVDClZ4nwg75+f6Lvsy/wHu+3BoSGCbBAcpTsT
 github.com/stretchr/testify v1.9.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
 github.com/traefik/paerser v0.2.1 h1:LFgeak1NmjEHF53c9ENdXdL1UMkF/lD5t+7Evsz4hH4=
 github.com/traefik/paerser v0.2.1/go.mod h1:7BBDd4FANoVgaTZG+yh26jI6CA2nds7D/4VTEdIsh24=
-github.com/traefik/traefik/v2 v2.11.14 h1:TxYR6gnMW3xjA3qXHb65A+VrKa0VugH2tZ3BEKXoD1s=
-github.com/traefik/traefik/v2 v2.11.14/go.mod h1:jZCBQ6ccELy0tp0c19t5KET6UaWLvRetLDrzxzN2t2s=
+github.com/traefik/traefik/v2 v2.11.15 h1:tweGjD4XvQYtWETcDtiTOJ9MVxxWttCqi7DIbZZ31Gw=
+github.com/traefik/traefik/v2 v2.11.15/go.mod h1:1UhksdzSGf8lmVvmQUjgLxEMPLuPDGUqgWZ9qqIuZbs=
 github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f/go.mod h1:N2zxlSyiKSe5eX1tZViRH5QA0qijqEDrYZiPEAiq3wU=
 github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb h1:zGWFAtiMcyryUHoUjUJX0/lt1H2+i2Ka2n+D3DImSNo=
 github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb/go.mod h1:N2zxlSyiKSe5eX1tZViRH5QA0qijqEDrYZiPEAiq3wU=
