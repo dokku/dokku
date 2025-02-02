@@ -1,7 +1,6 @@
 package common
 
 import (
-	"fmt"
 	"os"
 	"strings"
 )
@@ -33,7 +32,7 @@ func filterApps(apps []string) ([]string, error) {
 	filteredApps = removeEmptyEntries(filteredApps)
 
 	if len(filteredApps) == 0 {
-		return filteredApps, fmt.Errorf("You haven't deployed any applications yet")
+		return filteredApps, NoAppsExist
 	}
 
 	return filteredApps, nil

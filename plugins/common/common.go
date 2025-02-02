@@ -336,7 +336,7 @@ func UnfilteredDokkuApps() ([]string, error) {
 	dokkuRoot := MustGetEnv("DOKKU_ROOT")
 	files, err := os.ReadDir(dokkuRoot)
 	if err != nil {
-		return apps, fmt.Errorf("You haven't deployed any applications yet")
+		return apps, NoAppsExist
 	}
 
 	for _, f := range files {
@@ -351,7 +351,7 @@ func UnfilteredDokkuApps() ([]string, error) {
 	}
 
 	if len(apps) == 0 {
-		return apps, fmt.Errorf("You haven't deployed any applications yet")
+		return apps, NoAppsExist
 	}
 
 	return apps, nil
@@ -652,6 +652,11 @@ func (err *AppDoesNotExist) ExitCode() int {
 func (err *AppDoesNotExist) Error() string {
 	return fmt.Sprintf("App %s does not exist", err.appName)
 }
+
+// NoAppsExist wraps error to include the app name
+// and is used to distinguish between a normal error and an error
+// where the app is missing
+var NoAppsExist = errors.New("You haven't deployed any applications yet")
 
 // VarArgs skips a number of incoming arguments, returning what is left over
 func VarArgs(arguments []string, skip int) []string {
