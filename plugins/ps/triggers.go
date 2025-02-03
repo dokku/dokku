@@ -339,7 +339,13 @@ func TriggerPsCurrentScale(appName string) error {
 
 // TriggerPsSetScale configures the scale parameters for a given app
 func TriggerPsSetScale(appName string, skipDeploy bool, clearExisting bool, processTuples []string) error {
-	return scaleSet(appName, skipDeploy, clearExisting, processTuples)
+	return scaleSet(scaleSetInput{
+		appName:           appName,
+		skipDeploy:        skipDeploy,
+		clearExisting:     clearExisting,
+		processTuples:     processTuples,
+		deployOnlyChanged: false,
+	})
 }
 
 func TriggerPsGetProperty(appName string, property string) error {
