@@ -247,33 +247,77 @@ func scaleReport(appName string) error {
 	return nil
 }
 
-func scaleSet(appName string, skipDeploy bool, clearExisting bool, processTuples []string) error {
-	formations, err := parseProcessTuples(processTuples)
+// scaleSetInput is the input for the scaleSet function
+type scaleSetInput struct {
+	// appName is the name of the app to scale
+	appName string
+
+	// skipDeploy is a flag to skip the deploy phase
+	skipDeploy bool
+
+	// clearExisting is a flag to clear the existing scale
+	clearExisting bool
+
+	// processTuples is a list of process tuples to scale
+	processTuples []string
+
+	// deployOnlyChanged is a flag to deploy only the changed formations
+	deployOnlyChanged bool
+}
+
+func scaleSet(input scaleSetInput) error {
+	existingFormations, err := getFormations(input.appName)
 	if err != nil {
 		return err
 	}
 
-	if err := updateScale(appName, clearExisting, formations); err != nil {
-		return err
-	}
-
-	if skipDeploy {
-		return nil
-	}
-
-	if !common.IsDeployed(appName) {
-		return nil
-	}
-
-	imageTag, err := common.GetRunningImageTag(appName, "")
+	formations, err := parseProcessTuples(input.processTuples)
 	if err != nil {
 		return err
 	}
 
-	for _, formation := range formations {
+	if err := updateScale(input.appName, input.clearExisting, formations); err != nil {
+		return err
+	}
+
+	if input.skipDeploy {
+		return nil
+	}
+
+	if !common.IsDeployed(input.appName) {
+		return nil
+	}
+
+	imageTag, err := common.GetRunningImageTag(input.appName, "")
+	if err != nil {
+		return err
+	}
+
+	changedFormations := FormationSlice{}
+	if input.deployOnlyChanged {
+		for _, formation := range formations {
+			isChanged := true
+			for _, existingFormation := range existingFormations {
+				if existingFormation.ProcessType == formation.ProcessType {
+					if existingFormation.Quantity == formation.Quantity {
+						isChanged = false
+						break
+					}
+				}
+			}
+
+			if isChanged {
+				changedFormations = append(changedFormations, formation)
+			}
+		}
+	} else {
+		changedFormations = formations
+	}
+
+	for _, formation := range changedFormations {
 		_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
 			Trigger:     "deploy",
-			Args:        []string{appName, imageTag, formation.ProcessType},
+			Args:        []string{input.appName, imageTag, formation.ProcessType},
 			StreamStdio: true,
 		})
 		if err != nil {
