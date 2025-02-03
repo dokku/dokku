@@ -1224,7 +1224,7 @@ func CommandMountPVC(appName string, processType string, pvcName string, mountPa
 	// TODO: 2.2. maybe check if pvc has dokku.com/managed ??
 	// 3. add to properties
 	volume := ProcessVolume{
-		Name:      fmt.Sprintf("%s-%s-%s", appName, processType, pvcName),
+		Name:      pvcName,
 		Type:      "persistentVolumeClaim",
 		ClaimName: pvcName,
 		MountPath: mountPath,
@@ -1277,7 +1277,7 @@ func CommandUnMountPVC(appName string, processType string, pvcName string, mount
 
 	// Create a new slice without the volume to delete
 	filteredVolumes := []ProcessVolume{}
-	volName := fmt.Sprintf("%s-%s-%s", appName, processType, pvcName)
+	volName := pvcName
 	for _, v := range volumes {
 		if v.Name != volName || v.MountPath != mountPath {
 			filteredVolumes = append(filteredVolumes, v)
