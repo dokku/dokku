@@ -6,6 +6,13 @@
 {{- $mappings := set $mappings $port_map.name "true" }}
 {{- end }}
 {{- end }}
+{{- if $config.volumes }}
+{{- $has_chown := false }}
+{{- range $vol := $config.volumes }}
+{{- if $vol.chown }}
+{{- $has_chown = true }}
+{{- end }}
+{{- end }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -113,6 +120,19 @@ spec:
         readinessProbe:
           {{ $config.healthchecks.readiness | toJson | indent 10 }}
         {{- end }}
+        {{- if $config.volumes }}
+        volumeMounts:
+        {{- range $vol := $config.volumes }}
+        - name: {{ $vol.name }}
+          mountPath: {{ $vol.mountPath }}
+          {{- if $vol.subPath }}
+          subPath: {{ $vol.subPath }}
+          {{- end }}
+          {{- if $vol.readOnly }}
+          readOnly: {{ $vol.readOnly }}
+          {{- end }}
+        {{- end }}
+        {{- end }}
         {{- if $.Values.global.image.working_dir }}
         workingDir: {{ $.Values.global.image.working_dir }}
         {{- end }}
@@ -121,3 +141,49 @@ spec:
       - name: {{ $.Values.global.image.image_pull_secrets }}
       {{- end }}
       serviceAccountName: {{ $.Values.global.app_name }}
+      {{- if $has_chown }}
+      initContainers:
+        - name: fix-permissions
+          image: busybox
+          command:
+            - "sh"
+            - "-c"
+            - >
+              {{- range $vol := $config.volumes }}
+              {{- if $vol.chown }}
+              if [ -d "{{ $vol.mountPath }}" ]; then
+                echo "Setting ownership for {{ $vol.mountPath }}";
+                chown -R {{ $vol.chown }} {{ $vol.mountPath }};
+              else
+                echo "Warning: Directory {{ $vol.mountPath }} not found, skipping chown";
+              fi;
+              {{- end }}
+              {{- end }}
+          volumeMounts:
+            {{- range $vol := $config.volumes }}
+            {{- if $vol.chown }}
+            - mountPath: {{ $vol.mountPath }}
+              name: {{ $vol.name }}
+            {{- end }}
+            {{- end }}
+      {{- end }}
+      {{- end }}
+      {{- if $config.volumes }}
+      volumes:
+      {{- range $vol := $config.volumes }}
+      - name: {{ $vol.name }}
+        {{- if eq $vol.type "persistentVolumeClaim" }}
+        persistentVolumeClaim:
+          claimName: {{ $vol.claimName }}
+        {{- else if eq $vol.type "configMap" }}
+        configMap:
+          name: {{ $vol.configMapName }}
+        {{- else if eq $vol.type "secret" }}
+        secret:
+          secretName: {{ $vol.secretName }}
+        {{- else if eq $vol.type "emptyDir" }}
+        emptyDir: {}
+        {{- end }}
+      {{- end }}
+      {{- end }}
+

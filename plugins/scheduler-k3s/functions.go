@@ -548,6 +548,13 @@ func getAnnotations(appName string, processType string) (ProcessAnnotations, err
 	}
 	annotations.TraefikMiddlewareAnnotations = traefikMiddlewareAnnotations
 
+	// TODO: check if this needed???
+	pvcAnnotations, err := getAnnotation(appName, processType, "pvc")
+	if err != nil {
+		return annotations, err
+	}
+	annotations.PvcAnnotations = pvcAnnotations
+
 	return annotations, nil
 }
 
@@ -1136,7 +1143,25 @@ func getLabels(appName string, processType string) (ProcessLabels, error) {
 	}
 	labels.TraefikMiddlewareLabels = traefikMiddlewareLabels
 
+	// TODO: check if this needed ???
+	pvcLabels, err := getLabel(appName, processType, "pvc")
+	if err != nil {
+		return labels, err
+	}
+	labels.PvcLabels = pvcLabels
+
 	return labels, nil
+}
+
+func getVolumes(appName string, processType string) ([]ProcessVolume, error) {
+	volumes := []ProcessVolume{}
+	propValue := common.PropertyGet("scheduler-k3s", appName, fmt.Sprintf("volumes.%s", processType))
+	err := yaml.Unmarshal([]byte(propValue), &volumes)
+	if err != nil {
+		return volumes, err
+	}
+
+	return volumes, nil
 }
 
 // getGlobalLabel retrieves global labels for a given app

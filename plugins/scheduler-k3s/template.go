@@ -113,6 +113,7 @@ type ProcessValues struct {
 	Replicas     int32               `yaml:"replicas"`
 	Resources    ProcessResourcesMap `yaml:"resources,omitempty"`
 	Web          ProcessWeb          `yaml:"web,omitempty"`
+	Volumes      []ProcessVolume     `yaml:"volumes,omitempty"`
 }
 
 type ProcessAnnotations struct {
@@ -132,6 +133,7 @@ type ProcessAnnotations struct {
 	ServiceAnnotations                   map[string]string `yaml:"service,omitempty"`
 	TraefikIngressRouteAnnotations       map[string]string `yaml:"traefik_ingressroute,omitempty"`
 	TraefikMiddlewareAnnotations         map[string]string `yaml:"traefik_middleware,omitempty"`
+	PvcAnnotations                       map[string]string `yaml:"pvc,omitempty"`
 }
 
 // ProcessAutoscaling contains the autoscaling configuration for a process
@@ -251,6 +253,7 @@ type ProcessLabels struct {
 	ServiceLabels                   map[string]string `yaml:"service,omitempty"`
 	TraefikIngressRouteLabels       map[string]string `yaml:"traefik_ingressroute,omitempty"`
 	TraefikMiddlewareLabels         map[string]string `yaml:"traefik_middleware,omitempty"`
+	PvcLabels                       map[string]string `yaml:"pvc,omitempty"`
 }
 
 type ProcessWeb struct {
@@ -273,6 +276,18 @@ type ProcessResources struct {
 	NvidiaGPU string `yaml:"nvidia.com/gpu,omitempty"`
 	CPU       string `yaml:"cpu,omitempty"`
 	Memory    string `yaml:"memory,omitempty"`
+}
+
+type ProcessVolume struct {
+	Name          string `yaml:"name"`
+	Type          string `yaml:"type"`
+	MountPath     string `yaml:"mountPath"`
+	SubPath       string `yaml:"subPath,omitempty"`
+	ReadOnly      bool   `yaml:"readOnly,omitempty"`
+	ClaimName     string `yaml:"claimName,omitempty"`
+	ConfigMapName string `yaml:"configMapName,omitempty"`
+	SecretName    string `yaml:"secretName,omitempty"`
+	Chown         string `yaml:"chown,omitempty"`
 }
 
 type ProcessType string
@@ -322,6 +337,18 @@ type ClusterIssuer struct {
 	IngressClass string `yaml:"ingress_class"`
 	Name         string `yaml:"name"`
 	Server       string `yaml:"server"`
+}
+
+type PersistentVolumeClaim struct {
+	Global struct {
+		Annotations ProcessAnnotations `yaml:"annotations,omitempty"`
+		Labels      ProcessLabels      `yaml:"labels,omitempty"`
+	} `yaml:"global"`
+	Name         string `yaml:"name"`
+	AccessMode   string `yaml:"accessMode"`
+	Storage      string `yaml:"storage"`
+	StorageClass string `yaml:"storageClass"`
+	Namespace    string `yaml:"namespace"`
 }
 
 type Job struct {

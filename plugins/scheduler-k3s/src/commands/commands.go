@@ -28,7 +28,11 @@ Additional commands:`
     scheduler-k3s:report [<app>] [<flag>], Displays a scheduler-k3s report for one or more apps
     scheduler-k3s:set <app> <property> (<value>), Set or clear a scheduler-k3s property for an app
     scheduler-k3s:show-kubeconfig, Displays the kubeconfig for remote usage
-    scheduler-k3s:uninstall, Uninstalls k3s from the Dokku server`
+    scheduler-k3s:add-pvc <name> <size> [--access-mode <mode>] [--namespace <namespace>] [--storage-class-name <class-name>], Adds a Persistent Volume Claim (PVC)
+	scheduler-k3s:remove-pvc <name> [--namespace <namespace>], Remove Persistent Volume Claim in Namespace
+	scheduler-k3s:mount <app> <pvc_name> </container/path> [--process-type PROCESS_TYPE] [--subpath SUBPATH] [--readonly] [--chown option], Mount a Volume to Container Path for an app. Default processtype: web
+	scheduler-k3s:unmount <app> <pvc_name> </container/path>, Unmount a Volume from an app
+	scheduler-k3s:uninstall, Uninstalls k3s from the Dokku server`
 )
 
 func main() {

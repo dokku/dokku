@@ -430,6 +430,11 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 			return fmt.Errorf("Error getting autoscaling: %w", err)
 		}
 
+		processVolumes, err := getVolumes(appName, processType)
+		if err != nil {
+			return fmt.Errorf("Error getting process volumes: %w", err)
+		}
+
 		processValues := ProcessValues{
 			Annotations:  annotations,
 			Autoscaling:  autoscaling,
@@ -439,6 +444,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 			ProcessType:  ProcessType_Worker,
 			Replicas:     int32(processCount),
 			Resources:    processResources,
+			Volumes:      processVolumes,
 		}
 
 		if processType == "web" {

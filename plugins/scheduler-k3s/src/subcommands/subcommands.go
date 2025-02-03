@@ -1,8 +1,10 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
+	"slices"
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
@@ -128,6 +130,46 @@ func main() {
 		args := flag.NewFlagSet("scheduler-k3s:show-kubeconfig", flag.ExitOnError)
 		args.Parse(os.Args[2:])
 		err = scheduler_k3s.CommandShowKubeconfig()
+	case "add-pvc":
+		args := flag.NewFlagSet("scheduler-k3s:add-pvc", flag.ExitOnError)
+		accessMode := args.String("access-mode", "ReadWriteOnce", "--access-mode: access mode default ReadWriteOnce")
+		namespace := args.String("namespace", "default", "--namespace: default")
+		storageClass := args.String("storage-class-name", "", "--storage-class-name: e.g. longhorn")
+		args.Parse(os.Args[2:])
+		// check accessMode
+		accessModes := []string{"ReadWriteOnce", "ReadWriteMany", "ReadOnlyMany"}
+		if !slices.Contains(accessModes, *accessMode) {
+			err = errors.New("Please specify PVC access mode as either ReadWriteOnce, ReadOnlyMany,  ReadWriteMany")
+			break
+		}
+		pvcName := args.Arg(0)
+		storageSize := args.Arg(1)
+		err = scheduler_k3s.CommandAddPVC(pvcName, *namespace, *accessMode, storageSize, *storageClass)
+	case "remove-pvc":
+		args := flag.NewFlagSet("scheduler-k3s:remove-pvc", flag.ExitOnError)
+		namespace := args.String("namespace", "default", "--namespace: default")
+		args.Parse(os.Args[2:])
+		pvcName := args.Arg(0)
+		err = scheduler_k3s.CommandRemovePVC(pvcName, *namespace)
+	case "mount":
+		args := flag.NewFlagSet("scheduler-k3s:mount", flag.ExitOnError)
+		subPath := args.String("subpath", "", "--subpath: ")
+		readOnly := args.Bool("readonly", false, "--readonly: false")
+		processType := args.String("process-type", "web", "--process-type: web")
+		chown := args.String("chown", "", "--chown: UID:GID")
+		args.Parse(os.Args[2:])
+		appName := args.Arg(0)
+		pvcName := args.Arg(1)
+		mountPath := args.Arg(2)
+		err = scheduler_k3s.CommandMountPVC(appName, *processType, pvcName, mountPath, *subPath, *readOnly, *chown)
+	case "unmount":
+		args := flag.NewFlagSet("scheduler-k3s:unmount", flag.ExitOnError)
+		processType := args.String("process-type", "web", "--process-type: web")
+		args.Parse(os.Args[2:])
+		appName := args.Arg(0)
+		pvcName := args.Arg(1)
+		mountPath := args.Arg(2)
+		err = scheduler_k3s.CommandUnMountPVC(appName, *processType, pvcName, mountPath)
 	case "uninstall":
 		args := flag.NewFlagSet("scheduler-k3s:uninstall", flag.ExitOnError)
 		args.Parse(os.Args[2:])
