@@ -432,6 +432,79 @@ func templateKubernetesJob(input Job) (batchv1.Job, error) {
 		podAnnotations[key] = value
 	}
 
+	// get volumes
+	processVolumes, err := getVolumes(input.AppName, input.ProcessType)
+	if err != nil {
+		return batchv1.Job{}, fmt.Errorf("Error getting process volumes: %w", err)
+	}
+	var volumeMounts []corev1.VolumeMount
+	var podVolumes []corev1.Volume
+	var initContainerVolumeMounts []corev1.VolumeMount
+	var chownCommands []string
+	hasChown := false
+	for _, volume := range processVolumes {
+		// create volumeMounts
+		volumeMounts = append(volumeMounts, corev1.VolumeMount{
+			Name: volume.Name,
+			// ReadOnly:  volume.ReadOnly,
+			MountPath: volume.MountPath,
+			// SubPath:   volume.SubPath,
+		})
+		// create podVolumes
+		volumeSource := corev1.VolumeSource{}
+		switch volume.Type {
+		case "persistentVolumeClaim":
+			volumeSource.PersistentVolumeClaim = &corev1.PersistentVolumeClaimVolumeSource{
+				ClaimName: volume.ClaimName,
+				ReadOnly:  volume.ReadOnly,
+			}
+		case "configMap":
+			volumeSource.ConfigMap = &corev1.ConfigMapVolumeSource{
+				LocalObjectReference: corev1.LocalObjectReference{
+					Name: volume.ClaimName, // Assuming ClaimName is used as ConfigMap name
+				},
+			}
+		case "secret":
+			volumeSource.Secret = &corev1.SecretVolumeSource{
+				SecretName: volume.ClaimName, // Assuming ClaimName is used as Secret name
+			}
+		default:
+			return batchv1.Job{}, fmt.Errorf("unknown volume type: %s", volume.Type)
+		}
+		podVolumes = append(podVolumes, corev1.Volume{
+			Name:         volume.Name,
+			VolumeSource: volumeSource,
+		})
+		// Handle ownership fix if chown is specified
+		if volume.Chown != "" {
+			hasChown = true
+			initContainerVolumeMounts = append(initContainerVolumeMounts, corev1.VolumeMount{
+				Name:      volume.Name,
+				MountPath: volume.MountPath,
+			})
+			chownCommands = append(chownCommands, fmt.Sprintf(`
+if [ -d "%s" ]; then
+  echo "Setting ownership for %s";
+  chown -R %s %s;
+else
+  echo "Warning: Directory %s not found, skipping chown";
+fi;
+`, volume.MountPath, volume.MountPath, volume.Chown, volume.MountPath, volume.MountPath))
+		}
+	}
+	// Create the initContainer only if there are chown operations
+	var initContainers []corev1.Container
+	if hasChown {
+		initContainers = []corev1.Container{
+			{
+				Name:         "fix-permissions",
+				Image:        "busybox",
+				Command:      []string{"sh", "-c", strings.Join(chownCommands, "\n")},
+				VolumeMounts: initContainerVolumeMounts,
+			},
+		}
+	}
+
 	job := batchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        fmt.Sprintf("%s-%s-%s", input.AppName, input.ProcessType, suffix),
@@ -447,6 +520,7 @@ func templateKubernetesJob(input Job) (batchv1.Job, error) {
 					Annotations: podAnnotations,
 				},
 				Spec: corev1.PodSpec{
+					InitContainers: initContainers,
 					Containers: []corev1.Container{
 						{
 							Args: input.Command,
@@ -468,11 +542,13 @@ func templateKubernetesJob(input Job) (batchv1.Job, error) {
 								Limits:   corev1.ResourceList{},
 								Requests: corev1.ResourceList{},
 							},
-							WorkingDir: input.WorkingDir,
+							WorkingDir:   input.WorkingDir,
+							VolumeMounts: volumeMounts,
 						},
 					},
 					RestartPolicy:      corev1.RestartPolicyNever,
 					ServiceAccountName: input.AppName,
+					Volumes:            podVolumes,
 				},
 			},
 		},
