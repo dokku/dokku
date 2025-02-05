@@ -160,7 +160,13 @@ func CommandScale(appName string, skipDeploy bool, processTuples []string) error
 	}
 
 	common.LogInfo1(fmt.Sprintf("Scaling %s processes: %s", appName, strings.Join(processTuples, " ")))
-	return scaleSet(appName, skipDeploy, false, processTuples)
+	return scaleSet(scaleSetInput{
+		appName:           appName,
+		skipDeploy:        skipDeploy,
+		clearExisting:     false,
+		processTuples:     processTuples,
+		deployOnlyChanged: true,
+	})
 }
 
 // CommandSet sets or clears a ps property for an app
