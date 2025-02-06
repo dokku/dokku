@@ -953,8 +953,3 @@ func (k KubernetesClient) GetPvc(ctx context.Context, input PvcInput) (*corev1.P
 	// Retrieve the PVC
 	return k.Client.CoreV1().PersistentVolumeClaims(input.Namespace).Get(ctx, input.Name, metav1.GetOptions{})
 }
-
-// DeletePvc deletes a Kubernetes PVC
-func (k KubernetesClient) DeletePvc(ctx context.Context, input PvcInput) error {
-	return k.Client.CoreV1().PersistentVolumeClaims(input.Namespace).Delete(ctx, input.Name, metav1.DeleteOptions{})
-}

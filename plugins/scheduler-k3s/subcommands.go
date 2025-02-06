@@ -1140,7 +1140,7 @@ func CommandAddPVC(pvcName string, namespace string, accessMode string, storageS
 	err = helmAgent.InstallOrUpgradeChart(context.Background(), ChartInput{
 		ChartPath:         chartPath,
 		Namespace:         namespace,
-		ReleaseName:       fmt.Sprintf("pvc-%s-%s", namespace, pvcName),
+		ReleaseName:       fmt.Sprintf("pvc-dokku-%s", pvcName),
 		RollbackOnFailure: true,
 		Timeout:           timeoutDuration,
 		Wait:              true,
@@ -1155,39 +1155,17 @@ func CommandAddPVC(pvcName string, namespace string, accessMode string, storageS
 }
 
 func CommandRemovePVC(pvcName string, namespace string) error {
-	clientset, err := NewKubernetesClient()
-	if err != nil {
-		if isK3sKubernetes() {
-			if err := isK3sInstalled(); err != nil {
-				common.LogWarn("k3s is not installed, skipping")
-				return nil
-			}
-		}
-		return fmt.Errorf("Error creating kubernetes client: %w", err)
-	}
-
-	if err := clientset.Ping(); err != nil {
+	if err := isKubernetesAvailable(); err != nil {
 		return fmt.Errorf("kubernetes api not available: %w", err)
 	}
 
-	pvcInput := PvcInput{
-		Name:      pvcName,
-		Namespace: namespace,
-	}
-
-	// Retrieve the PVC
-	pvc, err := clientset.GetPvc(context.Background(), pvcInput)
+	helmAgent, err := NewHelmAgent(namespace, DeployLogPrinter)
 	if err != nil {
-		return fmt.Errorf("failed to get PVC %s in namespace %s: %w", pvcInput.Name, pvcInput.Namespace, err)
+		return fmt.Errorf("Error creating helm agent: %w", err)
 	}
-	// Check if the annotation exists and is set to "true"
-	if val, exists := pvc.Annotations["dokku.com/managed"]; !exists || val != "true" {
-		return fmt.Errorf("PVC %s in namespace %s is not managed by dokku (annotation missing or incorrect)", pvcInput.Name, pvcInput.Namespace)
-	}
-
-	err = clientset.DeletePvc(context.Background(), pvcInput)
+	err = helmAgent.UninstallChart(fmt.Sprintf("pvc-dokku-%s", pvcName))
 	if err != nil {
-		return fmt.Errorf("Error deleting pvc: %w", err)
+		return fmt.Errorf("Error uninstalling chart: %w", err)
 	}
 
 	return nil
