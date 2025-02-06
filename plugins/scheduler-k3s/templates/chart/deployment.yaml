@@ -13,6 +13,24 @@
 {{- $has_chown = true }}
 {{- end }}
 {{- end }}
+
+{{- /* Set default values to avoid nil pointer errors */}}
+{{- if not $.Values.deployment }}
+{{- $_ := set $.Values "deployment" (dict "strategy" (dict "type" "RollingUpdate" "rollingUpdate" (dict "maxUnavailable" "25%" "maxSurge" "25%"))) }}
+{{- end }}
+
+{{- /* Define strategy type */}}
+{{- $strategyType := $.Values.deployment.strategy.type | default "RollingUpdate" }}
+
+{{- /* Define default values for maxUnavailable and maxSurge */}}
+{{- $maxUnavailable := $.Values.deployment.strategy.rollingUpdate.maxUnavailable | default "25%" }}
+{{- $maxSurge := $.Values.deployment.strategy.rollingUpdate.maxSurge | default "25%" }}
+
+{{- /* Override values if volumes exist */}}
+{{- if and $config.volumes (eq $strategyType "RollingUpdate") }}
+{{- $maxUnavailable = "100%" }}
+{{- $maxSurge = "0" }}
+{{- end }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -43,11 +61,11 @@ spec:
       {{ include "print.labels" (dict "config" $.Values.global "key" "pod") | indent 6 }}
       {{ include "print.labels" (dict "config" $config "key" "pod") | indent 6 }}
   strategy:
-    type: {{ $.Values.deployment.strategy.type | default "RollingUpdate" }}
-    {{- if and $config.volumes (eq ($.Values.deployment.strategy.type | default "RollingUpdate") "RollingUpdate") }}
+    type: {{ $strategyType }}
+    {{- if eq $strategyType "RollingUpdate" }}
     rollingUpdate:
-      maxUnavailable: {{ $.Values.deployment.strategy.rollingUpdate.maxUnavailable | default "100%" }}
-      maxSurge: {{ $.Values.deployment.strategy.rollingUpdate.maxSurge | default "0" }}
+      maxUnavailable: {{ $maxUnavailable }}
+      maxSurge: {{ $maxSurge }}
     {{- end }}
   template:
     metadata:
