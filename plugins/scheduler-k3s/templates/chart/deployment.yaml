@@ -42,7 +42,13 @@ spec:
       app.kubernetes.io/part-of: {{ $.Values.global.app_name }}
       {{ include "print.labels" (dict "config" $.Values.global "key" "pod") | indent 6 }}
       {{ include "print.labels" (dict "config" $config "key" "pod") | indent 6 }}
-  strategy: {}
+  strategy:
+    type: {{ $.Values.deployment.strategy.type | default "RollingUpdate" }}
+    {{- if and $config.volumes (eq ($.Values.deployment.strategy.type | default "RollingUpdate") "RollingUpdate") }}
+    rollingUpdate:
+      maxUnavailable: {{ $.Values.deployment.strategy.rollingUpdate.maxUnavailable | default "100%" }}
+      maxSurge: {{ $.Values.deployment.strategy.rollingUpdate.maxSurge | default "0" }}
+    {{- end }}
   template:
     metadata:
       annotations:
