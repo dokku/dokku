@@ -6,11 +6,14 @@
 {{- $mappings := set $mappings $port_map.name "true" }}
 {{- end }}
 {{- end }}
-{{- if $config.volumes }}
+
+{{- /* Check if any volumes have chown set */}}
 {{- $has_chown := false }}
+{{- if $config.volumes }}
 {{- range $vol := $config.volumes }}
 {{- if $vol.chown }}
 {{- $has_chown = true }}
+{{- end }}
 {{- end }}
 {{- end }}
 
@@ -190,7 +193,6 @@ spec:
               name: {{ $vol.name }}
             {{- end }}
             {{- end }}
-      {{- end }}
       {{- end }}
       {{- if $config.volumes }}
       volumes:
