@@ -940,3 +940,16 @@ func streamLogsFromRequest(ctx context.Context, request rest.ResponseWrapper, ou
 		}
 	}
 }
+
+// PvcInput contains all the information needed to get/delete a Kubernetes PVC
+type PvcInput struct {
+	// Name is the Kubernetes PVC name
+	Name string
+	// Namespace is the Kubernetes namespace
+	Namespace string
+}
+
+func (k KubernetesClient) GetPvc(ctx context.Context, input PvcInput) (*corev1.PersistentVolumeClaim, error) {
+	// Retrieve the PVC
+	return k.Client.CoreV1().PersistentVolumeClaims(input.Namespace).Get(ctx, input.Name, metav1.GetOptions{})
+}

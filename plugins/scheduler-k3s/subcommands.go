@@ -9,14 +9,17 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"slices"
 	"sort"
 	"strings"
 	"syscall"
+	"time"
 
 	"github.com/dokku/dokku/plugins/common"
 	resty "github.com/go-resty/resty/v2"
 	"github.com/ryanuber/columnize"
+	"gopkg.in/yaml.v3"
 )
 
 // CommandAnnotationsSet set or clear a scheduler-k3s annotation for an app
@@ -1040,4 +1043,232 @@ func CommandUninstall() error {
 
 	common.LogInfo2Quiet("Removing k3s dependencies")
 	return uninstallHelperCommands(context.Background())
+}
+
+func CommandAddPVC(pvcName string, namespace string, accessMode string, storageSize string, storageClass string) error {
+	chartDir, err := os.MkdirTemp("", "pvc-chart-")
+	if err != nil {
+		return fmt.Errorf("Error creating pvc chart directory: %w", err)
+	}
+	defer os.RemoveAll(chartDir)
+
+	if err := os.MkdirAll(filepath.Join(chartDir, "templates"), os.FileMode(0755)); err != nil {
+		return fmt.Errorf("Error creating pvc chart templates directory: %w", err)
+	}
+
+	// create the chart.yaml
+	chart := &Chart{
+		ApiVersion: "v2",
+		AppVersion: "1.0.0",
+		Icon:       "https://dokku.com/assets/dokku-logo.svg",
+		Name:       "PersistentVolumeClaim",
+		Version:    "0.0.1",
+	}
+
+	err = writeYaml(WriteYamlInput{
+		Object: chart,
+		Path:   filepath.Join(chartDir, "Chart.yaml"),
+	})
+	if err != nil {
+		return fmt.Errorf("Error writing PersistentVolumeClaim chart: %w", err)
+	}
+
+	// create the values.yaml
+	values := PersistentVolumeClaim{
+		Name:         pvcName,
+		AccessMode:   accessMode,
+		Storage:      storageSize,
+		StorageClass: storageClass,
+		Namespace:    namespace,
+	}
+
+	err = writeYaml(WriteYamlInput{
+		Object: values,
+		Path:   filepath.Join(chartDir, "values.yaml"),
+	})
+	if err != nil {
+		return fmt.Errorf("Error writing chart: %w", err)
+	}
+	if os.Getenv("DOKKU_TRACE") == "1" {
+		common.CatFile(filepath.Join(chartDir, "values.yaml"))
+	}
+
+	b, err := templates.ReadFile("templates/chart/pvc.yaml")
+	if err != nil {
+		return fmt.Errorf("Error reading PVC template: %w", err)
+	}
+	common.CatFile("templates/chart/pvc.yaml")
+
+	// write pvc.yaml
+	pvcFile := filepath.Join(chartDir, "templates", "pvc.yaml")
+	err = os.WriteFile(pvcFile, []byte(b), os.FileMode(0644))
+	if err != nil {
+		return fmt.Errorf("Error writing cron job template: %w", err)
+	}
+	if os.Getenv("DOKKU_TRACE") == "1" {
+		common.CatFile(pvcFile)
+	}
+
+	// add _helpers.tpl
+	b, err = templates.ReadFile("templates/chart/_helpers.tpl")
+	if err != nil {
+		return fmt.Errorf("Error reading _helpers template: %w", err)
+	}
+
+	helpersFile := filepath.Join(chartDir, "templates", "_helpers.tpl")
+	err = os.WriteFile(helpersFile, b, os.FileMode(0644))
+	if err != nil {
+		return fmt.Errorf("Error writing _helpers template: %w", err)
+	}
+
+	// install the chart
+	helmAgent, err := NewHelmAgent(namespace, DeployLogPrinter)
+	if err != nil {
+		return fmt.Errorf("Error creating helm agent: %w", err)
+	}
+
+	chartPath, err := filepath.Abs(chartDir)
+	if err != nil {
+		return fmt.Errorf("Error getting chart path: %w", err)
+	}
+
+	timeoutDuration, err := time.ParseDuration("300s")
+	if err != nil {
+		return fmt.Errorf("Error parsing deploy timeout duration: %w", err)
+	}
+
+	err = helmAgent.InstallOrUpgradeChart(context.Background(), ChartInput{
+		ChartPath:         chartPath,
+		Namespace:         namespace,
+		ReleaseName:       fmt.Sprintf("pvc-dokku-%s", pvcName),
+		RollbackOnFailure: true,
+		Timeout:           timeoutDuration,
+		Wait:              true,
+	})
+	if err != nil {
+		return fmt.Errorf("Error installing pvc chart: %w", err)
+	}
+
+	common.LogInfo1Quiet("Applied pvc chart")
+
+	return nil
+}
+
+func CommandRemovePVC(pvcName string, namespace string) error {
+	if err := isKubernetesAvailable(); err != nil {
+		return fmt.Errorf("kubernetes api not available: %w", err)
+	}
+
+	helmAgent, err := NewHelmAgent(namespace, DeployLogPrinter)
+	if err != nil {
+		return fmt.Errorf("Error creating helm agent: %w", err)
+	}
+	err = helmAgent.UninstallChart(fmt.Sprintf("pvc-dokku-%s", pvcName))
+	if err != nil {
+		return fmt.Errorf("Error uninstalling chart: %w", err)
+	}
+
+	return nil
+}
+
+func CommandMountPVC(appName string, processType string, pvcName string, mountPath string, subPath string, readOnly bool, chown string) error {
+	clientset, err := NewKubernetesClient()
+	if err != nil {
+		if isK3sKubernetes() {
+			if err := isK3sInstalled(); err != nil {
+				common.LogWarn("k3s is not installed, skipping")
+				return nil
+			}
+		}
+		return fmt.Errorf("Error creating kubernetes client: %w", err)
+	}
+
+	if err := clientset.Ping(); err != nil {
+		return fmt.Errorf("kubernetes api not available: %w", err)
+	}
+
+	// 1. get namespace for the app
+	namespace := getComputedNamespace(appName)
+	// 2. check if pvcName exists in this namespace
+	pvcInput := PvcInput{
+		Name:      pvcName,
+		Namespace: namespace,
+	}
+	// Retrieve the PVC
+	_, err = clientset.GetPvc(context.Background(), pvcInput)
+	if err != nil {
+		return fmt.Errorf("failed to get PVC %s in namespace %s: %w", pvcInput.Name, pvcInput.Namespace, err)
+	}
+	// TODO: 2.2. maybe check if pvc has dokku.com/managed ??
+	// 3. add to properties
+	volume := ProcessVolume{
+		Name:      pvcName,
+		Type:      "persistentVolumeClaim",
+		ClaimName: pvcName,
+		MountPath: mountPath,
+	}
+	if len(subPath) > 0 {
+		volume.SubPath = subPath
+	}
+	if readOnly {
+		volume.ReadOnly = readOnly
+	}
+	if len(chown) > 0 {
+		volume.Chown = chown
+	}
+	// Create an empty slice of ProcessVolume
+	var volumes []ProcessVolume
+	// get already defined volumes and add above
+	propertyName := fmt.Sprintf("volumes.%s", processType)
+	err = yaml.Unmarshal([]byte(common.PropertyGet("scheduler-k3s", appName, propertyName)), &volumes)
+	if err != nil {
+		return fmt.Errorf("failed to decode YAML in properties: %w", err)
+	}
+	// Check if the volume already exists
+	for _, v := range volumes {
+		if v.Name == volume.Name {
+			return fmt.Errorf("Volume %s already exists, skipping append.", volume.Name)
+		}
+	}
+	volumes = append(volumes, volume)
+	volumesYaml, err := yaml.Marshal(&volumes)
+	if err != nil {
+		return fmt.Errorf("failed to marshal PVC %s in namespace %s: %w", pvcName, namespace, err)
+	}
+	err = common.PropertyWrite("scheduler-k3s", appName, propertyName, string(volumesYaml))
+	if err != nil {
+		return fmt.Errorf("failed to store property PVC %s in namespace %s: %w", pvcName, namespace, err)
+	}
+
+	return nil
+}
+
+func CommandUnMountPVC(appName string, processType string, pvcName string, mountPath string) error {
+	// Create an empty slice of ProcessVolume
+	var volumes []ProcessVolume
+	// get already defined volumes and add above
+	propertyName := fmt.Sprintf("volumes.%s", processType)
+	err := yaml.Unmarshal([]byte(common.PropertyGet("scheduler-k3s", appName, propertyName)), &volumes)
+	if err != nil {
+		return fmt.Errorf("failed to decode YAML in properties: %w", err)
+	}
+
+	// Create a new slice without the volume to delete
+	filteredVolumes := []ProcessVolume{}
+	volName := pvcName
+	for _, v := range volumes {
+		if v.Name != volName || v.MountPath != mountPath {
+			filteredVolumes = append(filteredVolumes, v)
+		}
+	}
+	volumesYaml, err := yaml.Marshal(&filteredVolumes)
+	if err != nil {
+		return fmt.Errorf("failed to marshal delete PVC %s: %w", pvcName, err)
+	}
+	err = common.PropertyWrite("scheduler-k3s", appName, propertyName, string(volumesYaml))
+	if err != nil {
+		return fmt.Errorf("failed to store property PVC %s: %w", pvcName, err)
+	}
+
+	return nil
 }

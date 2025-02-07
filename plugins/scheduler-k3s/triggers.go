@@ -385,7 +385,6 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 	for processType, processCount := range processes {
 		// todo: implement deployment annotations
 		// todo: implement pod annotations
-		// todo: implement volumes
 
 		healthchecks, ok := appJSON.Healthchecks[processType]
 		if !ok {
@@ -430,6 +429,11 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 			return fmt.Errorf("Error getting autoscaling: %w", err)
 		}
 
+		processVolumes, err := getVolumes(appName, processType)
+		if err != nil {
+			return fmt.Errorf("Error getting process volumes: %w", err)
+		}
+
 		processValues := ProcessValues{
 			Annotations:  annotations,
 			Autoscaling:  autoscaling,
@@ -439,6 +443,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 			ProcessType:  ProcessType_Worker,
 			Replicas:     int32(processCount),
 			Resources:    processResources,
+			Volumes:      processVolumes,
 		}
 
 		if processType == "web" {
@@ -1210,7 +1215,7 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 		Clientset:     clientset,
 		Namespace:     namespace,
 		LabelSelector: batchJobSelector,
-		Timeout:       10,
+		Timeout:       30, // need to wait a bit longer if volumes attached
 		Waiter:        isPodReady,
 	})
 	if err != nil {

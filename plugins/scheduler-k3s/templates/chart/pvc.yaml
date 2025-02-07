@@ -1,0 +1,20 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  annotations:
+    dokku.com/managed: "true"
+    {{ include "print.annotations" (dict "config" $.Values.global "key" "pvc") | indent 4 }}
+  name: {{ $.Values.name }}
+  namespace: {{ $.Values.namespace }}
+  labels:
+    pvc: {{ $.Values.name }}
+    {{ include "print.labels" (dict "config" $.Values.global "key" "pvc") | indent 4 }}
+spec:
+  # replicas: {{ $.Values.replicas }}
+  accessModes:
+    - {{ $.Values.accessMode }}
+  resources:
+    requests:
+      storage: {{ $.Values.storage }}
+  storageClassName: {{ $.Values.storageClass }}
