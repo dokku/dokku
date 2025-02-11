@@ -116,9 +116,11 @@ dokku logs:vector-start --vector-image timberio/vector:latest-debian
 
 The `vector` container will be started with the following volume mounts:
 
-- `/var/lib/dokku/data/logs/vector.json:/etc/vector/vector.json`
+- `/var/lib/dokku/data/logs:/etc/vector`
 - `/var/run/docker.sock:/var/run/docker.sock`
 - `/var/log/dokku/apps:/var/log/dokku/apps`
+
+The `/etc/vector` mount includes the `vector.json` configuration file, but also may be used to provide extra files to the vector container.
 
 The final volume mount - `/var/log/dokku/apps` - may be used for users that wish to ship logs to a file on disk that may be later logrotated. This directory is owned by the `dokku` user and group, with permissions set to `0755`. At this time, log-rotation is not configured for this directory.
 
