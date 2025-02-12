@@ -23,7 +23,7 @@ Dokku deploys your app in multiple "phases" and the `docker-options` plugin allo
 - `build`: The `build` phase is used to provide container options that are available during the build process for use by the various builders.
     - A given builder may strip out or ignore options that are unsupported by the builder in question - as an example, the `dockerfile` builder does not support mounted volumes.
 - `deploy`: The `deploy` phase is used to provide container options that are set on _deployed_ process types. This covers every process type specified in an app `Procfile` as well as any default processes your app may deploy.
-    - The `deploy` phase is usually the correct phase to add options for
+    - The `deploy` phase is usually the correct phase to add options for running containers.
 - `run`: The `run` phase is used to provide container options to one-off containers created by `dokku run`, `dokku run:detached`, and any cron tasks specified in your `app.json`.
 
 > [!IMPORTANT]
