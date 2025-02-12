@@ -22,7 +22,7 @@ require (
 	github.com/pkg/sftp v1.13.5 // indirect
 	github.com/ryanuber/columnize v2.1.2+incompatible // indirect
 	golang.org/x/crypto v0.32.0 // indirect
-	golang.org/x/sync v0.10.0 // indirect
+	golang.org/x/sync v0.11.0 // indirect
 	golang.org/x/sys v0.29.0 // indirect
 )
 
