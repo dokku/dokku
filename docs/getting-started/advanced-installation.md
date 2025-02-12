@@ -89,6 +89,7 @@ cd /var
 touch swap.img
 chmod 600 swap.img
 
+swapoff /var/swap.img
 dd if=/dev/zero of=/var/swap.img bs=1024k count=1000
 mkswap /var/swap.img
 swapon /var/swap.img
@@ -96,5 +97,8 @@ free
 
 echo "/var/swap.img    none    swap    sw    0    0" >> /etc/fstab
 ```
+Note: it may be necessary to call swapoff, mkswap and swapon explicitly: `sudo /sbin/swapoff /var/swap.img`, etc.
 
 [Reference](https://www.digitalocean.com/community/tutorials/how-to-configure-virtual-memory-swap-file-on-a-vps)
+
+[Add'l Reference](https://serverfault.com/questions/994297/increase-swap-file-size-that-already-exists-ec-2-linux)
