@@ -6,7 +6,7 @@ GEM
     eventmachine (1.2.7)
     mustermann (3.0.0)
       ruby2_keywords (~> 0.0.1)
-    rack (2.2.8.1)
+    rack (2.2.11)
     rack-protection (3.2.0)
       base64 (>= 0.1.0)
       rack (~> 2.2, >= 2.2.4)
