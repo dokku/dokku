@@ -150,13 +150,15 @@ At this time, the following dokku commands are used to interact with a complete 
 
 - `domains:add`: Adds a given domain to an app.
     - triggers: `post-domains-update`
-- `domains:clear`: Clears out an app's associated domains.
+- `domains:clear`: Remove all app domains.
     - triggers: `post-domains-update`
 - `domains:disable`: Disables domains for an app.
     - triggers: `pre-disable-vhost`
 - `domains:enable`: Enables domains for an app.
     - triggers: `pre-enable-vhost`
 - `domains:remove`: Removes a domain from an app.
+    - triggers: `post-domains-update`
+- `domains:reset`: Reset app domains to global-configured domains.
     - triggers: `post-domains-update`
 - `domains:set`: Sets all domains for a given app.
     - triggers: `post-domains-update`
