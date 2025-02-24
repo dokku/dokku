@@ -236,6 +236,7 @@ One common cause is an application configured to enforce secure connections/HSTS
 This problem has the same cause as the previous issue: your application is attempting to enforce SSL, but SSL is not configured. Disabling SSL enforcement should solve the problem.
 
 The underlying cause is best understood with an example. Let's say you already have `https://apples.example.com/` working, and you're trying to deploy `bananas.example.com/`. But whenever you visit `bananas.example.com` you see `apples.example.com` instead. This is caused by `bananas.example.com` forcing SSL: 
+
 1. Your browser sends a request to `http://bananas.example.com`.
 1. `bananas.example.com` issues a redirect to `https://bananas.example.com`.
 1. Your browser sends a request to `https://bananas.example.com`. But you haven't configured SSL for `bananas.example.com` yet! So this request ends up routed to `https://apples.example.com`, which _does_ have an SSL config.
