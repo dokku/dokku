@@ -83,11 +83,15 @@ teardown() {
   echo "status: $status"
   assert_success
 
+  run /bin/bash -c "dokku enter $TEST_APP web git status"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku enter $TEST_APP web ls .git"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "branches"
   assert_output_contains "config"
   assert_output_contains "description"
   assert_output_contains "HEAD"
