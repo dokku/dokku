@@ -382,6 +382,18 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 		}
 	}
 
+	processVolumes := []ProcessVolume{}
+	if shmSize := getComputedShmSize(appName); shmSize != "" {
+		processVolumes = append(processVolumes, ProcessVolume{
+			Name:      "shmem",
+			MountPath: "/dev/shm",
+			EmptyDir: &ProcessVolumeEmptyDir{
+				Medium:    "Memory",
+				SizeLimit: shmSize,
+			},
+		})
+	}
+
 	for processType, processCount := range processes {
 		// todo: implement deployment annotations
 		// todo: implement pod annotations
@@ -439,6 +451,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 			ProcessType:  ProcessType_Worker,
 			Replicas:     int32(processCount),
 			Resources:    processResources,
+			Volumes:      processVolumes,
 		}
 
 		if processType == "web" {
@@ -590,6 +603,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 			ProcessType: ProcessType_Cron,
 			Replicas:    1,
 			Resources:   processResources,
+			Volumes:     processVolumes,
 		}
 		values.Processes[cronEntry.ID] = processValues
 

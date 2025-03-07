@@ -113,6 +113,18 @@ type ProcessValues struct {
 	Replicas     int32               `yaml:"replicas"`
 	Resources    ProcessResourcesMap `yaml:"resources,omitempty"`
 	Web          ProcessWeb          `yaml:"web,omitempty"`
+	Volumes      []ProcessVolume     `yaml:"volumes,omitempty"`
+}
+
+type ProcessVolume struct {
+	Name      string                 `yaml:"name"`
+	MountPath string                 `yaml:"mount_path"`
+	EmptyDir  *ProcessVolumeEmptyDir `yaml:"empty_dir,omitempty"`
+}
+
+type ProcessVolumeEmptyDir struct {
+	Medium    string `yaml:"medium"`
+	SizeLimit string `yaml:"size_limit"`
 }
 
 type ProcessAnnotations struct {

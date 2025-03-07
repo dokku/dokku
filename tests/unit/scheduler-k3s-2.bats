@@ -179,12 +179,29 @@ teardown_() {
   echo "status: $status"
   assert_success
 
+  run /bin/bash -c "dokku scheduler-k3s:set $TEST_APP shm-size 64Mi"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku git:sync --build $TEST_APP https://github.com/dokku/smoke-test-app.git"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
   assert_http_localhost_response "http" "$TEST_APP.dokku.me" "80" "" "python/http.server"
+
+  run /bin/bash -c "kubectl get deployment $TEST_APP-web -o json | jq -r '.spec.template.spec.volumes[0].emptyDir.sizeLimit'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "64Mi"
+
+  run /bin/bash -c "kubectl get deployment $TEST_APP-web -o json | jq -r '.spec.template.spec.volumes[0].emptyDir.medium'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "Memory"
 }
 
 @test "(scheduler-k3s) deploy annotations" {
