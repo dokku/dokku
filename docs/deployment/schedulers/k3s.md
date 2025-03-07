@@ -138,12 +138,13 @@ dokku scheduler-k3s:set --global network-interface eth1
 
 The k3s plugin provides a number of settings that can be used to managed deployments on a per-app basis. The following table outlines ones not covered elsewhere:
 
-| Name                | Description                                       | Global Default |
-|---------------------|---------------------------------------------------|----------------|
-| deploy-timeout      | Controls when app deploys will timeout in seconds | 300s           |
-| namespace           | Controls the namespace used for resource creation | default        |
-| rollback-on-failure | Whether to rollback failed deploys                | false          |
-| image-pull-secrets  | Name of a kubernetes secret used to auth against a registry | Contents of `~/.docker/config.json` from Dokku server |
+| Name                  | Description                                       | Global Default     |
+|-----------------------|---------------------------------------------------|--------------------|
+| `deploy-timeout`      | Controls when app deploys will timeout in seconds | `300s`             |
+| `image-pull-secrets`  | Name of a kubernetes secret used to auth against a registry | Contents of `~/.docker/config.json` from Dokku server |
+| `namespace`           | Controls the namespace used for resource creation | `default`          |
+| `rollback-on-failure` | Whether to rollback failed deploys                | `false`            |
+| `shm-size`            | Default shared memory size for pods               | Kubernetes default |
 
 All settings can be set via the `scheduler-k3s:set` command. Using `deploy-timeout` as an example:
 
