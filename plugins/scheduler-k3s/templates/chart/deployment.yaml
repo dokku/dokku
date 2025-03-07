@@ -116,8 +116,30 @@ spec:
         {{- if $.Values.global.image.working_dir }}
         workingDir: {{ $.Values.global.image.working_dir }}
         {{- end }}
+        {{- if $config.volumes }}
+        volumeMounts:
+        {{- range $volume := $config.volumes }}
+        - name: {{ $volume.name }}
+          mountPath: {{ $volume.mount_path }}
+        {{- end }}
+        {{- end }}
       {{- if $.Values.global.image.image_pull_secrets }}
       imagePullSecrets:
       - name: {{ $.Values.global.image.image_pull_secrets }}
       {{- end }}
       serviceAccountName: {{ $.Values.global.app_name }}
+      {{- if $config.volumes }}
+      volumes:
+        {{- range $volume := $config.volumes }}
+        - name: {{ $volume.name }}
+          {{- if $volume.empty_dir }}
+          emptyDir:
+            {{- if $volume.empty_dir.medium }}
+            medium: {{ $volume.empty_dir.medium }}
+            {{- end }}
+            {{- if $volume.empty_dir.size_limit }}
+            sizeLimit: {{ $volume.empty_dir.size_limit }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
+      {{- end }}

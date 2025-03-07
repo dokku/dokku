@@ -35,6 +35,9 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 		"--scheduler-k3s-computed-rollback-on-failure":  reportComputedRollbackOnFailure,
 		"--scheduler-k3s-rollback-on-failure":           reportRollbackOnFailure,
 		"--scheduler-k3s-global-rollback-on-failure":    reportGlobalRollbackOnFailure,
+		"--scheduler-k3s-computed-shm-size":             reportComputedShmSize,
+		"--scheduler-k3s-global-shm-size":               reportGlobalShmSize,
+		"--scheduler-k3s-shm-size":                      reportShmSize,
 	}
 
 	chartProperties, err := common.PropertyGetAllByPrefix("scheduler-k3s", "--global", "chart.")
@@ -171,4 +174,16 @@ func reportRollbackOnFailure(appName string) string {
 
 func reportGlobalRollbackOnFailure(appName string) string {
 	return getGlobalRollbackOnFailure()
+}
+
+func reportComputedShmSize(appName string) string {
+	return getComputedShmSize(appName)
+}
+
+func reportGlobalShmSize(appName string) string {
+	return getGlobalShmSize()
+}
+
+func reportShmSize(appName string) string {
+	return getShmSize(appName)
 }

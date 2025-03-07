@@ -23,6 +23,7 @@ var (
 		"image-pull-secrets":  "",
 		"namespace":           "",
 		"rollback-on-failure": "",
+		"shm-size":            "",
 	}
 
 	// GlobalProperties is a map of all valid global k3s properties
@@ -38,6 +39,7 @@ var (
 		"namespace":              true,
 		"network-interface":      true,
 		"rollback-on-failure":    true,
+		"shm-size":               true,
 		"token":                  true,
 	}
 )

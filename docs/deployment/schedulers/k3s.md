@@ -134,108 +134,40 @@ When attaching an worker or server node, the K3s plugin will look at the IP asso
 dokku scheduler-k3s:set --global network-interface eth1
 ```
 
-### Changing deploy timeouts
+### Changing deployment settings
 
-By default, app deploys will timeout after 300s. To customize this value, set the `deploy-timeout` property via `scheduler-k3s:set`:
+The k3s plugin provides a number of settings that can be used to managed deployments on a per-app basis. The following table outlines ones not covered elsewhere:
+
+| Name                  | Description                                       | Global Default     |
+|-----------------------|---------------------------------------------------|--------------------|
+| `deploy-timeout`      | Controls when app deploys will timeout in seconds | `300s`             |
+| `image-pull-secrets`  | Name of a kubernetes secret used to auth against a registry | Contents of `~/.docker/config.json` from Dokku server |
+| `namespace`           | Controls the namespace used for resource creation | `default`          |
+| `rollback-on-failure` | Whether to rollback failed deploys                | `false`            |
+| `shm-size`            | Default shared memory size for pods               | Kubernetes default |
+
+All settings can be set via the `scheduler-k3s:set` command. Using `deploy-timeout` as an example:
 
 ```shell
 dokku scheduler-k3s:set node-js-app deploy-timeout 60s
 ```
 
-The default value may be set by passing an empty value for the option:
+The default value may be set by passing an empty value for the option in question:
 
 ```shell
 dokku scheduler-k3s:set node-js-app deploy-timeout
 ```
 
-The `deploy-timeout` property can also be set globally. The global default is `300s`.
+Properties can also be set globally. If not set for an app, the global value will apply.
 
 ```shell
 dokku scheduler-k3s:set --global deploy-timeout 60s
 ```
 
-The default value may be set by passing an empty value for the option.
+The global default value may be set by passing an empty value for the option.
 
 ```shell
 dokku scheduler-k3s:set --global deploy-timeout
-```
-
-### Customizing the namespace
-
-By default, app deploys will run against the `default` Kubernetes namespace. To customize this value, set the `namespace` property via `scheduler-k3s:set`:
-
-```shell
-dokku scheduler-k3s:set node-js-app namespace lollipop
-```
-
-The default value may be set by passing an empty value for the option:
-
-```shell
-dokku scheduler-k3s:set node-js-app namespace
-```
-
-The `namespace` property can also be set globally. The global default is `default`.
-
-```shell
-dokku scheduler-k3s:set --global namespace 60s
-```
-
-The default value may be set by passing an empty value for the option.
-
-```shell
-dokku scheduler-k3s:set --global namespace
-```
-
-### Enabling rollback on failure
-
-By default, app deploys do not rollback on failure. To enable this functionality, set the `rollback-on-failure` property via `scheduler-k3s:set`:
-
-```shell
-dokku scheduler-k3s:set node-js-app rollback-on-failure true
-```
-
-The default value may be set by passing an empty value for the option:
-
-```shell
-dokku scheduler-k3s:set node-js-app rollback-on-failure
-```
-
-The `rollback-on-failure` property can also be set globally. The global default is `false`.
-
-```shell
-dokku scheduler-k3s:set --global rollback-on-failure false
-```
-
-The default value may be set by passing an empty value for the option.
-
-```shell
-dokku scheduler-k3s:set --global rollback-on-failure
-```
-
-### Using image pull secrets
-
-When authenticating against a registry via `registry:login`, the scheduler-k3s plugin will authenticate all servers in the cluster against the registry specified. If desired, an image pull secret can be used instead. To customize this value, set the `image-pull-secrets` property via `scheduler-k3s:set`:
-
-```shell
-dokku scheduler-k3s:set node-js-app image-pull-secrets lollipop
-```
-
-The default value may be set by passing an empty value for the option:
-
-```shell
-dokku scheduler-k3s:set node-js-app image-pull-secrets
-```
-
-The `image-pull-secrets` property can also be set globally. The global default is empty string, and k3s will use Dokku's locally configured `~/.docker/config.json` for any private registry pulls.
-
-```shell
-dokku scheduler-k3s:set --global image-pull-secrets 60s
-```
-
-The default value may be set by passing an empty value for the option.
-
-```shell
-dokku scheduler-k3s:set --global image-pull-secrets
 ```
 
 ### SSL Certificates

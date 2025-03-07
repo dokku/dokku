@@ -1227,6 +1227,23 @@ func getComputedRollbackOnFailure(appName string) string {
 	return rollbackOnFailure
 }
 
+func getShmSize(appName string) string {
+	return common.PropertyGetDefault("scheduler-k3s", appName, "shm-size", "")
+}
+
+func getGlobalShmSize() string {
+	return common.PropertyGetDefault("scheduler-k3s", "--global", "shm-size", "")
+}
+
+func getComputedShmSize(appName string) string {
+	shmSize := getShmSize(appName)
+	if shmSize == "" {
+		shmSize = getGlobalShmSize()
+	}
+
+	return shmSize
+}
+
 func getGlobalGlobalToken() string {
 	return common.PropertyGet("scheduler-k3s", "--global", "token")
 }
@@ -1436,7 +1453,7 @@ func getServerIP() (string, error) {
 	}
 
 	if len(serverIP) == 0 {
-		return "", fmt.Errorf(fmt.Sprintf("Unable to determine server ip address from network-interface %s", networkInterface))
+		return "", fmt.Errorf("Unable to determine server ip address from network-interface %s", networkInterface)
 	}
 	return serverIP, nil
 }
