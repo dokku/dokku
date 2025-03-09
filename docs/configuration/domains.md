@@ -33,7 +33,7 @@ If an FQDN such as `dokku.org` is used as the application name, the global virtu
 
 You can optionally override this in a plugin by implementing the `nginx-hostname` plugin trigger. If the `nginx-hostname` plugin has no output, the normal hostname algorithm will be executed. See the [plugin trigger documentation](/docs/development/plugin-triggers.md#nginx-hostname) for more information.
 
-## Disabling VHOSTS
+## Enabling and disabling VHOSTS
 
 If desired, it is possible to disable vhosts with the domains plugin.
 
@@ -41,7 +41,20 @@ If desired, it is possible to disable vhosts with the domains plugin.
 dokku domains:disable node-js-app
 ```
 
+Vhosts can also be disabled for all apps:
+
+```shell
+dokku domains:disable --all
+```
+
 On subsequent deploys, the nginx virtualhost will be discarded. This is useful when deploying internal-facing services that should not be publicly routeable. As of 0.4.0, nginx will still be configured to proxy your app on some random high port. This allows internal services to maintain the same port between deployments. You may change this port by setting `DOKKU_PROXY_PORT` and/or `DOKKU_PROXY_SSL_PORT` (for services configured to use SSL.)
+
+To re-enable, run the `domains:enable` subcommand:
+
+```shell
+dokku domains:enable node-js-app
+dokku domains:enable --all
+```
 
 The domains plugin allows you to specify custom domains for applications. This plugin is aware of any ssl certificates that are imported via `certs:add`. Be aware that disabling domains (with `domains:disable`) will override any custom domains.
 

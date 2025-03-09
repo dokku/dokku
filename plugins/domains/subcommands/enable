@@ -10,8 +10,8 @@ cmd-domains-enable() {
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1"
 
-  verify_app_name "$APP"
-  domains_enable "$APP"
+  [[ "$APP" == "--all" ]] && verify_app_name "$APP"
+  fn-domains-enable "$APP"
 }
 
 cmd-domains-enable "$@"
