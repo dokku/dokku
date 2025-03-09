@@ -90,7 +90,7 @@ trigger-scheduler-docker-local-scheduler-deploy() {
       trap '' INT HUP
       sleep "$DOKKU_WAIT_TO_RETIRE"
       for oldid in $oldids; do
-        if ! docker container inspect "$oldid" &>/dev/null; then
+        if ! "$DOCKER_BIN" container inspect "$oldid" &>/dev/null; then
           continue
         fi
         # Disable the container restart policy

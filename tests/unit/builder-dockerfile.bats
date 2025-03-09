@@ -94,3 +94,15 @@ EOF
   echo "status: $status"
   assert_output "3001/udp 3000/tcp 3003"
 }
+
+@test "(builder-dockerfile) ps:rebuild fetches files from image" {
+  run /bin/bash -c "dokku --trace git:from-image $TEST_APP dokku/smoke-test-app:dockerfile"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
