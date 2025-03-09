@@ -4,6 +4,57 @@ source "$PLUGIN_AVAILABLE_PATH/config/functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
+fn-domains-clear() {
+  declare desc="clear all domains for one or more apps"
+  declare APP="$1"
+
+  if [[ "$APP" == "--all" ]]; then
+    for APP in $(dokku_apps); do
+      fn-domains-clear-app "$APP"
+    done
+  else
+    fn-domains-clear-app "$APP"
+  fi
+}
+
+fn-domains-clear-app() {
+  declare desc="clear all domains for an app"
+  declare APP="$1"
+
+  local APP_VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
+
+  rm -f "$APP_VHOST_PATH"
+  domains_setup "$APP"
+  plugn trigger post-domains-update "$APP" "clear"
+  dokku_log_info1 "Cleared domains in $APP"
+}
+
+fn-domains-disable() {
+  declare desc="disable domains/VHOST support"
+  declare APP="$1"
+
+  if [[ "$APP" == "--all" ]]; then
+    for APP in $(dokku_apps); do
+      domains_disable "$APP"
+    done
+  else
+    domains_disable "$APP"
+  fi
+}
+
+fn-domains-enable() {
+  declare desc="enable domains/VHOST support"
+  declare APP="$1"
+
+  if [[ "$APP" == "--all" ]]; then
+    for APP in $(dokku_apps); do
+      domains_enable "$APP"
+    done
+  else
+    domains_enable "$APP"
+  fi
+}
+
 disable_app_vhost() {
   declare desc="disable vhost support for given application"
   declare APP=$1 RESTART_APP="$2"
@@ -110,7 +161,7 @@ domains_disable() {
 
   touch "$APP_VHOST_PATH"
   if [[ "$(is_app_vhost_enabled "$APP")" == "true" ]]; then
-    disable_app_vhost "$APP"
+    disable_app_vhost "$APP" --no-restart
   else
     dokku_log_info1 "Domains (VHOST) support is already disabled for app ($APP)"
   fi
