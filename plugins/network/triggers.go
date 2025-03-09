@@ -10,10 +10,15 @@ import (
 )
 
 // TriggerDockerArgsProcess outputs the network plugin docker options for an app
-func TriggerDockerArgsProcess(appName string) error {
+func TriggerDockerArgsProcess(stage string, appName string, imageSourceType string) error {
 	stdin, err := io.ReadAll(os.Stdin)
 	if err != nil {
 		return err
+	}
+
+	if stage == "build" && imageSourceType == "dockerfile" {
+		fmt.Print(string(stdin))
+		return nil
 	}
 
 	initialNetwork := reportComputedInitialNetwork(appName)

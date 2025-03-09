@@ -20,13 +20,16 @@ func main() {
 	switch trigger {
 	case "docker-args-process-build":
 		appName := flag.Arg(0)
-		err = network.TriggerDockerArgsProcess(appName)
+		imageSourceType := flag.Arg(1)
+		err = network.TriggerDockerArgsProcess("build", appName, imageSourceType)
 	case "docker-args-process-deploy":
 		appName := flag.Arg(0)
-		err = network.TriggerDockerArgsProcess(appName)
+		imageSourceType := flag.Arg(1)
+		err = network.TriggerDockerArgsProcess("deploy", appName, imageSourceType)
 	case "docker-args-process-run":
 		appName := flag.Arg(0)
-		err = network.TriggerDockerArgsProcess(appName)
+		imageSourceType := flag.Arg(1)
+		err = network.TriggerDockerArgsProcess("run", appName, imageSourceType)
 	case "install":
 		err = network.TriggerInstall()
 	case "network-build-config":
