@@ -8,13 +8,14 @@ trigger-scheduler-docker-local-scheduler-stop() {
   declare desc="scheduler-docker-local scheduler-stop plugin trigger"
   declare trigger="scheduler-stop"
   declare DOKKU_SCHEDULER="$1" APP="$2" REMOVE_CONTAINERS="$3"
+  local DOKKU_DOCKER_STOP_TIMEOUT DOKKU_APP_RUNNING_CONTAINER_IDS
 
   if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
     return
   fi
 
-  local DOKKU_APP_RUNNING_CONTAINER_IDS=$(get_app_running_container_ids "$APP" 2>/dev/null)
-  local DOKKU_DOCKER_STOP_TIMEOUT="$(config_get "$APP" DOKKU_DOCKER_STOP_TIMEOUT || true)"
+  DOKKU_APP_RUNNING_CONTAINER_IDS=$(get_app_running_container_ids "$APP" 2>/dev/null)
+  DOKKU_DOCKER_STOP_TIMEOUT="$(plugn trigger ps-get-property "$APP" stop-timeout || true)"
 
   [[ -n "$DOKKU_DOCKER_STOP_TIMEOUT" ]] && DOCKER_STOP_TIME_ARG="--time=${DOKKU_DOCKER_STOP_TIMEOUT}"
 
