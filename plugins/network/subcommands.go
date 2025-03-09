@@ -145,6 +145,10 @@ func CommandList(format string) error {
 func CommandRebuildall() error {
 	apps, err := common.DokkuApps()
 	if err != nil {
+		if errors.Is(err, common.NoAppsExist) {
+			common.LogWarn(err.Error())
+			return nil
+		}
 		return err
 	}
 

@@ -162,7 +162,7 @@ func CommandSetProperty(appName string, property string, value string) error {
 		}
 
 		apps, err := common.DokkuApps()
-		if err != nil {
+		if err != nil && !errors.Is(err, common.NoAppsExist) {
 			return err
 		}
 		for _, app := range apps {
