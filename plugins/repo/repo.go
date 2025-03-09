@@ -2,6 +2,8 @@ package repo
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 
 	"github.com/dokku/dokku/plugins/common"
 )
@@ -41,6 +43,53 @@ func PurgeCache(appName string) error {
 	}
 	if result.ExitCode != 0 {
 		return &PurgeCacheFailed{result.ExitCode}
+	}
+
+	return nil
+}
+
+func RepoGc(appName string) error {
+	heads := map[string][]byte{}
+	headsDir := filepath.Join(common.AppRoot(appName), "refs", "heads")
+	if common.DirectoryExists(headsDir) {
+		headFiles, err := os.ReadDir(headsDir)
+		if err != nil {
+			return fmt.Errorf("Unable to read heads directory: %w", err)
+		}
+
+		for _, head := range headFiles {
+			if head.IsDir() {
+				continue
+			}
+			headContents, err := os.ReadFile(filepath.Join(headsDir, head.Name()))
+			if err != nil {
+				return fmt.Errorf("Unable to read head file: %w", err)
+			}
+			heads[head.Name()] = headContents
+		}
+	}
+
+	defer func() {
+		for head, contents := range heads {
+			if err := os.WriteFile(filepath.Join(headsDir, head), contents, 0644); err != nil {
+				common.LogWarn(fmt.Sprintf("Unable to write head file: %s\n", err))
+			}
+		}
+	}()
+	appRoot := common.AppRoot(appName)
+	result, err := common.CallExecCommand(common.ExecCommandInput{
+		Command: "git",
+		Args:    []string{"gc", "--aggressive"},
+		Env: map[string]string{
+			"GIT_DIR": appRoot,
+		},
+		StreamStderr: true,
+	})
+	if err != nil {
+		return fmt.Errorf("Unable to run git gc: %w", err)
+	}
+	if result.ExitCode != 0 {
+		return fmt.Errorf("Unable to run git gc: %s", result.StderrContents())
 	}
 
 	return nil
