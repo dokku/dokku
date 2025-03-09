@@ -2,8 +2,10 @@
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
-if [[ ! -f "$DOKKU_ROOT/VHOST" ]]; then
-  [[ $(dig +short "$(hostname -f)") ]] && hostname -f >"$DOKKU_ROOT/VHOST"
+if [[ ! -f "$DOKKU_ROOT/VHOST" ]] && [[ -n "$(dig +short "$(hostname -f)")" ]]; then
+  if [[ -d "$DOKKU_ROOT" ]] || [[ -L "$DOKKU_ROOT" ]]; then
+    hostname -f >"$DOKKU_ROOT/VHOST"
+  fi
 fi
 
 dokku_path="$(command -v dokku)"
