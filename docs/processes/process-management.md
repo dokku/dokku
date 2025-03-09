@@ -107,6 +107,39 @@ proctype: qty
 web:  1
 ```
 
+### Changing process management settings
+
+The `ps` plugin provides a number of settings that can be used to managed deployments on a per-app basis. The following table outlines ones not covered elsewhere:
+
+| Name                  | Description                                       | Global Default     |
+|-----------------------|---------------------------------------------------|--------------------|
+| `stop-timeout`        | Configurable grace period given to the `docker stop` command. If a container has not stopped by this time, a `kill -9` signal or equivalent is sent in order to force-terminate the container. Both the `ps:stop` and `apps:destroy` commands *also* respect this value. If not specified, the Docker defaults for the [`docker stop` command](https://docs.docker.com/engine/reference/commandline/stop/) will be used. | `30`             |
+
+All settings can be set via the `scheduler-k3s:set` command. Using `stop-timeout` as an example:
+
+```shell
+dokku scheduler-k3s:set node-js-app stop-timeout 60
+```
+
+The default value may be set by passing an empty value for the option in question:
+
+```shell
+dokku scheduler-k3s:set node-js-app stop-timeout
+```
+
+Properties can also be set globally. If not set for an app, the global value will apply.
+
+```shell
+dokku scheduler-k3s:set --global stop-timeout 60
+```
+
+The global default value may be set by passing an empty value for the option.
+
+```shell
+dokku scheduler-k3s:set --global stop-timeout
+```
+
+
 ### Defining Processes
 
 #### Procfile

@@ -32,7 +32,7 @@ trigger-scheduler-docker-local-scheduler-deploy() {
   local oldids=$(get_app_container_ids "$APP" "$PROCESS_TYPE")
 
   DOKKU_NETWORK_BIND_ALL="$(plugn trigger network-get-property "$APP" bind-all-interfaces)"
-  DOKKU_DOCKER_STOP_TIMEOUT="$(config_get "$APP" DOKKU_DOCKER_STOP_TIMEOUT || true)"
+  DOKKU_DOCKER_STOP_TIMEOUT="$(plugn trigger ps-get-property "$APP" stop-timeout)"
   [[ $DOKKU_DOCKER_STOP_TIMEOUT ]] && DOCKER_STOP_TIME_ARG="--time=${DOKKU_DOCKER_STOP_TIMEOUT}"
 
   DOKKU_START_CMD="$(config_get "$APP" DOKKU_START_CMD || true)"

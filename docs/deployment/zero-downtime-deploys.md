@@ -36,12 +36,15 @@ dokku checks:set node-js-app wait-to-retire 30
 
 Defaults to `60`.
 
+## Setting stop grace period
+
+You can set the `stop-timeout` property on the `ps` plugin to change this value (default: `30`). See the [process management documentation](/docs/processes/process-management.md#changing-process-management-settings) for more information.
+
 ## Configuring check settings using the `config` plugin
 
 There are certain settings that can be configured via environment variables:
 
 - `DOKKU_DEFAULT_CHECKS_WAIT`: (default: `10`) If no user-defined checks are specified - or if the process being checked is not a `web` process - this is the period of time Dokku will wait before checking that a container is still running.
-- `DOKKU_DOCKER_STOP_TIMEOUT`: (default: `10`) Configurable grace period given to the `docker stop` command. If a container has not stopped by this time, a `kill -9` signal or equivalent is sent in order to force-terminate the container. Both the `ps:stop` and `apps:destroy` commands *also* respect this value. If not specified, the Docker defaults for the [`docker stop` command](https://docs.docker.com/engine/reference/commandline/stop/) will be used.
 
 The following settings may also be specified in the `app.json` file, though are available as environment variables in order to ease application reuse.
 

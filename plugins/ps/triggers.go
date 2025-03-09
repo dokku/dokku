@@ -164,8 +164,29 @@ func TriggerInstall() error {
 		if common.FileExists(dokkuScaleExtracted) {
 			os.Remove(dokkuScaleExtracted)
 		}
-	}
 
+		results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
+			Trigger: "config-get",
+			Args:    []string{appName, "DOKKU_DOCKER_STOP_TIMEOUT"},
+		})
+		stopTimeout := results.StdoutContents()
+		if stopTimeout == "" {
+			continue
+		}
+
+		common.LogVerboseQuiet(fmt.Sprintf("Setting %s ps property 'stop-timeout-seconds' to %v", appName, stopTimeout))
+		if err := common.PropertyWrite("ps", appName, "stop-timeout-seconds", stopTimeout); err != nil {
+			return err
+		}
+
+		_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+			Trigger: "config-unset",
+			Args:    []string{appName, "DOKKU_DOCKER_STOP_TIMEOUT"},
+		})
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -319,4 +340,18 @@ func TriggerPsCurrentScale(appName string) error {
 // TriggerPsSetScale configures the scale parameters for a given app
 func TriggerPsSetScale(appName string, skipDeploy bool, clearExisting bool, processTuples []string) error {
 	return scaleSet(appName, skipDeploy, clearExisting, processTuples)
+}
+
+func TriggerPsGetProperty(appName string, property string) error {
+	computedValueMap := map[string]common.ReportFunc{
+		"stop-timeout-seconds": reportComputedStopTimeoutSeconds,
+	}
+
+	fn, ok := computedValueMap[property]
+	if !ok {
+		return fmt.Errorf("Invalid network property specified: %v", property)
+	}
+
+	fmt.Println(fn(appName))
+	return nil
 }
