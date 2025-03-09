@@ -15,7 +15,7 @@ trigger-scheduler-docker-local-scheduler-stop() {
   fi
 
   DOKKU_APP_RUNNING_CONTAINER_IDS=$(get_app_running_container_ids "$APP" 2>/dev/null)
-  DOKKU_DOCKER_STOP_TIMEOUT="$(plugn trigger ps-get-property "$APP" stop-timeout || true)"
+  DOKKU_DOCKER_STOP_TIMEOUT="$(plugn trigger ps-get-property "$APP" stop-timeout-seconds || true)"
 
   [[ -n "$DOKKU_DOCKER_STOP_TIMEOUT" ]] && DOCKER_STOP_TIME_ARG="--time=${DOKKU_DOCKER_STOP_TIMEOUT}"
 

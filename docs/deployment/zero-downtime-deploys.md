@@ -38,7 +38,7 @@ Defaults to `60`.
 
 ## Setting stop grace period
 
-You can set the `stop-timeout` property on the `ps` plugin to change this value (default: `30`). See the [process management documentation](/docs/processes/process-management.md#changing-process-management-settings) for more information.
+You can set the `stop-timeout-seconds` property on the `ps` plugin to change this value (default: `30`). See the [process management documentation](/docs/processes/process-management.md#changing-process-management-settings) for more information.
 
 ## Configuring check settings using the `config` plugin
 
