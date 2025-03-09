@@ -148,6 +148,19 @@ trigger-scheduler-docker-local-check-deploy() {
     ARG_ARRAY+=("$DOKKU_APP_LISTEN_PORT")
   fi
 
+  local app_vhosts="$(plugn trigger domains-list "$APP")"
+  if [[ -n "$app_vhosts" ]]; then
+    for app_vhost in $app_vhosts; do
+      if [[ "$app_vhost" == "localhost" ]] || [[ "$app_vhost" == '*' ]]; then
+        continue
+      fi
+
+      ARG_ARRAY+=("--header")
+      ARG_ARRAY+=("Host: $app_vhost")
+      break
+    done
+  fi
+
   if [[ "$DOKKU_APP_CONTAINER_TYPE" == "web" ]]; then
     content="$(docker-container-healthchecker add "$DOKKU_APP_CONTAINER_TYPE" --app-json "$TMP_APP_JSON_OUTPUT" --listening-check --name "port listening check" --port "$DOKKU_APP_LISTEN_PORT" --pretty --warn-only)"
     echo "$content" >"$TMP_APP_JSON_OUTPUT"
