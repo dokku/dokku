@@ -7,7 +7,7 @@ trigger-scheduler-docker-local-post-deploy() {
   declare trigger="post-deploy"
   declare APP="$1"
 
-  plugn trigger cron-write
+  plugn trigger scheduler-cron-write
 }
 
 trigger-scheduler-docker-local-post-deploy "$@"
