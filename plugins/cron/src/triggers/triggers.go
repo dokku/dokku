@@ -43,6 +43,11 @@ func main() {
 	case "report":
 		appName := flag.Arg(0)
 		err = cron.ReportSingleApp(appName, "", "")
+	case "scheduler-stop":
+		scheduler := flag.Arg(0)
+		appName := flag.Arg(1)
+		removeContainers := flag.Arg(2)
+		err = cron.TriggerSchedulerStop(scheduler, appName, removeContainers)
 	default:
 		err = fmt.Errorf("Invalid plugin trigger call: %s", trigger)
 	}

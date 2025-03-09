@@ -13,9 +13,12 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 	}
 
 	flags := map[string]common.ReportFunc{
-		"--cron-mailfrom":   reportMailfrom,
-		"--cron-mailto":     reportMailto,
-		"--cron-task-count": reportTasks,
+		"--cron-mailfrom":             reportMailfrom,
+		"--cron-mailto":               reportMailto,
+		"--cron-task-count":           reportTasks,
+		"--cron-global-maintenance":   reportGlobalMaintenance,
+		"--cron-computed-maintenance": reportComputedMaintenance,
+		"--cron-maintenance":          reportMaintenance,
 	}
 
 	flagKeys := []string{}
@@ -40,4 +43,21 @@ func reportMailto(_ string) string {
 func reportTasks(appName string) string {
 	c, _ := FetchCronEntries(appName)
 	return strconv.Itoa(len(c))
+}
+
+func reportGlobalMaintenance(_ string) string {
+	return common.PropertyGet("cron", "--global", "maintenance")
+}
+
+func reportComputedMaintenance(appName string) string {
+	maintenance := common.PropertyGet("cron", appName, "maintenance")
+	if maintenance == "true" {
+		return "true"
+	}
+
+	return common.PropertyGetDefault("cron", "--global", "maintenance", DefaultProperties["maintenance"])
+}
+
+func reportMaintenance(appName string) string {
+	return common.PropertyGet("cron", appName, "maintenance")
 }
