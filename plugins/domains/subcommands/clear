@@ -10,13 +10,8 @@ cmd-domains-clear() {
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1"
 
-  verify_app_name "$APP"
-  local APP_VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
-
-  rm -f "$APP_VHOST_PATH"
-  domains_setup "$APP"
-  plugn trigger post-domains-update "$APP" "clear"
-  dokku_log_info1 "Cleared domains in $APP"
+  [[ "$APP" == "--all" ]] || verify_app_name "$APP"
+  fn-domains-clear "$APP"
 }
 
 cmd-domains-clear "$@"
