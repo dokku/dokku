@@ -32,9 +32,9 @@ func CommandList(appName string, format string) error {
 	}
 
 	if format == "stdout" {
-		output := []string{"ID | Schedule | Command"}
+		output := []string{"ID | Schedule | Maintenance | Command"}
 		for _, entry := range entries {
-			output = append(output, fmt.Sprintf("%s | %s | %s", entry.ID, entry.Schedule, entry.Command))
+			output = append(output, fmt.Sprintf("%s | %s | %t | %s", entry.ID, entry.Schedule, entry.Maintenance, entry.Command))
 		}
 
 		result := columnize.SimpleFormat(output)
