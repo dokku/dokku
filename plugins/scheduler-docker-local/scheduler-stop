@@ -50,6 +50,8 @@ trigger-scheduler-docker-local-scheduler-stop() {
       "$DOCKER_BIN" container rm --force $DOKKU_APP_CIDS &>/dev/null || true
     fi
   fi
+
+  plugn trigger scheduler-cron-write "$DOKKU_SCHEDULER" "$APP"
 }
 
 trigger-scheduler-docker-local-scheduler-stop "$@"

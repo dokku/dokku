@@ -115,7 +115,12 @@ func generateCronEntries() ([]cron.TemplateCommand, error) {
 	return commands, nil
 }
 
-func writeCronEntries() error {
+func writeCronEntries(scheduler string) error {
+	// allow empty scheduler, which means all apps (used by letsencrypt)
+	if scheduler != "docker-local" && scheduler != "" {
+		return nil
+	}
+
 	commands, err := generateCronEntries()
 	if err != nil {
 		return err

@@ -15,7 +15,8 @@ trigger-scheduler-docker-local-post-delete() {
   # remove all application containers
   "$DOCKER_BIN" container ls --filter "label=com.dokku.app-name=${APP}" -q | xargs -n1 -I {} "$DOCKER_BIN" container rm --force {} &>/dev/null || true
 
-  plugn trigger scheduler-cron-write
+  local DOKKU_SCHEDULER="$(get_app_scheduler "$APP")"
+  plugn trigger scheduler-cron-write "$DOKKU_SCHEDULER" "$APP"
 }
 
 trigger-scheduler-docker-local-post-delete "$@"
