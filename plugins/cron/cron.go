@@ -44,6 +44,9 @@ type TemplateCommand struct {
 
 	// LogFile is the log file to write to
 	LogFile string `json:"-"`
+
+	// Maintenance is whether the cron command is in maintenance mode
+	Maintenance bool `json:"maintenance"`
 }
 
 // CronCommand returns the command to run for a given cron command
@@ -61,9 +64,7 @@ func (t TemplateCommand) CronCommand() string {
 // FetchCronEntries returns a list of cron commands for a given app
 func FetchCronEntries(appName string) ([]TemplateCommand, error) {
 	commands := []TemplateCommand{}
-	if reportComputedMaintenance(appName) == "true" {
-		return commands, nil
-	}
+	isMaintenance := reportComputedMaintenance(appName) == "true"
 
 	appJSON, err := appjson.GetAppJSON(appName)
 	if err != nil {
@@ -82,10 +83,11 @@ func FetchCronEntries(appName string) ([]TemplateCommand, error) {
 		}
 
 		commands = append(commands, TemplateCommand{
-			App:      appName,
-			Command:  c.Command,
-			Schedule: c.Schedule,
-			ID:       GenerateCommandID(appName, c),
+			App:         appName,
+			Command:     c.Command,
+			Schedule:    c.Schedule,
+			ID:          GenerateCommandID(appName, c),
+			Maintenance: isMaintenance,
 		})
 	}
 

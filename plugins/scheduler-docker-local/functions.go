@@ -83,9 +83,10 @@ func generateCronEntries() ([]cron.TemplateCommand, error) {
 
 			id := base36.EncodeToStringLc([]byte(strings.Join(parts, ";;;")))
 			command := cron.TemplateCommand{
-				ID:         id,
-				Schedule:   parts[0],
-				AltCommand: parts[1],
+				ID:          id,
+				Schedule:    parts[0],
+				AltCommand:  parts[1],
+				Maintenance: false,
 			}
 			if len(parts) == 3 {
 				command.LogFile = parts[2]
@@ -106,7 +107,7 @@ func generateCronEntries() ([]cron.TemplateCommand, error) {
 
 	for result := range results {
 		c := result
-		if len(c) > 0 {
+		if len(c) > 0 && !c[0].Maintenance {
 			commands = append(commands, c...)
 		}
 	}
