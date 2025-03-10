@@ -487,7 +487,7 @@ See the [customizing hostnames documentation](/docs/configuration/domains.md#cus
 
 ### Disabling VHOSTS
 
-See the [disabling vhosts documentation](/docs/configuration/domains.md#disabling-vhosts) for more information on how to disable domain usage for your app.
+See the [enabling and disabling vhosts documentation](/docs/configuration/domains.md#enabling-and-disabling-vhosts) for more information on how to disable domain usage for your app.
 
 ### SSL Configuration
 
