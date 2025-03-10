@@ -90,7 +90,7 @@ teardown() {
   assert_output_contains "Setting directory ownership to 2000:2000" 0
   assert_output_contains "Setting directory ownership to 32767:32767" 0
 
-  run /bin/bash -c "dokku storage:ensure-directory --chown packeto $TEST_APP"
+  run /bin/bash -c "dokku storage:ensure-directory --chown paketo $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success

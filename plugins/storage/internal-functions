@@ -44,6 +44,9 @@ cmd-storage-ensure-directory() {
     CHOWN_FLAG="1000"
   elif [[ "$CHOWN_FLAG" == "packeto" ]]; then
     CHOWN_FLAG="2000"
+    dokku_log_verbose "Detected deprecated chown flag 'packeto'. Using 'paketo' instead. Please update your configuration."
+  elif [[ "$CHOWN_FLAG" == "paketo" ]]; then
+    CHOWN_FLAG="2000"
   elif [[ "$CHOWN_FLAG" == "root" ]]; then
     CHOWN_FLAG="0"
   elif [[ "$CHOWN_FLAG" == "false" ]]; then
