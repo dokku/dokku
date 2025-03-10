@@ -16,15 +16,22 @@ RUN addgroup --gid $DOKKU_GID dokku \
 COPY ./tests/dhparam.pem /tmp/dhparam.pem
 COPY ./build/package/ /tmp
 
+ENV DOKKU_INIT_SYSTEM=sv
+
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # hadolint ignore=DL3005,DL3008
 RUN mkdir -p /etc/apt/keyrings \
   && mkdir -p /etc/apt/keyrings \
-  && apt-get remove -y systemd && apt-get autoremove -y && apt-get update && apt-get install -y --no-install-recommends gpg lsb-release \
+  && apt-get remove -y systemd && apt-get autoremove -y && apt-get update && apt-get -y --no-install-recommends install gpg lsb-release openssl openssh-server rsync software-properties-common \
   && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg \
   && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null \
+  && add-apt-repository ppa:cncf-buildpacks/pack-cli \
   && apt-get update \
-  && apt-get -y --no-install-recommends install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin \
+  && apt-get -y --no-install-recommends install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin pack-cli \
+  && curl -o /tmp/nixpacks.bash -sSL https://nixpacks.com/install.sh \
+  && chmod +x /tmp/nixpacks.bash \
+  && /tmp/nixpacks.bash \
+  && rm -rf /tmp/nixpacks.bash \
   && echo "dokku dokku/hostname string $DOKKU_HOSTNAME" | debconf-set-selections \
   && echo "dokku dokku/skip_key_file boolean $DOKKU_SKIP_KEY_FILE" | debconf-set-selections \
   && echo "dokku dokku/vhost_enable boolean $DOKKU_VHOST_ENABLE" | debconf-set-selections \
@@ -34,8 +41,7 @@ RUN mkdir -p /etc/apt/keyrings \
   && cp /tmp/dhparam.pem /etc/nginx/dhparam.pem \
   && apt-get update \
   && apt-get upgrade -y \
-  && apt-get -y --no-install-recommends --only-upgrade install openssl openssh-server \
-  && DOKKU_INIT_SYSTEM=sv apt-get -y --no-install-recommends install rsync "/tmp/dokku-$(dpkg --print-architecture).deb" \
+  && apt-get -y --no-install-recommends install lambda-builder "/tmp/dokku-$(dpkg --print-architecture).deb" \
   && apt-get purge -y syslog-ng-core \
   && apt-get autoremove -y \
   && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

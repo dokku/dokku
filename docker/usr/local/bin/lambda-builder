@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $TRACE ]] && set -x
+
+main() {
+  declare desc="re-runs lambda-builder commands as sudo"
+  local LAMBDA_BUILDER_BIN=""
+  if [[ -x "/usr/bin/lambda-builder" ]]; then
+    LAMBDA_BUILDER_BIN="/usr/bin/lambda-builder"
+  fi
+
+  if [[ -z "$LAMBDA_BUILDER_BIN" ]]; then
+    echo "!   No lambda-builder binary found" 1>&2
+    exit 1
+  fi
+
+  sudo -E "$LAMBDA_BUILDER_BIN" "$@"
+}
+
+main "$@"
