@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $TRACE ]] && set -x
+
+main() {
+  declare desc="re-runs nixpacks commands as sudo"
+  local NIXPACKS_BIN=""
+  if [[ -x "/usr/bin/nixpacks" ]]; then
+    NIXPACKS_BIN="/usr/bin/nixpacks"
+  fi
+
+  if [[ -z "$NIXPACKS_BIN" ]]; then
+    echo "!   No nixpacks binary found" 1>&2
+    exit 1
+  fi
+
+  sudo -E "$NIXPACKS_BIN" "$@"
+}
+
+main "$@"
