@@ -68,6 +68,9 @@ disable_app_vhost() {
 
   [[ "$RESTART_APP" == "--no-restart" ]] && local CONFIG_SET_ARGS=$RESTART_APP
   DOKKU_QUIET_OUTPUT=1 config_set $CONFIG_SET_ARGS $APP NO_VHOST=1
+  if [[ "$RESTART_APP" == "--no-restart" ]]; then
+    plugn trigger post-domains-update "$APP" "disable"
+  fi
 }
 
 domains_setup() {
@@ -247,6 +250,9 @@ enable_app_vhost() {
   plugn trigger pre-enable-vhost "$APP"
   [[ "$RESTART_APP" == "--no-restart" ]] && local CONFIG_SET_ARGS=$RESTART_APP
   DOKKU_QUIET_OUTPUT=1 config_set $CONFIG_SET_ARGS "$APP" NO_VHOST=0
+  if [[ "$RESTART_APP" == "--no-restart" ]]; then
+    plugn trigger post-domains-update "$APP" "enable"
+  fi
 }
 
 get_app_domains() {
