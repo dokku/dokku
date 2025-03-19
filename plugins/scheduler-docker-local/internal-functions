@@ -288,3 +288,66 @@ fn-scheduler-docker-local-start-app-container() {
   # shellcheck disable=SC2124
   "$DOCKER_BIN" container create "$@"
 }
+
+fn-scheduler-docker-local-clean-image-cache() {
+  local IMAGE_CACHE_FILE="${DOKKU_LIB_ROOT}/data/scheduler-docker-local/image-cache"
+  local APP IMAGE_ID CURRENT_TIME DEAD_TIME STATE RM_OUTPUT
+
+  if [[ ! -f "$IMAGE_CACHE_FILE" ]]; then
+    return
+  fi
+
+  IMAGE_CACHE=()
+  while read line; do
+    [[ -z "$line" ]] && continue
+    CURRENT_TIME="$(date +%s)"
+    RETIRE_APP="$(echo "$line" | cut -d ' ' -f1)"
+    IMAGE_ID="$(echo "$line" | cut -d ' ' -f2)"
+    DEAD_TIME="$(echo "$line" | cut -d ' ' -f3)"
+
+    if [[ -n "$APP" ]] && [[ "$APP" != "$RETIRE_APP" ]]; then
+      continue
+    fi
+
+    if [[ "$CURRENT_TIME" -le "$DEAD_TIME" ]]; then
+      continue
+    fi
+
+    STATE="$("$DOCKER_BIN" image inspect --format "{{ .Id }}" "$IMAGE_ID" 2>/dev/null || true)"
+    if [[ -z "$STATE" ]]; then
+      IMAGE_CACHE+=("$IMAGE_ID")
+      continue
+    fi
+
+    dokku_log_verbose_quiet "Attempting to clean image cache for $RETIRE_APP image $IMAGE_ID"
+    if RM_OUTPUT="$("$DOCKER_BIN" image remove "$IMAGE_ID" 2>&1)"; then
+      IMAGE_CACHE+=("$IMAGE_ID")
+      continue
+    fi
+
+    if echo "$RM_OUTPUT" | grep -q "image has dependent child images"; then
+      TAG_COUNT="$(docker inspect "$IMAGE_ID" --format '{{ json .RepoTags }}' | jq '. | length')"
+      if [[ "$TAG_COUNT" -eq 0 ]]; then
+        dokku_log_warn "Image ${IMAGE_ID} has children images and is untagged, skipping rm and marking dead"
+        IMAGE_CACHE+=("$IMAGE_ID")
+        continue
+      fi
+
+      dokku_log_warn "Image ${IMAGE_ID} has children images and has $TAG_COUNT tags, skipping rm"
+      continue
+    fi
+
+    if echo "$RM_OUTPUT" | grep -q "image is being used by running container"; then
+      dokku_log_warn "Image ${IMAGE_ID} has running containers, skipping rm"
+      continue
+    fi
+
+    dokku_log_warn "Image ${IMAGE_ID} still running"
+  done <"$IMAGE_CACHE_FILE"
+
+  for IMAGE_ID in "${IMAGE_CACHE[@]}"; do
+    sed -i "/${IMAGE_ID}/d" "$IMAGE_CACHE_FILE"
+  done
+
+  sort -o "$IMAGE_CACHE_FILE" -r "$IMAGE_CACHE_FILE"
+}
