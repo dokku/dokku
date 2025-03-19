@@ -121,7 +121,7 @@ teardown() {
   echo "echo '@daily;/bin/true'" >/var/lib/dokku/plugins/enabled/cron-entries/cron-entries
   chmod +x /var/lib/dokku/plugins/enabled/cron-entries/cron-entries
 
-  run /bin/bash -c "dokku plugin:trigger cron-write"
+  run /bin/bash -c "dokku plugin:trigger scheduler-cron-write"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -136,7 +136,7 @@ teardown() {
   echo "echo '@daily;/bin/true;/var/log/dokku/log.log'" >/var/lib/dokku/plugins/enabled/cron-entries/cron-entries
   chmod +x /var/lib/dokku/plugins/enabled/cron-entries/cron-entries
 
-  run /bin/bash -c "dokku plugin:trigger cron-write"
+  run /bin/bash -c "dokku plugin:trigger scheduler-cron-write"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -151,7 +151,7 @@ teardown() {
   echo "[[ \$1 == 'docker-local' ]] && echo '@daily;/bin/true'" >/var/lib/dokku/plugins/enabled/cron-entries/cron-entries
   chmod +x /var/lib/dokku/plugins/enabled/cron-entries/cron-entries
 
-  run /bin/bash -c "dokku plugin:trigger cron-write"
+  run /bin/bash -c "dokku plugin:trigger scheduler-cron-write"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -166,7 +166,7 @@ teardown() {
   echo "[[ \$1 == 'kubernetes' ]] && echo '@daily;/bin/true'" >/var/lib/dokku/plugins/enabled/cron-entries/cron-entries
   chmod +x /var/lib/dokku/plugins/enabled/cron-entries/cron-entries
 
-  run /bin/bash -c "dokku plugin:trigger cron-write"
+  run /bin/bash -c "dokku plugin:trigger scheduler-cron-write"
   echo "output: $output"
   echo "status: $status"
   assert_success
