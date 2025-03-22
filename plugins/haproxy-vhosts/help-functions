@@ -30,6 +30,7 @@ fn-help-content() {
     haproxy:report [<app>] [<flag>], Displays an haproxy report for one or more apps
     haproxy:set <app> <property> (<value>), Set or clear an haproxy property for an app
     haproxy:show-config <app>, Display haproxy compose config
+    haproxy:label <app> <show | set | unset> <property> (<value>), Show, set or clear a haproxy label for an app
     haproxy:start, Starts the haproxy server
     haproxy:stop, Stops the haproxy server
 help_content

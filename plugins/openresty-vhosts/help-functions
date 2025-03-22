@@ -30,6 +30,7 @@ fn-help-content() {
     openresty:report [<app>] [<flag>], Displays an openresty report for one or more apps
     openresty:set <app> <property> (<value>), Set or clear an openresty property for an app
     openresty:show-config <app>, Display openresty compose config
+    openresty:label <app> <show | set | unset> <property> (<value>), Show, set or clear an openresty label for an app
     openresty:start, Starts the openresty server
     openresty:stop, Stops the openresty server
 help_content

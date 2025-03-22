@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+cmd-proxy-label-show() {
+  declare desc="show a proxy label for an app"
+  declare cmd="proxy:label:show"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare PROXY="$1" APP="$2" PASSED_LABEL_NAME="$3"
+  shift 2
+
+  if [[ -n "$PASSED_LABEL_NAME" ]]; then
+    fn-proxy-show-label "$PROXY" "$APP" "$PASSED_LABEL_NAME"
+    return
+  fi
+
+  fn-proxy-display-labels "$PROXY" "$APP"
+  return 0
+}
+
+cmd-proxy-label-add() {
+  declare desc="adds container label to app for specified proxy"
+  declare PROXY="$1" APP="$2" PASSED_LABEL_NAME="$3" PASSED_LABEL_VALUE="$4"
+  if [[ -z "$PASSED_LABEL_NAME" ]]; then
+    dokku_log_fail "Please specify a container label for the app"
+  fi
+
+  if [[ -z "$PASSED_LABEL_VALUE" ]]; then
+    dokku_log_fail "Please specify a value for the container label"
+  fi
+
+  local proxy_labels_file_path="$(fn-proxy-get-labels-file-path "$PROXY" "$APP")"
+  touch "$proxy_labels_file_path"
+  cmd-proxy-label-remove "$PROXY" "$APP" "$PASSED_LABEL_NAME" >/dev/null
+  echo "--label '${PASSED_LABEL_NAME}=${PASSED_LABEL_VALUE}' " >>"$proxy_labels_file_path"
+  local all_proxy_labels="$(<"$proxy_labels_file_path")"
+  echo -e "${all_proxy_labels}" | sed '/^$/d' | sort -u >"$proxy_labels_file_path"
+}
+
+cmd-proxy-label-remove() {
+  declare desc="removes container label from app for specified proxy"
+  declare PROXY="$1" APP="$2" PASSED_LABEL_NAME="$3"
+
+  if [[ -z "$PASSED_LABEL_NAME" ]]; then
+    dokku_log_fail "Please specify a container label for the app"
+  fi
+
+  local proxy_labels_file_path="$(fn-proxy-get-labels-file-path "$PROXY" "$APP")"
+  if [[ ! -s "$proxy_labels_file_path" ]]; then
+    return
+  fi
+
+  local all_proxy_labels="$(<"$proxy_labels_file_path")"
+  local escaped_label_name="$(fn-proxy-escape-extended-sed "$PASSED_LABEL_NAME")"
+  local all_proxy_labels="$(echo -e "${all_proxy_labels}" | sed -E "s/^--label ['\"]${escaped_label_name}=.*\$//")"
+  echo -e "${all_proxy_labels}" | sed '/^$/d' | sort -u >"$proxy_labels_file_path"
+}
+
+cmd-proxy-label() {
+  declare desc="manage proxy labels for an app"
+  declare cmd="proxy:label"
+  shift 1 # the command comes from the upstream plugin
+  declare PROXY="$1" ACTION="$2" APP="$3" PASSED_LABEL_NAME="$4" PASSED_LABEL_VALUE="$5"
+
+  [[ -z "$PROXY" ]] && dokku_log_fail "Error invoking proxy:label command"
+  verify_app_name "$APP"
+
+  if [[ -n "$PASSED_LABEL_NAME" ]] && [[ ! "$PASSED_LABEL_NAME" =~ ^$PROXY ]]; then
+    dokku_log_fail "Please specify a valid $PROXY label name for the app"
+  fi
+
+  if [[ "$action" == "show" ]]; then
+    cmd-proxy-label-show "$PROXY" "$APP" "$PASSED_LABEL_NAME"
+    return 0
+  elif [[ "$ACTION" == "set" ]]; then
+    cmd-proxy-label-add "$PROXY" "$APP" "$PASSED_LABEL_NAME" "$PASSED_LABEL_VALUE"
+  elif [[ "$action" == "unset" ]]; then
+    cmd-proxy-label-remove "$PROXY" "$APP" "$PASSED_LABEL_NAME"
+  else
+    dokku_log_fail "Please specify a valid action ('set', 'unset' or 'show')"
+  fi
+}

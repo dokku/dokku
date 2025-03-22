@@ -1,8 +1,19 @@
 #!/usr/bin/env bash
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/proxy/command-functions"
 source "$PLUGIN_AVAILABLE_PATH/haproxy-vhosts/internal-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
+
+cmd-haproxy-label() {
+  declare desc="set/unset/show container proxy labels"
+  declare cmd="haproxy:label"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1"
+
+  set -- haproxy "$@"
+  cmd-proxy-label "$@"
+}
 
 cmd-haproxy-report() {
   declare desc="displays a haproxy report for one or more apps"
