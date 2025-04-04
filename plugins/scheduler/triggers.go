@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/dokku/dokku/plugins/common"
-	"github.com/dokku/dokku/plugins/config"
 )
 
 // TriggerSchedulerDetect outputs a manually selected scheduler for the app
@@ -36,30 +35,46 @@ func TriggerInstall() error {
 		return nil
 	}
 
-	globalScheduler := config.GetWithDefault("--global", "DOKKU_SCHEDULER", "")
+	results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "config-get-global",
+		Args:    []string{"DOKKU_SCHEDULER"},
+	})
+	globalScheduler := results.StdoutContents()
 	if globalScheduler != "" {
 		common.LogVerboseQuiet(fmt.Sprintf("Setting scheduler property 'selected' to %v", globalScheduler))
 		if err := common.PropertyWrite("scheduler", "--global", "selected", globalScheduler); err != nil {
 			return err
 		}
 
-		if err := config.UnsetMany("--global", []string{"DOKKU_SCHEDULER"}, false); err != nil {
+		_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+			Trigger: "config-unset",
+			Args:    []string{"--global", "DOKKU_SCHEDULER"},
+		})
+		if err != nil {
 			common.LogWarn(err.Error())
 		}
 	}
 
 	for _, appName := range apps {
-		scheduler := config.GetWithDefault(appName, "DOKKU_SCHEDULER", "")
+		results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
+			Trigger: "config-get",
+			Args:    []string{appName, "DOKKU_SCHEDULER"},
+		})
+		scheduler := results.StdoutContents()
 		if scheduler == "" {
 			continue
 		}
 
-		common.LogVerboseQuiet(fmt.Sprintf("Setting scheduler property 'selected' to %v", scheduler))
+		common.LogVerboseQuiet(fmt.Sprintf("Setting %s scheduler property 'selected' to %v", appName, scheduler))
 		if err := common.PropertyWrite("scheduler", appName, "selected", scheduler); err != nil {
 			return err
 		}
 
-		if err := config.UnsetMany(appName, []string{"DOKKU_SCHEDULER"}, false); err != nil {
+		_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+			Trigger: "config-unset",
+			Args:    []string{appName, "DOKKU_SCHEDULER"},
+		})
+		if err != nil {
 			common.LogWarn(err.Error())
 		}
 	}
