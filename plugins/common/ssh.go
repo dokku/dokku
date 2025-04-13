@@ -65,7 +65,7 @@ func CallSshCommand(input SshCommandInput) (SshResult, error) {
 	return CallSshCommandWithContext(context.Background(), input)
 }
 
-// CallSshCommand executes a command on a remote host via ssh with the given context
+// CallSshCommandWithContext executes a command on a remote host via ssh with the given context
 func CallSshCommandWithContext(ctx context.Context, input SshCommandInput) (SshResult, error) {
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, os.Interrupt, syscall.SIGHUP,

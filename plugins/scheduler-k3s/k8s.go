@@ -449,7 +449,7 @@ type GetPodInput struct {
 	Namespace string
 }
 
-// GetJob gets a Kubernetes job
+// GetPod gets a Kubernetes pod
 func (k KubernetesClient) GetPod(ctx context.Context, input GetPodInput) (corev1.Pod, error) {
 	pod, err := k.Client.CoreV1().Pods(input.Namespace).Get(ctx, input.Name, metav1.GetOptions{})
 	if err != nil {
