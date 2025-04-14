@@ -531,7 +531,7 @@ dokku scheduler-k3s:ensure-charts --force
 Alternatively, a comma separated list of chart names can be specified to only force install the specified charts:
 
 ```shell
-dokku scheduler-k3s:ensure-charts --force --chart-names cert-manager
+dokku scheduler-k3s:ensure-charts --charts cert-manager
 ```
 
 ## Scheduler Interface
@@ -575,7 +575,19 @@ The following Dokku functionality is not implemented at this time.
 
 ### Logging support
 
-App logs for the `logs` command are fetched by Dokku from running containers via the `kubectl` cli. Persisting logs via Vector is not implemented at this time. Users may choose to configure the Vector Kubernetes integration directly by following [this guide](https://vector.dev/docs/setup/installation/platforms/kubernetes/).
+App logs for the `logs` command are fetched by Dokku from running containers via the Kubernetes api. While the `k3s` scheduler does not integrate with the `logs:vector-*` subcommands, it does respect the global `vector-sink` logs property. When that property is set, the `scheduler-k3s:ensure-charts` command can be utilized to reconfigure vector to ship kubernetes logs to the provided sink.
+
+To setup log shipping, configure the global `vector-sink` property for the `logs` plugin.. Note that this can be run before _or_ after the `scheduler-k3s:ensure-charts` command - if run before, the `scheduler-k3s:ensure-charts` subcommand will pick up the value.
+
+```shell
+dokku logs:set --global vector-sink "console://?encoding[codec]=json"
+```
+
+Next, run the `scheduler-k3s:ensure-charts` command with the `vector` chart to force the `k3s` scheduler to reconfigure vector with the specified sink:
+
+```shell
+dokku scheduler-k3s:ensure-charts --charts vector
+```
 
 ### Supported Resource Management Properties
 

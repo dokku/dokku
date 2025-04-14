@@ -8,6 +8,7 @@ require (
 	github.com/dokku/dokku/plugins/common v0.0.0-00010101000000-000000000000
 	github.com/dokku/dokku/plugins/config v0.0.0-00010101000000-000000000000
 	github.com/dokku/dokku/plugins/cron v0.0.0-00010101000000-000000000000
+	github.com/dokku/dokku/plugins/logs v0.0.0-00010101000000-000000000000
 	github.com/dokku/dokku/plugins/nginx-vhosts v0.0.0-00010101000000-000000000000
 	github.com/fatih/color v1.18.0
 	github.com/go-openapi/jsonpointer v0.21.0
@@ -59,6 +60,7 @@ require (
 	github.com/docker/docker-credential-helpers v0.7.0 // indirect
 	github.com/docker/go-connections v0.5.0 // indirect
 	github.com/docker/go-metrics v0.0.1 // indirect
+	github.com/dokku/dokku/plugins/docker-options v0.0.0-00010101000000-000000000000 // indirect
 	github.com/emicklei/go-restful/v3 v3.12.0 // indirect
 	github.com/evanphx/json-patch v5.9.0+incompatible // indirect
 	github.com/evanphx/json-patch/v5 v5.9.0 // indirect
@@ -96,6 +98,7 @@ require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jmoiron/sqlx v1.3.5 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
+	github.com/joncalhoun/qson v0.0.0-20200422171543-84433dcd3da0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/compress v1.17.11-0.20241004063537-dbd6c381492a // indirect
@@ -193,6 +196,10 @@ replace github.com/dokku/dokku/plugins/common => ../common
 replace github.com/dokku/dokku/plugins/config => ../config
 
 replace github.com/dokku/dokku/plugins/cron => ../cron
+
+replace github.com/dokku/dokku/plugins/docker-options => ../docker-options
+
+replace github.com/dokku/dokku/plugins/logs => ../logs
 
 replace github.com/dokku/dokku/plugins/nginx-vhosts => ../nginx-vhosts
 

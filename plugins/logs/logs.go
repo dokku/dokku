@@ -2,10 +2,18 @@ package logs
 
 import (
 	"embed"
+	"encoding/json"
+	"errors"
 	"fmt"
+	"net/url"
+	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
+	"github.com/joncalhoun/qson"
 )
+
+// VectorSink is a map of vector sink properties
+type VectorSink map[string]interface{}
 
 // MaxSize is the default max retention size for docker logs
 const MaxSize = "10m"
@@ -52,4 +60,47 @@ func GetFailedLogs(appName string) error {
 		StreamStdio: true,
 	})
 	return err
+}
+
+// SinkValueToConfig converts a sink DSN value to a VectorSink
+func SinkValueToConfig(appName string, sinkValue string) (VectorSink, error) {
+	var data VectorSink
+	if strings.Contains(sinkValue, "://") {
+		parts := strings.SplitN(sinkValue, "://", 2)
+		parts[0] = strings.ReplaceAll(parts[0], "_", "-")
+		sinkValue = strings.Join(parts, "://")
+	}
+	u, err := url.Parse(sinkValue)
+	if err != nil {
+		return data, err
+	}
+
+	if u.Query().Get("sinks") != "" {
+		return data, errors.New("Invalid option sinks")
+	}
+
+	u.Scheme = strings.ReplaceAll(u.Scheme, "-", "_")
+
+	query := u.RawQuery
+	query = strings.TrimPrefix(query, "&")
+
+	b, err := qson.ToJSON(query)
+	if err != nil {
+		return data, err
+	}
+
+	if err := json.Unmarshal(b, &data); err != nil {
+		return data, err
+	}
+
+	data["type"] = u.Scheme
+	data["inputs"] = []string{"docker-source:" + appName}
+	if appName == "--global" {
+		data["inputs"] = []string{"docker-global-source"}
+	}
+	if appName == "--null" {
+		data["inputs"] = []string{"docker-null-source"}
+	}
+
+	return data, nil
 }

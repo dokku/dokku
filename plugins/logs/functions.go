@@ -6,18 +6,16 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
-	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
-	"github.com/joncalhoun/qson"
 )
 
 type vectorConfig struct {
 	Sources map[string]vectorSource `json:"sources"`
-	Sinks   map[string]vectorSink   `json:"sinks"`
+	Sinks   map[string]VectorSink   `json:"sinks"`
 }
 
 type vectorSource struct {
@@ -30,8 +28,6 @@ type vectorTemplateData struct {
 	DokkuLogsDir string
 	VectorImage  string
 }
-
-type vectorSink map[string]interface{}
 
 const vectorContainerName = "vector-vector-1"
 const vectorOldContainerName = "vector"
@@ -195,53 +191,11 @@ func stopVectorContainer() error {
 	return nil
 }
 
-func sinkValueToConfig(appName string, sinkValue string) (vectorSink, error) {
-	var data vectorSink
-	if strings.Contains(sinkValue, "://") {
-		parts := strings.SplitN(sinkValue, "://", 2)
-		parts[0] = strings.ReplaceAll(parts[0], "_", "-")
-		sinkValue = strings.Join(parts, "://")
-	}
-	u, err := url.Parse(sinkValue)
-	if err != nil {
-		return data, err
-	}
-
-	if u.Query().Get("sinks") != "" {
-		return data, errors.New("Invalid option sinks")
-	}
-
-	u.Scheme = strings.ReplaceAll(u.Scheme, "-", "_")
-
-	query := u.RawQuery
-	query = strings.TrimPrefix(query, "&")
-
-	b, err := qson.ToJSON(query)
-	if err != nil {
-		return data, err
-	}
-
-	if err := json.Unmarshal(b, &data); err != nil {
-		return data, err
-	}
-
-	data["type"] = u.Scheme
-	data["inputs"] = []string{"docker-source:" + appName}
-	if appName == "--global" {
-		data["inputs"] = []string{"docker-global-source"}
-	}
-	if appName == "--null" {
-		data["inputs"] = []string{"docker-null-source"}
-	}
-
-	return data, nil
-}
-
 func writeVectorConfig() error {
 	apps, _ := common.UnfilteredDokkuApps()
 	data := vectorConfig{
 		Sources: map[string]vectorSource{},
-		Sinks:   map[string]vectorSink{},
+		Sinks:   map[string]VectorSink{},
 	}
 	for _, appName := range apps {
 		value := common.PropertyGet("logs", appName, "vector-sink")
@@ -250,7 +204,7 @@ func writeVectorConfig() error {
 		}
 
 		inflectedAppName := strings.ReplaceAll(appName, ".", "-")
-		sink, err := sinkValueToConfig(inflectedAppName, value)
+		sink, err := SinkValueToConfig(inflectedAppName, value)
 		if err != nil {
 			return err
 		}
@@ -265,7 +219,7 @@ func writeVectorConfig() error {
 
 	value := common.PropertyGet("logs", "--global", "vector-sink")
 	if value != "" {
-		sink, err := sinkValueToConfig("--global", value)
+		sink, err := SinkValueToConfig("--global", value)
 		if err != nil {
 			return err
 		}
@@ -288,7 +242,7 @@ func writeVectorConfig() error {
 
 	if len(data.Sinks) == 0 {
 		// write logs to a blackhole
-		sink, err := sinkValueToConfig("--null", VectorDefaultSink)
+		sink, err := SinkValueToConfig("--null", VectorDefaultSink)
 		if err != nil {
 			return err
 		}
