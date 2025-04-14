@@ -1,5 +1,8 @@
 ---
 operator:
+  resources:
+    requests:
+      cpu: 100m
   tolerations:
     - key: CriticalAddonsOnly
       operator: Exists
@@ -10,6 +13,10 @@ operator:
       operator: Exists
       effect: NoSchedule
 scaler:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 100m
   tolerations:
     - key: CriticalAddonsOnly
       operator: Exists
@@ -20,6 +27,11 @@ scaler:
       operator: Exists
       effect: NoSchedule
 interceptor:
+  resources:
+    requests:
+      cpu: 100m
+  replicas:
+    min: 1
   tolerations:
     - key: CriticalAddonsOnly
       operator: Exists
