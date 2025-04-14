@@ -1,5 +1,76 @@
 # History
 
+## 0.35.17
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.35.17/bootstrap.sh
+sudo DOKKU_TAG=v0.35.17 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #7606: @josegonzalez fix: bump dokku version in main.bicep when bumping azure versions
+- #7650: @josegonzalez fix: set the correct default ingress class for k3s clusters
+- #7649: @josegonzalez fix: decrease default in-use keda resources
+- #7587: @turicas Correctly name paketo chown option
+- #7584: @josegonzalez Install all builder binaries in Dokku docker image
+- #7580: @josegonzalez Do not set network flag when building dockerfile images
+- #7575: @josegonzalez Restore the git head ref when running repo:gc
+- #7574: @josegonzalez fix: do not write VHOST file if the DOKKU_ROOT directory does not exist
+
+### New Features
+
+- #7648: @josegonzalez feat: add ability to ship k3s container logs via vector
+- #7581: @josegonzalez Allow --volume flags to be passed to pack at buildtime
+- #7583: @josegonzalez Send Host header when running container checks in docker-local
+- #7572: @josegonzalez Add support for setting shm-size for kubernetes deployments
+
+### Documentation
+
+- #7652: @josegonzalez docs: use a cid-file in the plugin example
+- #7647: @closeobserve Fix some golang docblock comments
+- #7586: @turicas Remove `--` from `--git-url` in plugin installation docs
+
+### Dependencies
+
+- #7603: @dependabot[bot] chore(deps): bump org.eclipse.jetty:jetty-servlet from 11.0.24 to 11.0.25 in /tests/apps/java
+- #7641: @dependabot[bot] chore(deps): bump golang.org/x/sync from 0.12.0 to 0.13.0 in /plugins/scheduler-docker-local
+- #7639: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.36.2 to 1.37.0 in /plugins/common
+- #7646: @dependabot[bot] chore(deps): bump phusion/baseimage from noble-1.0.0 to noble-1.0.2
+- #7610: @dependabot[bot] chore(deps): bump google.golang.org/protobuf from 1.36.5 to 1.36.6 in /tests/apps/gogrpc
+- #7619: @dependabot[bot] chore(deps): bump google.golang.org/grpc from 1.71.0 to 1.71.1 in /tests/apps/gogrpc
+- #7624: @dependabot[bot] chore(deps): bump traefik from 3.3.4 to 3.3.5 in /plugins/traefik-vhosts
+- #7632: @dependabot[bot] chore(deps): bump golang from 1.24.1 to 1.24.2 in /tests/apps/go-fail-postdeploy
+- #7633: @dependabot[bot] chore(deps): bump golang from 1.24.1 to 1.24.2 in /tests/apps/zombies-dockerfile-tini
+- #7634: @dependabot[bot] chore(deps): bump golang from 1.24.1 to 1.24.2 in /tests/apps/go-fail-predeploy
+- #7643: @dependabot[bot] chore(deps): bump python from 3.13.2-bookworm to 3.13.3-bookworm in /tests/apps/dockerfile-release
+- #7635: @dependabot[bot] chore(deps): bump golang from 1.24.1 to 1.24.2 in /tests/apps/gogrpc
+- #7636: @dependabot[bot] chore(deps): bump golang from 1.24.1 to 1.24.2 in /tests/apps/zombies-dockerfile-no-tini
+- #7613: @dependabot[bot] chore(deps): bump pyparsing from 3.2.1 to 3.2.3 in /docs/_build
+- #7625: @dependabot[bot] chore(deps): bump mkdocs-material from 9.6.8 to 9.6.11 in /docs/_build
+- #7644: @dependabot[bot] chore(deps): bump python from 3.13.2-alpine to 3.13.3-alpine in /docs/_build
+- #7651: @dependabot[bot] chore(deps): update markdown requirement from <3.8,>=3.2.1 to >=3.2.1,<3.9 in /docs/_build
+- #7595: @dependabot[bot] chore(deps): bump tj-actions/changed-files from 45.0.7 to 45.0.8
+- #7593: @dependabot[bot] chore(deps): bump mkdocs-material from 9.6.7 to 9.6.8 in /docs/_build
+- #7589: @dependabot[bot] chore(deps): bump golang.org/x/net from 0.34.0 to 0.36.0 in /tests/apps/gogrpc
+- #7588: @dependabot[bot] chore(deps): bump rack from 2.2.12 to 2.2.13 in /tests/apps/ruby
+- #7570: @dependabot[bot] chore(deps): bump mvdan.cc/sh/v3 from 3.10.0 to 3.11.0 in /plugins/cron
+- #7569: @dependabot[bot] chore(deps): bump golang.org/x/crypto from 0.35.0 to 0.36.0 in /plugins/common
+- #7568: @dependabot[bot] chore(deps): bump jinja2 from 3.1.5 to 3.1.6 in /docs/_build
+
+### Other
+
+- #7601: @dependabot[bot] chore(deps): bump github.com/expr-lang/expr from 1.15.8 to 1.17.0 in /plugins/scheduler-k3s
+- #7602: @dependabot[bot] chore(deps): bump github.com/containerd/containerd from 1.7.20 to 1.7.27 in /plugins/scheduler-k3s
+- #7637: @dependabot[bot] chore(deps): bump django from 5.0.13 to 5.0.14 in /tests/apps/dockerfile-release
+- #7607: @dependabot[bot] chore(deps): bump gunicorn from 22.0.0 to 23.0.0 in /tests/apps/dockerfile-release
+- #7596: @josegonzalez Drop compromisde tj-actions/changed-files from Ci
+- #7582: @josegonzalez Add ability to disable vhosts for all apps
+- #7576: @josegonzalez fix: properly handle NoAppsExist in network:rebuild-all and buildpacks:set
+- #7571: @dependabot[bot] chore(deps): bump django from 5.0.11 to 5.0.13 in /tests/apps/dockerfile-release
+
 ## 0.35.16
 
 Install/update via the bootstrap script:
