@@ -83,7 +83,7 @@ func main() {
 		args := flag.NewFlagSet("scheduler-k3s:initialize", flag.ExitOnError)
 		taintScheduling := args.Bool("taint-scheduling", false, "taint-scheduling: add a taint against scheduling app workloads")
 		serverIP := args.String("server-ip", "", "server-ip: IP address of the dokku server node")
-		ingressClass := args.String("ingress-class", "traefik", "ingress-class: ingress-class to use for all outbound traffic")
+		ingressClass := args.String("ingress-class", "nginx", "ingress-class: ingress-class to use for all outbound traffic")
 		args.Parse(os.Args[2:])
 		err = scheduler_k3s.CommandInitialize(*ingressClass, *serverIP, *taintScheduling)
 	case "labels:set":
