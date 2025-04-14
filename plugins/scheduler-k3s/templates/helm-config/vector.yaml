@@ -1,0 +1,42 @@
+---
+role: Agent
+
+tolerations:
+  - effect: NoSchedule
+    key: node-role.kubernetes.io/master
+    operator: Exists
+  - effect: NoSchedule
+    key: node-role.kubernetes.io/infra
+    operator: Exists
+
+service:
+  ports:
+  - name: prom-exporter
+    port: 9090
+    protocol: TCP
+
+customConfig:
+  data_dir: /vector-data-dir
+
+  sources:
+    kubernetes_logs:
+      type: kubernetes_logs
+
+  transforms:
+    kubernetes_container_logs:
+      type: remap
+      inputs:
+        - kubernetes_logs
+      source: |
+        .message = .message
+        .container = .kubernetes.container_name
+        .pod = .kubernetes.pod_name
+        .namespace = .kubernetes.pod_namespace
+
+  sinks:
+    default_global_sink:
+      type: console
+      inputs:
+        - kubernetes_container_logs
+      encoding:
+        codec: json

@@ -132,6 +132,14 @@ var HelmCharts = []HelmChart{
 		RepoURL:         "https://kedacore.github.io/charts",
 		Version:         "0.8.0",
 	},
+	{
+		ChartPath:       "vector",
+		CreateNamespace: true,
+		Namespace:       "vector",
+		ReleaseName:     "vector",
+		RepoURL:         "https://helm.vector.dev",
+		Version:         "0.42.0",
+	},
 }
 
 type HelmRepository struct {

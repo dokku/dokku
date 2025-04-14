@@ -18,6 +18,7 @@ import (
 
 	appjson "github.com/dokku/dokku/plugins/app-json"
 	"github.com/dokku/dokku/plugins/common"
+	"github.com/dokku/dokku/plugins/logs"
 	nginxvhosts "github.com/dokku/dokku/plugins/nginx-vhosts"
 	resty "github.com/go-resty/resty/v2"
 	kedav1alpha1 "github.com/kedacore/keda/v2/apis/keda/v1alpha1"
@@ -1527,6 +1528,10 @@ func installHelmCharts(ctx context.Context, clientset KubernetesClient, shouldIn
 			}
 		}
 
+		if chart.ReleaseName == "vector" {
+			values = updateVectorValues(values)
+		}
+
 		chartProperties, err := common.PropertyGetAllByPrefix("scheduler-k3s", "--global", "chart."+chart.ReleaseName+".")
 		if err != nil {
 			return fmt.Errorf("Error getting chart properties: %w", err)
@@ -1564,6 +1569,28 @@ func installHelmCharts(ctx context.Context, clientset KubernetesClient, shouldIn
 		}
 	}
 	return nil
+}
+
+func updateVectorValues(values map[string]interface{}) map[string]interface{} {
+	value := common.PropertyGet("logs", "--global", "vector-sink")
+	if value == "" {
+		return values
+	}
+
+	sink, err := logs.SinkValueToConfig("--global", value)
+	if err != nil {
+		return nil
+	}
+
+	sink["inputs"] = []string{"kubernetes_container_logs"}
+
+	sinkMap := map[string]interface{}{
+		"kubernetes_global_sink": sink,
+	}
+
+	values["customConfig"].(map[string]interface{})["sinks"] = sinkMap
+
+	return values
 }
 
 func installHelperCommands(ctx context.Context) error {
