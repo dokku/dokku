@@ -2051,7 +2051,9 @@ CMD="cat > gm && \
   dpkg -s graphicsmagick &>/dev/null || \
   (apt-get update -qq && apt-get -qq -y --no-install-recommends install graphicsmagick && apt-get clean)"
 
-CID=$(docker run $DOKKU_GLOBAL_RUN_ARGS -i -a stdin $IMAGE /bin/bash -c "$CMD")
+CID_FILE=/tmp/cid-file
+docker run $DOKKU_GLOBAL_RUN_ARGS -i -a stdin --cidfile /tmp/cid-file "$IMAGE" /bin/bash -c "$CMD"
+CID="$(cat "$CID_FILE")"
 test $(docker wait $CID) -eq 0
 DOCKER_COMMIT_LABEL_ARGS=("--change" "LABEL org.label-schema.schema-version=1.0" "--change" "LABEL org.label-schema.vendor=dokku" "--change" "LABEL com.dokku.app-name=$APP")
 docker commit "${DOCKER_COMMIT_LABEL_ARGS[@]}" $CID $IMAGE >/dev/null
@@ -2588,6 +2590,7 @@ DOKKU_SCHEDULER="$1"; APP="$2";
 > [!WARNING]
 > The scheduler plugin trigger apis are under development and may change
 > between minor releases until the 1.0 release.
+
 - Description: Allows you to run scheduler commands when retrieving failed container logs
 - Invoked by: `dokku nginx:access-logs` and `dokku nginx:error-logs`
 - Arguments: `$DOKKU_SCHEDULER $APP $PROXY_TYPE $LOG_TYPE $TAIL $NUM_LINES`
