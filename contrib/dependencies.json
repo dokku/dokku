@@ -18,10 +18,10 @@
     },
     {
       "name": "lambda-builder",
-      "version": "0.8.0",
+      "version": "0.9.1",
       "urls": {
-        "amd64": "https://github.com/dokku/lambda-builder/releases/download/v0.8.0/lambda-builder-linux-amd64",
-        "arm64": "https://github.com/dokku/lambda-builder/releases/download/v0.8.0/lambda-builder-linux-arm64"
+        "amd64": "https://github.com/dokku/lambda-builder/releases/download/v0.9.1/lambda-builder-linux-amd64",
+        "arm64": "https://github.com/dokku/lambda-builder/releases/download/v0.9.1/lambda-builder-linux-arm64"
       }
     },
     {
