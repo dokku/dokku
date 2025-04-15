@@ -10,10 +10,10 @@
     },
     {
       "name": "docker-image-labeler",
-      "version": "0.8.0",
+      "version": "0.8.1",
       "urls": {
-        "amd64": "https://github.com/dokku/docker-image-labeler/releases/download/v0.8.0/docker-image-labeler-linux-amd64",
-        "arm64": "https://github.com/dokku/docker-image-labeler/releases/download/v0.8.0/docker-image-labeler-linux-arm64"
+        "amd64": "https://github.com/dokku/docker-image-labeler/releases/download/v0.8.1/docker-image-labeler-linux-amd64",
+        "arm64": "https://github.com/dokku/docker-image-labeler/releases/download/v0.8.1/docker-image-labeler-linux-arm64"
       }
     },
     {
