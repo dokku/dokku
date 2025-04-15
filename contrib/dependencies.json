@@ -34,10 +34,10 @@
     },
     {
       "name": "procfile-util",
-      "version": "0.19.0",
+      "version": "0.20.3",
       "urls": {
-        "amd64": "https://github.com/dokku/procfile-util/releases/download/v0.19.0/procfile-util-linux-amd64",
-        "arm64": "https://github.com/dokku/procfile-util/releases/download/v0.19.0/procfile-util-linux-arm64"
+        "amd64": "https://github.com/dokku/procfile-util/releases/download/v0.20.3/procfile-util-linux-amd64",
+        "arm64": "https://github.com/dokku/procfile-util/releases/download/v0.20.3/procfile-util-linux-arm64"
       }
     },
     {
