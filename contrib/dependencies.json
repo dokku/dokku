@@ -26,10 +26,10 @@
     },
     {
       "name": "netrc",
-      "version": "0.10.0",
+      "version": "0.10.2",
       "urls": {
-        "amd64": "https://github.com/dokku/netrc/releases/download/v0.10.0/netrc-linux-amd64",
-        "arm64": "https://github.com/dokku/netrc/releases/download/v0.10.0/netrc-linux-arm64"
+        "amd64": "https://github.com/dokku/netrc/releases/download/v0.10.2/netrc-linux-amd64",
+        "arm64": "https://github.com/dokku/netrc/releases/download/v0.10.2/netrc-linux-arm64"
       }
     },
     {
