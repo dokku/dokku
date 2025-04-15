@@ -52,10 +52,10 @@
   "predependencies": [
     {
       "name": "gliderlabs-sigil",
-      "version": "0.11.0",
+      "version": "0.11.4",
       "urls": {
-        "amd64": "https://github.com/gliderlabs/sigil/releases/download/v0.11.0/sigil-linux-amd64",
-        "arm64": "https://github.com/gliderlabs/sigil/releases/download/v0.11.0/sigil-linux-arm64"
+        "amd64": "https://github.com/gliderlabs/sigil/releases/download/v0.11.4/sigil-linux-amd64",
+        "arm64": "https://github.com/gliderlabs/sigil/releases/download/v0.11.4/sigil-linux-arm64"
       }
     },
     {
