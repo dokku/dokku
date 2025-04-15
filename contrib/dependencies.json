@@ -78,10 +78,10 @@
     },
     {
       "name": "dokku-update",
-      "version": "0.9.4",
+      "version": "0.9.6",
       "urls": {
-        "amd64": "https://github.com/dokku/dokku-update/releases/download/v0.9.4/dokku-update",
-        "arm64": "https://github.com/dokku/dokku-update/releases/download/v0.9.4/dokku-update"
+        "amd64": "https://github.com/dokku/dokku-update/releases/download/v0.9.6/dokku-update",
+        "arm64": "https://github.com/dokku/dokku-update/releases/download/v0.9.6/dokku-update"
       }
     },
     {
