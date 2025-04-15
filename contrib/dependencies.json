@@ -42,10 +42,10 @@
     },
     {
       "name": "sshcommand",
-      "version": "0.19.0",
+      "version": "0.20.0",
       "urls": {
-        "amd64": "https://github.com/dokku/sshcommand/releases/download/v0.19.0/sshcommand",
-        "arm64": "https://github.com/dokku/sshcommand/releases/download/v0.19.0/sshcommand"
+        "amd64": "https://github.com/dokku/sshcommand/releases/download/v0.20.0/sshcommand",
+        "arm64": "https://github.com/dokku/sshcommand/releases/download/v0.20.0/sshcommand"
       }
     }
   ],
