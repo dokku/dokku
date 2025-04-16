@@ -11,6 +11,6 @@
     "express3-handlebars": "~0.5.2"
   },
   "engines": {
-    "node": "0.10.x"
+    "node": "22.14.x"
   }
 }
