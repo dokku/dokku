@@ -1,5 +1,47 @@
 # History
 
+## 0.35.18
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.35.18/bootstrap.sh
+sudo DOKKU_TAG=v0.35.18 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #7669: @josegonzalez fix: update CID count in ps tests
+
+### Dependencies
+
+- #7668: @dependabot[bot] chore(deps): bump timberio/vector from 0.43.1-debian to 0.46.1-debian in /plugins/logs
+- #7670: @dependabot[bot] chore(deps): bump beautifulsoup4 from 4.13.3 to 4.13.4 in /docs/_build
+- #7630: @dependabot[bot] chore(deps): bump express from 4.21.2 to 5.1.0 in /tests/apps/gitsubmodules
+- #7666: @dependabot[bot] chore(deps): bump golang.org/x/crypto from 0.36.0 to 0.37.0 in /plugins/common
+- #7618: @dependabot[bot] chore(deps): bump express from 4.21.2 to 5.1.0 in /tests/apps/.websocket.disabled
+- #7620: @dependabot[bot] chore(deps): bump express from 4.21.2 to 5.1.0 in /tests/apps/dockerfile-procfile-bad
+- #7622: @dependabot[bot] chore(deps): bump express from 4.21.2 to 5.1.0 in /tests/apps/dockerfile-procfile
+- #7629: @dependabot[bot] chore(deps): bump express from 5.0.1 to 5.1.0 in /tests/apps/checks-root
+- #7623: @dependabot[bot] chore(deps): bump express from 4.21.2 to 5.1.0 in /tests/apps/dockerfile-noexpose
+- #7627: @dependabot[bot] chore(deps): bump express from 4.21.2 to 5.1.0 in /tests/apps/nodejs-express-noprocfile
+- #7631: @dependabot[bot] chore(deps): bump express from 4.21.2 to 5.1.0 in /tests/apps/dockerfile-app-json-formations
+- #7667: @dependabot[bot] chore(deps): bump ruby from 3.4.2 to 3.4.3 in /tests/apps/dockerfile-entrypoint
+
+### Other
+
+- #7661: @josegonzalez chore: bump dokku-event-listener from 0.17.0 to 0.17.2
+- #7660: @josegonzalez chore: bump plugn from 0.15.3 to 0.16.0
+- #7659: @josegonzalez chore: bump gliderlabs-sigil from 0.11.0 to 0.11.4
+- #7656: @josegonzalez chore: bump netrc from 0.10.0 to 0.10.2
+- #7655: @josegonzalez chore: bump lambda-builder from 0.8.0 to 0.9.1
+- #7663: @josegonzalez chore: bump herokuish from 0.10.2 to 0.10.3
+- #7662: @josegonzalez chore: bump dokku-update from 0.9.4 to 0.9.6
+- #7658: @josegonzalez chore: bump sshcommand from 0.19.0 to 0.20.0
+- #7657: @josegonzalez chore: bump procfile-util from 0.19.0 to 0.20.3
+- #7654: @josegonzalez chore: bump docker-image-builder from 0.8.0 to 0.8.1
+- #7653: @josegonzalez chore: bump docker-container-healthchecker from 0.11.0 to 0.11.5
+
 ## 0.35.17
 
 Install/update via the bootstrap script:
