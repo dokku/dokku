@@ -266,9 +266,16 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 
 	workingDir := common.GetWorkingDir(appName, image)
 
-	cronEntries, err := cron.FetchCronEntries(appName)
+	allCronEntries, err := cron.FetchCronEntries(appName)
 	if err != nil {
 		return fmt.Errorf("Error fetching cron entries: %w", err)
+	}
+	// remove maintenance cron entries
+	cronEntries := []cron.TemplateCommand{}
+	for _, cronEntry := range allCronEntries {
+		if !cronEntry.Maintenance {
+			cronEntries = append(cronEntries, cronEntry)
+		}
 	}
 
 	domains := []string{}

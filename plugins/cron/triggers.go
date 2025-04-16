@@ -10,14 +10,16 @@ import (
 // TriggerCronGetProperty writes the cron key to stdout for a given app container
 func TriggerCronGetProperty(appName string, key string) error {
 	validProperties := map[string]bool{
-		"mailfrom": true,
-		"mailto":   true,
+		"mailfrom":    true,
+		"mailto":      true,
+		"maintenance": true,
 	}
 	if !validProperties[key] {
 		return errors.New("Invalid cron property specified")
 	}
 
-	fmt.Println(common.PropertyGet("cron", appName, key))
+	value := common.PropertyGetDefault("cron", appName, key, DefaultProperties[key])
+	fmt.Println(value)
 	return nil
 }
 
@@ -56,4 +58,13 @@ func TriggerPostAppRenameSetup(oldAppName string, newAppName string) error {
 // TriggerPostDelete destroys the cron property for a given app container
 func TriggerPostDelete(appName string) error {
 	return common.PropertyDestroy("cron", appName)
+}
+
+// TriggerSchedulerStop stops the scheduler for a given app container
+func TriggerSchedulerStop(scheduler string, appName string, removeContainers string) error {
+	if scheduler != "docker-local" {
+		return nil
+	}
+
+	return nil
 }
