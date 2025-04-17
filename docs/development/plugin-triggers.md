@@ -583,22 +583,6 @@ DOKKU_SCHEDULER="$1"
 # TODO
 ```
 
-### `cron-write`
-
-- Description: Force triggers writing out cron entries
-- Invoked by:
-- Arguments:
-- Example:
-
-```shell
-#!/usr/bin/env bash
-
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-
-# TODO
-```
-
 ### `dependencies`
 
 - Description: Used to install system-level dependencies.
@@ -2441,6 +2425,26 @@ mail -s "$APP containers on $HOSTNAME failed to retire" ops@dokku.me
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 DOKKU_SCHEDULER="$1"; APP="$2";
+
+# TODO
+```
+
+### `scheduler-cron-write`
+
+> [!WARNING]
+> The scheduler plugin trigger apis are under development and may change
+> between minor releases until the 1.0 release.
+
+- Description: Force triggers writing out cron entries. Arguments are optional.
+- Invoked by: `ps:start`, `ps:stop`, `cron:set`
+- Arguments: `$DOKKU_SCHEDULER $APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 # TODO
 ```
