@@ -11,6 +11,7 @@ Assuming a Docker image can be run as a CI task with environment variables injec
 - [gitlab-ci](https://about.gitlab.com/stages-devops-lifecycle/continuous-integration/)
 - [semaphoreci](https://semaphoreci.com/)
 - [travisci](https://travis-ci.com/)
+- [woodpecker ci](https://woodpecker-ci.org/)
 
 ## Simple Usage
 
