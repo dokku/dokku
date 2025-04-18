@@ -42,7 +42,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "$CID" 6
+  assert_output_contains "$CID" 7
 }
 
 @test "(ps:set) procfile" {
