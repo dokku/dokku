@@ -9,7 +9,7 @@
 
 ```json
 {
-  "crons": [
+  "cron": [
     {
       "command": "echo 'hello'",
       "schedule": "0 1 * * *"
