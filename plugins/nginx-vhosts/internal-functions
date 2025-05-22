@@ -679,6 +679,11 @@ fn-nginx-vhosts-nginx-is-running() {
     NGINX_INIT_NAME=openresty
   fi
 
+  local systemctl_path=/bin/systemctl
+  if [[ -x /usr/bin/systemctl ]]; then
+    systemctl_path=/usr/bin/systemctl
+  fi
+
   case "$DOKKU_DISTRO" in
     debian | raspbian)
       if [[ -x "$systemctl_path" ]]; then
