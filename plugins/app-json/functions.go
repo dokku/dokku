@@ -255,7 +255,7 @@ func executeScript(appName string, image string, imageTag string, phase string) 
 	if os.Getenv("DOKKU_TRACE") != "" {
 		dockerArgs = append(dockerArgs, "--env", "DOKKU_TRACE="+os.Getenv("DOKKU_TRACE"))
 	}
-	if isCnbImage {
+	if !isHerokuishImage && isCnbImage {
 		// TODO: handle non-linux lifecycles
 		// Ideally we don't have to override this but `pack` injects the web process
 		// as the default entrypoint, so we need to specify the launcher so the script
