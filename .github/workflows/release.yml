@@ -149,6 +149,8 @@ jobs:
           brew untap homebrew/cask || true
           echo "====> Untapping aws/tap"
           brew untap aws/tap || true
+          echo "====> Untapping hashicorp/tap"
+          brew untap hashicorp/tap || true
           echo "====> Uninstalling openssl@1.1"
           brew uninstall openssl@1.1 || true
           echo "====> Uninstalling ruby@3.0"
