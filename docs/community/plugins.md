@@ -123,7 +123,6 @@ The following plugins are available and provided by Dokku maintainers.  Please f
 | [Host post-build command hook](https://github.com/baikunz/dokku-post-deploy-script)               | [baikunz][]           | 0.4.0+                |
 | [Host pre-build command hook](https://github.com/fteychene/dokku-build-hook)                      | [fteychene][]         | 0.4.0+                |
 | [Hostname](https://github.com/michaelshobbs/dokku-hostname)                                       | [michaelshobbs][]     | 0.4.0+                |
-| [Hostname](https://github.com/michaelshobbs/dokku-hostname)                                       | [michaelshobbs][]     | 0.4.0+                |
 | [HTTP Auth Secure Apps](https://github.com/matto1990/dokku-secure-apps)                           | [matto1990][]         | 0.4.0+                |
 | [Image Size Limit](https://github.com/Tashows/dokku-image-size-limit)                             | [Tashows][]           |                       |
 | [Litestream](https://github.com/AxelTheGerman/dokku-litestream)<sup>4</sup>                       | [AxelTheGerman][]     | 0.27.0+               |
