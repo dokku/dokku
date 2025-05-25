@@ -11,6 +11,63 @@ import (
 	"time"
 )
 
+// ComposeUpInput is the input for the ComposeUp function
+type ComposeUpInput struct {
+	ProjectName string
+	ComposeFile string
+}
+
+// ComposeUp executes a docker compose up command
+func ComposeUp(input ComposeUpInput) error {
+	result, err := CallExecCommand(ExecCommandInput{
+		Command: DockerBin(),
+		Args: []string{
+			"compose",
+			"--file", input.ComposeFile,
+			"--project-name", input.ProjectName,
+			"up",
+			"--detach",
+			"--quiet-pull",
+		},
+		StreamStdio:      true,
+		WorkingDirectory: "/tmp",
+	})
+
+	if err != nil || result.ExitCode != 0 {
+		return fmt.Errorf("Unable to start compose project: %s", result.Stderr)
+	}
+
+	return nil
+}
+
+// ComposeDownInput is the input for the ComposeDown function
+type ComposeDownInput struct {
+	ProjectName string
+	ComposeFile string
+}
+
+// ComposeDown executes a docker compose down command
+func ComposeDown(input ComposeDownInput) error {
+	result, err := CallExecCommand(ExecCommandInput{
+		Command: DockerBin(),
+		Args: []string{
+			"compose",
+			"--file", input.ComposeFile,
+			"--project-name", input.ProjectName,
+			"down",
+			"--remove-orphans",
+		},
+		StreamStdio:      true,
+		WorkingDirectory: "/tmp",
+	})
+
+	if err != nil || result.ExitCode != 0 {
+		return fmt.Errorf("Unable to stop %s: %s", input.ProjectName, result.Stderr)
+	}
+
+	return nil
+}
+
 // ContainerIsRunning checks to see if a container is running
 func ContainerIsRunning(containerID string) bool {
 	b, err := DockerInspect(containerID, "'{{.State.Running}}'")

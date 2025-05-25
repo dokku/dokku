@@ -133,7 +133,9 @@ cmd-caddy-start() {
 
   fn-plugin-property-write "caddy" "--global" "proxy-status" "started"
   fn-caddy-template-compose-file "$TMP_COMPOSE_FILE"
-  "$DOCKER_BIN" compose -f "$TMP_COMPOSE_FILE" -p caddy up -d --quiet-pull
+  if ! "$PLUGIN_CORE_AVAILABLE_PATH/common/common" compose-up "caddy" "$TMP_COMPOSE_FILE"; then
+    return 1
+  fi
 }
 
 cmd-caddy-stop() {
@@ -150,5 +152,7 @@ cmd-caddy-stop() {
 
   fn-plugin-property-write "caddy" "--global" "proxy-status" "stopped"
   fn-caddy-template-compose-file "$TMP_COMPOSE_FILE"
-  "$DOCKER_BIN" compose -f "$TMP_COMPOSE_FILE" -p caddy down --remove-orphans
+  if ! "$PLUGIN_CORE_AVAILABLE_PATH/common/common" compose-down "caddy" "$TMP_COMPOSE_FILE"; then
+    return 1
+  fi
 }

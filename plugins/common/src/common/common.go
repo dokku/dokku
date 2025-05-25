@@ -20,6 +20,20 @@ func main() {
 
 	var err error
 	switch cmd {
+	case "compose-up":
+		projectName := flag.Arg(1)
+		composeFile := flag.Arg(2)
+		err = common.ComposeUp(common.ComposeUpInput{
+			ProjectName: projectName,
+			ComposeFile: composeFile,
+		})
+	case "compose-down":
+		projectName := flag.Arg(1)
+		composeFile := flag.Arg(2)
+		err = common.ComposeDown(common.ComposeDownInput{
+			ProjectName: projectName,
+			ComposeFile: composeFile,
+		})
 	case "copy-from-image":
 		appName := flag.Arg(1)
 		image := flag.Arg(2)

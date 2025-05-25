@@ -98,23 +98,10 @@ func startVectorContainer(vectorImage string) error {
 		return fmt.Errorf("Unable to execute compose template: %s", err)
 	}
 
-	result, err := common.CallExecCommand(common.ExecCommandInput{
-		Command: common.DockerBin(),
-		Args: []string{
-			"compose",
-			"--file", tmpFile.Name(),
-			"--project-name", "vector",
-			"up",
-			"--detach",
-			"--quiet-pull",
-		},
-		StreamStdio: true,
+	return common.ComposeUp(common.ComposeUpInput{
+		ProjectName: "vector",
+		ComposeFile: tmpFile.Name(),
 	})
-	if err != nil || result.ExitCode != 0 {
-		return fmt.Errorf("Unable to start vector container: %s", result.Stderr)
-	}
-
-	return nil
 }
 
 func getComputedVectorImage() string {
@@ -173,22 +160,10 @@ func stopVectorContainer() error {
 		return fmt.Errorf("Unable to execute compose template: %s", err)
 	}
 
-	result, err := common.CallExecCommand(common.ExecCommandInput{
-		Command: common.DockerBin(),
-		Args: []string{
-			"compose",
-			"--file", tmpFile.Name(),
-			"--project-name", "vector",
-			"down",
-			"--remove-orphans",
-		},
-		StreamStdio: true,
+	return common.ComposeDown(common.ComposeDownInput{
+		ProjectName: "vector",
+		ComposeFile: tmpFile.Name(),
 	})
-	if err != nil || result.ExitCode != 0 {
-		return fmt.Errorf("Unable to stop vector container: %s", result.Stderr)
-	}
-
-	return nil
 }
 
 func writeVectorConfig() error {
