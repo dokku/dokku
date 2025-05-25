@@ -50,6 +50,9 @@ type ExecCommandInput struct {
 
 	// Sudo runs the command with sudo -n -u root
 	Sudo bool
+
+	// WorkingDirectory is the working directory to run the command in
+	WorkingDirectory string
 }
 
 // ExecCommandResponse is the response for the ExecCommand function
@@ -132,6 +135,10 @@ func CallExecCommandWithContext(ctx context.Context, input ExecCommandInput) (Ex
 		Args:               commandArgs,
 		Env:                env,
 		DisableStdioBuffer: input.DisableStdioBuffer,
+	}
+
+	if input.WorkingDirectory != "" {
+		cmd.Cwd = input.WorkingDirectory
 	}
 
 	if os.Getenv("DOKKU_TRACE") == "1" {

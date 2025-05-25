@@ -160,7 +160,9 @@ cmd-openresty-start() {
 
   fn-plugin-property-write "openresty" "--global" "proxy-status" "started"
   fn-openresty-template-compose-file "$TMP_COMPOSE_FILE"
-  "$DOCKER_BIN" compose -f "$TMP_COMPOSE_FILE" -p openresty up -d --quiet-pull
+  if ! "$PLUGIN_CORE_AVAILABLE_PATH/common/common" compose-up "openresty" "$TMP_COMPOSE_FILE"; then
+    return 1
+  fi
 }
 
 cmd-openresty-stop() {
@@ -177,5 +179,7 @@ cmd-openresty-stop() {
 
   fn-plugin-property-write "openresty" "--global" "proxy-status" "stopped"
   fn-openresty-template-compose-file "$TMP_COMPOSE_FILE"
-  "$DOCKER_BIN" compose -f "$TMP_COMPOSE_FILE" -p openresty down --remove-orphans
+  if ! "$PLUGIN_CORE_AVAILABLE_PATH/common/common" compose-down "openresty" "$TMP_COMPOSE_FILE"; then
+    return 1
+  fi
 }

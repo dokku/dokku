@@ -131,7 +131,9 @@ cmd-haproxy-start() {
 
   fn-plugin-property-write "haproxy" "--global" "proxy-status" "started"
   fn-haproxy-template-compose-file "$TMP_COMPOSE_FILE"
-  "$DOCKER_BIN" compose -f "$TMP_COMPOSE_FILE" -p haproxy up -d --quiet-pull
+  if ! "$PLUGIN_CORE_AVAILABLE_PATH/common/common" compose-up "haproxy" "$TMP_COMPOSE_FILE"; then
+    return 1
+  fi
 }
 
 cmd-haproxy-stop() {
@@ -148,5 +150,7 @@ cmd-haproxy-stop() {
 
   fn-plugin-property-write "haproxy" "--global" "proxy-status" "stopped"
   fn-haproxy-template-compose-file "$TMP_COMPOSE_FILE"
-  "$DOCKER_BIN" compose -f "$TMP_COMPOSE_FILE" -p haproxy down --remove-orphans
+  if ! "$PLUGIN_CORE_AVAILABLE_PATH/common/common" compose-down "haproxy" "$TMP_COMPOSE_FILE"; then
+    return 1
+  fi
 }
