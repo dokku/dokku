@@ -2,7 +2,7 @@
   "name": "node-example",
   "version": "0.0.1",
   "dependencies": {
-    "express": "4.21.x"
+    "express": "5.1.x"
   },
   "engines": {
     "node": "4.2.x"
