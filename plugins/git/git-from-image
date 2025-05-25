@@ -22,7 +22,6 @@ trigger-git-git-from-image() {
     rsync -a "$BUILD_DIR/" "$TMP_WORK_DIR"
   fi
 
-  dokku_log_verbose "Setting Dockerfile"
   touch "$TMP_WORK_DIR/Dockerfile"
   echo "FROM $DOCKER_IMAGE" >>"$TMP_WORK_DIR/Dockerfile"
   echo "LABEL com.dokku.docker-image-labeler/alternate-tags=[\\\"$DOCKER_IMAGE\\\"]" >>"$TMP_WORK_DIR/Dockerfile"
