@@ -1,5 +1,70 @@
 # History
 
+## 0.35.19
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.35.19/bootstrap.sh
+sudo DOKKU_TAG=v0.35.19 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #7686: @josegonzalez Untap aws/tap to correct issues in formula release
+
+### Documentation
+
+- #7707: @swrobel Remove duplicate hostname plugin
+- #7687: @d9i Fix cron key in app.json docs
+- #7677: @plafue Add continuous integration example for woodpecker ci
+
+### Tests
+
+- #7585: @josegonzalez Add test to prove Dokku respects the Procfile when deploying from an image
+- #7678: @josegonzalez Revert "fix: update CID count in ps tests"
+
+### Dependencies
+
+- #7692: @dependabot[bot] chore(deps): bump golang.org/x/crypto from 0.37.0 to 0.38.0 in /plugins/common
+- #7626: @dependabot[bot] chore(deps): bump express from 4.21.2 to 5.1.0 in /tests/apps/dockerfile
+- #7693: @dependabot[bot] chore(deps): bump traefik from 3.3.5 to 3.4.0 in /plugins/traefik-vhosts
+- #7694: @dependabot[bot] chore(deps): bump golang from 1.24.2 to 1.24.3 in /tests/apps/go-fail-postdeploy
+- #7695: @dependabot[bot] chore(deps): bump node from 23-alpine to 24-alpine in /tests/apps/dockerfile-procfile-bad
+- #7696: @dependabot[bot] chore(deps): bump golang from 1.24.2 to 1.24.3 in /tests/apps/gogrpc
+- #7697: @dependabot[bot] chore(deps): bump golang from 1.24.2 to 1.24.3 in /tests/apps/go-fail-predeploy
+- #7698: @dependabot[bot] chore(deps): bump node from 23-alpine to 24-alpine in /tests/apps/dockerfile-procfile
+- #7699: @dependabot[bot] chore(deps): bump golang from 1.24.2 to 1.24.3 in /tests/apps/zombies-dockerfile-no-tini
+- #7700: @dependabot[bot] chore(deps): bump golang from 1.24.2 to 1.24.3 in /tests/apps/zombies-dockerfile-tini
+- #7701: @dependabot[bot] chore(deps): bump node from 23-alpine to 24-alpine in /tests/apps/dockerfile
+- #7702: @dependabot[bot] chore(deps): bump node from 23-alpine to 24-alpine in /tests/apps/dockerfile-app-json-formations
+- #7704: @dependabot[bot] chore(deps): bump rack from 2.2.13 to 2.2.14 in /tests/apps/ruby
+- #7711: @dependabot[bot] chore(deps): bump flask from 3.1.0 to 3.1.1 in /tests/apps/multi
+- #7712: @dependabot[bot] chore(deps): bump flask from 3.1.0 to 3.1.1 in /tests/apps/python-flask
+- #7713: @dependabot[bot] chore(deps): bump pyyaml-env-tag from 0.1 to 1.1 in /docs/_build
+- #7714: @dependabot[bot] chore(deps): bump mkdocs-material from 9.6.12 to 9.6.14 in /docs/_build
+- #7715: @dependabot[bot] chore(deps): bump google.golang.org/grpc from 1.72.0 to 1.72.1 in /tests/apps/gogrpc
+- #7716: @dependabot[bot] chore(deps): bump ruby from 3.4.3 to 3.4.4 in /tests/apps/dockerfile-entrypoint
+- #7718: @dependabot[bot] chore(deps): bump timberio/vector from 0.46.1-debian to 0.47.0-debian in /plugins/logs
+- #7703: @dependabot[bot] chore(deps): bump node from 23-alpine to 24-alpine in /tests/apps/dockerfile-noexpose
+- #7688: @dependabot[bot] chore(deps): bump pymdown-extensions from 10.14.3 to 10.15 in /docs/_build
+- #7689: @dependabot[bot] chore(deps): bump importlib-metadata from 8.6.1 to 8.7.0 in /docs/_build
+- #7671: @dependabot[bot] chore(deps): bump golang.org/x/net from 0.36.0 to 0.38.0 in /tests/apps/gogrpc
+- #7681: @dependabot[bot] chore(deps): bump google.golang.org/grpc from 1.71.1 to 1.72.0 in /tests/apps/gogrpc
+- #7680: @dependabot[bot] chore(deps): bump soupsieve from 2.6 to 2.7 in /docs/_build
+- #7682: @dependabot[bot] chore(deps): bump packaging from 24.2 to 25.0 in /docs/_build
+- #7673: @dependabot[bot] chore(deps): bump golang.org/x/net from 0.37.0 to 0.38.0 in /plugins/common
+- #7675: @dependabot[bot] chore(deps): bump byjg/easy-haproxy from 4.4.0 to 4.5.0 in /plugins/haproxy-vhosts
+- #7676: @dependabot[bot] chore(deps): bump mkdocs-material from 9.6.11 to 9.6.12 in /docs/_build
+
+### Other
+
+- #7723: @josegonzalez Revert "chore(deps): bump helm.sh/helm/v3 from 3.14.2 to 3.17.3 in /plugins/scheduler-k3s"
+- #7645: @dependabot[bot] chore(deps): bump helm.sh/helm/v3 from 3.14.2 to 3.17.3 in /plugins/scheduler-k3s
+- #7717: @dependabot[bot] chore(deps): bump setuptools from 70.0.0 to 78.1.1 in /tests/apps/dockerfile-release
+- #7719: @d1ceward Fix: Add missing `systemctl` path detection in nginx-vhost plugin
+- #7679: @dependabot[bot] chore(deps): bump github.com/traefik/traefik/v2 from 2.11.15 to 2.11.24 in /plugins/scheduler-k3s
+
 ## 0.35.18
 
 Install/update via the bootstrap script:
