@@ -4,7 +4,6 @@ go 1.23.0
 
 require (
 	github.com/dokku/dokku/plugins/common v0.0.0-00010101000000-000000000000
-	github.com/dokku/dokku/plugins/config v0.0.0-00010101000000-000000000000
 	github.com/spf13/pflag v1.0.6
 )
 
@@ -13,7 +12,6 @@ require (
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/hashicorp/errwrap v1.0.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
-	github.com/joho/godotenv v1.2.0 // indirect
 	github.com/kr/fs v0.1.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
