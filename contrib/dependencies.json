@@ -2,10 +2,10 @@
   "dependencies": [
     {
       "name": "docker-container-healthchecker",
-      "version": "0.11.5",
+      "version": "0.14.0",
       "urls": {
-        "amd64": "https://github.com/dokku/docker-container-healthchecker/releases/download/v0.11.5/docker-container-healthchecker-linux-amd64",
-        "arm64": "https://github.com/dokku/docker-container-healthchecker/releases/download/v0.11.5/docker-container-healthchecker-linux-arm64"
+        "amd64": "https://github.com/dokku/docker-container-healthchecker/releases/download/v0.14.0/docker-container-healthchecker-linux-amd64",
+        "arm64": "https://github.com/dokku/docker-container-healthchecker/releases/download/v0.14.0/docker-container-healthchecker-linux-arm64"
       }
     },
     {
