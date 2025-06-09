@@ -64,28 +64,28 @@ The `cron` plugin provides a number of settings that can be used to managed depl
 | `maintenance`         | Whether to have cron running for the app or not.               | App-only    | `false`        |
 | `mailto`              | Sets the `MAILTO` variable in a cron file for cron reporting   | Global-only | empty string   |
 
-All settings can be set via the `ps:set` command. Using `maintenance` as an example:
+All settings can be set via the `cron:set` command. Using `maintenance` as an example:
 
 ```shell
-dokku ps:set node-js-app maintenance true
+dokku cron:set node-js-app maintenance true
 ```
 
 The default value may be set by passing an empty value for the option in question:
 
 ```shell
-dokku ps:set node-js-app maintenance
+dokku cron:set node-js-app maintenance
 ```
 
 If a property can be set globally - such as `mailto`, use the `--global` flag. If not set for an app, the global value will apply if it exists.
 
 ```shell
-dokku ps:set --global maintenance true
+dokku cron:set --global maintenance true
 ```
 
 The global default value may be set by passing an empty value for the option.
 
 ```shell
-dokku ps:set --global maintenance
+dokku cron:set --global maintenance
 ```
 
 #### Listing Cron tasks
