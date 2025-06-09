@@ -5,6 +5,6 @@
     "express": "5.1.x"
   },
   "engines": {
-    "node": "4.2.x"
+    "node": "18.x.x"
   }
 }
