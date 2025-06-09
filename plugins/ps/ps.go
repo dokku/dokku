@@ -13,13 +13,15 @@ const RunInSerial = 0
 var (
 	// DefaultProperties is a map of all valid ps properties with corresponding default property values
 	DefaultProperties = map[string]string{
-		"restart-policy": "on-failure:10",
-		"procfile-path":  "",
+		"restart-policy":       "on-failure:10",
+		"procfile-path":        "",
+		"stop-timeout-seconds": "30",
 	}
 
 	// GlobalProperties is a map of all valid global ps properties
 	GlobalProperties = map[string]bool{
-		"procfile-path": true,
+		"procfile-path":        true,
+		"stop-timeout-seconds": true,
 	}
 )
 
