@@ -45,6 +45,12 @@ func TriggerConfigGetGlobal(key string) error {
 	return nil
 }
 
+// TriggerConfigUnset unsets an app config value by key
+func TriggerConfigUnset(appName string, key string, restart bool) error {
+	UnsetMany(appName, []string{key}, restart)
+	return nil
+}
+
 // TriggerPostAppCloneSetup creates new buildpacks files
 func TriggerPostAppCloneSetup(oldAppName string, newAppName string) error {
 	oldEnv, err := LoadAppEnv(oldAppName)
