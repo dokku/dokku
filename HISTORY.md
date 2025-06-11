@@ -1,5 +1,39 @@
 # History
 
+## 0.35.20
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.35.20/bootstrap.sh
+sudo DOKKU_TAG=v0.35.20 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #7726: @josegonzalez Ensure compose projects are spawned from the /tmp directory
+- #7725: @josegonzalez Uninstall hashicorp tap to fix formula releases
+
+### Dependencies
+
+- #7735: @dependabot[bot] chore(deps): bump google.golang.org/grpc from 1.72.2 to 1.73.0 in /tests/apps/gogrpc
+- #7737: @dependabot[bot] chore(deps): bump python from 3.13.3-alpine to 3.13.4-alpine in /docs/_build
+- #7738: @dependabot[bot] chore(deps): bump python from 3.13.3-bookworm to 3.13.4-bookworm in /tests/apps/dockerfile-release
+- #7745: @dependabot[bot] chore(deps): bump golang.org/x/crypto from 0.38.0 to 0.39.0 in /plugins/common
+- #7740: @dependabot[bot] chore(deps): bump golang from 1.24.3 to 1.24.4 in /tests/apps/gogrpc
+- #7741: @dependabot[bot] chore(deps): bump golang from 1.24.3 to 1.24.4 in /tests/apps/go-fail-postdeploy
+- #7742: @dependabot[bot] chore(deps): bump golang from 1.24.3 to 1.24.4 in /tests/apps/zombies-dockerfile-tini
+- #7743: @dependabot[bot] chore(deps): bump golang from 1.24.3 to 1.24.4 in /tests/apps/go-fail-predeploy
+- #7744: @dependabot[bot] chore(deps): bump golang from 1.24.3 to 1.24.4 in /tests/apps/zombies-dockerfile-no-tini
+- #7730: @dependabot[bot] chore(deps): bump traefik from 3.4.0 to 3.4.1 in /plugins/traefik-vhosts
+- #7729: @dependabot[bot] chore(deps): bump zipp from 3.21.0 to 3.22.0 in /docs/_build
+- #7727: @dependabot[bot] chore(deps): bump google.golang.org/grpc from 1.72.1 to 1.72.2 in /tests/apps/gogrpc
+
+### Other
+
+- #7746: @dependabot[bot] chore(deps): bump django from 5.0.14 to 5.1.10 in /tests/apps/dockerfile-release
+- #7731: @dependabot[bot] chore(deps): bump github.com/traefik/traefik/v2 from 2.11.24 to 2.11.25 in /plugins/scheduler-k3s
+
 ## 0.35.19
 
 Install/update via the bootstrap script:
