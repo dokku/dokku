@@ -1499,5 +1499,14 @@ func TriggerSchedulerStop(scheduler string, appName string) error {
 		}
 	}
 
+	// get all cronjobs for the app
+	err = clientset.SuspendCronJobs(ctx, SuspendCronJobsInput{
+		Namespace:     namespace,
+		LabelSelector: fmt.Sprintf("app.kubernetes.io/part-of=%s", appName),
+	})
+	if err != nil {
+		return fmt.Errorf("Error suspending cron jobs: %w", err)
+	}
+
 	return nil
 }

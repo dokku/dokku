@@ -130,8 +130,10 @@ func CommandSet(appName string, property string, value string) error {
 	}
 
 	common.CommandPropertySet("cron", appName, property, value, DefaultProperties, GlobalProperties)
+	scheduler := common.GetAppScheduler(appName)
 	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
-		Trigger:     "cron-write",
+		Trigger:     "scheduler-cron-write",
+		Args:        []string{scheduler, appName},
 		StreamStdio: true,
 	})
 	return err

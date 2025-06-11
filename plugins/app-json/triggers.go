@@ -1,6 +1,7 @@
 package appjson
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path"
@@ -137,6 +138,35 @@ func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
 	} else {
 		if err := common.CopyFromImage(appName, appSourceImage, path.Join(buildDir, appJSONPath), processSpecificAppJSON); err != nil {
 			return common.TouchFile(fmt.Sprintf("%s.missing", processSpecificAppJSON))
+		}
+	}
+
+	if hasAppJSON(appName) {
+		b, err := os.ReadFile(processSpecificAppJSON)
+		if err != nil {
+			return err
+		}
+
+		content := strings.TrimSpace(string(b))
+		if content == "" {
+			return nil
+		}
+
+		var appJSON AppJSON
+		if err := json.Unmarshal([]byte(content), &appJSON); err != nil {
+			return fmt.Errorf("Unable to unmarshal app.json: %v", err.Error())
+		}
+
+		if appJSON.Cron != nil {
+			for i, c := range appJSON.Cron {
+				if c.Command == "" {
+					return fmt.Errorf("Missing cron command for app %s (index %d)", appName, i)
+				}
+
+				if c.Schedule == "" {
+					return fmt.Errorf("Missing cron schedule for app %s (index %d)", appName, i)
+				}
+			}
 		}
 	}
 
