@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	appjson "github.com/dokku/dokku/plugins/app-json"
+	"github.com/dokku/dokku/plugins/common"
 
 	"github.com/multiformats/go-base36"
 	cronparser "github.com/robfig/cron/v3"
@@ -75,7 +76,17 @@ func FetchCronEntries(appName string) ([]TemplateCommand, error) {
 		return commands, nil
 	}
 
-	for _, c := range appJSON.Cron {
+	for i, c := range appJSON.Cron {
+		if c.Command == "" {
+			common.LogWarn(fmt.Sprintf("Missing cron command for app %s (index %d)", appName, i))
+			continue
+		}
+
+		if c.Schedule == "" {
+			common.LogWarn(fmt.Sprintf("Missing cron schedule for app %s (index %d)", appName, i))
+			continue
+		}
+
 		parser := cronparser.NewParser(cronparser.Minute | cronparser.Hour | cronparser.Dom | cronparser.Month | cronparser.Dow | cronparser.Descriptor)
 		_, err := parser.Parse(c.Schedule)
 		if err != nil {
