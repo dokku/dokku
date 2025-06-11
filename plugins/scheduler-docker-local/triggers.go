@@ -1,6 +1,6 @@
 package schedulerdockerlocal
 
-// TriggerCronWrite force updates the cron file for all apps
-func TriggerCronWrite(scheduler string) error {
+// TriggerSchedulerCronWrite force updates the cron file for all apps
+func TriggerSchedulerCronWrite(scheduler string) error {
 	return writeCronEntries(scheduler)
 }
