@@ -28,16 +28,6 @@ gem install dokku-cli
 
 See [documentation here](https://github.com/SebastianSzturo/dokku-cli) for more information.
 
-## (ruby) DokkuClient
-
-DokkuClient is another rubygem that acts as a client for your Dokku installation with built-in support for certain external plugins. You can install it via the following shell command (assuming you have ruby and rubygems installed):
-
-```shell
-gem install dokku_client
-```
-
-See [documentation here](https://github.com/netguru/dokku_client) for more information.
-
 ## (ruby) Dockland
 
 Dockland is a rubygem that acts as a client for your Dokku installation. You can install it via the following shell command (assuming you have ruby and rubygems installed):
