@@ -28,16 +28,6 @@ gem install dokku-cli
 
 See [documentation here](https://github.com/SebastianSzturo/dokku-cli) for more information.
 
-## (ruby) Dokkufy
-
-Dokkufy is a rubygem that handles automation of certain tasks, such as Dokku setup, plugin installation, etc. You can install it via the following shell command (assuming you have ruby and rubygems installed):
-
-```shell
-gem install dokkufy
-```
-
-See [documentation here](https://github.com/cbetta/dokkufy) for more information.
-
 ## (ruby) Dockland
 
 Dockland is a rubygem that acts as a client for your Dokku installation. You can install it via the following shell command (assuming you have ruby and rubygems installed):
