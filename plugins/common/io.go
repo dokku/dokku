@@ -152,7 +152,7 @@ func ReadFirstLine(filename string) (text string) {
 	return
 }
 
-// SetPermissionsInput is the input struct for SetPermissions
+// SetPermissionInput is the input struct for SetPermissions
 type SetPermissionInput struct {
 	Filename  string
 	GroupName string
@@ -214,7 +214,7 @@ func TouchFile(filename string) error {
 	})
 }
 
-// WriteSliceToFile writes a slice of strings to a file
+// WriteSliceToFileInput writes a slice of strings to a file
 type WriteSliceToFileInput struct {
 	Filename  string
 	GroupName string
