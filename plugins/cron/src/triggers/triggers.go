@@ -40,9 +40,6 @@ func main() {
 	case "post-delete":
 		appName := flag.Arg(0)
 		err = cron.TriggerPostDelete(appName)
-	case "pre-delete":
-		appName := flag.Arg(0)
-		err = cron.TriggerPreDelete(appName)
 	case "report":
 		appName := flag.Arg(0)
 		err = cron.ReportSingleApp(appName, "", "")

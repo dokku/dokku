@@ -55,19 +55,18 @@ func TriggerPostAppRenameSetup(oldAppName string, newAppName string) error {
 	return nil
 }
 
-// TriggerPreDelete stops cron for a given app
-func TriggerPreDelete(appName string) error {
+// TriggerPostDelete destroys the cron property for a given app container
+func TriggerPostDelete(appName string) error {
 	scheduler := common.GetAppScheduler(appName)
 	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
 		Trigger:     "scheduler-cron-write",
 		Args:        []string{scheduler, appName},
 		StreamStdio: true,
 	})
-	return err
-}
+	if err != nil {
+		return err
+	}
 
-// TriggerPostDelete destroys the cron property for a given app container
-func TriggerPostDelete(appName string) error {
 	if err := common.PropertyDestroy("cron", appName); err != nil {
 		return err
 	}
