@@ -55,7 +55,8 @@ func generateCronEntries() ([]cron.TemplateCommand, error) {
 			c, err := cron.FetchCronEntries(appName)
 			if err != nil {
 				results <- []cron.TemplateCommand{}
-				return err
+				common.LogWarn(err.Error())
+				return nil
 			}
 
 			results <- c

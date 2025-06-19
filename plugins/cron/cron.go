@@ -90,7 +90,7 @@ func FetchCronEntries(appName string) ([]TemplateCommand, error) {
 		parser := cronparser.NewParser(cronparser.Minute | cronparser.Hour | cronparser.Dom | cronparser.Month | cronparser.Dow | cronparser.Descriptor)
 		_, err := parser.Parse(c.Schedule)
 		if err != nil {
-			return commands, fmt.Errorf("Invalid cron schedule %s: %s", c.Schedule, err.Error())
+			return commands, fmt.Errorf("Invalid cron schedule for app %s (schedule %s): %s", appName, c.Schedule, err.Error())
 		}
 
 		commands = append(commands, TemplateCommand{
