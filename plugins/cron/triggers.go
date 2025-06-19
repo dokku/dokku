@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	appjson "github.com/dokku/dokku/plugins/app-json"
 	"github.com/dokku/dokku/plugins/common"
 )
 
@@ -20,6 +21,25 @@ func TriggerCronGetProperty(appName string, key string) error {
 
 	value := common.PropertyGetDefault("cron", appName, key, DefaultProperties[key])
 	fmt.Println(value)
+	return nil
+}
+
+// TriggerAppJSONIsValid validates the cron entries for a given app
+func TriggerAppJSONIsValid(appName string, appJSONPath string) error {
+	if !common.FileExists(appJSONPath) {
+		return nil
+	}
+
+	appJSON, err := appjson.ReadAppJSON(appJSONPath)
+	if err != nil {
+		return err
+	}
+
+	_, err = FetchCronEntries(FetchCronEntriesInput{AppName: appName, AppJSON: &appJSON})
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

@@ -119,6 +119,21 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `app-json-is-valid`
+
+- Description: Checks to see if the provided app.json file is valid
+- Invoked by: Appjson extraction during deployment
+- Arguments: `$APP $APP_JSON_PATH`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `app-maybe-create`
 
 - Description: Creates an app (gated by whether this is globally enabled or not)

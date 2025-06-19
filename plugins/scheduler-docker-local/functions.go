@@ -52,7 +52,7 @@ func generateCronEntries() ([]cron.TemplateCommand, error) {
 				return nil
 			}
 
-			c, err := cron.FetchCronEntries(appName)
+			c, err := cron.FetchCronEntries(cron.FetchCronEntriesInput{AppName: appName})
 			if err != nil {
 				results <- []cron.TemplateCommand{}
 				common.LogWarn(err.Error())

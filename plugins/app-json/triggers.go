@@ -1,7 +1,7 @@
 package appjson
 
 import (
-	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path"
@@ -142,31 +142,16 @@ func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
 	}
 
 	if hasAppJSON(appName) {
-		b, err := os.ReadFile(processSpecificAppJSON)
+		result, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+			Trigger: "app-json-is-valid",
+			Args:    []string{appName, processSpecificAppJSON},
+		})
 		if err != nil {
-			return err
-		}
-
-		content := strings.TrimSpace(string(b))
-		if content == "" {
-			return nil
-		}
-
-		var appJSON AppJSON
-		if err := json.Unmarshal([]byte(content), &appJSON); err != nil {
-			return fmt.Errorf("Unable to unmarshal app.json: %v", err.Error())
-		}
-
-		if appJSON.Cron != nil {
-			for i, c := range appJSON.Cron {
-				if c.Command == "" {
-					return fmt.Errorf("Missing cron command for app %s (index %d)", appName, i)
-				}
-
-				if c.Schedule == "" {
-					return fmt.Errorf("Missing cron schedule for app %s (index %d)", appName, i)
-				}
+			if result.StderrContents() != "" {
+				return errors.New(result.StderrContents())
 			}
+
+			return err
 		}
 	}
 
