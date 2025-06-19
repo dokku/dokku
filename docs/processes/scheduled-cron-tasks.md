@@ -53,39 +53,39 @@ When running scheduled cron tasks, there are a few items to be aware of:
 - Scheduled cron tasks are supported on a per-scheduler basis, and are currently only implemented by the `docker-local` scheduler.
 - Tasks for _all_ apps managed by the `docker-local` scheduler are written to a single crontab file owned by the `dokku` user. The `dokku` user's crontab should be considered reserved for this purpose.
 
-#### Specifying a MAILFROM value
 
-> [!IMPORTANT]
-> New as of 0.35.14
+### Changing cron management settings
 
-Users can specify a value for `MAILFROM` via the global `mailfrom` cron property by using the `cron:set` command.
+The `cron` plugin provides a number of settings that can be used to managed deployments on a per-app basis. The following table outlines ones not covered elsewhere:
+
+| Name                  | Description                                                    | Level       | Global Default |
+|-----------------------|----------------------------------------------------------------|-------------|----------------|
+| `mailfrom`            | Sets the `MAILFROM` variable in a cron file for cron reporting | Global-only | empty string   |
+| `maintenance`         | Whether to have cron running for the app or not.               | App-only    | `false`        |
+| `mailto`              | Sets the `MAILTO` variable in a cron file for cron reporting   | Global-only | empty string   |
+
+All settings can be set via the `cron:set` command. Using `maintenance` as an example:
 
 ```shell
-dokku cron:set --global mailfrom example@example.com
+dokku cron:set node-js-app maintenance true
 ```
 
-All output for individual cron runs will be sent from the specified email.
-
-Cron emails can be reset to use the system email by running the `cron:set` command for the global `mailfrom` property with no value.
+The default value may be set by passing an empty value for the option in question:
 
 ```shell
-dokku cron:set --global mailfrom
+dokku cron:set node-js-app maintenance
 ```
 
-#### Specifying a MAILTO value
-
-By default, cron tasks complete and do not perform any reporting. Users can specify a value for `MAILTO` via the global `mailto` cron property by using the `cron:set` command.
+If a property can be set globally - such as `mailto`, use the `--global` flag. If not set for an app, the global value will apply if it exists.
 
 ```shell
-dokku cron:set --global mailto example@example.com
+dokku cron:set --global maintenance true
 ```
 
-All output for individual cron runs will be sent to the specified email.
-
-Cron emails can be disabled by running the `cron:set` command for the global `mailto` property with no value.
+The global default value may be set by passing an empty value for the option.
 
 ```shell
-dokku cron:set --global mailto
+dokku cron:set --global maintenance
 ```
 
 #### Listing Cron tasks
