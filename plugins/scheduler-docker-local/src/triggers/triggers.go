@@ -18,8 +18,9 @@ func main() {
 
 	var err error
 	switch trigger {
-	case "cron-write":
-		err = schedulerdockerlocal.TriggerCronWrite()
+	case "scheduler-cron-write":
+		scheduler := flag.Arg(0)
+		err = schedulerdockerlocal.TriggerSchedulerCronWrite(scheduler)
 	default:
 		err = fmt.Errorf("Invalid plugin trigger call: %s", trigger)
 	}

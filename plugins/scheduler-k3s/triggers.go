@@ -266,7 +266,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 
 	workingDir := common.GetWorkingDir(appName, image)
 
-	allCronEntries, err := cron.FetchCronEntries(appName)
+	allCronEntries, err := cron.FetchCronEntries(cron.FetchCronEntriesInput{AppName: appName})
 	if err != nil {
 		return fmt.Errorf("Error fetching cron entries: %w", err)
 	}
@@ -1497,6 +1497,15 @@ func TriggerSchedulerStop(scheduler string, appName string) error {
 		if err != nil {
 			return fmt.Errorf("Error updating deployment scale: %w", err)
 		}
+	}
+
+	// get all cronjobs for the app
+	err = clientset.SuspendCronJobs(ctx, SuspendCronJobsInput{
+		Namespace:     namespace,
+		LabelSelector: fmt.Sprintf("app.kubernetes.io/part-of=%s", appName),
+	})
+	if err != nil {
+		return fmt.Errorf("Error suspending cron jobs: %w", err)
 	}
 
 	return nil
