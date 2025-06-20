@@ -141,7 +141,8 @@ func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
 		}
 	}
 
-	if hasAppJSON(appName) {
+	if common.FileExists(processSpecificAppJSON) {
+		common.LogInfo1("Validating app.json file")
 		result, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
 			Trigger: "app-json-is-valid",
 			Args:    []string{appName, processSpecificAppJSON},
