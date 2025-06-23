@@ -200,21 +200,9 @@ func GetAppJSON(appName string) (AppJSON, error) {
 		return AppJSON{}, nil
 	}
 
-	b, err := os.ReadFile(getProcessSpecificAppJSONPath(appName))
-	if err != nil {
-		return AppJSON{}, fmt.Errorf("Cannot read app.json file: %v", err)
-	}
+	appJSONPath := getProcessSpecificAppJSONPath(appName)
 
-	if strings.TrimSpace(string(b)) == "" {
-		return AppJSON{}, nil
-	}
-
-	var appJSON AppJSON
-	if err = json.Unmarshal(b, &appJSON); err != nil {
-		return AppJSON{}, fmt.Errorf("Cannot parse app.json: %v", err)
-	}
-
-	return appJSON, nil
+	return ReadAppJSON(appJSONPath)
 }
 
 func GetAutoscalingConfig(appName string, processType string, replicas int) (FormationAutoscaling, bool, error) {
@@ -255,4 +243,23 @@ func GetAutoscalingConfig(appName string, processType string, replicas int) (For
 	}
 
 	return autoscaling, true, nil
+}
+
+// ReadAppJSON reads an app.json file from a given path
+func ReadAppJSON(path string) (AppJSON, error) {
+	b, err := os.ReadFile(path)
+	if err != nil {
+		return AppJSON{}, fmt.Errorf("Cannot read app.json file: %v", err)
+	}
+
+	if strings.TrimSpace(string(b)) == "" {
+		return AppJSON{}, nil
+	}
+
+	var appJSON AppJSON
+	if err = json.Unmarshal(b, &appJSON); err != nil {
+		return AppJSON{}, fmt.Errorf("Cannot parse app.json: %v", err)
+	}
+
+	return appJSON, nil
 }

@@ -2,10 +2,10 @@
   "dependencies": [
     {
       "name": "docker-container-healthchecker",
-      "version": "0.11.5",
+      "version": "0.14.0",
       "urls": {
-        "amd64": "https://github.com/dokku/docker-container-healthchecker/releases/download/v0.11.5/docker-container-healthchecker-linux-amd64",
-        "arm64": "https://github.com/dokku/docker-container-healthchecker/releases/download/v0.11.5/docker-container-healthchecker-linux-arm64"
+        "amd64": "https://github.com/dokku/docker-container-healthchecker/releases/download/v0.14.0/docker-container-healthchecker-linux-amd64",
+        "arm64": "https://github.com/dokku/docker-container-healthchecker/releases/download/v0.14.0/docker-container-healthchecker-linux-arm64"
       }
     },
     {
@@ -86,10 +86,10 @@
     },
     {
       "name": "herokuish",
-      "version": "0.10.3",
+      "version": "0.11.0",
       "urls": {
-        "amd64": "https://github.com/gliderlabs/herokuish/releases/download/v0.10.3/herokuish_0.10.3_linux_x86_64.tgz",
-        "arm64": "https://github.com/gliderlabs/herokuish/releases/download/v0.10.3/herokuish_0.10.3_linux_x86_64.tgz"
+        "amd64": "https://github.com/gliderlabs/herokuish/releases/download/v0.11.0/herokuish_0.11.0_linux_x86_64.tgz",
+        "arm64": "https://github.com/gliderlabs/herokuish/releases/download/v0.11.0/herokuish_0.11.0_linux_x86_64.tgz"
       }
     }
   ]

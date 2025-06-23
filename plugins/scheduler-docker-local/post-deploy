@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -eo pipefail
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 [[ $DOKKU_TRACE ]] && set -x
 
 trigger-scheduler-docker-local-post-deploy() {
@@ -7,7 +8,8 @@ trigger-scheduler-docker-local-post-deploy() {
   declare trigger="post-deploy"
   declare APP="$1"
 
-  plugn trigger cron-write
+  local DOKKU_SCHEDULER="$(get_app_scheduler "$APP")"
+  plugn trigger scheduler-cron-write "$DOKKU_SCHEDULER" "$APP"
 }
 
 trigger-scheduler-docker-local-post-deploy "$@"
