@@ -64,8 +64,9 @@ func (t TemplateCommand) CronCommand() string {
 
 // FetchCronEntriesInput is the input for the FetchCronEntries function
 type FetchCronEntriesInput struct {
-	AppName string
-	AppJSON *appjson.AppJSON
+	AppName       string
+	AppJSON       *appjson.AppJSON
+	WarnToFailure bool
 }
 
 // FetchCronEntries returns a list of cron commands for a given app
@@ -89,11 +90,19 @@ func FetchCronEntries(input FetchCronEntriesInput) ([]TemplateCommand, error) {
 
 	for i, c := range input.AppJSON.Cron {
 		if c.Command == "" {
+			if input.WarnToFailure {
+				return commands, fmt.Errorf("Missing cron command for app %s (index %d)", appName, i)
+			}
+
 			common.LogWarn(fmt.Sprintf("Missing cron command for app %s (index %d)", appName, i))
 			continue
 		}
 
 		if c.Schedule == "" {
+			if input.WarnToFailure {
+				return commands, fmt.Errorf("Missing cron schedule for app %s (index %d)", appName, i)
+			}
+
 			common.LogWarn(fmt.Sprintf("Missing cron schedule for app %s (index %d)", appName, i))
 			continue
 		}

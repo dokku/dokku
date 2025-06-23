@@ -35,7 +35,11 @@ func TriggerAppJSONIsValid(appName string, appJSONPath string) error {
 		return err
 	}
 
-	_, err = FetchCronEntries(FetchCronEntriesInput{AppName: appName, AppJSON: &appJSON})
+	_, err = FetchCronEntries(FetchCronEntriesInput{
+		AppName:       appName,
+		AppJSON:       &appJSON,
+		WarnToFailure: true,
+	})
 	if err != nil {
 		return err
 	}
