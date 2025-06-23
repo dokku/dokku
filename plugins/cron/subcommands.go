@@ -26,7 +26,7 @@ func CommandList(appName string, format string) error {
 		return fmt.Errorf("Invalid format specified, supported formats: json, stdout")
 	}
 
-	entries, err := FetchCronEntries(appName)
+	entries, err := FetchCronEntries(FetchCronEntriesInput{AppName: appName})
 	if err != nil {
 		return err
 	}
@@ -79,7 +79,7 @@ func CommandRun(appName string, cronID string, detached bool) error {
 		return err
 	}
 
-	entries, err := FetchCronEntries(appName)
+	entries, err := FetchCronEntries(FetchCronEntriesInput{AppName: appName})
 	if err != nil {
 		return err
 	}
@@ -130,8 +130,10 @@ func CommandSet(appName string, property string, value string) error {
 	}
 
 	common.CommandPropertySet("cron", appName, property, value, DefaultProperties, GlobalProperties)
+	scheduler := common.GetAppScheduler(appName)
 	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
-		Trigger:     "cron-write",
+		Trigger:     "scheduler-cron-write",
+		Args:        []string{scheduler, appName},
 		StreamStdio: true,
 	})
 	return err

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	appjson "github.com/dokku/dokku/plugins/app-json"
+	"github.com/dokku/dokku/plugins/common"
 
 	"github.com/multiformats/go-base36"
 	cronparser "github.com/robfig/cron/v3"
@@ -61,25 +62,55 @@ func (t TemplateCommand) CronCommand() string {
 	return fmt.Sprintf("dokku run --cron-id %s %s %s", t.ID, t.App, t.Command)
 }
 
+// FetchCronEntriesInput is the input for the FetchCronEntries function
+type FetchCronEntriesInput struct {
+	AppName       string
+	AppJSON       *appjson.AppJSON
+	WarnToFailure bool
+}
+
 // FetchCronEntries returns a list of cron commands for a given app
-func FetchCronEntries(appName string) ([]TemplateCommand, error) {
+func FetchCronEntries(input FetchCronEntriesInput) ([]TemplateCommand, error) {
+	appName := input.AppName
 	commands := []TemplateCommand{}
 	isMaintenance := reportComputedMaintenance(appName) == "true"
 
-	appJSON, err := appjson.GetAppJSON(appName)
-	if err != nil {
-		return commands, fmt.Errorf("Unable to fetch app.json for app %s: %s", appName, err.Error())
+	if input.AppJSON == nil {
+		appJSON, err := appjson.GetAppJSON(appName)
+		if err != nil {
+			return commands, fmt.Errorf("Unable to fetch app.json for app %s: %s", appName, err.Error())
+		}
+
+		input.AppJSON = &appJSON
 	}
 
-	if appJSON.Cron == nil {
+	if input.AppJSON.Cron == nil {
 		return commands, nil
 	}
 
-	for _, c := range appJSON.Cron {
+	for i, c := range input.AppJSON.Cron {
+		if c.Command == "" {
+			if input.WarnToFailure {
+				return commands, fmt.Errorf("Missing cron command for app %s (index %d)", appName, i)
+			}
+
+			common.LogWarn(fmt.Sprintf("Missing cron command for app %s (index %d)", appName, i))
+			continue
+		}
+
+		if c.Schedule == "" {
+			if input.WarnToFailure {
+				return commands, fmt.Errorf("Missing cron schedule for app %s (index %d)", appName, i)
+			}
+
+			common.LogWarn(fmt.Sprintf("Missing cron schedule for app %s (index %d)", appName, i))
+			continue
+		}
+
 		parser := cronparser.NewParser(cronparser.Minute | cronparser.Hour | cronparser.Dom | cronparser.Month | cronparser.Dow | cronparser.Descriptor)
 		_, err := parser.Parse(c.Schedule)
 		if err != nil {
-			return commands, fmt.Errorf("Invalid cron schedule %s: %s", c.Schedule, err.Error())
+			return commands, fmt.Errorf("Invalid cron schedule for app %s (schedule %s): %s", appName, c.Schedule, err.Error())
 		}
 
 		commands = append(commands, TemplateCommand{

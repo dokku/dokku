@@ -19,6 +19,10 @@ func main() {
 
 	var err error
 	switch trigger {
+	case "app-json-is-valid":
+		appName := flag.Arg(0)
+		appJSONPath := flag.Arg(1)
+		err = cron.TriggerAppJSONIsValid(appName, appJSONPath)
 	case "cron-get-property":
 		appName := flag.Arg(0)
 		property := flag.Arg(1)
