@@ -2,7 +2,6 @@ package registry
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -96,14 +95,12 @@ func pushToRegistry(appName string, tag int, imageID string, imageRepo string) e
 	fullImage := fmt.Sprintf("%s%s:%d", registryServer, imageRepo, tag)
 
 	common.LogVerboseQuiet(fmt.Sprintf("Tagging %s:%d in registry format", imageRepo, tag))
-	if !dockerTag(imageID, fullImage) {
-		// TODO: better error
-		return errors.New("Unable to tag image")
+	if err := dockerTag(imageID, fullImage); err != nil {
+		return fmt.Errorf("unable to tag image %s as %s: %w", imageID, fullImage, err)
 	}
 
-	if !dockerTag(imageID, fmt.Sprintf("%s:%d", imageRepo, tag)) {
-		// TODO: better error
-		return errors.New("Unable to tag image")
+	if err := dockerTag(imageID, fmt.Sprintf("%s:%d", imageRepo, tag)); err != nil {
+		return fmt.Errorf("unable to tag image %s as %s:%d: %w", imageID, imageRepo, tag, err)
 	}
 
 	extraTags := getRegistryPushExtraTagsForApp(appName)
@@ -112,26 +109,25 @@ func pushToRegistry(appName string, tag int, imageID string, imageRepo string) e
 		for _, extraTag := range extraTagsArray {
 			extraTagImage := fmt.Sprintf("%s%s:%s", registryServer, imageRepo, extraTag)
 			common.LogVerboseQuiet(fmt.Sprintf("Tagging %s as %s in registry format", imageRepo, extraTag))
-			if !dockerTag(imageID, extraTagImage) {
-				return errors.New(fmt.Sprintf("Unable to tag image as %s", extraTag))
+			if err := dockerTag(imageID, extraTagImage); err != nil {
+				return fmt.Errorf("unable to tag image %s as %s: %w", imageID, extraTagImage, err)
 			}
 			defer func() {
 				common.LogVerboseQuiet(fmt.Sprintf("Untagging extra tag %s", extraTag))
 				if err := common.RemoveImages([]string{extraTagImage}); err != nil {
-					common.LogWarn(fmt.Sprintf("Unable to untag extra tag %s", extraTag, err.Error()))
+					common.LogWarn(fmt.Sprintf("Unable to untag extra tag %s: %s", extraTag, err.Error()))
 				}
 			}()
 			common.LogVerboseQuiet(fmt.Sprintf("Pushing %s", extraTagImage))
-			if !dockerPush(extraTagImage) {
-				return errors.New(fmt.Sprintf("Unable to push image with %s tag", extraTag))
+			if err := dockerPush(extraTagImage); err != nil {
+				return fmt.Errorf("unable to push image with %s tag: %w", extraTag, err)
 			}
 		}
 	}
 
 	common.LogVerboseQuiet(fmt.Sprintf("Pushing %s", fullImage))
-	if !dockerPush(fullImage) {
-		// TODO: better error
-		return errors.New("Unable to push image")
+	if err := dockerPush(fullImage); err != nil {
+		return fmt.Errorf("unable to push image %s: %w", fullImage, err)
 	}
 
 	// Only clean up when the scheduler is not docker-local
@@ -148,22 +144,34 @@ func pushToRegistry(appName string, tag int, imageID string, imageRepo string) e
 	return nil
 }
 
-func dockerTag(imageID string, imageTag string) bool {
+func dockerTag(imageID string, imageTag string) error {
 	result, err := common.CallExecCommand(common.ExecCommandInput{
 		Command:     common.DockerBin(),
 		Args:        []string{"image", "tag", imageID, imageTag},
 		StreamStdio: true,
 	})
-	return err == nil && result.ExitCode == 0
+	if err != nil {
+		return fmt.Errorf("docker tag command failed: %w", err)
+	}
+	if result.ExitCode != 0 {
+		return fmt.Errorf("docker tag command exited with code %d: %s", result.ExitCode, result.Stderr)
+	}
+	return nil
 }
 
-func dockerPush(imageTag string) bool {
+func dockerPush(imageTag string) error {
 	result, err := common.CallExecCommand(common.ExecCommandInput{
 		Command:     common.DockerBin(),
 		Args:        []string{"image", "push", imageTag},
 		StreamStdio: true,
 	})
-	return err == nil && result.ExitCode == 0
+	if err != nil {
+		return fmt.Errorf("docker push command failed: %w", err)
+	}
+	if result.ExitCode != 0 {
+		return fmt.Errorf("docker push command exited with code %d: %s", result.ExitCode, result.Stderr)
+	}
+	return nil
 }
 
 func imageCleanup(appName string, imageRepo string, imageTag string, tag int) {
