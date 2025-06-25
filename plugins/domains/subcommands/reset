@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/domains/functions"
+
+cmd-domains-reset() {
+  declare desc="reset app domains to global-configured domains"
+  declare cmd="domains:reset"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1"
+
+  verify_app_name "$APP"
+  local APP_VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
+
+  rm -f "$APP_VHOST_PATH"
+  domains_setup "$APP"
+  plugn trigger post-domains-update "$APP" "reset"
+  dokku_log_info1 "Reset domains for $APP"
+}
+
+cmd-domains-reset "$@"
