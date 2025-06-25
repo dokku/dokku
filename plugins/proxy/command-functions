@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+cmd-proxy-label() {
+  local PROXY="$1" && shift 1
+  [[ -z "$PROXY" ]] && dokku_log_fail "Please specify a proxy name"
+
+  local APP="$1" && shift 1
+  [[ -z "$APP" ]] && dokku_log_fail "Please specify an app name"
+
+  local action="$1" && shift 1
+  [[ "$action" != "set" && "$action" != "unset" && "$action" != "show" ]] && dokku_log_fail "Please specify a valid action ('set', 'unset' or 'show')"
+
+  if [[ "$action" == "show" && "$#" == "0" ]]; then
+    display_proxy_labels "$APP" "$PROXY"
+    return 0
+  fi
+
+  local passed_label_name="$1" && shift 1
+  [[ -z "$passed_label_name" ]] && dokku_log_fail "Please specify a container label for the app"
+  [[ ! "$passed_label_name" =~ ^$PROXY ]] && dokku_log_fail "Please specify a valid $PROXY label name for the app"
+
+  if [[ "$action" == "show" ]]; then
+    show_proxy_label "$APP" "$PROXY" "$passed_label_name"
+    return 0
+  fi
+
+  # set/unset
+  local passed_label_value="$1"
+
+  if [[ "$action" == "set" ]]; then
+    add_passed_proxy_label "$APP" "$PROXY" "${passed_label_name}" "${passed_label_value}"
+  elif [[ "$action" == "unset" ]]; then
+    remove_passed_proxy_label "$APP" "$PROXY" "${passed_label_name}"
+  else
+    dokku_log_fail "Internal error"
+  fi
+}
