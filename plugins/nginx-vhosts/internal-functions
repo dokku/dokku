@@ -327,6 +327,21 @@ fn-nginx-global-nginx-conf-sigil-path() {
   fn-get-property --global "nginx-conf-sigil-path"
 }
 
+fn-nginx-nginx-service-command() {
+  declare APP="$1"
+  fn-get-property --app "$APP" "nginx-service-command"
+}
+
+fn-nginx-computed-nginx-service-command() {
+  declare APP="$1"
+  fn-get-property --computed --app "$APP" "nginx-service-command"
+}
+
+fn-nginx-global-nginx-service-command() {
+  declare APP="$1"
+  fn-get-property --global "nginx-service-command"
+}
+
 fn-nginx-proxy-buffer-size() {
   declare desc="get the configured proxy buffer size"
   declare APP="$1"
@@ -730,8 +745,9 @@ fn-nginx-vhosts-nginx-init-cmd() {
   declare desc="start nginx for given distros"
   declare CMD="$1"
 
-  if [[ -n "$DOKKU_NGINX_CUSTOM_CMD" ]]; then
-    $DOKKU_NGINX_CUSTOM_CMD $CMD
+  local NGINX_SERVICE_COMMAND="$(fn-nginx-computed-nginx-service-command "$APP")"
+  if [[ -n "$NGINX_SERVICE_COMMAND" ]]; then
+    "$NGINX_SERVICE_COMMAND" $CMD
     return
   fi
 
