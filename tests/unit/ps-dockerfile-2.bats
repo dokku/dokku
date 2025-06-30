@@ -171,3 +171,18 @@ teardown() {
     assert_success
   done
 }
+
+@test "(ps:scale) dockerfile unchanged process" {
+  run deploy_app dockerfile
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:scale $TEST_APP worker=2"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Scaling $TEST_APP processes: worker=2"
+  assert_output_contains "Deploying worker"
+  assert_output_contains "Deploying web" 0
+  assert_success
+}
