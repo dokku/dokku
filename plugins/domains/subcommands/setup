@@ -12,6 +12,8 @@ cmd-domains-setup() {
 
   verify_app_name "$APP"
   domains_setup "$APP"
+  plugn trigger post-domains-update "$APP" "reset"
+  dokku_log_info1_quiet "Setup domains for $APP"
 }
 
 cmd-domains-setup "$@"
