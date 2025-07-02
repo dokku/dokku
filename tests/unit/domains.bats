@@ -347,8 +347,8 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  # run domains:clear in order to invoke default vhost creation
-  run /bin/bash -c "dokku --quiet domains:clear test.dokku.test"
+  # run domains:reset in order to invoke default vhost creation
+  run /bin/bash -c "dokku --quiet domains:reset test.dokku.test"
   echo "output: $output"
   echo "status: $status"
   assert_success
