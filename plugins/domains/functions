@@ -25,7 +25,7 @@ fn-domains-clear-app() {
 
   rm -f "$APP_VHOST_PATH"
   plugn trigger post-domains-update "$APP" "clear"
-  dokku_log_info1 "Deleted all domains for $APP"
+  dokku_log_info1 "Cleared domains in $APP"
 }
 
 fn-domains-disable() {
