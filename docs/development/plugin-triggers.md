@@ -1699,7 +1699,7 @@ curl "http://httpstat.us/200"
 ### `post-domains-update`
 
 - Description: Allows you to run commands once the domain for an app has been updated. It also sends in the command that has been used. This can be "add", "clear" or "remove". The third argument will be the optional list of domains
-- Invoked by: `dokku domains:add`, `dokku domains:clear`, `dokku domains:remove`, `dokku domains:set`
+- Invoked by: `dokku domains:add`, `dokku domains:clear`, `dokku domains:remove`, `dokku domains:reset`, `dokku domains:set`
 - Arguments: `$APP` `action name` `domains`
 - Example:
 
