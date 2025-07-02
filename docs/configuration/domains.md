@@ -68,7 +68,7 @@ dokku domains:add node-js-app dokku.me
 # list custom domains for app
 dokku domains:report node-js-app
 
-# delete all domains for app
+# clear all custom domains for app
 dokku domains:clear node-js-app
 
 # remove a custom domain from app
