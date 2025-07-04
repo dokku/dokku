@@ -534,9 +534,8 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 				return fmt.Errorf("Error reading %s template: %w", templateName, err)
 			}
 
-			filename := filepath.Join(chartDir, "templates", fmt.Sprintf("%s-%s.yaml", templateName, processType))
-			contents := strings.ReplaceAll(string(b), "PROCESS_NAME", processType)
-			err = os.WriteFile(filename, []byte(contents), os.FileMode(0644))
+			filename := filepath.Join(chartDir, "templates", fmt.Sprintf("%s.yaml", templateName))
+			err = os.WriteFile(filename, b, os.FileMode(0644))
 			if err != nil {
 				return fmt.Errorf("Error writing %s template: %w", templateName, err)
 			}

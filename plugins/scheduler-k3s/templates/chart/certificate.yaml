@@ -1,5 +1,9 @@
-{{- $processName := "PROCESS_NAME" }}
-{{- $config := index .Values.processes "PROCESS_NAME" }}
+{{- range $processName, $config := .Values.processes }}
+# Skip cron jobs
+{{- if and (hasKey $config "cron") (hasKey $config.cron "id") }}
+{{- continue }}
+{{- end }}
+
 {{- if and $config.web.tls.enabled $config.web.domains }}
 ---
 apiVersion: cert-manager.io/v1
@@ -33,4 +37,5 @@ spec:
     {{- range $idx, $domain := $config.web.domains }}
     - {{ $domain.name }}
     {{- end }}
+{{- end }}
 {{- end }}
