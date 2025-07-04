@@ -1,7 +1,6 @@
 package registry
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
@@ -108,9 +107,8 @@ func TriggerPostReleaseBuilder(appName string, image string) error {
 	newImage := strings.Replace(image, imageRepo+":", computedImageRepo+":", 1)
 
 	if computedImageRepo != imageRepo {
-		if !dockerTag(imageID, newImage) {
-			// TODO: better error
-			return errors.New("Unable to tag image")
+		if err := dockerTag(imageID, newImage); err != nil {
+			return fmt.Errorf("unable to tag image %s as %s: %w", imageID, newImage, err)
 		}
 	}
 
