@@ -1,5 +1,9 @@
-{{- $processName := "PROCESS_NAME" }}
-{{- $config := index .Values.processes "PROCESS_NAME" }}
+{{- range $processName, $config := .Values.processes }}
+# Skip cron jobs
+{{- if and (hasKey $config "cron") (hasKey $config.cron "id") }}
+{{- continue }}
+{{- end }}
+
 {{- if and $config.web.domains (eq $.Values.global.network.ingress_class "traefik") }}
 {{- $mappings := dict }}
 {{- range $pdx, $port_map := $config.web.port_maps }}
@@ -51,5 +55,6 @@ spec:
   tls:
     secretName: tls-{{ $.Values.global.app_name }}-{{ $processName }}
   {{- end }}
+{{- end }}
 {{- end }}
 {{- end }}

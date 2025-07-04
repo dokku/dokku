@@ -1,5 +1,9 @@
-{{- $processName := "PROCESS_NAME" }}
-{{- $config := index .Values.processes "PROCESS_NAME" }}
+{{- range $processName, $config := .Values.processes }}
+# Skip cron jobs
+{{- if and (hasKey $config "cron") (hasKey $config.cron "id") }}
+{{- continue }}
+{{- end }}
+
 ---
 apiVersion: v1
 kind: Service
@@ -28,3 +32,4 @@ spec:
     app.kubernetes.io/instance: {{ $.Values.global.app_name }}-{{ $processName }}
     app.kubernetes.io/name: {{ $processName }}
     app.kubernetes.io/part-of: {{ $.Values.global.app_name }}
+{{- end }}
