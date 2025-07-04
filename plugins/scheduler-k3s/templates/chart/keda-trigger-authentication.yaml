@@ -1,5 +1,5 @@
 {{- if .Capabilities.APIVersions.Has "keda.sh/v1alpha1" -}}
-{{- $authName, $config := range .Values.global.keda.authentications }}
+{{- range $authName, $config := .Values.global.keda.authentications }}
 ---
 apiVersion: keda.sh/v1alpha1
 kind: TriggerAuthentication

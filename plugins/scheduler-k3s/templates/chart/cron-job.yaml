@@ -1,4 +1,4 @@
-{{- $processName, $config := range .Values.processes }}
+{{- range $processName, $config := .Values.processes }}
 # Only process cron jobs
 {{- if not (and (hasKey $config "cron") (hasKey $config.cron "id")) }}
 {{- continue }}
