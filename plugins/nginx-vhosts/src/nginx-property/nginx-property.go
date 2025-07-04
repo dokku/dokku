@@ -67,6 +67,8 @@ func appValue(appName string, property string) string {
 		value = nginx_vhosts.AppLingeringTimeout(appName)
 	case "nginx-conf-sigil-path":
 		value = nginx_vhosts.AppNginxConfSigilPath(appName)
+	case "nginx-service-command":
+		value = nginx_vhosts.AppNginxServiceCommand(appName)
 	case "proxy-buffer-size":
 		value = nginx_vhosts.AppProxyBufferSize(appName)
 	case "proxy-buffering":
@@ -133,6 +135,8 @@ func computedValue(appName string, property string) string {
 		value = nginx_vhosts.ComputedLingeringTimeout(appName)
 	case "nginx-conf-sigil-path":
 		value = nginx_vhosts.ComputedNginxConfSigilPath(appName)
+	case "nginx-service-command":
+		value = nginx_vhosts.ComputedNginxServiceCommand(appName)
 	case "proxy-buffer-size":
 		value = nginx_vhosts.ComputedProxyBufferSize(appName)
 	case "proxy-buffering":
@@ -199,6 +203,8 @@ func globalValue(appName string, property string) string {
 		value = nginx_vhosts.ComputedLingeringTimeout(appName)
 	case "nginx-conf-sigil-path":
 		value = nginx_vhosts.GlobalNginxConfSigilPath()
+	case "nginx-service-command":
+		value = nginx_vhosts.GlobalNginxServiceCommand()
 	case "proxy-buffer-size":
 		value = nginx_vhosts.GlobalProxyBufferSize()
 	case "proxy-buffering":

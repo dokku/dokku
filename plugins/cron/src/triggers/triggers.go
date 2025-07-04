@@ -19,6 +19,10 @@ func main() {
 
 	var err error
 	switch trigger {
+	case "app-json-is-valid":
+		appName := flag.Arg(0)
+		appJSONPath := flag.Arg(1)
+		err = cron.TriggerAppJSONIsValid(appName, appJSONPath)
 	case "cron-get-property":
 		appName := flag.Arg(0)
 		property := flag.Arg(1)
@@ -43,6 +47,11 @@ func main() {
 	case "report":
 		appName := flag.Arg(0)
 		err = cron.ReportSingleApp(appName, "", "")
+	case "scheduler-stop":
+		scheduler := flag.Arg(0)
+		appName := flag.Arg(1)
+		removeContainers := flag.Arg(2)
+		err = cron.TriggerSchedulerStop(scheduler, appName, removeContainers)
 	default:
 		err = fmt.Errorf("Invalid plugin trigger call: %s", trigger)
 	}

@@ -4,16 +4,17 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/domains/functions"
 
-cmd-domains-setup() {
-  declare desc="setup domains to default state via command line"
-  declare cmd="domains:setup"
+cmd-domains-reset() {
+  declare desc="reset app domains to global-configured domains"
+  declare cmd="domains:reset"
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1"
 
   verify_app_name "$APP"
+  fn-domains-clear "$APP"
   domains_setup "$APP"
   plugn trigger post-domains-update "$APP" "reset"
-  dokku_log_info1_quiet "Setup domains for $APP"
+  dokku_log_info1_quiet "Reset domains for $APP"
 }
 
-cmd-domains-setup "$@"
+cmd-domains-reset "$@"

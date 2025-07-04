@@ -234,6 +234,36 @@ func AppNginxConfSigilPath(appName string) string {
 	return common.PropertyGet("nginx", appName, "nginx-conf-sigil-path")
 }
 
+func ComputedNginxConfSigilPath(appName string) string {
+	appValue := AppNginxConfSigilPath(appName)
+	if appValue != "" {
+		return appValue
+	}
+
+	return GlobalNginxConfSigilPath()
+}
+
+func GlobalNginxConfSigilPath() string {
+	return common.PropertyGetDefault("nginx", "--global", "nginx-conf-sigil-path", "nginx.conf.sigil")
+}
+
+func AppNginxServiceCommand(appName string) string {
+	return common.PropertyGet("nginx", appName, "nginx-service-command")
+}
+
+func ComputedNginxServiceCommand(appName string) string {
+	appValue := AppNginxServiceCommand(appName)
+	if appValue != "" {
+		return appValue
+	}
+
+	return GlobalNginxServiceCommand()
+}
+
+func GlobalNginxServiceCommand() string {
+	return common.PropertyGetDefault("nginx", "--global", "nginx-service-command", "")
+}
+
 func AppKeepaliveTimeout(appName string) string {
 	return common.PropertyGet("nginx", appName, "keepalive-timeout")
 }
@@ -266,19 +296,6 @@ func ComputedLingeringTimeout(appName string) string {
 
 func GlobalLingeringTimeout() string {
 	return common.PropertyGetDefault("nginx", "--global", "lingering-timeout", "5s")
-}
-
-func ComputedNginxConfSigilPath(appName string) string {
-	appValue := AppNginxConfSigilPath(appName)
-	if appValue != "" {
-		return appValue
-	}
-
-	return GlobalNginxConfSigilPath()
-}
-
-func GlobalNginxConfSigilPath() string {
-	return common.PropertyGetDefault("nginx", "--global", "nginx-conf-sigil-path", "nginx.conf.sigil")
 }
 
 func AppProxyBufferSize(appName string) string {

@@ -119,6 +119,21 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `app-json-is-valid`
+
+- Description: Checks to see if the provided app.json file is valid
+- Invoked by: Appjson extraction during deployment
+- Arguments: `$APP $APP_JSON_PATH`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `app-maybe-create`
 
 - Description: Creates an app (gated by whether this is globally enabled or not)
@@ -579,22 +594,6 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 DOKKU_SCHEDULER="$1"
-
-# TODO
-```
-
-### `cron-write`
-
-- Description: Force triggers writing out cron entries
-- Invoked by:
-- Arguments:
-- Example:
-
-```shell
-#!/usr/bin/env bash
-
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 # TODO
 ```
@@ -1700,7 +1699,7 @@ curl "http://httpstat.us/200"
 ### `post-domains-update`
 
 - Description: Allows you to run commands once the domain for an app has been updated. It also sends in the command that has been used. This can be "add", "clear" or "remove". The third argument will be the optional list of domains
-- Invoked by: `dokku domains:add`, `dokku domains:clear`, `dokku domains:remove`, `dokku domains:set`
+- Invoked by: `dokku domains:add`, `dokku domains:clear`, `dokku domains:remove`, `dokku domains:reset`, `dokku domains:set`
 - Arguments: `$APP` `action name` `domains`
 - Example:
 
@@ -2441,6 +2440,26 @@ mail -s "$APP containers on $HOSTNAME failed to retire" ops@dokku.me
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 DOKKU_SCHEDULER="$1"; APP="$2";
+
+# TODO
+```
+
+### `scheduler-cron-write`
+
+> [!WARNING]
+> The scheduler plugin trigger apis are under development and may change
+> between minor releases until the 1.0 release.
+
+- Description: Force triggers writing out cron entries. Arguments are optional.
+- Invoked by: `ps:start`, `ps:stop`, `cron:set`
+- Arguments: `$DOKKU_SCHEDULER $APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 # TODO
 ```

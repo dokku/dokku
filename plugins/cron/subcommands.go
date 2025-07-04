@@ -26,15 +26,15 @@ func CommandList(appName string, format string) error {
 		return fmt.Errorf("Invalid format specified, supported formats: json, stdout")
 	}
 
-	entries, err := FetchCronEntries(appName)
+	entries, err := FetchCronEntries(FetchCronEntriesInput{AppName: appName})
 	if err != nil {
 		return err
 	}
 
 	if format == "stdout" {
-		output := []string{"ID | Schedule | Command"}
+		output := []string{"ID | Schedule | Maintenance | Command"}
 		for _, entry := range entries {
-			output = append(output, fmt.Sprintf("%s | %s | %s", entry.ID, entry.Schedule, entry.Command))
+			output = append(output, fmt.Sprintf("%s | %s | %t | %s", entry.ID, entry.Schedule, entry.Maintenance, entry.Command))
 		}
 
 		result := columnize.SimpleFormat(output)
@@ -79,7 +79,7 @@ func CommandRun(appName string, cronID string, detached bool) error {
 		return err
 	}
 
-	entries, err := FetchCronEntries(appName)
+	entries, err := FetchCronEntries(FetchCronEntriesInput{AppName: appName})
 	if err != nil {
 		return err
 	}
@@ -130,8 +130,10 @@ func CommandSet(appName string, property string, value string) error {
 	}
 
 	common.CommandPropertySet("cron", appName, property, value, DefaultProperties, GlobalProperties)
+	scheduler := common.GetAppScheduler(appName)
 	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
-		Trigger:     "cron-write",
+		Trigger:     "scheduler-cron-write",
+		Args:        []string{scheduler, appName},
 		StreamStdio: true,
 	})
 	return err

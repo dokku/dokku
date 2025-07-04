@@ -332,6 +332,7 @@ Changing these value globally or on a per-app basis will require rebuilding the 
 | keepalive-timeout         | `75s`                                 | string  | Timeout (with units) during which a keep-alive client connection will stay open on the server side |
 | lingering-timeout         | `5s`                                  | string  | Timeout (with units) is the maximum waiting time for more client data to arrive     |
 | nginx-conf-sigil-path     | `nginx.conf.sigil`                    | string  | Path in the repository to the `nginx.conf.sigil` file                               |
+| nginx-service-command     |                                       | string  | Full path to an executable script or binary to invoke instead of the system's init process when interacting with nginx |
 | proxy-buffer-size         | `8k` (# is os pagesize)               | string  | Size of the buffer used for reading the first part of proxied server response       |
 | proxy-buffering           | `on`                                  | string  | Enables or disables buffering of responses from the proxied server                  |
 | proxy-buffers             | `8 8k`                                | string  | Number and size of the buffers used for reading the proxied server response, for a single connection |
