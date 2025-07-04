@@ -6,7 +6,7 @@
 
 {{- $routeToKeda := false }}
 {{- if and (eq $processName "web") (and $config.autoscaling (and $config.autoscaling.enabled (eq $config.autoscaling.type "keda"))) }}
-{{- if and (.Capabilities.APIVersions.Has "http.keda.sh/v1alpha1") (and $config.autoscaling.http_trigger (eq $config.autoscaling.http_trigger.type "http")) }}
+{{- if and ($.Capabilities.APIVersions.Has "http.keda.sh/v1alpha1") (and $config.autoscaling.http_trigger (eq $config.autoscaling.http_trigger.type "http")) }}
 {{- $routeToKeda = true }}
 {{- end }}
 {{- end }}
