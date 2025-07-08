@@ -242,6 +242,10 @@ func (h *HelmAgent) InstallChart(ctx context.Context, input ChartInput) error {
 	client.ChartPathOptions = action.ChartPathOptions{}
 	client.CreateNamespace = true
 	client.DryRun = false
+	if os.Getenv("DOKKU_TRACE") == "1" {
+		client.DryRun = true
+		client.PostRenderer = &DebugRenderer{}
+	}
 	client.Namespace = namespace
 	client.ReleaseName = input.ReleaseName
 	client.Timeout = input.Timeout
