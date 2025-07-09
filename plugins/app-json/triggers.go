@@ -1,6 +1,7 @@
 package appjson
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path"
@@ -137,6 +138,22 @@ func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
 	} else {
 		if err := common.CopyFromImage(appName, appSourceImage, path.Join(buildDir, appJSONPath), processSpecificAppJSON); err != nil {
 			return common.TouchFile(fmt.Sprintf("%s.missing", processSpecificAppJSON))
+		}
+	}
+
+	if common.FileExists(processSpecificAppJSON) {
+		result, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+			Trigger:      "app-json-is-valid",
+			Args:         []string{appName, processSpecificAppJSON},
+			StreamStdout: true,
+			StreamStderr: true,
+		})
+		if err != nil {
+			if result.StderrContents() != "" {
+				return errors.New(result.StderrContents())
+			}
+
+			return err
 		}
 	}
 

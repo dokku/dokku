@@ -266,9 +266,16 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 
 	workingDir := common.GetWorkingDir(appName, image)
 
-	cronEntries, err := cron.FetchCronEntries(appName)
+	allCronEntries, err := cron.FetchCronEntries(cron.FetchCronEntriesInput{AppName: appName})
 	if err != nil {
 		return fmt.Errorf("Error fetching cron entries: %w", err)
+	}
+	// remove maintenance cron entries
+	cronEntries := []cron.TemplateCommand{}
+	for _, cronEntry := range allCronEntries {
+		if !cronEntry.Maintenance {
+			cronEntries = append(cronEntries, cronEntry)
+		}
 	}
 
 	domains := []string{}
@@ -361,7 +368,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 		Processes: map[string]ProcessValues{},
 	}
 
-	for authName := range kedaValues.Authentications {
+	if len(kedaValues.Authentications) > 0 {
 		templateFiles := []string{"keda-secret", "keda-trigger-authentication"}
 		for _, templateName := range templateFiles {
 			b, err := templates.ReadFile(fmt.Sprintf("templates/chart/%s.yaml", templateName))
@@ -369,9 +376,8 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 				return fmt.Errorf("Error reading %s template: %w", templateName, err)
 			}
 
-			filename := filepath.Join(chartDir, "templates", fmt.Sprintf("%s-%s.yaml", templateName, authName))
-			contents := strings.ReplaceAll(string(b), "AUTH_NAME", authName)
-			err = os.WriteFile(filename, []byte(contents), os.FileMode(0644))
+			filename := filepath.Join(chartDir, "templates", fmt.Sprintf("%s.yaml", templateName))
+			err = os.WriteFile(filename, b, os.FileMode(0644))
 			if err != nil {
 				return fmt.Errorf("Error writing %s template: %w", templateName, err)
 			}
@@ -528,9 +534,8 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 				return fmt.Errorf("Error reading %s template: %w", templateName, err)
 			}
 
-			filename := filepath.Join(chartDir, "templates", fmt.Sprintf("%s-%s.yaml", templateName, processType))
-			contents := strings.ReplaceAll(string(b), "PROCESS_NAME", processType)
-			err = os.WriteFile(filename, []byte(contents), os.FileMode(0644))
+			filename := filepath.Join(chartDir, "templates", fmt.Sprintf("%s.yaml", templateName))
+			err = os.WriteFile(filename, b, os.FileMode(0644))
 			if err != nil {
 				return fmt.Errorf("Error writing %s template: %w", templateName, err)
 			}
@@ -606,15 +611,16 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 			Volumes:     processVolumes,
 		}
 		values.Processes[cronEntry.ID] = processValues
+	}
 
+	if len(cronEntries) > 0 {
 		b, err := templates.ReadFile("templates/chart/cron-job.yaml")
 		if err != nil {
 			return fmt.Errorf("Error reading cron job template: %w", err)
 		}
 
-		cronFile := filepath.Join(chartDir, "templates", fmt.Sprintf("cron-job-%s.yaml", cronEntry.ID))
-		contents := strings.ReplaceAll(string(b), "CRON_ID", cronEntry.ID)
-		err = os.WriteFile(cronFile, []byte(contents), os.FileMode(0644))
+		cronFile := filepath.Join(chartDir, "templates", "cron-job.yaml")
+		err = os.WriteFile(cronFile, b, os.FileMode(0644))
 		if err != nil {
 			return fmt.Errorf("Error writing cron job template: %w", err)
 		}
@@ -1490,6 +1496,15 @@ func TriggerSchedulerStop(scheduler string, appName string) error {
 		if err != nil {
 			return fmt.Errorf("Error updating deployment scale: %w", err)
 		}
+	}
+
+	// get all cronjobs for the app
+	err = clientset.SuspendCronJobs(ctx, SuspendCronJobsInput{
+		Namespace:     namespace,
+		LabelSelector: fmt.Sprintf("app.kubernetes.io/part-of=%s", appName),
+	})
+	if err != nil {
+		return fmt.Errorf("Error suspending cron jobs: %w", err)
 	}
 
 	return nil

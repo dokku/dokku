@@ -1,5 +1,9 @@
-{{- $processName := "PROCESS_NAME" }}
-{{- $config := index .Values.processes "PROCESS_NAME" }}
+{{- range $processName, $config := .Values.processes }}
+# Skip cron jobs
+{{- if and (hasKey $config "cron") (hasKey $config.cron "id") }}
+{{- continue }}
+{{- end }}
+
 {{- if and $config.web.domains (eq $.Values.global.network.ingress_class "traefik") }}
 ---
 apiVersion: traefik.io/v1alpha1
@@ -21,4 +25,5 @@ spec:
   redirectScheme:
     scheme: https
     permanent: true
+{{- end }}
 {{- end }}

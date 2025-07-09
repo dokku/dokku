@@ -5,7 +5,7 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/domains/functions"
 
 cmd-domains-clear-global() {
-  declare desc="clear global domain names via command line"
+  declare desc="clear global domain names"
   declare cmd="domains:clear-global"
   [[ "$1" == "$cmd" ]] && shift 1
 
