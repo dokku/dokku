@@ -578,7 +578,7 @@ func SuppressOutput(f errfunc) error {
 	os.Stdout = rescueStdout
 
 	if err != nil {
-		fmt.Printf(string(out[:]))
+		fmt.Print(string(out[:]))
 	}
 
 	return err
