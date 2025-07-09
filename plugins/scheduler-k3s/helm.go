@@ -14,6 +14,7 @@ import (
 	"unicode"
 
 	"github.com/dokku/dokku/plugins/common"
+	"github.com/fluxcd/pkg/kustomize/filesys"
 	"github.com/gofrs/flock"
 	"gopkg.in/yaml.v3"
 	"helm.sh/helm/v3/pkg/action"
@@ -21,9 +22,13 @@ import (
 	"helm.sh/helm/v3/pkg/cli"
 	"helm.sh/helm/v3/pkg/getter"
 	"helm.sh/helm/v3/pkg/kube"
+	"helm.sh/helm/v3/pkg/postrender"
 	"helm.sh/helm/v3/pkg/release"
 	"helm.sh/helm/v3/pkg/repo"
 	"helm.sh/helm/v3/pkg/storage/driver"
+	"sigs.k8s.io/kustomize/api/konfig"
+	"sigs.k8s.io/kustomize/api/krusty"
+	"sigs.k8s.io/kustomize/api/types"
 )
 
 var DevNullPrinter = func(format string, v ...interface{}) {}
@@ -337,16 +342,6 @@ func (h *HelmAgent) ListRevisions(input ListRevisionsInput) ([]Release, error) {
 	return releases, nil
 }
 
-type DebugRenderer struct {
-}
-
-func (p *DebugRenderer) Run(renderedManifests *bytes.Buffer) (*bytes.Buffer, error) {
-	for _, line := range strings.Split(renderedManifests.String(), "\n") {
-		common.LogWarn(line)
-	}
-	return renderedManifests, nil
-}
-
 func (h *HelmAgent) UpgradeChart(ctx context.Context, input ChartInput) error {
 	namespace := input.Namespace
 	if namespace == "" {
@@ -416,4 +411,78 @@ func (h *HelmAgent) UninstallChart(releaseName string) error {
 	}
 
 	return nil
+}
+
+type DebugRenderer struct {
+	Renderer *postrender.PostRenderer
+}
+
+func (p *DebugRenderer) Run(renderedManifests *bytes.Buffer) (*bytes.Buffer, error) {
+	if p.Renderer != nil {
+		var err error
+		renderer := *p.Renderer
+		renderedManifests, err = renderer.Run(renderedManifests)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	for _, line := range strings.Split(renderedManifests.String(), "\n") {
+		common.LogWarn(line)
+	}
+	return renderedManifests, nil
+}
+
+type KustomizeRenderer struct {
+	Renderer          *postrender.PostRenderer
+	KustomizeRootPath string
+}
+
+func (p *KustomizeRenderer) Run(renderedManifests *bytes.Buffer) (*bytes.Buffer, error) {
+	if p.KustomizeRootPath == "" {
+		return nil, nil
+	}
+
+	if !common.DirectoryExists(p.KustomizeRootPath) {
+		return nil, nil
+	}
+
+	fs, err := filesys.MakeFsOnDiskSecureBuild(p.KustomizeRootPath)
+	if err != nil {
+		return nil, fmt.Errorf("Error creating filesystem: %w", err)
+	}
+
+	var kfile string
+	for _, f := range konfig.RecognizedKustomizationFileNames() {
+		if kf := filepath.Join(p.KustomizeRootPath, f); fs.Exists(kf) {
+			kfile = kf
+			break
+		}
+	}
+	if kfile == "" {
+		return nil, fmt.Errorf("%s not found", konfig.DefaultKustomizationFileName())
+	}
+
+	renderedYamlPath := filepath.Join(p.KustomizeRootPath, "rendered.yaml")
+	if err := os.WriteFile(renderedYamlPath, renderedManifests.Bytes(), 0644); err != nil {
+		return nil, fmt.Errorf("Error writing rendered.yaml: %w", err)
+	}
+
+	buildOptions := &krusty.Options{
+		LoadRestrictions: types.LoadRestrictionsNone,
+		PluginConfig:     types.DisabledPluginConfig(),
+	}
+
+	k := krusty.MakeKustomizer(buildOptions)
+	m, err := k.Run(fs, p.KustomizeRootPath)
+	if err != nil {
+		return nil, err
+	}
+
+	resources, err := m.AsYaml()
+	if err != nil {
+		return nil, err
+	}
+
+	return bytes.NewBuffer(resources), nil
 }
