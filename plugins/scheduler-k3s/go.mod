@@ -11,6 +11,7 @@ require (
 	github.com/dokku/dokku/plugins/logs v0.0.0-20250618161309-8d0c35f1333c
 	github.com/dokku/dokku/plugins/nginx-vhosts v0.0.0-20250618161309-8d0c35f1333c
 	github.com/fatih/color v1.18.0
+	github.com/fluxcd/pkg/kustomize v1.18.0
 	github.com/go-openapi/jsonpointer v0.21.1
 	github.com/go-resty/resty/v2 v2.16.5
 	github.com/gofrs/flock v0.12.1
@@ -30,6 +31,7 @@ require (
 	k8s.io/kubernetes v1.33.2
 	k8s.io/utils v0.0.0-20250604170112-4c0f3b243397
 	mvdan.cc/sh/v3 v3.12.0
+	sigs.k8s.io/kustomize/api v0.20.0
 )
 
 require (
@@ -168,7 +170,6 @@ require (
 	sigs.k8s.io/controller-runtime v0.21.0 // indirect
 	sigs.k8s.io/gateway-api v1.3.0 // indirect
 	sigs.k8s.io/json v0.0.0-20241014173422-cfa47c3a1cc8 // indirect
-	sigs.k8s.io/kustomize/api v0.20.0 // indirect
 	sigs.k8s.io/kustomize/kyaml v0.20.0 // indirect
 	sigs.k8s.io/randfill v1.0.0 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.7.0 // indirect
