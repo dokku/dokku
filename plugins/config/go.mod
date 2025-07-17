@@ -7,7 +7,7 @@ require (
 	github.com/joho/godotenv v1.2.0
 	github.com/onsi/gomega v1.37.0
 	github.com/ryanuber/columnize v2.1.2+incompatible
-	github.com/spf13/pflag v1.0.6
+	github.com/spf13/pflag v1.0.7
 )
 
 require (
