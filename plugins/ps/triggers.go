@@ -78,8 +78,8 @@ func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
 	})
 	appSourceImage := results.StdoutContents()
 
-	repoDefaultProcfilePath := path.Join(sourceWorkDir, "Procfile")
 	if appSourceImage == "" {
+		repoDefaultProcfilePath := path.Join(sourceWorkDir, "Procfile")
 		repoProcfilePath := path.Join(sourceWorkDir, procfilePath)
 		if !common.FileExists(repoProcfilePath) {
 			if procfilePath != "Procfile" && common.FileExists(repoDefaultProcfilePath) {
