@@ -42,12 +42,12 @@ func TriggerCorePostDeploy(appName string) error {
 			return err
 		}
 	} else if common.FileExists(fmt.Sprintf("%s.missing", processSpecificKustomizeRootPath)) {
-		if err := os.Remove(fmt.Sprintf("%s.missing", processSpecificKustomizeRootPath)); err != nil {
+		if err := os.RemoveAll(fmt.Sprintf("%s.missing", processSpecificKustomizeRootPath)); err != nil {
 			return err
 		}
 
 		if common.DirectoryExists(existingKustomizeRootPath) {
-			if err := os.Remove(existingKustomizeRootPath); err != nil {
+			if err := os.RemoveAll(existingKustomizeRootPath); err != nil {
 				return err
 			}
 		}
