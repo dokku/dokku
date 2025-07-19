@@ -11,6 +11,7 @@ import (
 	"io"
 	"os"
 	"os/signal"
+	"path"
 	"path/filepath"
 	"sort"
 	"strconv"
@@ -31,6 +32,85 @@ import (
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/kubernetes/pkg/client/conditions"
 )
+
+// TriggerCorePostDeploy moves a configured kustomize root path to be in the app root dir
+func TriggerCorePostDeploy(appName string) error {
+	existingKustomizeRootPath := getComputedKustomizeRootPath(appName)
+	processSpecificKustomizeRootPath := fmt.Sprintf("%s.%s", existingKustomizeRootPath, os.Getenv("DOKKU_PID"))
+	if common.DirectoryExists(processSpecificKustomizeRootPath) {
+		if err := os.Rename(processSpecificKustomizeRootPath, existingKustomizeRootPath); err != nil {
+			return err
+		}
+	} else if common.FileExists(fmt.Sprintf("%s.missing", processSpecificKustomizeRootPath)) {
+		if err := os.Remove(fmt.Sprintf("%s.missing", processSpecificKustomizeRootPath)); err != nil {
+			return err
+		}
+
+		if common.DirectoryExists(existingKustomizeRootPath) {
+			if err := os.Remove(existingKustomizeRootPath); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+// TriggerCorePostExtract moves a configured kustomize root path to be in the app root dir
+func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
+	kustomizeRootPath := getComputedKustomizeRootPath(appName)
+	if kustomizeRootPath == "" {
+		return nil
+	}
+
+	directory := filepath.Join(common.MustGetEnv("DOKKU_LIB_ROOT"), "data", "scheduler-k3s", appName)
+	existingKustomizeDirectory := filepath.Join(directory, "kustomization")
+	files, err := filepath.Glob(fmt.Sprintf("%s.*", existingKustomizeDirectory))
+	if err != nil {
+		return err
+	}
+	for _, f := range files {
+		if err := os.Remove(f); err != nil {
+			return err
+		}
+	}
+
+	processSpecificKustomizeRootPath := fmt.Sprintf("%s.%s", kustomizeRootPath, os.Getenv("DOKKU_PID"))
+	results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "git-get-property",
+		Args:    []string{appName, "source-image"},
+	})
+	appSourceImage := results.StdoutContents()
+
+	if appSourceImage == "" {
+		repoDefaultKustomizeRootPath := path.Join(sourceWorkDir, "kustomization")
+		repoKustomizeRootPath := path.Join(sourceWorkDir, kustomizeRootPath)
+		if !common.DirectoryExists(repoKustomizeRootPath) {
+			if kustomizeRootPath != "kustomization" && common.DirectoryExists(repoDefaultKustomizeRootPath) {
+				if err := os.RemoveAll(repoDefaultKustomizeRootPath); err != nil {
+					return fmt.Errorf("Unable to remove existing kustomize directory: %s", err.Error())
+				}
+			}
+			return common.TouchDir(fmt.Sprintf("%s.missing", processSpecificKustomizeRootPath))
+		}
+
+		if err := common.Copy(repoKustomizeRootPath, processSpecificKustomizeRootPath); err != nil {
+			return fmt.Errorf("Unable to extract kustomize root path: %s", err.Error())
+		}
+
+		if kustomizeRootPath != "kustomization" {
+			if err := common.Copy(repoKustomizeRootPath, repoDefaultKustomizeRootPath); err != nil {
+				return fmt.Errorf("Unable to move kustomize root path into place: %s", err.Error())
+			}
+		}
+	} else {
+		if err := common.CopyDirFromImage(appName, appSourceImage, kustomizeRootPath, processSpecificKustomizeRootPath); err != nil {
+			return common.TouchDir(fmt.Sprintf("%s.missing", processSpecificKustomizeRootPath))
+		}
+	}
+
+	return nil
+}
 
 // TriggerInstall runs the install step for the scheduler-k3s plugin
 func TriggerInstall() error {
