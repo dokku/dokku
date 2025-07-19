@@ -114,8 +114,8 @@ func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
 	})
 	buildDir := results.StdoutContents()
 
-	repoDefaultAppJSONPath := path.Join(sourceWorkDir, "app.json")
 	if appSourceImage == "" {
+		repoDefaultAppJSONPath := path.Join(sourceWorkDir, "app.json")
 		repoAppJSONPath := path.Join(sourceWorkDir, buildDir, appJSONPath)
 		if !common.FileExists(repoAppJSONPath) {
 			if appJSONPath != "app.json" && common.FileExists(repoDefaultAppJSONPath) {

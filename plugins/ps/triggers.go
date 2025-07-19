@@ -78,8 +78,8 @@ func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
 	})
 	appSourceImage := results.StdoutContents()
 
-	repoDefaultProcfilePath := path.Join(sourceWorkDir, "Procfile")
 	if appSourceImage == "" {
+		repoDefaultProcfilePath := path.Join(sourceWorkDir, "Procfile")
 		repoProcfilePath := path.Join(sourceWorkDir, procfilePath)
 		if !common.FileExists(repoProcfilePath) {
 			if procfilePath != "Procfile" && common.FileExists(repoDefaultProcfilePath) {
@@ -110,7 +110,7 @@ func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
 		Args:    []string{"check", "-P", processSpecificProcfile},
 	})
 	if err != nil {
-		return fmt.Errorf(result.StderrContents())
+		return errors.New(result.StderrContents())
 	}
 	if result.ExitCode != 0 {
 		return fmt.Errorf("Invalid Procfile: %s", result.StderrContents())

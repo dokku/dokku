@@ -22,6 +22,13 @@ func main() {
 
 	var err error
 	switch trigger {
+	case "core-post-deploy":
+		appName := flag.Arg(0)
+		err = scheduler_k3s.TriggerCorePostDeploy(appName)
+	case "core-post-extract":
+		appName := flag.Arg(0)
+		sourceWorkDir := flag.Arg(1)
+		err = scheduler_k3s.TriggerCorePostExtract(appName, sourceWorkDir)
 	case "install":
 		err = scheduler_k3s.TriggerInstall()
 	case "post-app-clone-setup":

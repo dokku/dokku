@@ -195,6 +195,12 @@ func SetPermissions(input SetPermissionInput) error {
 	return os.Chown(input.Filename, uid, gid)
 }
 
+// TouchDir creates an empty directory at the specified path
+func TouchDir(filename string) error {
+	mode := os.FileMode(0700)
+	return os.MkdirAll(filename, mode)
+}
+
 // TouchFile creates an empty file at the specified path
 func TouchFile(filename string) error {
 	mode := os.FileMode(0600)

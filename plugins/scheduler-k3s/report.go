@@ -28,6 +28,9 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 		"--scheduler-k3s-global-ingress-class":          reportGlobalIngressClass,
 		"--scheduler-k3s-global-letsencrypt-email-prod": reportGlobalLetsencryptEmailProd,
 		"--scheduler-k3s-global-letsencrypt-email-stag": reportGlobalLetsencryptEmailStag,
+		"--scheduler-k3s-computed-kustomize-root-path":  reportComputedKustomizeRootPath,
+		"--scheduler-k3s-kustomize-root-path":           reportKustomizeRootPath,
+		"--scheduler-k3s-global-kustomize-root-path":    reportGlobalKustomizeRootPath,
 		"--scheduler-k3s-computed-namespace":            reportComputedNamespace,
 		"--scheduler-k3s-namespace":                     reportNamespace,
 		"--scheduler-k3s-global-namespace":              reportGlobalNamespace,
@@ -146,6 +149,18 @@ func reportGlobalLetsencryptEmailProd(appName string) string {
 
 func reportGlobalLetsencryptEmailStag(appName string) string {
 	return getGlobalLetsencryptEmailStag()
+}
+
+func reportComputedKustomizeRootPath(appName string) string {
+	return getComputedKustomizeRootPath(appName)
+}
+
+func reportKustomizeRootPath(appName string) string {
+	return getKustomizeRootPath(appName)
+}
+
+func reportGlobalKustomizeRootPath(appName string) string {
+	return getGlobalKustomizeRootPath()
 }
 
 func reportComputedNamespace(appName string) string {
