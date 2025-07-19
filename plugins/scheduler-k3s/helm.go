@@ -51,16 +51,34 @@ var DeployLogPrinter = func(format string, v ...interface{}) {
 	}
 }
 
+// ChartInput is the input for the InstallOrUpgradeChart function
 type ChartInput struct {
-	ChartPath         string
-	Namespace         string
-	ReleaseName       string
-	RepoURL           string
+	// ChartPath is the path to the chart to install or upgrade
+	ChartPath string
+
+	// Namespace is the namespace to install or upgrade the chart in
+	Namespace string
+
+	// ReleaseName is the name of the release to install or upgrade
+	ReleaseName string
+
+	// RepoURL is the URL of the chart repository to install or upgrade the chart from
+	RepoURL string
+
+	// RollbackOnFailure is whether to rollback on failure
 	RollbackOnFailure bool
-	Timeout           time.Duration
-	Wait              bool
-	Version           string
-	Values            map[string]interface{}
+
+	// Timeout is the timeout for the install or upgrade
+	Timeout time.Duration
+
+	// Wait is whether to wait for the install or upgrade to complete
+	Wait bool
+
+	// Version is the version of the chart to install or upgrade
+	Version string
+
+	// Values is the values to pass to the chart
+	Values map[string]interface{}
 }
 
 type Release struct {
