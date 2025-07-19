@@ -110,7 +110,7 @@ func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
 		Args:    []string{"check", "-P", processSpecificProcfile},
 	})
 	if err != nil {
-		return fmt.Errorf(result.StderrContents())
+		return errors.New(result.StderrContents())
 	}
 	if result.ExitCode != 0 {
 		return fmt.Errorf("Invalid Procfile: %s", result.StderrContents())
