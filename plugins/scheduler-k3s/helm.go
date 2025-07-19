@@ -414,17 +414,13 @@ func (h *HelmAgent) UninstallChart(releaseName string) error {
 }
 
 type DebugRenderer struct {
-	Renderer *postrender.PostRenderer
+	Renderer postrender.PostRenderer
 }
 
 func (p *DebugRenderer) Run(renderedManifests *bytes.Buffer) (*bytes.Buffer, error) {
-	if p.Renderer != nil {
-		var err error
-		renderer := *p.Renderer
-		renderedManifests, err = renderer.Run(renderedManifests)
-		if err != nil {
-			return nil, err
-		}
+	renderedManifests, err := p.Renderer.Run(renderedManifests)
+	if err != nil {
+		return nil, err
 	}
 
 	for _, line := range strings.Split(renderedManifests.String(), "\n") {
@@ -434,7 +430,6 @@ func (p *DebugRenderer) Run(renderedManifests *bytes.Buffer) (*bytes.Buffer, err
 }
 
 type KustomizeRenderer struct {
-	Renderer          *postrender.PostRenderer
 	KustomizeRootPath string
 }
 
