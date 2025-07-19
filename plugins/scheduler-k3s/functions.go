@@ -1494,6 +1494,19 @@ func getStartCommand(input StartCommandInput) (StartCommandOutput, error) {
 	}, nil
 }
 
+func hasKustomizeRootPath(appName string) bool {
+	kustomizeRootPath := getComputedKustomizeRootPath(appName)
+	if common.DirectoryExists(fmt.Sprintf("%s.%s.missing", kustomizeRootPath, os.Getenv("DOKKU_PID"))) {
+		return false
+	}
+
+	if common.DirectoryExists(fmt.Sprintf("%s.%s", kustomizeRootPath, os.Getenv("DOKKU_PID"))) {
+		return true
+	}
+
+	return common.DirectoryExists(kustomizeRootPath)
+}
+
 func installHelmCharts(ctx context.Context, clientset KubernetesClient, shouldInstall func(HelmChart) bool) error {
 	for _, repo := range HelmRepositories {
 		helmAgent, err := NewHelmAgent("default", DeployLogPrinter)
