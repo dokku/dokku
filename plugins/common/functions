@@ -909,6 +909,10 @@ acquire_app_deploy_lock() {
   local LOCK_WAITING_MSG="$APP currently has a deploy lock in place. Waiting..."
   local LOCK_FAILED_MSG="$APP currently has a deploy lock in place. Exiting..."
 
+  if [[ -n "$DOKKU_LOCK_ACQUIRED" ]]; then
+    return
+  fi
+
   acquire_advisory_lock "$APP_DEPLOY_LOCK_FILE" "$LOCK_TYPE" "$LOCK_WAITING_MSG" "$LOCK_FAILED_MSG"
 }
 
@@ -951,6 +955,10 @@ release_advisory_lock() {
   declare desc="release advisory lock"
   local LOCK_FILE="$1"
   local LOCK_FD="200"
+
+  if [[ ! -f "$LOCK_FILE" ]]; then
+    return
+  fi
 
   flock -u "$LOCK_FD" && rm -f "$LOCK_FILE" &>/dev/null
 }
