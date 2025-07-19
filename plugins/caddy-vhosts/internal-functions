@@ -71,3 +71,8 @@ fn-caddy-tls-internal() {
   declare APP="$1"
   fn-plugin-property-get-default "caddy" "$APP" "tls-internal" "false"
 }
+
+fn-caddy-label-key() {
+  declare APP="$1"
+  fn-plugin-property-get-default "caddy" "$APP" "label-key" "caddy"
+}
