@@ -488,7 +488,6 @@ parse_args() {
 copy_from_image() {
   declare desc="copy file from named image to destination"
   declare IMAGE="$1" SRC_FILE="$2" DST_FILE="$3"
-  local WORK_DIR=""
 
   if ! "$PLUGIN_CORE_AVAILABLE_PATH/common/common" copy-from-image "$APP" "$IMAGE" "$SRC_FILE" "$DST_FILE"; then
     return 1
@@ -498,56 +497,8 @@ copy_from_image() {
 copy_dir_from_image() {
   declare desc="copy a directory from named image to destination"
   declare IMAGE="$1" SRC_DIR="$2" DST_DIR="$3"
-  local WORK_DIR=""
 
-  local DOCKER_CREATE_LABEL_ARGS="--label=com.dokku.app-name=$APP"
-
-  if verify_image "$IMAGE"; then
-    if ! is_abs_path "$SRC_DIR"; then
-      if is_image_cnb_based "$IMAGE"; then
-        WORKDIR="/workspace"
-      elif is_image_herokuish_based "$IMAGE" "$APP"; then
-        WORKDIR="/app"
-      else
-        WORKDIR="$("$DOCKER_BIN" image inspect --format '{{.Config.WorkingDir}}' "$IMAGE")"
-      fi
-
-      if [[ -n "$WORKDIR" ]]; then
-        SRC_DIR="${WORKDIR}/${SRC_DIR}"
-      fi
-    fi
-
-    TMP_DIR_COMMAND_OUTPUT=$(mktemp -d "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
-    trap "rm -rf '$TMP_DIR_COMMAND_OUTPUT' &>/dev/null || true" RETURN
-
-    local CID=$("$DOCKER_BIN" container create "${DOCKER_CREATE_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS "$IMAGE")
-    "$DOCKER_BIN" container cp "$CID:$SRC_DIR" "$TMP_DIR_COMMAND_OUTPUT" 2>/dev/null || true
-    "$DOCKER_BIN" container rm --force "$CID" &>/dev/null
-    plugn trigger scheduler-register-retired "$APP" "$CID"
-
-    # docker cp exits with status 1 when run as non-root user when it tries to chown the file
-    # after successfully copying the file. Thus, we suppress stderr.
-    # ref: https://github.com/dotcloud/docker/issues/3986
-    if [[ ! -d "$TMP_DIR_COMMAND_OUTPUT" ]]; then
-      return 1
-    fi
-
-    pushd "$TMP_DIR_COMMAND_OUTPUT" >/dev/null
-    for filename in *; do
-      if [[ ! -f "$TMP_DIR_COMMAND_OUTPUT/$filename" ]]; then
-        continue
-      fi
-
-      # workaround for CHECKS file when owner is root. seems to only happen when running inside docker
-      dos2unix -l <"$TMP_DIR_COMMAND_OUTPUT/$filename" >"$DST_DIR/$filename"
-
-      # add trailing newline for certain places where file parsing depends on it
-      if [[ "$(tail -c1 "$DST_DIR/$filename")" != "" ]]; then
-        echo "" >>"$DST_DIR/$filename"
-      fi
-    done
-    popd &>/dev/null || pushd "/tmp" >/dev/null
-  else
+  if ! "$PLUGIN_CORE_AVAILABLE_PATH/common/common" copy-dir-from-image "$APP" "$IMAGE" "$SRC_DIR" "$DST_DIR"; then
     return 1
   fi
 }

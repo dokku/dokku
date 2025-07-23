@@ -195,23 +195,33 @@ func SetPermissions(input SetPermissionInput) error {
 	return os.Chown(input.Filename, uid, gid)
 }
 
+// TouchDir creates an empty directory at the specified path
+func TouchDir(filename string) error {
+	mode := os.FileMode(0700)
+	return os.MkdirAll(filename, mode)
+}
+
 // TouchFile creates an empty file at the specified path
 func TouchFile(filename string) error {
 	mode := os.FileMode(0600)
 	file, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, mode)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error opening file %v for creation: %v", filename, err)
 	}
 	defer file.Close()
 
 	if err := file.Chmod(mode); err != nil {
-		return err
+		return fmt.Errorf("Error setting chown for new file %v: %v", filename, err)
 	}
 
-	return SetPermissions(SetPermissionInput{
+	if err := SetPermissions(SetPermissionInput{
 		Filename: filename,
 		Mode:     mode,
-	})
+	}); err != nil {
+		return fmt.Errorf("Error setting permissions for new file %v: %v", filename, err)
+	}
+
+	return nil
 }
 
 // WriteSliceToFile writes a slice of strings to a file

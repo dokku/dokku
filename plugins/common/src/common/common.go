@@ -34,6 +34,12 @@ func main() {
 			ProjectName: projectName,
 			ComposeFile: composeFile,
 		})
+	case "copy-dir-from-image":
+		appName := flag.Arg(1)
+		image := flag.Arg(2)
+		source := flag.Arg(3)
+		destination := flag.Arg(4)
+		err = common.CopyDirFromImage(appName, image, source, destination)
 	case "copy-from-image":
 		appName := flag.Arg(1)
 		image := flag.Arg(2)
