@@ -12,6 +12,7 @@ setup() {
 }
 
 teardown_() {
+  kubectl get pods -n cert-manager || true
   global_teardown
   dokku nginx:start
   uninstall_k3s || true
