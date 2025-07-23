@@ -1605,25 +1605,6 @@ func installHelmCharts(ctx context.Context, clientset KubernetesClient, shouldIn
 			Wait:        true,
 		})
 		if err != nil {
-			chartPods, err := clientset.ListPods(ctx, ListPodsInput{
-				Namespace: chart.Namespace,
-			})
-			if err != nil {
-				return fmt.Errorf("Error listing chart pods: %w", err)
-			}
-			for _, pod := range chartPods {
-				logs, err := clientset.GetLogs(ctx, GetLogsInput{
-					Name:      pod.Name,
-					Namespace: pod.Namespace,
-				})
-				if err != nil {
-					return fmt.Errorf("Error getting chart pod logs: %w", err)
-				}
-				common.LogExclaim(fmt.Sprintf("Logs for %s/%s", pod.Namespace, pod.Name))
-				for _, log := range strings.Split(string(logs), "\n") {
-					common.LogInfo1(log)
-				}
-			}
 			return fmt.Errorf("Error installing chart %s: %w", chart.ChartPath, err)
 		}
 	}
