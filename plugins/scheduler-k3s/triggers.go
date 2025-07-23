@@ -71,6 +71,11 @@ func TriggerInstall() error {
 	if err := common.PropertySetup("scheduler-k3s"); err != nil {
 		return fmt.Errorf("Unable to install the scheduler-k3s plugin: %s", err.Error())
 	}
+
+	if err := common.SetupAppData("scheduler-k3s"); err != nil {
+		return err
+	}
+
 	return nil
 }
 
