@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"path"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -22,22 +21,16 @@ func TriggerAppRestart(appName string) error {
 // TriggerCorePostDeploy sets a property to
 // allow the app to be restored on boot
 func TriggerCorePostDeploy(appName string) error {
-	existingProcfile := getProcfilePath(appName)
-	processSpecificProcfile := fmt.Sprintf("%s.%s", existingProcfile, os.Getenv("DOKKU_PID"))
-	if common.FileExists(processSpecificProcfile) {
-		if err := os.Rename(processSpecificProcfile, existingProcfile); err != nil {
-			return err
-		}
-	} else if common.FileExists(fmt.Sprintf("%s.missing", processSpecificProcfile)) {
-		if err := os.Remove(fmt.Sprintf("%s.missing", processSpecificProcfile)); err != nil {
-			return err
-		}
-
-		if common.FileExists(existingProcfile) {
-			if err := os.Remove(existingProcfile); err != nil {
-				return err
-			}
-		}
+	err := common.CorePostDeploy(common.CorePostDeployInput{
+		AppName:     appName,
+		Destination: common.GetAppDataDirectory("ps", appName),
+		PluginName:  "ps",
+		ExtractedPaths: []common.CorePostDeployPath{
+			{Path: "Procfile", IsDirectory: false},
+		},
+	})
+	if err != nil {
+		return err
 	}
 
 	if err := common.PropertyDelete("ps", appName, "scale.old"); err != nil {
@@ -55,67 +48,45 @@ func TriggerCorePostDeploy(appName string) error {
 
 // TriggerCorePostExtract ensures that the main Procfile is the one specified by procfile-path
 func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
+	destination := common.GetAppDataDirectory("ps", appName)
 	procfilePath := strings.Trim(reportComputedProcfilePath(appName), "/")
 	if procfilePath == "" {
 		procfilePath = "Procfile"
 	}
 
-	existingProcfile := getProcfilePath(appName)
-	files, err := filepath.Glob(fmt.Sprintf("%s.*", existingProcfile))
-	if err != nil {
-		return err
-	}
-	for _, f := range files {
-		if err := os.Remove(f); err != nil {
+	validator := func(appName string, path string) error {
+		if !common.FileExists(path) {
+			return nil
+		}
+
+		result, err := common.CallExecCommand(common.ExecCommandInput{
+			Command: "procfile-util",
+			Args:    []string{"check", "-P", path},
+		})
+		if err != nil {
 			return err
 		}
+		if result.ExitCode != 0 {
+			return fmt.Errorf("Invalid Procfile: %s", result.StderrContents())
+		}
+		return nil
 	}
 
-	processSpecificProcfile := fmt.Sprintf("%s.%s", existingProcfile, os.Getenv("DOKKU_PID"))
-	results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
-		Trigger: "git-get-property",
-		Args:    []string{appName, "source-image"},
+	return common.CorePostExtract(common.CorePostExtractInput{
+		AppName:       appName,
+		Destination:   destination,
+		PluginName:    "ps",
+		SourceWorkDir: sourceWorkDir,
+		ToExtract: []common.CorePostExtractToExtract{
+			{
+				Path:        procfilePath,
+				IsDirectory: false,
+				Name:        "Procfile",
+				Destination: "Procfile",
+				Validator:   validator,
+			},
+		},
 	})
-	appSourceImage := results.StdoutContents()
-
-	repoDefaultProcfilePath := path.Join(sourceWorkDir, "Procfile")
-	if appSourceImage == "" {
-		repoProcfilePath := path.Join(sourceWorkDir, procfilePath)
-		if !common.FileExists(repoProcfilePath) {
-			if procfilePath != "Procfile" && common.FileExists(repoDefaultProcfilePath) {
-				if err := os.Remove(repoDefaultProcfilePath); err != nil {
-					return err
-				}
-			}
-			return common.TouchFile(fmt.Sprintf("%s.missing", processSpecificProcfile))
-		}
-
-		if err := common.Copy(repoProcfilePath, processSpecificProcfile); err != nil {
-			return fmt.Errorf("Unable to extract Procfile: %v", err.Error())
-		}
-
-		if procfilePath != "Procfile" {
-			if err := common.Copy(repoProcfilePath, repoDefaultProcfilePath); err != nil {
-				return fmt.Errorf("Unable to move Procfile into place: %v", err.Error())
-			}
-		}
-	} else {
-		if err := common.CopyFromImage(appName, appSourceImage, procfilePath, processSpecificProcfile); err != nil {
-			return common.TouchFile(fmt.Sprintf("%s.missing", processSpecificProcfile))
-		}
-	}
-
-	result, err := common.CallExecCommand(common.ExecCommandInput{
-		Command: "procfile-util",
-		Args:    []string{"check", "-P", processSpecificProcfile},
-	})
-	if err != nil {
-		return fmt.Errorf(result.StderrContents())
-	}
-	if result.ExitCode != 0 {
-		return fmt.Errorf("Invalid Procfile: %s", result.StderrContents())
-	}
-	return nil
 }
 
 // TriggerInstall initializes app restart policies
