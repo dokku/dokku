@@ -39,7 +39,7 @@ func TriggerCorePostDeploy(appName string) error {
 		Destination: common.GetAppDataDirectory("scheduler-k3s", appName),
 		PluginName:  "scheduler-k3s",
 		ExtractedPaths: []common.CorePostDeployPath{
-			{Name: "kustomization", IsDirectory: true},
+			{Path: "kustomization", IsDirectory: true},
 		},
 	})
 
@@ -56,7 +56,12 @@ func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
 		PluginName:    "scheduler-k3s",
 		SourceWorkDir: sourceWorkDir,
 		ToExtract: []common.CorePostExtractToExtract{
-			{Path: kustomizeRootPath, IsDirectory: true, Destination: "kustomization"},
+			{
+				Path:        kustomizeRootPath,
+				IsDirectory: true,
+				Name:        "config/kustomize",
+				Destination: "kustomization",
+			},
 		},
 	})
 }
