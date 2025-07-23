@@ -42,12 +42,12 @@ trigger-git-git-from-archive() {
     dokku_log_verbose "Stripping top-level archive folder components"
     local subpath="$(find "$TMP_WORK_DIR_3" -mindepth 1 -maxdepth 1 -type d)"
     pushd "$subpath" >/dev/null
-    find . -maxdepth 1 -exec mv {} "$TMP_WORK_DIR" \;
+    find . -mindepth 1 -maxdepth 1 -exec mv {} "$TMP_WORK_DIR" \;
     popd &>/dev/null || pushd "/tmp" >/dev/null
   else
     dokku_log_verbose "Moving unarchived files and folders into place"
     pushd "$TMP_WORK_DIR_3" >/dev/null
-    find . -maxdepth 1 -exec mv {} "$TMP_WORK_DIR" \;
+    find . -mindepth 1 -maxdepth 1 -exec mv {} "$TMP_WORK_DIR" \;
     popd &>/dev/null || pushd "/tmp" >/dev/null
   fi
 
