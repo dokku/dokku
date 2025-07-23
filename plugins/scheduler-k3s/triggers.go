@@ -784,9 +784,15 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 		}
 	}
 
+	kustomizeRootPath := ""
+	if hasKustomizeRootPath(appName) {
+		kustomizeRootPath = getProcessSpecificKustomizeRootPath(appName)
+	}
+
 	common.LogInfo2(fmt.Sprintf("Installing %s", appName))
 	err = helmAgent.InstallOrUpgradeChart(ctx, ChartInput{
 		ChartPath:         chartPath,
+		KustomizeRootPath: kustomizeRootPath,
 		Namespace:         namespace,
 		ReleaseName:       appName,
 		RollbackOnFailure: allowRollbacks,

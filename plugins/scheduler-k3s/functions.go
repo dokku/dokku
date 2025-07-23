@@ -1494,6 +1494,10 @@ func getStartCommand(input StartCommandInput) (StartCommandOutput, error) {
 	}, nil
 }
 
+func getProcessSpecificKustomizeRootPath(appName string) string {
+	return ""
+}
+
 func hasKustomizeRootPath(appName string) bool {
 	kustomizeRootPath := getComputedKustomizeRootPath(appName)
 	if common.DirectoryExists(fmt.Sprintf("%s.%s.missing", kustomizeRootPath, os.Getenv("DOKKU_PID"))) {

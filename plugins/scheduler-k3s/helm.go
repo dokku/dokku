@@ -56,6 +56,9 @@ type ChartInput struct {
 	// ChartPath is the path to the chart to install or upgrade
 	ChartPath string
 
+	// KustomizeRootPath is the path to the kustomize root path to use
+	KustomizeRootPath string
+
 	// Namespace is the namespace to install or upgrade the chart in
 	Namespace string
 
@@ -260,6 +263,10 @@ func (h *HelmAgent) InstallChart(ctx context.Context, input ChartInput) error {
 		input.Values = map[string]interface{}{}
 	}
 
+	kustomizeRenderer := KustomizeRenderer{
+		KustomizeRootPath: input.KustomizeRootPath,
+	}
+
 	client := action.NewInstall(h.Configuration)
 	client.Atomic = false
 	client.ChartPathOptions = action.ChartPathOptions{}
@@ -267,7 +274,11 @@ func (h *HelmAgent) InstallChart(ctx context.Context, input ChartInput) error {
 	client.DryRun = false
 	if os.Getenv("DOKKU_TRACE") == "1" {
 		client.DryRun = true
-		client.PostRenderer = &DebugRenderer{}
+		client.PostRenderer = &DebugRenderer{
+			Renderer: &kustomizeRenderer,
+		}
+	} else {
+		client.PostRenderer = &kustomizeRenderer
 	}
 	client.Namespace = namespace
 	client.ReleaseName = input.ReleaseName
@@ -376,6 +387,10 @@ func (h *HelmAgent) UpgradeChart(ctx context.Context, input ChartInput) error {
 		input.Values = map[string]interface{}{}
 	}
 
+	kustomizeRenderer := KustomizeRenderer{
+		KustomizeRootPath: input.KustomizeRootPath,
+	}
+
 	client := action.NewUpgrade(h.Configuration)
 	client.Atomic = input.RollbackOnFailure
 	client.ChartPathOptions = action.ChartPathOptions{}
@@ -383,7 +398,11 @@ func (h *HelmAgent) UpgradeChart(ctx context.Context, input ChartInput) error {
 	client.MaxHistory = 10
 	if os.Getenv("DOKKU_TRACE") == "1" {
 		client.DryRun = true
-		client.PostRenderer = &DebugRenderer{}
+		client.PostRenderer = &DebugRenderer{
+			Renderer: &kustomizeRenderer,
+		}
+	} else {
+		client.PostRenderer = &kustomizeRenderer
 	}
 	client.Namespace = namespace
 	client.Timeout = input.Timeout
