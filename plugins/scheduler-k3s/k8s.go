@@ -416,6 +416,35 @@ func (k KubernetesClient) ExecCommand(ctx context.Context, input ExecCommandInpu
 	})
 }
 
+// GetPodLogsInput contains all the information needed to get the logs for a Kubernetes pod
+type GetLogsInput struct {
+	// Name is the Kubernetes pod name
+	Name string
+
+	// Namespace is the Kubernetes namespace
+	Namespace string
+}
+
+// GetLogs gets the logs for a Kubernetes pod
+func (k KubernetesClient) GetLogs(ctx context.Context, input GetLogsInput) ([]byte, error) {
+	logOptions := corev1.PodLogOptions{}
+
+	request := k.Client.CoreV1().Pods(input.Namespace).GetLogs(input.Name, &logOptions)
+
+	readCloser, err := request.Stream(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get logs: %w", err)
+	}
+	defer readCloser.Close()
+
+	bytes, err := io.ReadAll(readCloser)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read logs: %w", err)
+	}
+
+	return bytes, nil
+}
+
 // GetNodeInput contains all the information needed to get a Kubernetes node
 type GetNodeInput struct {
 	// Name is the Kubernetes node name
