@@ -11,7 +11,6 @@ import (
 	"io"
 	"os"
 	"os/signal"
-	"path"
 	"path/filepath"
 	"sort"
 	"strconv"
@@ -58,57 +57,16 @@ func TriggerCorePostDeploy(appName string) error {
 
 // TriggerCorePostExtract moves a configured kustomize root path to be in the app root dir
 func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
+	destination := filepath.Join(common.MustGetEnv("DOKKU_LIB_ROOT"), "data", "scheduler-k3s", appName)
 	kustomizeRootPath := getComputedKustomizeRootPath(appName)
-	if kustomizeRootPath == "" {
-		return nil
-	}
-
-	existingKustomizeDirectory := getKustomizeDirectory(appName)
-	files, err := filepath.Glob(fmt.Sprintf("%s.*", existingKustomizeDirectory))
-	if err != nil {
-		return err
-	}
-	for _, f := range files {
-		if err := os.Remove(f); err != nil {
-			return err
-		}
-	}
-
-	processSpecificKustomizeRootPath := fmt.Sprintf("%s.%s", existingKustomizeDirectory, os.Getenv("DOKKU_PID"))
-	results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
-		Trigger: "git-get-property",
-		Args:    []string{appName, "source-image"},
+	return common.CorePostExtract(common.CorePostExtractInput{
+		AppName:       appName,
+		SourceWorkDir: sourceWorkDir,
+		Destination:   destination,
+		ToExtract: []common.CorePostExtractToExtract{
+			{Path: kustomizeRootPath, IsDirectory: true, Destination: "kustomization"},
+		},
 	})
-	appSourceImage := results.StdoutContents()
-
-	if appSourceImage == "" {
-		repoDefaultKustomizeRootPath := path.Join(sourceWorkDir, "kustomization")
-		repoKustomizeRootPath := path.Join(sourceWorkDir, kustomizeRootPath)
-		if !common.DirectoryExists(repoKustomizeRootPath) {
-			if kustomizeRootPath != "kustomization" && common.DirectoryExists(repoDefaultKustomizeRootPath) {
-				if err := os.RemoveAll(repoDefaultKustomizeRootPath); err != nil {
-					return fmt.Errorf("Unable to remove existing kustomize directory: %s", err.Error())
-				}
-			}
-			return common.TouchDir(fmt.Sprintf("%s.missing", processSpecificKustomizeRootPath))
-		}
-
-		if err := common.Copy(repoKustomizeRootPath, processSpecificKustomizeRootPath); err != nil {
-			return fmt.Errorf("Unable to extract kustomize root path: %s", err.Error())
-		}
-
-		if kustomizeRootPath != "kustomization" {
-			if err := common.Copy(repoKustomizeRootPath, repoDefaultKustomizeRootPath); err != nil {
-				return fmt.Errorf("Unable to move kustomize root path into place: %s", err.Error())
-			}
-		}
-	} else {
-		if err := common.CopyDirFromImage(appName, appSourceImage, kustomizeRootPath, processSpecificKustomizeRootPath); err != nil {
-			return common.TouchDir(fmt.Sprintf("%s.missing", processSpecificKustomizeRootPath))
-		}
-	}
-
-	return nil
 }
 
 // TriggerInstall runs the install step for the scheduler-k3s plugin
