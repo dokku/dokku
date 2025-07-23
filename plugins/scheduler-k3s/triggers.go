@@ -34,30 +34,20 @@ import (
 
 // TriggerCorePostDeploy moves a configured kustomize root path to be in the app root dir
 func TriggerCorePostDeploy(appName string) error {
-	existingKustomizeRootPath := getComputedKustomizeRootPath(appName)
-	processSpecificKustomizeRootPath := fmt.Sprintf("%s.%s", existingKustomizeRootPath, os.Getenv("DOKKU_PID"))
-	if common.DirectoryExists(processSpecificKustomizeRootPath) {
-		if err := os.Rename(processSpecificKustomizeRootPath, existingKustomizeRootPath); err != nil {
-			return err
-		}
-	} else if common.FileExists(fmt.Sprintf("%s.missing", processSpecificKustomizeRootPath)) {
-		if err := os.RemoveAll(fmt.Sprintf("%s.missing", processSpecificKustomizeRootPath)); err != nil {
-			return err
-		}
-
-		if common.DirectoryExists(existingKustomizeRootPath) {
-			if err := os.RemoveAll(existingKustomizeRootPath); err != nil {
-				return err
-			}
-		}
-	}
+	return common.CorePostDeploy(common.CorePostDeployInput{
+		AppName:     appName,
+		Destination: common.GetAppDataDirectory("scheduler-k3s", appName),
+		ExtractedPaths: []common.CorePostDeployPath{
+			{Name: "kustomization", IsDirectory: true},
+		},
+	})
 
 	return nil
 }
 
 // TriggerCorePostExtract moves a configured kustomize root path to be in the app root dir
 func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
-	destination := filepath.Join(common.MustGetEnv("DOKKU_LIB_ROOT"), "data", "scheduler-k3s", appName)
+	destination := common.GetAppDataDirectory("scheduler-k3s", appName)
 	kustomizeRootPath := getComputedKustomizeRootPath(appName)
 	return common.CorePostExtract(common.CorePostExtractInput{
 		AppName:       appName,
