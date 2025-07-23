@@ -102,6 +102,11 @@ func TriggerPostAppRenameSetup(oldAppName string, newAppName string) error {
 	return nil
 }
 
+// TriggerPostCreate creates the scheduler-k3s data directory
+func TriggerPostCreate(appName string) error {
+	return common.CreateAppDataDirectory("scheduler-k3s", appName)
+}
+
 // TriggerPostDelete destroys the scheduler-k3s data for a given app container
 func TriggerPostDelete(appName string) error {
 	dataErr := common.RemoveAppDataDirectory("scheduler-k3s", appName)
