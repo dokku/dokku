@@ -63,8 +63,7 @@ func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
 		return nil
 	}
 
-	directory := filepath.Join(common.MustGetEnv("DOKKU_LIB_ROOT"), "data", "scheduler-k3s", appName)
-	existingKustomizeDirectory := filepath.Join(directory, "kustomization")
+	existingKustomizeDirectory := getKustomizeDirectory(appName)
 	files, err := filepath.Glob(fmt.Sprintf("%s.*", existingKustomizeDirectory))
 	if err != nil {
 		return err
@@ -75,7 +74,7 @@ func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
 		}
 	}
 
-	processSpecificKustomizeRootPath := fmt.Sprintf("%s.%s", kustomizeRootPath, os.Getenv("DOKKU_PID"))
+	processSpecificKustomizeRootPath := fmt.Sprintf("%s.%s", existingKustomizeDirectory, os.Getenv("DOKKU_PID"))
 	results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
 		Trigger: "git-get-property",
 		Args:    []string{appName, "source-image"},
@@ -785,7 +784,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 	}
 
 	kustomizeRootPath := ""
-	if hasKustomizeRootPath(appName) {
+	if hasKustomizeDirectory(appName) {
 		kustomizeRootPath = getProcessSpecificKustomizeRootPath(appName)
 	}
 

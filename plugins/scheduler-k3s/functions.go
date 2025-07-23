@@ -1190,6 +1190,11 @@ func getGlobalLetsencryptEmailStag() string {
 	return common.PropertyGetDefault("scheduler-k3s", "--global", "letsencrypt-email-stag", "")
 }
 
+func getKustomizeDirectory(appName string) string {
+	directory := filepath.Join(common.MustGetEnv("DOKKU_LIB_ROOT"), "data", "scheduler-k3s", appName)
+	return filepath.Join(directory, "kustomization")
+}
+
 func getKustomizeRootPath(appName string) string {
 	return common.PropertyGetDefault("scheduler-k3s", appName, "kustomize-root-path", "")
 }
@@ -1498,17 +1503,18 @@ func getProcessSpecificKustomizeRootPath(appName string) string {
 	return ""
 }
 
-func hasKustomizeRootPath(appName string) bool {
-	kustomizeRootPath := getComputedKustomizeRootPath(appName)
-	if common.DirectoryExists(fmt.Sprintf("%s.%s.missing", kustomizeRootPath, os.Getenv("DOKKU_PID"))) {
+func hasKustomizeDirectory(appName string) bool {
+	directory := getKustomizeDirectory(appName)
+
+	if common.DirectoryExists(fmt.Sprintf("%s.%s.missing", directory, os.Getenv("DOKKU_PID"))) {
 		return false
 	}
 
-	if common.DirectoryExists(fmt.Sprintf("%s.%s", kustomizeRootPath, os.Getenv("DOKKU_PID"))) {
+	if common.DirectoryExists(fmt.Sprintf("%s.%s", directory, os.Getenv("DOKKU_PID"))) {
 		return true
 	}
 
-	return common.DirectoryExists(kustomizeRootPath)
+	return common.DirectoryExists(directory)
 }
 
 func installHelmCharts(ctx context.Context, clientset KubernetesClient, shouldInstall func(HelmChart) bool) error {
