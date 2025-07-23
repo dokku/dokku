@@ -472,11 +472,11 @@ type KustomizeRenderer struct {
 
 func (p *KustomizeRenderer) Run(renderedManifests *bytes.Buffer) (*bytes.Buffer, error) {
 	if p.KustomizeRootPath == "" {
-		return nil, nil
+		return renderedManifests, nil
 	}
 
 	if !common.DirectoryExists(p.KustomizeRootPath) {
-		return nil, nil
+		return renderedManifests, nil
 	}
 
 	fs, err := filesys.MakeFsOnDiskSecureBuild(p.KustomizeRootPath)
