@@ -19,7 +19,7 @@ require (
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
 	github.com/kedacore/keda/v2 v2.17.1-0.20250708210620-a239d2459a35
 	github.com/ryanuber/columnize v2.1.2+incompatible
-	github.com/spf13/pflag v1.0.6
+	github.com/spf13/pflag v1.0.7
 	github.com/traefik/traefik/v2 v2.11.26
 	golang.org/x/sync v0.16.0
 	gopkg.in/yaml.v3 v3.0.1
