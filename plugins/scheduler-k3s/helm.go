@@ -273,7 +273,6 @@ func (h *HelmAgent) InstallChart(ctx context.Context, input ChartInput) error {
 	client.CreateNamespace = true
 	client.DryRun = false
 	if os.Getenv("DOKKU_TRACE") == "1" {
-		client.DryRun = true
 		client.PostRenderer = &DebugRenderer{
 			Renderer: &kustomizeRenderer,
 		}
@@ -397,7 +396,6 @@ func (h *HelmAgent) UpgradeChart(ctx context.Context, input ChartInput) error {
 	client.CleanupOnFail = true
 	client.MaxHistory = 10
 	if os.Getenv("DOKKU_TRACE") == "1" {
-		client.DryRun = true
 		client.PostRenderer = &DebugRenderer{
 			Renderer: &kustomizeRenderer,
 		}
