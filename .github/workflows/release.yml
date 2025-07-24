@@ -158,7 +158,7 @@ jobs:
           echo "====> Running brew cleanup"
           brew cleanup || true
       - name: Brew doctor
-        run: brew doctor
+        run: brew doctor || true
       - name: Brew config
         run: brew config
       - name: Bump Homebrew Formula
