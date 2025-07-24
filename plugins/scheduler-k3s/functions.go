@@ -1500,7 +1500,17 @@ func getStartCommand(input StartCommandInput) (StartCommandOutput, error) {
 }
 
 func getProcessSpecificKustomizeRootPath(appName string) string {
-	return ""
+	if !hasKustomizeDirectory(appName) {
+		return ""
+	}
+
+	directory := getKustomizeDirectory(appName)
+	processSpecificDirectory := fmt.Sprintf("%s.%s", directory, os.Getenv("DOKKU_PID"))
+	if common.DirectoryExists(processSpecificDirectory) {
+		return processSpecificDirectory
+	}
+
+	return directory
 }
 
 func hasKustomizeDirectory(appName string) bool {
