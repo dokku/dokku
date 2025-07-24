@@ -1,11 +1,11 @@
 {{- if .Capabilities.APIVersions.Has "http.keda.sh/v1alpha1" -}}
 {{- range $processName, $config := .Values.processes }}
-# Skip cron jobs
-{{- if and (hasKey $config "cron") (hasKey $config.cron "id") }}
+# Skip processes that don't have a web section
+{{- if not (hasKey $config "web") }}
 {{- continue }}
 {{- end }}
 
-{{- if and (eq $processName "web") (and $config.autoscaling (and $config.autoscaling.enabled (eq $config.autoscaling.type "keda"))) }}
+{{- if and $config.autoscaling (and $config.autoscaling.enabled (eq $config.autoscaling.type "keda")) }}
 ---
 kind: Service
 apiVersion: v1
