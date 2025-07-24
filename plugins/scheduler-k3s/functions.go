@@ -576,7 +576,7 @@ func getAutoscaling(input GetAutoscalingInput) (ProcessAutoscaling, error) {
 	}
 
 	if !ok {
-		common.LogWarn(fmt.Sprintf("No autoscaling config found for %s", input.AppName))
+		common.LogWarn(fmt.Sprintf("No autoscaling config found for %s:%s", input.AppName, input.ProcessType))
 		return ProcessAutoscaling{}, nil
 	}
 
@@ -1190,6 +1190,28 @@ func getGlobalLetsencryptEmailStag() string {
 	return common.PropertyGetDefault("scheduler-k3s", "--global", "letsencrypt-email-stag", "")
 }
 
+func getKustomizeDirectory(appName string) string {
+	directory := filepath.Join(common.MustGetEnv("DOKKU_LIB_ROOT"), "data", "scheduler-k3s", appName)
+	return filepath.Join(directory, "kustomization")
+}
+
+func getKustomizeRootPath(appName string) string {
+	return common.PropertyGetDefault("scheduler-k3s", appName, "kustomize-root-path", "")
+}
+
+func getGlobalKustomizeRootPath() string {
+	return common.PropertyGetDefault("scheduler-k3s", "--global", "kustomize-root-path", "config/kustomize")
+}
+
+func getComputedKustomizeRootPath(appName string) string {
+	kustomizeRootPath := getKustomizeRootPath(appName)
+	if kustomizeRootPath == "" {
+		kustomizeRootPath = getGlobalKustomizeRootPath()
+	}
+
+	return kustomizeRootPath
+}
+
 func getNamespace(appName string) string {
 	return common.PropertyGetDefault("scheduler-k3s", appName, "namespace", "")
 }
@@ -1475,6 +1497,34 @@ func getStartCommand(input StartCommandInput) (StartCommandOutput, error) {
 	return StartCommandOutput{
 		Command: fields,
 	}, nil
+}
+
+func getProcessSpecificKustomizeRootPath(appName string) string {
+	if !hasKustomizeDirectory(appName) {
+		return ""
+	}
+
+	directory := getKustomizeDirectory(appName)
+	processSpecificDirectory := fmt.Sprintf("%s.%s", directory, os.Getenv("DOKKU_PID"))
+	if common.DirectoryExists(processSpecificDirectory) {
+		return processSpecificDirectory
+	}
+
+	return directory
+}
+
+func hasKustomizeDirectory(appName string) bool {
+	directory := getKustomizeDirectory(appName)
+
+	if common.DirectoryExists(fmt.Sprintf("%s.%s.missing", directory, os.Getenv("DOKKU_PID"))) {
+		return false
+	}
+
+	if common.DirectoryExists(fmt.Sprintf("%s.%s", directory, os.Getenv("DOKKU_PID"))) {
+		return true
+	}
+
+	return common.DirectoryExists(directory)
 }
 
 func installHelmCharts(ctx context.Context, clientset KubernetesClient, shouldInstall func(HelmChart) bool) error {

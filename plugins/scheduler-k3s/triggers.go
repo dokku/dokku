@@ -32,11 +32,50 @@ import (
 	"k8s.io/kubernetes/pkg/client/conditions"
 )
 
+// TriggerCorePostDeploy moves a configured kustomize root path to be in the app root dir
+func TriggerCorePostDeploy(appName string) error {
+	return common.CorePostDeploy(common.CorePostDeployInput{
+		AppName:     appName,
+		Destination: common.GetAppDataDirectory("scheduler-k3s", appName),
+		PluginName:  "scheduler-k3s",
+		ExtractedPaths: []common.CorePostDeployPath{
+			{Path: "kustomization", IsDirectory: true},
+		},
+	})
+
+	return nil
+}
+
+// TriggerCorePostExtract moves a configured kustomize root path to be in the app root dir
+func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
+	destination := common.GetAppDataDirectory("scheduler-k3s", appName)
+	kustomizeRootPath := getComputedKustomizeRootPath(appName)
+	return common.CorePostExtract(common.CorePostExtractInput{
+		AppName:       appName,
+		Destination:   destination,
+		PluginName:    "scheduler-k3s",
+		SourceWorkDir: sourceWorkDir,
+		ToExtract: []common.CorePostExtractToExtract{
+			{
+				Path:        kustomizeRootPath,
+				IsDirectory: true,
+				Name:        "config/kustomize",
+				Destination: "kustomization",
+			},
+		},
+	})
+}
+
 // TriggerInstall runs the install step for the scheduler-k3s plugin
 func TriggerInstall() error {
 	if err := common.PropertySetup("scheduler-k3s"); err != nil {
 		return fmt.Errorf("Unable to install the scheduler-k3s plugin: %s", err.Error())
 	}
+
+	if err := common.SetupAppData("scheduler-k3s"); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -61,6 +100,11 @@ func TriggerPostAppRenameSetup(oldAppName string, newAppName string) error {
 	}
 
 	return nil
+}
+
+// TriggerPostCreate creates the scheduler-k3s data directory
+func TriggerPostCreate(appName string) error {
+	return common.CreateAppDataDirectory("scheduler-k3s", appName)
 }
 
 // TriggerPostDelete destroys the scheduler-k3s data for a given app container
@@ -704,9 +748,15 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 		}
 	}
 
+	kustomizeRootPath := ""
+	if hasKustomizeDirectory(appName) {
+		kustomizeRootPath = getProcessSpecificKustomizeRootPath(appName)
+	}
+
 	common.LogInfo2(fmt.Sprintf("Installing %s", appName))
 	err = helmAgent.InstallOrUpgradeChart(ctx, ChartInput{
 		ChartPath:         chartPath,
+		KustomizeRootPath: kustomizeRootPath,
 		Namespace:         namespace,
 		ReleaseName:       appName,
 		RollbackOnFailure: allowRollbacks,

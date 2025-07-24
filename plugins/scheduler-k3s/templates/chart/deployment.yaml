@@ -1,11 +1,11 @@
 {{- range $processName, $config := .Values.processes }}
-# Skip cron jobs
-{{- if and (hasKey $config "cron") (hasKey $config.cron "id") }}
+{{- if not (hasKey $config "web") }}
+# Skip {{ $processName }} as it doesn't have a web section
 {{- continue }}
 {{- end }}
 
 {{- $mappings := dict }}
-{{- if eq $processName "web" }}
+{{- if hasKey $config "web" }}
 {{- range $pdx, $port_map := $config.web.port_maps }}
 {{- $mappings := set $mappings $port_map.name "true" }}
 {{- end }}
@@ -61,7 +61,7 @@ spec:
         {{- range $config.args }}
         - {{ . }}
         {{- end }}
-        {{- if eq $processName "web" }}
+        {{- if hasKey $config "web" }}
         env:
         - name: PORT
           value: "{{ $.Values.global.network.primary_port }}"
@@ -73,7 +73,7 @@ spec:
         image: {{ $.Values.global.image.name }}
         imagePullPolicy: Always
         name: {{ $.Values.global.app_name }}-{{ $processName }}
-        {{- if eq $processName "web" }}
+        {{- if hasKey $config "web" }}
         ports:
         {{- range $pdx, $port_map := $config.web.port_maps }}
         {{- if and (eq $port_map.scheme "https") (hasKey $mappings (printf "http-80-%.0f" $port_map.container_port)) }}

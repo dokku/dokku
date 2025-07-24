@@ -20,6 +20,7 @@ var (
 	DefaultProperties = map[string]string{
 		"deploy-timeout":      "",
 		"letsencrypt-server":  "",
+		"kustomize-root-path": "",
 		"image-pull-secrets":  "",
 		"namespace":           "",
 		"rollback-on-failure": "",
@@ -33,6 +34,7 @@ var (
 		"ingress-class":          true,
 		"kube-context":           true,
 		"kubeconfig-path":        true,
+		"kustomize-root-path":    true,
 		"letsencrypt-server":     true,
 		"letsencrypt-email-prod": true,
 		"letsencrypt-email-stag": true,
