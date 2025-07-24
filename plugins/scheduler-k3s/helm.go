@@ -495,8 +495,7 @@ func (p *KustomizeRenderer) Run(renderedManifests *bytes.Buffer) (*bytes.Buffer,
 		return nil, fmt.Errorf("%s not found", konfig.DefaultKustomizationFileName())
 	}
 
-	renderedYamlPath := filepath.Join(p.KustomizeRootPath, "rendered.yaml")
-	if err := os.WriteFile(renderedYamlPath, renderedManifests.Bytes(), 0644); err != nil {
+	if err := fs.WriteFile(filepath.Join(p.KustomizeRootPath, "rendered.yaml"), renderedManifests.Bytes()); err != nil {
 		return nil, fmt.Errorf("Error writing rendered.yaml: %w", err)
 	}
 
