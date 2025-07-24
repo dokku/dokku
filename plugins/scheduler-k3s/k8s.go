@@ -416,6 +416,35 @@ func (k KubernetesClient) ExecCommand(ctx context.Context, input ExecCommandInpu
 	})
 }
 
+// GetPodLogsInput contains all the information needed to get the logs for a Kubernetes pod
+type GetLogsInput struct {
+	// Name is the Kubernetes pod name
+	Name string
+
+	// Namespace is the Kubernetes namespace
+	Namespace string
+}
+
+// GetLogs gets the logs for a Kubernetes pod
+func (k KubernetesClient) GetLogs(ctx context.Context, input GetLogsInput) ([]byte, error) {
+	logOptions := corev1.PodLogOptions{}
+
+	request := k.Client.CoreV1().Pods(input.Namespace).GetLogs(input.Name, &logOptions)
+
+	readCloser, err := request.Stream(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get logs: %w", err)
+	}
+	defer readCloser.Close()
+
+	bytes, err := io.ReadAll(readCloser)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read logs: %w", err)
+	}
+
+	return bytes, nil
+}
+
 // GetNodeInput contains all the information needed to get a Kubernetes node
 type GetNodeInput struct {
 	// Name is the Kubernetes node name
@@ -939,4 +968,33 @@ func streamLogsFromRequest(ctx context.Context, request rest.ResponseWrapper, ou
 			return nil
 		}
 	}
+}
+
+// SuspendCronJobsInput contains all the information needed to suspend a Kubernetes cron job
+type SuspendCronJobsInput struct {
+	// LabelSelector is the Kubernetes label selector
+	LabelSelector string
+
+	// Namespace is the Kubernetes namespace
+	Namespace string
+}
+
+// SuspendCronJobs suspends a Kubernetes cron job
+func (k KubernetesClient) SuspendCronJobs(ctx context.Context, input SuspendCronJobsInput) error {
+	cronJobs, err := k.Client.BatchV1().CronJobs(input.Namespace).List(ctx, metav1.ListOptions{
+		LabelSelector: input.LabelSelector,
+	})
+	if err != nil {
+		return err
+	}
+
+	for _, cronJob := range cronJobs.Items {
+		cronJob.Spec.Suspend = ptr.To(true)
+		_, err := k.Client.BatchV1().CronJobs(input.Namespace).Update(ctx, &cronJob, metav1.UpdateOptions{})
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

@@ -98,7 +98,7 @@ At this time, the following dokku commands are used to implement a complete sche
 - `apps:clone`: handles app cloning
     - triggers: post-app-clone-setup
 - `cron`: generates cron tasks for the app
-    - triggers: cron-write
+    - triggers: scheduler-cron-write
 - `deploy`: deploys app proceses and checks the status of a deploy
     - triggers: scheduler-app-status, scheduler-deploy, scheduler-is-deployed, scheduler-logs-failed
 - `enter`: enters a running container
@@ -112,7 +112,9 @@ At this time, the following dokku commands are used to implement a complete sche
 - `run:logs`: fetches running container logs
     - triggers: scheduler-run-logs
 - `ps:stop`: stops app processes
-    - triggers: scheduler-stop
+    - triggers: scheduler-stop, scheduler-cron-write
+- `ps:start`: starts app processes
+    - triggers: scheduler-deploy, scheduler-cron-write
 - `ps:inspect`: outputs inspect output for processes in an app
     - triggers: scheduler-inspect
 

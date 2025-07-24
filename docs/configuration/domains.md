@@ -13,6 +13,7 @@ domains:enable <app>                           # Enable VHOST support
 domains:remove <app> <domain> [<domain> ...]   # Remove domains from app
 domains:remove-global <domain> [<domain> ...]  # Remove global domain names
 domains:report [<app>|--global] [<flag>]       # Displays a domains report for one or more apps
+domains:reset <app>                            # Reset app domains to global-configured domains
 domains:set <app> <domain> [<domain> ...]      # Set domains for app
 domains:set-global <domain> [<domain> ...]     # Set global domain names
 ```
@@ -75,6 +76,9 @@ dokku domains:remove node-js-app dokku.me
 
 # set all custom domains for app
 dokku domains:set node-js-app dokku.me dokku.org
+
+# delete all app domains and configure available global domains on it
+dokku domains:reset node-js-app
 ```
 
 ## Displaying domains reports for an app

@@ -10,7 +10,7 @@ uri = "./cnb/1"
 uri = "./cnb/1"
 
 [[build.buildpacks]]
-uri = "gcr.io/paketo-buildpacks/python"
+uri = "docker.io/paketobuildpacks/python"
 
 [[order.group]]
-uri = "gcr.io/paketo-buildpacks/procfile"
+uri = "docker.io/paketobuildpacks/procfile"

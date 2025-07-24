@@ -151,6 +151,98 @@ func ContainerWaitTilReady(containerID string, timeout time.Duration) error {
 	return nil
 }
 
+// CopyDirFromImage copies a directory from named image to destination
+func CopyDirFromImage(appName string, image string, source string, destination string) error {
+	if !VerifyImage(image) {
+		return fmt.Errorf("Invalid docker image for copying content")
+	}
+
+	if !IsAbsPath(source) {
+		workDir := GetWorkingDir(appName, image)
+		if workDir != "" {
+			source = fmt.Sprintf("%s/%s", workDir, source)
+		}
+	}
+
+	tmpDir, err := os.MkdirTemp("", fmt.Sprintf("dokku-%s-%s", MustGetEnv("DOKKU_PID"), "CopyFromImage"))
+	if err != nil {
+		return fmt.Errorf("Error creating temporary directory: %v", err)
+	}
+
+	defer func() {
+		if err := os.RemoveAll(tmpDir); err != nil {
+			LogWarn(fmt.Sprintf("Error removing temporary directory %s: %v\n", tmpDir, err))
+		}
+	}()
+
+	globalRunArgs := MustGetEnv("DOKKU_GLOBAL_RUN_ARGS")
+	createLabelArgs := []string{"--label", fmt.Sprintf("com.dokku.app-name=%s", appName), globalRunArgs}
+	containerID, err := DockerContainerCreate(image, createLabelArgs)
+	if err != nil {
+		return fmt.Errorf("Unable to create temporary container: %v", err)
+	}
+	defer ContainerRemove(containerID)
+
+	// docker cp exits with status 1 when run as non-root user when it tries to chown the file
+	// after successfully copying the file. Thus, we suppress stderr.
+	// ref: https://github.com/dotcloud/docker/issues/3986
+	result, err := CallExecCommand(ExecCommandInput{
+		Command: DockerBin(),
+		Args:    []string{"container", "cp", "--quiet", fmt.Sprintf("%s:%s", containerID, source), tmpDir},
+	})
+	if err != nil {
+		return fmt.Errorf("Unable to copy file %s from image: %w", source, err)
+	}
+	if result.ExitCode != 0 {
+		return fmt.Errorf("Unable to copy file %s from image: %v", source, result.StderrContents())
+	}
+
+	if !DirectoryExists(tmpDir) {
+		return fmt.Errorf("Unable to copy file %s from image: %v", source, result.StderrContents())
+	}
+
+	files, err := os.ReadDir(tmpDir)
+	if err != nil {
+		return fmt.Errorf("Unable to read temporary directory: %v", err)
+	}
+
+	for _, file := range files {
+		if file.IsDir() {
+			continue
+		}
+
+		sourceFile := fmt.Sprintf("%s/%s", tmpDir, file.Name())
+		destinationFile := fmt.Sprintf("%s/%s", destination, file.Name())
+		// workaround when owner is root. seems to only happen when running inside docker
+		CallExecCommand(ExecCommandInput{
+			Command: "dos2unix",
+			Args:    []string{"-l", "-n", sourceFile, destinationFile},
+		}) // nolint: errcheck
+
+		// add trailing newline for certain places where file parsing depends on it
+		result, err = CallExecCommand(ExecCommandInput{
+			Command: "tail",
+			Args:    []string{"-c1", destination},
+		})
+		if err != nil || result.ExitCode != 0 {
+			return fmt.Errorf("Unable to append trailing newline to copied file: %v", result.Stderr)
+		}
+
+		if result.Stdout != "" {
+			f, err := os.OpenFile(destination, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+			if err != nil {
+				return err
+			}
+			defer f.Close()
+			if _, err := f.WriteString("\n"); err != nil {
+				return fmt.Errorf("Unable to append trailing newline to copied file: %v", err)
+			}
+		}
+	}
+
+	return nil
+}
+
 // CopyFromImage copies a file from named image to destination
 func CopyFromImage(appName string, image string, source string, destination string) error {
 	if !VerifyImage(image) {

@@ -75,8 +75,11 @@ func main() {
 	case "ps-current-scale":
 		appName := flag.Arg(0)
 		err = ps.TriggerPsCurrentScale(appName)
-	case "ps-set-scale":
+	case "ps-get-property":
 		appName := flag.Arg(0)
+		property := flag.Arg(1)
+		err = ps.TriggerPsGetProperty(appName, property)
+	case "ps-set-scale":
 		appName, args := common.ShiftString(flag.Args())
 		skipDeploy, args := common.ShiftString(args)
 		clearExisting, processTuples := common.ShiftString(args)

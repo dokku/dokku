@@ -1,5 +1,9 @@
-{{- $processName := "PROCESS_NAME" }}
-{{- $config := index .Values.processes "PROCESS_NAME" }}
+{{- range $processName, $config := .Values.processes }}
+{{- if not (hasKey $config "web") }}
+# Skip {{ $processName }} as it doesn't have a web section
+{{- continue }}
+{{- end }}
+
 {{- if and $config.web.tls.enabled $config.web.domains }}
 ---
 apiVersion: cert-manager.io/v1
@@ -33,4 +37,5 @@ spec:
     {{- range $idx, $domain := $config.web.domains }}
     - {{ $domain.name }}
     {{- end }}
+{{- end }}
 {{- end }}

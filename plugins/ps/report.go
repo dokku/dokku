@@ -15,15 +15,18 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 	}
 
 	flags := map[string]common.ReportFunc{
-		"--deployed":                  reportDeployed,
-		"--processes":                 reportProcesses,
-		"--ps-can-scale":              reportCanScale,
-		"--ps-restart-policy":         reportRestartPolicy,
-		"--ps-computed-procfile-path": reportComputedProcfilePath,
-		"--ps-global-procfile-path":   reportGlobalProcfilePath,
-		"--ps-procfile-path":          reportProcfilePath,
-		"--restore":                   reportRestore,
-		"--running":                   reportRunningState,
+		"--deployed":                      reportDeployed,
+		"--processes":                     reportProcesses,
+		"--ps-can-scale":                  reportCanScale,
+		"--ps-restart-policy":             reportRestartPolicy,
+		"--ps-computed-procfile-path":     reportComputedProcfilePath,
+		"--ps-global-procfile-path":       reportGlobalProcfilePath,
+		"--ps-procfile-path":              reportProcfilePath,
+		"--restore":                       reportRestore,
+		"--running":                       reportRunningState,
+		"--global-stop-timeout-seconds":   reportGlobalStopTimeoutSeconds,
+		"--computed-stop-timeout-seconds": reportComputedStopTimeoutSeconds,
+		"--stop-timeout-seconds":          reportStopTimeoutSeconds,
 	}
 
 	extraFlags := addStatusFlags(appName, infoFlag)
@@ -145,4 +148,21 @@ func reportRestore(appName string) string {
 
 func reportRunningState(appName string) string {
 	return getRunningState(appName)
+}
+
+func reportComputedStopTimeoutSeconds(appName string) string {
+	value := reportStopTimeoutSeconds(appName)
+	if value == "" {
+		value = reportGlobalStopTimeoutSeconds(appName)
+	}
+
+	return value
+}
+
+func reportGlobalStopTimeoutSeconds(appName string) string {
+	return common.PropertyGetDefault("ps", "--global", "stop-timeout-seconds", "30")
+}
+
+func reportStopTimeoutSeconds(appName string) string {
+	return common.PropertyGetDefault("ps", appName, "stop-timeout-seconds", "30")
 }

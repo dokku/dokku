@@ -14,6 +14,7 @@ import (
 	"unicode"
 
 	"github.com/dokku/dokku/plugins/common"
+	"github.com/fluxcd/pkg/kustomize/filesys"
 	"github.com/gofrs/flock"
 	"gopkg.in/yaml.v3"
 	"helm.sh/helm/v3/pkg/action"
@@ -21,9 +22,13 @@ import (
 	"helm.sh/helm/v3/pkg/cli"
 	"helm.sh/helm/v3/pkg/getter"
 	"helm.sh/helm/v3/pkg/kube"
+	"helm.sh/helm/v3/pkg/postrender"
 	"helm.sh/helm/v3/pkg/release"
 	"helm.sh/helm/v3/pkg/repo"
 	"helm.sh/helm/v3/pkg/storage/driver"
+	"sigs.k8s.io/kustomize/api/konfig"
+	"sigs.k8s.io/kustomize/api/krusty"
+	"sigs.k8s.io/kustomize/api/types"
 )
 
 var DevNullPrinter = func(format string, v ...interface{}) {}
@@ -46,16 +51,37 @@ var DeployLogPrinter = func(format string, v ...interface{}) {
 	}
 }
 
+// ChartInput is the input for the InstallOrUpgradeChart function
 type ChartInput struct {
-	ChartPath         string
-	Namespace         string
-	ReleaseName       string
-	RepoURL           string
+	// ChartPath is the path to the chart to install or upgrade
+	ChartPath string
+
+	// KustomizeRootPath is the path to the kustomize root path to use
+	KustomizeRootPath string
+
+	// Namespace is the namespace to install or upgrade the chart in
+	Namespace string
+
+	// ReleaseName is the name of the release to install or upgrade
+	ReleaseName string
+
+	// RepoURL is the URL of the chart repository to install or upgrade the chart from
+	RepoURL string
+
+	// RollbackOnFailure is whether to rollback on failure
 	RollbackOnFailure bool
-	Timeout           time.Duration
-	Wait              bool
-	Version           string
-	Values            map[string]interface{}
+
+	// Timeout is the timeout for the install or upgrade
+	Timeout time.Duration
+
+	// Wait is whether to wait for the install or upgrade to complete
+	Wait bool
+
+	// Version is the version of the chart to install or upgrade
+	Version string
+
+	// Values is the values to pass to the chart
+	Values map[string]interface{}
 }
 
 type Release struct {
@@ -237,11 +263,22 @@ func (h *HelmAgent) InstallChart(ctx context.Context, input ChartInput) error {
 		input.Values = map[string]interface{}{}
 	}
 
+	kustomizeRenderer := KustomizeRenderer{
+		KustomizeRootPath: input.KustomizeRootPath,
+	}
+
 	client := action.NewInstall(h.Configuration)
 	client.Atomic = false
 	client.ChartPathOptions = action.ChartPathOptions{}
 	client.CreateNamespace = true
 	client.DryRun = false
+	if os.Getenv("DOKKU_TRACE") == "1" {
+		client.PostRenderer = &DebugRenderer{
+			Renderer: &kustomizeRenderer,
+		}
+	} else {
+		client.PostRenderer = &kustomizeRenderer
+	}
 	client.Namespace = namespace
 	client.ReleaseName = input.ReleaseName
 	client.Timeout = input.Timeout
@@ -333,16 +370,6 @@ func (h *HelmAgent) ListRevisions(input ListRevisionsInput) ([]Release, error) {
 	return releases, nil
 }
 
-type DebugRenderer struct {
-}
-
-func (p *DebugRenderer) Run(renderedManifests *bytes.Buffer) (*bytes.Buffer, error) {
-	for _, line := range strings.Split(renderedManifests.String(), "\n") {
-		common.LogWarn(line)
-	}
-	return renderedManifests, nil
-}
-
 func (h *HelmAgent) UpgradeChart(ctx context.Context, input ChartInput) error {
 	namespace := input.Namespace
 	if namespace == "" {
@@ -359,14 +386,21 @@ func (h *HelmAgent) UpgradeChart(ctx context.Context, input ChartInput) error {
 		input.Values = map[string]interface{}{}
 	}
 
+	kustomizeRenderer := KustomizeRenderer{
+		KustomizeRootPath: input.KustomizeRootPath,
+	}
+
 	client := action.NewUpgrade(h.Configuration)
 	client.Atomic = input.RollbackOnFailure
 	client.ChartPathOptions = action.ChartPathOptions{}
 	client.CleanupOnFail = true
 	client.MaxHistory = 10
 	if os.Getenv("DOKKU_TRACE") == "1" {
-		client.DryRun = true
-		client.PostRenderer = &DebugRenderer{}
+		client.PostRenderer = &DebugRenderer{
+			Renderer: &kustomizeRenderer,
+		}
+	} else {
+		client.PostRenderer = &kustomizeRenderer
 	}
 	client.Namespace = namespace
 	client.Timeout = input.Timeout
@@ -412,4 +446,72 @@ func (h *HelmAgent) UninstallChart(releaseName string) error {
 	}
 
 	return nil
+}
+
+type DebugRenderer struct {
+	Renderer postrender.PostRenderer
+}
+
+func (p *DebugRenderer) Run(renderedManifests *bytes.Buffer) (*bytes.Buffer, error) {
+	renderedManifests, err := p.Renderer.Run(renderedManifests)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, line := range strings.Split(renderedManifests.String(), "\n") {
+		common.LogWarn(line)
+	}
+	return renderedManifests, nil
+}
+
+type KustomizeRenderer struct {
+	KustomizeRootPath string
+}
+
+func (p *KustomizeRenderer) Run(renderedManifests *bytes.Buffer) (*bytes.Buffer, error) {
+	if p.KustomizeRootPath == "" {
+		return renderedManifests, nil
+	}
+
+	if !common.DirectoryExists(p.KustomizeRootPath) {
+		return renderedManifests, nil
+	}
+
+	fs, err := filesys.MakeFsOnDiskSecureBuild(p.KustomizeRootPath)
+	if err != nil {
+		return nil, fmt.Errorf("Error creating filesystem: %w", err)
+	}
+
+	var kfile string
+	for _, f := range konfig.RecognizedKustomizationFileNames() {
+		if kf := filepath.Join(p.KustomizeRootPath, f); fs.Exists(kf) {
+			kfile = kf
+			break
+		}
+	}
+	if kfile == "" {
+		return nil, fmt.Errorf("%s not found", konfig.DefaultKustomizationFileName())
+	}
+
+	if err := fs.WriteFile(filepath.Join(p.KustomizeRootPath, "rendered.yaml"), renderedManifests.Bytes()); err != nil {
+		return nil, fmt.Errorf("Error writing rendered.yaml: %w", err)
+	}
+
+	buildOptions := &krusty.Options{
+		LoadRestrictions: types.LoadRestrictionsNone,
+		PluginConfig:     types.DisabledPluginConfig(),
+	}
+
+	k := krusty.MakeKustomizer(buildOptions)
+	m, err := k.Run(fs, p.KustomizeRootPath)
+	if err != nil {
+		return nil, err
+	}
+
+	resources, err := m.AsYaml()
+	if err != nil {
+		return nil, err
+	}
+
+	return bytes.NewBuffer(resources), nil
 }

@@ -1,8 +1,12 @@
-{{- $processName := "PROCESS_NAME" }}
-{{- $config := index .Values.processes "PROCESS_NAME" }}
+{{- range $processName, $config := .Values.processes }}
+{{- if not (hasKey $config "web") }}
+# Skip {{ $processName }} as it doesn't have a web section
+{{- continue }}
+{{- end }}
+
 {{- $routeToKeda := false }}
-{{- if and (eq $processName "web") (and $config.autoscaling (and $config.autoscaling.enabled (eq $config.autoscaling.type "keda"))) }}
-{{- if and (.Capabilities.APIVersions.Has "http.keda.sh/v1alpha1") (and $config.autoscaling.http_trigger (eq $config.autoscaling.http_trigger.type "http")) }}
+{{- if and $config.autoscaling (and $config.autoscaling.enabled (eq $config.autoscaling.type "keda")) }}
+{{- if and ($.Capabilities.APIVersions.Has "http.keda.sh/v1alpha1") (and $config.autoscaling.http_trigger (eq $config.autoscaling.http_trigger.type "http")) }}
 {{- $routeToKeda = true }}
 {{- end }}
 {{- end }}
@@ -57,5 +61,6 @@ spec:
             {{- end }}
             path: /
           {{- end }}
+{{- end }}
 {{- end }}
 {{- end }}

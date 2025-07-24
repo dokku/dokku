@@ -25,8 +25,16 @@ func TriggerInstall() error {
 			continue
 		}
 
-		common.LogInfo1(fmt.Sprintf("Migrating DOKKU_PROXY_PORT_MAP to ports map property for %s", appName))
-		portMapString := config.GetWithDefault(appName, "DOKKU_PROXY_PORT_MAP", "")
+		results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
+			Trigger: "config-get",
+			Args:    []string{appName, "DOKKU_PROXY_PORT_MAP"},
+		})
+		portMapString := results.StdoutContents()
+		if portMapString == "" {
+			continue
+		}
+
+		common.LogVerboseQuiet(fmt.Sprintf("Setting %s ports property 'map' to %v", appName, portMapString))
 		portMaps, _ := parsePortMapString(portMapString)
 
 		propertyValue := []string{}
@@ -38,7 +46,11 @@ func TriggerInstall() error {
 			return err
 		}
 
-		if err := config.UnsetMany(appName, []string{"DOKKU_PROXY_PORT_MAP"}, false); err != nil {
+		_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+			Trigger: "config-unset",
+			Args:    []string{appName, "DOKKU_PROXY_PORT_MAP"},
+		})
+		if err != nil {
 			return err
 		}
 	}

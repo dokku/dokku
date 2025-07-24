@@ -4,6 +4,12 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
+fn-stop-container() {
+  declare APP="$1" CID="$2"
+  "$DOCKER_BIN" container update --restart=no "$CID" &>/dev/null || true
+  "$DOCKER_BIN" container stop $DOCKER_STOP_TIME_ARG "$CID" &>/dev/null || true
+}
+
 trigger-scheduler-docker-local-scheduler-stop() {
   declare desc="scheduler-docker-local scheduler-stop plugin trigger"
   declare trigger="scheduler-stop"
@@ -14,19 +20,27 @@ trigger-scheduler-docker-local-scheduler-stop() {
   fi
 
   local DOKKU_APP_RUNNING_CONTAINER_IDS=$(get_app_running_container_ids "$APP" 2>/dev/null)
-  local DOKKU_DOCKER_STOP_TIMEOUT="$(config_get "$APP" DOKKU_DOCKER_STOP_TIMEOUT || true)"
+  local DOKKU_DOCKER_STOP_TIMEOUT="$(plugn trigger ps-get-property "$APP" stop-timeout-seconds || true)"
 
   [[ -n "$DOKKU_DOCKER_STOP_TIMEOUT" ]] && DOCKER_STOP_TIME_ARG="--time=${DOKKU_DOCKER_STOP_TIMEOUT}"
 
   if [[ -n "$DOKKU_APP_RUNNING_CONTAINER_IDS" ]]; then
-    # Disable the container restart policy
-    "$DOCKER_BIN" container update --restart=no $DOKKU_APP_RUNNING_CONTAINER_IDS &>/dev/null || true
+    for CID in $DOKKU_APP_RUNNING_CONTAINER_IDS; do
+      fn-stop-container "$APP" "$CID"
+    done
+  fi
 
-    "$DOCKER_BIN" container stop $DOCKER_STOP_TIME_ARG $DOKKU_APP_RUNNING_CONTAINER_IDS >/dev/null || true
+  # Stop all other containers related to the app
+  # fetch all containers with the com.dokku.app-name label
+  local DOKKU_APP_CIDS="$(docker container ls -q -f label=com.dokku.app-name="$APP")"
+  if [[ -n "$DOKKU_APP_CIDS" ]]; then
+    for CID in $DOKKU_APP_CIDS; do
+      fn-stop-container "$APP" "$CID"
+    done
   fi
 
   if [[ "$REMOVE_CONTAINERS" == "true" ]]; then
-    local DOKKU_APP_CIDS=$(get_app_container_ids "$APP")
+    local DOKKU_APP_CIDS="$(docker ps -q -f label=com.dokku.app-name="$APP")"
 
     if [[ -n "$DOKKU_APP_CIDS" ]]; then
       for CID in $DOKKU_APP_CIDS; do
@@ -36,6 +50,8 @@ trigger-scheduler-docker-local-scheduler-stop() {
       "$DOCKER_BIN" container rm --force $DOKKU_APP_CIDS &>/dev/null || true
     fi
   fi
+
+  plugn trigger scheduler-cron-write "$DOKKU_SCHEDULER" "$APP"
 }
 
 trigger-scheduler-docker-local-scheduler-stop "$@"

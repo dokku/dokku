@@ -14,6 +14,7 @@ import (
 	"strings"
 	"unicode"
 
+	"github.com/otiai10/copy"
 	"github.com/ryanuber/columnize"
 	"golang.org/x/sync/errgroup"
 )
@@ -72,6 +73,298 @@ func CommandUsage(helpHeader string, helpContent string) {
 	content := strings.Split(helpContent, "\n")[1:]
 	fmt.Println(helpHeader)
 	fmt.Println(columnize.Format(content, config))
+}
+
+// CorePostDeployPath is a file or directory that was extracted
+type CorePostDeployPath struct {
+	// IsDirectory is whether the source is a directory
+	IsDirectory bool
+
+	// Path is the name of the file or directory
+	Path string
+}
+
+// CorePostDeployInput is the input for the CorePostDeploy function
+type CorePostDeployInput struct {
+	// AppName is the name of the app
+	AppName string
+
+	// Destination is the destination directory
+	Destination string
+
+	// PluginName is the name of the plugin that is deploying the file or directory
+	PluginName string
+
+	// ExtractedPaths is the list of paths that were extracted
+	ExtractedPaths []CorePostDeployPath
+}
+
+// CorePostDeploy moves extracted paths to the destination directory
+// and removes any existing files or directories that were not extracted
+//
+//	CorePostDeploy(CorePostDeployInput{
+//		AppName: "my-app",
+//		Destination: "/var/lib/dokku/data/my-app",
+//		ExtractedPaths: []CorePostDeployPath{
+//			{Name: "app.json", IsDirectory: false},
+//			{Name: "kustomization", IsDirectory: true},
+//		},
+//	})
+func CorePostDeploy(input CorePostDeployInput) error {
+	if input.PluginName == "" {
+		return fmt.Errorf("Missing required PluginName in CorePostDeploy")
+	}
+
+	if input.AppName == "" {
+		return fmt.Errorf("Missing required AppName in CorePostDeploy for plugin %v", input.PluginName)
+	}
+
+	if input.Destination == "" {
+		return fmt.Errorf("Missing required Destination in CorePostDeploy for plugin %v", input.PluginName)
+	}
+
+	for i, extractedPath := range input.ExtractedPaths {
+		if extractedPath.Path == "" {
+			return fmt.Errorf("Missing required Name in CorePostDeploy for index %v for plugin %v", i, input.PluginName)
+		}
+
+		existingPath := filepath.Join(input.Destination, extractedPath.Path)
+		processSpecificPath := fmt.Sprintf("%s.%s", existingPath, os.Getenv("DOKKU_PID"))
+
+		if extractedPath.IsDirectory {
+			if DirectoryExists(processSpecificPath) {
+				if err := os.RemoveAll(existingPath); err != nil {
+					return err
+				}
+
+				if err := os.Rename(processSpecificPath, existingPath); err != nil {
+					return err
+				}
+			} else if DirectoryExists(fmt.Sprintf("%s.missing", processSpecificPath)) {
+				if err := os.RemoveAll(fmt.Sprintf("%s.missing", processSpecificPath)); err != nil {
+					return err
+				}
+
+				if DirectoryExists(existingPath) {
+					if err := os.RemoveAll(existingPath); err != nil {
+						return err
+					}
+				}
+			}
+		} else {
+			if FileExists(processSpecificPath) {
+				if err := os.Rename(processSpecificPath, existingPath); err != nil {
+					return err
+				}
+			} else if FileExists(fmt.Sprintf("%s.missing", processSpecificPath)) {
+				if err := os.Remove(fmt.Sprintf("%s.missing", processSpecificPath)); err != nil {
+					return err
+				}
+
+				if FileExists(existingPath) {
+					if err := os.Remove(existingPath); err != nil {
+						return err
+					}
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
+// CorePostExtractValidator is a function that validates the file or directory
+type CorePostExtractValidator func(appName string, path string) error
+
+// CorePostExtractToExtract is a file or directory to extract
+type CorePostExtractToExtract struct {
+	// Destination is an optional alias destination path
+	// If not provided, the Path will be used as the destination
+	Destination string
+
+	// IsDirectory is whether the source is a directory
+	IsDirectory bool
+
+	// Name is the common name of the file or directory to extract
+	Name string
+
+	// Path is the path to the file or directory to extract
+	Path string
+
+	// Validator is a function that validates the file or directory
+	Validator CorePostExtractValidator
+}
+
+// CorePostExtractInput is the input for the CorePostExtract function
+type CorePostExtractInput struct {
+	// AppName is the name of the app
+	AppName string
+
+	// BuildDir is the optional build directory to extract from
+	BuildDir string
+
+	// DestinationDir is the destination directory
+	Destination string
+
+	// PluginName is the name of the plugin that is extracting the file or directory
+	PluginName string
+
+	// SourceWorkDir is the source work directory
+	SourceWorkDir string
+
+	// ToExtract is a list of files or directories to extract
+	ToExtract []CorePostExtractToExtract
+}
+
+// CorePostExtract extracts files or directories from a source work directory to a destination directory
+//
+//	CorePostExtract(CorePostExtractInput{
+//		AppName: "my-app",
+//		SourceWorkDir: "/tmp/my-app-source",
+//		Destination: "/var/lib/dokku/data/my-app",
+//		ToExtract: []CorePostExtractToExtract{
+//			{Path: "app2.json", IsDirectory: false, Name: "app.json"},
+//			{Path: "config/kustomize", IsDirectory: true, Destination: "kustomization"},
+//		},
+//	})
+func CorePostExtract(input CorePostExtractInput) error {
+	if input.PluginName == "" {
+		return fmt.Errorf("Missing required PluginName in CorePostExtract")
+	}
+
+	if input.AppName == "" {
+		return fmt.Errorf("Missing required AppName in CorePostExtract for plugin %v", input.PluginName)
+	}
+
+	if input.Destination == "" {
+		return fmt.Errorf("Missing required Destination in CorePostExtract for plugin %v", input.PluginName)
+	}
+
+	if input.SourceWorkDir == "" {
+		return fmt.Errorf("Missing required SourceWorkDir in CorePostExtract for plugin %v", input.PluginName)
+	}
+
+	results, _ := CallPlugnTrigger(PlugnTriggerInput{
+		Trigger: "git-get-property",
+		Args:    []string{input.AppName, "source-image"},
+	})
+	sourceImage := results.StdoutContents()
+
+	for i, toExtract := range input.ToExtract {
+		if toExtract.Name == "" {
+			return fmt.Errorf("Name is required for index %v in CorePostExtract for plugin %v", i, input.PluginName)
+		}
+
+		if toExtract.Path == "" {
+			return fmt.Errorf("Path is required for index %v in CorePostExtract for plugin %v", i, input.PluginName)
+		}
+
+		if toExtract.Destination == "" {
+			toExtract.Destination = toExtract.Path
+		}
+
+		sourcePath := filepath.Join(input.SourceWorkDir, toExtract.Path)
+		repoDefaultSourcePath := filepath.Join(input.SourceWorkDir, toExtract.Name)
+		imageSourcePath := toExtract.Path
+		if input.BuildDir != "" {
+			sourcePath = filepath.Join(input.SourceWorkDir, input.BuildDir, toExtract.Path)
+			repoDefaultSourcePath = filepath.Join(input.SourceWorkDir, input.BuildDir, toExtract.Name)
+			imageSourcePath = filepath.Join(input.BuildDir, toExtract.Path)
+		}
+
+		destination := filepath.Join(input.Destination, toExtract.Destination)
+		processSpecificDestination := fmt.Sprintf("%s.%s", destination, os.Getenv("DOKKU_PID"))
+		missingDestination := fmt.Sprintf("%s.missing", processSpecificDestination)
+		files, err := filepath.Glob(fmt.Sprintf("%s.*", destination))
+		if err != nil {
+			return err
+		}
+		for _, f := range files {
+			if err := os.Remove(f); err != nil {
+				return err
+			}
+		}
+
+		// ignore if the path is empty
+		if toExtract.Path == "" {
+			if err := TouchFile(missingDestination); err != nil {
+				return err
+			}
+			continue
+		}
+
+		if sourceImage == "" {
+			// ignore if the file does not exist
+			if toExtract.IsDirectory {
+				if !DirectoryExists(sourcePath) {
+					if sourcePath != repoDefaultSourcePath && DirectoryExists(repoDefaultSourcePath) {
+						if err := os.RemoveAll(repoDefaultSourcePath); err != nil {
+							return fmt.Errorf("Unable to remove existing %v: %s", toExtract.Name, err.Error())
+						}
+					}
+
+					if err := TouchFile(missingDestination); err != nil {
+						return err
+					}
+					continue
+				}
+
+				if err := Copy(sourcePath, processSpecificDestination); err != nil {
+					return fmt.Errorf("Unable to extract %v from %v: %s", toExtract.Name, toExtract.Path, err.Error())
+				}
+
+				if sourcePath != repoDefaultSourcePath {
+					if err := Copy(sourcePath, repoDefaultSourcePath); err != nil {
+						return fmt.Errorf("Unable to move %v into place: %s", toExtract.Name, err.Error())
+					}
+				}
+			} else {
+				if !FileExists(sourcePath) {
+					// delete the existing file if the user tried to override it with a non-existent file
+					if sourcePath != repoDefaultSourcePath && FileExists(repoDefaultSourcePath) {
+						if err := os.Remove(repoDefaultSourcePath); err != nil {
+							return err
+						}
+					}
+					if err := TouchFile(missingDestination); err != nil {
+						return err
+					}
+					continue
+				}
+
+				if err := Copy(sourcePath, processSpecificDestination); err != nil {
+					return fmt.Errorf("Unable to extract %v from %v: %v", toExtract.Name, toExtract.Path, err.Error())
+				}
+
+				if sourcePath != repoDefaultSourcePath {
+					// ensure the file in the repo is the same as the one the user specified
+					if err := copy.Copy(sourcePath, repoDefaultSourcePath); err != nil {
+						return fmt.Errorf("Unable to move %v into place: %v", toExtract.Name, err.Error())
+					}
+				}
+			}
+		} else {
+			if toExtract.IsDirectory {
+
+				if err := CopyDirFromImage(input.AppName, sourceImage, imageSourcePath, processSpecificDestination); err != nil {
+					return TouchFile(missingDestination)
+				}
+			} else {
+				if err := CopyFromImage(input.AppName, sourceImage, imageSourcePath, processSpecificDestination); err != nil {
+					return TouchFile(missingDestination)
+				}
+			}
+		}
+
+		// validate the file
+		if toExtract.Validator != nil {
+			if err := toExtract.Validator(input.AppName, processSpecificDestination); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
 }
 
 // EnvWrap wraps a func with a setenv call and resets the value at the end
@@ -578,7 +871,7 @@ func SuppressOutput(f errfunc) error {
 	os.Stdout = rescueStdout
 
 	if err != nil {
-		fmt.Printf(string(out[:]))
+		fmt.Print(string(out[:]))
 	}
 
 	return err

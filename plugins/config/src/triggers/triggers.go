@@ -24,7 +24,7 @@ func main() {
 		global := flag.Arg(1)
 		merged := flag.Arg(2)
 		format := flag.Arg(3)
-		config.TriggerConfigExport(appName, global, merged, format)
+		err = config.TriggerConfigExport(appName, global, merged, format)
 	case "config-get":
 		appName := flag.Arg(0)
 		key := flag.Arg(1)
@@ -36,6 +36,16 @@ func main() {
 	case "config-get-global":
 		key := flag.Arg(0)
 		err = config.TriggerConfigGetGlobal(key)
+	case "config-unset":
+		appName := flag.Arg(0)
+		key := flag.Arg(1)
+		restart := flag.Arg(2)
+		if *global {
+			appName = "--global"
+			key = flag.Arg(0)
+			restart = flag.Arg(1)
+		}
+		err = config.TriggerConfigUnset(appName, key, common.ToBool(restart))
 	case "post-app-clone-setup":
 		oldAppName := flag.Arg(0)
 		newAppName := flag.Arg(1)

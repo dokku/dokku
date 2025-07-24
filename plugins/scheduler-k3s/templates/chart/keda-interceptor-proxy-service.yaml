@@ -1,7 +1,11 @@
-{{- $processName := "PROCESS_NAME" }}
-{{- $config := index .Values.processes "PROCESS_NAME" }}
-{{- if and (eq $processName "web") (and $config.autoscaling (and $config.autoscaling.enabled (eq $config.autoscaling.type "keda"))) }}
 {{- if .Capabilities.APIVersions.Has "http.keda.sh/v1alpha1" -}}
+{{- range $processName, $config := .Values.processes }}
+{{- if not (hasKey $config "web") }}
+# Skip {{ $processName }} as it doesn't have a web section
+{{- continue }}
+{{- end }}
+
+{{- if and $config.autoscaling (and $config.autoscaling.enabled (eq $config.autoscaling.type "keda")) }}
 ---
 kind: Service
 apiVersion: v1
@@ -22,5 +26,6 @@ metadata:
 spec:
   type: ExternalName
   externalName: keda-add-ons-http-interceptor-proxy.keda.svc.cluster.local
+{{- end }}
 {{- end }}
 {{- end }}

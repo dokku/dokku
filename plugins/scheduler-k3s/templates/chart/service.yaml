@@ -1,5 +1,9 @@
-{{- $processName := "PROCESS_NAME" }}
-{{- $config := index .Values.processes "PROCESS_NAME" }}
+{{- range $processName, $config := .Values.processes }}
+{{- if not (hasKey $config "web") }}
+# Skip {{ $processName }} as it doesn't have a web section
+{{- continue }}
+{{- end }}
+
 ---
 apiVersion: v1
 kind: Service
@@ -28,3 +32,4 @@ spec:
     app.kubernetes.io/instance: {{ $.Values.global.app_name }}-{{ $processName }}
     app.kubernetes.io/name: {{ $processName }}
     app.kubernetes.io/part-of: {{ $.Values.global.app_name }}
+{{- end }}
