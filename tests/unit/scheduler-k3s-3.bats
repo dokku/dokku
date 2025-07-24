@@ -29,7 +29,7 @@ teardown_() {
   echo "status: $status"
   assert_success
 
-  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP convert_to_dockerfile
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP inject_kustomization_yaml
   echo "output: $output"
   echo "status: $status"
   assert_success
