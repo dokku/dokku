@@ -50,6 +50,8 @@ inject_kustomization_yaml() {
   cat <<EOF >"$APP_REPO_DIR/config/kustomize/kustomization.yaml"
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
+resources:
+- rendered.yaml
 patches:
 - patch: |-
     - op: replace
