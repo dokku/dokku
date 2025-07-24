@@ -13,7 +13,7 @@ All pull requests have tests run against them on [GitHub Actions](https://github
 
 If you wish to skip tests for a particular commit, e.g. documentation changes, you may add the `[ci skip]` designator to your commit message. Commits that _should_ be tested but have the above designator will not be merged.
 
-While we do provide official packages for a variety of platforms, as our test suite currently runs on Ubuntu Noble 24.04, we only provide official installation support for that platform and the supported LTS releases of Ubuntu (currently 20.04, 22.04, and 24.04).
+While we do provide official packages for a variety of platforms, as our test suite currently runs on Ubuntu Noble 24.04, we only provide official installation support for that platform and the supported LTS releases of Ubuntu (currently 22.04, and 24.04).
 
 ## Local Test Execution
 
