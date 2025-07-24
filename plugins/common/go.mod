@@ -9,7 +9,7 @@ require (
 	github.com/fatih/color v1.18.0
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/melbahja/goph v1.4.0
-	github.com/onsi/gomega v1.37.0
+	github.com/onsi/gomega v1.38.0
 	github.com/otiai10/copy v1.14.1
 	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/spf13/pflag v1.0.6
