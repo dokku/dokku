@@ -141,6 +141,7 @@ The k3s plugin provides a number of settings that can be used to managed deploym
 | Name                  | Description                                       | Global Default     |
 |-----------------------|---------------------------------------------------|--------------------|
 | `deploy-timeout`      | Controls when app deploys will timeout in seconds | `300s`             |
+| `kustomize-root-path` | Controls the folder context from the deployed repository used for Kustomize | `config/kustomize` |
 | `image-pull-secrets`  | Name of a kubernetes secret used to auth against a registry | Contents of `~/.docker/config.json` from Dokku server |
 | `namespace`           | Controls the namespace used for resource creation | `default`          |
 | `rollback-on-failure` | Whether to rollback failed deploys                | `false`            |
@@ -365,7 +366,6 @@ dokku scheduler-k3s:ensure-charts
 
 Once the chart is configured, an `http` trigger can be specified like so:
 
-
 ```json
 {
     "formation": {
@@ -461,6 +461,30 @@ dokku scheduler-k3s:autoscaling-auth:report node-js-app --include-metadata
       Datadog datadogSite:           us5.datadoghq.com
 ```
 
+### Integrating Kustomize
+
+Dokku supports integration with [Kustomize](https://kustomize.io/) to further customize the generated helm charts for app deployments. For example, a `config/kustomize/kustomization.yaml` file with the following contents will override the scale for each process deployed to `3`:
+
+```yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- rendered.yaml
+patches:
+- patch: |-
+    - op: replace
+      path: /spec/replicas
+      value: 3
+  target:
+      group: apps
+      version: v1
+      kind: Deployment
+```
+
+When using Kustomize with Dokku, all Kustomize-files _must_ be placed in the `config/kustomize` folder, with a `kustomization.yaml` file being the entrypoint to Kustomize. Dokku will render the helm chart to a `rendered.yaml` file, and then execute Kustomize with the `config/kustomize` folder as the context.
+
+See the [Kustomize](https://kustomize.io/) website for more details on how to use Kustomize.
+
 ### Using kubectl remotely
 
 > [!WARNING]
@@ -514,7 +538,6 @@ dokku scheduler-k3s:set --global chart.cert-manager.version 1.13.3
 
 > [!NOTE]
 > Properties follow dot-notation, and are expanded according to Helm's internal logic. See the [Helm documentation](https://helm.sh/docs/helm/helm_install/#helm-install) for `helm install` for further details.
-
 
 To unset a chart property, omit the value from the `scheduler-k3s:set` call:
 
