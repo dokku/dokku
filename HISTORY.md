@@ -1,5 +1,16 @@
 # History
 
+## 0.36.0
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.36.0/bootstrap.sh
+sudo DOKKU_TAG=v0.36.0 bash bootstrap.sh
+```
+
+See the [0.36.0 migration guide](/docs/appendices/0.36.0-migration-guide.md) for more information on migrating to 0.36.0.
+
 ## 0.35.20
 
 Install/update via the bootstrap script:
