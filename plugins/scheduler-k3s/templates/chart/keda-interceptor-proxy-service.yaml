@@ -1,7 +1,7 @@
 {{- if .Capabilities.APIVersions.Has "http.keda.sh/v1alpha1" -}}
 {{- range $processName, $config := .Values.processes }}
-# Skip processes that don't have a web section
 {{- if not (hasKey $config "web") }}
+# Skip {{ $processName }} as it doesn't have a web section
 {{- continue }}
 {{- end }}
 
