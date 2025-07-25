@@ -183,9 +183,9 @@ fn-replace-version() {
 
 fn-repo-merged-requests() {
   declare desc="Retrieves all pull request ids since a given release of dokku"
-  declare TAG="$1" IS_PATCH="$2"
+  declare CURRENT_VERSION="$1" NEXT_VERSION="$2" IS_PATCH="$3"
   if [[ "$IS_PATCH" == "true" ]]; then
-    git log "v${TAG}..HEAD" --oneline | grep "Merge pull request" | cut -d' ' -f 5 | cut -d '#' -f2
+    git log "v${CURRENT_VERSION}..HEAD" --oneline | grep "Merge pull request" | cut -d' ' -f 5 | cut -d '#' -f2
   else
     curl -u "$RELEASE_GITHUB_USERNAME:$RELEASE_GITHUB_API_TOKEN" --fail -sS "https://api.github.com/search/issues?q=repo:dokku/dokku+milestone:v${NEXT_VERSION}+is:pr&per_page=100" | jq '.items[].number'
   fi
@@ -256,7 +256,7 @@ fn-repo-update-history-and-commit() {
 
   mkdir -p /tmp/github-data
 
-  for PULL_REQUEST_ID in $(fn-repo-merged-requests "$CURRENT_VERSION" "$IS_PATCH"); do
+  for PULL_REQUEST_ID in $(fn-repo-merged-requests "$CURRENT_VERSION" "$NEXT_VERSION" "$IS_PATCH"); do
     ISSUE_FILE="/tmp/github-data/${PULL_REQUEST_ID}.json"
     if [[ ! -f "$ISSUE_FILE" ]]; then
       while true; do
