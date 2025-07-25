@@ -11,6 +11,82 @@ sudo DOKKU_TAG=v0.36.0 bash bootstrap.sh
 
 See the [0.36.0 migration guide](/docs/appendices/0.36.0-migration-guide.md) for more information on migrating to 0.36.0.
 
+### Backwards Compatibility Breaks
+
+- #7442: @turicas Update how domains:clear works and add domains:reset command
+- #7577: @josegonzalez Migrate DOKKU_DOCKER_STOP_TIMEOUT to ps setting
+
+### Bug Fixes
+
+- #7579: @josegonzalez Stop all app containers when calling ps:stop
+- #7820: @josegonzalez Ignore brew doctor warnings when releasing Dokku as a homebrew formula
+- #7811: @slava-sh Fix issue deploying from a tar file 
+- #7781: @josegonzalez Update gitignore to remove compiled triggers from repo
+
+### New Features
+
+- #7780: @josegonzalez Export the devcontainer environment to allow docker exec to work
+- #7776: @josegonzalez Add kustomize support for applying helm charts
+- #7773: @josegonzalez Use values.yaml correctly within internal Kubernetes Helm Chart
+- #7769: @devopswithnaman Improve error handling in docker operations
+- #7578: @josegonzalez Add ability to set maintenance mode for all cron tasks running for an app
+- #7504: @josegonzalez Only redeploy formations that have had their values changed
+- #7499: @nonZero Add support for custom nginx service command
+- #7812: @CiTroNaK Allow specifying a custom top-level label key for the caddy proxy
+
+### Removals
+
+- #7818: @josegonzalez Drop support for Ubuntu 20.04
+- #7774: @josegonzalez Remove ansi escape characters that dropped the remote: prefix in deploy output
+
+### Refactors
+
+- #7816: @josegonzalez Use helper go functions to handle extracting files from a repository
+
+### Documentation
+
+- #7777: @coorasse Fix typo in 0.36.0 migration guide
+- #7761: @largemouth Fix struct name in comment
+- #7760: @olleolleolle Drop dokku-client gem, homepage 404s
+- #7759: @olleolleolle Drop mention of dokkufy gem archived in 2017
+- #7755: @olleolleolle Update checkout action version in github actions documentation
+
+### Tests
+
+- #7762: @josegonzalez Reference new packeto buildpack urls
+
+### Dependencies
+
+- #7815: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.37.0 to 1.38.0 in /plugins/config
+- #7814: @dependabot[bot] chore(deps): bump google.golang.org/grpc from 1.73.0 to 1.74.2 in /tests/apps/gogrpc
+- #7810: @dependabot[bot] chore(deps): bump github.com/spf13/pflag from 1.0.6 to 1.0.7 in /plugins/config
+- #7792: @dependabot[bot] chore(deps): bump ruby from 3.4.4 to 3.4.5 in /tests/apps/dockerfile-entrypoint
+- #7791: @dependabot[bot] chore(deps): bump traefik from 3.4.1 to 3.4.4 in /plugins/traefik-vhosts
+- #7790: @dependabot[bot] chore(deps): bump golang.org/x/crypto from 0.39.0 to 0.40.0 in /plugins/common
+- #7787: @dependabot[bot] chore(deps): bump golang from 1.24.4 to 1.24.5 in /tests/apps/zombies-dockerfile-no-tini
+- #7786: @dependabot[bot] chore(deps): bump golang from 1.24.4 to 1.24.5 in /tests/apps/zombies-dockerfile-tini
+- #7785: @dependabot[bot] chore(deps): bump golang from 1.24.4 to 1.24.5 in /tests/apps/go-fail-predeploy
+- #7784: @dependabot[bot] chore(deps): bump golang from 1.24.4 to 1.24.5 in /tests/apps/gogrpc
+- #7783: @dependabot[bot] chore(deps): bump golang from 1.24.4 to 1.24.5 in /tests/apps/go-fail-postdeploy
+- #7782: @josegonzalez Update golang dependencies in scheduler-k3s plugin
+- #7779: @josegonzalez Update golang to 1.24
+- #7775: @dependabot[bot] chore(deps): bump mvdan.cc/sh/v3 from 3.11.0 to 3.12.0 in /plugins/cron
+- #7772: @dependabot[bot] chore(deps): bump timberio/vector from 0.47.0-debian to 0.48.0-debian in /plugins/logs
+- #7771: @dependabot[bot] chore(deps): bump mkdocs-material from 9.6.14 to 9.6.15 in /docs/_build
+- #7768: @dependabot[bot] chore(deps): bump thin from 1.8.2 to 2.0.1 in /tests/apps/ruby
+- #7766: @dependabot[bot] chore(deps): bump lucaslorentz/caddy-docker-proxy from 2.9 to 2.10 in /plugins/caddy-vhosts
+- #7765: @dependabot[bot] chore(deps): bump pygments from 2.19.1 to 2.19.2 in /docs/_build
+- #7763: @dependabot[bot] chore(deps): bump pymdown-extensions from 10.15 to 10.16 in /docs/_build
+- #7757: @dependabot[bot] chore(deps): bump python from 3.13.4-alpine to 3.13.5-alpine in /docs/_build
+- #7756: @dependabot[bot] chore(deps): bump python from 3.13.4-bookworm to 3.13.5-bookworm in /tests/apps/dockerfile-release
+- #7754: @dependabot[bot] chore(deps): bump requests from 2.32.0 to 2.32.4 in /tests/apps/lambda-python
+- #7753: @dependabot[bot] chore(deps): bump zipp from 3.22.0 to 3.23.0 in /docs/_build
+- #7749: @josegonzalez chore: update herokuish from 0.10.3 to 0.11.0
+- #7748: @josegonzalez chore: update docker-container-healthchecker from 0.11.5 to 0.14.0
+- #7628: @dependabot[bot] chore(deps): bump express from 4.21.2 to 5.1.0 in /tests/apps/nodejs-express-noappjson
+- #7621: @dependabot[bot] chore(deps): bump express from 4.21.2 to 5.1.0 in /tests/apps/nodejs-express
+- #7819: @dependabot[bot] chore(deps): bump brace-expansion from 1.1.11 to 1.1.12 in /tests/apps/multi
+
 ## 0.35.20
 
 Install/update via the bootstrap script:
