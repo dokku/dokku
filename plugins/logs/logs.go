@@ -84,13 +84,36 @@ func SinkValueToConfig(appName string, sinkValue string) (VectorSink, error) {
 	query := u.RawQuery
 	query = strings.TrimPrefix(query, "&")
 
-	b, err := qson.ToJSON(query)
+	// Parse query parameters using Go's standard library instead of qson
+	// This correctly handles '=' signs in parameter values
+	values, err := url.ParseQuery(query)
 	if err != nil {
 		return data, err
 	}
 
-	if err := json.Unmarshal(b, &data); err != nil {
-		return data, err
+	// Convert url.Values to the expected nested map structure
+	data = make(VectorSink)
+	for key, valueList := range values {
+		if len(valueList) > 0 {
+			// Handle nested keys like "auth[token]" -> {"auth": {"token": "value"}}
+			if strings.Contains(key, "[") && strings.HasSuffix(key, "]") {
+				// Parse nested key structure
+				parts := strings.SplitN(key, "[", 2)
+				parentKey := parts[0]
+				childKey := strings.TrimSuffix(parts[1], "]")
+				
+				// Ensure parent exists as a map
+				if data[parentKey] == nil {
+					data[parentKey] = make(map[string]interface{})
+				}
+				if parentMap, ok := data[parentKey].(map[string]interface{}); ok {
+					parentMap[childKey] = valueList[0]
+				}
+			} else {
+				// Simple key-value pair
+				data[key] = valueList[0]
+			}
+		}
 	}
 
 	data["type"] = u.Scheme
@@ -103,4 +126,4 @@ func SinkValueToConfig(appName string, sinkValue string) (VectorSink, error) {
 	}
 
 	return data, nil
-}
+} 
