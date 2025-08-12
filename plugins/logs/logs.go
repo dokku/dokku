@@ -126,4 +126,4 @@ func SinkValueToConfig(appName string, sinkValue string) (VectorSink, error) {
 	}
 
 	return data, nil
-} 
+}
