@@ -20,7 +20,7 @@ See the [0.36.0 migration guide](/docs/appendices/0.36.0-migration-guide.md) for
 
 - #7579: @josegonzalez Stop all app containers when calling ps:stop
 - #7820: @josegonzalez Ignore brew doctor warnings when releasing Dokku as a homebrew formula
-- #7811: @slava-sh Fix issue deploying from a tar file 
+- #7811: @slava-sh Fix issue deploying from a tar file
 - #7781: @josegonzalez Update gitignore to remove compiled triggers from repo
 
 ### New Features
