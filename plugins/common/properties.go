@@ -516,19 +516,24 @@ func PropertyWrite(pluginName string, appName string, property string, value str
 
 // PropertySetup creates the plugin config root
 func PropertySetup(pluginName string) error {
+	configRoot := filepath.Join(MustGetEnv("DOKKU_LIB_ROOT"), "config")
 	pluginConfigRoot := getPluginConfigPath(pluginName)
 	if err := os.MkdirAll(pluginConfigRoot, 0755); err != nil {
 		return err
 	}
 
-	input := SetPermissionInput{
-		Filename: filepath.Join(MustGetEnv("DOKKU_LIB_ROOT"), "config"),
-		Mode:     os.FileMode(0755),
+	// check if configRoot is a symlink
+	if !IsSymlink(configRoot) {
+		input := SetPermissionInput{
+			Filename: configRoot,
+			Mode:     os.FileMode(0755),
+		}
+
+		if err := SetPermissions(input); err != nil {
+			return err
+		}
 	}
 
-	if err := SetPermissions(input); err != nil {
-		return err
-	}
 	return SetPermissions(SetPermissionInput{
 		Filename: pluginConfigRoot,
 		Mode:     os.FileMode(0755),

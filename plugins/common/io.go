@@ -108,6 +108,17 @@ func IsAbsPath(path string) bool {
 	return strings.HasPrefix(path, "/")
 }
 
+// IsSymlink returns true if the path is a symlink
+// if lstat fails, it returns false
+func IsSymlink(path string) bool {
+	info, err := os.Lstat(path)
+	if err != nil {
+		return false
+	}
+
+	return info.Mode()&os.ModeSymlink == os.ModeSymlink
+}
+
 // ListFilesWithPrefix lists files within a given path that have a given prefix
 func ListFilesWithPrefix(path string, prefix string) []string {
 	names, err := os.ReadDir(path)
