@@ -2,8 +2,8 @@ github.com/alexellis/go-execute/v2 v2.2.1 h1:4Ye3jiCKQarstODOEmqDSRCqxMHLkC92Bhs
 github.com/alexellis/go-execute/v2 v2.2.1/go.mod h1:FMdRnUTiFAmYXcv23txrp3VYZfLo24nMpiIneWgKHTQ=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/fastfishio/qson v1.0.2 h1:AY1E9RjVQ9iNPP6G9NQcEXtHXBBq204zUR0tsNFIxFY=
-github.com/fastfishio/qson v1.0.2/go.mod h1:QHBKJuWMgwEGYxdK3s1JKiRKwm5VgJx6vU3+kQa/kOU=
+github.com/fastfishio/qson v1.0.1 h1:w+QEKeOZOXPsAJSGPxF1/V5+NhHycvPog8D9xnAhSJM=
+github.com/fastfishio/qson v1.0.1/go.mod h1:u2Poc2D8P8hB2pgZTv+l5UDd8QgVVKPZfED/04nAuFs=
 github.com/fatih/color v1.18.0 h1:S8gINlzdQ840/4pfAwic/ZE0djQEH3wM94VfqLTZcOM=
 github.com/fatih/color v1.18.0/go.mod h1:4FelSpRwEGDpQ12mAdzqdOukCy4u8WUtOY6lkT/6HfU=
 github.com/google/go-cmp v0.7.0 h1:wk8382ETsv4JYUZwIsn6YpYiWiBsYLSJiTsyBybVuN8=
