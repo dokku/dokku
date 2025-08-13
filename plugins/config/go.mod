@@ -1,6 +1,6 @@
 module github.com/dokku/dokku/plugins/config
 
-go 1.24.0
+go 1.24.5
 
 require (
 	github.com/dokku/dokku/plugins/common v0.0.0-00010101000000-000000000000

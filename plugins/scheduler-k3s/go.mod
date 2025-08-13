@@ -1,6 +1,6 @@
 module github.com/dokku/dokku/plugins/scheduler-k3s
 
-go 1.24.0
+go 1.24.5
 
 require (
 	github.com/cert-manager/cert-manager v1.18.2
@@ -64,6 +64,7 @@ require (
 	github.com/evanphx/json-patch/v5 v5.9.11 // indirect
 	github.com/exponent-io/jsonpath v0.0.0-20210407135951-1de76d718b3f // indirect
 	github.com/expr-lang/expr v1.17.5 // indirect
+	github.com/fastfishio/qson v1.0.2 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/fxamacker/cbor/v2 v2.8.0 // indirect
 	github.com/go-acme/lego/v4 v4.25.2 // indirect
@@ -90,7 +91,6 @@ require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jmoiron/sqlx v1.4.0 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
-	github.com/joncalhoun/qson v0.0.0-20200422171543-84433dcd3da0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect
