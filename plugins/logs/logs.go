@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
-	"github.com/joncalhoun/qson"
+	"github.com/fastfishio/qson"
 )
 
 // VectorSink is a map of vector sink properties
