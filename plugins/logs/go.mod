@@ -31,3 +31,5 @@ require (
 replace github.com/dokku/dokku/plugins/common => ../common
 
 replace github.com/dokku/dokku/plugins/docker-options => ../docker-options
+
+replace github.com/fastfishio/qson => github.com/fastfishio/qson v1.0.1
