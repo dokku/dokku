@@ -97,7 +97,7 @@ jobs:
   build-image-arm64:
     name: build-image.linux/arm64
     needs: build
-    runs-on: buildjet-4vcpu-ubuntu-2204-arm
+    runs-on: ubuntu-24.04-arm
     timeout-minutes: 20
 
     steps:
