@@ -17,7 +17,7 @@ teardown_() {
   uninstall_k3s || true
 }
 
-@test "(scheduler-k3s) deploy traefik [resource] [autoscaling]" {
+@test "(scheduler-k3s) deploy traefik [resource] [autoscaling1]" {
   if [[ -z "$DOCKERHUB_USERNAME" ]] || [[ -z "$DOCKERHUB_TOKEN" ]]; then
     skip "skipping due to missing docker.io credentials DOCKERHUB_USERNAME:DOCKERHUB_TOKEN"
   fi
@@ -84,25 +84,25 @@ teardown_() {
   assert_output "asdfghjkl"
 
   # include resource tests
-  run /bin/bash -c "kubectl get pods -o=jsonpath='{.items[*]..resources.requests.cpu}'"
+  run /bin/bash -c "kubectl get pods -o=jsonpath='{.items[*].spec.containers[*].resources.requests.cpu}'"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output "100m"
 
-  run /bin/bash -c "kubectl get pods -o=jsonpath='{.items[*]..resources.requests.memory}'"
+  run /bin/bash -c "kubectl get pods -o=jsonpath='{.items[*].spec.containers[*].resources.requests.memory}'"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output "128Mi"
 
-  run /bin/bash -c "kubectl get pods -o=jsonpath='{.items[*]..resources.limits.cpu}'"
+  run /bin/bash -c "kubectl get pods -o=jsonpath='{.items[*].spec.containers[*].resources.limits.cpu}'"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output ""
 
-  run /bin/bash -c "kubectl get pods -o=jsonpath='{.items[*]..resources.limits.memory}'"
+  run /bin/bash -c "kubectl get pods -o=jsonpath='{.items[*].spec.containers[*].resources.limits.memory}'"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -125,25 +125,25 @@ teardown_() {
 
   assert_http_localhost_response "http" "$TEST_APP.dokku.me" "80" "" "python/http.server"
 
-  run /bin/bash -c "kubectl get pods -o=jsonpath='{.items[*]..resources.requests.cpu}'"
+  run /bin/bash -c "kubectl get pods -o=jsonpath='{.items[*].spec.containers[*].resources.requests.cpu}'"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output ""
 
-  run /bin/bash -c "kubectl get pods -o=jsonpath='{.items[*]..resources.requests.memory}'"
+  run /bin/bash -c "kubectl get pods -o=jsonpath='{.items[*].spec.containers[*].resources.requests.memory}'"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output "300Mi"
 
-  run /bin/bash -c "kubectl get pods -o=jsonpath='{.items[*]..resources.limits.cpu}'"
+  run /bin/bash -c "kubectl get pods -o=jsonpath='{.items[*].spec.containers[*].resources.limits.cpu}'"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output ""
 
-  run /bin/bash -c "kubectl get pods -o=jsonpath='{.items[*]..resources.limits.memory}'"
+  run /bin/bash -c "kubectl get pods -o=jsonpath='{.items[*].spec.containers[*].resources.limits.memory}'"
   echo "output: $output"
   echo "status: $status"
   assert_success
