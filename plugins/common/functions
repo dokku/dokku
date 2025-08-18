@@ -416,6 +416,12 @@ fn-is-compose-installed() {
   return 1
 }
 
+escape_extended_sed() {
+  # Escaped delimiter is '/'
+  local input="$1"
+  echo "$input" | sed -E 's#[][()\.^$?*+{}|/]#\\&#g'
+}
+
 is_number() {
   declare desc="returns 0 if input is a number"
   local NUMBER=$1
