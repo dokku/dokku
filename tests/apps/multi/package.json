@@ -3,7 +3,7 @@
   "dependencies": {
     "bower": "^1.8.0",
     "grunt": "~1.6.1",
-    "grunt-cli": "~1.4.3",
+    "grunt-cli": "~1.5.0",
     "grunt-contrib-compass": "~1.1.1",
     "load-grunt-tasks": "~5.1.0",
     "tmp": "0.2.5"
