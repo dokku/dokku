@@ -196,8 +196,8 @@ github.com/json-iterator/go v1.1.12 h1:PV8peI4a0ysnczrg+LtxykD8LfKY9ML6u2jnxaEnr
 github.com/json-iterator/go v1.1.12/go.mod h1:e30LSqwooZae/UwlEbR2852Gd8hjQvJoHmT4TnhNGBo=
 github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 h1:Z9n2FFNUXsshfwJMBgNA0RU6/i7WVaAegv3PtuIHPMs=
 github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51/go.mod h1:CzGEWj7cYgsdH8dAjBGEr58BoE7ScuLd+fwFZ44+/x8=
-github.com/kedacore/keda/v2 v2.17.1-0.20250708210620-a239d2459a35 h1:dVamAZ0mkRedF4AMZDFoaV1lakRfdfrzN9tvk+zgAlk=
-github.com/kedacore/keda/v2 v2.17.1-0.20250708210620-a239d2459a35/go.mod h1:WGhOV69k9YW3iTSj592glrCOqdO9Zy8hmYcyStZ5+tk=
+github.com/kedacore/keda/v2 v2.17.2 h1:xlrcK5TKABJF9PebK79sgL07s/csGjL3H4m72OkZXxk=
+github.com/kedacore/keda/v2 v2.17.2/go.mod h1:z5Qr4yxPRrtuYbbO2fRxikr2EkNPT6Dd4jjypV+Vmo8=
 github.com/kisielk/errcheck v1.5.0/go.mod h1:pFxgyoBC7bSaBwPgfKdkLd5X25qrDl4LWUI2bnpBCr8=
 github.com/kisielk/gotool v1.0.0/go.mod h1:XhKaO+MFFWcvkIS/tQcRk01m1F5IRFswLeQ+oQHNcck=
 github.com/klauspost/compress v1.18.0 h1:c/Cqfb0r+Yi+JtIEq73FWXVkRonBlf0CRNYc8Zttxdo=
