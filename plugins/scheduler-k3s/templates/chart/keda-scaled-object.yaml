@@ -1,5 +1,9 @@
 {{- if .Capabilities.APIVersions.Has "keda.sh/v1alpha1" -}}
 {{- range $processName, $config := .Values.processes }}
+{{- if hasKey $config "cron" }}
+# Skip {{ $processName }} as it is a cron job
+{{- continue }}
+{{- end }}
 
 {{- if and (hasKey $config "autoscaling") (and $config.autoscaling.enabled (eq $config.autoscaling.type "keda")) }}
 ---
