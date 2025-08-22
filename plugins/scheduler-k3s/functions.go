@@ -576,7 +576,6 @@ func getAutoscaling(input GetAutoscalingInput) (ProcessAutoscaling, error) {
 	}
 
 	if !ok {
-		common.LogWarn(fmt.Sprintf("No autoscaling config found for %s:%s", input.AppName, input.ProcessType))
 		return ProcessAutoscaling{}, nil
 	}
 

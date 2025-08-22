@@ -29,6 +29,11 @@ teardown_() {
   echo "status: $status"
   assert_success
 
+  run /bin/bash -c "dokku ps:scale $TEST_APP web=1 worker=2"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP inject_kustomization_yaml
   echo "output: $output"
   echo "status: $status"
@@ -39,6 +44,12 @@ teardown_() {
   echo "status: $status"
   assert_success
   assert_output "3"
+
+  run /bin/bash -c "kubectl get deployment $TEST_APP-worker -o json | jq -r '.spec.replicas'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "2"
 }
 
 inject_kustomization_yaml() {
@@ -58,8 +69,9 @@ patches:
       path: /spec/replicas
       value: 3
   target:
-      group: apps
-      version: v1
-      kind: Deployment
+    group: apps
+    version: v1
+    kind: Deployment
+    name: $APP-web
 EOF
 }

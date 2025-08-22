@@ -72,6 +72,10 @@ func main() {
 		}
 
 		err = scheduler_k3s.TriggerSchedulerEnter(scheduler, appName, containerType, ptr.Deref(podIdentifier, ""), args)
+	case "scheduler-is-deployed":
+		scheduler := flag.Arg(0)
+		appName := flag.Arg(1)
+		err = scheduler_k3s.TriggerSchedulerIsDeployed(scheduler, appName)
 	case "scheduler-logs":
 		var tail bool
 		var quiet bool

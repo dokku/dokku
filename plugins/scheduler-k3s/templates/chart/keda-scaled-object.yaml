@@ -1,11 +1,11 @@
 {{- if .Capabilities.APIVersions.Has "keda.sh/v1alpha1" -}}
 {{- range $processName, $config := .Values.processes }}
-{{- if not (hasKey $config "web") }}
-# Skip {{ $processName }} as it doesn't have a web section
+{{- if hasKey $config "cron" }}
+# Skip {{ $processName }} as it is a cron job
 {{- continue }}
 {{- end }}
 
-{{- if and $config.autoscaling (and $config.autoscaling.enabled (eq $config.autoscaling.type "keda")) }}
+{{- if and (hasKey $config "autoscaling") (and $config.autoscaling.enabled (eq $config.autoscaling.type "keda")) }}
 ---
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject

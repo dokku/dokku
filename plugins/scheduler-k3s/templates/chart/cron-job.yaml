@@ -1,6 +1,6 @@
 {{- range $processName, $config := .Values.processes }}
-# Only process cron jobs
 {{- if not (and (hasKey $config "cron") (hasKey $config.cron "id")) }}
+# Skip {{ $processName }} as it is not a cron job
 {{- continue }}
 {{- end }}
 ---

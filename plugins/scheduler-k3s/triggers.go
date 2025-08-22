@@ -789,6 +789,32 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 	return nil
 }
 
+// TriggerSchedulerIsDeployed returns true if given app has a running container
+func TriggerSchedulerIsDeployed(scheduler string, appName string) error {
+	if scheduler != "k3s" {
+		return nil
+	}
+
+	// check if there are any helm revisions for the specified appName
+	helmAgent, err := NewHelmAgent(getComputedNamespace(appName), DeployLogPrinter)
+	if err != nil {
+		return fmt.Errorf("Error creating helm agent: %w", err)
+	}
+
+	revisions, err := helmAgent.ListRevisions(ListRevisionsInput{
+		ReleaseName: appName,
+	})
+	if err != nil {
+		return fmt.Errorf("Error listing helm revisions: %w", err)
+	}
+
+	if len(revisions) > 0 {
+		return nil
+	}
+
+	return fmt.Errorf("App %s is not deployed", appName)
+}
+
 // TriggerSchedulerEnter enters a container for a given application
 func TriggerSchedulerEnter(scheduler string, appName string, processType string, podName string, args []string) error {
 	if scheduler != "k3s" {
