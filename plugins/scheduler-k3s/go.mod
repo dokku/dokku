@@ -11,7 +11,7 @@ require (
 	github.com/dokku/dokku/plugins/logs v0.0.0-20250618161309-8d0c35f1333c
 	github.com/dokku/dokku/plugins/nginx-vhosts v0.0.0-20250618161309-8d0c35f1333c
 	github.com/fatih/color v1.18.0
-	github.com/fluxcd/pkg/kustomize v1.18.0
+	github.com/fluxcd/pkg/kustomize v1.19.0
 	github.com/go-openapi/jsonpointer v0.21.1
 	github.com/go-resty/resty/v2 v2.16.5
 	github.com/gofrs/flock v0.12.1
@@ -133,6 +133,7 @@ require (
 	github.com/rubenv/sql-migrate v1.8.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/santhosh-tekuri/jsonschema/v6 v6.0.2 // indirect
+	github.com/sergi/go-diff v1.3.2-0.20230802210424-5b0b94c5c0d3 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/spf13/cast v1.9.2 // indirect
