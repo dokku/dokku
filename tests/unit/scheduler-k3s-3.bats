@@ -72,6 +72,6 @@ patches:
     group: apps
     version: v1
     kind: Deployment
-    name: $TEST_APP-worker
+    name: $APP-web
 EOF
 }
