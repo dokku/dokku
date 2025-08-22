@@ -135,6 +135,13 @@ updates:
     labels:
       - "type: dependencies"
   - package-ecosystem: gomod
+    directory: "/plugins/scheduler-k3s"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 2
+    labels:
+      - "type: dependencies"
+  - package-ecosystem: gomod
     directory: "/plugins/scheduler"
     schedule:
       interval: daily
@@ -262,6 +269,13 @@ updates:
       - "type: dependencies"
   - package-ecosystem: maven
     directory: "/tests/apps/java"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+    labels:
+      - "type: dependencies"
+  - package-ecosystem: npm
+    directory: "/tests/apps/multi"
     schedule:
       interval: daily
     open-pull-requests-limit: 10
