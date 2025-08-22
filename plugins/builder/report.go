@@ -14,6 +14,7 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 		"--builder-computed-selected":  reportComputedSelected,
 		"--builder-global-selected":    reportGlobalSelected,
 		"--builder-selected":           reportSelected,
+		"--builder-detected":           reportDetected,
 		"--builder-computed-build-dir": reportComputedBuildDir,
 		"--builder-global-build-dir":   reportGlobalBuildDir,
 		"--builder-build-dir":          reportBuildDir,
@@ -41,6 +42,10 @@ func reportComputedSelected(appName string) string {
 
 func reportGlobalSelected(appName string) string {
 	return common.PropertyGet("builder", "--global", "selected")
+}
+
+func reportDetected(appName string) string {
+	return common.PropertyGet("builder", appName, "detected")
 }
 
 func reportSelected(appName string) string {
