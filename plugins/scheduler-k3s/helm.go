@@ -264,6 +264,7 @@ func (h *HelmAgent) InstallChart(ctx context.Context, input ChartInput) error {
 	}
 
 	kustomizeRenderer := KustomizeRenderer{
+		ReleaseName:       input.ReleaseName,
 		KustomizeRootPath: input.KustomizeRootPath,
 	}
 
@@ -387,6 +388,7 @@ func (h *HelmAgent) UpgradeChart(ctx context.Context, input ChartInput) error {
 	}
 
 	kustomizeRenderer := KustomizeRenderer{
+		ReleaseName:       input.ReleaseName,
 		KustomizeRootPath: input.KustomizeRootPath,
 	}
 
@@ -464,10 +466,16 @@ func (p *DebugRenderer) Run(renderedManifests *bytes.Buffer) (*bytes.Buffer, err
 	return renderedManifests, nil
 }
 
+// KustomizeRenderer is a post renderer that kustomizes the rendered manifests
 type KustomizeRenderer struct {
+	// KustomizeRootPath is the path to the kustomize root path to use
 	KustomizeRootPath string
+
+	// ReleaseName is the name of the release to kustomize
+	ReleaseName string
 }
 
+// Run kustomizes the rendered manifests
 func (p *KustomizeRenderer) Run(renderedManifests *bytes.Buffer) (*bytes.Buffer, error) {
 	if p.KustomizeRootPath == "" {
 		return renderedManifests, nil
@@ -477,6 +485,7 @@ func (p *KustomizeRenderer) Run(renderedManifests *bytes.Buffer) (*bytes.Buffer,
 		return renderedManifests, nil
 	}
 
+	common.LogVerboseQuiet(fmt.Sprintf("Applying kustomization to %s", p.ReleaseName))
 	fs, err := filesys.MakeFsOnDiskSecureBuild(p.KustomizeRootPath)
 	if err != nil {
 		return nil, fmt.Errorf("Error creating filesystem: %w", err)
