@@ -1,5 +1,35 @@
 # History
 
+## 0.36.2
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.36.2/bootstrap.sh
+sudo DOKKU_TAG=v0.36.2 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #7872: @josegonzalez Correct issues when scaling non-web processes for the scheduler-k3s plugin
+
+### Refactors
+
+- #7871: @josegonzalez Remove public exposure of DOKKU_APP_TYPE in favor of builder detected property
+
+### Dependencies
+
+- #7868: @dependabot[bot] chore(deps): bump grunt-cli from 1.4.3 to 1.5.0 in /tests/apps/multi
+- #7869: @dependabot[bot] chore(deps): bump bower from 1.8.12 to 1.8.14 in /tests/apps/multi
+- #7870: @dependabot[bot] chore(deps): bump tmp from 0.2.4 to 0.2.5 in /tests/apps/multi
+- #7867: @dependabot[bot] chore(deps): bump grunt from 1.5.3 to 1.6.1 in /tests/apps/multi
+- #7866: @dependabot[bot] chore(deps): bump github.com/fluxcd/pkg/kustomize from 1.18.0 to 1.19.0 in /plugins/scheduler-k3s
+- #7862: @dependabot[bot] chore(deps): bump google.golang.org/protobuf from 1.36.7 to 1.36.8 in /tests/apps/gogrpc
+
+### Other
+
+- #7864: @josegonzalez chore(deps): add dependabot entries for plugins/scheduler-k3s and tests/apps/multi
+
 ## 0.36.1
 
 Install/update via the bootstrap script:
