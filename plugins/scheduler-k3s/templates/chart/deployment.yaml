@@ -1,8 +1,4 @@
 {{- range $processName, $config := .Values.processes }}
-{{- if not (hasKey $config "web") }}
-# Skip {{ $processName }} as it doesn't have a web section
-{{- continue }}
-{{- end }}
 
 {{- $mappings := dict }}
 {{- if hasKey $config "web" }}
