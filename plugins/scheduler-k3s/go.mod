@@ -12,7 +12,7 @@ require (
 	github.com/dokku/dokku/plugins/nginx-vhosts v0.0.0-20250618161309-8d0c35f1333c
 	github.com/fatih/color v1.18.0
 	github.com/fluxcd/pkg/kustomize v1.19.0
-	github.com/go-openapi/jsonpointer v0.21.1
+	github.com/go-openapi/jsonpointer v0.21.2
 	github.com/go-resty/resty/v2 v2.16.5
 	github.com/gofrs/flock v0.12.1
 	github.com/gosimple/slug v1.15.0
