@@ -33,6 +33,11 @@ func main() {
 		appName := flag.Arg(0)
 		image := flag.Arg(1)
 		err = builder.TriggerBuilderImageIsHerokuish(appName, image)
+	case "builder-set-property":
+		appName := flag.Arg(0)
+		property := flag.Arg(1)
+		value := flag.Arg(2)
+		err = builder.TriggerBuilderSetProperty(appName, property, value)
 	case "core-post-extract":
 		appName := flag.Arg(0)
 		sourceWorkDir := flag.Arg(1)

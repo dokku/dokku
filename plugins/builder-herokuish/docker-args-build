@@ -10,9 +10,9 @@ trigger-builder-herokuish-docker-args() {
   local STDIN DOKKU_APP_TYPE DOKKU_APP_USER
 
   STDIN=$(cat)
-  DOKKU_APP_TYPE=$(config_get "$APP" DOKKU_APP_TYPE || true)
-  DOKKU_APP_USER=$(config_get "$APP" DOKKU_APP_USER || true)
-  DOKKU_APP_USER=${DOKKU_APP_USER:="herokuishuser"}
+  DOKKU_APP_TYPE="$(plugn trigger builder-get-property "$APP" "detected" || true)"
+  DOKKU_APP_USER="$(config_get "$APP" DOKKU_APP_USER || true)"
+  DOKKU_APP_USER="${DOKKU_APP_USER:="herokuishuser"}"
 
   if [[ "$DOKKU_APP_TYPE" == "herokuish" ]]; then
     local docker_args="$STDIN --env=USER=${DOKKU_APP_USER}"

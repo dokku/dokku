@@ -75,7 +75,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku --quiet config:get $TEST_APP DOKKU_APP_TYPE"
+  run /bin/bash -c "dokku builder:report $TEST_APP --builder-detected"
   echo "output: $output"
   echo "status: $status"
   assert_output "herokuish"

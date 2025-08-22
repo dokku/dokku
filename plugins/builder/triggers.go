@@ -27,12 +27,21 @@ func TriggerBuilderDetect(appName string) error {
 
 // TriggerBuilderGetProperty writes the builder key to stdout for a given app container
 func TriggerBuilderGetProperty(appName string, key string) error {
-	if key != "selected" && key != "build-dir" {
-		return errors.New("Invalid logs property specified")
+	if _, ok := DefaultProperties[key]; !ok {
+		return errors.New("Invalid builder property specified")
 	}
 
 	fmt.Println(common.PropertyGet("builder", appName, key))
 	return nil
+}
+
+// TriggerBuilderSetProperty writes the builder key to stdout for a given app container
+func TriggerBuilderSetProperty(appName string, key string, value string) error {
+	if _, ok := DefaultProperties[key]; !ok {
+		return errors.New("Invalid builder property specified")
+	}
+
+	return common.PropertyWrite("builder", appName, key, value)
 }
 
 // TriggerBuilderImageIsCNB prints true if an image is cnb based, false otherwise
@@ -99,7 +108,30 @@ func TriggerInstall() error {
 		return fmt.Errorf("Unable to install the builder plugin: %s", err.Error())
 	}
 
-	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+	apps, err := common.UnfilteredDokkuApps()
+	if err != nil {
+		return nil
+	}
+
+	for _, appName := range apps {
+		if common.PropertyExists("builder", appName, "detected") {
+			continue
+		}
+
+		results, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+			Trigger: "config-get",
+			Args:    []string{appName, "DOKKU_APP_TYPE"},
+		})
+		if err != nil {
+			return err
+		}
+
+		if results.StdoutContents() != "" {
+			common.PropertyWrite("builder", appName, "detected", results.StdoutContents())
+		}
+	}
+
+	_, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
 		Trigger: "install-builder-prune",
 	})
 

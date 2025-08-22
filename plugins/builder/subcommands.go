@@ -30,6 +30,11 @@ func CommandReport(appName string, format string, infoFlag string) error {
 
 // CommandSet set or clear a builder property for an app
 func CommandSet(appName string, property string, value string) error {
+	if property == "detected" {
+		common.LogWarn("detected is a read-only property")
+		return nil
+	}
+
 	common.CommandPropertySet("builder", appName, property, value, DefaultProperties, GlobalProperties)
 	return nil
 }
