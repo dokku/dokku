@@ -234,6 +234,19 @@ For some sinks - such as the `http` sink - it may be useful to use special chara
 dokku logs:set test vector-sink "http://?uri=https%3A//loggerservice.com%3A1234/%3Ftoken%3Dabc1234%26type%3Dvector"
 ```
 
+For kubernetes, it may be necessary to use template syntax - `{{ .parent.child }}` - in the sink configuration. Naively using brackets will fail due to the Helm chart install process assuming that the template should be interpreted at Helm install time vs by Vector itself. To avoid this, use `base64enc:` values (available only for top-level properties at this time). The following example shows how to use `{{ pod }}` as a value.
+
+```shell
+# encode the value with a Helm `print` statement wrapper
+encoded="$(echo '{{ print "{{ pod }}" }}' | base64)"
+# the value of encoded should be: e3sgcHJpbnQgInt7IHBvZCB9fSIgfX0K
+
+# set the value 
+dokku logs:set test vector-sink "http://?process=base64enc%3A${encoded}"
+```
+
+This will transform the value to it's encoded form when configuring Vector sinks for Kubernetes.
+
 Please read the [sink documentation](https://vector.dev/docs/reference/configuration/sinks/) for your sink of choice to configure the sink as desired.
 
 ##### Configuring the app label

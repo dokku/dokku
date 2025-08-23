@@ -2,6 +2,7 @@ package logs
 
 import (
 	"embed"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -100,6 +101,22 @@ func SinkValueToConfig(appName string, sinkValue string) (VectorSink, error) {
 	}
 	if appName == "--null" {
 		data["inputs"] = []string{"docker-null-source"}
+	}
+
+	// add special support for `base64enc:VAL` fields
+	for key, value := range data {
+		valueString, ok := value.(string)
+		if !ok {
+			continue
+		}
+
+		if encodedValue, found := strings.CutPrefix(valueString, "base64enc:"); found {
+			decodedValue, err := base64.StdEncoding.DecodeString(encodedValue)
+			if err != nil {
+				return data, fmt.Errorf("Error decoding base64: %w", err)
+			}
+			data[key] = strings.TrimSpace(string(decodedValue))
+		}
 	}
 
 	return data, nil

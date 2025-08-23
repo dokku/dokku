@@ -1577,7 +1577,7 @@ func installHelmCharts(ctx context.Context, clientset KubernetesClient, shouldIn
 			}
 		}
 
-		if chart.ReleaseName == "vector" {
+		if chart.ReleaseName == "vector" && chart.Namespace == "vector" {
 			values = updateVectorValues(values)
 		}
 

@@ -611,6 +611,7 @@ Next, run the `scheduler-k3s:ensure-charts` command with the `vector` chart to f
 ```shell
 dokku scheduler-k3s:ensure-charts --charts vector
 ```
+Please see the [vector logs documentation](/docs/deployment/logs.md#configuring-a-log-sink) for more information on specifying vector sinks.
 
 ### Supported Resource Management Properties
 

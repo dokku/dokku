@@ -52,6 +52,32 @@ teardown_() {
   assert_output "2"
 }
 
+@test "(scheduler-k3s) deploy kustomize with vector sink" {
+  if [[ -z "$DOCKERHUB_USERNAME" ]] || [[ -z "$DOCKERHUB_TOKEN" ]]; then
+    skip "skipping due to missing docker.io credentials DOCKERHUB_USERNAME:DOCKERHUB_TOKEN"
+  fi
+
+  encoded="$(echo '{{ print "{{ pod }}" }}' | base64)"
+  run /bin/bash -c "echo $encoded"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "e3sgcHJpbnQgInt7IHBvZCB9fSIgfX0K"
+
+  run /bin/bash -c "dokku logs:set --global vector-sink 'http://?process=base64enc%3A${encoded}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  INGRESS_CLASS=nginx install_k3s
+
+  run /bin/bash -c "kubectl get cm -n vector vector -o yaml"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "process: '{{ pod }}'"
+}
+
 inject_kustomization_yaml() {
   local APP="$1"
   local APP_REPO_DIR="$2"
