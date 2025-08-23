@@ -1,5 +1,24 @@
 # History
 
+## 0.36.3
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.36.3/bootstrap.sh
+sudo DOKKU_TAG=v0.36.3 bash bootstrap.sh
+```
+
+### New Features
+
+- #7878: @josegonzalez Allow specifying base64-encoded values in vector-sink DSN urls
+
+### Dependencies
+
+- #7873: @dependabot[bot] chore(deps): bump github.com/go-openapi/jsonpointer from 0.21.1 to 0.21.2 in /plugins/scheduler-k3s
+- #7874: @dependabot[bot] chore(deps): bump k8s.io/api from 0.33.3 to 0.33.4 in /plugins/scheduler-k3s
+- #7875: @dependabot[bot] chore(deps): bump mkdocs-material from 9.6.17 to 9.6.18 in /docs/_build
+
 ## 0.36.2
 
 Install/update via the bootstrap script:
