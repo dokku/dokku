@@ -57,8 +57,6 @@ teardown_() {
     skip "skipping due to missing docker.io credentials DOCKERHUB_USERNAME:DOCKERHUB_TOKEN"
   fi
 
-  INGRESS_CLASS=nginx install_k3s
-
   encoded="$(echo '{{ print "{{ pod }}" }}' | base64)"
   run /bin/bash -c "echo $encoded"
   echo "output: $output"
@@ -71,10 +69,7 @@ teardown_() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku scheduler-k3s:ensure-charts --charts vector"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
+  INGRESS_CLASS=nginx install_k3s
 
   run /bin/bash -c "kubectl get cm -n vector vector -o yaml"
   echo "output: $output"
