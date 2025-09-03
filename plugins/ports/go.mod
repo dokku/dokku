@@ -6,7 +6,7 @@ require (
 	github.com/dokku/dokku/plugins/common v0.0.0-00010101000000-000000000000
 	github.com/dokku/dokku/plugins/config v0.0.0-00010101000000-000000000000
 	github.com/ryanuber/columnize v2.1.2+incompatible
-	github.com/spf13/pflag v1.0.7
+	github.com/spf13/pflag v1.0.9
 )
 
 require (
