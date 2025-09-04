@@ -4,6 +4,7 @@ controller:
     enabled: true
   config:
     access-log-path: /var/log/nginx/access.log
+    annotations-risk-level: Critical
     error-log-path: /var/log/nginx/error.log
     log-format-escape-json: "true"
   extraVolumeMounts:
