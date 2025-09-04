@@ -5,7 +5,7 @@ go 1.24.5
 require (
 	github.com/dokku/dokku/plugins/common v0.0.0-00010101000000-000000000000
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
-	github.com/spf13/pflag v1.0.9
+	github.com/spf13/pflag v1.0.10
 	k8s.io/utils v0.0.0-20240102154912-e7106e64919e
 )
 
