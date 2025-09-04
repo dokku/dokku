@@ -995,33 +995,6 @@ func getIngressAnnotations(appName string, processType string) (map[string]strin
 				return fmt.Sprintf("underscores_in_headers %s;", value)
 			},
 		},
-		"x-forwarded-for-value": {
-			getter: nginxvhosts.ComputedXForwardedForValue,
-			locationSnippet: func(value string) string {
-				if value == "" {
-					return ""
-				}
-				return fmt.Sprintf("proxy_set_header X-Forwarded-For %s;", value)
-			},
-		},
-		"x-forwarded-port-value": {
-			getter: nginxvhosts.ComputedXForwardedPortValue,
-			locationSnippet: func(value string) string {
-				if value == "" {
-					return ""
-				}
-				return fmt.Sprintf("proxy_set_header X-Forwarded-Port %s;", value)
-			},
-		},
-		"x-forwarded-proto-value": {
-			getter: nginxvhosts.ComputedXForwardedProtoValue,
-			locationSnippet: func(value string) string {
-				if value == "" {
-					return ""
-				}
-				return fmt.Sprintf("proxy_set_header X-Forwarded-Proto %s;", value)
-			},
-		},
 		"x-forwarded-ssl": {
 			getter: nginxvhosts.ComputedXForwardedSSL,
 			locationSnippet: func(value string) string {
