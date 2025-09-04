@@ -925,9 +925,27 @@ func getIngressAnnotations(appName string, processType string) (map[string]strin
 			annotation: "nginx.ingress.kubernetes.io/proxy-buffering",
 			getter:     nginxvhosts.ComputedProxyBuffering,
 		},
-		"proxy-buffers": {
+		"proxy-buffers-number": {
 			annotation: "nginx.ingress.kubernetes.io/proxy-buffers-number",
 			getter:     nginxvhosts.ComputedProxyBuffers,
+			modifier: func(value string) string {
+				parts := strings.Split(value, " ")
+				if len(parts) != 2 {
+					return "8"
+				}
+				return parts[0]
+			},
+		},
+		"proxy-buffers-size": {
+			annotation: "nginx.ingress.kubernetes.io/proxy-buffers-size",
+			getter:     nginxvhosts.ComputedProxyBuffers,
+			modifier: func(value string) string {
+				parts := strings.Split(value, " ")
+				if len(parts) != 2 {
+					return "4k"
+				}
+				return parts[1]
+			},
 		},
 		"proxy-busy-buffers-size": {
 			getter: nginxvhosts.ComputedProxyBusyBuffersSize,
