@@ -1,5 +1,37 @@
 # History
 
+## 0.36.4
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.36.4/bootstrap.sh
+sudo DOKKU_TAG=v0.36.4 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #7914: @josegonzalez Fix nginx configuration building in k3s scheduler
+
+### Dependencies
+
+- #7935: @dependabot[bot] chore(deps): update markdown requirement from <3.9,>=3.2.1 to >=3.2.1,<3.10 in /docs/_build
+- #7936: @dependabot[bot] chore(deps): bump github.com/go-openapi/jsonpointer from 0.21.2 to 0.22.0 in /plugins/scheduler-k3s
+- #7931: @dependabot[bot] chore(deps): bump github.com/traefik/traefik/v2 from 2.11.28 to 2.11.29 in /plugins/scheduler-k3s
+- #7932: @dependabot[bot] chore(deps): bump actions/setup-python from 5 to 6
+- #7933: @dependabot[bot] chore(deps): bump actions/setup-node from 4 to 5
+- #7934: @dependabot[bot] chore(deps): bump hadolint/hadolint-action from 3.1.0 to 3.2.0
+- #7920: @dependabot[bot] chore(deps): bump github.com/spf13/pflag from 1.0.9 to 1.0.10 in /plugins/common
+- #7887: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.38.0 to 1.38.2 in /plugins/common
+- #7847: @dependabot[bot] chore(deps): bump timberio/vector from 0.48.0-debian to 0.49.0-debian in /plugins/logs
+- #7890: @dependabot[bot] chore(deps): bump k8s.io/kubernetes from 1.33.2 to 1.34.0 in /plugins/scheduler-k3s
+- #7881: @dependabot[bot] chore(deps): bump byjg/easy-haproxy from 4.5.0 to 4.6.0 in /plugins/haproxy-vhosts
+- #7880: @dependabot[bot] chore(deps): bump beautifulsoup4 from 4.13.4 to 4.13.5 in /docs/_build
+- #7888: @dependabot[bot] chore(deps): bump soupsieve from 2.7 to 2.8 in /docs/_build
+- #7902: @dependabot[bot] chore(deps): bump github.com/spf13/pflag from 1.0.7 to 1.0.9 in /plugins/common
+- #7891: @dependabot[bot] chore(deps): bump k8s.io/kubectl from 0.33.3 to 0.34.0 in /plugins/scheduler-k3s
+- #7895: @dependabot[bot] chore(deps): bump traefik from 3.5.0 to 3.5.1 in /plugins/traefik-vhosts
+
 ## 0.36.3
 
 Install/update via the bootstrap script:
