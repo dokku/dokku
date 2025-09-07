@@ -12,7 +12,7 @@ set -eo pipefail
 # That's good because it prevents our output overlapping with wget's.
 # It also means that we can't run a partially downloaded script.
 
-SUPPORTED_VERSIONS="Debian [11, 12], Ubuntu [22.04, 24.04]"
+SUPPORTED_VERSIONS="Debian [11, 12, 13], Ubuntu [22.04, 24.04]"
 
 log-fail() {
   declare desc="log fail formatter"
@@ -48,9 +48,11 @@ install-requirements() {
         apt-get update -qq >/dev/null
         apt-get -qq -y --no-install-recommends install gpg-agent
       fi
-      if ! dpkg -l | grep -q software-properties-common; then
-        apt-get update -qq >/dev/null
-        apt-get -qq -y --no-install-recommends install software-properties-common
+      if [[ "$DOKKU_DISTRO_VERSION" -lt "13" ]]; then
+        if ! dpkg -l | grep -q software-properties-common; then
+          apt-get update -qq >/dev/null
+          apt-get -qq -y --no-install-recommends install software-properties-common
+        fi
       fi
       ;;
     ubuntu)
@@ -160,7 +162,7 @@ install-dokku-from-deb-package() {
   local NO_INSTALL_RECOMMENDS=${DOKKU_NO_INSTALL_RECOMMENDS:=""}
   local OS_ID
 
-  if ! in-array "$DOKKU_DISTRO_VERSION" "22.04" "24.04" "10" "11" "12"; then
+  if ! in-array "$DOKKU_DISTRO_VERSION" "22.04" "24.04" "10" "11" "12" "13"; then
     log-fail "Unsupported Linux distribution. Only the following versions are supported: $SUPPORTED_VERSIONS"
   fi
 
@@ -193,12 +195,12 @@ install-dokku-from-deb-package() {
       OS_ID="noble"
     fi
   elif [[ "$DOKKU_DISTRO" == "debian" ]]; then
-    OS_IDS=("bullseye" "bookworm")
+    OS_IDS=("bullseye" "bookworm" "trixie")
     if ! in-array "$OS_ID" "${OS_IDS[@]}"; then
       OS_ID="bookworm"
     fi
   elif [[ "$DOKKU_DISTRO" == "raspbian" ]]; then
-    OS_IDS=("bullseye" "bookworm")
+    OS_IDS=("bullseye" "bookworm" "trixie")
     if ! in-array "$OS_ID" "${OS_IDS[@]}"; then
       OS_ID="bookworm"
     fi
