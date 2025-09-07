@@ -1,5 +1,18 @@
 # History
 
+## 0.36.5
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.36.5/bootstrap.sh
+sudo DOKKU_TAG=v0.36.5 bash bootstrap.sh
+```
+
+### New Features
+
+- #7937: @josegonzalez Add support for Debian Trixie
+
 ## 0.36.4
 
 Install/update via the bootstrap script:
