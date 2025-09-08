@@ -74,6 +74,27 @@ teardown() {
   assert_output_contains 'Installing dependencies using pip'
 }
 
+@test "(builder-pack) run" {
+  run /bin/bash -c "dokku builder:set $TEST_APP selected pack"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP initialize_for_cnb
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains 'from cnb stack'
+  assert_output_contains 'Building with buildpack 1' 0
+  assert_output_contains 'Installing dependencies using pip'
+
+  run /bin/bash -c "dokku run $TEST_APP python task.py test"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "['task.py', 'test']"
+}
+
 @test "(builder-pack) git:from-image without a Procfile" {
   run /bin/bash -c "dokku git:from-image $TEST_APP dokku/smoke-test-gradle-app:1"
   echo "output: $output"
