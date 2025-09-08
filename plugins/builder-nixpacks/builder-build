@@ -21,7 +21,7 @@ trigger-builder-nixpacks-builder-build() {
   fi
 
   local IMAGE=$(get_app_image_name "$APP")
-  local DOCKER_BUILD_LABEL_ARGS=("--label=dokku" "--label=org.label-schema.schema-version=1.0" "--label=org.label-schema.vendor=dokku" "--label=com.dokku.image-stage=build" "--label=com.dokku.builder-type=dockerfile" "--label=com.dokku.app-name=$APP")
+  local DOCKER_BUILD_LABEL_ARGS=("--label=dokku" "--label=org.label-schema.schema-version=1.0" "--label=org.label-schema.vendor=dokku" "--label=com.dokku.image-stage=build" "--label=com.dokku.builder-type=nixpacks" "--label=com.dokku.app-name=$APP")
 
   pushd "$SOURCECODE_WORK_DIR" &>/dev/null
 
