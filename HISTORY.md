@@ -1,5 +1,39 @@
 # History
 
+## 0.36.6
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.36.6/bootstrap.sh
+sudo DOKKU_TAG=v0.36.6 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #7955: @josegonzalez Ensure that the nixpacks bin is installed in /usr/bin/nixpacks in Docker image
+- #7953: @josegonzalez Set correct label for nixpacks builder
+- #7942: @josegonzalez Ensure the code is copied over to the new app on clone or rebase
+- #7941: @josegonzalez Do not generate an https url when there is no SSL certificate
+- #7940: @josegonzalez Silence openresty extract warnings during the deploy process
+
+### Tests
+
+- #7954: @josegonzalez Respect DOKKU_DOMAIN when deploying in tests
+- #7943: @josegonzalez Remove unused test app
+- #7939: @josegonzalez Add test for ensuring run commands work with pack-based builds
+
+### Dependencies
+
+- #7958: @dependabot[bot] chore(deps): bump helm.sh/helm/v3 from 3.18.5 to 3.18.6 in /plugins/scheduler-k3s
+- #7952: @dependabot[bot] chore(deps): bump golang.org/x/sync from 0.16.0 to 0.17.0 in /plugins/common
+- #7951: @dependabot[bot] chore(deps): bump golang from 1.25.0 to 1.25.1 in /tests/apps/gogrpc
+- #7950: @dependabot[bot] chore(deps): bump golang from 1.25.0 to 1.25.1 in /tests/apps/go-fail-postdeploy
+- #7949: @dependabot[bot] chore(deps): bump golang from 1.25.0 to 1.25.1 in /tests/apps/zombies-dockerfile-no-tini
+- #7947: @dependabot[bot] chore(deps): bump golang from 1.25.0 to 1.25.1 in /tests/apps/zombies-dockerfile-tini
+- #7945: @dependabot[bot] chore(deps): bump golang from 1.25.0 to 1.25.1 in /tests/apps/go-fail-predeploy
+- #7946: @dependabot[bot] chore(deps): bump mkdocs-material from 9.6.18 to 9.6.19 in /docs/_build
+
 ## 0.36.5
 
 Install/update via the bootstrap script:
