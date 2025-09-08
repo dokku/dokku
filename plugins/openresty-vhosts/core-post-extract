@@ -17,7 +17,7 @@ fn-openresty-vhosts-copy-from-image() {
   fi
 
   find "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/" -maxdepth 1 -name 'openresty-location-includes.*' -type d -exec rm -r {} +
-  copy_dir_from_image "$IMAGE_NAME" "$LOCATION_CONF_PATH" "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-location-includes.$DOKKU_PID" 2>/dev/null|| true
+  copy_dir_from_image "$IMAGE_NAME" "$LOCATION_CONF_PATH" "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-location-includes.$DOKKU_PID" 2>/dev/null || true
   if [[ ! -f "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-location-includes.$DOKKU_PID" ]]; then
     touch "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-location-includes.$DOKKU_PID.missing"
   fi
