@@ -25,7 +25,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run deploy_app python dokku@dokku.me:$TEST_APP inject_requirements_txt
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP inject_requirements_txt
   echo "output: $output"
   echo "status: $status"
   assert_success

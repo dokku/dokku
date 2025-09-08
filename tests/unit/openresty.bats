@@ -38,7 +38,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run deploy_app python dokku@dokku.me:$TEST_APP convert_to_dockerfile
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP convert_to_dockerfile
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -62,7 +62,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run deploy_app python dokku@dokku.me:$TEST_APP convert_to_dockerfile
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP convert_to_dockerfile
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -211,7 +211,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run deploy_app python dokku@dokku.me:$TEST_APP add_openresty_include
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP add_openresty_include
   echo "output: $output"
   echo "status: $status"
   assert_success
