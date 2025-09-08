@@ -323,13 +323,6 @@ updates:
     open-pull-requests-limit: 10
     labels:
       - "type: dependencies"
-  - package-ecosystem: npm
-    directory: "/tests/apps/.websocket.disabled"
-    schedule:
-      interval: daily
-    open-pull-requests-limit: 10
-    labels:
-      - "type: dependencies"
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
