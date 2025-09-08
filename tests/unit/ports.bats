@@ -6,10 +6,21 @@ setup() {
   global_setup
   [[ -f "$DOKKU_ROOT/VHOST" ]] && cp -fp "$DOKKU_ROOT/VHOST" "$DOKKU_ROOT/VHOST.bak"
   create_app
+
+  dokku --force postgres:destroy $TEST_APP 2>/dev/null || true
+  dokku --force redis:destroy $TEST_APP 2>/dev/null || true
+  dokku --force postgres:destroy $TEST_APP-other 2>/dev/null || true
+  dokku --force redis:destroy $TEST_APP-other 2>/dev/null || true
 }
 
 teardown() {
   destroy_app
+
+  dokku --force postgres:destroy $TEST_APP 2>/dev/null || true
+  dokku --force redis:destroy $TEST_APP 2>/dev/null || true
+  dokku --force postgres:destroy $TEST_APP-other 2>/dev/null || true
+  dokku --force redis:destroy $TEST_APP-other 2>/dev/null || true
+
   [[ -f "$DOKKU_ROOT/VHOST.bak" ]] && mv "$DOKKU_ROOT/VHOST.bak" "$DOKKU_ROOT/VHOST" && chown dokku:dokku "$DOKKU_ROOT/VHOST"
   global_teardown
 }
@@ -201,4 +212,85 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_output "https:3000:3000 https:3003:3003 udp:3001:3001"
+}
+
+@test "(ports:rename) renamed app persists ports" {
+  if ! dokku plugin:installed postgres; then
+    run /bin/bash -c "dokku plugin:install https://github.com/dokku/dokku-postgres.git"
+    echo "output: $output"
+    echo "status: $status"
+    assert_success
+  fi
+
+  if ! dokku plugin:installed redis; then
+    run /bin/bash -c "dokku plugin:install https://github.com/dokku/dokku-redis.git"
+    echo "output: $output"
+    echo "status: $status"
+    assert_success
+  fi
+
+  run /bin/bash -c "dokku ports:set $TEST_APP http:80:3000"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku config:set $TEST_APP APP_SECRET=REPLACE_WITH_LONG_SECRET_REPLACE_WITH_LONG_SECRET"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku postgres:create $TEST_APP $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku postgres:link $TEST_APP $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku redis:create $TEST_APP $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku redis:link $TEST_APP $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  dokku git:from-image $TEST_APP docmost/docmost:latest
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ports:report $TEST_APP --ports-map"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "http:80:3000"
+
+  run /bin/bash -c "dokku ports:report $TEST_APP --ports-map-detected"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "http:3000:3000"
+
+  run /bin/bash -c "dokku apps:rename $TEST_APP $TEST_APP-other"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Application deployed"
+
+  run /bin/bash -c "dokku ports:report $TEST_APP-other --ports-map"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "http:80:3000"
+
+  run /bin/bash -c "dokku ports:report $TEST_APP-other --ports-map-detected"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "http:3000:3000"
 }
