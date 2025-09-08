@@ -147,10 +147,14 @@ fn-domains-generate-urls-from-config() {
     done
     shopt -u nullglob
   elif [[ -n "$APP_PORT_MAP" ]]; then
+    CERTS_EXIST="$(plugn trigger certs-exists "$APP")"
     local port_map
     while IFS= read -r port_map; do
       local scheme="$(awk -F ':' '{ print $1 }' <<<"$port_map")"
       local listen_port="$(awk -F ':' '{ print $2 }' <<<"$port_map")"
+      if [[ "$CERTS_EXIST" != "true" ]] && [[ "$scheme" == "https" ]]; then
+        continue
+      fi
       fn-domains-generate-url "$scheme" "$VHOST" "$listen_port"
     done <<<"$APP_PORT_MAP"
   else
