@@ -660,6 +660,12 @@ install_nixpacks() {
   fi
 }
 
+install_railpack() {
+  if ! command -v "railpack" &>/dev/null; then
+    curl -sSL https://railpack.com/install.sh | FORCE=1 bash
+  fi
+}
+
 install_k3s() {
   run /bin/bash -c "dokku proxy:set --global k3s"
   echo "output: $output"
