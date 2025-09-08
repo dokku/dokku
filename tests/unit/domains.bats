@@ -410,3 +410,25 @@ teardown() {
   assert_success
   assert_output_contains "Detected IPv4 domain name with nginx proxy enabled." 0
 }
+
+@test "(domains) https:443" {
+  run /bin/bash -c "dokku domains:set $TEST_APP $TEST_APP.${DOKKU_DOMAIN}"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:from-image $TEST_APP cockpithq/cockpit:core-latest"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "http://$TEST_APP.${DOKKU_DOMAIN}" 2
+  assert_output_contains "http://$TEST_APP.${DOKKU_DOMAIN}:2019"
+  assert_output_contains "udp://$TEST_APP.${DOKKU_DOMAIN}:443"
+  assert_output_contains "http://$TEST_APP.${DOKKU_DOMAIN}:443" 0
+
+  run /bin/bash -c "dokku ports:report $TEST_APP --ports-map-detected"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "http:2019:2019 http:80:80 https:443:443 udp:443:443"
+}
