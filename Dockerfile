@@ -30,7 +30,8 @@ RUN mkdir -p /etc/apt/keyrings \
   && apt-get -y --no-install-recommends install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin pack-cli \
   && curl -o /tmp/nixpacks.bash -sSL https://nixpacks.com/install.sh \
   && chmod +x /tmp/nixpacks.bash \
-  && /tmp/nixpacks.bash \
+  && NIXPACKS_BIN_DIR=/usr/bin BIN_DIR=/usr/bin /tmp/nixpacks.bash \
+  && test -x /usr/bin/nixpacks \
   && rm -rf /tmp/nixpacks.bash \
   && echo "dokku dokku/hostname string $DOKKU_HOSTNAME" | debconf-set-selections \
   && echo "dokku dokku/skip_key_file boolean $DOKKU_SKIP_KEY_FILE" | debconf-set-selections \
