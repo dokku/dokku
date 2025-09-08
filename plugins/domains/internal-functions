@@ -167,7 +167,11 @@ fn-domains-generate-url() {
   if [[ "$PORT" == "80" ]]; then
     echo "http://$VHOST"
   elif [[ "$PORT" == "443" ]]; then
-    echo "https://$VHOST"
+    if [[ "$SCHEME" == "https" ]]; then
+      echo "https://$VHOST"
+    else
+      echo "$SCHEME://$VHOST:$PORT"
+    fi
   else
     echo "$SCHEME://$VHOST:$PORT"
   fi
