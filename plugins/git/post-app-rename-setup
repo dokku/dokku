@@ -16,7 +16,7 @@ trigger-git-post-app-rename-setup() {
   fn-plugin-property-destroy "git" "$OLD_APP"
 
   pushd "$DOKKU_ROOT/$OLD_APP/." >/dev/null
-  find ./* \( -name ".cache" -o -name "cache" \) -prune -o -print | cpio -pdmu --quiet "$DOKKU_ROOT/$NEW_APP"
+  find ./* \( -name ".cache" -o -name "cache" -o -name "VHOST" \) -prune -o -print | cpio -pdmu --quiet "$DOKKU_ROOT/$NEW_APP"
   popd &>/dev/null || pushd "/tmp" >/dev/null
 }
 
