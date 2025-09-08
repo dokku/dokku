@@ -116,26 +116,26 @@ fn-domains-global-vhosts() {
 }
 
 fn-domains-generate-urls() {
-  declare APP="$1" SCHEME="$2" DEFAULT_LISTEN_PORT="$3"
+  declare APP="$1" DEFAULT_SCHEME="$2" DEFAULT_LISTEN_PORT="$3"
 
   local app_vhosts="$(plugn trigger domains-list "$APP")"
   if [[ -n "$app_vhosts" ]]; then
     for app_vhost in $app_vhosts; do
-      fn-domains-generate-urls-from-config "$APP" "$SCHEME" "$app_vhost" "$DEFAULT_LISTEN_PORT"
+      fn-domains-generate-urls-from-config "$APP" "$DEFAULT_SCHEME" "$app_vhost" "$DEFAULT_LISTEN_PORT"
     done
   else
     if [[ -s "$DOKKU_ROOT/VHOST" ]]; then
       while read -r VHOST || [[ -n "$VHOST" ]]; do
-        fn-domains-generate-urls-from-config "$APP" "$SCHEME" "$VHOST" "$DEFAULT_LISTEN_PORT"
+        fn-domains-generate-urls-from-config "$APP" "$DEFAULT_SCHEME" "$VHOST" "$DEFAULT_LISTEN_PORT"
       done <"$DOKKU_ROOT/VHOST"
     else
-      fn-domains-generate-urls-from-config "$APP" "$SCHEME" "$(hostname -f)" "$DEFAULT_LISTEN_PORT"
+      fn-domains-generate-urls-from-config "$APP" "$DEFAULT_SCHEME" "$(hostname -f)" "$DEFAULT_LISTEN_PORT"
     fi
   fi
 }
 
 fn-domains-generate-urls-from-config() {
-  declare APP="$1" SCHEME="$2" VHOST="$3" DEFAULT_LISTEN_PORT="$4"
+  declare APP="$1" DEFAULT_SCHEME="$2" VHOST="$3" DEFAULT_LISTEN_PORT="$4"
   local APP_PORT_MAP="$(plugn trigger ports-get "$APP")"
 
   if [[ "$(plugn trigger proxy-is-enabled "$APP")" == "false" ]]; then
@@ -143,7 +143,7 @@ fn-domains-generate-urls-from-config() {
     DOKKU_APP_WEB_LISTENERS="$(plugn trigger network-get-listeners "$APP" "web" | xargs)"
     for DOKKU_APP_WEB_LISTENER in $DOKKU_APP_WEB_LISTENERS; do
       listen_port="$(echo "$DOKKU_APP_WEB_LISTENER" | cut -d ':' -f2)"
-      fn-domains-generate-url "$SCHEME" "$VHOST" "$listen_port"
+      fn-domains-generate-url "$DEFAULT_SCHEME" "$VHOST" "$listen_port"
     done
     shopt -u nullglob
   elif [[ -n "$APP_PORT_MAP" ]]; then
@@ -151,10 +151,10 @@ fn-domains-generate-urls-from-config() {
     while IFS= read -r port_map; do
       local scheme="$(awk -F ':' '{ print $1 }' <<<"$port_map")"
       local listen_port="$(awk -F ':' '{ print $2 }' <<<"$port_map")"
-      fn-domains-generate-url "$SCHEME" "$VHOST" "$listen_port"
+      fn-domains-generate-url "$DEFAULT_SCHEME" "$VHOST" "$listen_port"
     done <<<"$APP_PORT_MAP"
   else
-    fn-domains-generate-url "$SCHEME" "$VHOST" "$DEFAULT_LISTEN_PORT"
+    fn-domains-generate-url "$DEFAULT_SCHEME" "$VHOST" "$DEFAULT_LISTEN_PORT"
   fi
 }
 
