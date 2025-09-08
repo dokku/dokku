@@ -124,8 +124,12 @@ fn-builder-dockerfile-get-detect-port-map() {
         p=${p//\/udp/}
         port_map+="udp:$p:$p "
       else
+        scheme="http"
         p=${p//\/tcp/}
-        port_map+="http:$p:$p "
+        if [[ "$p" == "443" ]]; then
+          scheme="https"
+        fi
+        port_map+="$scheme:$p:$p "
       fi
     done
     echo "$port_map" | xargs
