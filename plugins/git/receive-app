@@ -7,6 +7,11 @@ trigger-git-receive-app() {
   declare desc="builds the app from the local git repository"
   declare trigger="receive-app"
 
+  if [[ "$DOKKU_REDIRECT_OUTPUT" != "true" ]]; then
+    export DOKKU_REDIRECT_OUTPUT=true
+    exec &> >(tee >(tee | logger -i -t "dokku-${DOKKU_PID}"))
+  fi
+
   git_receive_app "$@"
   return $?
 }
