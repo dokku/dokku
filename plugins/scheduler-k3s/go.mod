@@ -24,7 +24,7 @@ require (
 	golang.org/x/sync v0.17.0
 	gopkg.in/yaml.v3 v3.0.1
 	helm.sh/helm/v3 v3.18.6
-	k8s.io/api v0.34.0
+	k8s.io/api v0.34.1
 	k8s.io/apimachinery v0.34.1
 	k8s.io/client-go v0.34.0
 	k8s.io/kubectl v0.34.0
