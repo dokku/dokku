@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-builder-railpack-builder-detect() {
+  declare desc="builder-railpack builder-detect plugin trigger"
+  declare trigger="builder-detect"
+  declare APP="$1" SOURCECODE_WORK_DIR="$2"
+
+  if [[ -f "$SOURCECODE_WORK_DIR/railpack.json" ]]; then
+    echo "railpack"
+    return
+  fi
+}
+
+trigger-builder-railpack-builder-detect "$@"
