@@ -102,6 +102,27 @@ spec:
                 {{- end }}
               {{- end }}
             {{- end }}
+            {{- if hasKey $.Values.global "security_context" }}
+            securityContext:
+              {{- if $.Values.global.security_context.privileged }}
+              privileged: true
+              {{- end }}
+              {{- if hasKey $.Values.global.security_context "capabilities" }}
+              capabilities:
+                {{- if hasKey $.Values.global.security_context.capabilities "add" }}
+                add:
+                  {{- range $.Values.global.security_context.capabilities.add }}
+                  - {{ . }}
+                  {{- end }}
+                {{- end }}
+                {{- if hasKey $.Values.global.security_context.capabilities "drop" }}
+                drop:
+                  {{- range $.Values.global.security_context.capabilities.drop }}
+                  - {{ . }}
+                  {{- end }}
+                {{- end }}
+              {{- end }}
+            {{- end }}
             {{- if $.Values.global.image.working_dir }}
             workingDir: {{ $.Values.global.image.working_dir }}
             {{- end }}
