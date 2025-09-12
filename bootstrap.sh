@@ -48,6 +48,10 @@ install-requirements() {
         apt-get update -qq >/dev/null
         apt-get -qq -y --no-install-recommends install gpg-agent
       fi
+      if ! command -v lsb_release &>/dev/null; then
+        apt-get update -qq >/dev/null
+        apt-get -qq -y --no-install-recommends install lsb-release
+      fi
       if [[ "$DOKKU_DISTRO_VERSION" -lt "13" ]]; then
         if ! dpkg -l | grep -q software-properties-common; then
           apt-get update -qq >/dev/null
