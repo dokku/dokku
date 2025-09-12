@@ -121,6 +121,7 @@ spec:
                   - {{ . }}
                   {{- end }}
                 {{- end }}
+              {{- end }}
             {{- end }}
             {{- if $.Values.global.image.working_dir }}
             workingDir: {{ $.Values.global.image.working_dir }}
