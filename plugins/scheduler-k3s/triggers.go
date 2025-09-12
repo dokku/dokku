@@ -387,6 +387,11 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 		return fmt.Errorf("Error getting keda values: %w", err)
 	}
 
+	securityContext, err := getSecurityContext(appName, "deploy")
+	if err != nil {
+		return fmt.Errorf("Error getting security context: %w", err)
+	}
+
 	values := &AppValues{
 		Global: GlobalValues{
 			Annotations:  globalAnnotations,
@@ -407,7 +412,8 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 				PrimaryPort:        primaryPort,
 				PrimaryServicePort: primaryServicePort,
 			},
-			Secrets: map[string]string{},
+			Secrets:         map[string]string{},
+			SecurityContext: securityContext,
 		},
 		Processes: map[string]ProcessValues{},
 	}
@@ -1228,6 +1234,11 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 		}
 	}
 
+	securityContext, err := getSecurityContext(appName, "run")
+	if err != nil {
+		return fmt.Errorf("Error getting security context: %w", err)
+	}
+
 	workingDir := common.GetWorkingDir(appName, image)
 	job, err := templateKubernetesJob(Job{
 		AppName:          appName,
@@ -1243,6 +1254,7 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 		Namespace:        namespace,
 		ProcessType:      processType,
 		RemoveContainer:  rmContainer,
+		SecurityContext:  securityContext,
 		WorkingDir:       workingDir,
 	})
 	if err != nil {

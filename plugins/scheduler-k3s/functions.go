@@ -18,6 +18,7 @@ import (
 
 	appjson "github.com/dokku/dokku/plugins/app-json"
 	"github.com/dokku/dokku/plugins/common"
+	dockeroptions "github.com/dokku/dokku/plugins/docker-options"
 	"github.com/dokku/dokku/plugins/logs"
 	nginxvhosts "github.com/dokku/dokku/plugins/nginx-vhosts"
 	resty "github.com/go-resty/resty/v2"
@@ -1487,6 +1488,37 @@ func getStartCommand(input StartCommandInput) (StartCommandOutput, error) {
 	return StartCommandOutput{
 		Command: fields,
 	}, nil
+}
+
+func getSecurityContext(appName string, phase string) (SecurityContext, error) {
+	securityContext := SecurityContext{}
+	deployOptions, err := dockeroptions.GetSpecifiedDockerOptionsForPhase(appName, phase, []string{
+		"--cap-add",
+		"--cap-drop",
+		"--privileged",
+	})
+	if err != nil {
+		return SecurityContext{}, fmt.Errorf("Error getting deploy options: %w", err)
+	}
+
+	if _, ok := deployOptions["--privileged"]; ok {
+		securityContext.Privileged = true
+	}
+	if capAdd, ok := deployOptions["--cap-add"]; ok {
+		capabilities := []string{}
+		for _, cap := range capAdd {
+			capabilities = append(capabilities, strings.ToUpper(cap))
+		}
+		securityContext.Capabilities.Add = capabilities
+	}
+	if capDrop, ok := deployOptions["--cap-drop"]; ok {
+		capabilities := []string{}
+		for _, cap := range capDrop {
+			capabilities = append(capabilities, strings.ToUpper(cap))
+		}
+		securityContext.Capabilities.Drop = capabilities
+	}
+	return securityContext, nil
 }
 
 func getProcessSpecificKustomizeRootPath(appName string) string {

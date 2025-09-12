@@ -568,6 +568,11 @@ This plugin implements various functionality through `plugn` triggers to integra
 - `apps:clone`
 - `apps:destroy`
 - `apps:rename`
+- `docker-options`:
+    - The following docker options are translated into their kubernetes equivalents:
+        - `--cap-add`
+        - `--cap-drop`
+        - `--privileged`
 - `cron`
 - `enter`
 - `deploy`
