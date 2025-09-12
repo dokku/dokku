@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 source "$PLUGIN_AVAILABLE_PATH/haproxy-vhosts/internal-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
@@ -121,6 +122,15 @@ trigger-haproxy-vhosts-docker-args-process-deploy() {
     else
       output="$output --label haproxy.$APP-$PROC_TYPE.redirect_ssl=false"
     fi
+  fi
+
+  local proxy_labels_file_path=$(fn-get-proxy-labels-file-path "$APP" haproxy)
+  fn-report-proxy-label-overwrite "$output" "$proxy_labels_file_path"
+
+  if [[ -f "$proxy_labels_file_path" ]]; then
+    local user_proxy_labels="$(<"$proxy_labels_file_path")"
+    user_proxy_labels="$(echo "$user_proxy_labels" | tr '\r\n' ' ')"
+    output="$output $user_proxy_labels"
   fi
 
   echo -n "$STDIN$output"
