@@ -105,16 +105,16 @@ func GetSpecifiedDockerOptionsForPhase(appName string, phase string, desiredOpti
 				break
 			}
 
-			parts := strings.SplitN(option, " ", 2)
-			if len(parts) != 2 {
-				common.LogWarn(fmt.Sprintf("Invalid docker option found for %s: %s", appName, option))
-				continue
-			}
-
 			// match options that are in the format "--option=value"
 			if strings.HasPrefix(option, fmt.Sprintf("%s=", desiredOption)) {
 				if _, ok := foundOptions[desiredOption]; !ok {
 					foundOptions[desiredOption] = []string{}
+				}
+
+				parts := strings.SplitN(option, "=", 2)
+				if len(parts) != 2 {
+					common.LogWarn(fmt.Sprintf("Invalid docker option found for %s: %s", appName, option))
+					continue
 				}
 
 				foundOptions[desiredOption] = append(foundOptions[desiredOption], parts[1])
@@ -125,6 +125,12 @@ func GetSpecifiedDockerOptionsForPhase(appName string, phase string, desiredOpti
 			if strings.HasPrefix(option, fmt.Sprintf("%s ", desiredOption)) {
 				if _, ok := foundOptions[desiredOption]; !ok {
 					foundOptions[desiredOption] = []string{}
+				}
+
+				parts := strings.SplitN(option, " ", 2)
+				if len(parts) != 2 {
+					common.LogWarn(fmt.Sprintf("Invalid docker option found for %s: %s", appName, option))
+					continue
 				}
 
 				foundOptions[desiredOption] = append(foundOptions[desiredOption], parts[1])
