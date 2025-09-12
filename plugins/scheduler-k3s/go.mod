@@ -27,7 +27,7 @@ require (
 	k8s.io/api v0.34.1
 	k8s.io/apimachinery v0.34.1
 	k8s.io/client-go v0.34.1
-	k8s.io/kubectl v0.34.0
+	k8s.io/kubectl v0.34.1
 	k8s.io/kubernetes v1.34.0
 	k8s.io/utils v0.0.0-20250604170112-4c0f3b243397
 	mvdan.cc/sh/v3 v3.12.0
@@ -161,8 +161,8 @@ require (
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	k8s.io/apiextensions-apiserver v0.34.0 // indirect
 	k8s.io/apiserver v0.34.0 // indirect
-	k8s.io/cli-runtime v0.34.0 // indirect
-	k8s.io/component-base v0.34.0 // indirect
+	k8s.io/cli-runtime v0.34.1 // indirect
+	k8s.io/component-base v0.34.1 // indirect
 	k8s.io/klog/v2 v2.130.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20250710124328-f3f2b991d03b // indirect
 	knative.dev/pkg v0.0.0-20250708013613-d3550d4350f9 // indirect
