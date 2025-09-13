@@ -115,6 +115,11 @@ trigger-nginx-vhosts-install() {
     DOKKU_TEMPLATE="$CUSTOM_DOKKU_TEMPLATE"
   fi
 
+  # Remove server_tokens directive from main nginx config if present (commented or uncommented)
+  if [[ -f "$NGINX_ROOT/nginx.conf" ]]; then
+    sed -i '/server_tokens/d' "$NGINX_ROOT/nginx.conf"
+  fi
+
   sigil -f "$DOKKU_TEMPLATE" DOKKU_ROOT="$DOKKU_ROOT" NGINX_ROOT="$NGINX_ROOT" | cat -s >"$NGINX_ROOT/conf.d/dokku.conf"
 
   # allow users to override their server_names_hash_bucket_size
