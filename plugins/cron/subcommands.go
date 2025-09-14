@@ -14,10 +14,6 @@ import (
 
 // CommandList lists all scheduled cron tasks for a given app
 func CommandList(appName string, format string) error {
-	if err := common.VerifyAppName(appName); err != nil {
-		return err
-	}
-
 	if format == "" {
 		format = "stdout"
 	}
@@ -26,9 +22,22 @@ func CommandList(appName string, format string) error {
 		return fmt.Errorf("Invalid format specified, supported formats: json, stdout")
 	}
 
-	entries, err := FetchCronEntries(FetchCronEntriesInput{AppName: appName})
-	if err != nil {
-		return err
+	var entries []TemplateCommand
+	if appName == "--global" {
+		var err error
+		entries, err = FetchGlobalCronEntries()
+		if err != nil {
+			return err
+		}
+	} else {
+		var err error
+		if err := common.VerifyAppName(appName); err != nil {
+			return err
+		}
+		entries, err = FetchCronEntries(FetchCronEntriesInput{AppName: appName})
+		if err != nil {
+			return err
+		}
 	}
 
 	if format == "stdout" {

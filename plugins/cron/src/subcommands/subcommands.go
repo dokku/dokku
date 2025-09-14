@@ -20,9 +20,13 @@ func main() {
 	switch subcommand {
 	case "list":
 		args := flag.NewFlagSet("cron:list", flag.ExitOnError)
+		global := args.Bool("global", false, "--global: set a global property")
 		format := args.String("format", "stdout", "format: [ stdout | json ]")
 		args.Parse(os.Args[2:])
 		appName := args.Arg(0)
+		if *global {
+			appName = "--global"
+		}
 		err = cron.CommandList(appName, *format)
 	case "report":
 		args := flag.NewFlagSet("cron:report", flag.ExitOnError)
