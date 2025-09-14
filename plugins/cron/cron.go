@@ -2,6 +2,7 @@ package cron
 
 import (
 	"fmt"
+	"strings"
 
 	appjson "github.com/dokku/dokku/plugins/app-json"
 	"github.com/dokku/dokku/plugins/common"
@@ -32,10 +33,13 @@ type TemplateCommand struct {
 	ID string `json:"id"`
 
 	// App is the app the cron command belongs to
-	App string `json:"app"`
+	App string `json:"app,omitempty"`
 
 	// Command is the command to run
 	Command string `json:"command"`
+
+	// Global is whether the cron command is global
+	Global bool `json:"global,omitempty"`
 
 	// Schedule is the cron schedule
 	Schedule string `json:"schedule"`
@@ -122,6 +126,43 @@ func FetchCronEntries(input FetchCronEntriesInput) ([]TemplateCommand, error) {
 		})
 	}
 
+	return commands, nil
+}
+
+// FetchGlobalCronEntries returns a list of global cron commands
+// This function should only be used for the cron:list --global command
+// and not internally by the cron plugin
+func FetchGlobalCronEntries() ([]TemplateCommand, error) {
+	commands := []TemplateCommand{}
+	response, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "cron-entries",
+		Args:    []string{"docker-local"},
+	})
+	for _, line := range strings.Split(response.StdoutContents(), "\n") {
+		if strings.TrimSpace(line) == "" {
+			continue
+		}
+
+		parts := strings.Split(line, ";")
+		if len(parts) != 2 && len(parts) != 3 {
+			common.LogWarn(fmt.Sprintf("Invalid injected cron task: %v", line))
+			continue
+		}
+
+		id := base36.EncodeToStringLc([]byte(strings.Join(parts, ";;;")))
+		command := TemplateCommand{
+			ID:          id,
+			Schedule:    parts[0],
+			Command:     parts[1],
+			AltCommand:  parts[1],
+			Maintenance: false,
+			Global:      true,
+		}
+		if len(parts) == 3 {
+			command.LogFile = parts[2]
+		}
+		commands = append(commands, command)
+	}
 	return commands, nil
 }
 

@@ -14,7 +14,6 @@ version = "0.0.1"
 [plugin.config]
 EOF
   cp /var/lib/dokku/plugins/available/cron-entries/plugin.toml /var/lib/dokku/plugins/enabled/cron-entries/plugin.toml
-
 }
 
 teardown() {
@@ -125,6 +124,12 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
+
+  run /bin/bash -c "dokku cron:list --global --format json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output '[{"id":"5cruaotm4yzzpnjlsdunblj8qyjp","command":"/bin/true","global":true,"schedule":"@daily","maintenance":false}]'
 
   run /bin/bash -c "cat /var/spool/cron/crontabs/dokku"
   echo "output: $output"

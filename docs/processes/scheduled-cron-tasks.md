@@ -112,6 +112,17 @@ dokku cron:list node-js-app --format json
 [{"id":"cGhwPT09cGhwIHRlc3QucGhwPT09QGRhaWx5","app":"node-js-app","command":"node index.js","schedule":"@daily"}]
 ```
 
+To fetch global tasks, use the `--global` flag:
+
+```shell
+dokku cron:list --global
+```
+
+```
+ID                            Schedule  Command
+5cruaotm4yzzpnjlsdunblj8qyjp  @daily    /bin/true
+```
+
 #### Executing a cron task on the fly
 
 Cron tasks can be invoked via the `cron:run` command. This command takes an `app` argument and a `cron id` (retrievable from `cron:list` output).
