@@ -11,10 +11,67 @@ setup() {
   export KUBECONFIG="/etc/rancher/k3s/k3s.yaml"
 }
 
-teardown_() {
+teardown() {
   global_teardown
   dokku nginx:start
   uninstall_k3s || true
+}
+
+@test "(scheduler-k3s) security context" {
+  if [[ -z "$DOCKERHUB_USERNAME" ]] || [[ -z "$DOCKERHUB_TOKEN" ]]; then
+    skip "skipping due to missing docker.io credentials DOCKERHUB_USERNAME:DOCKERHUB_TOKEN"
+  fi
+
+  INGRESS_CLASS=nginx install_k3s
+
+  run /bin/bash -c "dokku apps:create $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app python "dokku@$DOKKU_DOMAIN:$TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "kubectl get deployment $TEST_APP-web -o json | jq -r '.spec.template.spec.containers[0].securityContext.capabilities.add[0]'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "null"
+
+  run /bin/bash -c "kubectl get deployment $TEST_APP-web -o json | jq -r '.spec.template.spec.containers[0].securityContext.privileged'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "null"
+
+  run /bin/bash -c "dokku docker-options:add $TEST_APP deploy --cap-add=NET_ADMIN"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku docker-options:add $TEST_APP deploy --privileged"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:restart $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "kubectl get deployment $TEST_APP-web -o json | jq -r '.spec.template.spec.containers[0].securityContext.capabilities.add[0]'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "NET_ADMIN"
+
+  run /bin/bash -c "kubectl get deployment $TEST_APP-web -o json | jq -r '.spec.template.spec.containers[0].securityContext.privileged'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
 }
 
 @test "(scheduler-k3s) kustomize" {
