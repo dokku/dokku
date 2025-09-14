@@ -640,6 +640,11 @@ func UnfilteredDokkuApps() ([]string, error) {
 		if strings.HasPrefix(f.Name(), ".") {
 			continue
 		}
+		// skip apps that start with an uppercase letter
+		if unicode.IsUpper(rune(f.Name()[0])) {
+			continue
+		}
+
 		apps = append(apps, f.Name())
 	}
 
