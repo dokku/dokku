@@ -3,6 +3,7 @@ package scheduler_k3s
 import (
 	"crypto/rand"
 	"fmt"
+	"maps"
 	"os"
 	"strings"
 
@@ -41,15 +42,16 @@ type AppValues struct {
 }
 
 type GlobalValues struct {
-	Annotations  ProcessAnnotations `yaml:"annotations,omitempty"`
-	AppName      string             `yaml:"app_name"`
-	DeploymentID string             `yaml:"deployment_id"`
-	Image        GlobalImage        `yaml:"image"`
-	Labels       ProcessLabels      `yaml:"labels,omitempty"`
-	Keda         GlobalKedaValues   `yaml:"keda"`
-	Namespace    string             `yaml:"namespace"`
-	Network      GlobalNetwork      `yaml:"network"`
-	Secrets      map[string]string  `yaml:"secrets,omitempty"`
+	Annotations     ProcessAnnotations `yaml:"annotations,omitempty"`
+	AppName         string             `yaml:"app_name"`
+	DeploymentID    string             `yaml:"deployment_id"`
+	Image           GlobalImage        `yaml:"image"`
+	Labels          ProcessLabels      `yaml:"labels,omitempty"`
+	Keda            GlobalKedaValues   `yaml:"keda"`
+	Namespace       string             `yaml:"namespace"`
+	Network         GlobalNetwork      `yaml:"network"`
+	Secrets         map[string]string  `yaml:"secrets,omitempty"`
+	SecurityContext SecurityContext    `yaml:"security_context,omitempty"`
 }
 
 type GlobalImage struct {
@@ -351,9 +353,51 @@ type Job struct {
 	Namespace        string
 	ProcessType      string
 	Schedule         string
+	SecurityContext  SecurityContext
 	Suffix           string
 	RemoveContainer  bool
 	WorkingDir       string
+}
+
+// SecurityContext contains the security context for a process
+type SecurityContext struct {
+	// Capabilities contains the capabilities for a process
+	Capabilities SecurityContextCapabilities `yaml:"capabilities,omitempty"`
+	// Privileged contains the privileged flag for a process
+	Privileged bool `yaml:"privileged,omitempty"`
+}
+
+// ToCoreV1SecurityContext converts the security context to a corev1.SecurityContext
+func (s SecurityContext) ToCoreV1SecurityContext() corev1.SecurityContext {
+	securityContext := corev1.SecurityContext{
+		Capabilities: &corev1.Capabilities{},
+		Privileged:   ptr.To(s.Privileged),
+	}
+
+	if len(s.Capabilities.Add) > 0 {
+		capabilities := make([]corev1.Capability, len(s.Capabilities.Add))
+		for i, cap := range s.Capabilities.Add {
+			capabilities[i] = corev1.Capability(cap)
+		}
+		securityContext.Capabilities.Add = capabilities
+	}
+	if len(s.Capabilities.Drop) > 0 {
+		capabilities := make([]corev1.Capability, len(s.Capabilities.Drop))
+		for i, cap := range s.Capabilities.Drop {
+			capabilities[i] = corev1.Capability(cap)
+		}
+		securityContext.Capabilities.Drop = capabilities
+	}
+
+	return securityContext
+}
+
+// SecurityContextCapabilities contains the capabilities for a process
+type SecurityContextCapabilities struct {
+	// Add contains the add capabilities for a process
+	Add []string `yaml:"add,omitempty"`
+	// Drop contains the drop capabilities for a process
+	Drop []string `yaml:"drop,omitempty"`
 }
 
 func templateKubernetesJob(input Job) (batchv1.Job, error) {
@@ -368,9 +412,7 @@ func templateKubernetesJob(input Job) (batchv1.Job, error) {
 		"dokku.com/managed":         "true",
 	}
 
-	for key, value := range input.Labels {
-		labels[key] = value
-	}
+	maps.Copy(labels, input.Labels)
 	secretName := fmt.Sprintf("env-%s.%d", input.AppName, input.DeploymentID)
 
 	env := []corev1.EnvVar{}
@@ -417,6 +459,8 @@ func templateKubernetesJob(input Job) (batchv1.Job, error) {
 		podAnnotations[key] = value
 	}
 
+	securityContext := input.SecurityContext.ToCoreV1SecurityContext()
+
 	job := batchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        fmt.Sprintf("%s-%s-%s", input.AppName, input.ProcessType, suffix),
@@ -453,7 +497,8 @@ func templateKubernetesJob(input Job) (batchv1.Job, error) {
 								Limits:   corev1.ResourceList{},
 								Requests: corev1.ResourceList{},
 							},
-							WorkingDir: input.WorkingDir,
+							SecurityContext: &securityContext,
+							WorkingDir:      input.WorkingDir,
 						},
 					},
 					RestartPolicy:      corev1.RestartPolicyNever,

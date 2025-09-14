@@ -6,6 +6,8 @@ import (
 	"os"
 	"sort"
 	"strings"
+
+	"github.com/dokku/dokku/plugins/common"
 )
 
 // SetDockerOptionForPhases sets an option to specified phases
@@ -84,4 +86,58 @@ func GetDockerOptionsForPhase(appName string, phase string) ([]string, error) {
 	}
 
 	return options, nil
+}
+
+// GetSpecifiedDockerOptionsForPhase returns the docker options for the specified phase that are in the desiredOptions list
+// It expects desiredOptions to be a list of docker options that are in the format "--option"
+// And will retrieve any lines that start with the desired option
+func GetSpecifiedDockerOptionsForPhase(appName string, phase string, desiredOptions []string) (map[string][]string, error) {
+	foundOptions := map[string][]string{}
+	options, err := GetDockerOptionsForPhase(appName, phase)
+	if err != nil {
+		return foundOptions, err
+	}
+
+	for _, option := range options {
+		for _, desiredOption := range desiredOptions {
+			if option == desiredOption {
+				foundOptions[desiredOption] = []string{}
+				break
+			}
+
+			// match options that are in the format "--option=value"
+			if strings.HasPrefix(option, fmt.Sprintf("%s=", desiredOption)) {
+				if _, ok := foundOptions[desiredOption]; !ok {
+					foundOptions[desiredOption] = []string{}
+				}
+
+				parts := strings.SplitN(option, "=", 2)
+				if len(parts) != 2 {
+					common.LogWarn(fmt.Sprintf("Invalid docker option found for %s: %s", appName, option))
+					continue
+				}
+
+				foundOptions[desiredOption] = append(foundOptions[desiredOption], parts[1])
+				break
+			}
+
+			// match options that are in the format "--option value"
+			if strings.HasPrefix(option, fmt.Sprintf("%s ", desiredOption)) {
+				if _, ok := foundOptions[desiredOption]; !ok {
+					foundOptions[desiredOption] = []string{}
+				}
+
+				parts := strings.SplitN(option, " ", 2)
+				if len(parts) != 2 {
+					common.LogWarn(fmt.Sprintf("Invalid docker option found for %s: %s", appName, option))
+					continue
+				}
+
+				foundOptions[desiredOption] = append(foundOptions[desiredOption], parts[1])
+				break
+			}
+		}
+	}
+
+	return foundOptions, nil
 }
