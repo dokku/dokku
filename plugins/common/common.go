@@ -640,6 +640,11 @@ func UnfilteredDokkuApps() ([]string, error) {
 		if strings.HasPrefix(f.Name(), ".") {
 			continue
 		}
+		// skip apps that start with an uppercase letter
+		if unicode.IsUpper(rune(f.Name()[0])) {
+			continue
+		}
+
 		apps = append(apps, f.Name())
 	}
 
@@ -682,8 +687,7 @@ func IsDeployed(appName string) bool {
 		}
 
 		EnvWrap(func() error {
-			CommandPropertySet("common", appName, "deployed", deployed, DefaultProperties, GlobalProperties)
-			return nil
+			return PropertyWrite("common", appName, "deployed", deployed)
 		}, map[string]string{"DOKKU_QUIET_OUTPUT": "1"})
 	}
 
