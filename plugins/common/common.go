@@ -687,8 +687,7 @@ func IsDeployed(appName string) bool {
 		}
 
 		EnvWrap(func() error {
-			CommandPropertySet("common", appName, "deployed", deployed, DefaultProperties, GlobalProperties)
-			return nil
+			return PropertyWrite("common", appName, "deployed", deployed)
 		}, map[string]string{"DOKKU_QUIET_OUTPUT": "1"})
 	}
 

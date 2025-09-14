@@ -23,8 +23,7 @@ func TriggerAppList(filtered bool) error {
 // TriggerCorePostDeploy associates the container with a specified network
 func TriggerCorePostDeploy(appName string) error {
 	return EnvWrap(func() error {
-		CommandPropertySet("common", appName, "deployed", "true", DefaultProperties, GlobalProperties)
-		return nil
+		return PropertyWrite("common", appName, "deployed", "true")
 	}, map[string]string{"DOKKU_QUIET_OUTPUT": "1"})
 }
 
