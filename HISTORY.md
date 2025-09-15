@@ -1,5 +1,44 @@
 # History
 
+## 0.36.7
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.36.7/bootstrap.sh
+sudo DOKKU_TAG=v0.36.7 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #7981: @josegonzalez Only install software-properties-common on Ubuntu and older Debian installations
+- #7979: @josegonzalez Skip invalid apps when listing applications
+- #7977: @kminek Remove server_tokens directive from main nginx config if present (com…
+- #7974: @josegonzalez Ensure lsb_release is available on debian systems
+
+### New Features
+
+- #7978: @josegonzalez Add ability to list global cron tasks
+- #7975: @josegonzalez Create SecurityContext for k3s scheduler from docker-options
+
+### Dependencies
+
+- #7972: @dependabot[bot] chore(deps): bump k8s.io/kubectl from 0.34.0 to 0.34.1 in /plugins/scheduler-k3s
+- #7973: @dependabot[bot] chore(deps): bump helm.sh/helm/v3 from 3.18.6 to 3.19.0 in /plugins/scheduler-k3s
+- #7971: @dependabot[bot] chore(deps): bump k8s.io/client-go from 0.34.0 to 0.34.1 in /plugins/scheduler-k3s
+- #7970: @dependabot[bot] chore(deps): bump k8s.io/api from 0.34.0 to 0.34.1 in /plugins/scheduler-k3s
+- #7966: @dependabot[bot] chore(deps): bump github.com/fluxcd/pkg/kustomize from 1.19.0 to 1.22.0 in /plugins/scheduler-k3s
+- #7963: @dependabot[bot] chore(deps): bump google.golang.org/grpc from 1.75.0 to 1.75.1 in /tests/apps/gogrpc
+- #7964: @dependabot[bot] chore(deps): bump traefik from 3.5.1 to 3.5.2 in /plugins/traefik-vhosts
+- #7965: @dependabot[bot] chore(deps): bump k8s.io/apimachinery from 0.34.0 to 0.34.1 in /plugins/scheduler-k3s
+- #7961: @dependabot[bot] chore(deps): bump golang.org/x/crypto from 0.41.0 to 0.42.0 in /plugins/common
+- #7960: @dependabot[bot] chore(deps): bump google.golang.org/protobuf from 1.36.8 to 1.36.9 in /tests/apps/gogrpc
+
+### Other
+
+- #7968: @josegonzalez chore: bump herokuish version from 0.11.0 to 0.11.3
+- #7962: @dependabot[bot] chore(deps): bump django from 5.1.10 to 5.1.12 in /tests/apps/dockerfile-release
+
 ## 0.36.6
 
 Install/update via the bootstrap script:
