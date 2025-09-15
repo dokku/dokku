@@ -9,9 +9,18 @@ The `railpack` builder builds apps via [Railpack](https://railpack.com/), a buil
 
 ### Requirements
 
-The `railpack` cli tool is not included by default with Dokku or as a dependency. It must also be installed as shown on [this page](https://railpack.com/installation).
+Before using Railpacks, the following steps must be taken:
 
-Builds will proceed with the `railpack` cli for the app from then on.
+- Install the `railpack` cli: The `railpack` cli tool is not included by default with Dokku or as a dependency. It must also be installed as shown on [this page](https://railpack.com/installation).
+- Create a `buildkit` builder: Railpack uses buildkit.
+       ```shell
+       docker run --rm --privileged -d --name buildkit moby/buildkit
+       ```
+- Set the buildkit builder: Update the `/etc/default/dokku` file to set `BUILDKIT_HOST`:
+       ```shell
+       touch /etc/default/dokku
+       echo "export BUILDKIT_HOST='docker-container://buildkit'" >> /etc/default/dokku
+       ````
 
 ### Detection
 
