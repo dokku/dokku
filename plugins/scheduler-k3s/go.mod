@@ -8,6 +8,7 @@ require (
 	github.com/dokku/dokku/plugins/common v0.0.0-20250618161309-8d0c35f1333c
 	github.com/dokku/dokku/plugins/config v0.0.0-20250618161309-8d0c35f1333c
 	github.com/dokku/dokku/plugins/cron v0.0.0-20250618161309-8d0c35f1333c
+	github.com/dokku/dokku/plugins/docker-options v0.0.0-20250618161309-8d0c35f1333c
 	github.com/dokku/dokku/plugins/logs v0.0.0-20250618161309-8d0c35f1333c
 	github.com/dokku/dokku/plugins/nginx-vhosts v0.0.0-20250618161309-8d0c35f1333c
 	github.com/fatih/color v1.18.0
@@ -28,7 +29,7 @@ require (
 	k8s.io/apimachinery v0.34.1
 	k8s.io/client-go v0.34.1
 	k8s.io/kubectl v0.34.1
-	k8s.io/kubernetes v1.34.0
+	k8s.io/kubernetes v1.34.1
 	k8s.io/utils v0.0.0-20250604170112-4c0f3b243397
 	mvdan.cc/sh/v3 v3.12.0
 	sigs.k8s.io/kustomize/api v0.20.1
@@ -57,7 +58,6 @@ require (
 	github.com/cyphar/filepath-securejoin v0.4.1 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/docker/docker-credential-helpers v0.9.3 // indirect
-	github.com/dokku/dokku/plugins/docker-options v0.0.0-20250618161309-8d0c35f1333c // indirect
 	github.com/emicklei/go-restful/v3 v3.12.2 // indirect
 	github.com/evanphx/json-patch v5.9.11+incompatible // indirect
 	github.com/evanphx/json-patch/v5 v5.9.11 // indirect
