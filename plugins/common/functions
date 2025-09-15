@@ -665,11 +665,6 @@ dokku_receive() {
 
   docker_cleanup "$APP"
 
-  local DOKKU_CNB_EXPERIMENTAL="$(config_get "$APP" DOKKU_CNB_EXPERIMENTAL || true)"
-  if [[ "$DOKKU_CNB_EXPERIMENTAL" == "1" ]]; then
-    IMAGE_SOURCE_TYPE="pack"
-  fi
-
   plugn trigger builder-set-property "$APP" "detected" "$IMAGE_SOURCE_TYPE"
   if ! dokku_build "$APP" "$IMAGE_SOURCE_TYPE" "$TMP_WORK_DIR"; then
     return 1

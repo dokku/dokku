@@ -17,7 +17,7 @@ teardown() {
 }
 
 @test "(ps) cnb env vars" {
-  run /bin/bash -c "dokku config:set $TEST_APP DOKKU_CNB_EXPERIMENTAL=1"
+  run /bin/bash -c "dokku config:set $TEST_APP APP_RESPECTS_ENV_VARS=1"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -31,5 +31,5 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains '"DOKKU_CNB_EXPERIMENTAL": "1"'
+  assert_output_contains '"APP_RESPECTS_ENV_VARS": "1"'
 }
