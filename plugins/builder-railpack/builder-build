@@ -55,7 +55,7 @@ trigger-builder-railpack-builder-build() {
     return 1
   fi
 
-  if ! suppress_output "$DOCKER_BIN" image build -f "$PLUGIN_AVAILABLE_PATH/builder-railpack/dockerfiles/builder-build.Dockerfile" --build-arg APP_IMAGE="$IMAGE" "${DOCKER_BUILD_LABEL_ARGS[@]}" $DOKKU_GLOBAL_BUILD_ARGS  -t "$IMAGE" "$SOURCECODE_WORK_DIR"; then
+  if ! suppress_output "$DOCKER_BIN" image build -f "$PLUGIN_AVAILABLE_PATH/builder-railpack/dockerfiles/builder-build.Dockerfile" --build-arg APP_IMAGE="$IMAGE" "${DOCKER_BUILD_LABEL_ARGS[@]}" $DOKKU_GLOBAL_BUILD_ARGS -t "$IMAGE" "$SOURCECODE_WORK_DIR"; then
     dokku_log_warn "Failure injecting docker labels and custom entrypoint on image"
     return 1
   fi
