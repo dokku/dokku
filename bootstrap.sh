@@ -128,7 +128,22 @@ install-dokku-from-source() {
     log-fail "This installation script requires apt-get. For manual installation instructions, consult https://dokku.com/docs/getting-started/advanced-installation/"
   fi
 
-  apt-get -qq -y --no-install-recommends install sudo git make software-properties-common
+  apt-get -qq -y --no-install-recommends install sudo git make
+  case "$DOKKU_DISTRO" in
+    debian)
+      if [[ "$DOKKU_DISTRO_VERSION" -lt "13" ]]; then
+        if ! dpkg -l | grep -q software-properties-common; then
+          apt-get -qq -y --no-install-recommends install software-properties-common
+        fi
+      fi
+      ;;
+    ubuntu)
+      if ! dpkg -l | grep -q software-properties-common; then
+        apt-get -qq -y --no-install-recommends install software-properties-common
+      fi
+      ;;
+  esac
+
   cd /root
   if [[ ! -d /root/dokku ]]; then
     git clone "$DOKKU_REPO" /root/dokku
