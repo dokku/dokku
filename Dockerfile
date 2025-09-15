@@ -35,7 +35,7 @@ RUN mkdir -p /etc/apt/keyrings \
   && rm -rf /tmp/nixpacks.bash \
   && curl -o /tmp/railpack.bash -sSL https://railpack.com/install.sh \
   && chmod +x /tmp/railpack.bash \
-  && RAILPACK_BIN_DIR=/usr/bin /tmp/railpack.bash \
+  && RAILPACK_BIN_DIR=/usr/bin BIN_DIR=/usr/bin /tmp/railpack.bash \
   && test -x /usr/bin/railpack \
   && rm -rf /tmp/railpack.bash \
   && echo "dokku dokku/hostname string $DOKKU_HOSTNAME" | debconf-set-selections \
