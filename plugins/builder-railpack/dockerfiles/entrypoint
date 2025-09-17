@@ -1,6 +1,0 @@
-#!/usr/bin/env bash
-
-echo "#!/usr/bin/env bash" > /tmp/cmd
-echo "" >> /tmp/cmd
-echo "$@" >> /tmp/cmd
-exec bash "$@"
