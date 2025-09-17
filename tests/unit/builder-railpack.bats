@@ -3,6 +3,7 @@
 load test_helper
 
 setup_file() {
+  global_setup
   install_railpack
   docker run --rm --privileged -d --name buildkit moby/buildkit:latest
   touch /etc/default/dokku
@@ -20,6 +21,7 @@ setup() {
 
 teardown() {
   destroy_app
+  global_teardown
 }
 
 @test "(builder-railpack:set)" {
