@@ -37,7 +37,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains 'load build definition from Dockerfile'
+  assert_output_contains 'Successfully built image in'
   assert_output_contains "SECRET_KEY: fjdkslafjdk"
 
   run /bin/bash -c "dokku builder-railpack:set $TEST_APP railpackjson-path nonexistent.json"
@@ -49,7 +49,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains 'load build definition from Dockerfile'
+  assert_output_contains 'Successfully built image in'
 }
 
 inject_requirements_txt() {
