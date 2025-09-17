@@ -7,11 +7,13 @@ setup_file() {
 }
 
 setup() {
+  global_setup
   create_app
 }
 
 teardown() {
   destroy_app
+  global_teardown
 }
 
 @test "(builder-pack:set)" {
