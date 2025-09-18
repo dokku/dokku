@@ -19,6 +19,9 @@ type PlugnTriggerInput struct {
 	// Env is the environment variables to pass to the trigger
 	Env map[string]string
 
+	// PrintCommand prints the command before executing
+	PrintCommand bool
+
 	// Stdin is the stdin of the command
 	Stdin io.Reader
 
@@ -55,7 +58,7 @@ func CallPlugnTriggerWithContext(ctx context.Context, input PlugnTriggerInput) (
 		StreamStderr:       input.StreamStderr,
 	})
 
-	if os.Getenv("DOKKU_TRACE") == "1" {
+	if input.PrintCommand || os.Getenv("DOKKU_TRACE") == "1" {
 		for _, line := range strings.Split(result.Stderr, "\n") {
 			LogDebug(fmt.Sprintf("plugn trigger %s stderr: %s", input.Trigger, line))
 		}
