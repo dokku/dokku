@@ -47,6 +47,9 @@ type CronTask struct {
 	// Schedule is the cron schedule
 	Schedule string `json:"schedule"`
 
+	// ConcurrencyPolicy is the concurrency policy for the cron command
+	ConcurrencyPolicy string `json:"concurrency_policy"`
+
 	// AltCommand is an alternate command to run
 	AltCommand string `json:"-"`
 
@@ -148,12 +151,19 @@ func FetchCronTasks(input FetchCronTasksInput) ([]CronTask, error) {
 				maintenance = boolValue
 			}
 		}
+		if c.ConcurrencyPolicy == "" {
+			c.ConcurrencyPolicy = "allow"
+		}
+		if c.ConcurrencyPolicy != "allow" && c.ConcurrencyPolicy != "forbid" && c.ConcurrencyPolicy != "replace" {
+			return tasks, fmt.Errorf("Invalid cron concurrency policy for app %s (schedule %s): %s", appName, c.Schedule, c.ConcurrencyPolicy)
+		}
 
 		tasks = append(tasks, CronTask{
 			App:               appName,
 			Command:           c.Command,
 			Schedule:          c.Schedule,
 			ID:                cronID,
+			ConcurrencyPolicy: c.ConcurrencyPolicy,
 			Maintenance:       isAppCronInMaintenance || maintenance,
 			AppInMaintenance:  isAppCronInMaintenance,
 			TaskInMaintenance: maintenance,
