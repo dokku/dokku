@@ -302,6 +302,7 @@ type ProcessCron struct {
 	ID       string `yaml:"id"`
 	Schedule string `yaml:"schedule"`
 	Suffix   string `yaml:"suffix"`
+	Suspend  bool   `yaml:"suspend"`
 }
 
 type ProcessPortMap struct {
