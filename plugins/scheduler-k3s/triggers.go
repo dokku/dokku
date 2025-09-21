@@ -315,7 +315,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 		return fmt.Errorf("Error fetching cron entries: %w", err)
 	}
 	// remove maintenance cron entries
-	cronEntries := []cron.TemplateCommand{}
+	cronEntries := []cron.CronEntry{}
 	for _, cronEntry := range allCronEntries {
 		if !cronEntry.Maintenance {
 			cronEntries = append(cronEntries, cronEntry)

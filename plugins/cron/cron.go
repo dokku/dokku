@@ -27,8 +27,8 @@ var (
 	}
 )
 
-// TemplateCommand is a struct that represents a cron command
-type TemplateCommand struct {
+// CronEntry is a struct that represents a cron command
+type CronEntry struct {
 	// ID is a unique identifier for the cron command
 	ID string `json:"id"`
 
@@ -54,8 +54,8 @@ type TemplateCommand struct {
 	Maintenance bool `json:"maintenance"`
 }
 
-// CronCommand returns the command to run for a given cron command
-func (t TemplateCommand) CronCommand() string {
+// DokkuRunCommand returns the command to run for a given cron command
+func (t CronEntry) DokkuRunCommand() string {
 	if t.AltCommand != "" {
 		if t.LogFile != "" {
 			return fmt.Sprintf("%s &>> %s", t.AltCommand, t.LogFile)
@@ -74,9 +74,9 @@ type FetchCronEntriesInput struct {
 }
 
 // FetchCronEntries returns a list of cron commands for a given app
-func FetchCronEntries(input FetchCronEntriesInput) ([]TemplateCommand, error) {
+func FetchCronEntries(input FetchCronEntriesInput) ([]CronEntry, error) {
 	appName := input.AppName
-	commands := []TemplateCommand{}
+	commands := []CronEntry{}
 	isMaintenance := reportComputedMaintenance(appName) == "true"
 
 	if input.AppJSON == nil {
@@ -117,12 +117,12 @@ func FetchCronEntries(input FetchCronEntriesInput) ([]TemplateCommand, error) {
 			return commands, fmt.Errorf("Invalid cron schedule for app %s (schedule %s): %s", appName, c.Schedule, err.Error())
 		}
 
-		commands = append(commands, TemplateCommand{
 			App:         appName,
 			Command:     c.Command,
 			Schedule:    c.Schedule,
 			ID:          GenerateCommandID(appName, c),
 			Maintenance: isMaintenance,
+		commands = append(commands, CronEntry{
 		})
 	}
 
@@ -132,8 +132,8 @@ func FetchCronEntries(input FetchCronEntriesInput) ([]TemplateCommand, error) {
 // FetchGlobalCronEntries returns a list of global cron commands
 // This function should only be used for the cron:list --global command
 // and not internally by the cron plugin
-func FetchGlobalCronEntries() ([]TemplateCommand, error) {
-	commands := []TemplateCommand{}
+func FetchGlobalCronEntries() ([]CronEntry, error) {
+	commands := []CronEntry{}
 	response, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
 		Trigger: "cron-entries",
 		Args:    []string{"docker-local"},
@@ -150,7 +150,7 @@ func FetchGlobalCronEntries() ([]TemplateCommand, error) {
 		}
 
 		id := base36.EncodeToStringLc([]byte(strings.Join(parts, ";;;")))
-		command := TemplateCommand{
+		command := CronEntry{
 			ID:          id,
 			Schedule:    parts[0],
 			Command:     parts[1],
@@ -167,6 +167,6 @@ func FetchGlobalCronEntries() ([]TemplateCommand, error) {
 }
 
 // GenerateCommandID creates a unique ID for a given app/command/schedule combination
-func GenerateCommandID(appName string, c appjson.CronCommand) string {
+func GenerateCommandID(appName string, c appjson.CronEntry) string {
 	return base36.EncodeToStringLc([]byte(appName + "===" + c.Command + "===" + c.Schedule))
 }
