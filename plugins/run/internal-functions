@@ -9,7 +9,7 @@ fn-run() {
   shift 1
 
   declare APP=""
-  local CRON_ID
+  local CRON_ID CONCURRENCY_POLICY="allow"
   declare -a RUN_ENV
   RUN_ENV=()
   while [[ $# -gt 0 ]]; do
@@ -17,6 +17,11 @@ fn-run() {
       --cron-id=*)
         local arg=$(printf "%s" "$1" | sed -E 's/(^--cron-id=)//g')
         CRON_ID="$arg"
+        shift
+        ;;
+      --concurrency-policy=*)
+        local arg=$(printf "%s" "$1" | sed -E 's/(^--concurrency-policy=)//g')
+        CONCURRENCY_POLICY="$arg"
         shift
         ;;
       --no-tty)
@@ -33,6 +38,14 @@ fn-run() {
           break
         fi
         CRON_ID="$2"
+        shift 2
+        ;;
+      --concurrency-policy)
+        if [[ ! $2 ]]; then
+          dokku_log_warn "expected $1 to have an argument"
+          break
+        fi
+        CONCURRENCY_POLICY="$2"
         shift 2
         ;;
       -e=* | --env=*)
@@ -67,7 +80,7 @@ fn-run() {
   verify_app_name "$APP"
 
   local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
-  DOKKU_CRON_ID="$CRON_ID" plugn trigger scheduler-run "$DOKKU_SCHEDULER" "$APP" "${#RUN_ENV[@]}" "${RUN_ENV[@]}" -- "$@"
+  DOKKU_CRON_ID="$CRON_ID" DOKKU_CONCURRENCY_POLICY="$CONCURRENCY_POLICY" plugn trigger scheduler-run "$DOKKU_SCHEDULER" "$APP" "${#RUN_ENV[@]}" "${RUN_ENV[@]}" -- "$@"
 }
 
 cmd-run() {

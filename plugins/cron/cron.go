@@ -75,7 +75,7 @@ func (t CronTask) DokkuRunCommand() string {
 		return t.AltCommand
 	}
 
-	return fmt.Sprintf("dokku run --cron-id %s %s %s", t.ID, t.App, t.Command)
+	return fmt.Sprintf("dokku run --concurrency-policy %s --cron-id %s %s %s", t.ConcurrencyPolicy, t.ID, t.App, t.Command)
 }
 
 // FetchCronTasksInput is the input for the FetchCronTasks function
