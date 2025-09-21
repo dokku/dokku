@@ -646,13 +646,15 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 			return fmt.Errorf("Error getting process labels: %w", err)
 		}
 
+		concurrencyPolicy := strings.ToUpper(cronEntry.ConcurrencyPolicy)
 		processValues := ProcessValues{
 			Args:        words,
 			Annotations: annotations,
 			Cron: ProcessCron{
-				ID:       cronEntry.ID,
-				Schedule: cronEntry.Schedule,
-				Suffix:   suffix,
+				ID:                cronEntry.ID,
+				Schedule:          cronEntry.Schedule,
+				Suffix:            suffix,
+				ConcurrencyPolicy: ProcessCronConcurrencyPolicy(concurrencyPolicy),
 			},
 			Labels:      labels,
 			ProcessType: ProcessType_Cron,

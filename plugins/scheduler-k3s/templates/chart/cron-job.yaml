@@ -26,7 +26,7 @@ metadata:
   name: {{ $.Values.global.app_name }}-cron-{{ $config.cron.suffix }}
   namespace: {{ $.Values.global.namespace }}
 spec:
-  concurrencyPolicy: Allow
+  concurrencyPolicy: {{ $config.cron.concurrency_policy }}
   failedJobsHistoryLimit: 10
   jobTemplate:
     metadata:
