@@ -79,6 +79,10 @@ func FetchCronEntries(input FetchCronEntriesInput) ([]TemplateCommand, error) {
 	commands := []TemplateCommand{}
 	isMaintenance := reportComputedMaintenance(appName) == "true"
 
+	if input.AppJSON == nil && input.AppName == "" {
+		return commands, fmt.Errorf("Missing app name or app.json")
+	}
+
 	if input.AppJSON == nil {
 		appJSON, err := appjson.GetAppJSON(appName)
 		if err != nil {
