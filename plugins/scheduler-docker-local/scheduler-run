@@ -5,6 +5,25 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 source "$PLUGIN_AVAILABLE_PATH/scheduler-docker-local/internal-functions"
 
+fn-scheduler-docker-local-scheduler-run-acquire-lock() {
+  declare desc="acquire advisory lock for use in docker-local cron jobs"
+  local APP="$1" CRON_ID="$2"
+  local LOCK_TYPE="exclusive"
+  local APP_DEPLOY_LOCK_FILE="$DOKKU_LIB_ROOT/data/scheduler-docker-local/$APP/cron-$CRON_ID.lock"
+  local LOCK_WAITING_MSG="$APP currently has a cron lock in place for $CRON_ID. Waiting..."
+  local LOCK_FAILED_MSG="$APP currently has a cron lock in place for $CRON_ID. Exiting..."
+
+  acquire_advisory_lock "$APP_DEPLOY_LOCK_FILE" "$LOCK_TYPE" "$LOCK_WAITING_MSG" "$LOCK_FAILED_MSG"
+}
+
+fn-scheduler-docker-local-scheduler-run-release-lock() {
+  declare desc="release advisory lock used in docker-local cron jobs"
+  local APP="$1" CRON_ID="$2"
+  local APP_DEPLOY_LOCK_FILE="$DOKKU_LIB_ROOT/data/scheduler-docker-local/$APP/cron-$CRON_ID.lock"
+
+  release_advisory_lock "$APP_DEPLOY_LOCK_FILE"
+}
+
 trigger-scheduler-docker-local-scheduler-run() {
   declare desc="runs command in container based on app image"
   declare trigger="scheduler-run"
@@ -39,9 +58,24 @@ trigger-scheduler-docker-local-scheduler-run() {
   [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" -e TRACE=true "
 
   local PROCESS_TYPE=run
+  local concurrency_policy="allow"
   if [[ -n "$DOKKU_CRON_ID" ]]; then
     PROCESS_TYPE=cron
     DOCKER_ARGS+=" --label=com.dokku.cron-id=$DOKKU_CRON_ID"
+
+    if [[ -n "$DOKKU_CONCURRENCY_POLICY" ]]; then
+      concurrency_policy="$DOKKU_CONCURRENCY_POLICY"
+    fi
+    concurrency_policy="$DOKKU_CONCURRENCY_POLICY"
+    DOCKER_ARGS+=" --label=com.dokku.concurrency-policy=$concurrency_policy"
+
+    if [[ "$concurrency_policy" == "forbid" ]]; then
+      fn-scheduler-docker-local-scheduler-run-acquire-lock "$APP" "$DOKKU_CRON_ID"
+    fi
+
+    if [[ "$concurrency_policy" == "replace" ]]; then
+      dokku_log_warn "Concurrency policy 'replace' is not supported for docker-local cron jobs"
+    fi
   fi
 
   local DYNO_NUMBER="$RANDOM"
@@ -138,6 +172,11 @@ trigger-scheduler-docker-local-scheduler-run() {
     DOKKU_CONTAINER_EXIT_CODE="$("$DOCKER_BIN" container wait "$CONTAINER_ID" 2>/dev/null || echo "$EXIT_CODE")"
     [[ -z "$DOKKU_CONTAINER_EXIT_CODE" ]] && DOKKU_CONTAINER_EXIT_CODE=0
   fi
+
+  if [[ -n "$DOKKU_CRON_ID" ]] && [[ "$concurrency_policy" == "forbid" ]]; then
+    fn-scheduler-docker-local-scheduler-run-release-lock "$APP" "$DOKKU_CRON_ID"
+  fi
+
   plugn trigger scheduler-post-run "$DOKKU_SCHEDULER" "$APP" "$CONTAINER_ID" "$DOKKU_CONTAINER_EXIT_CODE"
   return "$DOKKU_CONTAINER_EXIT_CODE"
 }
