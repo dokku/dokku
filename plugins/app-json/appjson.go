@@ -57,6 +57,9 @@ type CronCommand struct {
 
 	// Schedule is the cron schedule to execute the command on
 	Schedule string `json:"schedule"`
+
+	// ConcurrencyPolicy is the concurrency policy for the cron command
+	ConcurrencyPolicy string `json:"concurrency_policy"`
 }
 
 // Formation is a struct that represents the scale for a process from an app.json file
