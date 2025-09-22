@@ -50,6 +50,12 @@ type TemplateCommand struct {
 	// LogFile is the log file to write to
 	LogFile string `json:"-"`
 
+	// AppInMaintenance is whether the app's cron is in maintenance mode
+	AppInMaintenance bool `json:"app-in-maintenance"`
+
+	// Maintenance is whether the cron command is in maintenance mode
+	TaskInMaintenance bool `json:"task-in-maintenance"`
+
 	// Maintenance is whether the cron command is in maintenance mode
 	Maintenance bool `json:"maintenance"`
 }
@@ -123,11 +129,13 @@ func FetchCronEntries(input FetchCronEntriesInput) ([]TemplateCommand, error) {
 
 		maintenance := isAppCronInMaintenance || c.Maintenance
 		commands = append(commands, TemplateCommand{
-			App:         appName,
-			Command:     c.Command,
-			Schedule:    c.Schedule,
-			ID:          GenerateCommandID(appName, c),
-			Maintenance: maintenance,
+			App:               appName,
+			Command:           c.Command,
+			Schedule:          c.Schedule,
+			ID:                GenerateCommandID(appName, c),
+			Maintenance:       isAppCronInMaintenance || maintenance,
+			AppInMaintenance:  isAppCronInMaintenance,
+			TaskInMaintenance: maintenance,
 		})
 	}
 
@@ -156,12 +164,14 @@ func FetchGlobalCronEntries() ([]TemplateCommand, error) {
 
 		id := base36.EncodeToStringLc([]byte(strings.Join(parts, ";;;")))
 		command := TemplateCommand{
-			ID:          id,
-			Schedule:    parts[0],
-			Command:     parts[1],
-			AltCommand:  parts[1],
-			Maintenance: false,
-			Global:      true,
+			ID:                id,
+			Schedule:          parts[0],
+			Command:           parts[1],
+			AltCommand:        parts[1],
+			Global:            true,
+			Maintenance:       false,
+			TaskInMaintenance: false,
+			AppInMaintenance:  false,
 		}
 		if len(parts) == 3 {
 			command.LogFile = parts[2]
