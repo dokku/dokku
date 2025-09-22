@@ -56,10 +56,10 @@ type CronTask struct {
 	// AppInMaintenance is whether the app's cron is in maintenance mode
 	AppInMaintenance bool `json:"app-in-maintenance"`
 
-	// Maintenance is whether the cron command is in maintenance mode
+	// Maintenance is whether the cron task is in maintenance mode
 	TaskInMaintenance bool `json:"task-in-maintenance"`
 
-	// Maintenance is whether the cron command is in maintenance mode
+	// Maintenance is whether the cron task is in maintenance mode
 	Maintenance bool `json:"maintenance"`
 }
 
