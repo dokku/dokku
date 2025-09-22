@@ -77,7 +77,7 @@ type FetchCronTasksInput struct {
 func FetchCronTasks(input FetchCronTasksInput) ([]CronTask, error) {
 	appName := input.AppName
 	tasks := []CronTask{}
-	isMaintenance := reportComputedMaintenance(appName) == "true"
+	isAppCronInMaintenance := reportComputedMaintenance(appName) == "true"
 
 	if input.AppJSON == nil && input.AppName == "" {
 		return tasks, fmt.Errorf("Missing app name or app.json")
@@ -121,12 +121,13 @@ func FetchCronTasks(input FetchCronTasksInput) ([]CronTask, error) {
 			return tasks, fmt.Errorf("Invalid cron schedule for app %s (schedule %s): %s", appName, c.Schedule, err.Error())
 		}
 
+		maintenance := isAppCronInMaintenance || c.Maintenance
 		tasks = append(tasks, CronTask{
 			App:         appName,
 			Command:     c.Command,
 			Schedule:    c.Schedule,
 			ID:          GenerateCommandID(appName, c),
-			Maintenance: isMaintenance,
+			Maintenance: maintenance,
 		})
 	}
 

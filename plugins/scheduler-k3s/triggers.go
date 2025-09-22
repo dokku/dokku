@@ -169,7 +169,7 @@ func TriggerSchedulerCronWrite(scheduler string, appName string) error {
 		return nil
 	}
 
-	allCronEntries, err := cron.FetchCronEntries(cron.FetchCronEntriesInput{AppName: appName})
+	cronTasks, err := cron.FetchCronTasks(cron.FetchCronTasksInput{AppName: appName})
 	if err != nil {
 		return fmt.Errorf("Error fetching cron entries: %w", err)
 	}
@@ -193,13 +193,13 @@ func TriggerSchedulerCronWrite(scheduler string, appName string) error {
 		return fmt.Errorf("Error creating kubernetes client: %w", err)
 	}
 
-	for _, cronEntry := range allCronEntries {
+	for _, cronTask := range cronTasks {
 		labelSelector := []string{
 			fmt.Sprintf("app.kubernetes.io/part-of=%s", appName),
-			fmt.Sprintf("dokku.com/cron-id=%s", cronEntry.ID),
+			fmt.Sprintf("dokku.com/cron-id=%s", cronTask.ID),
 		}
 
-		if cronEntry.Maintenance {
+		if cronTask.Maintenance {
 			err = clientset.SuspendCronJobs(ctx, SuspendCronJobsInput{
 				Namespace:     namespace,
 				LabelSelector: strings.Join(labelSelector, ","),
@@ -706,7 +706,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 				ID:       cronTask.ID,
 				Schedule: cronTask.Schedule,
 				Suffix:   suffix,
-				Suspend:  cronEntry.Maintenance,
+				Suspend:  cronTask.Maintenance,
 			},
 			Labels:      labels,
 			ProcessType: ProcessType_Cron,

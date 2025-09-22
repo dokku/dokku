@@ -55,6 +55,9 @@ type CronTask struct {
 	// Command is the command to execute
 	Command string `json:"command"`
 
+	// Maintenance is whether or not the cron command is in maintenance mode
+	Maintenance bool `json:"maintenance"`
+
 	// Schedule is the cron schedule to execute the command on
 	Schedule string `json:"schedule"`
 }
