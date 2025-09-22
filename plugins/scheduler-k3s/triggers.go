@@ -679,7 +679,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 
 		words, err := shellquote.Split(cronTask.Command)
 		if err != nil {
-			return fmt.Errorf("Error parsing cron command: %w", err)
+			return fmt.Errorf("Error parsing cron task command: %w", err)
 		}
 
 		processResources, err := getProcessResources(appName, cronTask.ID)

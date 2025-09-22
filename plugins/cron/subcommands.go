@@ -91,12 +91,12 @@ func CommandReport(appName string, format string, infoFlag string) error {
 	return ReportSingleApp(appName, format, infoFlag)
 }
 
-// CommandResume resumes a cron command
+// CommandResume resumes a cron task
 func CommandResume(appName string, cronID string) error {
 	return CommandSet(appName, fmt.Sprintf("%s%s", MaintenancePropertyPrefix, cronID), "")
 }
 
-// CommandRun executes a cron command on the fly
+// CommandRun executes a cron task on the fly
 func CommandRun(appName string, cronID string, detached bool) error {
 	if err := common.VerifyAppName(appName); err != nil {
 		return err
@@ -197,7 +197,7 @@ func CommandSet(appName string, property string, value string) error {
 	return err
 }
 
-// CommandSuspend suspends a cron command
+// CommandSuspend suspends a cron task
 func CommandSuspend(appName string, cronID string) error {
 	return CommandSet(appName, fmt.Sprintf("%s%s", MaintenancePropertyPrefix, cronID), "true")
 }

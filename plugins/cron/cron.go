@@ -30,18 +30,18 @@ var (
 
 const MaintenancePropertyPrefix = "maintenance."
 
-// CronTask is a struct that represents a cron command
+// CronTask is a struct that represents a cron task
 type CronTask struct {
-	// ID is a unique identifier for the cron command
+	// ID is a unique identifier for the cron task
 	ID string `json:"id"`
 
-	// App is the app the cron command belongs to
+	// App is the app the cron task belongs to
 	App string `json:"app,omitempty"`
 
 	// Command is the command to run
 	Command string `json:"command"`
 
-	// Global is whether the cron command is global
+	// Global is whether the cron task is global
 	Global bool `json:"global,omitempty"`
 
 	// Schedule is the cron schedule
@@ -56,10 +56,10 @@ type CronTask struct {
 	// AppInMaintenance is whether the app's cron is in maintenance mode
 	AppInMaintenance bool `json:"app-in-maintenance"`
 
-	// Maintenance is whether the cron command is in maintenance mode
+	// Maintenance is whether the cron task is in maintenance mode
 	TaskInMaintenance bool `json:"task-in-maintenance"`
 
-	// Maintenance is whether the cron command is in maintenance mode
+	// Maintenance is whether the cron task is in maintenance mode
 	Maintenance bool `json:"maintenance"`
 }
 
@@ -82,7 +82,7 @@ type FetchCronTasksInput struct {
 	WarnToFailure bool
 }
 
-// FetchCronTasks returns a list of cron commands for a given app
+// FetchCronTasks returns a list of cron tasks for a given app
 func FetchCronTasks(input FetchCronTasksInput) ([]CronTask, error) {
 	appName := input.AppName
 	commands := []CronTask{}
@@ -113,10 +113,10 @@ func FetchCronTasks(input FetchCronTasksInput) ([]CronTask, error) {
 	for i, c := range input.AppJSON.Cron {
 		if c.Command == "" {
 			if input.WarnToFailure {
-				return commands, fmt.Errorf("Missing cron command for app %s (index %d)", appName, i)
+				return commands, fmt.Errorf("Missing cron task for app %s (index %d)", appName, i)
 			}
 
-			common.LogWarn(fmt.Sprintf("Missing cron command for app %s (index %d)", appName, i))
+			common.LogWarn(fmt.Sprintf("Missing cron task for app %s (index %d)", appName, i))
 			continue
 		}
 
@@ -162,7 +162,7 @@ func FetchCronTasks(input FetchCronTasksInput) ([]CronTask, error) {
 	return commands, nil
 }
 
-// FetchGlobalCronTasks returns a list of global cron commands
+// FetchGlobalCronTasks returns a list of global cron tasks
 // This function should only be used for the cron:list --global command
 // and not internally by the cron plugin
 func FetchGlobalCronTasks() ([]CronTask, error) {
