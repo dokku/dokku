@@ -77,7 +77,7 @@ type FetchCronEntriesInput struct {
 func FetchCronEntries(input FetchCronEntriesInput) ([]TemplateCommand, error) {
 	appName := input.AppName
 	commands := []TemplateCommand{}
-	isMaintenance := reportComputedMaintenance(appName) == "true"
+	isAppCronInMaintenance := reportComputedMaintenance(appName) == "true"
 
 	if input.AppJSON == nil && input.AppName == "" {
 		return commands, fmt.Errorf("Missing app name or app.json")
@@ -121,12 +121,13 @@ func FetchCronEntries(input FetchCronEntriesInput) ([]TemplateCommand, error) {
 			return commands, fmt.Errorf("Invalid cron schedule for app %s (schedule %s): %s", appName, c.Schedule, err.Error())
 		}
 
+		maintenance := isAppCronInMaintenance || c.Maintenance
 		commands = append(commands, TemplateCommand{
 			App:         appName,
 			Command:     c.Command,
 			Schedule:    c.Schedule,
 			ID:          GenerateCommandID(appName, c),
-			Maintenance: isMaintenance,
+			Maintenance: maintenance,
 		})
 	}
 
