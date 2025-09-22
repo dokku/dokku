@@ -23,7 +23,7 @@ func CommandList(appName string, format string) error {
 		return fmt.Errorf("Invalid format specified, supported formats: json, stdout")
 	}
 
-	var tasks []TemplateCommand
+	var tasks []CronTask
 	if appName == "--global" {
 		var err error
 		tasks, err = FetchGlobalCronTasks()
@@ -102,7 +102,7 @@ func CommandRun(appName string, cronID string, detached bool) error {
 		return err
 	}
 
-	entries, err := FetchCronTasks(FetchCronTasksInput{AppName: appName})
+	tasks, err := FetchCronTasks(FetchCronTasksInput{AppName: appName})
 	if err != nil {
 		return err
 	}
@@ -112,9 +112,9 @@ func CommandRun(appName string, cronID string, detached bool) error {
 	}
 
 	command := ""
-	for _, entry := range entries {
-		if entry.ID == cronID {
-			command = entry.Command
+	for _, task := range tasks {
+		if task.ID == cronID {
+			command = task.Command
 		}
 	}
 
@@ -168,14 +168,14 @@ func CommandSet(appName string, property string, value string) error {
 			return fmt.Errorf("Invalid task maintenance property, missing ID")
 		}
 
-		entries, err := FetchCronTasks(FetchCronTasksInput{AppName: appName})
+		tasks, err := FetchCronTasks(FetchCronTasksInput{AppName: appName})
 		if err != nil {
 			return err
 		}
 
 		maintenanceID := maintenanceParts[1]
-		for _, entry := range entries {
-			if entry.ID == maintenanceID {
+		for _, task := range tasks {
+			if task.ID == maintenanceID {
 				validProperties[property] = ""
 				globalProperties[property] = false
 				break
