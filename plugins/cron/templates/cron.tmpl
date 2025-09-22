@@ -8,5 +8,5 @@ PATH=/usr/local/bin:/usr/bin:/bin
 SHELL=/bin/bash
 
 {{ range $task := .Commands -}}
-{{ $task.Schedule }} {{ $task.CronCommand }}
+{{ $task.Schedule }} {{ $task.DokkuRunCommand }}
 {{ end -}}
