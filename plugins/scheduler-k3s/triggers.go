@@ -163,6 +163,64 @@ func TriggerSchedulerAppStatus(scheduler string, appName string) error {
 	return nil
 }
 
+// TriggerSchedulerCronWrite writes out cron entries for a given application
+func TriggerSchedulerCronWrite(scheduler string, appName string) error {
+	if scheduler != "k3s" {
+		return nil
+	}
+
+	allCronEntries, err := cron.FetchCronEntries(cron.FetchCronEntriesInput{AppName: appName})
+	if err != nil {
+		return fmt.Errorf("Error fetching cron entries: %w", err)
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, os.Interrupt, syscall.SIGHUP,
+		syscall.SIGINT,
+		syscall.SIGQUIT,
+		syscall.SIGTERM)
+	go func() {
+		<-signals
+		common.LogWarn(fmt.Sprintf("Deployment of %s has been cancelled", appName))
+		cancel()
+	}()
+
+	namespace := getComputedNamespace(appName)
+
+	clientset, err := NewKubernetesClient()
+	if err != nil {
+		return fmt.Errorf("Error creating kubernetes client: %w", err)
+	}
+
+	for _, cronEntry := range allCronEntries {
+		labelSelector := []string{
+			fmt.Sprintf("app.kubernetes.io/part-of=%s", appName),
+			fmt.Sprintf("dokku.com/cron-id=%s", cronEntry.ID),
+		}
+
+		if cronEntry.Maintenance {
+			err = clientset.SuspendCronJobs(ctx, SuspendCronJobsInput{
+				Namespace:     namespace,
+				LabelSelector: strings.Join(labelSelector, ","),
+			})
+			if err != nil {
+				return fmt.Errorf("Error suspending cron jobs: %w", err)
+			}
+		} else {
+			err = clientset.ResumeCronJobs(ctx, ResumeCronJobsInput{
+				Namespace:     namespace,
+				LabelSelector: strings.Join(labelSelector, ","),
+			})
+			if err != nil {
+				return fmt.Errorf("Error resuming cron jobs: %w", err)
+			}
+		}
+	}
+
+	return nil
+}
+
 // TriggerSchedulerDeploy deploys an image tag for a given application
 func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) error {
 	if scheduler != "k3s" {
