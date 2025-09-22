@@ -41,7 +41,7 @@ func reportMailto(_ string) string {
 }
 
 func reportTasks(appName string) string {
-	c, _ := FetchCronEntries(FetchCronEntriesInput{AppName: appName})
+	c, _ := FetchCronTasks(FetchCronTasksInput{AppName: appName})
 	return strconv.Itoa(len(c))
 }
 

@@ -23,10 +23,10 @@ func CommandList(appName string, format string) error {
 		return fmt.Errorf("Invalid format specified, supported formats: json, stdout")
 	}
 
-	var entries []TemplateCommand
+	var tasks []TemplateCommand
 	if appName == "--global" {
 		var err error
-		entries, err = FetchGlobalCronEntries()
+		tasks, err = FetchGlobalCronTasks()
 		if err != nil {
 			return err
 		}
@@ -35,7 +35,7 @@ func CommandList(appName string, format string) error {
 		if err := common.VerifyAppName(appName); err != nil {
 			return err
 		}
-		entries, err = FetchCronEntries(FetchCronEntriesInput{AppName: appName})
+		tasks, err = FetchCronTasks(FetchCronTasksInput{AppName: appName})
 		if err != nil {
 			return err
 		}
@@ -43,16 +43,16 @@ func CommandList(appName string, format string) error {
 
 	if format == "stdout" {
 		output := []string{"ID | Schedule | Maintenance | Command"}
-		for _, entry := range entries {
+		for _, task := range tasks {
 			maintenance := "false"
-			if entry.Maintenance {
-				if entry.TaskInMaintenance {
+			if task.Maintenance {
+				if task.TaskInMaintenance {
 					maintenance = "true (task)"
-				} else if entry.AppInMaintenance {
+				} else if task.AppInMaintenance {
 					maintenance = "true (app)"
 				}
 			}
-			output = append(output, fmt.Sprintf("%s | %s | %s | %s", entry.ID, entry.Schedule, maintenance, entry.Command))
+			output = append(output, fmt.Sprintf("%s | %s | %s | %s", task.ID, task.Schedule, maintenance, task.Command))
 		}
 
 		result := columnize.SimpleFormat(output)
@@ -60,7 +60,7 @@ func CommandList(appName string, format string) error {
 		return nil
 	}
 
-	out, err := json.Marshal(entries)
+	out, err := json.Marshal(tasks)
 	if err != nil {
 		return err
 	}
@@ -102,7 +102,7 @@ func CommandRun(appName string, cronID string, detached bool) error {
 		return err
 	}
 
-	entries, err := FetchCronEntries(FetchCronEntriesInput{AppName: appName})
+	entries, err := FetchCronTasks(FetchCronTasksInput{AppName: appName})
 	if err != nil {
 		return err
 	}
@@ -168,7 +168,7 @@ func CommandSet(appName string, property string, value string) error {
 			return fmt.Errorf("Invalid task maintenance property, missing ID")
 		}
 
-		entries, err := FetchCronEntries(FetchCronEntriesInput{AppName: appName})
+		entries, err := FetchCronTasks(FetchCronTasksInput{AppName: appName})
 		if err != nil {
 			return err
 		}
