@@ -163,7 +163,7 @@ func TriggerSchedulerAppStatus(scheduler string, appName string) error {
 	return nil
 }
 
-// TriggerSchedulerCronWrite writes out cron entries for a given application
+// TriggerSchedulerCronWrite writes out cron tasks for a given application
 func TriggerSchedulerCronWrite(scheduler string, appName string) error {
 	if scheduler != "k3s" {
 		return nil
@@ -171,7 +171,7 @@ func TriggerSchedulerCronWrite(scheduler string, appName string) error {
 
 	cronTasks, err := cron.FetchCronTasks(cron.FetchCronTasksInput{AppName: appName})
 	if err != nil {
-		return fmt.Errorf("Error fetching cron entries: %w", err)
+		return fmt.Errorf("Error fetching cron tasks: %w", err)
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())

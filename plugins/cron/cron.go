@@ -2,6 +2,7 @@ package cron
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	appjson "github.com/dokku/dokku/plugins/app-json"
@@ -26,6 +27,8 @@ var (
 		"maintenance": true,
 	}
 )
+
+const MaintenancePropertyPrefix = "maintenance."
 
 // CronTask is a struct that represents a cron task
 type CronTask struct {
@@ -102,6 +105,11 @@ func FetchCronTasks(input FetchCronTasksInput) ([]CronTask, error) {
 		return tasks, nil
 	}
 
+	properties, err := common.PropertyGetAllByPrefix("cron", appName, MaintenancePropertyPrefix)
+	if err != nil {
+		return tasks, fmt.Errorf("Error getting maintenance properties: %w", err)
+	}
+
 	for i, c := range input.AppJSON.Cron {
 		if c.Command == "" {
 			if input.WarnToFailure {
@@ -127,7 +135,19 @@ func FetchCronTasks(input FetchCronTasksInput) ([]CronTask, error) {
 			return tasks, fmt.Errorf("Invalid cron schedule for app %s (schedule %s): %s", appName, c.Schedule, err.Error())
 		}
 
-		maintenance := isAppCronInMaintenance || c.Maintenance
+		maintenance := c.Maintenance
+		if value, ok := properties[MaintenancePropertyPrefix+c.Schedule]; ok {
+			boolValue, err := strconv.ParseBool(value)
+			if err != nil {
+				return tasks, fmt.Errorf("Invalid maintenance property for app %s (schedule %s): %s", appName, c.Schedule, err.Error())
+			}
+
+			// only override the maintenance value if the property is set to true
+			if boolValue {
+				maintenance = boolValue
+			}
+		}
+
 		tasks = append(tasks, CronTask{
 			App:               appName,
 			Command:           c.Command,
