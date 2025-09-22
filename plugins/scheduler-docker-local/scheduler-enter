@@ -19,7 +19,7 @@ trigger-scheduler-docker-local-scheduler-enter() {
   while [[ $# -gt 0 ]]; do
     case $1 in
       --container-id=*)
-        local arg=$(printf "%s" "$1" | sed -E 's/(^--cron-id=)//g')
+        local arg=$(printf "%s" "$1" | sed -E 's/(^--container-id=)//g')
         CONTAINER_ID="$arg"
         shift
         ;;
