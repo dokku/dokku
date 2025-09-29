@@ -8,7 +8,7 @@ The `config` plugin provides the following commands to manage your variables:
 config:show (<app>|--global)                                                          Pretty-print an app or global environment
 config:bundle (<app>|--global) [--merged]                                             Bundle environment into tarfile
 config:clear (<app>|--global)                                                         Clears environment variables
-config:export (<app>|--global) [--envfile]                                            Export a global or app environment
+config:export (<app>|--global) [--format <format>]                                    Export a global or app environment
 config:get (<app>|--global) KEY                                                       Display a global or app-specific config value
 config:keys (<app>|--global) [--merged]                                               Show keys set in environment
 config:set [--encoded] [--no-restart] (<app>|--global) KEY1=VALUE1 [KEY2=VALUE2 ...]  Set one or more config vars
