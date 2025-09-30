@@ -37,30 +37,23 @@ func CommandDetect(appName string) error {
 		return err
 	}
 
-	buildPath := common.AppRoot(appName)
-	if !common.DirectoryExists(buildPath) {
-		return fmt.Errorf("App %s does not exist", appName)
-	}
-
-	workDir := buildPath
-	if isBareGitRepo(buildPath) {
-		checkedOutPath, err := checkoutBareGitRepo(buildPath)
+	workDir := common.AppRoot(appName)
+	if isBareGitRepo(workDir) {
+		checkedOutDir, err := checkoutBareGitRepo(workDir)
         if err != nil {
             return err
         }
-		workDir = checkedOutPath
+		workDir = checkedOutDir
 		defer func() {
-			if err := os.RemoveAll(checkedOutPath); err != nil {
-				common.LogWarn(fmt.Sprintf("Failed to remove temporary directory %s: %v", checkedOutPath, err))
+			if err := os.RemoveAll(checkedOutDir); err != nil {
+				common.LogWarn(fmt.Sprintf("Failed to remove temporary directory %s: %v", checkedOutDir, err))
 			}
 		}()
 	}
 
-	appRoot := workDir
-
 	dockerArgs := []string{
 		"run", "--rm",
-		"-v", fmt.Sprintf("%s:/tmp/app", appRoot),
+		"-v", fmt.Sprintf("%s:/tmp/app", workDir),
 		"gliderlabs/herokuish", "/bin/herokuish", "buildpack", "detect", "/tmp/app",
 	}
 
