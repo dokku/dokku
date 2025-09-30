@@ -30,6 +30,11 @@ func main() {
 		args.Parse(os.Args[2:])
 		appName := args.Arg(0)
 		err = buildpacks.CommandClear(appName)
+	case "detect":
+		args := flag.NewFlagSet("buildpacks:detect", flag.ExitOnError)
+		args.Parse(os.Args[2:])
+		appName := args.Arg(0)
+		err = buildpacks.CommandDetect(appName)
 	case "list":
 		args := flag.NewFlagSet("buildpacks:list", flag.ExitOnError)
 		args.Parse(os.Args[2:])
