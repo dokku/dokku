@@ -20,6 +20,7 @@ Additional commands:`
 	helpContent = `
     buildpacks:add [--index 1] <app> <buildpack>, Add new app buildpack while inserting into list of buildpacks if necessary
     buildpacks:clear <app>, Clear all buildpacks set on the app
+    buildpacks:detect <app>, Detect the buildpack for an app
     buildpacks:list <app>, List all buildpacks for an app
     buildpacks:remove <app> <buildpack>, Remove a buildpack set on the app
     buildpacks:report [<app>] [<flag>], Displays a buildpack report for one or more apps
