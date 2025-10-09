@@ -163,6 +163,64 @@ func TriggerSchedulerAppStatus(scheduler string, appName string) error {
 	return nil
 }
 
+// TriggerSchedulerCronWrite writes out cron tasks for a given application
+func TriggerSchedulerCronWrite(scheduler string, appName string) error {
+	if scheduler != "k3s" {
+		return nil
+	}
+
+	allCronTasks, err := cron.FetchCronTasks(cron.FetchCronTasksInput{AppName: appName})
+	if err != nil {
+		return fmt.Errorf("Error fetching cron tasks: %w", err)
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, os.Interrupt, syscall.SIGHUP,
+		syscall.SIGINT,
+		syscall.SIGQUIT,
+		syscall.SIGTERM)
+	go func() {
+		<-signals
+		common.LogWarn(fmt.Sprintf("Deployment of %s has been cancelled", appName))
+		cancel()
+	}()
+
+	namespace := getComputedNamespace(appName)
+
+	clientset, err := NewKubernetesClient()
+	if err != nil {
+		return fmt.Errorf("Error creating kubernetes client: %w", err)
+	}
+
+	for _, cronTask := range allCronTasks {
+		labelSelector := []string{
+			fmt.Sprintf("app.kubernetes.io/part-of=%s", appName),
+			fmt.Sprintf("dokku.com/cron-id=%s", cronTask.ID),
+		}
+
+		if cronTask.Maintenance {
+			err = clientset.SuspendCronJobs(ctx, SuspendCronJobsInput{
+				Namespace:     namespace,
+				LabelSelector: strings.Join(labelSelector, ","),
+			})
+			if err != nil {
+				return fmt.Errorf("Error suspending cron jobs: %w", err)
+			}
+		} else {
+			err = clientset.ResumeCronJobs(ctx, ResumeCronJobsInput{
+				Namespace:     namespace,
+				LabelSelector: strings.Join(labelSelector, ","),
+			})
+			if err != nil {
+				return fmt.Errorf("Error resuming cron jobs: %w", err)
+			}
+		}
+	}
+
+	return nil
+}
+
 // TriggerSchedulerDeploy deploys an image tag for a given application
 func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) error {
 	if scheduler != "k3s" {
@@ -310,16 +368,9 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 
 	workingDir := common.GetWorkingDir(appName, image)
 
-	allCronEntries, err := cron.FetchCronEntries(cron.FetchCronEntriesInput{AppName: appName})
+	cronTasks, err := cron.FetchCronTasks(cron.FetchCronTasksInput{AppName: appName})
 	if err != nil {
-		return fmt.Errorf("Error fetching cron entries: %w", err)
-	}
-	// remove maintenance cron entries
-	cronEntries := []cron.TemplateCommand{}
-	for _, cronEntry := range allCronEntries {
-		if !cronEntry.Maintenance {
-			cronEntries = append(cronEntries, cronEntry)
-		}
+		return fmt.Errorf("Error fetching cron tasks: %w", err)
 	}
 
 	domains := []string{}
@@ -603,13 +654,13 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 	if err != nil {
 		return fmt.Errorf("Error listing cron jobs: %w", err)
 	}
-	for _, cronEntry := range cronEntries {
+	for _, cronTask := range cronTasks {
 		// todo: implement deployment annotations
 		// todo: implement pod annotations
 		// todo: implement volumes
 		suffix := ""
 		for _, cronJob := range cronJobs {
-			if cronJob.Labels["dokku.com/cron-id"] == cronEntry.ID {
+			if cronJob.Labels["dokku.com/cron-id"] == cronTask.ID {
 				var ok bool
 				suffix, ok = cronJob.Annotations["dokku.com/job-suffix"]
 				if !ok {
@@ -626,22 +677,22 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 			suffix = strings.ToLower(fmt.Sprintf("%X", b))
 		}
 
-		words, err := shellquote.Split(cronEntry.Command)
+		words, err := shellquote.Split(cronTask.Command)
 		if err != nil {
-			return fmt.Errorf("Error parsing cron command: %w", err)
+			return fmt.Errorf("Error parsing cron task command: %w", err)
 		}
 
-		processResources, err := getProcessResources(appName, cronEntry.ID)
+		processResources, err := getProcessResources(appName, cronTask.ID)
 		if err != nil {
 			return fmt.Errorf("Error getting process resources: %w", err)
 		}
 
-		annotations, err := getAnnotations(appName, cronEntry.ID)
+		annotations, err := getAnnotations(appName, cronTask.ID)
 		if err != nil {
 			return fmt.Errorf("Error getting process annotations: %w", err)
 		}
 
-		labels, err := getLabels(appName, cronEntry.ID)
+		labels, err := getLabels(appName, cronTask.ID)
 		if err != nil {
 			return fmt.Errorf("Error getting process labels: %w", err)
 		}
@@ -650,9 +701,10 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 			Args:        words,
 			Annotations: annotations,
 			Cron: ProcessCron{
-				ID:       cronEntry.ID,
-				Schedule: cronEntry.Schedule,
+				ID:       cronTask.ID,
+				Schedule: cronTask.Schedule,
 				Suffix:   suffix,
+				Suspend:  cronTask.Maintenance,
 			},
 			Labels:      labels,
 			ProcessType: ProcessType_Cron,
@@ -660,10 +712,10 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 			Resources:   processResources,
 			Volumes:     processVolumes,
 		}
-		values.Processes[cronEntry.ID] = processValues
+		values.Processes[cronTask.ID] = processValues
 	}
 
-	if len(cronEntries) > 0 {
+	if len(cronTasks) > 0 {
 		b, err := templates.ReadFile("templates/chart/cron-job.yaml")
 		if err != nil {
 			return fmt.Errorf("Error reading cron job template: %w", err)
