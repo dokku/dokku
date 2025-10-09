@@ -38,23 +38,23 @@ func deleteCrontab() error {
 	return nil
 }
 
-func generateCronEntries() ([]cron.TemplateCommand, error) {
+func generateCronEntries() ([]cron.CronEntry, error) {
 	apps, _ := common.UnfilteredDokkuApps()
 
 	g := new(errgroup.Group)
-	results := make(chan []cron.TemplateCommand, len(apps)+1)
+	results := make(chan []cron.CronEntry, len(apps)+1)
 	for _, appName := range apps {
 		appName := appName
 		g.Go(func() error {
 			scheduler := common.GetAppScheduler(appName)
 			if scheduler != "docker-local" {
-				results <- []cron.TemplateCommand{}
+				results <- []cron.CronEntry{}
 				return nil
 			}
 
 			c, err := cron.FetchCronEntries(cron.FetchCronEntriesInput{AppName: appName})
 			if err != nil {
-				results <- []cron.TemplateCommand{}
+				results <- []cron.CronEntry{}
 				common.LogWarn(err.Error())
 				return nil
 			}
@@ -65,25 +65,25 @@ func generateCronEntries() ([]cron.TemplateCommand, error) {
 	}
 
 	g.Go(func() error {
-		commands := []cron.TemplateCommand{}
+		commands := []cron.CronEntry{}
 		response, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
 			Trigger: "cron-entries",
 			Args:    []string{"docker-local"},
 		})
 		for _, line := range strings.Split(response.StdoutContents(), "\n") {
 			if strings.TrimSpace(line) == "" {
-				results <- []cron.TemplateCommand{}
+				results <- []cron.CronEntry{}
 				return nil
 			}
 
 			parts := strings.Split(line, ";")
 			if len(parts) != 2 && len(parts) != 3 {
-				results <- []cron.TemplateCommand{}
+				results <- []cron.CronEntry{}
 				return fmt.Errorf("Invalid injected cron task: %v", line)
 			}
 
 			id := base36.EncodeToStringLc([]byte(strings.Join(parts, ";;;")))
-			command := cron.TemplateCommand{
+			command := cron.CronEntry{
 				ID:          id,
 				Schedule:    parts[0],
 				AltCommand:  parts[1],
@@ -101,7 +101,7 @@ func generateCronEntries() ([]cron.TemplateCommand, error) {
 	err := g.Wait()
 	close(results)
 
-	commands := []cron.TemplateCommand{}
+	commands := []cron.CronEntry{}
 	if err != nil {
 		return commands, err
 	}
