@@ -49,7 +49,7 @@ Once the installation is complete, you should configure an ssh key and set your 
 
 ```shell
 # usually your key is already available under the current user's `~/.ssh/authorized_keys` file
-cat ~/.ssh/authorized_keys | dokku ssh-keys:add admin
+cat ~/.ssh/authorized_keys | sudo dokku ssh-keys:add admin
 
 # you can use any domain you already have access to
 # this domain should have an A record or CNAME pointing at your server's IP
