@@ -551,6 +551,61 @@ func CommandClusterAdd(role string, remoteHost string, serverIP string, allowUkn
 		return fmt.Errorf("Invalid exit code from chmod command over ssh: %d", chmodCmd.ExitCode)
 	}
 
+	common.LogInfo2Quiet("Ensuring compatible k3s version for node")
+	lowestNodeVersion, err := clientset.GetLowestNodeVersion(ctx, ListNodesInput{
+		LabelSelector: "node-role.kubernetes.io/master=true",
+	})
+	if err != nil {
+		return fmt.Errorf("Unable to get lowest node version: %w", err)
+	}
+
+	tmpFile, err := os.CreateTemp("", "k3s-installer-*.sh")
+	if err != nil {
+		return fmt.Errorf("failed to create temporary file: %w", err)
+	}
+	defer os.Remove(tmpFile.Name())
+
+	scriptContent := fmt.Sprintf(`#!/usr/bin/env bash
+set -x
+export INSTALL_K3S_VERSION=%s
+
+/tmp/k3s-installer.sh "$@"`, lowestNodeVersion)
+
+	if _, err := tmpFile.WriteString(scriptContent); err != nil {
+		return fmt.Errorf("failed to write to temporary file: %w", err)
+	}
+	tmpFile.Close()
+
+	sftpCopyCmd, err := common.CallSftpCopy(common.SftpCopyInput{
+		AllowUknownHosts: allowUknownHosts,
+		DestinationPath:  "/tmp/k3s-installer-executor.sh",
+		RemoteHost:       remoteHost,
+		SourcePath:       tmpFile.Name(),
+	})
+	if err != nil {
+		return fmt.Errorf("Unable to copy installer script via sftp: %w", err)
+	}
+	if sftpCopyCmd.ExitErr != nil {
+		return fmt.Errorf("Invalid exit code from sftp copy command: %d", sftpCopyCmd.ExitErr)
+	}
+
+	chmodExecutorCmd, err := common.CallSshCommand(common.SshCommandInput{
+		Command: "chmod",
+		Args: []string{
+			"0755",
+			"/tmp/k3s-installer-executor.sh",
+		},
+		AllowUknownHosts: allowUknownHosts,
+		RemoteHost:       remoteHost,
+		StreamStdio:      true,
+	})
+	if err != nil {
+		return fmt.Errorf("Unable to make installer script executable via ssh: %w", err)
+	}
+	if chmodExecutorCmd.ExitCode != 0 {
+		return fmt.Errorf("Invalid exit code from chmod command via ssh: %d", chmodExecutorCmd.ExitCode)
+	}
+
 	u, err := url.Parse(remoteHost)
 	if err != nil {
 		return fmt.Errorf("failed to parse remote host: %w", err)
@@ -612,7 +667,7 @@ func CommandClusterAdd(role string, remoteHost string, serverIP string, allowUkn
 
 	common.LogInfo2Quiet(fmt.Sprintf("Adding %s k3s cluster", nodeName))
 	joinCmd, err := common.CallSshCommand(common.SshCommandInput{
-		Command:          "/tmp/k3s-installer.sh",
+		Command:          "/tmp/k3s-installer-executor.sh",
 		Args:             args,
 		AllowUknownHosts: allowUknownHosts,
 		RemoteHost:       remoteHost,
