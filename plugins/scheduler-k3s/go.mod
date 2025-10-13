@@ -3,6 +3,7 @@ module github.com/dokku/dokku/plugins/scheduler-k3s
 go 1.25.1
 
 require (
+	github.com/Masterminds/semver/v3 v3.4.0
 	github.com/cert-manager/cert-manager v1.19.0
 	github.com/dokku/dokku/plugins/app-json v0.0.0-20250618161309-8d0c35f1333c
 	github.com/dokku/dokku/plugins/common v0.0.0-20250618161309-8d0c35f1333c
@@ -18,7 +19,7 @@ require (
 	github.com/gofrs/flock v0.12.1
 	github.com/gosimple/slug v1.15.0
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
-	github.com/kedacore/keda/v2 v2.17.1-0.20250708210620-a239d2459a35
+	github.com/kedacore/keda/v2 v2.18.0
 	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/spf13/pflag v1.0.10
 	github.com/traefik/traefik/v2 v2.11.29
@@ -41,7 +42,6 @@ require (
 	github.com/BurntSushi/toml v1.5.0 // indirect
 	github.com/MakeNowJust/heredoc v1.0.0 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
-	github.com/Masterminds/semver/v3 v3.4.0 // indirect
 	github.com/Masterminds/sprig/v3 v3.3.0 // indirect
 	github.com/Masterminds/squirrel v1.5.4 // indirect
 	github.com/alexellis/go-execute/v2 v2.2.1 // indirect
@@ -62,7 +62,7 @@ require (
 	github.com/evanphx/json-patch v5.9.11+incompatible // indirect
 	github.com/evanphx/json-patch/v5 v5.9.11 // indirect
 	github.com/exponent-io/jsonpath v0.0.0-20210407135951-1de76d718b3f // indirect
-	github.com/expr-lang/expr v1.17.5 // indirect
+	github.com/expr-lang/expr v1.17.6 // indirect
 	github.com/fastfishio/qson v1.0.2 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/fxamacker/cbor/v2 v2.9.0 // indirect
@@ -137,7 +137,7 @@ require (
 	github.com/sergi/go-diff v1.3.2-0.20230802210424-5b0b94c5c0d3 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
-	github.com/spf13/cast v1.9.2 // indirect
+	github.com/spf13/cast v1.10.0 // indirect
 	github.com/spf13/cobra v1.10.1 // indirect
 	github.com/traefik/paerser v0.2.2 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
