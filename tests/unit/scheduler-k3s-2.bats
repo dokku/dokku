@@ -11,7 +11,7 @@ setup() {
   export KUBECONFIG="/etc/rancher/k3s/k3s.yaml"
 }
 
-teardown_() {
+teardown() {
   global_teardown
   dokku nginx:start
   uninstall_k3s || true
