@@ -14,6 +14,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/Masterminds/semver/v3"
 	"github.com/dokku/dokku/plugins/common"
 	"github.com/fatih/color"
 	"github.com/go-openapi/jsonpointer"
@@ -137,6 +138,42 @@ func KubernetesClientConfig(kubeconfigPath string, kubecontext string) clientcmd
 func (k KubernetesClient) Ping() error {
 	_, err := k.Client.Discovery().ServerVersion()
 	return err
+}
+
+func (k KubernetesClient) GetLowestNodeVersion(ctx context.Context, input ListNodesInput) (string, error) {
+	nodes, err := k.ListNodes(ctx, input)
+	if err != nil {
+		return "", fmt.Errorf("failed to list nodes: %w", err)
+	}
+
+	if len(nodes) == 0 {
+		return "", fmt.Errorf("no nodes found in the cluster")
+	}
+
+	var lowestVersion *semver.Version
+	for _, node := range nodes {
+		kubeletVersion := node.Status.NodeInfo.KubeletVersion
+		if kubeletVersion == "" {
+			continue
+		}
+
+		versionStr := strings.TrimPrefix(kubeletVersion, "v")
+		version, err := semver.NewVersion(versionStr)
+		if err != nil {
+			common.LogWarn(fmt.Sprintf("Failed to parse version %s for node %s: %v", kubeletVersion, node.Name, err))
+			continue
+		}
+
+		if lowestVersion == nil || version.LessThan(lowestVersion) {
+			lowestVersion = version
+		}
+	}
+
+	if lowestVersion == nil {
+		return "", fmt.Errorf("no valid kubelet versions found")
+	}
+
+	return "v" + lowestVersion.String(), nil
 }
 
 // AnnotateNodeInput contains all the information needed to annotates a Kubernetes node
