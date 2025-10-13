@@ -129,7 +129,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output '[{"id":"5cruaotm4yzzpnjlsdunblj8qyjp","command":"/bin/true","global":true,"schedule":"@daily","maintenance":false}]'
+  assert_output '[{"id":"5cruaotm4yzzpnjlsdunblj8qyjp","command":"/bin/true","global":true,"schedule":"@daily","concurrency_policy":"","maintenance":false}]'
 
   run /bin/bash -c "cat /var/spool/cron/crontabs/dokku"
   echo "output: $output"
