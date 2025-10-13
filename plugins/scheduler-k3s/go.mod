@@ -3,6 +3,7 @@ module github.com/dokku/dokku/plugins/scheduler-k3s
 go 1.25.1
 
 require (
+	github.com/Masterminds/semver/v3 v3.4.0
 	github.com/cert-manager/cert-manager v1.19.0
 	github.com/dokku/dokku/plugins/app-json v0.0.0-20250618161309-8d0c35f1333c
 	github.com/dokku/dokku/plugins/common v0.0.0-20250618161309-8d0c35f1333c
@@ -15,7 +16,7 @@ require (
 	github.com/fluxcd/pkg/kustomize v1.23.0
 	github.com/go-openapi/jsonpointer v0.22.1
 	github.com/go-resty/resty/v2 v2.16.5
-	github.com/gofrs/flock v0.12.1
+	github.com/gofrs/flock v0.13.0
 	github.com/gosimple/slug v1.15.0
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
 	github.com/kedacore/keda/v2 v2.17.1-0.20250708210620-a239d2459a35
@@ -41,7 +42,6 @@ require (
 	github.com/BurntSushi/toml v1.5.0 // indirect
 	github.com/MakeNowJust/heredoc v1.0.0 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
-	github.com/Masterminds/semver/v3 v3.4.0 // indirect
 	github.com/Masterminds/sprig/v3 v3.3.0 // indirect
 	github.com/Masterminds/squirrel v1.5.4 // indirect
 	github.com/alexellis/go-execute/v2 v2.2.1 // indirect
