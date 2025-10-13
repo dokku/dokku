@@ -1,5 +1,64 @@
 # History
 
+## 0.36.8
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.36.8/bootstrap.sh
+sudo DOKKU_TAG=v0.36.8 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #8031: @josegonzalez Respect the k3s master node version when adding a new worker to the k3s cluster
+- #7990: @josegonzalez Correct parsing of the --container-id flag for the enter command
+
+### Documentation
+
+- #8013: @othercorey Change command to add SSH key with sudo
+- #7998: @bakatz Remove incorrect documentation about --envfile flag for config:export
+
+### Dependencies
+
+- #8028: @dependabot[bot] chore(deps): bump golang.org/x/crypto from 0.42.0 to 0.43.0 in /plugins/common
+- #8015: @dependabot[bot] chore(deps): bump github.com/cert-manager/cert-manager from 1.18.2 to 1.19.0 in /plugins/scheduler-k3s
+- #8029: @dependabot[bot] chore(deps): bump github.com/gofrs/flock from 0.12.1 to 0.13.0 in /plugins/ps
+- #8011: @dependabot[bot] chore(deps): bump org.apache.maven.plugins:maven-dependency-plugin from 3.8.1 to 3.9.0 in /tests/apps/java
+- #8012: @dependabot[bot] chore(deps): bump click from 8.1.8 to 8.3.0 in /docs/_build
+- #8014: @dependabot[bot] chore(deps): bump google.golang.org/grpc from 1.75.1 to 1.76.0 in /tests/apps/gogrpc
+- #8018: @dependabot[bot] chore(deps): bump github/codeql-action from 3 to 4
+- #8019: @dependabot[bot] chore(deps): bump golang from 1.25.1 to 1.25.2 in /tests/apps/zombies-dockerfile-no-tini
+- #8020: @dependabot[bot] chore(deps): bump golang from 1.25.1 to 1.25.2 in /tests/apps/go-fail-predeploy
+- #8021: @dependabot[bot] chore(deps): bump python from 3.13.7-bookworm to 3.14.0-bookworm in /tests/apps/dockerfile-release
+- #8022: @dependabot[bot] chore(deps): bump golang from 1.25.1 to 1.25.2 in /tests/apps/gogrpc
+- #8024: @dependabot[bot] chore(deps): bump golang from 1.25.1 to 1.25.2 in /tests/apps/zombies-dockerfile-tini
+- #8023: @dependabot[bot] chore(deps): bump golang from 1.25.1 to 1.25.2 in /tests/apps/go-fail-postdeploy
+- #8025: @dependabot[bot] chore(deps): bump python from 3.13.7-alpine to 3.14.0-alpine in /docs/_build
+- #8026: @dependabot[bot] chore(deps): bump github.com/fluxcd/pkg/kustomize from 1.22.0 to 1.23.0 in /plugins/scheduler-k3s
+- #8027: @dependabot[bot] chore(deps): bump ruby from 3.4.6 to 3.4.7 in /tests/apps/dockerfile-entrypoint
+- #8030: @dependabot[bot] chore(deps): bump rack from 2.2.19 to 2.2.20 in /tests/apps/ruby
+- #8016: @dependabot[bot] chore(deps): bump rack from 2.2.18 to 2.2.19 in /tests/apps/ruby
+- #8009: @dependabot[bot] chore(deps): bump google.golang.org/protobuf from 1.36.9 to 1.36.10 in /tests/apps/gogrpc
+- #7994: @dependabot[bot] chore(deps): bump timberio/vector from 0.49.0-debian to 0.50.0-debian in /plugins/logs
+- #8006: @dependabot[bot] chore(deps): bump mkdocs-material from 9.6.20 to 9.6.21 in /docs/_build
+- #8003: @dependabot[bot] chore(deps): bump traefik from 3.5.2 to 3.5.3 in /plugins/traefik-vhosts
+- #7996: @dependabot[bot] chore(deps): bump pyyaml from 6.0.2 to 6.0.3 in /docs/_build
+- #8000: @dependabot[bot] chore(deps): bump markupsafe from 3.0.2 to 3.0.3 in /docs/_build
+- #8001: @dependabot[bot] chore(deps): bump beautifulsoup4 from 4.13.5 to 4.14.2 in /docs/_build
+- #8002: @dependabot[bot] chore(deps): bump github.com/go-openapi/jsonpointer from 0.22.0 to 0.22.1 in /plugins/scheduler-k3s
+- #7995: @dependabot[bot] chore(deps): bump rack from 2.2.17 to 2.2.18 in /tests/apps/ruby
+- #7992: @dependabot[bot] chore(deps): bump hadolint/hadolint-action from 3.2.0 to 3.3.0
+- #7993: @dependabot[bot] chore(deps): bump pyparsing from 3.2.4 to 3.2.5 in /docs/_build
+- #7987: @dependabot[bot] chore(deps): bump ruby from 3.4.5 to 3.4.6 in /tests/apps/dockerfile-entrypoint
+- #7983: @dependabot[bot] chore(deps): bump k8s.io/kubernetes from 1.34.0 to 1.34.1 in /plugins/scheduler-k3s
+- #7984: @dependabot[bot] chore(deps): bump mkdocs-material from 9.6.19 to 9.6.20 in /docs/_build
+- #7985: @dependabot[bot] chore(deps): bump pyparsing from 3.2.3 to 3.2.4 in /docs/_build
+
+### Other
+
+- #8008: @dependabot[bot] chore(deps): bump django from 5.1.12 to 5.1.13 in /tests/apps/dockerfile-release
+
 ## 0.36.7
 
 Install/update via the bootstrap script:
