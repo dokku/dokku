@@ -393,6 +393,13 @@ updates:
     open-pull-requests-limit: 10
     labels:
       - "type: dependencies"
+  - package-ecosystem: pip
+    directory: "/tests/apps/dockerfile-release"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+    labels:
+      - "type: dependencies"
   - package-ecosystem: "docker"
     directory: "/tests/apps/dockerfile-app-json-formations"
     schedule:
