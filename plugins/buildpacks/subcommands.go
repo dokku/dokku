@@ -32,13 +32,13 @@ func CommandClear(appName string) error {
 }
 
 // CommandDetect implements buildpacks:detect
-func CommandDetect(appName string) error {
+func CommandDetect(appName string, branch string) (err error) {
 	if err := common.VerifyAppName(appName); err != nil {
 		return err
 	}
 
 	workDir := common.AppRoot(appName)
-	checkedOutDir, err := checkoutBareGitRepo(workDir)
+	checkedOutDir, err := checkoutBareGitRepo(workDir, branch)
     if err != nil {
         return err
     }
