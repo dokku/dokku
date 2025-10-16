@@ -63,7 +63,7 @@ func CommandDetect(appName string) error {
 		return fmt.Errorf("Buildpack detection failed: %s", result.StderrContents())
 	}
 
-	common.LogVerbose(fmt.Sprintf("%s", result.StdoutContents()))
+	common.LogVerbose(result.StdoutContents())
 	return nil
 }
 
