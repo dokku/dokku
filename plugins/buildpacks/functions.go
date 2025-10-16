@@ -64,15 +64,6 @@ func validBuildpackURL(buildpack string) (string, error) {
 	return buildpack, fmt.Errorf("Invalid buildpack specified: %v", buildpack)
 }
 
-func isBareGitRepo(directory string) bool {
-	headFile := filepath.Join(directory, "HEAD")
-	objectsDir := filepath.Join(directory, "objects")
-	if common.FileExists(headFile) && common.DirectoryExists(objectsDir) {
-		return true
-	}
-	return false
-}
-
 func checkoutBareGitRepo(sourceWorkDir string) (string, error) {
 	tmpdir, err := os.MkdirTemp("", "bare-git-checkout")
 	if err != nil {

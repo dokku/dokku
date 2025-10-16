@@ -38,18 +38,16 @@ func CommandDetect(appName string) error {
 	}
 
 	workDir := common.AppRoot(appName)
-	if isBareGitRepo(workDir) {
-		checkedOutDir, err := checkoutBareGitRepo(workDir)
-        if err != nil {
-            return err
-        }
-		workDir = checkedOutDir
-		defer func() {
-			if err := os.RemoveAll(checkedOutDir); err != nil {
-				common.LogWarn(fmt.Sprintf("Failed to remove temporary directory %s: %v", checkedOutDir, err))
-			}
-		}()
-	}
+	checkedOutDir, err := checkoutBareGitRepo(workDir)
+    if err != nil {
+        return err
+    }
+	workDir = checkedOutDir
+	defer func() {
+		if err := os.RemoveAll(checkedOutDir); err != nil {
+			common.LogWarn(fmt.Sprintf("Failed to remove temporary directory %s: %v", checkedOutDir, err))
+		}
+	}()
 
 	dockerArgs := []string{
 		"run", "--rm",
