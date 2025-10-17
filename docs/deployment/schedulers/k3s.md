@@ -213,6 +213,18 @@ The default value may be set by passing an empty value for the option.
 dokku scheduler-k3s:set --global letsencrypt-server staging
 ```
 
+Letsencrypt can be completely disabled for a given app by setting the `letsencrypt-server` to `false`
+
+```shell
+dokku scheduler-k3s:set node-js-app letsencrypt-server false
+```
+
+The server can also be disabled globally, and then conditionally enabled on a per-app basis:
+
+```shell
+dokku scheduler-k3s:set --global letsencrypt-server false
+```
+
 ### Customizing Annotations and Labels
 
 > [!NOTE]
