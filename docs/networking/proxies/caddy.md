@@ -129,7 +129,7 @@ This will update the app's label key to `caddy_0`. The label key is used to iden
 
 ### SSL Configuration
 
-The caddy plugin only supports automatic ssl certificates from it's letsencrypt integration. Managed certificates provided by the `certs` plugin are ignored.
+The caddy plugin only supports automatic ssl certificates from its letsencrypt integration. Managed certificates provided by the `certs` plugin are ignored.
 
 #### Enabling letsencrypt integration
 
