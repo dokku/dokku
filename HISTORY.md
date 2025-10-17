@@ -1,5 +1,40 @@
 # History
 
+## 0.36.9
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.36.9/bootstrap.sh
+sudo DOKKU_TAG=v0.36.9 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #8032: @josegonzalez Set correct labels for tests/apps/dockerfile-release pip updates
+
+### New Features
+
+- #8047: @josegonzalez Add ability to disable letsencrypt for a given application or globally
+
+### Dependencies
+
+- #8049: @dependabot[bot] chore(deps): bump github.com/cert-manager/cert-manager from 1.19.0 to 1.19.1 in /plugins/scheduler-k3s
+- #8048: @dependabot[bot] chore(deps): bump mkdocs-material from 9.6.21 to 9.6.22 in /docs/_build
+- #8042: @dependabot[bot] chore(deps): bump django from 5.1.13 to 5.2.7 in /tests/apps/dockerfile-release
+- #8043: @dependabot[bot] chore(deps): bump whitenoise from 6.2.0 to 6.11.0 in /tests/apps/dockerfile-release
+- #8044: @dependabot[bot] chore(deps): bump djangorestframework from 3.15.2 to 3.16.1 in /tests/apps/dockerfile-release
+- #8045: @dependabot[bot] chore(deps): bump psycopg2-binary from 2.9.5 to 2.9.11 in /tests/apps/dockerfile-release
+- #8046: @dependabot[bot] chore(deps): bump dj-database-url from 1.0.0 to 3.0.1 in /tests/apps/dockerfile-release
+- #8041: @dependabot[bot] chore(deps): bump golang from 1.25.2 to 1.25.3 in /tests/apps/gogrpc
+- #8040: @dependabot[bot] chore(deps): bump golang from 1.25.2 to 1.25.3 in /tests/apps/go-fail-predeploy
+- #8039: @dependabot[bot] chore(deps): bump golang from 1.25.2 to 1.25.3 in /tests/apps/zombies-dockerfile-no-tini
+- #8037: @dependabot[bot] chore(deps): bump golang from 1.25.2 to 1.25.3 in /tests/apps/go-fail-postdeploy
+- #8038: @dependabot[bot] chore(deps): bump golang from 1.25.2 to 1.25.3 in /tests/apps/zombies-dockerfile-tini
+- #8036: @dependabot[bot] chore(deps): bump actions/setup-node from 5 to 6
+- #8033: @dependabot[bot] chore(deps): bump github.com/gofrs/flock from 0.12.1 to 0.13.0 in /plugins/scheduler-k3s
+- #8034: @dependabot[bot] chore(deps): bump github.com/kedacore/keda/v2 from 2.17.1-0.20250708210620-a239d2459a35 to 2.18.0 in /plugins/scheduler-k3s
+
 ## 0.36.8
 
 Install/update via the bootstrap script:
