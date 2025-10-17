@@ -42,7 +42,6 @@ func CommandDetect(appName string, branch string) (err error) {
     if err != nil {
         return err
     }
-	workDir = checkedOutDir
 	defer func() {
 		if err := os.RemoveAll(checkedOutDir); err != nil {
 			common.LogWarn(fmt.Sprintf("Failed to remove temporary directory %s: %v", checkedOutDir, err))
@@ -51,7 +50,7 @@ func CommandDetect(appName string, branch string) (err error) {
 
 	dockerArgs := []string{
 		"run", "--rm",
-		"-v", fmt.Sprintf("%s:/tmp/app", workDir),
+		"-v", fmt.Sprintf("%s:/tmp/app", checkedOutDir),
 		"gliderlabs/herokuish", "/bin/herokuish", "buildpack", "detect", "/tmp/app",
 	}
 
