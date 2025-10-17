@@ -1,8 +1,19 @@
 #!/usr/bin/env bash
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/proxy/command-functions"
 source "$PLUGIN_AVAILABLE_PATH/caddy-vhosts/internal-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
+
+cmd-caddy-label() {
+  declare desc="set/unset/show container proxy labels"
+  declare cmd="caddy:label"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1"
+
+  set -- caddy "$@"
+  cmd-proxy-label "$@"
+}
 
 cmd-caddy-report() {
   declare desc="displays a caddy report for one or more apps"
