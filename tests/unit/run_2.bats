@@ -102,6 +102,16 @@ teardown() {
   echo "status: $status"
   assert_success
 
+  run /bin/bash -c "dokku builder-dockerfile:set $TEST_APP dockerfile-path exec.Dockerfile"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku run $TEST_APP task | tail -n 1"
   echo "output: $output"
   echo "status: $status"
