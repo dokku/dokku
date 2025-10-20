@@ -274,7 +274,7 @@ func TriggerProcfileGetCommand(appName string, processType string, port int) err
 		return nil
 	}
 
-	command, err := getProcfileCommand(getProcessSpecificProcfilePath(appName), processType, port)
+	command, err := getProcfileCommand(appName, getProcessSpecificProcfilePath(appName), processType, port)
 	if err != nil {
 		return err
 	}

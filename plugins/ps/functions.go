@@ -18,14 +18,35 @@ func canScaleApp(appName string) bool {
 	return common.ToBool(canScale)
 }
 
-func getProcfileCommand(procfilePath string, processType string, port int) (string, error) {
+func getProcfileCommand(appName string, procfilePath string, processType string, port int) (string, error) {
 	if !common.FileExists(procfilePath) {
 		return "", errors.New("No procfile found")
 	}
 
+	configResult, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "config-export",
+		Args:    []string{appName, "false", "true", "envfile"},
+	})
+	if err != nil {
+		return "", err
+	}
+
+	// write the envfile to a temporary file
+	tempFile, err := os.CreateTemp("", "envfile-*.env")
+	if err != nil {
+		return "", err
+	}
+	defer os.Remove(tempFile.Name())
+	if _, err := tempFile.Write(configResult.StdoutBytes()); err != nil {
+		return "", err
+	}
+	if err := tempFile.Close(); err != nil {
+		return "", err
+	}
+
 	result, err := common.CallExecCommand(common.ExecCommandInput{
 		Command: "procfile-util",
-		Args:    []string{"show", "--procfile", procfilePath, "--process-type", processType, "--default-port", strconv.Itoa(port)},
+		Args:    []string{"show", "--procfile", procfilePath, "--process-type", processType, "--default-port", strconv.Itoa(port), "--env-file", tempFile.Name()},
 	})
 	if err != nil {
 		return "", fmt.Errorf("Error running procfile-util: %s", err)
