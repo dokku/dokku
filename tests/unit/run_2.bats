@@ -96,6 +96,20 @@ teardown() {
   assert_output 'hi dokku'
 }
 
+@test "(run) run exec command from Procfile" {
+  run deploy_app dockerfile-entrypoint
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku run $TEST_APP task | tail -n 1"
+  echo "output: $output"
+  echo "status: $status"
+
+  assert_success
+  assert_output 'hi dokku'
+}
+
 @test "(run) list" {
   run deploy_app
   echo "output: $output"

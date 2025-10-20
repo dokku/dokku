@@ -1,1 +1,2 @@
 web: sleep 1000
+task: echo 'hi dokku'
