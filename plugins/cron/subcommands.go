@@ -42,7 +42,7 @@ func CommandList(appName string, format string) error {
 	}
 
 	if format == "stdout" {
-		output := []string{"ID | Schedule | Maintenance | Command"}
+		output := []string{"ID | Schedule | Concurrency | Maintenance | Command"}
 		for _, task := range tasks {
 			maintenance := "false"
 			if task.Maintenance {
@@ -52,7 +52,7 @@ func CommandList(appName string, format string) error {
 					maintenance = "true (app)"
 				}
 			}
-			output = append(output, fmt.Sprintf("%s | %s | %s | %s", task.ID, task.Schedule, maintenance, task.Command))
+			output = append(output, fmt.Sprintf("%s | %s | %s | %t | %s", task.ID, task.Schedule, task.ConcurrencyPolicy, maintenance, task.Command))
 		}
 
 		result := columnize.SimpleFormat(output)
