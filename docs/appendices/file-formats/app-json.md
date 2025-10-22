@@ -22,7 +22,7 @@
 
 - `command`: (string, required)
 - `schedule`: (string, required)
-- `concurrency_policy`: (string, optional, default: `allow`, options: `allow`, `deny`, `replace`)
+- `concurrency_policy`: (string, optional, default: `allow`, options: `allow`, `forbid`, `replace`)
 
 ## Formation
 

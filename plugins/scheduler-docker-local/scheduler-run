@@ -66,7 +66,6 @@ trigger-scheduler-docker-local-scheduler-run() {
     if [[ -n "$DOKKU_CONCURRENCY_POLICY" ]]; then
       concurrency_policy="$DOKKU_CONCURRENCY_POLICY"
     fi
-    concurrency_policy="$DOKKU_CONCURRENCY_POLICY"
     DOCKER_ARGS+=" --label=com.dokku.concurrency-policy=$concurrency_policy"
 
     if [[ "$concurrency_policy" == "forbid" ]]; then
