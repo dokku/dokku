@@ -203,6 +203,7 @@ type SshTask struct {
 
 	// PrintCommand prints the command before executing
 	PrintCommand bool
+
 	// StreamStdio prints stdout and stderr directly to os.Stdout/err as
 	// the command runs.
 	StreamStdio bool
@@ -334,7 +335,7 @@ func (task SshTask) Execute(ctx context.Context) (SshResult, error) {
 		command = "sudo"
 	}
 
-	if task.PrintCommand {
+	if task.PrintCommand || os.Getenv("DOKKU_TRACE") == "1" {
 		LogDebug(fmt.Sprintf("ssh %s@%s %s %v", task.Username, task.Hostname, command, commandArgs))
 	}
 

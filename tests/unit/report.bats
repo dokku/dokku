@@ -103,6 +103,7 @@ teardown() {
     builder-herokuish
     builder-lambda
     builder-nixpacks
+    builder-railpack
     builder-pack
     buildpacks
     caddy
