@@ -1,5 +1,35 @@
 # History
 
+## 0.36.10
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.36.10/bootstrap.sh
+sudo DOKKU_TAG=v0.36.10 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #8063: @othercorey Use -t instead of deprecated --time in stop commands
+- #8058: @josegonzalez Ensure the pre-receive hook and URLS files are correct when cloning or renaming apps
+- #8059: @josegonzalez Expand variables for release tasks
+- #8060: @josegonzalez Use updated http2 directive for setting http2 support
+
+### Documentation
+
+- #8051: @othercorey Fix "its" in Caddy SSL configuration documentation
+
+### Dependencies
+
+- #8065: @dependabot[bot] chore(deps): bump actions/upload-artifact from 4 to 5
+- #8064: @dependabot[bot] chore(deps): bump actions/download-artifact from 5 to 6
+- #8057: @dependabot[bot] chore(deps): bump node from 24-alpine to 25-alpine in /tests/apps/dockerfile-procfile-bad
+- #8056: @dependabot[bot] chore(deps): bump node from 24-alpine to 25-alpine in /tests/apps/dockerfile-app-json-formations
+- #8055: @dependabot[bot] chore(deps): bump node from 24-alpine to 25-alpine in /tests/apps/dockerfile-procfile
+- #8054: @dependabot[bot] chore(deps): bump node from 24-alpine to 25-alpine in /tests/apps/dockerfile
+- #8053: @dependabot[bot] chore(deps): bump node from 24-alpine to 25-alpine in /tests/apps/dockerfile-noexpose
+
 ## 0.36.9
 
 Install/update via the bootstrap script:
