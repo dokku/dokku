@@ -12,7 +12,7 @@ fn-scheduler-docker-local-stop-container() {
     return 0
   fi
 
-  [[ $DOKKU_DOCKER_STOP_TIMEOUT ]] && DOCKER_STOP_TIME_ARG="--time=${DOKKU_DOCKER_STOP_TIMEOUT}"
+  [[ $DOKKU_DOCKER_STOP_TIMEOUT ]] && DOCKER_STOP_TIME_ARG="-t=${DOKKU_DOCKER_STOP_TIMEOUT}"
   if "$DOCKER_BIN" container stop $DOCKER_STOP_TIME_ARG "$CONTAINER_ID_OR_NAME"; then
     return
   fi
