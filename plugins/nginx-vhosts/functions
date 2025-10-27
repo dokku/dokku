@@ -340,7 +340,7 @@ nginx_build_config() {
     if [[ -z "$NGINX_LOCATION" ]]; then
       exit 1
     fi
-    NGINX_VERSION="$("$NGINX_LOCATION" -v 2>&1 | cut -d'/' -f 2)"
+    NGINX_VERSION="$("$NGINX_LOCATION" -v 2>&1 | cut -d'/' -f 2 | awk '{print $1}')"
     # DEPRECATED: Remove me at 1.0.0
     SPDY_SUPPORTED="false"
     TLS13_SUPPORTED="$(is_tls13_available "$NGINX_VERSION")"
