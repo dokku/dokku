@@ -98,16 +98,28 @@ teardown() {
   cat <<EOF >"$DOKKU_LIB_ROOT/data/ps/$TEST_APP/Procfile"
 web: node web.js --port \$PORT
 worker: node worker.js
+release: interpolated \$ENV_VAR
 EOF
-  PLUGIN_PATH=/var/lib/dokku/plugins PLUGIN_CORE_AVAILABLE_PATH=/var/lib/dokku/core-plugins/available DOKKU_LIB_ROOT=/var/lib/dokku run plugn trigger procfile-get-command "$TEST_APP" web 5001
+
+  run /bin/bash -c "dokku config:set '$TEST_APP' ENV_VAR=value"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku plugin:trigger procfile-get-command '$TEST_APP' web 5001"
   echo "output: $output"
   echo "status: $status"
   assert_output "node web.js --port 5001"
 
-  PLUGIN_PATH=/var/lib/dokku/plugins PLUGIN_CORE_AVAILABLE_PATH=/var/lib/dokku/core-plugins/available DOKKU_LIB_ROOT=/var/lib/dokku run plugn trigger procfile-get-command "$TEST_APP" worker
+  run /bin/bash -c "dokku plugin:trigger procfile-get-command '$TEST_APP' worker"
   echo "output: $output"
   echo "status: $status"
   assert_output "node worker.js"
+
+  run /bin/bash -c "dokku plugin:trigger procfile-get-command '$TEST_APP' release 5001"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "interpolated value"
 }
 
 @test "(ps:scale) update formations from Procfile" {
