@@ -240,7 +240,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  
+
   cron_id="$(dokku cron:list $TEST_APP --format json | jq -r '.[0].id')"
   run /bin/bash -c "echo cron $cron_id"
   echo "output: $output"
