@@ -700,6 +700,16 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 		}
 
 		concurrencyPolicy := strings.ToUpper(cronTask.ConcurrencyPolicy)
+		switch concurrencyPolicy {
+		case "ALLOW":
+			concurrencyPolicy = "Allow"
+		case "FORBID":
+			concurrencyPolicy = "Forbid"
+		case "REPLACE":
+			concurrencyPolicy = "Replace"
+		default:
+			return fmt.Errorf("Invalid concurrency_policy specified: %v", concurrencyPolicy)
+		}
 		processValues := ProcessValues{
 			Args:        words,
 			Annotations: annotations,
