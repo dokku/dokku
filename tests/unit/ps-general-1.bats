@@ -98,7 +98,7 @@ teardown() {
   cat <<EOF >"$DOKKU_LIB_ROOT/data/ps/$TEST_APP/Procfile"
 web: node web.js --port \$PORT
 worker: node worker.js
-release: interpolated $ENV_VAR
+release: interpolated \$ENV_VAR
 EOF
 
   run /bin/bash -c "dokku config:set '$TEST_APP' ENV_VAR=value"
