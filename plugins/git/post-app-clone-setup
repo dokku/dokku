@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
+source "$PLUGIN_AVAILABLE_PATH/git/internal-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
@@ -8,15 +9,13 @@ trigger-git-post-app-clone-setup() {
   declare trigger="post-app-clone-setup"
   declare OLD_APP="$1" NEW_APP="$2"
 
-  if [[ -f "$DOKKU_ROOT/$NEW_APP/hooks/pre-receive" ]]; then
-    sed -i -e "s/git-hook $OLD_APP/git-hook $NEW_APP/g" "$DOKKU_ROOT/$NEW_APP/hooks/pre-receive"
-  fi
-
   fn-plugin-property-clone "git" "$OLD_APP" "$NEW_APP"
 
   pushd "$DOKKU_ROOT/$OLD_APP/." >/dev/null
-  find ./* \( -name ".cache" -o -name "cache" -o -name "VHOST" \) -prune -o -print | cpio -pdmu --quiet "$DOKKU_ROOT/$NEW_APP"
+  find ./* \( -name ".cache" -o -name "cache" -o -name "VHOST" -o -name "URLS" \) -prune -o -print | cpio -pdmu --quiet "$DOKKU_ROOT/$NEW_APP"
   popd &>/dev/null || pushd "/tmp" >/dev/null
+
+  fn-git-create-hook "$NEW_APP"
 }
 
 trigger-git-post-app-clone-setup "$@"
