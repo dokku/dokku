@@ -25,8 +25,8 @@ var (
 
 // AppJSON is a struct that represents an app.json file as understood by Dokku
 type AppJSON struct {
-	// Cron is a list of cron commands to execute
-	Cron []CronCommand `json:"cron"`
+	// Cron is a list of cron tasks to execute
+	Cron []CronTask `json:"cron"`
 
 	// Formation is a map of process types to scale
 	Formation map[string]Formation `json:"formation"`
@@ -50,10 +50,13 @@ type AppJSON struct {
 	} `json:"scripts"`
 }
 
-// CronCommand is a struct that represents a single cron command from an app.json file
-type CronCommand struct {
+// CronTask is a struct that represents a single cron task from an app.json file
+type CronTask struct {
 	// Command is the command to execute
 	Command string `json:"command"`
+
+	// Maintenance is whether or not the cron task is in maintenance mode
+	Maintenance bool `json:"maintenance"`
 
 	// Schedule is the cron schedule to execute the command on
 	Schedule string `json:"schedule"`
