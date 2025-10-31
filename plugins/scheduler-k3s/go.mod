@@ -19,7 +19,7 @@ require (
 	github.com/gofrs/flock v0.13.0
 	github.com/gosimple/slug v1.15.0
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
-	github.com/kedacore/keda/v2 v2.18.0
+	github.com/kedacore/keda/v2 v2.18.1
 	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/spf13/pflag v1.0.10
 	github.com/traefik/traefik/v2 v2.11.30
