@@ -22,7 +22,7 @@ func CommandList(appName string, format string) error {
 		return fmt.Errorf("Invalid format specified, supported formats: json, stdout")
 	}
 
-	var entries []TemplateCommand
+	var entries []CronEntry
 	if appName == "--global" {
 		var err error
 		entries, err = FetchGlobalCronEntries()
@@ -41,9 +41,9 @@ func CommandList(appName string, format string) error {
 	}
 
 	if format == "stdout" {
-		output := []string{"ID | Schedule | Maintenance | Command"}
+		output := []string{"ID | Schedule | Concurrency | Maintenance | Command"}
 		for _, entry := range entries {
-			output = append(output, fmt.Sprintf("%s | %s | %t | %s", entry.ID, entry.Schedule, entry.Maintenance, entry.Command))
+			output = append(output, fmt.Sprintf("%s | %s | %s | %t | %s", entry.ID, entry.Schedule, entry.ConcurrencyPolicy, entry.Maintenance, entry.Command))
 		}
 
 		result := columnize.SimpleFormat(output)

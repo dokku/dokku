@@ -317,7 +317,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 		return fmt.Errorf("Error fetching cron entries: %w", err)
 	}
 	// remove maintenance cron entries
-	cronEntries := []cron.TemplateCommand{}
+	cronEntries := []cron.CronEntry{}
 	for _, cronEntry := range allCronEntries {
 		if !cronEntry.Maintenance {
 			cronEntries = append(cronEntries, cronEntry)
@@ -648,13 +648,25 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 			return fmt.Errorf("Error getting process labels: %w", err)
 		}
 
+		concurrencyPolicy := strings.ToLower(cronEntry.ConcurrencyPolicy)
+		switch concurrencyPolicy {
+		case "allow":
+			concurrencyPolicy = "Allow"
+		case "forbid":
+			concurrencyPolicy = "Forbid"
+		case "replace":
+			concurrencyPolicy = "Replace"
+		default:
+			return fmt.Errorf("Invalid concurrency_policy specified: %v", concurrencyPolicy)
+		}
 		processValues := ProcessValues{
 			Args:        words,
 			Annotations: annotations,
 			Cron: ProcessCron{
-				ID:       cronEntry.ID,
-				Schedule: cronEntry.Schedule,
-				Suffix:   suffix,
+				ID:                cronEntry.ID,
+				Schedule:          cronEntry.Schedule,
+				Suffix:            suffix,
+				ConcurrencyPolicy: ProcessCronConcurrencyPolicy(concurrencyPolicy),
 			},
 			Labels:      labels,
 			ProcessType: ProcessType_Cron,
