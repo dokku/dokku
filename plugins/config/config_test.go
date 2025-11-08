@@ -138,32 +138,32 @@ func TestConfigImport(t *testing.T) {
 	Expect(err).To(Succeed())
 	defer os.Remove(tempFile.Name())
 	content := `
-testKey=TESTING
-testKey2=TESTING-'\n'-updated
+testKey=TESTING-updated1
+testKey2=TESTING-updated2
 `
 	_, err = tempFile.WriteString(content)
 	Expect(err).To(Succeed())
 	tempFile.Close()
 
 	Expect(CommandImport(testAppName, false, false, true, "envfile", tempFile.Name())).To(Succeed())
-	expectValue(testAppName, "testKey", "TESTING")
-	expectValue(testAppName, "testKey2", "TESTING-'\n'-updated")
+	expectValue(testAppName, "testKey", "TESTING-updated1")
+	expectValue(testAppName, "testKey2", "TESTING-updated2")
 
 	env, err := LoadAppEnv(testAppName)
 	Expect(err).To(Succeed())
-	env.Set("testKey", "TESTING-updated2")
-	env.Set("testKey2", "TESTING-'\n'-updated2")
-	env.Set("testKey3", "TESTING-'\n'-updated3")
+	env.Set("testKey", "TESTING-original1")
+	env.Set("testKey2", "TESTING-original2")
+	env.Set("testKey3", "TESTING-original3")
 	env.Write()
 
 	Expect(CommandImport(testAppName, false, false, true, "envfile", tempFile.Name())).To(Succeed())
-	expectValue(testAppName, "testKey", "TESTING-updated2")
-	expectValue(testAppName, "testKey2", "TESTING-'\n'-updated2")
-	expectValue(testAppName, "testKey3", "TESTING-'\n'-updated3")
+	expectValue(testAppName, "testKey", "TESTING-updated1")
+	expectValue(testAppName, "testKey2", "TESTING-updated2")
+	expectValue(testAppName, "testKey3", "TESTING-original3")
 
 	Expect(CommandImport(testAppName, false, true, true, "envfile", tempFile.Name())).To(Succeed())
-	expectValue(testAppName, "testKey", "TESTING-updated")
-	expectValue(testAppName, "testKey2", "TESTING-'\n'-updated")
+	expectValue(testAppName, "testKey", "TESTING-updated1")
+	expectValue(testAppName, "testKey2", "TESTING-updated2")
 	expectNoValue(testAppName, "testKey3")
 }
 
@@ -177,30 +177,30 @@ func TestConfigImportJSON(t *testing.T) {
 	Expect(err).To(Succeed())
 	defer os.Remove(tempFile.Name())
 
-	content := `{"testKey": "TESTING", "testKey2": "TESTING-'\n'-updated"}`
+	content := `{"testKey": "TESTING-updated1", "testKey2": "TESTING-updated2"}`
 	_, err = tempFile.WriteString(content)
 	Expect(err).To(Succeed())
 	tempFile.Close()
 
 	Expect(CommandImport(testAppName, false, false, true, "json", tempFile.Name())).To(Succeed())
-	expectValue(testAppName, "testKey", "TESTING")
-	expectValue(testAppName, "testKey2", "TESTING-'\n'-updated")
+	expectValue(testAppName, "testKey", "TESTING-updated1")
+	expectValue(testAppName, "testKey2", "TESTING-updated2")
 
 	env, err := LoadAppEnv(testAppName)
 	Expect(err).To(Succeed())
-	env.Set("testKey", "TESTING-updated2")
-	env.Set("testKey2", "TESTING-'\n'-updated2")
-	env.Set("testKey3", "TESTING-'\n'-updated3")
+	env.Set("testKey", "TESTING-original1")
+	env.Set("testKey2", "TESTING-original2")
+	env.Set("testKey3", "TESTING-original3")
 	env.Write()
 
 	Expect(CommandImport(testAppName, false, false, true, "json", tempFile.Name())).To(Succeed())
-	expectValue(testAppName, "testKey", "TESTING-updated2")
-	expectValue(testAppName, "testKey2", "TESTING-'\n'-updated2")
-	expectValue(testAppName, "testKey3", "TESTING-'\n'-updated3")
+	expectValue(testAppName, "testKey", "TESTING-updated1")
+	expectValue(testAppName, "testKey2", "TESTING-updated2")
+	expectValue(testAppName, "testKey3", "TESTING-original3")
 
 	Expect(CommandImport(testAppName, false, true, true, "json", tempFile.Name())).To(Succeed())
-	expectValue(testAppName, "testKey", "TESTING-updated")
-	expectValue(testAppName, "testKey2", "TESTING-'\n'-updated")
+	expectValue(testAppName, "testKey", "TESTING-updated1")
+	expectValue(testAppName, "testKey2", "TESTING-updated2")
 	expectNoValue(testAppName, "testKey3")
 }
 
