@@ -312,15 +312,15 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 
 	workingDir := common.GetWorkingDir(appName, image)
 
-	allCronEntries, err := cron.FetchCronEntries(cron.FetchCronEntriesInput{AppName: appName})
+	allCronTasks, err := cron.FetchCronTasks(cron.FetchCronTasksInput{AppName: appName})
 	if err != nil {
-		return fmt.Errorf("Error fetching cron entries: %w", err)
+		return fmt.Errorf("Error fetching cron tasks: %w", err)
 	}
-	// remove maintenance cron entries
-	cronEntries := []cron.TemplateCommand{}
-	for _, cronEntry := range allCronEntries {
-		if !cronEntry.Maintenance {
-			cronEntries = append(cronEntries, cronEntry)
+	// remove maintenance cron tasks
+	cronTasks := []cron.TemplateCommand{}
+	for _, cronTask := range allCronTasks {
+		if !cronTask.Maintenance {
+			cronTasks = append(cronTasks, cronTask)
 		}
 	}
 
@@ -605,13 +605,13 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 	if err != nil {
 		return fmt.Errorf("Error listing cron jobs: %w", err)
 	}
-	for _, cronEntry := range cronEntries {
+	for _, cronTask := range cronTasks {
 		// todo: implement deployment annotations
 		// todo: implement pod annotations
 		// todo: implement volumes
 		suffix := ""
 		for _, cronJob := range cronJobs {
-			if cronJob.Labels["dokku.com/cron-id"] == cronEntry.ID {
+			if cronJob.Labels["dokku.com/cron-id"] == cronTask.ID {
 				var ok bool
 				suffix, ok = cronJob.Annotations["dokku.com/job-suffix"]
 				if !ok {
@@ -628,22 +628,22 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 			suffix = strings.ToLower(fmt.Sprintf("%X", b))
 		}
 
-		words, err := shellquote.Split(cronEntry.Command)
+		words, err := shellquote.Split(cronTask.Command)
 		if err != nil {
 			return fmt.Errorf("Error parsing cron command: %w", err)
 		}
 
-		processResources, err := getProcessResources(appName, cronEntry.ID)
+		processResources, err := getProcessResources(appName, cronTask.ID)
 		if err != nil {
 			return fmt.Errorf("Error getting process resources: %w", err)
 		}
 
-		annotations, err := getAnnotations(appName, cronEntry.ID)
+		annotations, err := getAnnotations(appName, cronTask.ID)
 		if err != nil {
 			return fmt.Errorf("Error getting process annotations: %w", err)
 		}
 
-		labels, err := getLabels(appName, cronEntry.ID)
+		labels, err := getLabels(appName, cronTask.ID)
 		if err != nil {
 			return fmt.Errorf("Error getting process labels: %w", err)
 		}
@@ -652,8 +652,8 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 			Args:        words,
 			Annotations: annotations,
 			Cron: ProcessCron{
-				ID:       cronEntry.ID,
-				Schedule: cronEntry.Schedule,
+				ID:       cronTask.ID,
+				Schedule: cronTask.Schedule,
 				Suffix:   suffix,
 			},
 			Labels:      labels,
@@ -662,10 +662,10 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 			Resources:   processResources,
 			Volumes:     processVolumes,
 		}
-		values.Processes[cronEntry.ID] = processValues
+		values.Processes[cronTask.ID] = processValues
 	}
 
-	if len(cronEntries) > 0 {
+	if len(cronTasks) > 0 {
 		b, err := templates.ReadFile("templates/chart/cron-job.yaml")
 		if err != nil {
 			return fmt.Errorf("Error reading cron job template: %w", err)
@@ -1443,14 +1443,14 @@ func TriggerSchedulerRunList(scheduler string, appName string, format string) er
 		return fmt.Errorf("Error getting cron jobs: %w", err)
 	}
 
-	type CronJobEntry struct {
+	type CronJobTask struct {
 		ID       string `json:"id"`
 		AppName  string `json:"app"`
 		Command  string `json:"command"`
 		Schedule string `json:"schedule"`
 	}
 
-	data := []CronJobEntry{}
+	data := []CronJobTask{}
 	lines := []string{"ID | Schedule | Command"}
 	for _, cronJob := range cronJobs {
 		command := ""
@@ -1467,7 +1467,7 @@ func TriggerSchedulerRunList(scheduler string, appName string, format string) er
 		}
 
 		lines = append(lines, fmt.Sprintf("%s | %s | %s", cronID, cronJob.Spec.Schedule, command))
-		data = append(data, CronJobEntry{
+		data = append(data, CronJobTask{
 			ID:       cronID,
 			AppName:  appName,
 			Command:  command,

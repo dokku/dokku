@@ -66,15 +66,15 @@ func (t TemplateCommand) CronCommand() string {
 	return fmt.Sprintf("dokku run --cron-id %s %s %s", t.ID, t.App, t.Command)
 }
 
-// FetchCronEntriesInput is the input for the FetchCronEntries function
-type FetchCronEntriesInput struct {
+// FetchCronTasksInput is the input for the FetchCronTasks function
+type FetchCronTasksInput struct {
 	AppName       string
 	AppJSON       *appjson.AppJSON
 	WarnToFailure bool
 }
 
-// FetchCronEntries returns a list of cron commands for a given app
-func FetchCronEntries(input FetchCronEntriesInput) ([]TemplateCommand, error) {
+// FetchCronTasks returns a list of cron commands for a given app
+func FetchCronTasks(input FetchCronTasksInput) ([]TemplateCommand, error) {
 	appName := input.AppName
 	commands := []TemplateCommand{}
 	isMaintenance := reportComputedMaintenance(appName) == "true"
@@ -129,10 +129,10 @@ func FetchCronEntries(input FetchCronEntriesInput) ([]TemplateCommand, error) {
 	return commands, nil
 }
 
-// FetchGlobalCronEntries returns a list of global cron commands
+// FetchGlobalCronTasks returns a list of global cron commands
 // This function should only be used for the cron:list --global command
 // and not internally by the cron plugin
-func FetchGlobalCronEntries() ([]TemplateCommand, error) {
+func FetchGlobalCronTasks() ([]TemplateCommand, error) {
 	commands := []TemplateCommand{}
 	response, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
 		Trigger: "cron-entries",

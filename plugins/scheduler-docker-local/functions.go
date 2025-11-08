@@ -38,7 +38,7 @@ func deleteCrontab() error {
 	return nil
 }
 
-func generateCronEntries() ([]cron.TemplateCommand, error) {
+func generateCronTasks() ([]cron.TemplateCommand, error) {
 	apps, _ := common.UnfilteredDokkuApps()
 
 	g := new(errgroup.Group)
@@ -52,7 +52,7 @@ func generateCronEntries() ([]cron.TemplateCommand, error) {
 				return nil
 			}
 
-			c, err := cron.FetchCronEntries(cron.FetchCronEntriesInput{AppName: appName})
+			c, err := cron.FetchCronTasks(cron.FetchCronTasksInput{AppName: appName})
 			if err != nil {
 				results <- []cron.TemplateCommand{}
 				common.LogWarn(err.Error())
@@ -116,13 +116,13 @@ func generateCronEntries() ([]cron.TemplateCommand, error) {
 	return commands, nil
 }
 
-func writeCronEntries(scheduler string) error {
+func writeCronTasks(scheduler string) error {
 	// allow empty scheduler, which means all apps (used by letsencrypt)
 	if scheduler != "docker-local" && scheduler != "" {
 		return nil
 	}
 
-	commands, err := generateCronEntries()
+	commands, err := generateCronTasks()
 	if err != nil {
 		return err
 	}
@@ -154,7 +154,7 @@ func writeCronEntries(scheduler string) error {
 		return err
 	}
 
-	tmpFile, err := os.CreateTemp(os.TempDir(), fmt.Sprintf("dokku-%s-%s", common.MustGetEnv("DOKKU_PID"), "WriteCronEntries"))
+	tmpFile, err := os.CreateTemp(os.TempDir(), fmt.Sprintf("dokku-%s-%s", common.MustGetEnv("DOKKU_PID"), "WriteCronTasks"))
 	if err != nil {
 		return fmt.Errorf("Cannot create temporary schedule file: %v", err)
 	}

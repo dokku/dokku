@@ -22,10 +22,10 @@ func CommandList(appName string, format string) error {
 		return fmt.Errorf("Invalid format specified, supported formats: json, stdout")
 	}
 
-	var entries []TemplateCommand
+	var tasks []TemplateCommand
 	if appName == "--global" {
 		var err error
-		entries, err = FetchGlobalCronEntries()
+		tasks, err = FetchGlobalCronTasks()
 		if err != nil {
 			return err
 		}
@@ -34,7 +34,7 @@ func CommandList(appName string, format string) error {
 		if err := common.VerifyAppName(appName); err != nil {
 			return err
 		}
-		entries, err = FetchCronEntries(FetchCronEntriesInput{AppName: appName})
+		tasks, err = FetchCronTasks(FetchCronTasksInput{AppName: appName})
 		if err != nil {
 			return err
 		}
@@ -42,8 +42,8 @@ func CommandList(appName string, format string) error {
 
 	if format == "stdout" {
 		output := []string{"ID | Schedule | Maintenance | Command"}
-		for _, entry := range entries {
-			output = append(output, fmt.Sprintf("%s | %s | %t | %s", entry.ID, entry.Schedule, entry.Maintenance, entry.Command))
+		for _, task := range tasks {
+			output = append(output, fmt.Sprintf("%s | %s | %t | %s", task.ID, task.Schedule, task.Maintenance, task.Command))
 		}
 
 		result := columnize.SimpleFormat(output)
@@ -51,7 +51,7 @@ func CommandList(appName string, format string) error {
 		return nil
 	}
 
-	out, err := json.Marshal(entries)
+	out, err := json.Marshal(tasks)
 	if err != nil {
 		return err
 	}
@@ -88,7 +88,7 @@ func CommandRun(appName string, cronID string, detached bool) error {
 		return err
 	}
 
-	entries, err := FetchCronEntries(FetchCronEntriesInput{AppName: appName})
+	tasks, err := FetchCronTasks(FetchCronTasksInput{AppName: appName})
 	if err != nil {
 		return err
 	}
@@ -98,9 +98,9 @@ func CommandRun(appName string, cronID string, detached bool) error {
 	}
 
 	command := ""
-	for _, entry := range entries {
-		if entry.ID == cronID {
-			command = entry.Command
+	for _, task := range tasks {
+		if task.ID == cronID {
+			command = task.Command
 		}
 	}
 

@@ -582,7 +582,7 @@ APP="$1"; PROPERTY="$2"
 
 ### `cron-entries`
 
-- Description: Allows injecting cron entries into the written out scheduled cron task list. Each entry is newline delimited, and individual entries come in the form `$SCHEDULE;$FULL_COMMAND;$ARBITRARY_DATA`. Individual implementations of cron writing can decide whether and how to include these cron entries. The `ARBITRARY_DATA` includes the log file path for the basic `docker-local` cron implementation.
+- Description: Allows injecting cron tasks into the written out scheduled cron task list. Each entry is newline delimited, and individual tasks come in the form `$SCHEDULE;$FULL_COMMAND;$ARBITRARY_DATA`. Individual implementations of cron writing can decide whether and how to include these cron tasks. The `ARBITRARY_DATA` includes the log file path for the basic `docker-local` cron implementation.
 - Invoked by:
 - Arguments: `$DOKKU_SCHEDULER`
 - Example:
@@ -2450,7 +2450,7 @@ DOKKU_SCHEDULER="$1"; APP="$2";
 > The scheduler plugin trigger apis are under development and may change
 > between minor releases until the 1.0 release.
 
-- Description: Force triggers writing out cron entries. Arguments are optional.
+- Description: Force triggers writing out cron tasks. Arguments are optional.
 - Invoked by: `ps:start`, `ps:stop`, `cron:set`
 - Arguments: `$DOKKU_SCHEDULER $APP`
 - Example:
