@@ -23,7 +23,7 @@ COPY . ${WORKDIR}
 ENV GOPATH=/go
 ENV GOROOT=/usr/local/go
 
-FROM builder as amd64
+FROM builder AS amd64
 
 ARG PLUGIN_MAKE_TARGET
 ARG DOKKU_VERSION=master
@@ -38,7 +38,7 @@ RUN PLUGIN_MAKE_TARGET=${PLUGIN_MAKE_TARGET} \
   make version copyfiles \
   && make deb-dokku
 
-FROM builder as arm64
+FROM builder AS arm64
 
 COPY --from=amd64 /tmp /tmp
 COPY --from=amd64 /usr/local/share/man/man1/dokku.1 /usr/local/share/man/man1/dokku.1-generated
