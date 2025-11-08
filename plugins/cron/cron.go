@@ -80,7 +80,7 @@ func FetchCronTasks(input FetchCronTasksInput) ([]CronTask, error) {
 	isMaintenance := reportComputedMaintenance(appName) == "true"
 
 	if input.AppJSON == nil && input.AppName == "" {
-		return commands, fmt.Errorf("Missing app name or app.json")
+		return tasks, fmt.Errorf("Missing app name or app.json")
 	}
 
 	if input.AppJSON == nil {
