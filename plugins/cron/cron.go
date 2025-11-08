@@ -27,8 +27,8 @@ var (
 	}
 )
 
-// TemplateCommand is a struct that represents a cron task
-type TemplateCommand struct {
+// CronTask is a struct that represents a cron task
+type CronTask struct {
 	// ID is a unique identifier for the cron task
 	ID string `json:"id"`
 
@@ -55,7 +55,7 @@ type TemplateCommand struct {
 }
 
 // DokkuRunCommand returns the dokku run command to execute for a given cron task
-func (t TemplateCommand) DokkuRunCommand() string {
+func (t CronTask) DokkuRunCommand() string {
 	if t.AltCommand != "" {
 		if t.LogFile != "" {
 			return fmt.Sprintf("%s &>> %s", t.AltCommand, t.LogFile)
@@ -74,28 +74,28 @@ type FetchCronTasksInput struct {
 }
 
 // FetchCronTasks returns a list of cron tasks for a given app
-func FetchCronTasks(input FetchCronTasksInput) ([]TemplateCommand, error) {
+func FetchCronTasks(input FetchCronTasksInput) ([]CronTask, error) {
 	appName := input.AppName
-	commands := []TemplateCommand{}
+	tasks := []CronTask{}
 	isMaintenance := reportComputedMaintenance(appName) == "true"
 
 	if input.AppJSON == nil {
 		appJSON, err := appjson.GetAppJSON(appName)
 		if err != nil {
-			return commands, fmt.Errorf("Unable to fetch app.json for app %s: %s", appName, err.Error())
+			return tasks, fmt.Errorf("Unable to fetch app.json for app %s: %s", appName, err.Error())
 		}
 
 		input.AppJSON = &appJSON
 	}
 
 	if input.AppJSON.Cron == nil {
-		return commands, nil
+		return tasks, nil
 	}
 
 	for i, c := range input.AppJSON.Cron {
 		if c.Command == "" {
 			if input.WarnToFailure {
-				return commands, fmt.Errorf("Missing cron task command for app %s (index %d)", appName, i)
+				return tasks, fmt.Errorf("Missing cron task command for app %s (index %d)", appName, i)
 			}
 
 			common.LogWarn(fmt.Sprintf("Missing cron task command for app %s (index %d)", appName, i))
@@ -104,7 +104,7 @@ func FetchCronTasks(input FetchCronTasksInput) ([]TemplateCommand, error) {
 
 		if c.Schedule == "" {
 			if input.WarnToFailure {
-				return commands, fmt.Errorf("Missing cron schedule for app %s (index %d)", appName, i)
+				return tasks, fmt.Errorf("Missing cron schedule for app %s (index %d)", appName, i)
 			}
 
 			common.LogWarn(fmt.Sprintf("Missing cron schedule for app %s (index %d)", appName, i))
@@ -114,10 +114,10 @@ func FetchCronTasks(input FetchCronTasksInput) ([]TemplateCommand, error) {
 		parser := cronparser.NewParser(cronparser.Minute | cronparser.Hour | cronparser.Dom | cronparser.Month | cronparser.Dow | cronparser.Descriptor)
 		_, err := parser.Parse(c.Schedule)
 		if err != nil {
-			return commands, fmt.Errorf("Invalid cron schedule for app %s (schedule %s): %s", appName, c.Schedule, err.Error())
+			return tasks, fmt.Errorf("Invalid cron schedule for app %s (schedule %s): %s", appName, c.Schedule, err.Error())
 		}
 
-		commands = append(commands, TemplateCommand{
+		tasks = append(tasks, CronTask{
 			App:         appName,
 			Command:     c.Command,
 			Schedule:    c.Schedule,
@@ -126,14 +126,14 @@ func FetchCronTasks(input FetchCronTasksInput) ([]TemplateCommand, error) {
 		})
 	}
 
-	return commands, nil
+	return tasks, nil
 }
 
 // FetchGlobalCronTasks returns a list of global cron tasks
 // This function should only be used for the cron:list --global command
 // and not internally by the cron plugin
-func FetchGlobalCronTasks() ([]TemplateCommand, error) {
-	commands := []TemplateCommand{}
+func FetchGlobalCronTasks() ([]CronTask, error) {
+	tasks := []CronTask{}
 	response, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
 		Trigger: "cron-entries",
 		Args:    []string{"docker-local"},
@@ -150,7 +150,7 @@ func FetchGlobalCronTasks() ([]TemplateCommand, error) {
 		}
 
 		id := base36.EncodeToStringLc([]byte(strings.Join(parts, ";;;")))
-		command := TemplateCommand{
+		task := CronTask{
 			ID:          id,
 			Schedule:    parts[0],
 			Command:     parts[1],
@@ -159,11 +159,11 @@ func FetchGlobalCronTasks() ([]TemplateCommand, error) {
 			Global:      true,
 		}
 		if len(parts) == 3 {
-			command.LogFile = parts[2]
+			task.LogFile = parts[2]
 		}
-		commands = append(commands, command)
+		tasks = append(tasks, task)
 	}
-	return commands, nil
+	return tasks, nil
 }
 
 // GenerateCommandID creates a unique ID for a given app/command/schedule combination

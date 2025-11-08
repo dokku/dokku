@@ -22,7 +22,7 @@ func CommandList(appName string, format string) error {
 		return fmt.Errorf("Invalid format specified, supported formats: json, stdout")
 	}
 
-	var tasks []TemplateCommand
+	var tasks []CronTask
 	if appName == "--global" {
 		var err error
 		tasks, err = FetchGlobalCronTasks()
