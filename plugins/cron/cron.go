@@ -27,18 +27,18 @@ var (
 	}
 )
 
-// TemplateCommand is a struct that represents a cron command
-type TemplateCommand struct {
-	// ID is a unique identifier for the cron command
+// CronTask is a struct that represents a cron task
+type CronTask struct {
+	// ID is a unique identifier for the cron task
 	ID string `json:"id"`
 
-	// App is the app the cron command belongs to
+	// App is the app the cron task belongs to
 	App string `json:"app,omitempty"`
 
 	// Command is the command to run
 	Command string `json:"command"`
 
-	// Global is whether the cron command is global
+	// Global is whether the cron task is global
 	Global bool `json:"global,omitempty"`
 
 	// Schedule is the cron schedule
@@ -50,12 +50,12 @@ type TemplateCommand struct {
 	// LogFile is the log file to write to
 	LogFile string `json:"-"`
 
-	// Maintenance is whether the cron command is in maintenance mode
+	// Maintenance is whether the cron task is in maintenance mode
 	Maintenance bool `json:"maintenance"`
 }
 
-// CronCommand returns the command to run for a given cron command
-func (t TemplateCommand) CronCommand() string {
+// DokkuRunCommand returns the dokku run command to execute for a given cron task
+func (t CronTask) DokkuRunCommand() string {
 	if t.AltCommand != "" {
 		if t.LogFile != "" {
 			return fmt.Sprintf("%s &>> %s", t.AltCommand, t.LogFile)
@@ -66,17 +66,17 @@ func (t TemplateCommand) CronCommand() string {
 	return fmt.Sprintf("dokku run --cron-id %s %s %s", t.ID, t.App, t.Command)
 }
 
-// FetchCronEntriesInput is the input for the FetchCronEntries function
-type FetchCronEntriesInput struct {
+// FetchCronTasksInput is the input for the FetchCronTasks function
+type FetchCronTasksInput struct {
 	AppName       string
 	AppJSON       *appjson.AppJSON
 	WarnToFailure bool
 }
 
-// FetchCronEntries returns a list of cron commands for a given app
-func FetchCronEntries(input FetchCronEntriesInput) ([]TemplateCommand, error) {
+// FetchCronTasks returns a list of cron tasks for a given app
+func FetchCronTasks(input FetchCronTasksInput) ([]CronTask, error) {
 	appName := input.AppName
-	commands := []TemplateCommand{}
+	tasks := []CronTask{}
 	isMaintenance := reportComputedMaintenance(appName) == "true"
 
 	if input.AppJSON == nil && input.AppName == "" {
@@ -86,29 +86,29 @@ func FetchCronEntries(input FetchCronEntriesInput) ([]TemplateCommand, error) {
 	if input.AppJSON == nil {
 		appJSON, err := appjson.GetAppJSON(appName)
 		if err != nil {
-			return commands, fmt.Errorf("Unable to fetch app.json for app %s: %s", appName, err.Error())
+			return tasks, fmt.Errorf("Unable to fetch app.json for app %s: %s", appName, err.Error())
 		}
 
 		input.AppJSON = &appJSON
 	}
 
 	if input.AppJSON.Cron == nil {
-		return commands, nil
+		return tasks, nil
 	}
 
 	for i, c := range input.AppJSON.Cron {
 		if c.Command == "" {
 			if input.WarnToFailure {
-				return commands, fmt.Errorf("Missing cron command for app %s (index %d)", appName, i)
+				return tasks, fmt.Errorf("Missing cron task command for app %s (index %d)", appName, i)
 			}
 
-			common.LogWarn(fmt.Sprintf("Missing cron command for app %s (index %d)", appName, i))
+			common.LogWarn(fmt.Sprintf("Missing cron task command for app %s (index %d)", appName, i))
 			continue
 		}
 
 		if c.Schedule == "" {
 			if input.WarnToFailure {
-				return commands, fmt.Errorf("Missing cron schedule for app %s (index %d)", appName, i)
+				return tasks, fmt.Errorf("Missing cron schedule for app %s (index %d)", appName, i)
 			}
 
 			common.LogWarn(fmt.Sprintf("Missing cron schedule for app %s (index %d)", appName, i))
@@ -118,10 +118,10 @@ func FetchCronEntries(input FetchCronEntriesInput) ([]TemplateCommand, error) {
 		parser := cronparser.NewParser(cronparser.Minute | cronparser.Hour | cronparser.Dom | cronparser.Month | cronparser.Dow | cronparser.Descriptor)
 		_, err := parser.Parse(c.Schedule)
 		if err != nil {
-			return commands, fmt.Errorf("Invalid cron schedule for app %s (schedule %s): %s", appName, c.Schedule, err.Error())
+			return tasks, fmt.Errorf("Invalid cron schedule for app %s (schedule %s): %s", appName, c.Schedule, err.Error())
 		}
 
-		commands = append(commands, TemplateCommand{
+		tasks = append(tasks, CronTask{
 			App:         appName,
 			Command:     c.Command,
 			Schedule:    c.Schedule,
@@ -130,14 +130,14 @@ func FetchCronEntries(input FetchCronEntriesInput) ([]TemplateCommand, error) {
 		})
 	}
 
-	return commands, nil
+	return tasks, nil
 }
 
-// FetchGlobalCronEntries returns a list of global cron commands
+// FetchGlobalCronTasks returns a list of global cron tasks
 // This function should only be used for the cron:list --global command
 // and not internally by the cron plugin
-func FetchGlobalCronEntries() ([]TemplateCommand, error) {
-	commands := []TemplateCommand{}
+func FetchGlobalCronTasks() ([]CronTask, error) {
+	tasks := []CronTask{}
 	response, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
 		Trigger: "cron-entries",
 		Args:    []string{"docker-local"},
@@ -154,7 +154,7 @@ func FetchGlobalCronEntries() ([]TemplateCommand, error) {
 		}
 
 		id := base36.EncodeToStringLc([]byte(strings.Join(parts, ";;;")))
-		command := TemplateCommand{
+		task := CronTask{
 			ID:          id,
 			Schedule:    parts[0],
 			Command:     parts[1],
@@ -163,14 +163,14 @@ func FetchGlobalCronEntries() ([]TemplateCommand, error) {
 			Global:      true,
 		}
 		if len(parts) == 3 {
-			command.LogFile = parts[2]
+			task.LogFile = parts[2]
 		}
-		commands = append(commands, command)
+		tasks = append(tasks, task)
 	}
-	return commands, nil
+	return tasks, nil
 }
 
 // GenerateCommandID creates a unique ID for a given app/command/schedule combination
-func GenerateCommandID(appName string, c appjson.CronCommand) string {
+func GenerateCommandID(appName string, c appjson.CronTask) string {
 	return base36.EncodeToStringLc([]byte(appName + "===" + c.Command + "===" + c.Schedule))
 }

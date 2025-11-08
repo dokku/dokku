@@ -7,6 +7,6 @@ MAILTO={{ .Mailto }}
 PATH=/usr/local/bin:/usr/bin:/bin
 SHELL=/bin/bash
 
-{{ range $entry := .Commands -}}
-{{ $entry.Schedule }} {{ $entry.CronCommand }}
+{{ range $task := .Tasks -}}
+{{ $task.Schedule }} {{ $task.DokkuRunCommand }}
 {{ end -}}

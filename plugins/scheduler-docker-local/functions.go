@@ -38,23 +38,23 @@ func deleteCrontab() error {
 	return nil
 }
 
-func generateCronEntries() ([]cron.TemplateCommand, error) {
+func generateCronTasks() ([]cron.CronTask, error) {
 	apps, _ := common.UnfilteredDokkuApps()
 
 	g := new(errgroup.Group)
-	results := make(chan []cron.TemplateCommand, len(apps)+1)
+	results := make(chan []cron.CronTask, len(apps)+1)
 	for _, appName := range apps {
 		appName := appName
 		g.Go(func() error {
 			scheduler := common.GetAppScheduler(appName)
 			if scheduler != "docker-local" {
-				results <- []cron.TemplateCommand{}
+				results <- []cron.CronTask{}
 				return nil
 			}
 
-			c, err := cron.FetchCronEntries(cron.FetchCronEntriesInput{AppName: appName})
+			c, err := cron.FetchCronTasks(cron.FetchCronTasksInput{AppName: appName})
 			if err != nil {
-				results <- []cron.TemplateCommand{}
+				results <- []cron.CronTask{}
 				common.LogWarn(err.Error())
 				return nil
 			}
@@ -65,69 +65,69 @@ func generateCronEntries() ([]cron.TemplateCommand, error) {
 	}
 
 	g.Go(func() error {
-		commands := []cron.TemplateCommand{}
+		tasks := []cron.CronTask{}
 		response, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
 			Trigger: "cron-entries",
 			Args:    []string{"docker-local"},
 		})
 		for _, line := range strings.Split(response.StdoutContents(), "\n") {
 			if strings.TrimSpace(line) == "" {
-				results <- []cron.TemplateCommand{}
+				results <- []cron.CronTask{}
 				return nil
 			}
 
 			parts := strings.Split(line, ";")
 			if len(parts) != 2 && len(parts) != 3 {
-				results <- []cron.TemplateCommand{}
+				results <- []cron.CronTask{}
 				return fmt.Errorf("Invalid injected cron task: %v", line)
 			}
 
 			id := base36.EncodeToStringLc([]byte(strings.Join(parts, ";;;")))
-			command := cron.TemplateCommand{
+			task := cron.CronTask{
 				ID:          id,
 				Schedule:    parts[0],
 				AltCommand:  parts[1],
 				Maintenance: false,
 			}
 			if len(parts) == 3 {
-				command.LogFile = parts[2]
+				task.LogFile = parts[2]
 			}
-			commands = append(commands, command)
+			tasks = append(tasks, task)
 		}
-		results <- commands
+		results <- tasks
 		return nil
 	})
 
 	err := g.Wait()
 	close(results)
 
-	commands := []cron.TemplateCommand{}
+	tasks := []cron.CronTask{}
 	if err != nil {
-		return commands, err
+		return tasks, err
 	}
 
 	for result := range results {
 		c := result
 		if len(c) > 0 && !c[0].Maintenance {
-			commands = append(commands, c...)
+			tasks = append(tasks, c...)
 		}
 	}
 
-	return commands, nil
+	return tasks, nil
 }
 
-func writeCronEntries(scheduler string) error {
+func writeCronTasks(scheduler string) error {
 	// allow empty scheduler, which means all apps (used by letsencrypt)
 	if scheduler != "docker-local" && scheduler != "" {
 		return nil
 	}
 
-	commands, err := generateCronEntries()
+	tasks, err := generateCronTasks()
 	if err != nil {
 		return err
 	}
 
-	if len(commands) == 0 {
+	if len(tasks) == 0 {
 		return deleteCrontab()
 	}
 
@@ -144,7 +144,7 @@ func writeCronEntries(scheduler string) error {
 	mailto := mailtoResults.StdoutContents()
 
 	data := map[string]interface{}{
-		"Commands": commands,
+		"Tasks":    tasks,
 		"Mailfrom": mailfrom,
 		"Mailto":   mailto,
 	}
@@ -154,7 +154,7 @@ func writeCronEntries(scheduler string) error {
 		return err
 	}
 
-	tmpFile, err := os.CreateTemp(os.TempDir(), fmt.Sprintf("dokku-%s-%s", common.MustGetEnv("DOKKU_PID"), "WriteCronEntries"))
+	tmpFile, err := os.CreateTemp(os.TempDir(), fmt.Sprintf("dokku-%s-%s", common.MustGetEnv("DOKKU_PID"), "WriteCronTasks"))
 	if err != nil {
 		return fmt.Errorf("Cannot create temporary schedule file: %v", err)
 	}

@@ -24,7 +24,7 @@ func TriggerCronGetProperty(appName string, key string) error {
 	return nil
 }
 
-// TriggerAppJSONIsValid validates the cron entries for a given app
+// TriggerAppJSONIsValid validates the cron tasks for a given app
 func TriggerAppJSONIsValid(appName string, appJSONPath string) error {
 	if !common.FileExists(appJSONPath) {
 		return nil
@@ -35,7 +35,7 @@ func TriggerAppJSONIsValid(appName string, appJSONPath string) error {
 		return err
 	}
 
-	_, err = FetchCronEntries(FetchCronEntriesInput{
+	_, err = FetchCronTasks(FetchCronTasksInput{
 		AppName:       appName,
 		AppJSON:       &appJSON,
 		WarnToFailure: true,
