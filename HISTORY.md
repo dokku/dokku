@@ -1,5 +1,40 @@
 # History
 
+## 0.36.11
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.36.11/bootstrap.sh
+sudo DOKKU_TAG=v0.36.11 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #8084: @josegonzalez Use the correct case for AS in Dockerfile
+- #8083: @josegonzalez Use correct variable for tasks
+- #8081: @josegonzalez Error out if the appname or app.json is missing when retrieving cron entries
+
+### Refactors
+
+- #8082: @josegonzalez Standardize naming in cron code
+
+### Dependencies
+
+- #8073: @dependabot[bot] chore(deps): bump timberio/vector from 0.50.0-debian to 0.51.0-debian in /plugins/logs
+- #8080: @dependabot[bot] chore(deps): bump github.com/containerd/containerd from 1.7.28 to 1.7.29 in /plugins/scheduler-k3s
+- #8079: @dependabot[bot] chore(deps): bump golang from 1.25.3 to 1.25.4 in /tests/apps/zombies-dockerfile-tini
+- #8075: @dependabot[bot] chore(deps): bump golang from 1.25.3 to 1.25.4 in /tests/apps/go-fail-postdeploy
+- #8078: @dependabot[bot] chore(deps): bump golang from 1.25.3 to 1.25.4 in /tests/apps/go-fail-predeploy
+- #8077: @dependabot[bot] chore(deps): bump golang from 1.25.3 to 1.25.4 in /tests/apps/zombies-dockerfile-no-tini
+- #8076: @dependabot[bot] chore(deps): bump golang from 1.25.3 to 1.25.4 in /tests/apps/gogrpc
+- #8072: @dependabot[bot] chore(deps): update markdown requirement from <3.10,>=3.2.1 to >=3.2.1,<3.11 in /docs/_build
+- #8074: @dependabot[bot] chore(deps): bump django from 5.2.7 to 5.2.8 in /tests/apps/dockerfile-release
+- #8071: @dependabot[bot] chore(deps): bump mkdocs-material from 9.6.22 to 9.6.23 in /docs/_build
+- #8068: @dependabot[bot] chore(deps): bump traefik from 3.5.3 to 3.5.4 in /plugins/traefik-vhosts
+- #8069: @dependabot[bot] chore(deps): bump github.com/kedacore/keda/v2 from 2.18.0 to 2.18.1 in /plugins/scheduler-k3s
+- #8066: @dependabot[bot] chore(deps): bump github.com/traefik/traefik/v2 from 2.11.29 to 2.11.30 in /plugins/scheduler-k3s
+
 ## 0.36.10
 
 Install/update via the bootstrap script:
