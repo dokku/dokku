@@ -54,8 +54,8 @@ type TemplateCommand struct {
 	Maintenance bool `json:"maintenance"`
 }
 
-// CronCommand returns the command to run for a given cron command
-func (t TemplateCommand) CronCommand() string {
+// DokkuRunCommand returns the dokku run command to execute for a given cron task
+func (t TemplateCommand) DokkuRunCommand() string {
 	if t.AltCommand != "" {
 		if t.LogFile != "" {
 			return fmt.Sprintf("%s &>> %s", t.AltCommand, t.LogFile)
