@@ -42,6 +42,16 @@ func CommandGet(appName string, keys []string, global bool, quoted bool) error {
 	return SubGet(appName, keys, quoted)
 }
 
+// CommandImport imports environment variables from a file
+func CommandImport(appName string, global bool, replace bool, noRestart bool, format string, filename string) error {
+	appName, err := getAppNameOrGlobal(appName, global)
+	if err != nil {
+		return err
+	}
+
+	return SubImport(appName, replace, noRestart, format, filename)
+}
+
 // CommandKeys shows the keys set for the specified environment
 func CommandKeys(appName string, global bool, merged bool) error {
 	appName, err := getAppNameOrGlobal(appName, global)

@@ -1,5 +1,5 @@
 GOARCH ?= amd64
-SUBCOMMANDS = subcommands/bundle subcommands/clear subcommands/export subcommands/get subcommands/keys subcommands/show subcommands/set subcommands/unset
+SUBCOMMANDS = subcommands/bundle subcommands/clear subcommands/export subcommands/get subcommands/import subcommands/keys subcommands/show subcommands/set subcommands/unset
 TRIGGERS = triggers/config-export triggers/config-get triggers/config-get-global triggers/config-unset triggers/post-app-clone-setup triggers/post-app-rename-setup
 BUILD = commands config_sub subcommands triggers
 PLUGIN_NAME = config

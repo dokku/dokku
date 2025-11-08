@@ -65,6 +65,22 @@ func main() {
 		}
 		keys := getKeys(args.Args(), *global)
 		err = config.CommandGet(appName, keys, *global, *quoted)
+	case "import":
+		args := flag.NewFlagSet("config:import", flag.ExitOnError)
+		global := args.Bool("global", false, "--global: use the global environment")
+		noRestart := args.Bool("no-restart", false, "--no-restart: no restart")
+		replace := args.Bool("replace", false, "--replace: replace existing config vars")
+		format := args.String("format", "envfile", "--format: [ envfile | json ] which format to export as)")
+
+		args.Parse(os.Args[2:])
+		var filename string
+		if !*global {
+			appName = args.Arg(0)
+			filename = args.Arg(1)
+		} else {
+			filename = args.Arg(0)
+		}
+		err = config.CommandImport(appName, *global, *replace, *noRestart, *format, filename)
 	case "keys":
 		args := flag.NewFlagSet("config:keys", flag.ExitOnError)
 		global := args.Bool("global", false, "--global: use the global environment")
