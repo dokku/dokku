@@ -27,18 +27,18 @@ var (
 	}
 )
 
-// TemplateCommand is a struct that represents a cron command
+// TemplateCommand is a struct that represents a cron task
 type TemplateCommand struct {
-	// ID is a unique identifier for the cron command
+	// ID is a unique identifier for the cron task
 	ID string `json:"id"`
 
-	// App is the app the cron command belongs to
+	// App is the app the cron task belongs to
 	App string `json:"app,omitempty"`
 
 	// Command is the command to run
 	Command string `json:"command"`
 
-	// Global is whether the cron command is global
+	// Global is whether the cron task is global
 	Global bool `json:"global,omitempty"`
 
 	// Schedule is the cron schedule
@@ -50,7 +50,7 @@ type TemplateCommand struct {
 	// LogFile is the log file to write to
 	LogFile string `json:"-"`
 
-	// Maintenance is whether the cron command is in maintenance mode
+	// Maintenance is whether the cron task is in maintenance mode
 	Maintenance bool `json:"maintenance"`
 }
 
@@ -73,7 +73,7 @@ type FetchCronTasksInput struct {
 	WarnToFailure bool
 }
 
-// FetchCronTasks returns a list of cron commands for a given app
+// FetchCronTasks returns a list of cron tasks for a given app
 func FetchCronTasks(input FetchCronTasksInput) ([]TemplateCommand, error) {
 	appName := input.AppName
 	commands := []TemplateCommand{}
@@ -95,10 +95,10 @@ func FetchCronTasks(input FetchCronTasksInput) ([]TemplateCommand, error) {
 	for i, c := range input.AppJSON.Cron {
 		if c.Command == "" {
 			if input.WarnToFailure {
-				return commands, fmt.Errorf("Missing cron command for app %s (index %d)", appName, i)
+				return commands, fmt.Errorf("Missing cron task command for app %s (index %d)", appName, i)
 			}
 
-			common.LogWarn(fmt.Sprintf("Missing cron command for app %s (index %d)", appName, i))
+			common.LogWarn(fmt.Sprintf("Missing cron task command for app %s (index %d)", appName, i))
 			continue
 		}
 
@@ -129,7 +129,7 @@ func FetchCronTasks(input FetchCronTasksInput) ([]TemplateCommand, error) {
 	return commands, nil
 }
 
-// FetchGlobalCronTasks returns a list of global cron commands
+// FetchGlobalCronTasks returns a list of global cron tasks
 // This function should only be used for the cron:list --global command
 // and not internally by the cron plugin
 func FetchGlobalCronTasks() ([]TemplateCommand, error) {
@@ -167,6 +167,6 @@ func FetchGlobalCronTasks() ([]TemplateCommand, error) {
 }
 
 // GenerateCommandID creates a unique ID for a given app/command/schedule combination
-func GenerateCommandID(appName string, c appjson.CronCommand) string {
+func GenerateCommandID(appName string, c appjson.CronTask) string {
 	return base36.EncodeToStringLc([]byte(appName + "===" + c.Command + "===" + c.Schedule))
 }

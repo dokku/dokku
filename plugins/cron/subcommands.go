@@ -82,7 +82,7 @@ func CommandReport(appName string, format string, infoFlag string) error {
 	return ReportSingleApp(appName, format, infoFlag)
 }
 
-// CommandRun executes a cron command on the fly
+// CommandRun executes a cron task on the fly
 func CommandRun(appName string, cronID string, detached bool) error {
 	if err := common.VerifyAppName(appName); err != nil {
 		return err
