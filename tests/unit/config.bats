@@ -245,7 +245,6 @@ teardown() {
   assert_success
 }
 
-
 @test "(config) config:import file json" {
   local TMP_FILE=$(mktemp "/tmp/config-import.XXXXX")
   trap 'popd &>/dev/null || true; rm -rf "$TMP"' INT TERM
