@@ -5,8 +5,8 @@ load test_helper
 TEST_APP="rdmtestapp"
 
 setup() {
-  global_setup
   uninstall_k3s || true
+  global_setup
   dokku nginx:stop
   export KUBECONFIG="/etc/rancher/k3s/k3s.yaml"
 }
