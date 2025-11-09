@@ -86,10 +86,10 @@
     },
     {
       "name": "herokuish",
-      "version": "0.11.3",
+      "version": "0.11.5",
       "urls": {
-        "amd64": "https://github.com/gliderlabs/herokuish/releases/download/v0.11.3/herokuish_0.11.3_linux_x86_64.tgz",
-        "arm64": "https://github.com/gliderlabs/herokuish/releases/download/v0.11.3/herokuish_0.11.3_linux_x86_64.tgz"
+        "amd64": "https://github.com/gliderlabs/herokuish/releases/download/v0.11.5/herokuish_0.11.5_linux_x86_64.tgz",
+        "arm64": "https://github.com/gliderlabs/herokuish/releases/download/v0.11.5/herokuish_0.11.5_linux_x86_64.tgz"
       }
     }
   ]
