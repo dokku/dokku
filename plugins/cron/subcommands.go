@@ -159,12 +159,8 @@ func CommandSet(appName string, property string, value string) error {
 			return fmt.Errorf("Task maintenance properties cannot be set globally")
 		}
 
-		maintenanceParts := strings.SplitN(property, ".", 2)
-		if len(maintenanceParts) != 3 {
-			return fmt.Errorf("Invalid task maintenance property, expected format: %s$ID: %s", MaintenancePropertyPrefix, property)
-		}
-
-		if maintenanceParts[1] == "" {
+		cronTaskID := strings.TrimPrefix(property, MaintenancePropertyPrefix)
+		if cronTaskID == "" {
 			return fmt.Errorf("Invalid task maintenance property, missing ID")
 		}
 
@@ -173,9 +169,8 @@ func CommandSet(appName string, property string, value string) error {
 			return err
 		}
 
-		maintenanceID := maintenanceParts[1]
 		for _, task := range tasks {
-			if task.ID == maintenanceID {
+			if task.ID == cronTaskID {
 				validProperties[property] = ""
 				globalProperties[property] = false
 				break
