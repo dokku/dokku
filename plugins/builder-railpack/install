@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-builder-railpack-install() {
+  declare desc="installs the builder-railpack plugin"
+  declare trigger="install"
+
+  fn-plugin-property-setup "builder-railpack"
+
+  mkdir -p "${DOKKU_LIB_ROOT}/data/builder-railpack"
+  chown -R "${DOKKU_SYSTEM_USER}:${DOKKU_SYSTEM_GROUP}" "${DOKKU_LIB_ROOT}/data/builder-railpack"
+}
+
+trigger-builder-railpack-install "$@"

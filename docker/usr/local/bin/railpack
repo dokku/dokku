@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $TRACE ]] && set -x
+
+main() {
+  declare desc="re-runs railpack commands as sudo"
+  local RAILPACK_BIN=""
+  if [[ -x "/usr/bin/railpack" ]]; then
+    RAILPACK_BIN="/usr/bin/railpack"
+  fi
+
+  if [[ -z "$RAILPACK_BIN" ]]; then
+    echo "!   No railpack binary found" 1>&2
+    exit 1
+  fi
+
+  sudo -E "$RAILPACK_BIN" "$@"
+}
+
+main "$@"
