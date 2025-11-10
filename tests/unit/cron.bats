@@ -253,6 +253,12 @@ teardown() {
   echo "status: $status"
   assert_success
 
+  run /bin/bash -c "docker ps --filter "label=com.dokku.cron-id=$cron_id" -q | xargs docker inspect"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_exists
+
   run /bin/bash -c "dokku cron:run $TEST_APP $cron_id"
   echo "output: $output"
   echo "status: $status"
@@ -461,7 +467,7 @@ template_cron_file_concurrency_forbid() {
 {
   "cron": [
     {
-      "command": "sleep 5",
+      "command": "sleep 30",
       "schedule": "0 0 * * *",
       "concurrency_policy": "forbid"
     }
