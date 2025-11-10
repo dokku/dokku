@@ -135,8 +135,9 @@ func FetchCronTasks(input FetchCronTasksInput) ([]CronTask, error) {
 			return tasks, fmt.Errorf("Invalid cron schedule for app %s (schedule %s): %s", appName, c.Schedule, err.Error())
 		}
 
+		cronID := GenerateCommandID(appName, c)
 		maintenance := c.Maintenance
-		if value, ok := properties[MaintenancePropertyPrefix+c.Schedule]; ok {
+		if value, ok := properties[MaintenancePropertyPrefix+cronID]; ok {
 			boolValue, err := strconv.ParseBool(value)
 			if err != nil {
 				return tasks, fmt.Errorf("Invalid maintenance property for app %s (schedule %s): %s", appName, c.Schedule, err.Error())
@@ -152,7 +153,7 @@ func FetchCronTasks(input FetchCronTasksInput) ([]CronTask, error) {
 			App:               appName,
 			Command:           c.Command,
 			Schedule:          c.Schedule,
-			ID:                GenerateCommandID(appName, c),
+			ID:                cronID,
 			Maintenance:       isAppCronInMaintenance || maintenance,
 			AppInMaintenance:  isAppCronInMaintenance,
 			TaskInMaintenance: maintenance,
