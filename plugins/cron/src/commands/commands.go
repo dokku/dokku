@@ -20,8 +20,10 @@ Additional commands:`
 	helpContent = `
     cron:list <app> [--format json|stdout], List scheduled cron tasks for an app
     cron:report [<app>] [<flag>], Display report about an app
+    cron:resume <app> <cron_id>, Resume a cron task
     cron:run <app> <cron_id> [--detach], Run a cron task on the fly
-    cron:set [--global|<app>] <key> <value>, Set or clear a cron property for an app`
+    cron:set [--global|<app>] <key> <value>, Set or clear a cron property for an app
+    cron:suspend <app> <cron_id>, Suspend a cron task`
 )
 
 func main() {
