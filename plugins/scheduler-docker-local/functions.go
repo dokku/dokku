@@ -107,9 +107,10 @@ func generateCronTasks() ([]cron.CronTask, error) {
 	}
 
 	for result := range results {
-		c := result
-		if len(c) > 0 && !c[0].Maintenance {
-			tasks = append(tasks, c...)
+		for _, task := range result {
+			if !task.Maintenance {
+				tasks = append(tasks, task)
+			}
 		}
 	}
 
