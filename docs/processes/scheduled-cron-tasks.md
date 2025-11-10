@@ -6,8 +6,10 @@
 ```
 cron:list <app> [--format json|stdout]  # List scheduled cron tasks for an app
 cron:report [<app>] [<flag>]            # Display report about an app
+cron:resume <app> <cron_id>             # Resume a cron task
 cron:run <app> <cron_id> [--detach]     # Run a cron task on the fly
 cron:set [--global|<app>] <key> <value> # Set or clear a cron property for an app
+cron:suspend <app> <cron_id>            # Suspend a cron task
 ```
 
 ## Usage
@@ -123,6 +125,26 @@ dokku cron:list --global
 ID                            Schedule  Command
 5cruaotm4yzzpnjlsdunblj8qyjp  @daily    /bin/true
 ```
+
+#### Suspending and resuming a specific cron task
+
+Cron tasks can be suspended to temporarily prevent them from running, and later resumed to re-enable them. This is useful for maintenance or debugging purposes.
+
+To suspend a specific cron task, use the `cron:suspend` command with the app name and cron ID:
+
+```shell
+dokku cron:suspend node-js-app cGhwPT09cGhwIHRlc3QucGhwPT09QGRhaWx5
+```
+
+A suspended task will not execute according to its schedule. You can verify a task is suspended by checking the `Maintenance` column in the `cron:list` output, which will show `true (task)` for suspended tasks.
+
+To resume a suspended cron task, use the `cron:resume` command:
+
+```shell
+dokku cron:resume node-js-app cGhwPT09cGhwIHRlc3QucGhwPT09QGRhaWx5
+```
+
+Once resumed, the task will execute according to its schedule again. The cron ID can be retrieved from the `cron:list` output.
 
 #### Executing a cron task on the fly
 
