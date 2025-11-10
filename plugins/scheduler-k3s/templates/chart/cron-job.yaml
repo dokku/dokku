@@ -135,6 +135,6 @@ spec:
   schedule: {{ $config.cron.schedule }}
   startingDeadlineSeconds: 60
   successfulJobsHistoryLimit: 10
-  suspend: false
+  suspend: {{ $config.cron.suspend }}
   timeZone: Etc/UTC
 {{- end }}

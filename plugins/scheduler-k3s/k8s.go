@@ -805,6 +805,35 @@ func (k KubernetesClient) ListTriggerAuthentications(ctx context.Context, input 
 	return triggerAuthentications, nil
 }
 
+// ResumeCronJobsInput contains all the information needed to resume a Kubernetes cron job
+type ResumeCronJobsInput struct {
+	// LabelSelector is the Kubernetes label selector
+	LabelSelector string
+
+	// Namespace is the Kubernetes namespace
+	Namespace string
+}
+
+// ResumeCronJobs resumes a Kubernetes cron job
+func (k KubernetesClient) ResumeCronJobs(ctx context.Context, input ResumeCronJobsInput) error {
+	cronJobs, err := k.Client.BatchV1().CronJobs(input.Namespace).List(ctx, metav1.ListOptions{
+		LabelSelector: input.LabelSelector,
+	})
+	if err != nil {
+		return err
+	}
+
+	for _, cronJob := range cronJobs.Items {
+		cronJob.Spec.Suspend = ptr.To(false)
+		_, err := k.Client.BatchV1().CronJobs(input.Namespace).Update(ctx, &cronJob, metav1.UpdateOptions{})
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ScaleDeploymentInput contains all the information needed to scale a Kubernetes deployment
 type ScaleDeploymentInput struct {
 	// Name is the Kubernetes deployment name
