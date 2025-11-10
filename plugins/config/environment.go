@@ -88,6 +88,11 @@ func LoadGlobalEnv() (*Env, error) {
 	return loadFromFile("<global>", getGlobalFile())
 }
 
+// Clear clears the environment
+func (e *Env) Clear() {
+	e.env = make(map[string]string)
+}
+
 // Filename returns the full path on disk to the file holding the env vars
 func (e *Env) Filename() string {
 	return e.filename
@@ -326,8 +331,17 @@ func prettyPrintEnvEntries(prefix string, entries map[string]string) string {
 
 func loadFromFile(name string, filename string) (env *Env, err error) {
 	envMap := make(map[string]string)
+	if filename == "-" {
+		envMap, err = godotenv.Parse(os.Stdin)
+		if err != nil {
+			return nil, err
+		}
+	}
 	if _, err := os.Stat(filename); err == nil {
 		envMap, err = godotenv.Read(filename)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	dirty := false
@@ -352,6 +366,31 @@ func loadFromFile(name string, filename string) (env *Env, err error) {
 	return
 }
 
+func loadFromFileJSON(name string, filename string) (env *Env, err error) {
+	envMap := make(map[string]string)
+	if filename == "-" {
+		err = json.NewDecoder(os.Stdin).Decode(&envMap)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		file, err := os.Open(filename)
+		if err != nil {
+			return nil, err
+		}
+		defer file.Close()
+		err = json.NewDecoder(file).Decode(&envMap)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &Env{
+		name:     name,
+		filename: "",
+		env:      envMap,
+	}, nil
+}
 func getAppFile(appName string) (string, error) {
 	return filepath.Join(common.MustGetEnv("DOKKU_ROOT"), appName, "ENV"), nil
 }

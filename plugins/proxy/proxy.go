@@ -41,7 +41,7 @@ func Disable(appName string) error {
 		"DOKKU_DISABLE_PROXY": "1",
 	}
 
-	if err := config.SetMany(appName, entries, false); err != nil {
+	if err := config.SetMany(appName, entries, false, false); err != nil {
 		return err
 	}
 
