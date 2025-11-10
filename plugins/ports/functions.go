@@ -449,7 +449,7 @@ func setProxyPort(appName string, port int) error {
 		entries := map[string]string{
 			"DOKKU_PROXY_PORT": fmt.Sprint(port),
 		}
-		return config.SetMany(appName, entries, false)
+		return config.SetMany(appName, entries, false, false)
 	}, map[string]string{"DOKKU_QUIET_OUTPUT": "1"})
 }
 
@@ -459,7 +459,7 @@ func setProxySSLPort(appName string, port int) error {
 		entries := map[string]string{
 			"DOKKU_PROXY_SSL_PORT": fmt.Sprint(port),
 		}
-		return config.SetMany(appName, entries, false)
+		return config.SetMany(appName, entries, false, false)
 	}, map[string]string{"DOKKU_QUIET_OUTPUT": "1"})
 }
 

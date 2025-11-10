@@ -2,6 +2,7 @@ package cron
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	appjson "github.com/dokku/dokku/plugins/app-json"
@@ -27,6 +28,8 @@ var (
 	}
 )
 
+const MaintenancePropertyPrefix = "maintenance."
+
 // CronTask is a struct that represents a cron task
 type CronTask struct {
 	// ID is a unique identifier for the cron task
@@ -49,6 +52,12 @@ type CronTask struct {
 
 	// LogFile is the log file to write to
 	LogFile string `json:"-"`
+
+	// AppInMaintenance is whether the app's cron is in maintenance mode
+	AppInMaintenance bool `json:"app-in-maintenance"`
+
+	// Maintenance is whether the cron task is in maintenance mode
+	TaskInMaintenance bool `json:"task-in-maintenance"`
 
 	// Maintenance is whether the cron task is in maintenance mode
 	Maintenance bool `json:"maintenance"`
@@ -77,7 +86,7 @@ type FetchCronTasksInput struct {
 func FetchCronTasks(input FetchCronTasksInput) ([]CronTask, error) {
 	appName := input.AppName
 	tasks := []CronTask{}
-	isMaintenance := reportComputedMaintenance(appName) == "true"
+	isAppCronInMaintenance := reportComputedMaintenance(appName) == "true"
 
 	if input.AppJSON == nil && input.AppName == "" {
 		return tasks, fmt.Errorf("Missing app name or app.json")
@@ -94,6 +103,11 @@ func FetchCronTasks(input FetchCronTasksInput) ([]CronTask, error) {
 
 	if input.AppJSON.Cron == nil {
 		return tasks, nil
+	}
+
+	properties, err := common.PropertyGetAllByPrefix("cron", appName, MaintenancePropertyPrefix)
+	if err != nil {
+		return tasks, fmt.Errorf("Error getting maintenance properties: %w", err)
 	}
 
 	for i, c := range input.AppJSON.Cron {
@@ -121,12 +135,28 @@ func FetchCronTasks(input FetchCronTasksInput) ([]CronTask, error) {
 			return tasks, fmt.Errorf("Invalid cron schedule for app %s (schedule %s): %s", appName, c.Schedule, err.Error())
 		}
 
+		cronID := GenerateCommandID(appName, c)
+		maintenance := c.Maintenance
+		if value, ok := properties[MaintenancePropertyPrefix+cronID]; ok {
+			boolValue, err := strconv.ParseBool(value)
+			if err != nil {
+				return tasks, fmt.Errorf("Invalid maintenance property for app %s (schedule %s): %s", appName, c.Schedule, err.Error())
+			}
+
+			// only override the maintenance value if the property is set to true
+			if boolValue {
+				maintenance = boolValue
+			}
+		}
+
 		tasks = append(tasks, CronTask{
-			App:         appName,
-			Command:     c.Command,
-			Schedule:    c.Schedule,
-			ID:          GenerateCommandID(appName, c),
-			Maintenance: isMaintenance,
+			App:               appName,
+			Command:           c.Command,
+			Schedule:          c.Schedule,
+			ID:                cronID,
+			Maintenance:       isAppCronInMaintenance || maintenance,
+			AppInMaintenance:  isAppCronInMaintenance,
+			TaskInMaintenance: maintenance,
 		})
 	}
 
@@ -155,12 +185,14 @@ func FetchGlobalCronTasks() ([]CronTask, error) {
 
 		id := base36.EncodeToStringLc([]byte(strings.Join(parts, ";;;")))
 		task := CronTask{
-			ID:          id,
-			Schedule:    parts[0],
-			Command:     parts[1],
-			AltCommand:  parts[1],
-			Maintenance: false,
-			Global:      true,
+			ID:                id,
+			Schedule:          parts[0],
+			Command:           parts[1],
+			AltCommand:        parts[1],
+			Global:            true,
+			Maintenance:       false,
+			TaskInMaintenance: false,
+			AppInMaintenance:  false,
 		}
 		if len(parts) == 3 {
 			task.LogFile = parts[2]

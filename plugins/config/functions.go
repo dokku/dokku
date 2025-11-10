@@ -82,6 +82,44 @@ func SubGet(appName string, keys []string, quoted bool) error {
 	return nil
 }
 
+// SubImport imports environment variables from a file
+func SubImport(appName string, replace bool, noRestart bool, format string, filename string) error {
+	if filename == "-" {
+		common.LogInfo1Quiet("Reading config vars from stdin")
+	}
+
+	if format == "" {
+		format = "envfile"
+	}
+
+	var env *Env
+	var err error
+	switch format {
+	case "envfile":
+		env, err = loadFromFile(appName, filename)
+		if err != nil {
+			return err
+		}
+	case "json":
+		env, err = loadFromFileJSON(appName, filename)
+		if err != nil {
+			return err
+		}
+	default:
+		return fmt.Errorf("Unknown format: %s", format)
+	}
+
+	if len(env.Map()) == 0 {
+		return errors.New("No config vars to set")
+	}
+
+	for k, v := range env.Map() {
+		common.LogInfo1Quiet(fmt.Sprintf("Setting config var %s=%s", k, v))
+	}
+
+	return SetMany(appName, env.Map(), replace, !noRestart)
+}
+
 // SubKeys implements the logic for config:keys without app name validation
 func SubKeys(appName string, merged bool) error {
 	env := getEnvironment(appName, merged)
@@ -115,7 +153,7 @@ func SubSet(appName string, pairs []string, noRestart bool, encoded bool) error 
 		updated[key] = value
 	}
 
-	return SetMany(appName, updated, !noRestart)
+	return SetMany(appName, updated, false, !noRestart)
 }
 
 // SubShow implements the logic for config:show without app name validation

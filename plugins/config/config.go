@@ -30,7 +30,7 @@ func GetWithDefault(appName string, key string, defaultValue string) (value stri
 }
 
 // SetMany variables in the environment. If appName is empty the global config is used. If restart is true the app is restarted.
-func SetMany(appName string, entries map[string]string, restart bool) (err error) {
+func SetMany(appName string, entries map[string]string, replace bool, restart bool) (err error) {
 	global := appName == "" || appName == "--global"
 	env, err := loadAppOrGlobalEnv(appName)
 	if err != nil {
@@ -41,6 +41,10 @@ func SetMany(appName string, entries map[string]string, restart bool) (err error
 		if err = validateKey(k); err != nil {
 			return
 		}
+	}
+
+	if replace {
+		env.Clear()
 	}
 	for k, v := range entries {
 		env.Set(k, v)
@@ -128,6 +132,10 @@ func UnsetAll(appName string, restart bool) (err error) {
 }
 
 func triggerRestart(appName string) {
+	if !common.IsDeployed(appName) {
+		return
+	}
+
 	common.LogInfo1(fmt.Sprintf("Restarting app %s", appName))
 	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
 		Trigger:     "release-and-deploy",

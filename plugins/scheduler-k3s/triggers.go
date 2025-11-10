@@ -163,6 +163,64 @@ func TriggerSchedulerAppStatus(scheduler string, appName string) error {
 	return nil
 }
 
+// TriggerSchedulerCronWrite writes out cron tasks for a given application
+func TriggerSchedulerCronWrite(scheduler string, appName string) error {
+	if scheduler != "k3s" {
+		return nil
+	}
+
+	cronTasks, err := cron.FetchCronTasks(cron.FetchCronTasksInput{AppName: appName})
+	if err != nil {
+		return fmt.Errorf("Error fetching cron tasks: %w", err)
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, os.Interrupt, syscall.SIGHUP,
+		syscall.SIGINT,
+		syscall.SIGQUIT,
+		syscall.SIGTERM)
+	go func() {
+		<-signals
+		common.LogWarn(fmt.Sprintf("Deployment of %s has been cancelled", appName))
+		cancel()
+	}()
+
+	namespace := getComputedNamespace(appName)
+
+	clientset, err := NewKubernetesClient()
+	if err != nil {
+		return fmt.Errorf("Error creating kubernetes client: %w", err)
+	}
+
+	for _, cronTask := range cronTasks {
+		labelSelector := []string{
+			fmt.Sprintf("app.kubernetes.io/part-of=%s", appName),
+			fmt.Sprintf("dokku.com/cron-id=%s", cronTask.ID),
+		}
+
+		if cronTask.Maintenance {
+			err = clientset.SuspendCronJobs(ctx, SuspendCronJobsInput{
+				Namespace:     namespace,
+				LabelSelector: strings.Join(labelSelector, ","),
+			})
+			if err != nil {
+				return fmt.Errorf("Error suspending cron jobs: %w", err)
+			}
+		} else {
+			err = clientset.ResumeCronJobs(ctx, ResumeCronJobsInput{
+				Namespace:     namespace,
+				LabelSelector: strings.Join(labelSelector, ","),
+			})
+			if err != nil {
+				return fmt.Errorf("Error resuming cron jobs: %w", err)
+			}
+		}
+	}
+
+	return nil
+}
+
 // TriggerSchedulerDeploy deploys an image tag for a given application
 func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) error {
 	if scheduler != "k3s" {
@@ -312,16 +370,9 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 
 	workingDir := common.GetWorkingDir(appName, image)
 
-	allCronTasks, err := cron.FetchCronTasks(cron.FetchCronTasksInput{AppName: appName})
+	cronTasks, err := cron.FetchCronTasks(cron.FetchCronTasksInput{AppName: appName})
 	if err != nil {
 		return fmt.Errorf("Error fetching cron tasks: %w", err)
-	}
-	// remove maintenance cron tasks
-	cronTasks := []cron.CronTask{}
-	for _, cronTask := range allCronTasks {
-		if !cronTask.Maintenance {
-			cronTasks = append(cronTasks, cronTask)
-		}
 	}
 
 	domains := []string{}
@@ -655,6 +706,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 				ID:       cronTask.ID,
 				Schedule: cronTask.Schedule,
 				Suffix:   suffix,
+				Suspend:  cronTask.Maintenance,
 			},
 			Labels:      labels,
 			ProcessType: ProcessType_Cron,

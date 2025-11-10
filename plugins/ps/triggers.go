@@ -42,7 +42,7 @@ func TriggerCorePostDeploy(appName string) error {
 	}
 
 	return common.SuppressOutput(func() error {
-		return config.SetMany(appName, entries, false)
+		return config.SetMany(appName, entries, false, false)
 	})
 }
 
@@ -245,7 +245,7 @@ func TriggerPostStop(appName string) error {
 	}
 
 	return common.SuppressOutput(func() error {
-		return config.SetMany(appName, entries, false)
+		return config.SetMany(appName, entries, false, false)
 	})
 }
 

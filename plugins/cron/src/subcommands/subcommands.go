@@ -37,6 +37,12 @@ func main() {
 			appName := args.Arg(0)
 			err = cron.CommandReport(appName, *format, infoFlag)
 		}
+	case "resume":
+		args := flag.NewFlagSet("cron:resume", flag.ExitOnError)
+		args.Parse(os.Args[2:])
+		appName := args.Arg(0)
+		cronID := args.Arg(1)
+		err = cron.CommandResume(appName, cronID)
 	case "run":
 		args := flag.NewFlagSet("cron:run", flag.ExitOnError)
 		detached := args.Bool("detach", false, "--detach: run the container in a detached mode")
@@ -57,6 +63,12 @@ func main() {
 			value = args.Arg(1)
 		}
 		err = cron.CommandSet(appName, property, value)
+	case "suspend":
+		args := flag.NewFlagSet("cron:suspend", flag.ExitOnError)
+		args.Parse(os.Args[2:])
+		appName := args.Arg(0)
+		cronID := args.Arg(1)
+		err = cron.CommandSuspend(appName, cronID)
 	default:
 		err = fmt.Errorf("Invalid plugin subcommand call: %s", subcommand)
 	}

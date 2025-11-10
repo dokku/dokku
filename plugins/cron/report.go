@@ -1,7 +1,9 @@
 package cron
 
 import (
+	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
 )
@@ -21,6 +23,11 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 		"--cron-maintenance":          reportMaintenance,
 	}
 
+	extraFlags := addCronMaintenanceFlags(appName, infoFlag)
+	for flag, fn := range extraFlags {
+		flags[flag] = fn
+	}
+
 	flagKeys := []string{}
 	for flagKey := range flags {
 		flagKeys = append(flagKeys, flagKey)
@@ -30,6 +37,24 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 	uppercaseFirstCharacter := true
 	infoFlags := common.CollectReport(appName, infoFlag, flags)
 	return common.ReportSingleApp("cron", appName, infoFlag, infoFlags, flagKeys, format, trimPrefix, uppercaseFirstCharacter)
+}
+
+func addCronMaintenanceFlags(appName string, infoFlag string) map[string]common.ReportFunc {
+	flags := map[string]common.ReportFunc{}
+
+	properties, err := common.PropertyGetAllByPrefix("cron", appName, MaintenancePropertyPrefix)
+	if err != nil {
+		return flags
+	}
+
+	for property, value := range properties {
+		key := strings.Replace(property, MaintenancePropertyPrefix, "", 1)
+		flags[fmt.Sprintf("--cron-maintenance-%s", key)] = func(appName string) string {
+			return value
+		}
+	}
+
+	return flags
 }
 
 func reportMailfrom(_ string) string {

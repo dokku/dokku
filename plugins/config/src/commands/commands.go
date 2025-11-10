@@ -24,6 +24,7 @@ Additional commands:`
     config:clear [--no-restart] (<app>|--global), Clears environment variables
     config:export [--format=FORMAT] [--merged] (<app>|--global), Export a global or app environment
     config:get [--quoted] (<app>|--global) KEY, Display a global or app-specific config value
+	config:import [--no-restart] [--replace] (<app>|--global) [FILE|-], Import environment from file
     config:keys [--merged] (<app>|--global), Show keys set in environment
     config:show [--merged] (<app>|--global), Show keys set in environment
     config:set [--encoded] [--no-restart] (<app>|--global) KEY1=VALUE1 [KEY2=VALUE2 ...], Set one or more config vars

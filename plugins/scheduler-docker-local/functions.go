@@ -107,16 +107,17 @@ func generateCronTasks() ([]cron.CronTask, error) {
 	}
 
 	for result := range results {
-		c := result
-		if len(c) > 0 && !c[0].Maintenance {
-			tasks = append(tasks, c...)
+		for _, task := range result {
+			if !task.Maintenance {
+				tasks = append(tasks, task)
+			}
 		}
 	}
 
 	return tasks, nil
 }
 
-func writeCronTasks(scheduler string) error {
+func writeCronTab(scheduler string) error {
 	// allow empty scheduler, which means all apps (used by letsencrypt)
 	if scheduler != "docker-local" && scheduler != "" {
 		return nil
@@ -154,7 +155,7 @@ func writeCronTasks(scheduler string) error {
 		return err
 	}
 
-	tmpFile, err := os.CreateTemp(os.TempDir(), fmt.Sprintf("dokku-%s-%s", common.MustGetEnv("DOKKU_PID"), "WriteCronTasks"))
+	tmpFile, err := os.CreateTemp(os.TempDir(), fmt.Sprintf("dokku-%s-%s", common.MustGetEnv("DOKKU_PID"), "WriteCronTab"))
 	if err != nil {
 		return fmt.Errorf("Cannot create temporary schedule file: %v", err)
 	}
