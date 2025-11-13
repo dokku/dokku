@@ -299,11 +299,20 @@ const (
 )
 
 type ProcessCron struct {
-	ID       string `yaml:"id"`
-	Schedule string `yaml:"schedule"`
-	Suffix   string `yaml:"suffix"`
-	Suspend  bool   `yaml:"suspend"`
+	ID                string                       `yaml:"id"`
+	Schedule          string                       `yaml:"schedule"`
+	Suffix            string                       `yaml:"suffix"`
+	Suspend           bool                         `yaml:"suspend"`
+	ConcurrencyPolicy ProcessCronConcurrencyPolicy `yaml:"concurrency_policy"`
 }
+
+type ProcessCronConcurrencyPolicy string
+
+const (
+	ProcessCronConcurrencyPolicy_Allow   ProcessCronConcurrencyPolicy = "Allow"
+	ProcessCronConcurrencyPolicy_Forbid  ProcessCronConcurrencyPolicy = "Forbid"
+	ProcessCronConcurrencyPolicy_Replace ProcessCronConcurrencyPolicy = "Replace"
+)
 
 type ProcessPortMap struct {
 	ContainerPort int32           `yaml:"container_port"`

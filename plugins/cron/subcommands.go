@@ -42,7 +42,7 @@ func CommandList(appName string, format string) error {
 	}
 
 	if format == "stdout" {
-		output := []string{"ID | Schedule | Maintenance | Command"}
+		output := []string{"ID | Schedule | Concurrency | Maintenance | Command"}
 		for _, task := range tasks {
 			maintenance := "false"
 			if task.Maintenance {
@@ -52,7 +52,7 @@ func CommandList(appName string, format string) error {
 					maintenance = "true (app)"
 				}
 			}
-			output = append(output, fmt.Sprintf("%s | %s | %s | %s", task.ID, task.Schedule, maintenance, task.Command))
+			output = append(output, fmt.Sprintf("%s | %s | %s | %t | %s", task.ID, task.Schedule, task.ConcurrencyPolicy, maintenance, task.Command))
 		}
 
 		result := columnize.SimpleFormat(output)
@@ -112,9 +112,11 @@ func CommandRun(appName string, cronID string, detached bool) error {
 	}
 
 	command := ""
+	concurrencyPolicy := "allow"
 	for _, task := range tasks {
 		if task.ID == cronID {
 			command = task.Command
+			concurrencyPolicy = task.ConcurrencyPolicy
 		}
 	}
 
@@ -134,6 +136,7 @@ func CommandRun(appName string, cronID string, detached bool) error {
 		os.Setenv("DOKKU_DISABLE_TTY", "true")
 	}
 
+	os.Setenv("DOKKU_CONCURRENCY_POLICY", concurrencyPolicy)
 	os.Setenv("DOKKU_CRON_ID", cronID)
 	os.Setenv("DOKKU_RM_CONTAINER", "1")
 	scheduler := common.GetAppScheduler(appName)
@@ -143,6 +146,11 @@ func CommandRun(appName string, cronID string, detached bool) error {
 		Args:        args,
 		StreamStdio: true,
 	})
+	if err != nil {
+		// return an error with an empty message to avoid
+		// printing the error message twice
+		return errors.New("")
+	}
 	return err
 }
 
