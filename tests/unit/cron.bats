@@ -253,15 +253,16 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "docker ps --filter "label=com.dokku.cron-id=$cron_id" -q | xargs docker inspect"
+  run /bin/bash -c "docker ps --filter "label=com.dokku.cron-id=$cron_id" -q | xargs docker inspect -f '{{ index .Config.Labels \"com.dokku.concurrency-policy\" }}'"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_exists
+  assert_output "forbid"
 
   run /bin/bash -c "dokku cron:run $TEST_APP $cron_id"
   echo "output: $output"
   echo "status: $status"
+  assert_output_contains "currently has a cron lock in place for $cron_id"
   assert_failure
 }
 
