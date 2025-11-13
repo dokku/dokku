@@ -143,6 +143,11 @@ func CommandRun(appName string, cronID string, detached bool) error {
 		Args:        args,
 		StreamStdio: true,
 	})
+	if err != nil {
+		// return an error with an empty message to avoid
+		// printing the error message twice
+		return errors.New("")
+	}
 	return err
 }
 

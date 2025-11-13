@@ -90,7 +90,9 @@ func LogFailWithError(err error) {
 			fmt.Fprintf(os.Stderr, " !     %s\n", e.Error())
 		}
 	} else {
-		fmt.Fprintf(os.Stderr, " !     %s\n", err.Error())
+		if err.Error() != "" {
+			fmt.Fprintf(os.Stderr, " !     %s\n", err.Error())
+		}
 	}
 	if errExit, ok := err.(ErrWithExitCode); ok {
 		os.Exit(errExit.ExitCode())
