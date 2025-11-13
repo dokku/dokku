@@ -59,7 +59,13 @@ trigger-scheduler-docker-local-scheduler-run() {
     fi
 
     if [[ "$concurrency_policy" == "replace" ]]; then
-      dokku_log_warn "Concurrency policy 'replace' is not supported for docker-local cron jobs"
+      local RUNNING_CONTAINERS="$("$DOCKER_BIN" container ls --filter "label=com.dokku.cron-id=$DOKKU_CRON_ID" --filter "status=running" --quiet || true)"
+      if [[ -n "$RUNNING_CONTAINERS" ]]; then
+        dokku_log_warn "Replacing running container for $DOKKU_CRON_ID"
+        "$DOCKER_BIN" container update --restart=no "$RUNNING_CONTAINERS" &>/dev/null || true
+        "$DOCKER_BIN" container stop "$RUNNING_CONTAINERS" >/dev/null && "$DOCKER_BIN" container kill "$RUNNING_CONTAINERS" &>/dev/null
+        plugn trigger scheduler-register-retired "$APP" "$RUNNING_CONTAINERS"
+      fi
     fi
   fi
 
