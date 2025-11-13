@@ -112,9 +112,11 @@ func CommandRun(appName string, cronID string, detached bool) error {
 	}
 
 	command := ""
+	concurrencyPolicy := "allow"
 	for _, task := range tasks {
 		if task.ID == cronID {
 			command = task.Command
+			concurrencyPolicy = task.ConcurrencyPolicy
 		}
 	}
 
@@ -134,6 +136,7 @@ func CommandRun(appName string, cronID string, detached bool) error {
 		os.Setenv("DOKKU_DISABLE_TTY", "true")
 	}
 
+	os.Setenv("DOKKU_CONCURRENCY_POLICY", concurrencyPolicy)
 	os.Setenv("DOKKU_CRON_ID", cronID)
 	os.Setenv("DOKKU_RM_CONTAINER", "1")
 	scheduler := common.GetAppScheduler(appName)
