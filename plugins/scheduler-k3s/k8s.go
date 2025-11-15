@@ -337,6 +337,51 @@ func (k KubernetesClient) DeleteNode(ctx context.Context, input DeleteNodeInput)
 	return k.Client.CoreV1().Nodes().Delete(ctx, input.Name, metav1.DeleteOptions{})
 }
 
+// DeletePodInput contains all the information needed to delete a Kubernetes pod
+type DeletePodInput struct {
+	// Name is the Kubernetes pod name
+	Name string
+
+	// Namespace is the Kubernetes namespace
+	Namespace string
+
+	// LabelSelector is the Kubernetes label selector
+	LabelSelector string
+}
+
+// DeletePod deletes a Kubernetes pod
+func (k KubernetesClient) DeletePod(ctx context.Context, input DeletePodInput) error {
+	if input.Name == "" && input.LabelSelector == "" {
+		return fmt.Errorf("name or label selector is required")
+	}
+
+	if input.Name != "" && input.LabelSelector != "" {
+		return fmt.Errorf("name and label selector cannot be used together")
+	}
+
+	if input.Name != "" {
+		return k.Client.CoreV1().Pods(input.Namespace).Delete(ctx, input.Name, metav1.DeleteOptions{})
+	}
+
+	// get the pods with the label selector
+	pods, err := k.ListPods(ctx, ListPodsInput{
+		Namespace:     input.Namespace,
+		LabelSelector: input.LabelSelector,
+	})
+	if err != nil {
+		return fmt.Errorf("Error listing pods: %w", err)
+	}
+
+	for _, pod := range pods {
+		err := k.Client.CoreV1().Pods(input.Namespace).Delete(ctx, pod.Name, metav1.DeleteOptions{})
+		if err != nil {
+			return fmt.Errorf("Error deleting pod %s: %w", pod.Name, err)
+		}
+	}
+
+	return nil
+}
+
 // DeleteSecretInput contains all the information needed to delete a Kubernetes secret
 type DeleteSecretInput struct {
 	// Name is the Kubernetes secret name

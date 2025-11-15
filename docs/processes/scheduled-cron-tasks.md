@@ -38,6 +38,8 @@ A cron task takes the following properties:
 - `command`: A command to be run within the built app image. Specified commands can also be `Procfile` entries.
 - `maintenance`: A boolean value that decides whether the cron task is in maintenance and therefore executable or not.
 - `schedule`: A [cron-compatible](https://en.wikipedia.org/wiki/Cron#Overview) scheduling definition upon which to run the command. Seconds are generally not supported.
+- `concurrency_policy`: A string (default: `allow`), that controls whether the cron task can be run concurrently with another invocation of itself. Valid options are `allow` (allow concurrency), `forbid` (exit the new cron task if there is an existing one), `replace` (delete any existing cron task and start the new one).
+
 
 Zero or more cron tasks can be specified per app. Cron tasks are validated after the build artifact is created but before the app is deployed, and the cron schedule is updated during the post-deploy phase.
 

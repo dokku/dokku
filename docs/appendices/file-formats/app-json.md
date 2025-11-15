@@ -23,6 +23,7 @@
 - `command`: (string, required)
 - `maintenance`: (boolean, optional)
 - `schedule`: (string, required)
+- `concurrency_policy`: (string, optional, default: `allow`, options: `allow`, `forbid`, `replace`)
 
 ## Formation
 
