@@ -55,6 +55,39 @@ func TriggerConfigUnset(appName string, key string, restart bool) error {
 	return nil
 }
 
+func migrateGlobalEnv() error {
+	if err := common.PropertySetup("--global"); err != nil {
+		return fmt.Errorf("Unable to setup global environment: %s", err.Error())
+	}
+
+	oldGlobalEnvFile := filepath.Join(common.MustGetEnv("DOKKU_ROOT"), "ENV")
+	isGlobalMigrated := common.PropertyGetDefault("config", "--global", "env-migrated", "")
+	if isGlobalMigrated == "true" {
+		return nil
+	}
+
+	oldGlobalEnv, err := loadFromFile("--global", oldGlobalEnvFile)
+	if err != nil {
+		return fmt.Errorf("Unable to load old global environment: %s", err.Error())
+	}
+
+	globalEnv, err := LoadGlobalEnv()
+	if err != nil {
+		return fmt.Errorf("Unable to load global environment: %s", err.Error())
+	}
+
+	globalEnv.Merge(oldGlobalEnv)
+	if err := globalEnv.Write(); err != nil {
+		return fmt.Errorf("Unable to write global environment: %s", err.Error())
+	}
+
+	if err := common.PropertyWrite("config", "--global", "env-migrated", "true"); err != nil {
+		return fmt.Errorf("Unable to set env-migrated property: %s", err.Error())
+	}
+
+	return nil
+}
+
 // TriggerInstall runs the install step for the config plugin
 func TriggerInstall() error {
 	if err := common.PropertySetup("config"); err != nil {
@@ -64,6 +97,10 @@ func TriggerInstall() error {
 	apps, err := common.UnfilteredDokkuApps()
 	if err != nil {
 		return nil
+	}
+
+	if err := migrateGlobalEnv(); err != nil {
+		return fmt.Errorf("Unable to migrate global environment: %s", err.Error())
 	}
 
 	// migrate all app ENV files to config path
