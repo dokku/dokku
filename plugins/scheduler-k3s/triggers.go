@@ -1212,10 +1212,44 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 		extraEnv["TRACE"] = "true"
 	}
 
+	namespace := getComputedNamespace(appName)
+	clientset, err := NewKubernetesClient()
+	if err != nil {
+		return fmt.Errorf("Error creating kubernetes client: %w", err)
+	}
+
+	if err := clientset.Ping(); err != nil {
+		return fmt.Errorf("kubernetes api not available: %w", err)
+	}
+
 	processType := "run"
 	if os.Getenv("DOKKU_CRON_ID") != "" {
 		processType = "cron"
 		labels["dokku.com/cron-id"] = os.Getenv("DOKKU_CRON_ID")
+		concurrencyPolicy := strings.ToUpper(os.Getenv("DOKKU_CONCURRENCY_POLICY"))
+		switch concurrencyPolicy {
+		case "forbid":
+			// check if there is a running pod with the same dokku.com/cron-id label
+			pods, err := clientset.ListPods(context.Background(), ListPodsInput{
+				Namespace:     namespace,
+				LabelSelector: fmt.Sprintf("dokku.com/cron-id=%s", os.Getenv("DOKKU_CRON_ID")),
+			})
+			if err != nil {
+				return fmt.Errorf("Error listing pods: %w", err)
+			}
+			if len(pods) > 0 {
+				return fmt.Errorf("There is a running pod with the same dokku.com/cron-id label")
+			}
+		case "replace":
+			// delete any existing pod with the same dokku.com/cron-id label
+			err := clientset.DeletePod(context.Background(), DeletePodInput{
+				Namespace:     namespace,
+				LabelSelector: fmt.Sprintf("dokku.com/cron-id=%s", os.Getenv("DOKKU_CRON_ID")),
+			})
+			if err != nil {
+				return fmt.Errorf("Error deleting pod: %w", err)
+			}
+		}
 	}
 
 	imageSourceType, err := common.DockerInspect(image, "{{ index .Config.Labels \"com.dokku.builder-type\" }}")
@@ -1245,7 +1279,6 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 		entrypoint = "/exec"
 	}
 
-	namespace := getComputedNamespace(appName)
 	helmAgent, err := NewHelmAgent(namespace, DevNullPrinter)
 	if err != nil {
 		return fmt.Errorf("Error creating helm agent: %w", err)
@@ -1274,15 +1307,6 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 	}
 
 	attachToPod := os.Getenv("DOKKU_DETACH_CONTAINER") != "1"
-
-	clientset, err := NewKubernetesClient()
-	if err != nil {
-		return fmt.Errorf("Error creating kubernetes client: %w", err)
-	}
-
-	if err := clientset.Ping(); err != nil {
-		return fmt.Errorf("kubernetes api not available: %w", err)
-	}
 
 	imagePullSecrets := getComputedImagePullSecrets(appName)
 	if imagePullSecrets == "" {
