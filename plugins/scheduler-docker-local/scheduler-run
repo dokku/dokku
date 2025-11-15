@@ -83,6 +83,7 @@ trigger-scheduler-docker-local-scheduler-run() {
 
     if [[ -n "$PROC_CMD" ]]; then
       dokku_log_info1_quiet "Found '$POTENTIAL_PROCFILE_KEY' in Procfile, running that command"
+      DOCKER_ARGS+=" --label=com.dokku.process-type=$POTENTIAL_PROCFILE_KEY"
       set -- "$PROC_CMD" "${@:2}"
     fi
   fi
