@@ -66,8 +66,12 @@ func TriggerInstall() error {
 		return nil
 	}
 
-	// migrate all created-at values from app mod-time to property
+	// migrate all app ENV files to config path
 	for _, appName := range apps {
+		if err := common.PropertySetupApp("config", appName); err != nil {
+			return fmt.Errorf("Unable to setup app environment: %s", err.Error())
+		}
+
 		oldEnvFile := filepath.Join(common.AppRoot(appName) + "ENV")
 		isMigrated := common.PropertyGetDefault("config", appName, "env-migrated", "")
 		// delete the old file on the next install
@@ -84,10 +88,6 @@ func TriggerInstall() error {
 				return fmt.Errorf("Unable to set env-migrated property: %s", err.Error())
 			}
 			continue
-		}
-
-		if err := common.PropertySetupApp("config", appName); err != nil {
-			return fmt.Errorf("Unable to setup app environment: %s", err.Error())
 		}
 
 		// merge in the old env into the new env
