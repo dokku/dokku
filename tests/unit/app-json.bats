@@ -94,7 +94,12 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku config:set --no-restart $TEST_APP DOKKU_CNB_EXPERIMENTAL=1 SECRET_KEY=fjdkslafjdk"
+  run /bin/bash -c "dokku config:set --no-restart $TEST_APP SECRET_KEY=fjdkslafjdk"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku builder:set $TEST_APP selected pack"
   echo "output: $output"
   echo "status: $status"
   assert_success

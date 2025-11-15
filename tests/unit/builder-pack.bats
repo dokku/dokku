@@ -7,11 +7,13 @@ setup_file() {
 }
 
 setup() {
+  global_setup
   create_app
 }
 
 teardown() {
   destroy_app
+  global_teardown
 }
 
 @test "(builder-pack:set)" {
@@ -30,7 +32,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP initialize_for_cnb
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP add_requirements_txt_cnb
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -80,7 +82,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP initialize_for_cnb
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP add_requirements_txt_cnb
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -102,10 +104,25 @@ teardown() {
   assert_success
 }
 
-initialize_for_cnb() {
-  local APP="$1"
-  local APP_REPO_DIR="$2"
-  [[ -z "$APP" ]] && local APP="$TEST_APP"
-  echo "flask" >>"$APP_REPO_DIR/requirements.txt"
-  mv "$APP_REPO_DIR/app-cnb.json" "$APP_REPO_DIR/app.json"
+@test "(ps) cnb env vars" {
+  run /bin/bash -c "dokku config:set $TEST_APP APP_RESPECTS_ENV_VARS=1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku builder:set $TEST_APP selected pack"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP add_requirements_txt_cnb
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "curl $(dokku url $TEST_APP)/env"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains '"APP_RESPECTS_ENV_VARS": "1"'
 }

@@ -12,11 +12,6 @@ trigger-builder-pack-builder-detect() {
     echo "pack"
     return
   fi
-
-  if [[ "$(config_get "$APP" DOKKU_CNB_EXPERIMENTAL || true)" == "1" ]]; then
-    echo "pack"
-    return
-  fi
 }
 
 trigger-builder-pack-builder-detect "$@"
