@@ -112,11 +112,158 @@ trigger-builder-pack-builder-build() {
         fi
         shift 1
         ;;
-      --cache | --cache-image | --creation-time | --env-file | --extension | --gid | --insecure-registry | --lifecycle-image | --network | --platform | --post-buildpack | --pre-buildpack | --previous-image | --pull-policy | --run-image | --uid | --workspace)
-        # todo: additionally support --flag=value syntax
-        PACK_ARGS+=("$1")
+      --cache)
+        PACK_ARGS+=("--cache")
         PACK_ARGS+=("$2")
         shift 2
+        ;;
+      --cache=*)
+        PACK_ARGS+=("--cache" "${1#--cache=}")
+        shift 1
+        ;;
+      --cache-image)
+        PACK_ARGS+=("--cache-image")
+        PACK_ARGS+=("$2")
+        shift 2
+        ;;
+      --cache-image=*)
+        PACK_ARGS+=("--cache-image" "${1#--cache-image=}")
+        shift 1
+        ;;
+      --creation-time)
+        PACK_ARGS+=("--creation-time")
+        PACK_ARGS+=("$2")
+        shift 2
+        ;;
+      --creation-time=*)
+        PACK_ARGS+=("--creation-time" "${1#--creation-time=}")
+        shift 1
+        ;;
+      --env-file)
+        PACK_ARGS+=("--env-file")
+        PACK_ARGS+=("$2")
+        shift 2
+        ;;
+      --env-file=*)
+        PACK_ARGS+=("--env-file" "${1#--env-file=}")
+        shift 1
+        ;;
+      --extension)
+        PACK_ARGS+=("--extension")
+        PACK_ARGS+=("$2")
+        shift 2
+        ;;
+      --extension=*)
+        PACK_ARGS+=("--extension" "${1#--extension=}")
+        shift 1
+        ;;
+      --gid)
+        PACK_ARGS+=("--gid")
+        PACK_ARGS+=("$2")
+        shift 2
+        ;;
+      --gid=*)
+        PACK_ARGS+=("--gid" "${1#--gid=}")
+        shift 1
+        ;;
+      --insecure-registry)
+        PACK_ARGS+=("--insecure-registry")
+        PACK_ARGS+=("$2")
+        shift 2
+        ;;
+      --insecure-registry=*)
+        PACK_ARGS+=("--insecure-registry" "${1#--insecure-registry=}")
+        shift 1
+        ;;
+      --lifecycle-image)
+        PACK_ARGS+=("--lifecycle-image")
+        PACK_ARGS+=("$2")
+        shift 2
+        ;;
+      --lifecycle-image=*)
+        PACK_ARGS+=("--lifecycle-image" "${1#--lifecycle-image=}")
+        shift 1
+        ;;
+      --network)
+        PACK_ARGS+=("--network")
+        PACK_ARGS+=("$2")
+        shift 2
+        ;;
+      --network=*)
+        PACK_ARGS+=("--network" "${1#--network=}")
+        shift 1
+        ;;
+      --platform)
+        PACK_ARGS+=("--platform")
+        PACK_ARGS+=("$2")
+        shift 2
+        ;;
+      --platform=*)
+        PACK_ARGS+=("--platform" "${1#--platform=}")
+        shift 1
+        ;;
+      --post-buildpack)
+        PACK_ARGS+=("--post-buildpack")
+        PACK_ARGS+=("$2")
+        shift 2
+        ;;
+      --post-buildpack=*)
+        PACK_ARGS+=("--post-buildpack" "${1#--post-buildpack=}")
+        shift 1
+        ;;
+      --pre-buildpack)
+        PACK_ARGS+=("--pre-buildpack")
+        PACK_ARGS+=("$2")
+        shift 2
+        ;;
+      --pre-buildpack=*)
+        PACK_ARGS+=("--pre-buildpack" "${1#--pre-buildpack=}")
+        shift 1
+        ;;
+      --previous-image)
+        PACK_ARGS+=("--previous-image")
+        PACK_ARGS+=("$2")
+        shift 2
+        ;;
+      --previous-image=*)
+        PACK_ARGS+=("--previous-image" "${1#--previous-image=}")
+        shift 1
+        ;;
+      --pull-policy)
+        PACK_ARGS+=("--pull-policy")
+        PACK_ARGS+=("$2")
+        shift 2
+        ;;
+      --pull-policy=*)
+        PACK_ARGS+=("--pull-policy" "${1#--pull-policy=}")
+        shift 1
+        ;;
+      --run-image)
+        PACK_ARGS+=("--run-image")
+        PACK_ARGS+=("$2")
+        shift 2
+        ;;
+      --run-image=*)
+        PACK_ARGS+=("--run-image" "${1#--run-image=}")
+        shift 1
+        ;;
+      --uid)
+        PACK_ARGS+=("--uid")
+        PACK_ARGS+=("$2")
+        shift 2
+        ;;
+      --uid=*)
+        PACK_ARGS+=("--uid" "${1#--uid=}")
+        shift 1
+        ;;
+      --workspace)
+        PACK_ARGS+=("--workspace")
+        PACK_ARGS+=("$2")
+        shift 2
+        ;;
+      --workspace=*)
+        PACK_ARGS+=("--workspace" "${1#--workspace=}")
+        shift 1
         ;;
       --clear-cache | --disable-system-buildpacks | --publish | --trust-builder | --trust-extra-buildpacks | --userns-host)
         PACK_ARGS+=("$1")

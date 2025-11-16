@@ -147,8 +147,82 @@ trigger-builder-nixpacks-builder-build() {
         fi
         shift 1
         ;;
-      --platform | --cache-key | --incremental-cache-image | --libs | --cache-from | --docker-host | --add-host | --docker-tls-verify)
-        # todo: additionally support --flag=value syntax
+      --platform)
+        NIXPACKS_ARGS+=("$1")
+        NIXPACKS_ARGS+=("$2")
+        shift 2
+        ;;
+      --platform=*)
+        NIXPACKS_ARGS+=("$1")
+        NIXPACKS_ARGS+=("$2")
+        shift 2
+        ;;
+      --cache-key)
+        NIXPACKS_ARGS+=("$1")
+        NIXPACKS_ARGS+=("$2")
+        shift 2
+        ;;
+      --cache-key=*)
+        NIXPACKS_ARGS+=("$1")
+        NIXPACKS_ARGS+=("$2")
+        shift 2
+        ;;
+      --incremental-cache-image)
+        NIXPACKS_ARGS+=("$1")
+        NIXPACKS_ARGS+=("$2")
+        shift 2
+        ;;
+      --incremental-cache-image=*)
+        NIXPACKS_ARGS+=("$1")
+        NIXPACKS_ARGS+=("$2")
+        shift 2
+        ;;
+      --libs)
+        NIXPACKS_ARGS+=("$1")
+        NIXPACKS_ARGS+=("$2")
+        shift 2
+        ;;
+      --libs=*)
+        NIXPACKS_ARGS+=("$1")
+        NIXPACKS_ARGS+=("$2")
+        shift 2
+        ;;
+      --cache-from)
+        NIXPACKS_ARGS+=("$1")
+        NIXPACKS_ARGS+=("$2")
+        shift 2
+        ;;
+      --cache-from=*)
+        NIXPACKS_ARGS+=("$1")
+        NIXPACKS_ARGS+=("$2")
+        shift 2
+        ;;
+      --docker-host)
+        NIXPACKS_ARGS+=("$1")
+        NIXPACKS_ARGS+=("$2")
+        shift 2
+        ;;
+      --docker-host=*)
+        NIXPACKS_ARGS+=("$1")
+        NIXPACKS_ARGS+=("$2")
+        shift 2
+        ;;
+      --add-host)
+        NIXPACKS_ARGS+=("$1")
+        NIXPACKS_ARGS+=("$2")
+        shift 2
+        ;;
+      --add-host=*)
+        NIXPACKS_ARGS+=("$1")
+        NIXPACKS_ARGS+=("$2")
+        shift 2
+        ;;
+      --docker-tls-verify)
+        NIXPACKS_ARGS+=("$1")
+        NIXPACKS_ARGS+=("$2")
+        shift 2
+        ;;
+      --docker-tls-verify=*)
         NIXPACKS_ARGS+=("$1")
         NIXPACKS_ARGS+=("$2")
         shift 2
