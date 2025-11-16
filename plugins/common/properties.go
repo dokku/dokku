@@ -540,6 +540,15 @@ func PropertySetup(pluginName string) error {
 	})
 }
 
+// PropertySetupApp creates the plugin config root for a given app
+func PropertySetupApp(pluginName string, appName string) error {
+	if err := PropertySetup(pluginName); err != nil {
+		return err
+	}
+
+	return makePluginAppPropertyPath(pluginName, appName)
+}
+
 func getPropertyPath(pluginName string, appName string, property string) string {
 	pluginAppConfigRoot := getPluginAppPropertyPath(pluginName, appName)
 	return filepath.Join(pluginAppConfigRoot, property)

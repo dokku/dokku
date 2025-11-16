@@ -22,12 +22,12 @@ Environment variables are available both at run time and during the application 
 For buildpack deploys, Dokku will create a  `/app/.env` file that can be used for legacy buildpacks. Note that this is _not_ updated when `config:set` or `config:unset` is called, and is only written during a `deploy` or `ps:rebuild`. Developers are encouraged to instead read from the application environment directly, as the proper values will be available then.
 
 > [!NOTE]
-> Global `ENV` files are sourced before app-specific `ENV` files. This means that app-specific variables will take precedence over global variables. Configuring your global `ENV` file is manual, and should be considered potentially dangerous as configuration applies to all applications.
+> Global environment variables are sourced before app-specific environment variables. This means that app-specific variables will take precedence over global variables. Configuring global environment variables should be considered potentially dangerous as configuration applies to all applications.
 
 You can set multiple environment variables at once:
 
 ```shell
-dokku config:set node-js-app ENV=prod COMPILE_ASSETS=1
+dokku config:set node-js-app APP_ENV=prod COMPILE_ASSETS=1
 ```
 
 Whitespace and special characters get tricky. If you are using dokku locally you don't need to do any special escaping. If you are using dokku over ssh you will need to backslash-escape spaces:
@@ -45,7 +45,7 @@ dokku config:set --encoded node-js-app KEY="$(base64 -w 0 ~/.ssh/id_rsa)"
 When setting or unsetting environment variables, you may wish to avoid an application restart. This is useful when developing plugins or when setting multiple environment variables in a scripted manner. To do so, use the `--no-restart` flag:
 
 ```shell
-dokku config:set --no-restart node-js-app ENV=prod
+dokku config:set --no-restart node-js-app APP_ENV=prod
 ```
 
 If you wish to have the variables output in an `eval`-compatible form, you can use the `config:export` command
@@ -54,7 +54,7 @@ If you wish to have the variables output in an `eval`-compatible form, you can u
 dokku config:export node-js-app
 # outputs variables in the form:
 #
-#   export ENV='prod'
+#   export APP_ENV='prod'
 #   export COMPILE_ASSETS='1'
 
 # source in all the node-js-app app environment variables
@@ -68,7 +68,7 @@ dokku config:export --format shell node-js-app
 
 # outputs variables in the form:
 #
-#   ENV='prod' COMPILE_ASSETS='1'
+#   APP_ENV='prod' COMPILE_ASSETS='1'
 ```
 
 ## Special Config Variables

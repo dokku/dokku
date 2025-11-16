@@ -10,11 +10,11 @@ import (
 
 var (
 	testAppName  = "test-app-1"
-	testAppDir   = strings.Join([]string{"/home/dokku/", testAppName}, "")
+	testAppDir   = strings.Join([]string{"/var/lib/dokku/config/config/", testAppName}, "")
 	testEnvFile  = strings.Join([]string{testAppDir, "/ENV"}, "")
 	testEnvLine  = "export testKey=TESTING"
 	testAppName2 = "01-test-app-1"
-	testAppDir2  = strings.Join([]string{"/home/dokku/", testAppName2}, "")
+	testAppDir2  = strings.Join([]string{"/var/lib/dokku/config/config/", testAppName2}, "")
 	testEnvFile2 = strings.Join([]string{testAppDir2, "/ENV"}, "")
 	testEnvLine2 = "export testKey=TESTING"
 )
