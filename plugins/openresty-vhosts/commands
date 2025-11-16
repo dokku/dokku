@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-[[ " openresty:help help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
+[[ " openresty:help openresty:label:add openresty:label:remove openresty:label:show help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
 source "$PLUGIN_AVAILABLE_PATH/openresty-vhosts/help-functions"
 source "$PLUGIN_AVAILABLE_PATH/openresty-vhosts/command-functions"
 set -eo pipefail

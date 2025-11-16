@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-[[ " caddy:help help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
+[[ " caddy:help caddy:label:add caddy:label:remove caddy:label:show help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
 source "$PLUGIN_AVAILABLE_PATH/caddy-vhosts/help-functions"
 source "$PLUGIN_AVAILABLE_PATH/caddy-vhosts/command-functions"
 set -eo pipefail
