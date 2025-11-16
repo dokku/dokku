@@ -56,7 +56,7 @@ fn-proxy-display-labels() {
   declare desc="print user-set app container labels for specified proxy"
   declare PROXY="$1" APP="$2"
   local proxy_labels_file_path="$(fn-proxy-get-labels-file-path "$PROXY" "$APP")"
-  echo "${PROXY^} labels:"
+  dokku_log_info2_quiet "${APP} ${PROXY} labels"
   sed -e 's/^/    /' "$proxy_labels_file_path"
 }
 
