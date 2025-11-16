@@ -114,6 +114,7 @@ trigger-builder-railpack-builder-build() {
         shift 1
         ;;
       *)
+        shift
         continue
         ;;
     esac

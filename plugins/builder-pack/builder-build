@@ -123,6 +123,7 @@ trigger-builder-pack-builder-build() {
         shift 1
         ;;
       *)
+        shift
         continue
         ;;
     esac

@@ -236,6 +236,7 @@ trigger-builder-dockerfile-builder-build() {
         shift 1
         ;;
       *)
+        shift
         continue
         ;;
     esac
