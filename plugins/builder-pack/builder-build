@@ -52,40 +52,6 @@ trigger-builder-pack-builder-build() {
         PACK_ARGS+=("$2")
         shift 2
         ;;
-      -r | --buildpack-registry)
-        PACK_ARGS+=("--buildpack-registry")
-        PACK_ARGS+=("$2")
-        shift 2
-        ;;
-      -d | --descriptor)
-        PACK_ARGS+=("--descriptor")
-        PACK_ARGS+=("$2")
-        shift 2
-        ;;
-      -e | --env)
-        PACK_ARGS+=("--env")
-        PACK_ARGS+=("$2")
-        shift 2
-        ;;
-      -t | --tag)
-        PACK_ARGS+=("--tag")
-        PACK_ARGS+=("$2")
-        shift 2
-        ;;
-      --cache | --cache-image | --creation-time | --docker-host | --env-file | --extension | --gid | --insecure-registry | --lifecycle-image | --network | --platform | --post-buildpack | --pre-buildpack | --previous-image | --pull-policy | --report-output-dir | --run-image | --sbom-output-dir | --uid | --workspace)
-        PACK_ARGS+=("$1")
-        PACK_ARGS+=("$2")
-        shift 2
-        ;;
-      --clear-cache | --disable-system-buildpacks | --publish | --trust-builder | --trust-extra-buildpacks | --userns-host)
-        PACK_ARGS+=("$1")
-        shift 1
-        ;;
-      --volume | -v)
-        PACK_ARGS+=("--volume")
-        PACK_ARGS+=("$2")
-        shift 2
-        ;;
       -b=* | --buildpack=*)
         if [[ "$1" == "--buildpack=*" ]]; then
           PACK_ARGS+=("--buildpack" "${1#--buildpack=}")
@@ -94,12 +60,22 @@ trigger-builder-pack-builder-build() {
         fi
         shift 1
         ;;
+      -r | --buildpack-registry)
+        PACK_ARGS+=("--buildpack-registry")
+        PACK_ARGS+=("$2")
+        shift 2
+        ;;
       -r=* | --buildpack-registry=*)
         if [[ "$1" == "--buildpack-registry=*" ]]; then
           PACK_ARGS+=("--buildpack-registry" "${1#--buildpack-registry=}")
         elif [[ "$1" == "-r=*" ]]; then
           PACK_ARGS+=("--buildpack-registry" "${1#-r=}")
         fi
+        shift 2
+        ;;
+      -d | --descriptor)
+        PACK_ARGS+=("--descriptor")
+        PACK_ARGS+=("$2")
         shift 2
         ;;
       -d=* | --descriptor=*)
@@ -110,6 +86,11 @@ trigger-builder-pack-builder-build() {
         fi
         shift 1
         ;;
+      -e | --env)
+        PACK_ARGS+=("--env")
+        PACK_ARGS+=("$2")
+        shift 2
+        ;;
       -e=* | --env=*)
         if [[ "$1" == "--env=*" ]]; then
           PACK_ARGS+=("--env" "${1#--env=}")
@@ -117,6 +98,11 @@ trigger-builder-pack-builder-build() {
           PACK_ARGS+=("--env" "${1#-e=}")
         fi
         shift 1
+        ;;
+      -t | --tag)
+        PACK_ARGS+=("--tag")
+        PACK_ARGS+=("$2")
+        shift 2
         ;;
       -t=* | --tag=*)
         if [[ "$1" == "--tag=*" ]]; then
@@ -126,12 +112,26 @@ trigger-builder-pack-builder-build() {
         fi
         shift 1
         ;;
+      --volume | -v)
+        PACK_ARGS+=("--volume")
+        PACK_ARGS+=("$2")
+        shift 2
+        ;;
       --volume=* | -v=*)
         if [[ "$1" == "--volume=*" ]]; then
           PACK_ARGS+=("--volume" "${1#--volume=}")
         elif [[ "$1" == "-v=*" ]]; then
           PACK_ARGS+=("--volume" "${1#-v=}")
         fi
+        shift 1
+        ;;
+      --cache | --cache-image | --creation-time | --docker-host | --env-file | --extension | --gid | --insecure-registry | --lifecycle-image | --network | --platform | --post-buildpack | --pre-buildpack | --previous-image | --pull-policy | --report-output-dir | --run-image | --sbom-output-dir | --uid | --workspace)
+        PACK_ARGS+=("$1")
+        PACK_ARGS+=("$2")
+        shift 2
+        ;;
+      --clear-cache | --disable-system-buildpacks | --publish | --trust-builder | --trust-extra-buildpacks | --userns-host)
+        PACK_ARGS+=("$1")
         shift 1
         ;;
       *)
