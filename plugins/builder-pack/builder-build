@@ -125,7 +125,8 @@ trigger-builder-pack-builder-build() {
         fi
         shift 1
         ;;
-      --cache | --cache-image | --creation-time | --docker-host | --env-file | --extension | --gid | --insecure-registry | --lifecycle-image | --network | --platform | --post-buildpack | --pre-buildpack | --previous-image | --pull-policy | --report-output-dir | --run-image | --sbom-output-dir | --uid | --workspace)
+      --cache | --cache-image | --creation-time | --env-file | --extension | --gid | --insecure-registry | --lifecycle-image | --network | --platform | --post-buildpack | --pre-buildpack | --previous-image | --pull-policy | --run-image | --uid | --workspace)
+        # todo: additionally support --flag=value syntax
         PACK_ARGS+=("$1")
         PACK_ARGS+=("$2")
         shift 2
