@@ -49,11 +49,7 @@ trigger-builder-railpack-builder-build() {
         shift 2
         ;;
       --platform=*)
-        if [[ "$1" == "--buildpack=*" ]]; then
-          RAILPACK_ARGS+=("--platform" "${1#--platform=}")
-        elif [[ "$1" == "--platform=*" ]]; then
-          RAILPACK_ARGS+=("--platform" "${1#--platform=}")
-        fi
+        RAILPACK_ARGS+=("--platform" "${1#--platform=}")
         shift 1
         ;;
       --progress)
@@ -62,9 +58,7 @@ trigger-builder-railpack-builder-build() {
         shift 2
         ;;
       --progress=*)
-        if [[ "$1" == "--progress=*" ]]; then
-          RAILPACK_ARGS+=("--progress" "${1#--progress=}")
-        fi
+        RAILPACK_ARGS+=("--progress" "${1#--progress=}")
         shift 1
         ;;
       --cache-key)
@@ -73,9 +67,7 @@ trigger-builder-railpack-builder-build() {
         shift 2
         ;;
       --cache-key=*)
-        if [[ "$1" == "--cache-key=*" ]]; then
-          RAILPACK_ARGS+=("--cache-key" "${1#--cache-key=}")
-        fi
+        RAILPACK_ARGS+=("--cache-key" "${1#--cache-key=}")
         shift 1
         ;;
       -e | --env)
@@ -86,8 +78,8 @@ trigger-builder-railpack-builder-build() {
       -e=* | --env=*)
         if [[ "$1" == "--env=*" ]]; then
           RAILPACK_ARGS+=("--env" "${1#--env=}")
-        elif [[ "$1" == "--env=*" ]]; then
-          RAILPACK_ARGS+=("--env" "${1#--env=}")
+        elif [[ "$1" == "--e=*" ]]; then
+          RAILPACK_ARGS+=("--env" "${1#-e=}")
         fi
         shift 1
         ;;
@@ -97,9 +89,7 @@ trigger-builder-railpack-builder-build() {
         shift 2
         ;;
       --previous=*)
-        if [[ "$1" == "--previous=*" ]]; then
-          RAILPACK_ARGS+=("--previous" "${1#--previous=}")
-        fi
+        RAILPACK_ARGS+=("--previous" "${1#--previous=}")
         shift 1
         ;;
       --build-cmd)
@@ -108,9 +98,7 @@ trigger-builder-railpack-builder-build() {
         shift 2
         ;;
       --build-cmd=*)
-        if [[ "$1" == "--build-cmd=*" ]]; then
-          RAILPACK_ARGS+=("--build-cmd" "${1#--build-cmd=}")
-        fi
+        RAILPACK_ARGS+=("--build-cmd" "${1#--build-cmd=}")
         shift 1
         ;;
       --start-cmd)
@@ -119,9 +107,7 @@ trigger-builder-railpack-builder-build() {
         shift 2
         ;;
       --start-cmd=*)
-        if [[ "$1" == "--start-cmd=*" ]]; then
-          RAILPACK_ARGS+=("--start-cmd" "${1#--start-cmd=}")
-        fi
+        RAILPACK_ARGS+=("--start-cmd" "${1#--start-cmd=}")
         shift 1
         ;;
       ---show-plan | --error-missing-start)
