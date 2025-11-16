@@ -45,10 +45,11 @@ git add .
 
 [[ -x pre-commit ]] && ./pre-commit "$REMOTE" "$REPO"
 git commit -m 'initial commit'
+current_branch="$(git rev-parse --abbrev-ref HEAD)"
 if [[ "$SHOULD_FAIL" == true ]]; then
-  git push target "master:$BRANCH" && succeeded git-push
+  git push target "$current_branch:$BRANCH" && succeeded git-push
 else
-  git push target "master:$BRANCH" || failed git-push
+  git push target "$current_branch:$BRANCH" || failed git-push
 fi
 if [[ -x post-deploy ]]; then
   ./post-deploy "$REMOTE" "$REPO" || failed post-deploy
