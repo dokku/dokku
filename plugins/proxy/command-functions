@@ -10,7 +10,7 @@ cmd-proxy-labels-show() {
   [[ "$1" == "$cmd" ]] && shift 1
   declare PROXY="$1" APP="$2" PASSED_LABEL_NAME="$3"
 
-  [[ -z "$PROXY" ]] && dokku_log_fail "Error invoking proxy:label command"
+  [[ -z "$PROXY" ]] && dokku_log_fail "Error invoking proxy:labels:show command"
   verify_app_name "$APP"
 
   if [[ -n "$PASSED_LABEL_NAME" ]]; then
@@ -27,7 +27,7 @@ cmd-proxy-labels-add() {
   [[ "$1" == "$cmd" ]] && shift 1
   declare PROXY="$1" APP="$2" PASSED_LABEL_NAME="$3" PASSED_LABEL_VALUE="$4"
 
-  [[ -z "$PROXY" ]] && dokku_log_fail "Error invoking proxy:label command"
+  [[ -z "$PROXY" ]] && dokku_log_fail "Error invoking proxy:labels:add command"
   [[ -z "$PASSED_LABEL_NAME" ]] && dokku_log_fail "Please specify a container label for the app"
   [[ -z "$PASSED_LABEL_VALUE" ]] && dokku_log_fail "Please specify a value for the container label"
   verify_app_name "$APP"
@@ -46,7 +46,7 @@ cmd-proxy-labels-remove() {
   [[ "$1" == "$cmd" ]] && shift 1
   declare PROXY="$1" APP="$2" PASSED_LABEL_NAME="$3"
 
-  [[ -z "$PROXY" ]] && dokku_log_fail "Error invoking proxy:label command"
+  [[ -z "$PROXY" ]] && dokku_log_fail "Error invoking proxy:labels:remove command"
   [[ -z "$PASSED_LABEL_NAME" ]] && dokku_log_fail "Please specify a container label for the app"
   verify_app_name "$APP"
 
