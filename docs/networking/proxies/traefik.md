@@ -127,6 +127,54 @@ dokku traefik:set --global log-level DEBUG
 
 After modifying, the Traefik container will need to be restarted.
 
+### Label Management
+
+The Traefik plugin allows you to add custom container labels to apps. These labels are injected into containers during deployment and can be used to configure Traefik behavior beyond what the plugin provides by default.
+
+Refer to the upstream [Traefik](https://doc.traefik.io/traefik/) documentation for more information on what labels are available.
+
+#### Adding a label
+
+To add a custom container label to an app, use the `traefik:label:add` command:
+
+```shell
+dokku traefik:label:add node-js-app traefik.directive value
+```
+
+This will add the label `traefik.directive=value` to the app's containers. After adding a label, you will need to rebuild or redeploy the app for the label to be applied to running containers.
+
+```shell
+dokku ps:rebuild node-js-app
+```
+
+#### Removing a label
+
+To remove a custom container label from an app, use the `traefik:label:remove` command:
+
+```shell
+dokku traefik:label:remove node-js-app traefik.directive
+```
+
+This will remove the specified label from the app. After removing a label, you will need to rebuild or redeploy the app for the change to be applied to running containers.
+
+```shell
+dokku ps:rebuild node-js-app
+```
+
+#### Showing labels
+
+To view all custom container labels for an app, use the `traefik:label:show` command:
+
+```shell
+dokku traefik:label:show node-js-app
+```
+
+To view a specific label value, provide the label name:
+
+```shell
+dokku traefik:label:show node-js-app traefik.directive
+```
+
 ### SSL Configuration
 
 The traefik plugin only supports automatic ssl certificates from it's letsencrypt integration. Managed certificates provided by the `certs` plugin are ignored.

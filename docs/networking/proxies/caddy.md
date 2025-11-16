@@ -3,7 +3,7 @@
 > [!IMPORTANT]
 > New as of 0.28.0
 
-Dokku provides integration with the [Caddy](https://caddyserver.com/) proxy service by utilizing the Docker label-based integration implemented by Caddy.
+Dokku provides integration with the [Caddy](https://caddyserver.com/) proxy service by utilizing the Docker label-based integration implemented by [Caddy Docker Proxy](https://github.com/lucaslorentz/caddy-docker-proxy).
 
 ```
 caddy:report [<app>] [<flag>]            # Displays a caddy report for one or more apps
@@ -116,6 +116,54 @@ dokku caddy:set --global log-level DEBUG
 ```
 
 After modifying,  the Caddy container will need to be restarted.
+
+### Label Management
+
+The Caddy plugin allows you to add custom container labels to apps. These labels are injected into containers during deployment and can be used to configure Caddy behavior beyond what the plugin provides by default.
+
+Refer to the upstream [caddy-docker-proxy](https://github.com/lucaslorentz/caddy-docker-proxy) documentation for more information on what labels are available.
+
+#### Adding a label
+
+To add a custom container label to an app, use the `caddy:label:add` command:
+
+```shell
+dokku caddy:label:add node-js-app caddy.directive value
+```
+
+This will add the label `caddy.directive=value` to the app's containers. After adding a label, you will need to rebuild or redeploy the app for the label to be applied to running containers.
+
+```shell
+dokku ps:rebuild node-js-app
+```
+
+#### Removing a label
+
+To remove a custom container label from an app, use the `caddy:label:remove` command:
+
+```shell
+dokku caddy:label:remove node-js-app caddy.directive
+```
+
+This will remove the specified label from the app. After removing a label, you will need to rebuild or redeploy the app for the change to be applied to running containers.
+
+```shell
+dokku ps:rebuild node-js-app
+```
+
+#### Showing labels
+
+To view all custom container labels for an app, use the `caddy:label:show` command:
+
+```shell
+dokku caddy:label:show node-js-app
+```
+
+To view a specific label value, provide the label name:
+
+```shell
+dokku caddy:label:show node-js-app caddy.directive
+```
 
 ### SSL Configuration
 
