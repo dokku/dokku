@@ -38,23 +38,15 @@ trigger-builder-pack-builder-build() {
   plugn trigger pre-build "$BUILDER_TYPE" "$APP" "$SOURCECODE_WORK_DIR"
 
   local DOCKER_ARGS=$(: | plugn trigger docker-args-build "$APP" "$BUILDER_TYPE")
-  [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" --env=TRACE=true "
   DOCKER_ARGS+=$(: | plugn trigger docker-args-process-build "$APP" "$BUILDER_TYPE")
+  [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" --env=TRACE=true "
 
   DOCKER_ARGS=" $DOCKER_ARGS "
-  declare -a ARG_ARRAY
-  eval "ARG_ARRAY=($DOCKER_ARGS)"
-
   eval set -- "$DOCKER_ARGS"
 
   declare -a PACK_ARGS
   while true; do
     case "$1" in
-      -B | --builder)
-        PACK_ARGS+=("--builder")
-        PACK_ARGS+=("$2")
-        shift 2
-        ;;
       -b | --buildpack)
         PACK_ARGS+=("--buildpack")
         PACK_ARGS+=("$2")
@@ -65,11 +57,6 @@ trigger-builder-pack-builder-build() {
         PACK_ARGS+=("$2")
         shift 2
         ;;
-      -D | --default-process)
-        PACK_ARGS+=("--default-process")
-        PACK_ARGS+=("$2")
-        shift 2
-        ;;
       -d | --descriptor)
         PACK_ARGS+=("--descriptor")
         PACK_ARGS+=("$2")
@@ -77,11 +64,6 @@ trigger-builder-pack-builder-build() {
         ;;
       -e | --env)
         PACK_ARGS+=("--env")
-        PACK_ARGS+=("$2")
-        shift 2
-        ;;
-      -p | --path)
-        PACK_ARGS+=("--path")
         PACK_ARGS+=("$2")
         shift 2
         ;;
@@ -104,14 +86,6 @@ trigger-builder-pack-builder-build() {
         PACK_ARGS+=("$2")
         shift 2
         ;;
-      -B=* | --builder=*)
-        if [[ "$1" == "--builder=*" ]]; then
-          PACK_ARGS+=("--builder" "${1#--builder=}")
-        elif [[ "$1" == "-B=*" ]]; then
-          PACK_ARGS+=("--builder" "${1#-B=}")
-        fi
-        shift 1
-        ;;
       -b=* | --buildpack=*)
         if [[ "$1" == "--buildpack=*" ]]; then
           PACK_ARGS+=("--buildpack" "${1#--buildpack=}")
@@ -128,14 +102,6 @@ trigger-builder-pack-builder-build() {
         fi
         shift 2
         ;;
-      -D=* | --default-process=*)
-        if [[ "$1" == "--default-process=*" ]]; then
-          PACK_ARGS+=("--default-process" "${1#--default-process=}")
-        elif [[ "$1" == "-D=*" ]]; then
-          PACK_ARGS+=("--default-process" "${1#-D=}")
-        fi
-        shift  1
-        ;;
       -d=* | --descriptor=*)
         if [[ "$1" == "--descriptor=*" ]]; then
           PACK_ARGS+=("--descriptor" "${1#--descriptor=}")
@@ -149,14 +115,6 @@ trigger-builder-pack-builder-build() {
           PACK_ARGS+=("--env" "${1#--env=}")
         elif [[ "$1" == "-e=*" ]]; then
           PACK_ARGS+=("--env" "${1#-e=}")
-        fi
-        shift 1
-        ;;
-      -p=* | --path=*)
-        if [[ "$1" == "--path=*" ]]; then
-          PACK_ARGS+=("--path" "${1#--path=}")
-        elif [[ "$1" == "-p=*" ]]; then
-          PACK_ARGS+=("--path" "${1#-p=}")
         fi
         shift 1
         ;;
