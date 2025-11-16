@@ -270,8 +270,11 @@ trigger-builder-pack-builder-build() {
         shift 1
         ;;
       *)
-        shift
-        continue
+        if [[ -n "$1" ]]; then
+          shift
+          continue
+        fi
+        break
         ;;
     esac
   done
