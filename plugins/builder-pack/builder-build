@@ -65,7 +65,7 @@ trigger-builder-pack-builder-build() {
     esac
   done
 
-  if [ -z "$BUILDPACK_URL" ]; then
+  if [ -n "$BUILDPACK_URL" ]; then
     PACK_ARGS+=("--builder")
     PACK_ARGS+=("$BUILDPACK_URL")
   elif [ -f "$SOURCECODE_WORK_DIR/.buildpacks" ]; then
@@ -76,7 +76,7 @@ trigger-builder-pack-builder-build() {
 
       PACK_ARGS+=("--builder")
       PACK_ARGS+=("$buildpack")
-    done < "$SOURCECODE_WORK_DIR/.buildpacks"
+    done <"$SOURCECODE_WORK_DIR/.buildpacks"
   fi
 
   pack build "$IMAGE" --builder "$DOKKU_CNB_BUILDER" --path "$SOURCECODE_WORK_DIR" --default-process web "${PACK_ARGS[@]}" "${ENV_ARGS[@]}"
