@@ -35,11 +35,133 @@ trigger-builder-nixpacks-builder-build() {
 
   local DOCKER_ARGS=$(: | plugn trigger docker-args-build "$APP" "$BUILDER_TYPE")
   DOCKER_ARGS+=$(: | plugn trigger docker-args-process-build "$APP" "$BUILDER_TYPE")
+  DOCKER_ARGS+=" $DOKKU_GLOBAL_BUILD_ARGS"
 
-  # strip --link, --volume and -v args from DOCKER_ARGS
-  local DOCKER_ARGS=$(sed -e "s/^--link=[[:graph:]]\+[[:blank:]]\?//g" -e "s/^--link[[:blank:]]\?[[:graph:]]\+[[:blank:]]\?//g" -e "s/^--volume=[[:graph:]]\+[[:blank:]]\?//g" -e "s/^--volume[[:blank:]]\?[[:graph:]]\+[[:blank:]]\?//g" -e "s/^-v[[:blank:]]\?[[:graph:]]\+[[:blank:]]\?//g" <<<"$DOCKER_ARGS")
-  declare -a ARG_ARRAY
-  eval "ARG_ARRAY=($DOCKER_ARGS)"
+  DOCKER_ARGS=" $DOCKER_ARGS "
+  eval set -- "$DOCKER_ARGS"
+
+  declare -a NIXPACKS_ARGS
+  while true; do
+    case "$1" in
+      -t | --tag)
+        NIXPACKS_ARGS+=("--tag")
+        NIXPACKS_ARGS+=("$2")
+        shift 2
+        ;;
+      -t=* | --tag=*)
+        if [[ "$1" == "--tag=*" ]]; then
+          NIXPACKS_ARGS+=("--tag" "${1#--tag=}")
+        elif [[ "$1" == "-t=*" ]]; then
+          NIXPACKS_ARGS+=("--tag" "${1#-t=}")
+        fi
+        shift 1
+        ;;
+      -i | --install-cmd)
+        NIXPACKS_ARGS+=("--install-cmd")
+        NIXPACKS_ARGS+=("$2")
+        shift 2
+        ;;
+      -i=* | --install-cmd=*)
+        if [[ "$1" == "--install-cmd=*" ]]; then
+          NIXPACKS_ARGS+=("--install-cmd" "${1#--install-cmd=}")
+        elif [[ "$1" == "-i=*" ]]; then
+          NIXPACKS_ARGS+=("--install-cmd" "${1#-i=}")
+        fi
+        shift 1
+        ;;
+      -l | --label)
+        NIXPACKS_ARGS+=("--label")
+        NIXPACKS_ARGS+=("$2")
+        shift 2
+        ;;
+      -l=* | --label=*)
+        if [[ "$1" == "--label=*" ]]; then
+          NIXPACKS_ARGS+=("--label" "${1#--label=}")
+        elif [[ "$1" == "-l=*" ]]; then
+          NIXPACKS_ARGS+=("--label" "${1#-l=}")
+        fi
+        shift 1
+        ;;
+      -b | --build-cmd)
+        NIXPACKS_ARGS+=("--build-cmd")
+        NIXPACKS_ARGS+=("$2")
+        shift 2
+        ;;
+      -b=* | --build-cmd=*)
+        if [[ "$1" == "--build-cmd=*" ]]; then
+          NIXPACKS_ARGS+=("--build-cmd" "${1#--build-cmd=}")
+        elif [[ "$1" == "-b=*" ]]; then
+          NIXPACKS_ARGS+=("--build-cmd" "${1#-b=}")
+        fi
+        shift 1
+        ;;
+      -s | --start-cmd)
+        NIXPACKS_ARGS+=("--start-cmd")
+        NIXPACKS_ARGS+=("$2")
+        shift 2
+        ;;
+      -s=* | --start-cmd=*)
+        if [[ "$1" == "--start-cmd=*" ]]; then
+          NIXPACKS_ARGS+=("--start-cmd" "${1#--start-cmd=}")
+        elif [[ "$1" == "-s=*" ]]; then
+          NIXPACKS_ARGS+=("--start-cmd" "${1#-s=}")
+        fi
+        shift 1
+        ;;
+      -p | --pkgs)
+        NIXPACKS_ARGS+=("--pkgs")
+        NIXPACKS_ARGS+=("$2")
+        shift 2
+        ;;
+      -p=* | --pkgs=*)
+        if [[ "$1" == "--pkgs=*" ]]; then
+          NIXPACKS_ARGS+=("--pkgs" "${1#--pkgs=}")
+        elif [[ "$1" == "-p=*" ]]; then
+          NIXPACKS_ARGS+=("--pkgs" "${1#-p=}")
+        fi
+        shift 1
+        ;;
+      -a | --apt)
+        NIXPACKS_ARGS+=("--apt")
+        NIXPACKS_ARGS+=("$2")
+        shift 2
+        ;;
+      -a=* | --apt=*)
+        if [[ "$1" == "--apt=*" ]]; then
+          NIXPACKS_ARGS+=("--apt" "${1#--apt=}")
+        elif [[ "$1" == "-a=*" ]]; then
+          NIXPACKS_ARGS+=("--apt" "${1#-a=}")
+        fi
+        shift 1
+        ;;
+      -e | --env)
+        NIXPACKS_ARGS+=("--env")
+        NIXPACKS_ARGS+=("$2")
+        shift 2
+        ;;
+      -e=* | --env=*)
+        if [[ "$1" == "--env=*" ]]; then
+          NIXPACKS_ARGS+=("--env" "${1#--env=}")
+        elif [[ "$1" == "-e=*" ]]; then
+          NIXPACKS_ARGS+=("--env" "${1#-e=}")
+        fi
+        shift 1
+        ;;
+      --platform | --cache-key | --incremental-cache-image | --libs | --cache-from | --docker-host | --add-host | --docker-tls-verify)
+        # todo: additionally support --flag=value syntax
+        NIXPACKS_ARGS+=("$1")
+        NIXPACKS_ARGS+=("$2")
+        shift 2
+        ;;
+      --no-cache | --inline-cache | --no-error-without-start)
+        NIXPACKS_ARGS+=("$1")
+        shift 1
+        ;;
+      *)
+        continue
+        ;;
+    esac
+  done
 
   eval "$(config_export app "$APP" --merged)"
 
@@ -50,7 +172,7 @@ trigger-builder-nixpacks-builder-build() {
   fi
 
   # shellcheck disable=SC2086
-  if ! nixpacks build "${DOCKER_BUILD_LABEL_ARGS[@]}" $DOKKU_GLOBAL_BUILD_ARGS "${ARG_ARRAY[@]}" $NIXPACKS_ARGS --name "$IMAGE" "$SOURCECODE_WORK_DIR"; then
+  if ! nixpacks build "${DOCKER_BUILD_LABEL_ARGS[@]}" "${NIXPACKS_ARGS[@]}" --name "$IMAGE" "$SOURCECODE_WORK_DIR"; then
     dokku_log_warn "Failure building image"
     return 1
   fi
