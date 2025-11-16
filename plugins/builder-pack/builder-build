@@ -279,6 +279,20 @@ trigger-builder-pack-builder-build() {
     esac
   done
 
+  if [ -n "$BUILDPACK_URL" ]; then
+    PACK_ARGS+=("--builder")
+    PACK_ARGS+=("$BUILDPACK_URL")
+  elif [ -f "$SOURCECODE_WORK_DIR/.buildpacks" ]; then
+    while read -r buildpack; do
+      if [ -z "$buildpack" ]; then
+        continue
+      fi
+
+      PACK_ARGS+=("--builder")
+      PACK_ARGS+=("$buildpack")
+    done <"$SOURCECODE_WORK_DIR/.buildpacks"
+  fi
+
   pack build "$IMAGE" --builder "$DOKKU_CNB_BUILDER" --path "$SOURCECODE_WORK_DIR" --default-process web "${PACK_ARGS[@]}" "${ENV_ARGS[@]}"
   docker-image-labeler relabel --label=dokku --label=org.label-schema.schema-version=1.0 --label=org.label-schema.vendor=dokku --label=com.dokku.image-stage=build --label=com.dokku.builder-type=pack --label=com.dokku.app-name=$APP "$IMAGE"
 
