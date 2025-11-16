@@ -73,19 +73,6 @@ trigger-builder-pack-builder-build() {
         fi
         shift 2
         ;;
-      -d | --descriptor)
-        PACK_ARGS+=("--descriptor")
-        PACK_ARGS+=("$2")
-        shift 2
-        ;;
-      -d=* | --descriptor=*)
-        if [[ "$1" == "--descriptor=*" ]]; then
-          PACK_ARGS+=("--descriptor" "${1#--descriptor=}")
-        elif [[ "$1" == "-d=*" ]]; then
-          PACK_ARGS+=("--descriptor" "${1#-d=}")
-        fi
-        shift 1
-        ;;
       -e | --env)
         PACK_ARGS+=("--env")
         PACK_ARGS+=("$2")
