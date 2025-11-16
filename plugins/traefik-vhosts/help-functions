@@ -30,7 +30,9 @@ fn-help-content() {
     traefik:report [<app>] [<flag>], Displays an traefik report for one or more apps
     traefik:set <app> <property> (<value>), Set or clear an traefik property for an app
     traefik:show-config <app>, Display traefik compose config
-    traefik:label <app> <show | set | unset> <property> (<value>), Show, set or clear a traefik label for an app
+    traefik:label:add <app> <label> <value>, Add a label to an traefik app
+    traefik:label:remove <app> <label>, Remove a label from an traefik app
+    traefik:label:show <app> [<label>], Show labels for an traefik app
     traefik:start, Starts the traefik server
     traefik:stop, Stops the traefik server
 help_content
