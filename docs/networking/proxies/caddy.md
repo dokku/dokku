@@ -125,10 +125,10 @@ Refer to the upstream [caddy-docker-proxy](https://github.com/lucaslorentz/caddy
 
 #### Adding a label
 
-To add a custom container label to an app, use the `caddy:label:add` command:
+To add a custom container label to an app, use the `caddy:labels:add` command:
 
 ```shell
-dokku caddy:label:add node-js-app caddy.directive value
+dokku caddy:labels:add node-js-app caddy.directive value
 ```
 
 This will add the label `caddy.directive=value` to the app's containers. After adding a label, you will need to rebuild or redeploy the app for the label to be applied to running containers.
@@ -139,10 +139,10 @@ dokku ps:rebuild node-js-app
 
 #### Removing a label
 
-To remove a custom container label from an app, use the `caddy:label:remove` command:
+To remove a custom container label from an app, use the `caddy:labels:remove` command:
 
 ```shell
-dokku caddy:label:remove node-js-app caddy.directive
+dokku caddy:labels:remove node-js-app caddy.directive
 ```
 
 This will remove the specified label from the app. After removing a label, you will need to rebuild or redeploy the app for the change to be applied to running containers.
@@ -153,16 +153,16 @@ dokku ps:rebuild node-js-app
 
 #### Showing labels
 
-To view all custom container labels for an app, use the `caddy:label:show` command:
+To view all custom container labels for an app, use the `caddy:labels:show` command:
 
 ```shell
-dokku caddy:label:show node-js-app
+dokku caddy:labels:show node-js-app
 ```
 
 To view a specific label value, provide the label name:
 
 ```shell
-dokku caddy:label:show node-js-app caddy.directive
+dokku caddy:labels:show node-js-app caddy.directive
 ```
 
 ### SSL Configuration

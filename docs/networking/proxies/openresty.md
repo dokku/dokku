@@ -132,10 +132,10 @@ Refer to the upstream [openresty-docker-proxy](https://github.com/dokku/openrest
 
 #### Adding a label
 
-To add a custom container label to an app, use the `openresty:label:add` command:
+To add a custom container label to an app, use the `openresty:labels:add` command:
 
 ```shell
-dokku openresty:label:add node-js-app openresty.directive value
+dokku openresty:labels:add node-js-app openresty.directive value
 ```
 
 This will add the label `openresty.directive=value` to the app's containers. After adding a label, you will need to rebuild or redeploy the app for the label to be applied to running containers.
@@ -146,10 +146,10 @@ dokku ps:rebuild node-js-app
 
 #### Removing a label
 
-To remove a custom container label from an app, use the `openresty:label:remove` command:
+To remove a custom container label from an app, use the `openresty:labels:remove` command:
 
 ```shell
-dokku openresty:label:remove node-js-app openresty.directive
+dokku openresty:labels:remove node-js-app openresty.directive
 ```
 
 This will remove the specified label from the app. After removing a label, you will need to rebuild or redeploy the app for the change to be applied to running containers.
@@ -160,16 +160,16 @@ dokku ps:rebuild node-js-app
 
 #### Showing labels
 
-To view all custom container labels for an app, use the `openresty:label:show` command:
+To view all custom container labels for an app, use the `openresty:labels:show` command:
 
 ```shell
-dokku openresty:label:show node-js-app
+dokku openresty:labels:show node-js-app
 ```
 
 To view a specific label value, provide the label name:
 
 ```shell
-dokku openresty:label:show node-js-app openresty.directive
+dokku openresty:labels:show node-js-app openresty.directive
 ```
 
 ### SSL Configuration

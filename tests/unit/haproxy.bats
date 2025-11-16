@@ -179,24 +179,24 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku haproxy:label:add $TEST_APP haproxy.directive value"
+  run /bin/bash -c "dokku haproxy:labels:add $TEST_APP haproxy.directive value"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku haproxy:label:show $TEST_APP"
+  run /bin/bash -c "dokku haproxy:labels:show $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output_contains "haproxy.directive=value"
 
-  run /bin/bash -c "dokku haproxy:label:show $TEST_APP haproxy.directive"
+  run /bin/bash -c "dokku haproxy:labels:show $TEST_APP haproxy.directive"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output "value"
 
-  run /bin/bash -c "dokku haproxy:label:show $TEST_APP haproxy.directive2"
+  run /bin/bash -c "dokku haproxy:labels:show $TEST_APP haproxy.directive2"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -213,18 +213,18 @@ teardown() {
   assert_success
   assert_output "value"
 
-  run /bin/bash -c "dokku haproxy:label:remove $TEST_APP haproxy.directive"
+  run /bin/bash -c "dokku haproxy:labels:remove $TEST_APP haproxy.directive"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku haproxy:label:show $TEST_APP"
+  run /bin/bash -c "dokku haproxy:labels:show $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output_not_contains "haproxy.directive=value"
 
-  run /bin/bash -c "dokku haproxy:label:show $TEST_APP haproxy.directive"
+  run /bin/bash -c "dokku haproxy:labels:show $TEST_APP haproxy.directive"
   echo "output: $output"
   echo "status: $status"
   assert_success

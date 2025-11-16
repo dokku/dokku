@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-[[ " caddy:help caddy:label:add caddy:label:remove caddy:label:show help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
+[[ " caddy:help caddy:labels:add caddy:labels:remove caddy:labels:show help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
 source "$PLUGIN_AVAILABLE_PATH/caddy-vhosts/help-functions"
 source "$PLUGIN_AVAILABLE_PATH/caddy-vhosts/command-functions"
 set -eo pipefail
@@ -10,16 +10,16 @@ case "$1" in
     cmd-caddy-help "$@"
     ;;
 
-  caddy:label:add)
-    cmd-caddy-label-add "$@"
+  caddy:labels:add)
+    cmd-caddy-labels-add "$@"
     ;;
 
-  caddy:label:remove)
-    cmd-caddy-label-remove "$@"
+  caddy:labels:remove)
+    cmd-caddy-labels-remove "$@"
     ;;
 
-  caddy:label:show)
-    cmd-caddy-label-show "$@"
+  caddy:labels:show)
+    cmd-caddy-labels-show "$@"
     ;;
 
   *)

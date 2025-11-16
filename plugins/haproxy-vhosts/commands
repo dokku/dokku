@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-[[ " haproxy:help haproxy:label:add haproxy:label:remove haproxy:label:show help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
+[[ " haproxy:help haproxy:labels:add haproxy:labels:remove haproxy:labels:show help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
 source "$PLUGIN_AVAILABLE_PATH/haproxy-vhosts/help-functions"
 source "$PLUGIN_AVAILABLE_PATH/haproxy-vhosts/command-functions"
 set -eo pipefail
@@ -10,16 +10,16 @@ case "$1" in
     cmd-haproxy-help "$@"
     ;;
 
-  haproxy:label:add)
-    cmd-haproxy-label-add "$@"
+  haproxy:labels:add)
+    cmd-haproxy-labels-add "$@"
     ;;
 
-  haproxy:label:remove)
-    cmd-haproxy-label-remove "$@"
+  haproxy:labels:remove)
+    cmd-haproxy-labels-remove "$@"
     ;;
 
-  haproxy:label:show)
-    cmd-haproxy-label-show "$@"
+  haproxy:labels:show)
+    cmd-haproxy-labels-show "$@"
     ;;
 
   *)

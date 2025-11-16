@@ -251,24 +251,24 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku openresty:label:add $TEST_APP openresty.directive value"
+  run /bin/bash -c "dokku openresty:labels:add $TEST_APP openresty.directive value"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku openresty:label:show $TEST_APP"
+  run /bin/bash -c "dokku openresty:labels:show $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output_contains "openresty.directive=value"
 
-  run /bin/bash -c "dokku openresty:label:show $TEST_APP openresty.directive"
+  run /bin/bash -c "dokku openresty:labels:show $TEST_APP openresty.directive"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output "value"
 
-  run /bin/bash -c "dokku openresty:label:show $TEST_APP openresty.directive2"
+  run /bin/bash -c "dokku openresty:labels:show $TEST_APP openresty.directive2"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -285,18 +285,18 @@ teardown() {
   assert_success
   assert_output "value"
 
-  run /bin/bash -c "dokku openresty:label:remove $TEST_APP openresty.directive"
+  run /bin/bash -c "dokku openresty:labels:remove $TEST_APP openresty.directive"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku openresty:label:show $TEST_APP"
+  run /bin/bash -c "dokku openresty:labels:show $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output_not_contains "openresty.directive=value"
 
-  run /bin/bash -c "dokku openresty:label:show $TEST_APP openresty.directive"
+  run /bin/bash -c "dokku openresty:labels:show $TEST_APP openresty.directive"
   echo "output: $output"
   echo "status: $status"
   assert_success

@@ -306,24 +306,24 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku traefik:label:add $TEST_APP traefik.directive value"
+  run /bin/bash -c "dokku traefik:labels:add $TEST_APP traefik.directive value"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku traefik:label:show $TEST_APP"
+  run /bin/bash -c "dokku traefik:labels:show $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output_contains "traefik.directive=value"
 
-  run /bin/bash -c "dokku traefik:label:show $TEST_APP traefik.directive"
+  run /bin/bash -c "dokku traefik:labels:show $TEST_APP traefik.directive"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output "value"
 
-  run /bin/bash -c "dokku traefik:label:show $TEST_APP traefik.directive2"
+  run /bin/bash -c "dokku traefik:labels:show $TEST_APP traefik.directive2"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -340,18 +340,18 @@ teardown() {
   assert_success
   assert_output "value"
 
-  run /bin/bash -c "dokku traefik:label:remove $TEST_APP traefik.directive"
+  run /bin/bash -c "dokku traefik:labels:remove $TEST_APP traefik.directive"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku traefik:label:show $TEST_APP"
+  run /bin/bash -c "dokku traefik:labels:show $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output_not_contains "traefik.directive=value"
 
-  run /bin/bash -c "dokku traefik:label:show $TEST_APP traefik.directive"
+  run /bin/bash -c "dokku traefik:labels:show $TEST_APP traefik.directive"
   echo "output: $output"
   echo "status: $status"
   assert_success

@@ -154,24 +154,24 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku caddy:label:add $TEST_APP caddy.directive value"
+  run /bin/bash -c "dokku caddy:labels:add $TEST_APP caddy.directive value"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku caddy:label:show $TEST_APP"
+  run /bin/bash -c "dokku caddy:labels:show $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output_contains "caddy.directive=value"
 
-  run /bin/bash -c "dokku caddy:label:show $TEST_APP caddy.directive"
+  run /bin/bash -c "dokku caddy:labels:show $TEST_APP caddy.directive"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output "value"
 
-  run /bin/bash -c "dokku caddy:label:show $TEST_APP caddy.directive2"
+  run /bin/bash -c "dokku caddy:labels:show $TEST_APP caddy.directive2"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -188,18 +188,18 @@ teardown() {
   assert_success
   assert_output "value"
 
-  run /bin/bash -c "dokku caddy:label:remove $TEST_APP caddy.directive"
+  run /bin/bash -c "dokku caddy:labels:remove $TEST_APP caddy.directive"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku caddy:label:show $TEST_APP"
+  run /bin/bash -c "dokku caddy:labels:show $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output_not_contains "caddy.directive=value"
 
-  run /bin/bash -c "dokku caddy:label:show $TEST_APP caddy.directive"
+  run /bin/bash -c "dokku caddy:labels:show $TEST_APP caddy.directive"
   echo "output: $output"
   echo "status: $status"
   assert_success

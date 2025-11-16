@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-[[ " openresty:help openresty:label:add openresty:label:remove openresty:label:show help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
+[[ " openresty:help openresty:labels:add openresty:labels:remove openresty:labels:show help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
 source "$PLUGIN_AVAILABLE_PATH/openresty-vhosts/help-functions"
 source "$PLUGIN_AVAILABLE_PATH/openresty-vhosts/command-functions"
 set -eo pipefail
@@ -10,16 +10,16 @@ case "$1" in
     cmd-openresty-help "$@"
     ;;
 
-  openresty:label:add)
-    cmd-openresty-label-add "$@"
+  openresty:labels:add)
+    cmd-openresty-labels-add "$@"
     ;;
 
-  openresty:label:remove)
-    cmd-openresty-label-remove "$@"
+  openresty:labels:remove)
+    cmd-openresty-labels-remove "$@"
     ;;
 
-  openresty:label:show)
-    cmd-openresty-label-show "$@"
+  openresty:labels:show)
+    cmd-openresty-labels-show "$@"
     ;;
 
   *)

@@ -5,28 +5,28 @@ source "$PLUGIN_AVAILABLE_PATH/haproxy-vhosts/internal-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
-cmd-haproxy-label-add() {
+cmd-haproxy-labels-add() {
   declare desc="adds container label to app for specified proxy"
-  declare cmd="haproxy:label:add"
+  declare cmd="haproxy:labels:add"
   [[ "$1" == "$cmd" ]] && shift 1
 
-  cmd-proxy-label-add "proxy:label:add" "haproxy" "$@"
+  cmd-proxy-labels-add "proxy:labels:add" "haproxy" "$@"
 }
 
-cmd-haproxy-label-remove() {
+cmd-haproxy-labels-remove() {
   declare desc="removes container label from app for specified proxy"
-  declare cmd="haproxy:label:remove"
+  declare cmd="haproxy:labels:remove"
   [[ "$1" == "$cmd" ]] && shift 1
 
-  cmd-proxy-label-remove "proxy:label:remove" "haproxy" "$@"
+  cmd-proxy-labels-remove "proxy:labels:remove" "haproxy" "$@"
 }
 
-cmd-haproxy-label-show() {
+cmd-haproxy-labels-show() {
   declare desc="shows container labels for app for specified proxy"
-  declare cmd="haproxy:label:show"
+  declare cmd="haproxy:labels:show"
   [[ "$1" == "$cmd" ]] && shift 1
 
-  cmd-proxy-label-show "proxy:label:show" "haproxy" "$@"
+  cmd-proxy-labels-show "proxy:labels:show" "haproxy" "$@"
 }
 
 cmd-haproxy-report() {

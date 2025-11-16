@@ -121,10 +121,10 @@ Refer to the upstream [EasyHaproxy](https://github.com/byjg/docker-easy-haproxy)
 
 #### Adding a label
 
-To add a custom container label to an app, use the `haproxy:label:add` command:
+To add a custom container label to an app, use the `haproxy:labels:add` command:
 
 ```shell
-dokku haproxy:label:add node-js-app haproxy.directive value
+dokku haproxy:labels:add node-js-app haproxy.directive value
 ```
 
 This will add the label `haproxy.directive=value` to the app's containers. After adding a label, you will need to rebuild or redeploy the app for the label to be applied to running containers.
@@ -135,10 +135,10 @@ dokku ps:rebuild node-js-app
 
 #### Removing a label
 
-To remove a custom container label from an app, use the `haproxy:label:remove` command:
+To remove a custom container label from an app, use the `haproxy:labels:remove` command:
 
 ```shell
-dokku haproxy:label:remove node-js-app haproxy.directive
+dokku haproxy:labels:remove node-js-app haproxy.directive
 ```
 
 This will remove the specified label from the app. After removing a label, you will need to rebuild or redeploy the app for the change to be applied to running containers.
@@ -149,16 +149,16 @@ dokku ps:rebuild node-js-app
 
 #### Showing labels
 
-To view all custom container labels for an app, use the `haproxy:label:show` command:
+To view all custom container labels for an app, use the `haproxy:labels:show` command:
 
 ```shell
-dokku haproxy:label:show node-js-app
+dokku haproxy:labels:show node-js-app
 ```
 
 To view a specific label value, provide the label name:
 
 ```shell
-dokku haproxy:label:show node-js-app haproxy.directive
+dokku haproxy:labels:show node-js-app haproxy.directive
 ```
 
 ### SSL Configuration

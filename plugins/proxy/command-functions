@@ -4,9 +4,9 @@ source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
-cmd-proxy-label-show() {
+cmd-proxy-labels-show() {
   declare desc="show a proxy label for an app"
-  declare cmd="proxy:label:show"
+  declare cmd="proxy:labels:show"
   [[ "$1" == "$cmd" ]] && shift 1
   declare PROXY="$1" APP="$2" PASSED_LABEL_NAME="$3"
   shift 2
@@ -22,9 +22,9 @@ cmd-proxy-label-show() {
   fn-proxy-display-labels "$PROXY" "$APP"
 }
 
-cmd-proxy-label-add() {
+cmd-proxy-labels-add() {
   declare desc="adds container label to app for specified proxy"
-  declare cmd="proxy:label:add"
+  declare cmd="proxy:labels:add"
   [[ "$1" == "$cmd" ]] && shift 1
   declare PROXY="$1" APP="$2" PASSED_LABEL_NAME="$3" PASSED_LABEL_VALUE="$4"
 
@@ -35,15 +35,15 @@ cmd-proxy-label-add() {
 
   local proxy_labels_file_path="$(fn-proxy-get-labels-file-path "$PROXY" "$APP")"
   touch "$proxy_labels_file_path"
-  cmd-proxy-label-remove "$PROXY" "$APP" "$PASSED_LABEL_NAME" >/dev/null
+  cmd-proxy-labels-remove "$PROXY" "$APP" "$PASSED_LABEL_NAME" >/dev/null
   echo "--label '${PASSED_LABEL_NAME}=${PASSED_LABEL_VALUE}' " >>"$proxy_labels_file_path"
   local all_proxy_labels="$(<"$proxy_labels_file_path")"
   echo -e "${all_proxy_labels}" | sed '/^$/d' | sort -u >"$proxy_labels_file_path"
 }
 
-cmd-proxy-label-remove() {
+cmd-proxy-labels-remove() {
   declare desc="removes container label from app for specified proxy"
-  declare cmd="proxy:label:remove"
+  declare cmd="proxy:labels:remove"
   [[ "$1" == "$cmd" ]] && shift 1
   declare PROXY="$1" APP="$2" PASSED_LABEL_NAME="$3"
 

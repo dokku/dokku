@@ -5,28 +5,28 @@ source "$PLUGIN_AVAILABLE_PATH/caddy-vhosts/internal-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
-cmd-caddy-label-add() {
+cmd-caddy-labels-add() {
   declare desc="adds container label to app for specified proxy"
-  declare cmd="caddy:label:add"
+  declare cmd="caddy:labels:add"
   [[ "$1" == "$cmd" ]] && shift 1
 
-  cmd-proxy-label-add "proxy:label:add" "caddy" "$@"
+  cmd-proxy-labels-add "proxy:labels:add" "caddy" "$@"
 }
 
-cmd-caddy-label-remove() {
+cmd-caddy-labels-remove() {
   declare desc="removes container label from app for specified proxy"
-  declare cmd="caddy:label:remove"
+  declare cmd="caddy:labels:remove"
   [[ "$1" == "$cmd" ]] && shift 1
 
-  cmd-proxy-label-remove "proxy:label:remove" "caddy" "$@"
+  cmd-proxy-labels-remove "proxy:labels:remove" "caddy" "$@"
 }
 
-cmd-caddy-label-show() {
+cmd-caddy-labels-show() {
   declare desc="shows container labels for app for specified proxy"
-  declare cmd="caddy:label:show"
+  declare cmd="caddy:labels:show"
   [[ "$1" == "$cmd" ]] && shift 1
 
-  cmd-proxy-label-show "proxy:label:show" "caddy" "$@"
+  cmd-proxy-labels-show "proxy:labels:show" "caddy" "$@"
 }
 
 cmd-caddy-report() {

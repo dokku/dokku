@@ -135,10 +135,10 @@ Refer to the upstream [Traefik](https://doc.traefik.io/traefik/) documentation f
 
 #### Adding a label
 
-To add a custom container label to an app, use the `traefik:label:add` command:
+To add a custom container label to an app, use the `traefik:labels:add` command:
 
 ```shell
-dokku traefik:label:add node-js-app traefik.directive value
+dokku traefik:labels:add node-js-app traefik.directive value
 ```
 
 This will add the label `traefik.directive=value` to the app's containers. After adding a label, you will need to rebuild or redeploy the app for the label to be applied to running containers.
@@ -149,10 +149,10 @@ dokku ps:rebuild node-js-app
 
 #### Removing a label
 
-To remove a custom container label from an app, use the `traefik:label:remove` command:
+To remove a custom container label from an app, use the `traefik:labels:remove` command:
 
 ```shell
-dokku traefik:label:remove node-js-app traefik.directive
+dokku traefik:labels:remove node-js-app traefik.directive
 ```
 
 This will remove the specified label from the app. After removing a label, you will need to rebuild or redeploy the app for the change to be applied to running containers.
@@ -163,16 +163,16 @@ dokku ps:rebuild node-js-app
 
 #### Showing labels
 
-To view all custom container labels for an app, use the `traefik:label:show` command:
+To view all custom container labels for an app, use the `traefik:labels:show` command:
 
 ```shell
-dokku traefik:label:show node-js-app
+dokku traefik:labels:show node-js-app
 ```
 
 To view a specific label value, provide the label name:
 
 ```shell
-dokku traefik:label:show node-js-app traefik.directive
+dokku traefik:labels:show node-js-app traefik.directive
 ```
 
 ### SSL Configuration
