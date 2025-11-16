@@ -27,30 +27,106 @@ trigger-builder-railpack-builder-build() {
 
   plugn trigger pre-build "$BUILDER_TYPE" "$APP" "$SOURCECODE_WORK_DIR"
 
-  no_cache="$(fn-builder-railpack-computed-no-cache "$APP")"
-  RAILPACK_ARGS=""
-  if [[ "$no_cache" == "true" ]]; then
-    RAILPACK_ARGS="$RAILPACK_ARGS --no-cache"
-  fi
-
-  local DOCKER_ARGS=$(: | plugn trigger docker-args-build "$APP" "$BUILDER_TYPE")
-  DOCKER_ARGS+=$(: | plugn trigger docker-args-process-build "$APP" "$BUILDER_TYPE")
-
-  # strip --link, --volume and -v args from DOCKER_ARGS
-  local DOCKER_ARGS=$(sed -e "s/^--link=[[:graph:]]\+[[:blank:]]\?//g" -e "s/^--link[[:blank:]]\?[[:graph:]]\+[[:blank:]]\?//g" -e "s/^--volume=[[:graph:]]\+[[:blank:]]\?//g" -e "s/^--volume[[:blank:]]\?[[:graph:]]\+[[:blank:]]\?//g" -e "s/^-v[[:blank:]]\?[[:graph:]]\+[[:blank:]]\?//g" <<<"$DOCKER_ARGS")
-  declare -a ARG_ARRAY
-  eval "ARG_ARRAY=($DOCKER_ARGS)"
-
-  eval "$(config_export app "$APP" --merged)"
-
   if [[ -f "$SOURCECODE_WORK_DIR/Procfile" ]]; then
     if procfile-util exists --process-type release; then
       procfile-util delete --process-type release
     fi
   fi
 
+  local DOCKER_ARGS=$(: | plugn trigger docker-args-build "$APP" "$BUILDER_TYPE")
+  DOCKER_ARGS+=$(: | plugn trigger docker-args-process-build "$APP" "$BUILDER_TYPE")
+
+  DOCKER_ARGS=" $DOCKER_ARGS "
+  eval set -- "$DOCKER_ARGS"
+
+  declare -a RAILPACK_ARGS
+  while true; do
+    case "$1" in
+      --platform)
+        RAILPACK_ARGS+=("--platform")
+        RAILPACK_ARGS+=("$2")
+        shift 2
+        ;;
+      --platform=*)
+        RAILPACK_ARGS+=("--platform" "${1#--platform=}")
+        shift 1
+        ;;
+      --progress)
+        RAILPACK_ARGS+=("--progress")
+        RAILPACK_ARGS+=("$2")
+        shift 2
+        ;;
+      --progress=*)
+        RAILPACK_ARGS+=("--progress" "${1#--progress=}")
+        shift 1
+        ;;
+      --cache-key)
+        RAILPACK_ARGS+=("--cache-key")
+        RAILPACK_ARGS+=("$2")
+        shift 2
+        ;;
+      --cache-key=*)
+        RAILPACK_ARGS+=("--cache-key" "${1#--cache-key=}")
+        shift 1
+        ;;
+      -e | --env)
+        RAILPACK_ARGS+=("--env")
+        RAILPACK_ARGS+=("$2")
+        shift 2
+        ;;
+      -e=* | --env=*)
+        if [[ "$1" == "--env=*" ]]; then
+          RAILPACK_ARGS+=("--env" "${1#--env=}")
+        elif [[ "$1" == "--e=*" ]]; then
+          RAILPACK_ARGS+=("--env" "${1#-e=}")
+        fi
+        shift 1
+        ;;
+      --previous)
+        RAILPACK_ARGS+=("--previous")
+        RAILPACK_ARGS+=("$2")
+        shift 2
+        ;;
+      --previous=*)
+        RAILPACK_ARGS+=("--previous" "${1#--previous=}")
+        shift 1
+        ;;
+      --build-cmd)
+        RAILPACK_ARGS+=("--build-cmd")
+        RAILPACK_ARGS+=("$2")
+        shift 2
+        ;;
+      --build-cmd=*)
+        RAILPACK_ARGS+=("--build-cmd" "${1#--build-cmd=}")
+        shift 1
+        ;;
+      --start-cmd)
+        RAILPACK_ARGS+=("--start-cmd")
+        RAILPACK_ARGS+=("$2")
+        shift 2
+        ;;
+      --start-cmd=*)
+        RAILPACK_ARGS+=("--start-cmd" "${1#--start-cmd=}")
+        shift 1
+        ;;
+      ---show-plan | --error-missing-start)
+        RAILPACK_ARGS+=("$1")
+        shift 1
+        ;;
+      *)
+        if [[ -n "$1" ]]; then
+          shift
+          continue
+        fi
+        break
+        ;;
+    esac
+  done
+
+  eval "$(config_export app "$APP" --merged)"
+
   # shellcheck disable=SC2086
-  if ! railpack build "${ARG_ARRAY[@]}" $RAILPACK_ARGS --name "$IMAGE-build" "$SOURCECODE_WORK_DIR"; then
+  if ! railpack build "${RAILPACK_ARGS[@]}" --name "$IMAGE-build" "$SOURCECODE_WORK_DIR"; then
     dokku_log_warn "Failure building image"
     return 1
   fi

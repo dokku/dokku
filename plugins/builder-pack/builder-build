@@ -38,28 +38,242 @@ trigger-builder-pack-builder-build() {
   plugn trigger pre-build "$BUILDER_TYPE" "$APP" "$SOURCECODE_WORK_DIR"
 
   local DOCKER_ARGS=$(: | plugn trigger docker-args-build "$APP" "$BUILDER_TYPE")
-  [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" --env=TRACE=true "
   DOCKER_ARGS+=$(: | plugn trigger docker-args-process-build "$APP" "$BUILDER_TYPE")
+  [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" --env=TRACE=true "
 
   DOCKER_ARGS=" $DOCKER_ARGS "
-  declare -a ARG_ARRAY
-  eval "ARG_ARRAY=($DOCKER_ARGS)"
-
   eval set -- "$DOCKER_ARGS"
 
   declare -a PACK_ARGS
   while true; do
     case "$1" in
-      --volume=* | -v=*)
-        PACK_ARGS+=("$1")
-        shift
+      -b | --buildpack)
+        PACK_ARGS+=("--buildpack")
+        PACK_ARGS+=("$2")
+        shift 2
+        ;;
+      -b=* | --buildpack=*)
+        if [[ "$1" == "--buildpack=*" ]]; then
+          PACK_ARGS+=("--buildpack" "${1#--buildpack=}")
+        elif [[ "$1" == "-b=*" ]]; then
+          PACK_ARGS+=("--buildpack" "${1#-b=}")
+        fi
+        shift 1
+        ;;
+      -r | --buildpack-registry)
+        PACK_ARGS+=("--buildpack-registry")
+        PACK_ARGS+=("$2")
+        shift 2
+        ;;
+      -r=* | --buildpack-registry=*)
+        if [[ "$1" == "--buildpack-registry=*" ]]; then
+          PACK_ARGS+=("--buildpack-registry" "${1#--buildpack-registry=}")
+        elif [[ "$1" == "-r=*" ]]; then
+          PACK_ARGS+=("--buildpack-registry" "${1#-r=}")
+        fi
+        shift 2
+        ;;
+      -e | --env)
+        PACK_ARGS+=("--env")
+        PACK_ARGS+=("$2")
+        shift 2
+        ;;
+      -e=* | --env=*)
+        if [[ "$1" == "--env=*" ]]; then
+          PACK_ARGS+=("--env" "${1#--env=}")
+        elif [[ "$1" == "-e=*" ]]; then
+          PACK_ARGS+=("--env" "${1#-e=}")
+        fi
+        shift 1
+        ;;
+      -t | --tag)
+        PACK_ARGS+=("--tag")
+        PACK_ARGS+=("$2")
+        shift 2
+        ;;
+      -t=* | --tag=*)
+        if [[ "$1" == "--tag=*" ]]; then
+          PACK_ARGS+=("--tag" "${1#--tag=}")
+        elif [[ "$1" == "-t=*" ]]; then
+          PACK_ARGS+=("--tag" "${1#-t=}")
+        fi
+        shift 1
         ;;
       --volume | -v)
         PACK_ARGS+=("--volume")
         PACK_ARGS+=("$2")
         shift 2
         ;;
+      --volume=* | -v=*)
+        if [[ "$1" == "--volume=*" ]]; then
+          PACK_ARGS+=("--volume" "${1#--volume=}")
+        elif [[ "$1" == "-v=*" ]]; then
+          PACK_ARGS+=("--volume" "${1#-v=}")
+        fi
+        shift 1
+        ;;
+      --cache)
+        PACK_ARGS+=("--cache")
+        PACK_ARGS+=("$2")
+        shift 2
+        ;;
+      --cache=*)
+        PACK_ARGS+=("--cache" "${1#--cache=}")
+        shift 1
+        ;;
+      --cache-image)
+        PACK_ARGS+=("--cache-image")
+        PACK_ARGS+=("$2")
+        shift 2
+        ;;
+      --cache-image=*)
+        PACK_ARGS+=("--cache-image" "${1#--cache-image=}")
+        shift 1
+        ;;
+      --creation-time)
+        PACK_ARGS+=("--creation-time")
+        PACK_ARGS+=("$2")
+        shift 2
+        ;;
+      --creation-time=*)
+        PACK_ARGS+=("--creation-time" "${1#--creation-time=}")
+        shift 1
+        ;;
+      --env-file)
+        PACK_ARGS+=("--env-file")
+        PACK_ARGS+=("$2")
+        shift 2
+        ;;
+      --env-file=*)
+        PACK_ARGS+=("--env-file" "${1#--env-file=}")
+        shift 1
+        ;;
+      --extension)
+        PACK_ARGS+=("--extension")
+        PACK_ARGS+=("$2")
+        shift 2
+        ;;
+      --extension=*)
+        PACK_ARGS+=("--extension" "${1#--extension=}")
+        shift 1
+        ;;
+      --gid)
+        PACK_ARGS+=("--gid")
+        PACK_ARGS+=("$2")
+        shift 2
+        ;;
+      --gid=*)
+        PACK_ARGS+=("--gid" "${1#--gid=}")
+        shift 1
+        ;;
+      --insecure-registry)
+        PACK_ARGS+=("--insecure-registry")
+        PACK_ARGS+=("$2")
+        shift 2
+        ;;
+      --insecure-registry=*)
+        PACK_ARGS+=("--insecure-registry" "${1#--insecure-registry=}")
+        shift 1
+        ;;
+      --lifecycle-image)
+        PACK_ARGS+=("--lifecycle-image")
+        PACK_ARGS+=("$2")
+        shift 2
+        ;;
+      --lifecycle-image=*)
+        PACK_ARGS+=("--lifecycle-image" "${1#--lifecycle-image=}")
+        shift 1
+        ;;
+      --network)
+        PACK_ARGS+=("--network")
+        PACK_ARGS+=("$2")
+        shift 2
+        ;;
+      --network=*)
+        PACK_ARGS+=("--network" "${1#--network=}")
+        shift 1
+        ;;
+      --platform)
+        PACK_ARGS+=("--platform")
+        PACK_ARGS+=("$2")
+        shift 2
+        ;;
+      --platform=*)
+        PACK_ARGS+=("--platform" "${1#--platform=}")
+        shift 1
+        ;;
+      --post-buildpack)
+        PACK_ARGS+=("--post-buildpack")
+        PACK_ARGS+=("$2")
+        shift 2
+        ;;
+      --post-buildpack=*)
+        PACK_ARGS+=("--post-buildpack" "${1#--post-buildpack=}")
+        shift 1
+        ;;
+      --pre-buildpack)
+        PACK_ARGS+=("--pre-buildpack")
+        PACK_ARGS+=("$2")
+        shift 2
+        ;;
+      --pre-buildpack=*)
+        PACK_ARGS+=("--pre-buildpack" "${1#--pre-buildpack=}")
+        shift 1
+        ;;
+      --previous-image)
+        PACK_ARGS+=("--previous-image")
+        PACK_ARGS+=("$2")
+        shift 2
+        ;;
+      --previous-image=*)
+        PACK_ARGS+=("--previous-image" "${1#--previous-image=}")
+        shift 1
+        ;;
+      --pull-policy)
+        PACK_ARGS+=("--pull-policy")
+        PACK_ARGS+=("$2")
+        shift 2
+        ;;
+      --pull-policy=*)
+        PACK_ARGS+=("--pull-policy" "${1#--pull-policy=}")
+        shift 1
+        ;;
+      --run-image)
+        PACK_ARGS+=("--run-image")
+        PACK_ARGS+=("$2")
+        shift 2
+        ;;
+      --run-image=*)
+        PACK_ARGS+=("--run-image" "${1#--run-image=}")
+        shift 1
+        ;;
+      --uid)
+        PACK_ARGS+=("--uid")
+        PACK_ARGS+=("$2")
+        shift 2
+        ;;
+      --uid=*)
+        PACK_ARGS+=("--uid" "${1#--uid=}")
+        shift 1
+        ;;
+      --workspace)
+        PACK_ARGS+=("--workspace")
+        PACK_ARGS+=("$2")
+        shift 2
+        ;;
+      --workspace=*)
+        PACK_ARGS+=("--workspace" "${1#--workspace=}")
+        shift 1
+        ;;
+      --clear-cache | --disable-system-buildpacks | --publish | --trust-builder | --trust-extra-buildpacks | --userns-host)
+        PACK_ARGS+=("$1")
+        shift 1
+        ;;
       *)
+        if [[ -n "$1" ]]; then
+          shift
+          continue
+        fi
         break
         ;;
     esac

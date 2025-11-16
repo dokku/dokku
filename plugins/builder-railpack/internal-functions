@@ -38,9 +38,6 @@ cmd-builder-railpack-report-single() {
     "--builder-railpack-computed-railpackjson-path: $(fn-builder-railpack-computed-railpackjson-path "$APP")"
     "--builder-railpack-global-railpackjson-path: $(fn-builder-railpack-global-railpackjson-path "$APP")"
     "--builder-railpack-railpackjson-path: $(fn-builder-railpack-railpackjson-path "$APP")"
-    "--builder-railpack-computed-no-cache: $(fn-builder-railpack-computed-no-cache "$APP")"
-    "--builder-railpack-global-no-cache: $(fn-builder-railpack-global-no-cache "$APP")"
-    "--builder-railpack-no-cache: $(fn-builder-railpack-no-cache "$APP")"
   )
 
   if [[ -z "$INFO_FLAG" ]]; then
@@ -90,27 +87,4 @@ fn-builder-railpack-railpackjson-path() {
   declare APP="$1"
 
   fn-plugin-property-get "builder-railpack" "$APP" "railpackjson-path" ""
-}
-
-fn-builder-railpack-computed-no-cache() {
-  declare APP="$1"
-
-  file="$(fn-builder-railpack-no-cache "$APP")"
-  if [[ "$file" == "" ]]; then
-    file="$(fn-builder-railpack-global-no-cache "$APP")"
-  fi
-
-  echo "$file"
-}
-
-fn-builder-railpack-global-no-cache() {
-  declare APP="$1"
-
-  fn-plugin-property-get "builder-railpack" "--global" "no-cache" "false"
-}
-
-fn-builder-railpack-no-cache() {
-  declare APP="$1"
-
-  fn-plugin-property-get "builder-railpack" "$APP" "no-cache" ""
 }

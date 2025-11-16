@@ -38,9 +38,6 @@ cmd-builder-nixpacks-report-single() {
     "--builder-nixpacks-computed-nixpackstoml-path: $(fn-builder-nixpacks-computed-nixpackstoml-path "$APP")"
     "--builder-nixpacks-global-nixpackstoml-path: $(fn-builder-nixpacks-global-nixpackstoml-path "$APP")"
     "--builder-nixpacks-nixpackstoml-path: $(fn-builder-nixpacks-nixpackstoml-path "$APP")"
-    "--builder-nixpacks-computed-no-cache: $(fn-builder-nixpacks-computed-no-cache "$APP")"
-    "--builder-nixpacks-global-no-cache: $(fn-builder-nixpacks-global-no-cache "$APP")"
-    "--builder-nixpacks-no-cache: $(fn-builder-nixpacks-no-cache "$APP")"
   )
 
   if [[ -z "$INFO_FLAG" ]]; then
@@ -90,27 +87,4 @@ fn-builder-nixpacks-nixpackstoml-path() {
   declare APP="$1"
 
   fn-plugin-property-get "builder-nixpacks" "$APP" "nixpackstoml-path" ""
-}
-
-fn-builder-nixpacks-computed-no-cache() {
-  declare APP="$1"
-
-  file="$(fn-builder-nixpacks-no-cache "$APP")"
-  if [[ "$file" == "" ]]; then
-    file="$(fn-builder-nixpacks-global-no-cache "$APP")"
-  fi
-
-  echo "$file"
-}
-
-fn-builder-nixpacks-global-no-cache() {
-  declare APP="$1"
-
-  fn-plugin-property-get "builder-nixpacks" "--global" "no-cache" "false"
-}
-
-fn-builder-nixpacks-no-cache() {
-  declare APP="$1"
-
-  fn-plugin-property-get "builder-nixpacks" "$APP" "no-cache" ""
 }
