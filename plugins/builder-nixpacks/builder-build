@@ -27,15 +27,16 @@ trigger-builder-nixpacks-builder-build() {
 
   plugn trigger pre-build "$BUILDER_TYPE" "$APP" "$SOURCECODE_WORK_DIR"
 
-  no_cache="$(fn-builder-nixpacks-computed-no-cache "$APP")"
-  NIXPACKS_ARGS=""
-  if [[ "$no_cache" == "true" ]]; then
-    NIXPACKS_ARGS="$NIXPACKS_ARGS --no-cache"
+  if [[ -f "$SOURCECODE_WORK_DIR/Procfile" ]]; then
+    if procfile-util exists --process-type release; then
+      procfile-util delete --process-type release
+    fi
   fi
 
   local DOCKER_ARGS=$(: | plugn trigger docker-args-build "$APP" "$BUILDER_TYPE")
   DOCKER_ARGS+=$(: | plugn trigger docker-args-process-build "$APP" "$BUILDER_TYPE")
   DOCKER_ARGS+=" $DOKKU_GLOBAL_BUILD_ARGS"
+  [[ "$(fn-builder-nixpacks-computed-no-cache "$APP")" == "true" ]] && DOCKER_ARGS+=" --no-cache"
 
   DOCKER_ARGS=" $DOCKER_ARGS "
   eval set -- "$DOCKER_ARGS"
@@ -164,12 +165,6 @@ trigger-builder-nixpacks-builder-build() {
   done
 
   eval "$(config_export app "$APP" --merged)"
-
-  if [[ -f "$SOURCECODE_WORK_DIR/Procfile" ]]; then
-    if procfile-util exists --process-type release; then
-      procfile-util delete --process-type release
-    fi
-  fi
 
   # shellcheck disable=SC2086
   if ! nixpacks build "${DOCKER_BUILD_LABEL_ARGS[@]}" "${NIXPACKS_ARGS[@]}" --name "$IMAGE" "$SOURCECODE_WORK_DIR"; then
