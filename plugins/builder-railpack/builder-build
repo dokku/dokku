@@ -35,7 +35,6 @@ trigger-builder-railpack-builder-build() {
 
   local DOCKER_ARGS=$(: | plugn trigger docker-args-build "$APP" "$BUILDER_TYPE")
   DOCKER_ARGS+=$(: | plugn trigger docker-args-process-build "$APP" "$BUILDER_TYPE")
-  [[ "$(fn-builder-railpack-computed-no-cache "$APP")" == "true" ]] && DOCKER_ARGS+=" --no-cache"
 
   DOCKER_ARGS=" $DOCKER_ARGS "
   eval set -- "$DOCKER_ARGS"

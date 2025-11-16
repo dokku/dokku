@@ -89,28 +89,10 @@ dokku builder-railpack:set --global railpackjson-path
 
 ### Disabling cache
 
-Cache is enabled by default, but can be disabled by setting the `no-cache` property to `true`:
+Disable cache using the [docker-options] plugin:
 
 ```shell
-dokku builder-railpack:set node-js-app no-cache true
-```
-
-The default value may be set by passing an empty value for the option:
-
-```shell
-dokku builder-railpack:set node-js-app no-cache
-```
-
-The `no-cache` property can also be set globally. The global default is `false`, and the global value is used when no app-specific value is set.
-
-```shell
-dokku builder-railpack:set --global no-cache true
-```
-
-The default value may be set by passing an empty value for the option.
-
-```shell
-dokku builder-railpack:set --global no-cache
+dokku docker-options:add node-js-app build "--no-cache"
 ```
 
 ### Displaying builder-railpack reports for an app
@@ -126,23 +108,14 @@ dokku builder-railpack:report
        Builder-railpack computed railpackjson path: railpack2.json
        Builder-railpack global railpackjson path:   railpack.json
        Builder-railpack railpackjson path:          railpack2.json
-       Builder-railpack computed no cache:          true
-       Builder-railpack global no cache:            false
-       Builder-railpack no cache:                   true
 =====> python-sample builder-railpack information
        Builder-railpack computed railpackjson path: railpack.json
        Builder-railpack global railpackjson path:   railpack.json
        Builder-railpack railpackjson path:
-       Builder-railpack computed no cache:          false
-       Builder-railpack global no cache:            false
-       Builder-railpack no cache:
 =====> ruby-sample builder-railpack information
        Builder-railpack computed railpackjson path: railpack.json
        Builder-railpack global railpackjson path:   railpack.json
        Builder-railpack railpackjson path:
-       Builder-railpack computed no cache:          false
-       Builder-railpack global no cache:            false
-       Builder-railpack no cache:
 ```
 
 You can run the command for a specific app also.
@@ -156,17 +129,14 @@ dokku builder-railpack:report node-js-app
        Builder-railpack computed railpackjson path: railpack2.json
        Builder-railpack global railpackjson path:   railpack.json
        Builder-railpack railpackjson path:          railpack2.json
-       Builder-railpack computed no cache:          true
-       Builder-railpack global no cache:            false
-       Builder-railpack no cache:                   true
 ```
 
 You can pass flags which will output only the value of the specific information you want. For example:
 
 ```shell
-dokku builder-railpack:report node-js-app --builder-railpack-no-cache
+dokku builder-railpack:report node-js-app --builder-railpack-railpackjson-path
 ```
 
 ```
-true
+railpack2.json
 ```
