@@ -130,12 +130,11 @@ trigger-caddy-vhosts-docker-args-process-deploy() {
   fi
 
   local proxy_labels_file_path=$(fn-proxy-get-labels-file-path "caddy" "$APP")
-  fn-proxy-report-label-overwrite "$output" "$proxy_labels_file_path"
-
   if [[ -f "$proxy_labels_file_path" ]]; then
-    local user_proxy_labels="$(<"$proxy_labels_file_path")"
-    user_proxy_labels="$(echo "$user_proxy_labels" | tr '\r\n' ' ')"
-    output="$output $user_proxy_labels"
+    while read -r line; do
+      [[ -z "$line" ]] && continue
+      output="$output --label '$line'"
+    done <"$proxy_labels_file_path"
   fi
 
   echo -n "$STDIN$output"

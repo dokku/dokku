@@ -35,7 +35,7 @@ cmd-proxy-labels-add() {
   local proxy_labels_file_path="$(fn-proxy-get-labels-file-path "$PROXY" "$APP")"
   touch "$proxy_labels_file_path"
   cmd-proxy-labels-remove "$PROXY" "$APP" "$PASSED_LABEL_NAME" >/dev/null
-  echo "--label '${PASSED_LABEL_NAME}=${PASSED_LABEL_VALUE}' " >>"$proxy_labels_file_path"
+  echo "${PASSED_LABEL_NAME}=${PASSED_LABEL_VALUE}" >>"$proxy_labels_file_path"
   local all_proxy_labels="$(<"$proxy_labels_file_path")"
   echo -e "${all_proxy_labels}" | sed '/^$/d' | sort -u >"$proxy_labels_file_path"
 }
@@ -57,6 +57,6 @@ cmd-proxy-labels-remove() {
 
   local all_proxy_labels="$(<"$proxy_labels_file_path")"
   local escaped_label_name="$(fn-proxy-escape-extended-sed "$PASSED_LABEL_NAME")"
-  local all_proxy_labels="$(echo -e "${all_proxy_labels}" | sed -E "s/^--label ['\"]${escaped_label_name}=.*\$//")"
+  local all_proxy_labels="$(echo -e "${all_proxy_labels}" | sed -E "s/^${escaped_label_name}=.*\$//")"
   echo -e "${all_proxy_labels}" | sed '/^$/d' | sort -u >"$proxy_labels_file_path"
 }

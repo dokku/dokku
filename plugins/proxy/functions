@@ -9,41 +9,6 @@ fn-proxy-escape-extended-sed() {
   echo "$input" | sed -E 's#[][()\.^$?*+{}|/]#\\&#g'
 }
 
-fn-proxy-report-label-overwrite() {
-  declare desc="overwrite proxy labels file with new labels"
-  declare LABELS="$1" PROXY_LABELS_FILE_PATH="$2"
-
-  if [[ -f "$PROXY_LABELS_FILE_PATH" ]]; then
-    local DONE=false
-    until $DONE; do
-      local line
-      read -r line || local DONE=true
-
-      [[ -z "$line" ]] && continue
-
-      case "$line" in
-        \#*)
-          continue
-          ;;
-
-        --label*)
-          local label_name="$(echo "$line" | sed -E "s/^--label ['\"]([^=]+)=.*/\1/")"
-          local escaped_label_name="$(fn-proxy-escape-extended-sed "$label_name")"
-          local match="$(echo "$LABELS" | sed -E "s/.*--label ['\"]($escaped_label_name)=.*/\1/")"
-          if [[ -n "$match" ]]; then
-            dokku_log_warn "Dokku label \"$match\" will be overwritten by user-set proxy label."
-          fi
-          continue
-          ;;
-
-        *)
-          dokku_log_warn "Invalid line '$line' in proxy label file $PROXY_FILE_PATH"
-          ;;
-      esac
-    done <"$PROXY_LABELS_FILE_PATH"
-  fi
-}
-
 fn-proxy-get-labels-file-path() {
   declare desc="return proxy labels config file path for specified proxy"
   declare PROXY="$1" APP="$2"
@@ -56,8 +21,24 @@ fn-proxy-display-labels() {
   declare desc="print user-set app container labels for specified proxy"
   declare PROXY="$1" APP="$2"
   local proxy_labels_file_path="$(fn-proxy-get-labels-file-path "$PROXY" "$APP")"
-  dokku_log_info2_quiet "${APP} ${PROXY} labels"
-  sed -e 's/^/    /' "$proxy_labels_file_path"
+  if [[ -s "$proxy_labels_file_path" ]]; then
+    dokku_log_info2_quiet "${APP} ${PROXY} labels"
+    while read -r line; do
+      [[ -z "$line" ]] && continue
+
+      case "$line" in
+        \#*)
+          continue
+          ;;
+
+        *)
+          dokku_log_verbose "$line"
+          ;;
+      esac
+    done <"$proxy_labels_file_path"
+  else
+    dokku_log_warn_quiet "No ${PROXY} labels set for ${APP}"
+  fi
 }
 
 fn-proxy-show-label() {
@@ -71,7 +52,7 @@ fn-proxy-show-label() {
 
   local all_proxy_labels="$(<"$proxy_labels_file_path")"
   local escaped_label_name="$(fn-proxy-escape-extended-sed "$PASSED_LABEL_NAME")"
-  local proxy_label_value="$(echo -e "${all_proxy_labels}" | sed -E -n "s/^--label ['\"]${escaped_label_name}=(.*)['\"] \$/\1/p")"
+  local proxy_label_value="$(echo -e "${all_proxy_labels}" | sed -E -n "s/^${escaped_label_name}=(.*)\$/\1/p")"
 
   echo "$proxy_label_value"
 }
