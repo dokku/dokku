@@ -3,6 +3,7 @@ package buildpacks
 import (
 	"errors"
 	"fmt"
+	"os"
 
 	"github.com/dokku/dokku/plugins/common"
 )
@@ -28,6 +29,41 @@ func CommandClear(appName string) error {
 	}
 
 	return common.PropertyDelete("buildpacks", appName, "buildpacks")
+}
+
+// CommandDetect implements buildpacks:detect
+func CommandDetect(appName string, branch string) (err error) {
+	if err := common.VerifyAppName(appName); err != nil {
+		return err
+	}
+
+	workDir := common.AppRoot(appName)
+	checkedOutDir, err := checkoutBareGitRepo(workDir, branch)
+    if err != nil {
+        return err
+    }
+	defer func() {
+		if err := os.RemoveAll(checkedOutDir); err != nil {
+			common.LogWarn(fmt.Sprintf("Failed to remove temporary directory %s: %v", checkedOutDir, err))
+		}
+	}()
+
+	dockerArgs := []string{
+		"run", "--rm",
+		"-v", fmt.Sprintf("%s:/tmp/app", checkedOutDir),
+		"gliderlabs/herokuish", "/bin/herokuish", "buildpack", "detect", "/tmp/app",
+	}
+
+	result, err := common.CallExecCommand(common.ExecCommandInput{
+		Command: common.DockerBin(),
+		Args:    dockerArgs,
+	})
+	if err != nil {
+		return fmt.Errorf("Buildpack detection failed: %s", result.StderrContents())
+	}
+
+	common.LogVerbose(result.StdoutContents())
+	return nil
 }
 
 // CommandList implements buildpacks:list

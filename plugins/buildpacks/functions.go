@@ -63,3 +63,32 @@ func validBuildpackURL(buildpack string) (string, error) {
 
 	return buildpack, fmt.Errorf("Invalid buildpack specified: %v", buildpack)
 }
+
+func checkoutBareGitRepo(sourceWorkDir string, branch string) (string, error) {
+	tmpdir, err := os.MkdirTemp("", "bare-git-checkout")
+	if err != nil {
+		return "", fmt.Errorf("Unable to create temporary directory: %s", err.Error())
+	}
+
+	args := []string{
+		"--git-dir=" + sourceWorkDir,
+		"--work-tree=" + tmpdir,
+		"checkout", "-f",
+	}
+
+	if branch != "" {
+		args = append(args, branch)
+	}
+
+	result, err := common.CallExecCommand(common.ExecCommandInput{
+		Command: "git",
+		Args:    args,
+	})
+
+	if err != nil {
+		os.RemoveAll(tmpdir)
+		return "", fmt.Errorf("Unable to checkout bare git repository: %s", result.StderrContents())
+	}
+
+	return tmpdir, nil
+}
