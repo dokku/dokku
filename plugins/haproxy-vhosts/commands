@@ -1,12 +1,25 @@
 #!/usr/bin/env bash
 [[ " haproxy:help help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
 source "$PLUGIN_AVAILABLE_PATH/haproxy-vhosts/help-functions"
+source "$PLUGIN_AVAILABLE_PATH/haproxy-vhosts/command-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
 case "$1" in
   help | haproxy:help)
     cmd-haproxy-help "$@"
+    ;;
+
+  haproxy:label:add)
+    cmd-haproxy-label-add "$@"
+    ;;
+
+  haproxy:label:remove)
+    cmd-haproxy-label-remove "$@"
+    ;;
+
+  haproxy:label:show)
+    cmd-haproxy-label-show "$@"
     ;;
 
   *)

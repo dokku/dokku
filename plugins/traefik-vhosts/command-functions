@@ -5,14 +5,28 @@ source "$PLUGIN_AVAILABLE_PATH/traefik-vhosts/internal-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
-cmd-traefik-label() {
-  declare desc="set/unset/show container proxy labels"
-  declare cmd="traefik:label"
+cmd-traefik-label-add() {
+  declare desc="adds container label to app for specified proxy"
+  declare cmd="traefik:label:add"
   [[ "$1" == "$cmd" ]] && shift 1
-  declare APP="$1"
 
-  set -- traefik "$@"
-  cmd-proxy-label "$@"
+  cmd-proxy-label-add "proxy:label:add" "traefik" "$@"
+}
+
+cmd-traefik-label-remove() {
+  declare desc="removes container label from app for specified proxy"
+  declare cmd="traefik:label:remove"
+  [[ "$1" == "$cmd" ]] && shift 1
+
+  cmd-proxy-label-remove "proxy:label:remove" "traefik" "$@"
+}
+
+cmd-traefik-label-show() {
+  declare desc="shows container labels for app for specified proxy"
+  declare cmd="traefik:label:show"
+  [[ "$1" == "$cmd" ]] && shift 1
+
+  cmd-proxy-label-show "proxy:label:show" "traefik" "$@"
 }
 
 cmd-traefik-report() {

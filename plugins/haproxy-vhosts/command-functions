@@ -5,14 +5,28 @@ source "$PLUGIN_AVAILABLE_PATH/haproxy-vhosts/internal-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
-cmd-haproxy-label() {
-  declare desc="set/unset/show container proxy labels"
-  declare cmd="haproxy:label"
+cmd-haproxy-label-add() {
+  declare desc="adds container label to app for specified proxy"
+  declare cmd="haproxy:label:add"
   [[ "$1" == "$cmd" ]] && shift 1
-  declare APP="$1"
 
-  set -- haproxy "$@"
-  cmd-proxy-label "$@"
+  cmd-proxy-label-add "proxy:label:add" "haproxy" "$@"
+}
+
+cmd-haproxy-label-remove() {
+  declare desc="removes container label from app for specified proxy"
+  declare cmd="haproxy:label:remove"
+  [[ "$1" == "$cmd" ]] && shift 1
+
+  cmd-proxy-label-remove "proxy:label:remove" "haproxy" "$@"
+}
+
+cmd-haproxy-label-show() {
+  declare desc="shows container labels for app for specified proxy"
+  declare cmd="haproxy:label:show"
+  [[ "$1" == "$cmd" ]] && shift 1
+
+  cmd-proxy-label-show "proxy:label:show" "haproxy" "$@"
 }
 
 cmd-haproxy-report() {

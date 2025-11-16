@@ -1,12 +1,25 @@
 #!/usr/bin/env bash
 [[ " caddy:help help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
 source "$PLUGIN_AVAILABLE_PATH/caddy-vhosts/help-functions"
+source "$PLUGIN_AVAILABLE_PATH/caddy-vhosts/command-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
 case "$1" in
   help | caddy:help)
     cmd-caddy-help "$@"
+    ;;
+
+  caddy:label:add)
+    cmd-caddy-label-add "$@"
+    ;;
+
+  caddy:label:remove)
+    cmd-caddy-label-remove "$@"
+    ;;
+
+  caddy:label:show)
+    cmd-caddy-label-show "$@"
     ;;
 
   *)
