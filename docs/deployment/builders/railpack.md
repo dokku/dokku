@@ -1,7 +1,7 @@
 # Railpack
 
 > [!IMPORTANT]
-> New as of 0.32.0
+> New as of 0.37.0
 
 The `railpack` builder builds apps via [Railpack](https://railpack.com/), a buildpack alternative.
 
