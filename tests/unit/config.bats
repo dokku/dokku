@@ -486,10 +486,15 @@ teardown() {
 
 @test "(config) global config (dockerfile)" {
   run deploy_app dockerfile
-  run /bin/bash -c "dokku run $TEST_APP env | grep -E '^global_test=true'"
   echo "output: $output"
   echo "status: $status"
   assert_success
+
+  run /bin/bash -c "dokku run $TEST_APP env"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "global_test=true"
 }
 
 @test "(config) config:show" {
