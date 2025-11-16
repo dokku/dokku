@@ -17,7 +17,6 @@ trigger-builder-dockerfile-builder-build() {
   dokku_log_info1 "Building $APP from Dockerfile"
 
   local IMAGE=$(get_app_image_name "$APP")
-  local DOKKU_DOCKERFILE_CACHE_BUILD=$(config_get "$APP" "DOKKU_DOCKERFILE_CACHE_BUILD")
   local DOKKU_DOCKER_BUILD_OPTS=$(config_get "$APP" "DOKKU_DOCKER_BUILD_OPTS")
   local DOCKER_BUILD_LABEL_ARGS=("--label=dokku" "--label=org.label-schema.schema-version=1.0" "--label=org.label-schema.vendor=dokku" "--label=com.dokku.image-stage=build" "--label=com.dokku.builder-type=dockerfile" "--label=com.dokku.app-name=$APP")
 
@@ -34,17 +33,219 @@ trigger-builder-dockerfile-builder-build() {
   fi
   plugn trigger pre-build "$BUILDER_TYPE" "$APP" "$SOURCECODE_WORK_DIR"
 
-  [[ "$DOKKU_DOCKERFILE_CACHE_BUILD" == "false" ]] && DOKKU_DOCKER_BUILD_OPTS="$DOKKU_DOCKER_BUILD_OPTS --no-cache"
   local DOCKER_ARGS=$(: | plugn trigger docker-args-build "$APP" "$BUILDER_TYPE")
   DOCKER_ARGS+=$(: | plugn trigger docker-args-process-build "$APP" "$BUILDER_TYPE")
+  DOCKER_ARGS+=" $DOKKU_GLOBAL_BUILD_ARGS"
+  [[ "$(config_get "$APP" "DOKKU_DOCKERFILE_CACHE_BUILD")" == "false" ]] && DOCKER_ARGS+=" --no-cache"
 
-  # strip --link, --volume and -v args from DOCKER_ARGS
-  local DOCKER_ARGS=$(sed -e "s/^--link=[[:graph:]]\+[[:blank:]]\?//g" -e "s/^--link[[:blank:]]\?[[:graph:]]\+[[:blank:]]\?//g" -e "s/^--volume=[[:graph:]]\+[[:blank:]]\?//g" -e "s/^--volume[[:blank:]]\?[[:graph:]]\+[[:blank:]]\?//g" -e "s/^-v[[:blank:]]\?[[:graph:]]\+[[:blank:]]\?//g" <<<"$DOCKER_ARGS")
-  declare -a ARG_ARRAY
-  eval "ARG_ARRAY=($DOCKER_ARGS)"
+
+  DOCKER_ARGS=" $DOCKER_ARGS "
+  eval set -- "$DOCKER_ARGS"
+
+  declare -a DOCKERFILE_ARGS
+  while true; do
+    case "$1" in
+      --add-host)
+        DOCKERFILE_ARGS+=("--add-host")
+        DOCKERFILE_ARGS+=("$2")
+        shift 2
+        ;;
+      --add-host=*)
+        DOCKERFILE_ARGS+=("--add-host" "${1#--add-host=}")
+        shift 1
+        ;;
+      --allow)
+        DOCKERFILE_ARGS+=("--allow")
+        DOCKERFILE_ARGS+=("$2")
+        shift 2
+        ;;
+      --allow=*)
+        DOCKERFILE_ARGS+=("--allow" "${1#--allow=}")
+        shift 1
+        ;;
+      --annotation)
+        DOCKERFILE_ARGS+=("--annotation")
+        DOCKERFILE_ARGS+=("$2")
+        shift 2
+        ;;
+      --annotation=*)
+        DOCKERFILE_ARGS+=("--annotation" "${1#--annotation=}")
+        shift 1
+        ;;
+      --attest)
+        DOCKERFILE_ARGS+=("--attest")
+        DOCKERFILE_ARGS+=("$2")
+        shift 2
+        ;;
+      --attest=*)
+        DOCKERFILE_ARGS+=("--attest" "${1#--attest=}")
+        shift 1
+        ;;
+      --build-arg)
+        DOCKERFILE_ARGS+=("--build-arg")
+        DOCKERFILE_ARGS+=("$2")
+        shift 2
+        ;;
+      --build-arg=*)
+        DOCKERFILE_ARGS+=("--build-arg" "${1#--build-arg=}")
+        shift 1
+        ;;
+      --builder)
+        DOCKERFILE_ARGS+=("--builder")
+        DOCKERFILE_ARGS+=("$2")
+        shift 2
+        ;;
+      --builder=*)
+        DOCKERFILE_ARGS+=("--builder" "${1#--builder=}")
+        shift 1
+        ;;
+      --cache-from)
+        DOCKERFILE_ARGS+=("--cache-from")
+        DOCKERFILE_ARGS+=("$2")
+        shift 2
+        ;;
+      --cache-from=*)
+        DOCKERFILE_ARGS+=("--cache-from" "${1#--cache-from=}")
+        shift 1
+        ;;
+      --cache-to)
+        DOCKERFILE_ARGS+=("--cache-to")
+        DOCKERFILE_ARGS+=("$2")
+        shift 2
+        ;;
+      --cache-to=*)
+        DOCKERFILE_ARGS+=("--cache-to" "${1#--cache-to=}")
+        shift 1
+        ;;
+      --call)
+        DOCKERFILE_ARGS+=("--env")
+        DOCKERFILE_ARGS+=("$2")
+        shift 2
+        ;;
+      --env=*)
+        DOCKERFILE_ARGS+=("--env" "${1#--env=}")
+        shift 1
+        ;;
+      --cgroup-parent)
+        DOCKERFILE_ARGS+=("--cgroup-parent")
+        DOCKERFILE_ARGS+=("$2")
+        shift 2
+        ;;
+      --cgroup-parent=*)
+        DOCKERFILE_ARGS+=("--cgroup-parent" "${1#--cgroup-parent=}")
+        shift 1
+        ;;
+      --label)
+        DOCKERFILE_ARGS+=("--label")
+        DOCKERFILE_ARGS+=("$2")
+        shift 2
+        ;;
+      --label=*)
+        DOCKERFILE_ARGS+=("--label" "${1#--label=}")
+        shift 1
+        ;;
+      --network)
+        DOCKERFILE_ARGS+=("--network")
+        DOCKERFILE_ARGS+=("$2")
+        shift 2
+        ;;
+      --network=*)
+        DOCKERFILE_ARGS+=("--network" "${1#--network=}")
+        shift 1
+        ;;
+      --platform)
+        DOCKERFILE_ARGS+=("--platform")
+        DOCKERFILE_ARGS+=("$2")
+        shift 2
+        ;;
+      --platform=*)
+        DOCKERFILE_ARGS+=("--platform" "${1#--platform=}")
+        shift 1
+        ;;
+      --progress)
+        DOCKERFILE_ARGS+=("--progress")
+        DOCKERFILE_ARGS+=("$2")
+        shift 2
+        ;;
+      --progress=*)
+        DOCKERFILE_ARGS+=("--progress" "${1#--progress=}")
+        shift 1
+        ;;
+      --provenance)
+        DOCKERFILE_ARGS+=("--provenance")
+        DOCKERFILE_ARGS+=("$2")
+        shift 2
+        ;;
+      --provenance=*)
+        DOCKERFILE_ARGS+=("--provenance" "${1#--provenance=}")
+        shift 1
+        ;;
+      --sbom)
+        DOCKERFILE_ARGS+=("--sbom")
+        DOCKERFILE_ARGS+=("$2")
+        shift 2
+        ;;
+      --sbom=*)
+        DOCKERFILE_ARGS+=("--sbom" "${1#--sbom=}")
+        shift 1
+        ;;
+      --secret)
+        DOCKERFILE_ARGS+=("--secret")
+        DOCKERFILE_ARGS+=("$2")
+        shift 2
+        ;;
+      --secret=*)
+        DOCKERFILE_ARGS+=("--secret" "${1#--secret=}")
+        shift 1
+        ;;
+      --shm-size)
+        DOCKERFILE_ARGS+=("--shm-size")
+        DOCKERFILE_ARGS+=("$2")
+        shift 2
+        ;;
+      --shm-size=*)
+        DOCKERFILE_ARGS+=("--shm-size" "${1#--shm-size=}")
+        shift 1
+        ;;
+      --ssh)
+        DOCKERFILE_ARGS+=("--platform")
+        DOCKERFILE_ARGS+=("$2")
+        shift 2
+        ;;
+      --ssh=*)
+        DOCKERFILE_ARGS+=("--ssh" "${1#--ssh=}")
+        shift 1
+        ;;
+      --target)
+        DOCKERFILE_ARGS+=("--target")
+        DOCKERFILE_ARGS+=("$2")
+        shift 2
+        ;;
+      --target=*)
+        DOCKERFILE_ARGS+=("--target" "${1#--target=}")
+        shift 1
+        ;;
+      --ulimit)
+        DOCKERFILE_ARGS+=("--tag")
+        DOCKERFILE_ARGS+=("$2")
+        shift 2
+        ;;
+      --tag=*)
+        DOCKERFILE_ARGS+=("--tag" "${1#--tag=}")
+        shift 1
+        ;;
+      --check | -D | --debug | --no-cache)
+        DOCKERFILE_ARGS+=("$1")
+        shift 1
+        ;;
+      *)
+        continue
+        ;;
+    esac
+  done
 
   eval "$(config_export app "$APP")"
-  "$DOCKER_BIN" image build "${DOCKER_BUILD_LABEL_ARGS[@]}" $DOKKU_GLOBAL_BUILD_ARGS "${ARG_ARRAY[@]}" ${DOKKU_DOCKER_BUILD_OPTS} -t $IMAGE .
+  "$DOCKER_BIN" image build "${DOCKER_BUILD_LABEL_ARGS[@]}" "${DOCKERFILE_ARGS[@]}" ${DOKKU_DOCKER_BUILD_OPTS} --tag $IMAGE .
 
   plugn trigger ports-set-detected "$APP" "$(fn-builder-dockerfile-get-detect-port-map "$APP" "$IMAGE" "$SOURCECODE_WORK_DIR/Dockerfile")"
   if fn-plugn-trigger-exists "post-build-dockerfile"; then
