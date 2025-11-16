@@ -115,12 +115,12 @@ trigger-builder-dockerfile-builder-build() {
         shift 1
         ;;
       --call)
-        DOCKERFILE_ARGS+=("--env")
+        DOCKERFILE_ARGS+=("--call")
         DOCKERFILE_ARGS+=("$2")
         shift 2
         ;;
-      --env=*)
-        DOCKERFILE_ARGS+=("--env" "${1#--env=}")
+      --call=*)
+        DOCKERFILE_ARGS+=("--call" "${1#--call=}")
         shift 1
         ;;
       --cgroup-parent)
