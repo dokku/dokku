@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
+
+trigger-openresty-vhosts-post-create() {
+  declare desc="openresty-vhosts post-create trigger"
+  declare trigger="post-create"
+  declare APP="$1"
+
+  fn-plugin-property-setup-app "openresty" "$APP"
+}
+
+trigger-openresty-vhosts-post-create "$@"

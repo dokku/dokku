@@ -104,3 +104,9 @@ fn-plugin-property-setup() {
   declare PLUGIN="$1"
   "$PLUGIN_CORE_AVAILABLE_PATH/common/prop" "setup" "$PLUGIN"
 }
+
+fn-plugin-property-setup-app() {
+  declare desc="setup the properties for an app"
+  declare PLUGIN="$1" APP="$2"
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/prop" "setup-app" "$PLUGIN" "$APP"
+}

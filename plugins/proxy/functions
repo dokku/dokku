@@ -47,7 +47,7 @@ fn-proxy-report-label-overwrite() {
 fn-proxy-get-labels-file-path() {
   declare desc="return proxy labels config file path for specified proxy"
   declare PROXY="$1" APP="$2"
-  local PROXY_FILE="${DOKKU_ROOT}/${APP}/PROXY_LABELS_${PROXY^^}"
+  local PROXY_FILE="${DOKKU_LIB_ROOT}/config/${PROXY}/${APP}/labels"
 
   echo "$PROXY_FILE"
 }
