@@ -36,7 +36,6 @@ trigger-builder-dockerfile-builder-build() {
   local DOCKER_ARGS=$(: | plugn trigger docker-args-build "$APP" "$BUILDER_TYPE")
   DOCKER_ARGS+=$(: | plugn trigger docker-args-process-build "$APP" "$BUILDER_TYPE")
   DOCKER_ARGS+=" $DOKKU_GLOBAL_BUILD_ARGS"
-  [[ "$(config_get "$APP" "DOKKU_DOCKERFILE_CACHE_BUILD")" == "false" ]] && DOCKER_ARGS+=" --no-cache"
 
 
   DOCKER_ARGS=" $DOCKER_ARGS "

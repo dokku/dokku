@@ -199,7 +199,7 @@ dokku config:set node-js-app DOKKU_DOCKERFILE_START_CMD="--harmony server.js"
 
 To tell Docker what to run.
 
-Setting `$DOKKU_DOCKERFILE_CACHE_BUILD` to `true` or `false` will enable or disable Docker's image layer cache. Lastly, for more granular build control, you may also pass any `docker build` option to `docker`, by setting `$DOKKU_DOCKER_BUILD_OPTS`.
+For more granular build control, you may also pass any `docker build` option to `docker`, by setting `$DOKKU_DOCKER_BUILD_OPTS`.
 
 ### Procfiles and multiple processes
 
