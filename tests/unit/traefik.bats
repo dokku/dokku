@@ -299,3 +299,72 @@ teardown() {
   assert_success
   assert_output "websecure"
 }
+
+@test "(traefik) label management" {
+  run /bin/bash -c "dokku proxy:set $TEST_APP traefik"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku traefik:label:add $TEST_APP traefik.directive value"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku traefik:label:show $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "traefik.directive=value"
+
+  run /bin/bash -c "dokku traefik:label:show $TEST_APP traefik.directive"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "value"
+
+  run /bin/bash -c "dokku traefik:label:show $TEST_APP traefik.directive2"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_exists
+
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"traefik.directive\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "value"
+
+  run /bin/bash -c "dokku traefik:label:remove $TEST_APP traefik.directive"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku traefik:label:show $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_contains "traefik.directive=value"
+
+  run /bin/bash -c "dokku traefik:label:show $TEST_APP traefik.directive"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"traefik.directive\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_exists
+}

@@ -147,3 +147,72 @@ teardown() {
   echo "status: $status"
   assert_output "http:80:5000 https:443:5000"
 }
+
+@test "(caddy) label management" {
+  run /bin/bash -c "dokku proxy:set $TEST_APP caddy"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku caddy:label:add $TEST_APP caddy.directive value"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku caddy:label:show $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "caddy.directive=value"
+
+  run /bin/bash -c "dokku caddy:label:show $TEST_APP caddy.directive"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "value"
+
+  run /bin/bash -c "dokku caddy:label:show $TEST_APP caddy.directive2"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_exists
+
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"caddy.directive\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "value"
+
+  run /bin/bash -c "dokku caddy:label:remove $TEST_APP caddy.directive"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku caddy:label:show $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_contains "caddy.directive=value"
+
+  run /bin/bash -c "dokku caddy:label:show $TEST_APP caddy.directive"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"caddy.directive\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_exists
+}

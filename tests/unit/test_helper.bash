@@ -151,6 +151,10 @@ assert_output_contains() {
   assert_equal "$count" "$found"
 }
 
+assert_output_not_contains() {
+  assert_output_contains "$1" 0
+}
+
 # ShellCheck doesn't know about $lines from Bats
 assert_line() {
   if [[ "$1" -ge 0 ]] 2>/dev/null; then

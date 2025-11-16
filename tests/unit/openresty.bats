@@ -245,6 +245,75 @@ teardown() {
   assert_output_contains "charset UTF-8;"
 }
 
+@test "(openresty) label management" {
+  run /bin/bash -c "dokku proxy:set $TEST_APP openresty"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku openresty:label:add $TEST_APP openresty.directive value"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku openresty:label:show $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "openresty.directive=value"
+
+  run /bin/bash -c "dokku openresty:label:show $TEST_APP openresty.directive"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "value"
+
+  run /bin/bash -c "dokku openresty:label:show $TEST_APP openresty.directive2"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_exists
+
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"openresty.directive\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "value"
+
+  run /bin/bash -c "dokku openresty:label:remove $TEST_APP openresty.directive"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku openresty:label:show $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_contains "openresty.directive=value"
+
+  run /bin/bash -c "dokku openresty:label:show $TEST_APP openresty.directive"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"openresty.directive\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_exists
+}
+
 add_openresty_include() {
   local APP="$1"
   local APP_REPO_DIR="$2"
