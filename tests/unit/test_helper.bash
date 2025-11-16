@@ -31,7 +31,7 @@ global_setup() {
 
 global_teardown() {
   [[ -n "$BATS_TEST_COMPLETED" ]] || touch "${BATS_PARENT_TMPNAME}.skip"
-  rm "${BATS_PARENT_TMPNAME}.skip" || true
+  rm -f "${BATS_PARENT_TMPNAME}.skip" || true
   cleanup_apps
   cleanup_containers
 }
