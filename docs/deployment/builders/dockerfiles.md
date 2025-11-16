@@ -199,8 +199,6 @@ dokku config:set node-js-app DOKKU_DOCKERFILE_START_CMD="--harmony server.js"
 
 To tell Docker what to run.
 
-For more granular build control, you may also pass any `docker build` option to `docker`, by setting `$DOKKU_DOCKER_BUILD_OPTS`.
-
 ### Procfiles and multiple processes
 
 > [!IMPORTANT]
