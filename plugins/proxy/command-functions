@@ -9,7 +9,6 @@ cmd-proxy-labels-show() {
   declare cmd="proxy:labels:show"
   [[ "$1" == "$cmd" ]] && shift 1
   declare PROXY="$1" APP="$2" PASSED_LABEL_NAME="$3"
-  shift 2
 
   [[ -z "$PROXY" ]] && dokku_log_fail "Error invoking proxy:label command"
   verify_app_name "$APP"
