@@ -128,9 +128,6 @@ case "$1" in
   configure)
     mandb
     [ ! -x /usr/bin/docker.io ] || ln -sf /usr/bin/docker.io /usr/local/bin/docker
-    if [[ -f /sbin/modprobe ]]; then
-      modprobe aufs || echo "WARNING: Restart server to finish installing dokku!"
-    fi
 
     setup-user
     setup-storage
