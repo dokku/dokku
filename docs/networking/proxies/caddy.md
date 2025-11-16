@@ -117,16 +117,6 @@ dokku caddy:set --global log-level DEBUG
 
 After modifying,  the Caddy container will need to be restarted.
 
-### Changing the label key for the app
-
-The default label key for the app is `caddy`. This can be changed by setting the `label-key` property:
-
-```shell
-dokku caddy:set node-js-app label-key caddy_0
-```
-
-This will update the app's label key to `caddy_0`. The label key is used to identify the app in the Caddy configuration. If you change the label key, you will need to restart or rebuild the app to apply the updates.
-
 ### SSL Configuration
 
 The caddy plugin only supports automatic ssl certificates from its letsencrypt integration. Managed certificates provided by the `certs` plugin are ignored.

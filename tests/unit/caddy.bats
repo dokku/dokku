@@ -50,34 +50,6 @@ teardown() {
   assert_output_contains "python/http.server"
 }
 
-@test "(caddy) custom label key" {
-  run /bin/bash -c "dokku builder-herokuish:set $TEST_APP allowed true"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run /bin/bash -c "dokku proxy:set $TEST_APP caddy"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run /bin/bash -c "dokku caddy:set $TEST_APP label-key caddy_0"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run deploy_app
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"caddy_0\" }}'"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  assert_output "$TEST_APP.${DOKKU_DOMAIN}:80"
-}
-
 @test "(caddy) multiple domains" {
   run /bin/bash -c "dokku proxy:set $TEST_APP caddy"
   echo "output: $output"

@@ -9,13 +9,13 @@ cmd-caddy-set() {
   declare cmd="caddy:set"
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1" KEY="$2" VALUE="$3"
-  local VALID_KEYS=("image" "letsencrypt-email" "letsencrypt-server" "log-level" "polling-interval" "label-key" "tls-internal")
+  local VALID_KEYS=("image" "letsencrypt-email" "letsencrypt-server" "log-level" "polling-interval" "tls-internal")
   local GLOBAL_KEYS=("image" "letsencrypt-email" "letsencrypt-server" "log-level" "polling-interval")
 
   [[ -z "$KEY" ]] && dokku_log_fail "No key specified"
 
   if ! fn-in-array "$KEY" "${VALID_KEYS[@]}"; then
-    dokku_log_fail "Invalid key specified, valid keys include: image letsencrypt-email letsencrypt-server log-level polling-interval label-key tls-internal"
+    dokku_log_fail "Invalid key specified, valid keys include: image letsencrypt-email letsencrypt-server log-level polling-interval tls-internal"
   fi
 
   if ! fn-in-array "$KEY" "${GLOBAL_KEYS[@]}"; then
