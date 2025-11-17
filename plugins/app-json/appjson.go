@@ -1,13 +1,14 @@
 package appjson
 
 import (
+	"encoding/json"
 	"fmt"
 	"math"
 	"os"
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
-	json "github.com/marcozac/go-jsonc"
+	"github.com/marcozac/go-jsonc"
 	"k8s.io/utils/ptr"
 )
 
@@ -262,8 +263,13 @@ func ReadAppJSON(path string) (AppJSON, error) {
 		return AppJSON{}, nil
 	}
 
+	data, err := jsonc.Sanitize(b)
+	if err != nil {
+		return AppJSON{}, fmt.Errorf("Cannot sanitize app.json: %v", err)
+	}
+
 	var appJSON AppJSON
-	if err = json.Unmarshal(b, &appJSON); err != nil {
+	if err = json.Unmarshal(data, &appJSON); err != nil {
 		return AppJSON{}, fmt.Errorf("Cannot parse app.json: %v", err)
 	}
 
