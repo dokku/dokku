@@ -400,7 +400,7 @@ func CommandInitialize(ingressClass string, serverIP string, taintScheduling boo
 }
 
 // CommandClusterAdd adds a server to the k3s cluster
-func CommandClusterAdd(role string, remoteHost string, serverIP string, allowUknownHosts bool, taintScheduling bool) error {
+func CommandClusterAdd(role string, remoteHost string, serverIP string, allowUknownHosts bool, taintScheduling bool, kubeletArgs map[string]string) error {
 	if err := isK3sInstalled(); err != nil {
 		return fmt.Errorf("k3s not installed, cannot add node to cluster: %w", err)
 	}
@@ -663,6 +663,10 @@ export INSTALL_K3S_VERSION=%s
 
 	if taintScheduling {
 		args = append(args, "--node-taint", "CriticalAddonsOnly=true:NoSchedule")
+	}
+
+	for key, value := range kubeletArgs {
+		args = append(args, "--kubelet-arg", fmt.Sprintf("%s=%s", key, value))
 	}
 
 	common.LogInfo2Quiet(fmt.Sprintf("Adding %s k3s cluster", nodeName))
