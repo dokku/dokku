@@ -1,13 +1,13 @@
 package appjson
 
 import (
-	"encoding/json"
 	"fmt"
 	"math"
 	"os"
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
+	json "github.com/marcozac/go-jsonc"
 	"k8s.io/utils/ptr"
 )
 
