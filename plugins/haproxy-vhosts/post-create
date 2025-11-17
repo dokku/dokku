@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-haproxy-vhosts-post-create() {
+  declare desc="haproxy-vhosts post-create trigger"
+  declare trigger="post-create"
+  declare APP="$1"
+
+  fn-plugin-property-setup-app "haproxy" "$APP"
+}
+
+trigger-haproxy-vhosts-post-create "$@"

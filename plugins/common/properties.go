@@ -540,6 +540,14 @@ func PropertySetup(pluginName string) error {
 	})
 }
 
+func PropertySetupApp(pluginName string, appName string) error {
+	if err := makePluginAppPropertyPath(pluginName, appName); err != nil {
+		return fmt.Errorf("Unable to create %s config directory for %s: %s", pluginName, appName, err.Error())
+	}
+
+	return nil
+}
+
 func getPropertyPath(pluginName string, appName string, property string) string {
 	pluginAppConfigRoot := getPluginAppPropertyPath(pluginName, appName)
 	return filepath.Join(pluginAppConfigRoot, property)

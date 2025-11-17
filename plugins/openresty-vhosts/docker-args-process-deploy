@@ -2,6 +2,7 @@
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 source "$PLUGIN_AVAILABLE_PATH/openresty-vhosts/internal-functions"
 
 trigger-openresty-vhosts-docker-args-process-deploy() {
@@ -180,6 +181,14 @@ trigger-openresty-vhosts-docker-args-process-deploy() {
   [[ -n "$value" ]] && output="$output '--label=openresty.x-forwarded-proto-value=$value'"
   value="$(fn-openresty-x-forwarded-ssl "$APP")"
   [[ -n "$value" ]] && output="$output '--label=openresty.x-forwarded-ssl=$value'"
+
+  local proxy_labels_file_path=$(fn-proxy-get-labels-file-path "openresty" "$APP")
+  if [[ -f "$proxy_labels_file_path" ]]; then
+    while read -r line; do
+      [[ -z "$line" ]] && continue
+      output="$output --label '$line'"
+    done <"$proxy_labels_file_path"
+  fi
 
   echo -n "$STDIN$output"
 }

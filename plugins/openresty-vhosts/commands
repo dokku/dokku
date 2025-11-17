@@ -1,12 +1,25 @@
 #!/usr/bin/env bash
-[[ " openresty:help help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
+[[ " openresty:help openresty:labels:add openresty:labels:remove openresty:labels:show help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
 source "$PLUGIN_AVAILABLE_PATH/openresty-vhosts/help-functions"
+source "$PLUGIN_AVAILABLE_PATH/openresty-vhosts/command-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
 case "$1" in
   help | openresty:help)
     cmd-openresty-help "$@"
+    ;;
+
+  openresty:labels:add)
+    cmd-openresty-labels-add "$@"
+    ;;
+
+  openresty:labels:remove)
+    cmd-openresty-labels-remove "$@"
+    ;;
+
+  openresty:labels:show)
+    cmd-openresty-labels-show "$@"
     ;;
 
   *)

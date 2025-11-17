@@ -31,7 +31,7 @@ global_setup() {
 
 global_teardown() {
   [[ -n "$BATS_TEST_COMPLETED" ]] || touch "${BATS_PARENT_TMPNAME}.skip"
-  rm "${BATS_PARENT_TMPNAME}.skip" || true
+  rm -f "${BATS_PARENT_TMPNAME}.skip" || true
   cleanup_apps
   cleanup_containers
 }
@@ -149,6 +149,10 @@ assert_output_contains() {
     found=$((found + 1))
   done
   assert_equal "$count" "$found"
+}
+
+assert_output_not_contains() {
+  assert_output_contains "$1" 0
 }
 
 # ShellCheck doesn't know about $lines from Bats
