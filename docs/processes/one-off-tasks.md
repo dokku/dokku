@@ -1,8 +1,8 @@
 # One-off Tasks
 
 ```
-run [-e|--env KEY=VALUE] [--no-tty] <app> <cmd>              # Run a command in a new container using the current app image
-run:detached [-e|-env KEY=VALUE] [--force-tty] <app> <cmd>         # Run a command in a new detached container using the current app image
+run [-e|--env KEY=VALUE] [--no-tty] [--ttl-seconds SECONDS] <app> <cmd>              # Run a command in a new container using the current app image
+run:detached [-e|-env KEY=VALUE] [--force-tty] [--ttl-seconds SECONDS] <app> <cmd>         # Run a command in a new detached container using the current app image
 run:list [--format json|stdout] [<app>]                      # List all run containers for an app
 run:logs <app|--container CONTAINER> [-h] [-t] [-n num] [-q] # Display recent log output for run containers
 run:stop <app|--container CONTAINER>                         # Stops all run containers for an app or a specified run container
@@ -28,6 +28,16 @@ dokku run --env "NODE_ENV=development" --env "PATH=/custom/path" node-js-app npm
 ```
 
 One off containers are removed at the end of process execution.
+
+In addition, one-off containers also run for a max of 24 hours (86400 seconds) by default, after which they are reaped. This can be changed by setting the `--ttl-seconds` argument:
+
+
+```shell
+# runs for 10 minutes
+dokku run --ttl-seconds 600 node-js-app npm run mytask
+```
+
+One-off containers that exceed their runtime are reaped every 5 minutes, so the ttl-seconds is an approximation and your app may end up running for up to 5 minutes longer than expected.
 
 #### Running Procfile commands
 

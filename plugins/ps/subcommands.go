@@ -142,6 +142,19 @@ func CommandRetire(appName string) error {
 		Args:        []string{scheduler, appName},
 		StreamStdio: true,
 	})
+	if err != nil {
+		return fmt.Errorf("Error retiring containers: %w", err)
+	}
+
+	common.LogInfo1("Retiring expired run containers")
+	_, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "scheduler-run-retire",
+		StreamStdio: true,
+	})
+	if err != nil {
+		return fmt.Errorf("Error retiring expired run containers: %w", err)
+	}
+
 	return err
 }
 

@@ -2805,6 +2805,26 @@ DOKKU_SCHEDULER="$1"; APP="$2"; CONTAINER="$3"; TAIL="$4"; PRETTY_PRINT="$5"; NU
 # TODO
 ```
 
+### `scheduler-run-retire`
+
+> [!WARNING]
+> The scheduler plugin trigger apis are under development and may change
+> between minor releases until the 1.0 release.
+
+- Description: Allows you to retire containers started by the `run` command
+- Invoked by: `dokku run:retire`
+- Arguments: `$DOKKU_SCHEDULER $APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+DOKKU_SCHEDULER="$1"; APP="$2";
+
+# TODO
+```
+
 ### `scheduler-run-stop`
 
 > [!WARNING]
