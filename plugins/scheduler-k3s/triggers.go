@@ -1329,23 +1329,32 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 		return fmt.Errorf("Error getting security context: %w", err)
 	}
 
+	activeDeadlineSeconds := int64(86400) // 24 hours
+	if os.Getenv("DOKKU_RUN_TTL_SECONDS") != "" {
+		activeDeadlineSeconds, err = strconv.ParseInt(os.Getenv("DOKKU_RUN_TTL_SECONDS"), 10, 64)
+		if err != nil {
+			return fmt.Errorf("Error parsing DOKKU_RUN_TTL_SECONDS value as int64: %w", err)
+		}
+	}
+
 	workingDir := common.GetWorkingDir(appName, image)
 	job, err := templateKubernetesJob(Job{
-		AppName:          appName,
-		Command:          []string{commandShell},
-		DeploymentID:     deploymentID,
-		Entrypoint:       entrypoint,
-		Env:              extraEnv,
-		Image:            image,
-		ImagePullSecrets: imagePullSecrets,
-		ImageSourceType:  imageSourceType,
-		Interactive:      attachToPod || common.ToBool(os.Getenv("DOKKU_FORCE_TTY")),
-		Labels:           labels,
-		Namespace:        namespace,
-		ProcessType:      processType,
-		RemoveContainer:  rmContainer,
-		SecurityContext:  securityContext,
-		WorkingDir:       workingDir,
+		AppName:               appName,
+		Command:               []string{commandShell},
+		DeploymentID:          deploymentID,
+		Entrypoint:            entrypoint,
+		Env:                   extraEnv,
+		Image:                 image,
+		ImagePullSecrets:      imagePullSecrets,
+		ImageSourceType:       imageSourceType,
+		Interactive:           attachToPod || common.ToBool(os.Getenv("DOKKU_FORCE_TTY")),
+		Labels:                labels,
+		Namespace:             namespace,
+		ProcessType:           processType,
+		RemoveContainer:       rmContainer,
+		SecurityContext:       securityContext,
+		WorkingDir:            workingDir,
+		ActiveDeadlineSeconds: activeDeadlineSeconds,
 	})
 	if err != nil {
 		return fmt.Errorf("Error templating job: %w", err)
