@@ -18,7 +18,6 @@ cmd-plugin-install() {
       ;;
     https:* | git* | ssh:* | file:* | *.tar.gz | *.tgz)
       download_and_enable_plugin "$@"
-      plugn trigger install
       ;;
     *)
       if [[ -n "$FLAG" ]]; then
