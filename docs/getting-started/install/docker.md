@@ -84,8 +84,8 @@ The alternative is to build a custom docker image via a custom Dockerfile. This 
 
 ```Dockerfile
 FROM dokku/dokku:0.36.11
-RUN dokku plugin:install https://github.com/dokku/dokku-postgres.git postgres
-RUN dokku plugin:install https://github.com/dokku/dokku-redis.git redis
+RUN dokku plugin:install https://github.com/dokku/dokku-postgres.git --skip-install-trigger
+RUN dokku plugin:install https://github.com/dokku/dokku-redis.git --skip-install-trigger
 ```
 
 ## SSH Key Management
