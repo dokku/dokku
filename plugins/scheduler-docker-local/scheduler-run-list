@@ -19,7 +19,7 @@ trigger-scheduler-docker-local-scheduler-run-list() {
       "$DOCKER_BIN" container ls --all --no-trunc --filter "label=com.dokku.app-name=$APP" --filter "label=com.dokku.container-type=run" --format "{{.Names}}\t{{.Command}}\t{{.RunningFor}}"
     else
       "$DOCKER_BIN" container ls --all --no-trunc --filter "label=com.dokku.app-name=$APP" --filter "label=com.dokku.container-type=run" --format "table {{.Names}}\t{{.Command}}\t{{.RunningFor}}"
-      fi
+    fi
   else
     "$DOCKER_BIN" container ls --all --no-trunc --filter "label=com.dokku.app-name=$APP" --filter "label=com.dokku.container-type=run" --format "{{ json . }}" | jq -s -M 'map({name: .Names, state:.State, command:.Command, created_at:.CreatedAt})'
   fi
