@@ -12,7 +12,10 @@ scheduler-k3s:cluster-list                          # Lists all nodes in a Dokku
 scheduler-k3s:cluster-remove [node-id]              # Removes client node to a Dokku-managed cluster
 scheduler-k3s:ensure-charts                         # Ensures the k3s charts are installed
 scheduler-k3s:initialize                            # Initializes a cluster
-scheduler-k3s:labels:set <app|--global> <property> (<value>) [--process-type PROCESS_TYPE] <--resource-type RESOURCE_TYPE>, Set or clear a label for a given app/process-type/resource-type combination
+scheduler-k3s:labels:set <app|--global> <property> (<value>) [--process-type PROCESS_TYPE] <--resource-type RESOURCE_TYPE> # Set or clear a label for a given app/process-type/resource-type combination
+scheduler-k3s:profiles:add <profile> [--role ROLE] [--insecure-allow-unknown-hosts] [--taint-scheduling] [--kubelet-args KUBELET_ARGS] Adds a node profile to the k3s cluster
+scheduler-k3s:profiles:list [--format json|stdout]  # Lists all node profiles in the k3s cluster
+scheduler-k3s:profiles:remove <profile>             # Removes a node profile from the k3s cluster
 scheduler-k3s:report [<app>] [<flag>]               # Displays a scheduler-k3s report for one or more apps
 scheduler-k3s:set [<app>|--global] <key> (<value>)  # Set or clear a scheduler-k3s property for an app or the scheduler
 scheduler-k3s:show-kubeconfig                       # Displays the kubeconfig for remote usage
@@ -83,6 +86,22 @@ Nodes that run app workloads can be added via the `scheduler-k3s:cluster-add` co
 dokku scheduler-k3s:cluster-add  ssh://root@worker-1.example.com
 ```
 
+Per-node kubelet flags can be supplied by passing `--kubelet-args` with a comma-separated `key=value` list. This is useful for tuning scheduler capacity or enforcing cluster-wide defaults at the node level.
+
+```shell
+dokku scheduler-k3s:cluster-add \
+  --kubelet-args allowed-unsafe-sysctls=net.ipv6.conf.all.disable_ipv6 \
+  ssh://root@worker-1.example.com
+```
+
+Multiple kubelet arguments can be specified in the same call by separating them with commas. The following example enables IPv4 forwarding while also increasing the pod density on the worker.
+
+```shell
+dokku scheduler-k3s:cluster-add \
+  --kubelet-args allowed-unsafe-sysctls=net.ipv6.conf.all.disable_ipv6,max-pods=150 \
+  ssh://root@worker-2.example.com
+```
+
 If the server isn't in the `known_hosts` file, the connection will fail. This can be bypassed by setting the `--insecure-allow-unknown-hosts` flag:
 
 ```shell
@@ -133,6 +152,48 @@ When attaching an worker or server node, the K3s plugin will look at the IP asso
 ```shell
 dokku scheduler-k3s:set --global network-interface eth1
 ```
+
+### Node Profiles
+
+Node profiles capture repeatable `scheduler-k3s:cluster-add` options so you can join multiple nodes with identical settings. A profile name can be specified for the `scheduler-k3s:cluster-add` command via the  `--profile <name>` flag. Any flags passed directly to `scheduler-k3s:cluster-add` override the stored values for that run.
+
+#### Listing profiles
+
+Display stored profiles to understand which roles and behaviors will be used.
+
+```shell
+dokku scheduler-k3s:profiles:list
+```
+
+```
+name            role
+awesome-profile worker
+```
+
+This command also takes an optional `--format` flag to specify a format for the output. Options include `json` and `stdout`
+
+#### Adding profiles
+
+Create or update a profile that defines how new nodes should be prepared before joining the cluster.
+
+```shell
+dokku scheduler-k3s:profiles:add edge-workers \
+  --role worker \
+  --insecure-allow-unknown-hosts \
+  --kubelet-args protect-kernel-defaults=true,eviction-hard=memory.available<200Mi
+```
+
+Profile names must be alphanumeric, may include internal dashes, cannot start/end with a dash, and must be ≤32 characters. Other than the `--server-ip` flag, all flags used for `scheduler-k3s:cluster-add` are valid for the `scheduler-k3s:profiles:add` command.
+
+#### scheduler-k3s:profiles:remove
+
+Delete a profile once it’s no longer required.
+
+```shell
+dokku scheduler-k3s:profiles:remove edge-workers
+```
+
+Removal only deletes the stored definition; nodes that already joined the cluster keep their existing configuration.
 
 ### Changing deployment settings
 
