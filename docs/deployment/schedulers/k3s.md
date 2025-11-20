@@ -7,9 +7,9 @@
 scheduler-k3s:annotations:set <app|--global> <property> (<value>) [--process-type PROCESS_TYPE] <--resource-type RESOURCE_TYPE>, Set or clear an annotation for a given app/process-type/resource-type combination
 scheduler-k3s:autoscaling-auth:set <app|--global> <trigger> [<--metadata key=value>...], Set or clear a scheduler-k3s autoscaling keda trigger authentication resource for an app
 scheduler-k3s:autoscaling-auth:report <app|--global> [--format stdout|json] [--include-metadata] # Displays a scheduler-k3s autoscaling auth report for an app
-scheduler-k3s:cluster-add [ssh://user@host:port]    # Adds a server node to a Dokku-managed cluster
-scheduler-k3s:cluster-list                          # Lists all nodes in a Dokku-managed cluster
-scheduler-k3s:cluster-remove [node-id]              # Removes client node to a Dokku-managed cluster
+scheduler-k3s:cluster:add [ssh://user@host:port]    # Adds a server node to a Dokku-managed cluster
+scheduler-k3s:cluster:list                          # Lists all nodes in a Dokku-managed cluster
+scheduler-k3s:cluster:remove [node-id]              # Removes client node to a Dokku-managed cluster
 scheduler-k3s:ensure-charts                         # Ensures the k3s charts are installed
 scheduler-k3s:initialize                            # Initializes a cluster
 scheduler-k3s:labels:set <app|--global> <property> (<value>) [--process-type PROCESS_TYPE] <--resource-type RESOURCE_TYPE> # Set or clear a label for a given app/process-type/resource-type combination
@@ -80,16 +80,16 @@ dokku scheduler-k3s:initialize --ingress-class traefik
 
 #### Adding a worker node
 
-Nodes that run app workloads can be added via the `scheduler-k3s:cluster-add` command. This will ssh onto the specified server, install k3s, and join it to the current Dokku node in worker mode. Workers are typically used to run app workloads.
+Nodes that run app workloads can be added via the `scheduler-k3s:cluster:add` command. This will ssh onto the specified server, install k3s, and join it to the current Dokku node in worker mode. Workers are typically used to run app workloads.
 
 ```shell
-dokku scheduler-k3s:cluster-add  ssh://root@worker-1.example.com
+dokku scheduler-k3s:cluster:add  ssh://root@worker-1.example.com
 ```
 
 Per-node kubelet flags can be supplied by passing `--kubelet-args` with a comma-separated `key=value` list. This is useful for tuning scheduler capacity or enforcing cluster-wide defaults at the node level.
 
 ```shell
-dokku scheduler-k3s:cluster-add \
+dokku scheduler-k3s:cluster:add \
   --kubelet-args allowed-unsafe-sysctls=net.ipv6.conf.all.disable_ipv6 \
   ssh://root@worker-1.example.com
 ```
@@ -97,7 +97,7 @@ dokku scheduler-k3s:cluster-add \
 Multiple kubelet arguments can be specified in the same call by separating them with commas. The following example enables IPv4 forwarding while also increasing the pod density on the worker.
 
 ```shell
-dokku scheduler-k3s:cluster-add \
+dokku scheduler-k3s:cluster:add \
   --kubelet-args allowed-unsafe-sysctls=net.ipv6.conf.all.disable_ipv6,max-pods=150 \
   ssh://root@worker-2.example.com
 ```
@@ -105,13 +105,13 @@ dokku scheduler-k3s:cluster-add \
 If the server isn't in the `known_hosts` file, the connection will fail. This can be bypassed by setting the `--insecure-allow-unknown-hosts` flag:
 
 ```shell
-dokku scheduler-k3s:cluster-add --insecure-allow-unknown-hosts ssh://root@worker-1.example.com
+dokku scheduler-k3s:cluster:add --insecure-allow-unknown-hosts ssh://root@worker-1.example.com
 ```
 
 By default, Dokku will attempt to auto-detect the IP address of the Dokku server for the remote server to connect to. In cases where the auto-detected IP address is incorrect, an override may be specified via the `--server-ip` flag:
 
 ```shell
-dokku scheduler-k3s:cluster-add --server-ip 192.168.20.15 ssh://root@worker-1.example.com
+dokku scheduler-k3s:cluster:add --server-ip 192.168.20.15 ssh://root@worker-1.example.com
 ```
 
 #### Adding a server node
@@ -121,28 +121,28 @@ dokku scheduler-k3s:cluster-add --server-ip 192.168.20.15 ssh://root@worker-1.ex
 
 Server nodes are typically used to replicate the cluster state, and it is recommended to have an odd number of nodes spread across several availability zones (datacenters in close proximity within a region). This allows for higher availability in the event of a cluster failure. Server nodes run control-plane services such as the traefik load balancer and the etcd backing store.
 
-Server nodes can also be added with the `scheduler-k3s:cluster-add` command by specifying `--role server`. This will ssh onto the specified server, install k3s, and join it to the current Dokku node in server mode.
+Server nodes can also be added with the `scheduler-k3s:cluster:add` command by specifying `--role server`. This will ssh onto the specified server, install k3s, and join it to the current Dokku node in server mode.
 
 ```shell
-dokku scheduler-k3s:cluster-add  --role server ssh://root@server-1.example.com
+dokku scheduler-k3s:cluster:add  --role server ssh://root@server-1.example.com
 ```
 
 Server nodes allow any workloads to be scheduled on them by default, in addition to the control-plane, etcd, and the scheduler itself. To avoid app workloads being scheduled on your control-plane, use the `--taint-scheduling` flag:
 
 ```shell
-dokku scheduler-k3s:cluster-add --role server --taint-scheduling ssh://root@server-1.example.com
+dokku scheduler-k3s:cluster:add --role server --taint-scheduling ssh://root@server-1.example.com
 ```
 
 If the server isn't in the `known_hosts` file, the connection will fail. This can be bypassed by setting the `--insecure-allow-unknown-hosts` flag:
 
 ```shell
-dokku scheduler-k3s:cluster-add --role server --insecure-allow-unknown-hosts ssh://root@server-1.example.com
+dokku scheduler-k3s:cluster:add --role server --insecure-allow-unknown-hosts ssh://root@server-1.example.com
 ```
 
 By default, Dokku will attempt to auto-detect the IP address of the Dokku server for the remote server to connect to. In cases where the auto-detected IP address is incorrect, an override may be specified via the `--server-ip` flag:
 
 ```shell
-dokku scheduler-k3s:cluster-add --role server --server-ip 192.168.20.15 ssh://root@server-1.example.com
+dokku scheduler-k3s:cluster:add --role server --server-ip 192.168.20.15 ssh://root@server-1.example.com
 ```
 
 #### Changing the network interface
@@ -155,7 +155,7 @@ dokku scheduler-k3s:set --global network-interface eth1
 
 ### Node Profiles
 
-Node profiles capture repeatable `scheduler-k3s:cluster-add` options so you can join multiple nodes with identical settings. A profile name can be specified for the `scheduler-k3s:cluster-add` command via the  `--profile <name>` flag. Any flags passed directly to `scheduler-k3s:cluster-add` override the stored values for that run.
+Node profiles capture repeatable `scheduler-k3s:cluster:add` options so you can join multiple nodes with identical settings. A profile name can be specified for the `scheduler-k3s:cluster:add` command via the  `--profile <name>` flag. Any flags passed directly to `scheduler-k3s:cluster:add` override the stored values for that run.
 
 #### Listing profiles
 
@@ -183,7 +183,7 @@ dokku scheduler-k3s:profiles:add edge-workers \
   --kubelet-args protect-kernel-defaults=true,eviction-hard=memory.available<200Mi
 ```
 
-Profile names must be alphanumeric, may include internal dashes, cannot start/end with a dash, and must be ≤32 characters. Other than the `--server-ip` flag, all flags used for `scheduler-k3s:cluster-add` are valid for the `scheduler-k3s:profiles:add` command.
+Profile names must be alphanumeric, may include internal dashes, cannot start/end with a dash, and must be ≤32 characters. Other than the `--server-ip` flag, all flags used for `scheduler-k3s:cluster:add` are valid for the `scheduler-k3s:profiles:add` command.
 
 #### scheduler-k3s:profiles:remove
 
