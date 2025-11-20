@@ -164,10 +164,26 @@ var HelmRepositories = []HelmRepository{
 	},
 }
 
+// NodeProfile is a profile for a node in the k3s cluster
+type NodeProfile struct {
+	// Name is the name of the node profile
+	Name string `json:"name"`
+	// Role is the role of the node
+	Role string `json:"role"`
+	// AllowUknownHosts is whether to allow unknown hosts
+	AllowUknownHosts bool `json:"allow_unknown_hosts,omitempty"`
+	// TaintScheduling is whether to taint the node for scheduling
+	TaintScheduling bool `json:"taint_scheduling,omitempty"`
+	// KubeletArgs is a list of kubelet arguments
+	KubeletArgs []string `json:"kubelet_args,omitempty"`
+}
+
+// ServerLabels are the labels for a server node
 var ServerLabels = map[string]string{
 	"svccontroller.k3s.cattle.io/enablelb": "true",
 }
 
+// WorkerLabels are the labels for a worker node
 var WorkerLabels = map[string]string{
 	"node-role.kubernetes.io/worker": "worker",
 }
