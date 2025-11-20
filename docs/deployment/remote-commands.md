@@ -71,7 +71,7 @@ All commands have the application name automatically set via the `--app` flag on
 
 The client supports several environment variables:
 
-- `DOKKU_HOST` (default: `dokku` git remote): Used to interact with a specific remote server. Can be overridden via the `--remote` flag.
+- `DOKKU_HOST` (default: `dokku` git remote): Used to interact with a specific remote server. Can be overridden via the `--remote` flag. Must specify the `--app` flag when specified.
 - `DOKKU_PORT` (default: `22`): Used to specify a port to connect to the Dokku server on.
 
 It also supports several flags (all flags unspecified here are passed as is to the server):
@@ -98,6 +98,12 @@ To see your currently configured remote, run `dokku remote`. This will respect t
 To list all available remotes, run `dokku remote:list`. This is equivalent to running `git remote`.
 
 To add a remote, run `dokku remote:add $REMOTE_NAME dokku@dokku.me:$APP_NAME`, replacing `$REMOTE_NAME` with your desired remote name, the `$APP_NAME` with your desired app name and the host `dokku.me` with your Dokku host. This is equivalent to running `git remote add $REMOTE_NAME dokku@dokku.me:$APP_NAME`.
+
+The following remote formats are supported:
+
+- `dokku@HOSTNAME.TLD:APP_NAME`
+- `ssh://dokku@HOSTNAME.TLD/APP_NAME`
+- `ssh://dokku@HOSTNAME.TLD:HOST_PORT/APP_NAME`
 
 To remove a remote, run `dokku remote:remove $REMOTE_NAME`. This is equivalent to running `git remote remove $REMOTE_NAME`.
 

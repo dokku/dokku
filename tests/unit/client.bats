@@ -53,7 +53,6 @@ teardown() {
   assert_output_contains "dokku-constructed-remote: ssh://dokku@example.com:22/$TEST_APP"
 
   # handle custom DOKKU_HOST (no app name detected without --app flag)
-  export DOKKU_HOST="example.com"
   run /bin/bash -c "DOKKU_HOST="example.net" DOKKU_APP_PATH=$DOKKU_APP_PATH ${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh remote:show"
   echo "output: $output"
   echo "status: $status"
@@ -87,11 +86,75 @@ teardown() {
   assert_success
   assert_output_contains "dokku-app: $TEST_APP"
   assert_output_contains "dokku-git-remote: dokku"
-  assert_output_contains "dokku-host: example.com"
+  assert_output_not_contains "dokku-host: example.com"
+  assert_output_not_contains "dokku-host: example.net"
+  assert_output_contains "dokku-host: "
   assert_output_contains "dokku-port: 2222"
   assert_output_contains "dokku-remote-host: example.com"
   assert_output_contains "dokku-ssh-user: dokku"
   assert_output_contains "dokku-constructed-remote: ssh://dokku@example.com:2222/$TEST_APP"
+
+  # handle remote with scheme (no port): ssh://dokku@example.com/app-name
+  run /bin/bash -c "git -C "$DOKKU_APP_PATH" remote set-url dokku 'ssh://dokku@example.com:22/$TEST_APP'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "DOKKU_APP_PATH=$DOKKU_APP_PATH ${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh remote:show"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "dokku-app: $TEST_APP"
+  assert_output_contains "dokku-git-remote: dokku"
+  assert_output_not_contains "dokku-host: example.com"
+  assert_output_not_contains "dokku-host: example.net"
+  assert_output_contains "dokku-host: "
+  assert_output_contains "dokku-port: 22"
+  assert_output_contains "dokku-remote-host: example.com"
+  assert_output_contains "dokku-ssh-user: dokku"
+  assert_output_contains "dokku-constructed-remote: ssh://dokku@example.com:22/$TEST_APP"
+
+  # handle remote with scheme (with port): ssh://dokku@example.com:2222/app-name
+  run /bin/bash -c "git -C "$DOKKU_APP_PATH" remote set-url dokku 'ssh://dokku@example.com:2222/$TEST_APP'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "DOKKU_APP_PATH=$DOKKU_APP_PATH ${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh remote:show"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "dokku-app: $TEST_APP"
+  assert_output_contains "dokku-git-remote: dokku"
+  assert_output_not_contains "dokku-host: example.com"
+  assert_output_not_contains "dokku-host: example.net"
+  assert_output_contains "dokku-host: "
+  assert_output_contains "dokku-port: 2222"
+  assert_output_contains "dokku-remote-host: example.com"
+  assert_output_contains "dokku-ssh-user: dokku"
+  assert_output_contains "dokku-constructed-remote: ssh://dokku@example.com:2222/$TEST_APP"
+
+  # #8093: ssh://dokku@pipescan.shipit.dev:2222/pipescan
+  run /bin/bash -c "git -C "$DOKKU_APP_PATH" remote set-url dokku 'ssh://dokku@pipescan.shipit.dev:2222/pipescan'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "DOKKU_APP_PATH=$DOKKU_APP_PATH ${BATS_TEST_DIRNAME}/../../contrib/dokku_client.sh remote:show"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "dokku-app: pipescan"
+  assert_output_contains "dokku-git-remote: dokku"
+  assert_output_not_contains "dokku-host: example.com"
+  assert_output_not_contains "dokku-host: example.net"
+  assert_output_contains "dokku-host: "
+  assert_output_contains "dokku-port: 2222"
+  assert_output_contains "dokku-remote-host: pipescan.shipit.dev"
+  assert_output_contains "dokku-ssh-user: dokku"
+  assert_output_contains "dokku-constructed-remote: ssh://dokku@pipescan.shipit.dev:2222/pipescan"
+}
+
 @test "(client) no args should print help" {
   # dokku container is not run with a TTY on GitHub Actions so we don't get normal output
   # https://github.com/actions/runner/issues/241
