@@ -148,7 +148,7 @@ assert_output_contains() {
     input="${input/$expected/}"
     found=$((found + 1))
   done
-  assert_equal "$count" "$found"
+  [[ "$count" -eq "$found" ]] || flunk "expected $count occurrences of '$expected', found $found"
 }
 
 assert_output_not_contains() {
@@ -372,20 +372,6 @@ deploy_app() {
   git add .
   git commit -m 'initial commit'
   git push target "master:${GIT_REMOTE_BRANCH}" || destroy_app $?
-}
-
-setup_client_repo() {
-  local TMP
-  TMP=$(mktemp -d "/tmp/${DOKKU_DOMAIN}.XXXXX")
-  rmdir "$TMP" && cp -r "${BATS_TEST_DIRNAME}/../../tests/apps/nodejs-express" "$TMP"
-  cd "$TMP" || exit 1
-  git init
-  git config user.email "robot@example.com"
-  git config user.name "Test Robot"
-
-  [[ -f gitignore ]] && mv gitignore .gitignore
-  git add .
-  git commit -m 'initial commit'
 }
 
 setup_test_tls() {
