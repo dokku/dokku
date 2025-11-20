@@ -6,7 +6,7 @@
 ```
 plugin:disable <name>                    # Disable an installed plugin (third-party only)
 plugin:enable <name>                     # Enable a previously disabled plugin
-plugin:install [--core|git-url] [--committish branch|commit|tag] [--name custom-plugin-name]           # Optionally download git-url (and pin to the specified branch/commit/tag) & run install trigger for active plugins (or only core ones)
+plugin:install [--core|git-url] [--committish branch|commit|tag] [--name custom-plugin-name] [--skip-install-trigger] # Optionally download git-url (and pin to the specified branch/commit/tag) & run install trigger for active plugins (or only core ones)
 plugin:installed <name>                  # Checks if a plugin is installed
 plugin:install-dependencies [--core]     # Run install-dependencies trigger for active plugins (or only core ones)
 plugin:list                              # Print active plugins
@@ -126,6 +126,12 @@ The `--core` flag may also be indicated as the sole argument, though it is only 
 
 ```shell
 dokku plugin:install --core
+```
+
+If installing plugins in a Dockerfile, you will want to skip the `install` trigger. This will be run on container boot.
+
+```shell
+dokku plugin:install https://github.com/dokku/smoke-test-plugin.git --name smoke-test-plugin --skip-install-trigger
 ```
 
 Finally, all flags may be omitted to trigger the `install` procedures for both core and third-party plugins:

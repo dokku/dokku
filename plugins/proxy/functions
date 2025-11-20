@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+
+fn-proxy-escape-extended-sed() {
+  # Escaped delimiter is '/'
+  local input="$1"
+  echo "$input" | sed -E 's#[][()\.^$?*+{}|/]#\\&#g'
+}
+
+fn-proxy-get-labels-file-path() {
+  declare desc="return proxy labels config file path for specified proxy"
+  declare PROXY="$1" APP="$2"
+  local PROXY_FILE="${DOKKU_LIB_ROOT}/config/${PROXY}/${APP}/labels"
+
+  echo "$PROXY_FILE"
+}
+
+fn-proxy-display-labels() {
+  declare desc="print user-set app container labels for specified proxy"
+  declare PROXY="$1" APP="$2"
+  local proxy_labels_file_path="$(fn-proxy-get-labels-file-path "$PROXY" "$APP")"
+  if [[ -s "$proxy_labels_file_path" ]]; then
+    dokku_log_info2_quiet "${APP} ${PROXY} labels"
+    while read -r line; do
+      [[ -z "$line" ]] && continue
+
+      case "$line" in
+        \#*)
+          continue
+          ;;
+
+        *)
+          dokku_log_verbose "$line"
+          ;;
+      esac
+    done <"$proxy_labels_file_path"
+  else
+    dokku_log_warn_quiet "No ${PROXY} labels set for ${APP}"
+  fi
+}
+
+fn-proxy-show-label() {
+  declare desc="print single user-set app container label for specified proxy"
+  declare PROXY="$1" APP="$2" PASSED_LABEL_NAME="$3"
+
+  local proxy_labels_file_path="$(fn-proxy-get-labels-file-path "$PROXY" "$APP")"
+  if [[ ! -s "$proxy_labels_file_path" ]]; then
+    return
+  fi
+
+  local all_proxy_labels="$(<"$proxy_labels_file_path")"
+  local escaped_label_name="$(fn-proxy-escape-extended-sed "$PASSED_LABEL_NAME")"
+  local proxy_label_value="$(echo -e "${all_proxy_labels}" | sed -E -n "s/^${escaped_label_name}=(.*)\$/\1/p")"
+
+  echo "$proxy_label_value"
+}

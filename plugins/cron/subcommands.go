@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
 
@@ -41,9 +42,17 @@ func CommandList(appName string, format string) error {
 	}
 
 	if format == "stdout" {
-		output := []string{"ID | Schedule | Maintenance | Command"}
+		output := []string{"ID | Schedule | Concurrency | Maintenance | Command"}
 		for _, task := range tasks {
-			output = append(output, fmt.Sprintf("%s | %s | %t | %s", task.ID, task.Schedule, task.Maintenance, task.Command))
+			maintenance := "false"
+			if task.Maintenance {
+				if task.TaskInMaintenance {
+					maintenance = "true (task)"
+				} else if task.AppInMaintenance {
+					maintenance = "true (app)"
+				}
+			}
+			output = append(output, fmt.Sprintf("%s | %s | %s | %t | %s", task.ID, task.Schedule, task.ConcurrencyPolicy, maintenance, task.Command))
 		}
 
 		result := columnize.SimpleFormat(output)
@@ -82,6 +91,11 @@ func CommandReport(appName string, format string, infoFlag string) error {
 	return ReportSingleApp(appName, format, infoFlag)
 }
 
+// CommandResume resumes a cron task
+func CommandResume(appName string, cronID string) error {
+	return CommandSet(appName, fmt.Sprintf("%s%s", MaintenancePropertyPrefix, cronID), "")
+}
+
 // CommandRun executes a cron task on the fly
 func CommandRun(appName string, cronID string, detached bool) error {
 	if err := common.VerifyAppName(appName); err != nil {
@@ -98,9 +112,11 @@ func CommandRun(appName string, cronID string, detached bool) error {
 	}
 
 	command := ""
+	concurrencyPolicy := "allow"
 	for _, task := range tasks {
 		if task.ID == cronID {
 			command = task.Command
+			concurrencyPolicy = task.ConcurrencyPolicy
 		}
 	}
 
@@ -120,6 +136,7 @@ func CommandRun(appName string, cronID string, detached bool) error {
 		os.Setenv("DOKKU_DISABLE_TTY", "true")
 	}
 
+	os.Setenv("DOKKU_CONCURRENCY_POLICY", concurrencyPolicy)
 	os.Setenv("DOKKU_CRON_ID", cronID)
 	os.Setenv("DOKKU_RM_CONTAINER", "1")
 	scheduler := common.GetAppScheduler(appName)
@@ -129,6 +146,11 @@ func CommandRun(appName string, cronID string, detached bool) error {
 		Args:        args,
 		StreamStdio: true,
 	})
+	if err != nil {
+		// return an error with an empty message to avoid
+		// printing the error message twice
+		return errors.New("")
+	}
 	return err
 }
 
@@ -138,7 +160,37 @@ func CommandSet(appName string, property string, value string) error {
 		return err
 	}
 
-	common.CommandPropertySet("cron", appName, property, value, DefaultProperties, GlobalProperties)
+	validProperties := DefaultProperties
+	globalProperties := GlobalProperties
+	if strings.HasPrefix(property, MaintenancePropertyPrefix) {
+		if appName == "--global" {
+			return fmt.Errorf("Task maintenance properties cannot be set globally")
+		}
+
+		cronTaskID := strings.TrimPrefix(property, MaintenancePropertyPrefix)
+		if cronTaskID == "" {
+			return fmt.Errorf("Invalid task maintenance property, missing ID")
+		}
+
+		tasks, err := FetchCronTasks(FetchCronTasksInput{AppName: appName})
+		if err != nil {
+			return err
+		}
+
+		for _, task := range tasks {
+			if task.ID == cronTaskID {
+				validProperties[property] = ""
+				globalProperties[property] = false
+				break
+			}
+		}
+
+		if _, ok := validProperties[property]; !ok {
+			return fmt.Errorf("Invalid task maintenance property, no matching task ID found: %s", property)
+		}
+	}
+
+	common.CommandPropertySet("cron", appName, property, value, validProperties, globalProperties)
 	scheduler := common.GetAppScheduler(appName)
 	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
 		Trigger:     "scheduler-cron-write",
@@ -146,4 +198,9 @@ func CommandSet(appName string, property string, value string) error {
 		StreamStdio: true,
 	})
 	return err
+}
+
+// CommandSuspend suspends a cron task
+func CommandSuspend(appName string, cronID string) error {
+	return CommandSet(appName, fmt.Sprintf("%s%s", MaintenancePropertyPrefix, cronID), "true")
 }

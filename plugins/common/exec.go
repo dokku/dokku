@@ -29,6 +29,9 @@ type ExecCommandInput struct {
 	// Env is the environment variables to pass to the command
 	Env map[string]string
 
+	// PrintCommand prints the command before executing
+	PrintCommand bool
+
 	// Stdin is the stdin of the command
 	Stdin io.Reader
 
@@ -141,7 +144,7 @@ func CallExecCommandWithContext(ctx context.Context, input ExecCommandInput) (Ex
 		cmd.Cwd = input.WorkingDirectory
 	}
 
-	if os.Getenv("DOKKU_TRACE") == "1" {
+	if input.PrintCommand || os.Getenv("DOKKU_TRACE") == "1" {
 		argsSt := ""
 		if len(cmd.Args) > 0 {
 			argsSt = strings.Join(cmd.Args, " ")

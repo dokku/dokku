@@ -30,6 +30,15 @@ func main() {
 		args.Parse(os.Args[2:])
 		appName := args.Arg(0)
 		err = buildpacks.CommandClear(appName)
+	case "detect":
+		args := flag.NewFlagSet("buildpacks:detect", flag.ExitOnError)
+		branch := args.String("branch", "", "--branch: the branch to detect against (defaults to the deploy branch)")
+		args.Parse(os.Args[2:])
+		appName := args.Arg(0)
+		if *branch == "" {
+            *branch = common.PropertyGet("git", appName, "deploy-branch")
+		}
+		err = buildpacks.CommandDetect(appName, *branch)
 	case "list":
 		args := flag.NewFlagSet("buildpacks:list", flag.ExitOnError)
 		args.Parse(os.Args[2:])

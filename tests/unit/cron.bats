@@ -129,7 +129,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output '[{"id":"5cruaotm4yzzpnjlsdunblj8qyjp","command":"/bin/true","global":true,"schedule":"@daily","maintenance":false}]'
+  assert_output '[{"id":"5cruaotm4yzzpnjlsdunblj8qyjp","command":"/bin/true","global":true,"schedule":"@daily","concurrency_policy":"","app-in-maintenance":false,"task-in-maintenance":false,"maintenance":false}]'
 
   run /bin/bash -c "cat /var/spool/cron/crontabs/dokku"
   echo "output: $output"
@@ -233,6 +233,105 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output "['task.py', 'schedule', 'now']"
+}
+
+@test "(cron) cron:run concurrency_policy forbid" {
+  run deploy_app dockerfile dokku@$DOKKU_DOMAIN:$TEST_APP template_cron_file_concurrency_forbid
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  cron_id="$(dokku cron:list $TEST_APP --format json | jq -r '.[0].id')"
+  run /bin/bash -c "echo cron $cron_id"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_exists
+
+  run /bin/bash -c "dokku cron:run $TEST_APP $cron_id --detach"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker ps --filter "label=com.dokku.cron-id=$cron_id" -q | xargs docker inspect -f '{{ index .Config.Labels \"com.dokku.concurrency-policy\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "forbid"
+
+  run /bin/bash -c "dokku cron:run $TEST_APP $cron_id"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "currently has a cron lock in place for $cron_id"
+  assert_failure
+}
+
+@test "(cron) cron:suspend cron:resume" {
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP template_cron_file_valid_multiple
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "cat /var/spool/cron/crontabs/dokku"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "python3 task.py first"
+  assert_output_contains "python3 task.py second"
+
+  cron_id="$(dokku cron:list $TEST_APP --format json | jq -r '.[0].id')"
+  run /bin/bash -c "echo $cron_id"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_exists
+
+  first_command="$(dokku cron:list $TEST_APP --format json | jq -r '.[0].command')"
+  run /bin/bash -c "echo $first_command"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_exists
+
+  run /bin/bash -c "dokku cron:report $TEST_APP --cron-maintenance-$cron_id"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku cron:suspend $TEST_APP $cron_id"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku cron:report $TEST_APP --cron-maintenance-$cron_id"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "cat /var/spool/cron/crontabs/dokku"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "python3 task.py first" 0
+  assert_output_contains "python3 task.py second"
+
+  run /bin/bash -c "dokku cron:resume $TEST_APP $cron_id"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku cron:report $TEST_APP --cron-maintenance-$cron_id"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "cat /var/spool/cron/crontabs/dokku"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "python3 task.py first"
+  assert_output_contains "python3 task.py second"
 }
 
 template_cron_file_invalid() {
@@ -354,6 +453,24 @@ template_cron_file_valid_multiple() {
     {
       "command": "python3 task.py second",
       "schedule": "@daily"
+    }
+  ]
+}
+EOF
+}
+
+template_cron_file_concurrency_forbid() {
+  local APP="$1"
+  local APP_REPO_DIR="$2"
+  [[ -z "$APP" ]] && local APP="$TEST_APP"
+  echo "injecting valid cron app.json -> $APP_REPO_DIR/app.json"
+  cat <<EOF >"$APP_REPO_DIR/app.json"
+{
+  "cron": [
+    {
+      "command": "sleep 30",
+      "schedule": "0 0 * * *",
+      "concurrency_policy": "forbid"
     }
   ]
 }

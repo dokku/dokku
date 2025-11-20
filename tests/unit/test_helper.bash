@@ -31,7 +31,7 @@ global_setup() {
 
 global_teardown() {
   [[ -n "$BATS_TEST_COMPLETED" ]] || touch "${BATS_PARENT_TMPNAME}.skip"
-  rm "${BATS_PARENT_TMPNAME}.skip" || true
+  rm -f "${BATS_PARENT_TMPNAME}.skip" || true
   cleanup_apps
   cleanup_containers
 }
@@ -148,7 +148,11 @@ assert_output_contains() {
     input="${input/$expected/}"
     found=$((found + 1))
   done
-  assert_equal "$count" "$found"
+  [[ "$count" -eq "$found" ]] || flunk "expected $count occurrences of '$expected', found $found"
+}
+
+assert_output_not_contains() {
+  assert_output_contains "$1" 0
 }
 
 # ShellCheck doesn't know about $lines from Bats
@@ -370,20 +374,6 @@ deploy_app() {
   git push target "master:${GIT_REMOTE_BRANCH}" || destroy_app $?
 }
 
-setup_client_repo() {
-  local TMP
-  TMP=$(mktemp -d "/tmp/${DOKKU_DOMAIN}.XXXXX")
-  rmdir "$TMP" && cp -r "${BATS_TEST_DIRNAME}/../../tests/apps/nodejs-express" "$TMP"
-  cd "$TMP" || exit 1
-  git init
-  git config user.email "robot@example.com"
-  git config user.name "Test Robot"
-
-  [[ -f gitignore ]] && mv gitignore .gitignore
-  git add .
-  git commit -m 'initial commit'
-}
-
 setup_test_tls() {
   local TLS_TYPE="$1"
   local TLS="/home/dokku/$TEST_APP/tls"
@@ -557,15 +547,6 @@ add_release_command() {
   echo "release: touch /app/release.test" >>"$APP_REPO_DIR/Procfile"
 }
 
-add_postdeploy_command() {
-  local APP="$1"
-  local APP_REPO_DIR="$2"
-  [[ -z "$APP" ]] && local APP="$TEST_APP"
-  touch "$APP_REPO_DIR/app.json"
-  contents=$(jq '.scripts.postdeploy = "touch /app/heroku-postdeploy.test"' "$APP_REPO_DIR/app.json")
-  echo "${contents}" >"$APP_REPO_DIR/app.json"
-}
-
 move_dockerfile_into_place() {
   local APP="$1"
   local APP_REPO_DIR="$2"
@@ -657,6 +638,12 @@ install_pack() {
 install_nixpacks() {
   if ! command -v "nixpacks" &>/dev/null; then
     curl -sSL https://nixpacks.com/install.sh | FORCE=1 bash
+  fi
+}
+
+install_railpack() {
+  if ! command -v "railpack" &>/dev/null; then
+    curl -sSL https://railpack.com/install.sh | FORCE=1 bash
   fi
 }
 

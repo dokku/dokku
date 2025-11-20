@@ -61,7 +61,10 @@ trigger-builder-herokuish-builder-build() {
   plugn trigger pre-build "$BUILDER_TYPE" "$APP" "$SOURCECODE_WORK_DIR"
 
   local DOCKER_ARGS=$(: | plugn trigger docker-args-build "$APP" "$BUILDER_TYPE")
-  [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" --env=TRACE=true "
+  if [[ -n "$DOKKU_TRACE" ]]; then
+    DOCKER_ARGS+=" --env=TRACE=true "
+    DOCKER_ARGS+=" --env=BUILDPACK_XTRACE=1 "
+  fi
   DOCKER_ARGS+=$(: | plugn trigger docker-args-process-build "$APP" "$BUILDER_TYPE")
 
   declare -a ARG_ARRAY

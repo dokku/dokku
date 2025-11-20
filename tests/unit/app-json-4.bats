@@ -50,7 +50,7 @@ teardown() {
   run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP add_failing_postdeploy
   echo "output: $output"
   echo "status: $status"
-  assert_output_contains "Execution of first deploy postdeploy task failed"
+  assert_output_contains "Execution of heroku.postdeploy task failed"
   assert_failure
 }
 

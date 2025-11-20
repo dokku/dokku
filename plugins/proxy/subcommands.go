@@ -106,5 +106,5 @@ func CommandSet(appName string, proxyType string) error {
 	entries := map[string]string{
 		key: proxyType,
 	}
-	return config.SetMany(appName, entries, false)
+	return config.SetMany(appName, entries, false, false)
 }

@@ -219,7 +219,7 @@ func (task SftpCopyTask) Execute(ctx context.Context) (SftpCopyResult, error) {
 		}, ctx.Err()
 	}
 
-	if task.PrintCommand {
+	if task.PrintCommand || os.Getenv("DOKKU_TRACE") == "1" {
 		LogDebug(fmt.Sprintf("ssh %s@%s cp %s %v", task.Username, task.Hostname, task.SourcePath, task.DestinationPath))
 	}
 

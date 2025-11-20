@@ -21,7 +21,9 @@
 (list, optional) A list of cron resources. Keys are the names of the process types. The values are an object containing one or more of the following properties:
 
 - `command`: (string, required)
+- `maintenance`: (boolean, optional)
 - `schedule`: (string, required)
+- `concurrency_policy`: (string, optional, default: `allow`, options: `allow`, `forbid`, `replace`)
 
 ## Formation
 

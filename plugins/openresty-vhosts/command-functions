@@ -1,8 +1,33 @@
 #!/usr/bin/env bash
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/proxy/command-functions"
 source "$PLUGIN_AVAILABLE_PATH/openresty-vhosts/internal-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
+
+cmd-openresty-labels-add() {
+  declare desc="adds container label to app for specified proxy"
+  declare cmd="openresty:labels:add"
+  [[ "$1" == "$cmd" ]] && shift 1
+
+  cmd-proxy-labels-add "proxy:labels:add" "openresty" "$@"
+}
+
+cmd-openresty-labels-remove() {
+  declare desc="removes container label from app for specified proxy"
+  declare cmd="openresty:labels:remove"
+  [[ "$1" == "$cmd" ]] && shift 1
+
+  cmd-proxy-labels-remove "proxy:labels:remove" "openresty" "$@"
+}
+
+cmd-openresty-labels-show() {
+  declare desc="shows container labels for app for specified proxy"
+  declare cmd="openresty:labels:show"
+  [[ "$1" == "$cmd" ]] && shift 1
+
+  cmd-proxy-labels-show "proxy:labels:show" "openresty" "$@"
+}
 
 cmd-openresty-report() {
   declare desc="displays a openresty report for one or more apps"

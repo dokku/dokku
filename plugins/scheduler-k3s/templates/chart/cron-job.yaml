@@ -26,7 +26,7 @@ metadata:
   name: {{ $.Values.global.app_name }}-cron-{{ $config.cron.suffix }}
   namespace: {{ $.Values.global.namespace }}
 spec:
-  concurrencyPolicy: Allow
+  concurrencyPolicy: {{ $config.cron.concurrency_policy }}
   failedJobsHistoryLimit: 10
   jobTemplate:
     metadata:
@@ -50,6 +50,7 @@ spec:
       backoffLimit: 0
       podReplacementPolicy: Failed
       ttlSecondsAfterFinished: 60
+      activeDeadlineSeconds: 86400
       template:
         metadata:
           annotations:
@@ -135,6 +136,6 @@ spec:
   schedule: {{ $config.cron.schedule }}
   startingDeadlineSeconds: 60
   successfulJobsHistoryLimit: 10
-  suspend: false
+  suspend: {{ $config.cron.suspend }}
   timeZone: Etc/UTC
 {{- end }}

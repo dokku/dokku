@@ -39,9 +39,34 @@ trigger-scheduler-docker-local-scheduler-run() {
   [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" -e TRACE=true "
 
   local PROCESS_TYPE=run
+  local concurrency_policy="allow"
   if [[ -n "$DOKKU_CRON_ID" ]]; then
     PROCESS_TYPE=cron
     DOCKER_ARGS+=" --label=com.dokku.cron-id=$DOKKU_CRON_ID"
+
+    if [[ -n "$DOKKU_CONCURRENCY_POLICY" ]]; then
+      concurrency_policy="$DOKKU_CONCURRENCY_POLICY"
+    fi
+    DOCKER_ARGS+=" --label=com.dokku.concurrency-policy=$concurrency_policy"
+
+    if [[ "$concurrency_policy" == "forbid" ]]; then
+      # check if there is a running docker container with the same com.dokku.cron-id label
+      local RUNNING_CONTAINERS="$("$DOCKER_BIN" container ls --filter "label=com.dokku.cron-id=$DOKKU_CRON_ID" --filter "status=running" --quiet || true)"
+      if [[ -n "$RUNNING_CONTAINERS" ]]; then
+        dokku_log_warn "$APP currently has a cron lock in place for $DOKKU_CRON_ID. Exiting..."
+        return 1
+      fi
+    fi
+
+    if [[ "$concurrency_policy" == "replace" ]]; then
+      local RUNNING_CONTAINERS="$("$DOCKER_BIN" container ls --filter "label=com.dokku.cron-id=$DOKKU_CRON_ID" --filter "status=running" --quiet || true)"
+      if [[ -n "$RUNNING_CONTAINERS" ]]; then
+        dokku_log_warn "Replacing running container for $DOKKU_CRON_ID"
+        "$DOCKER_BIN" container update --restart=no "$RUNNING_CONTAINERS" &>/dev/null || true
+        "$DOCKER_BIN" container stop "$RUNNING_CONTAINERS" >/dev/null && "$DOCKER_BIN" container kill "$RUNNING_CONTAINERS" &>/dev/null
+        plugn trigger scheduler-register-retired "$APP" "$RUNNING_CONTAINERS"
+      fi
+    fi
   fi
 
   local DYNO_NUMBER="$RANDOM"
@@ -83,7 +108,9 @@ trigger-scheduler-docker-local-scheduler-run() {
 
     if [[ -n "$PROC_CMD" ]]; then
       dokku_log_info1_quiet "Found '$POTENTIAL_PROCFILE_KEY' in Procfile, running that command"
-      set -- "$PROC_CMD" "${@:2}"
+      DOCKER_ARGS+=" --label=com.dokku.process-type=$POTENTIAL_PROCFILE_KEY"
+      read -ra proc_array <<<"$PROC_CMD"
+      set -- "${proc_array[@]}" "${@:2}"
     fi
   fi
 
@@ -91,6 +118,10 @@ trigger-scheduler-docker-local-scheduler-run() {
   if [[ "$DOKKU_IMAGE_ARCHITECTURE" == "amd64" ]] && [[ "$(dpkg --print-architecture 2>/dev/null || true)" != "amd64" ]]; then
     dokku_log_warn "Detected linux/amd64 image, forcing --platform=linux/amd64"
     DOCKER_ARGS+=" --platform=linux/amd64"
+  fi
+
+  if [[ -n "$DOKKU_RUN_TTL_SECONDS" ]]; then
+    DOCKER_ARGS+=" --label=com.dokku.active-deadline-seconds=$DOKKU_RUN_TTL_SECONDS"
   fi
 
   # shellcheck disable=SC2124
@@ -138,6 +169,7 @@ trigger-scheduler-docker-local-scheduler-run() {
     DOKKU_CONTAINER_EXIT_CODE="$("$DOCKER_BIN" container wait "$CONTAINER_ID" 2>/dev/null || echo "$EXIT_CODE")"
     [[ -z "$DOKKU_CONTAINER_EXIT_CODE" ]] && DOKKU_CONTAINER_EXIT_CODE=0
   fi
+
   plugn trigger scheduler-post-run "$DOKKU_SCHEDULER" "$APP" "$CONTAINER_ID" "$DOKKU_CONTAINER_EXIT_CODE"
   return "$DOKKU_CONTAINER_EXIT_CODE"
 }

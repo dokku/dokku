@@ -99,19 +99,6 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-
-  # test DOKKU_CNB_EXPERIMENTAL env var
-  run /bin/bash -c "dokku config:set $TEST_APP DOKKU_CNB_EXPERIMENTAL=1"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  chown -R dokku:dokku "$TMP"
-  run /bin/bash -c "dokku plugin:trigger builder-detect $TEST_APP $TMP"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  assert_line 0 "pack"
 }
 
 @test "(builder) builder-detect [dockerfile]" {

@@ -113,6 +113,54 @@ dokku haproxy:set --global log-level DEBUG
 
 After modifying,  the Haproxy container will need to be restarted.
 
+### Label Management
+
+The Haproxy plugin allows you to add custom container labels to apps. These labels are injected into containers during deployment and can be used to configure Haproxy behavior beyond what the plugin provides by default.
+
+Refer to the upstream [EasyHaproxy](https://github.com/byjg/docker-easy-haproxy) documentation for more information on what labels are available.
+
+#### Adding a label
+
+To add a custom container label to an app, use the `haproxy:labels:add` command:
+
+```shell
+dokku haproxy:labels:add node-js-app haproxy.directive value
+```
+
+This will add the label `haproxy.directive=value` to the app's containers. After adding a label, you will need to rebuild or redeploy the app for the label to be applied to running containers.
+
+```shell
+dokku ps:rebuild node-js-app
+```
+
+#### Removing a label
+
+To remove a custom container label from an app, use the `haproxy:labels:remove` command:
+
+```shell
+dokku haproxy:labels:remove node-js-app haproxy.directive
+```
+
+This will remove the specified label from the app. After removing a label, you will need to rebuild or redeploy the app for the change to be applied to running containers.
+
+```shell
+dokku ps:rebuild node-js-app
+```
+
+#### Showing labels
+
+To view all custom container labels for an app, use the `haproxy:labels:show` command:
+
+```shell
+dokku haproxy:labels:show node-js-app
+```
+
+To view a specific label value, provide the label name:
+
+```shell
+dokku haproxy:labels:show node-js-app haproxy.directive
+```
+
 ### SSL Configuration
 
 The haproxy plugin only supports automatic ssl certificates from it's letsencrypt integration. Managed certificates provided by the `certs` plugin are ignored.

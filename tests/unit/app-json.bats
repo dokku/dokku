@@ -47,7 +47,12 @@ teardown() {
 }
 
 @test "(app-json) app.json scripts postdeploy" {
-  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP add_postdeploy_command
+  run /bin/bash -c "dokku app-json:set $TEST_APP appjson-path app-heroku-postdeploy.json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -94,7 +99,12 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku config:set --no-restart $TEST_APP DOKKU_CNB_EXPERIMENTAL=1 SECRET_KEY=fjdkslafjdk"
+  run /bin/bash -c "dokku config:set --no-restart $TEST_APP SECRET_KEY=fjdkslafjdk"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku builder:set $TEST_APP selected pack"
   echo "output: $output"
   echo "status: $status"
   assert_success

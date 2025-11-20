@@ -15,7 +15,11 @@ trigger-scheduler-docker-local-scheduler-run-list() {
 
   if [[ "$FORMAT" == "stdout" ]]; then
     dokku_log_info2_quiet "$APP run containers"
-    "$DOCKER_BIN" container ls --all --no-trunc --filter "label=com.dokku.app-name=$APP" --filter "label=com.dokku.container-type=run" --format "table {{.Names}}\t{{.Command}}\t{{.RunningFor}}"
+    if [[ -n "$DOKKU_QUIET_OUTPUT" ]]; then
+      "$DOCKER_BIN" container ls --all --no-trunc --filter "label=com.dokku.app-name=$APP" --filter "label=com.dokku.container-type=run" --format "{{.Names}}\t{{.Command}}\t{{.RunningFor}}"
+    else
+      "$DOCKER_BIN" container ls --all --no-trunc --filter "label=com.dokku.app-name=$APP" --filter "label=com.dokku.container-type=run" --format "table {{.Names}}\t{{.Command}}\t{{.RunningFor}}"
+    fi
   else
     "$DOCKER_BIN" container ls --all --no-trunc --filter "label=com.dokku.app-name=$APP" --filter "label=com.dokku.container-type=run" --format "{{ json . }}" | jq -s -M 'map({name: .Names, state:.State, command:.Command, created_at:.CreatedAt})'
   fi

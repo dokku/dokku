@@ -29,7 +29,7 @@ fn-help-content() {
   cat <<help_content
     plugin:disable <name>, Disable an installed plugin (third-party only)
     plugin:enable <name>, Enable a previously disabled plugin
-    plugin:install [--core|--git-url] [--committish branch|commit|commit] [--name custom-plugin-name], Optionally download git-url (and pin to the specified branch/commit/tag) & run install trigger for active plugins (or only core ones)
+    plugin:install [--core|--git-url] [--committish branch|commit|commit] [--name custom-plugin-name] [--skip-install-trigger], Optionally download git-url (and pin to the specified branch/commit/tag) & run install trigger for active plugins (or only core ones)
     plugin:install-dependencies [--core], Run install-dependencies trigger for active plugins (or only core ones)
     plugin:list, Print active plugins
     plugin:trigger <args...>, Trigger an arbitrary plugin hook

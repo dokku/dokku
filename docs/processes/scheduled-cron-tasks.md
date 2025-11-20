@@ -6,8 +6,10 @@
 ```
 cron:list <app> [--format json|stdout]  # List scheduled cron tasks for an app
 cron:report [<app>] [<flag>]            # Display report about an app
+cron:resume <app> <cron_id>             # Resume a cron task
 cron:run <app> <cron_id> [--detach]     # Run a cron task on the fly
 cron:set [--global|<app>] <key> <value> # Set or clear a cron property for an app
+cron:suspend <app> <cron_id>            # Suspend a cron task
 ```
 
 ## Usage
@@ -34,9 +36,14 @@ The `app.json` file for a given app can define a special `cron` key that contain
 A cron task takes the following properties:
 
 - `command`: A command to be run within the built app image. Specified commands can also be `Procfile` entries.
+- `maintenance`: A boolean value that decides whether the cron task is in maintenance and therefore executable or not.
 - `schedule`: A [cron-compatible](https://en.wikipedia.org/wiki/Cron#Overview) scheduling definition upon which to run the command. Seconds are generally not supported.
+- `concurrency_policy`: A string (default: `allow`), that controls whether the cron task can be run concurrently with another invocation of itself. Valid options are `allow` (allow concurrency), `forbid` (exit the new cron task if there is an existing one), `replace` (delete any existing cron task and start the new one).
+
 
 Zero or more cron tasks can be specified per app. Cron tasks are validated after the build artifact is created but before the app is deployed, and the cron schedule is updated during the post-deploy phase.
+
+Cron tasks can run for a maximum of 24 hours via the docker-local scheduler, after which they are reaped from the system.
 
 See the [app.json location documentation](/docs/advanced-usage/deployment-tasks.md#changing-the-appjson-location) for more information on where to place your `app.json` file.
 
@@ -122,6 +129,26 @@ dokku cron:list --global
 ID                            Schedule  Command
 5cruaotm4yzzpnjlsdunblj8qyjp  @daily    /bin/true
 ```
+
+#### Suspending and resuming a specific cron task
+
+Cron tasks can be suspended to temporarily prevent them from running, and later resumed to re-enable them. This is useful for maintenance or debugging purposes.
+
+To suspend a specific cron task, use the `cron:suspend` command with the app name and cron ID:
+
+```shell
+dokku cron:suspend node-js-app cGhwPT09cGhwIHRlc3QucGhwPT09QGRhaWx5
+```
+
+A suspended task will not execute according to its schedule. You can verify a task is suspended by checking the `Maintenance` column in the `cron:list` output, which will show `true (task)` for suspended tasks.
+
+To resume a suspended cron task, use the `cron:resume` command:
+
+```shell
+dokku cron:resume node-js-app cGhwPT09cGhwIHRlc3QucGhwPT09QGRhaWx5
+```
+
+Once resumed, the task will execute according to its schedule again. The cron ID can be retrieved from the `cron:list` output.
 
 #### Executing a cron task on the fly
 

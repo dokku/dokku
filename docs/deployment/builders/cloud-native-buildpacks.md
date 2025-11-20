@@ -14,8 +14,8 @@ buildpacks:set-property [--global|<app>] <key> <value>  # Set or clear a buildpa
 
 Cloud Native Buildpacks are an evolution over the Buildpacks technology provided by the Herokuish builder. See the [herokuish buildpacks documentation](/docs/deployment/builders/herokuish-buildpacks.md) for more information on how to clear buildpack build cache for an application.
 
-> [!WARNING]
-> This functionality uses the `pack` cli from the [Cloud Native Buildpacks](https://buildpacks.io) project to build apps. As the integration is experimental in Dokku, it is likely to change over time.
+> [!NOTE]
+> This functionality uses the `pack` cli from the [Cloud Native Buildpacks](https://buildpacks.io) project to build apps.
 
 ## Usage
 
@@ -27,7 +27,7 @@ Builds will proceed with the `pack` cli for the app from then on.
 
 ### Caveats
 
-As this functionality is highly experimental, there are a number of caveats. Please note that not all issues are listed below.
+While pack is well-supported in Dokku, there are a number of caveats. Please note that not all issues are listed below.
 
 - Specifying specific buildpacks is not currently possible.
     - A future release will add support for specifying buildpacks via the `buildpacks` plugin.
@@ -41,16 +41,7 @@ As this functionality is highly experimental, there are a number of caveats. Ple
 
 ### Detection
 
-This builder will be auto-detected in either the following cases:
-
-- The `DOKKU_CNB_EXPERIMENTAL` app environment variable is set to `1`.
-
-    ```shell
-    dokku config:set --no-restart node-js-app DOKKU_CNB_EXPERIMENTAL=1
-    ```
-
-- A `project.toml` file exists in the root of the app repository.
-    - This file is consumed by `pack-cli` and used to describe how the app is built.
+This builder will be auto-detected if a `project.toml` file exists in the root of the app repository.  This file is consumed by `pack-cli` and used to describe how the app is built.
 
 The builder can also be specified via the `builder:set` command:
 

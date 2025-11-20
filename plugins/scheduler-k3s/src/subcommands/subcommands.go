@@ -54,22 +54,24 @@ func main() {
 		args.Parse(os.Args[2:])
 		appName := args.Arg(0)
 		err = scheduler_k3s.CommandAutoscalingAuthReport(appName, *format, *global, *includeMetadata)
-	case "cluster-add":
-		args := flag.NewFlagSet("scheduler-k3s:cluster-add", flag.ExitOnError)
+	case "cluster:add":
+		args := flag.NewFlagSet("scheduler-k3s:cluster:add", flag.ExitOnError)
 		allowUknownHosts := args.Bool("insecure-allow-unknown-hosts", false, "insecure-allow-unknown-hosts: allow unknown hosts")
 		taintScheduling := args.Bool("taint-scheduling", false, "taint-scheduling: add a taint against scheduling app workloads")
 		serverIP := args.String("server-ip", "", "server-ip: IP address of the dokku server node")
+		kubeletArgs := args.StringSlice("kubelet-args", []string{}, "kubelet-args: repeatable key=value kubelet arguments (e.g., --kubelet-args key=value)")
 		role := args.String("role", "worker", "role: [ server | worker ]")
+		profileName := args.String("profile", "", "profile: name of the node profile to use")
 		args.Parse(os.Args[2:])
 		remoteHost := args.Arg(0)
-		err = scheduler_k3s.CommandClusterAdd(*role, remoteHost, *serverIP, *allowUknownHosts, *taintScheduling)
-	case "cluster-list":
-		args := flag.NewFlagSet("scheduler-k3s:cluster-list", flag.ExitOnError)
+		err = scheduler_k3s.CommandClusterAdd(*profileName, *role, remoteHost, *serverIP, *allowUknownHosts, *taintScheduling, *kubeletArgs)
+	case "cluster:list":
+		args := flag.NewFlagSet("scheduler-k3s:cluster:list", flag.ExitOnError)
 		format := args.String("format", "stdout", "format: [ stdout | json ]")
 		args.Parse(os.Args[2:])
 		err = scheduler_k3s.CommandClusterList(*format)
-	case "cluster-remove":
-		args := flag.NewFlagSet("scheduler-k3s:cluster-remove", flag.ExitOnError)
+	case "cluster:remove":
+		args := flag.NewFlagSet("scheduler-k3s:cluster:remove", flag.ExitOnError)
 		args.Parse(os.Args[2:])
 		nodeName := args.Arg(0)
 		err = scheduler_k3s.CommandClusterRemove(nodeName)
@@ -102,6 +104,25 @@ func main() {
 		}
 
 		err = scheduler_k3s.CommandLabelsSet(appName, *processType, *resourceType, property, value)
+	case "profiles:add":
+		args := flag.NewFlagSet("scheduler-k3s:profiles:add", flag.ExitOnError)
+		role := args.String("role", "worker", "role: [ server | worker ]")
+		allowUknownHosts := args.Bool("insecure-allow-unknown-hosts", false, "insecure-allow-unknown-hosts: allow unknown hosts")
+		taintScheduling := args.Bool("taint-scheduling", false, "taint-scheduling: add a taint against scheduling app workloads")
+		kubeletArgs := args.StringSlice("kubelet-args", []string{}, "kubelet-args: repeatable key=value kubelet arguments (e.g., --kubelet-args key=value)")
+		args.Parse(os.Args[2:])
+		profileName := args.Arg(0)
+		err = scheduler_k3s.CommandProfilesAdd(profileName, *role, *allowUknownHosts, *taintScheduling, *kubeletArgs)
+	case "profiles:list":
+		args := flag.NewFlagSet("scheduler-k3s:profiles:list", flag.ExitOnError)
+		format := args.String("format", "stdout", "format: [ stdout | json ]")
+		args.Parse(os.Args[2:])
+		err = scheduler_k3s.CommandProfilesList(*format)
+	case "profiles:remove":
+		args := flag.NewFlagSet("scheduler-k3s:profiles:remove", flag.ExitOnError)
+		args.Parse(os.Args[2:])
+		profileName := args.Arg(0)
+		err = scheduler_k3s.CommandProfilesRemove(profileName)
 	case "report":
 		args := flag.NewFlagSet("scheduler-k3s:report", flag.ExitOnError)
 		format := args.String("format", "stdout", "format: [ stdout | json ]")

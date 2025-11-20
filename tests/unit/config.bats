@@ -77,6 +77,281 @@ teardown() {
   assert_output_not_exists
 }
 
+@test "(config) config:import stdin" {
+  run /bin/bash -c "dokku config:set $TEST_APP first_key=first_value"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "echo 'second_key=second_value' | dokku config:import $TEST_APP -"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku config:get $TEST_APP first_key"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "first_value"
+  run /bin/bash -c "dokku config:get $TEST_APP second_key"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "second_value"
+
+  run /bin/bash -c "echo 'test_var=TESTING2' | dokku config:import $TEST_APP -"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  run /bin/bash -c "dokku config:get $TEST_APP first_key"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "first_value"
+  run /bin/bash -c "dokku config:get $TEST_APP second_key"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "second_value"
+  run /bin/bash -c "dokku config:get $TEST_APP test_var"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "TESTING2"
+
+  run /bin/bash -c "echo 'test_var=TESTING3' | dokku config:import --replace $TEST_APP -"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  run /bin/bash -c "dokku config:get $TEST_APP first_key"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  run /bin/bash -c "dokku config:get $TEST_APP second_key"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  run /bin/bash -c "dokku config:get $TEST_APP test_var"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "TESTING3"
+}
+
+@test "(config) config:import file" {
+  local TMP_FILE=$(mktemp "/tmp/config-import.XXXXX")
+  trap 'popd &>/dev/null || true; rm -rf "$TMP"' INT TERM
+
+  run /bin/bash -c "dokku config:set $TEST_APP first_key=first_value"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "echo 'second_key=second_value' > $TMP_FILE"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku config:import $TEST_APP $TMP_FILE"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "chown dokku:dokku $TMP_FILE"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  run /bin/bash -c "dokku config:import $TEST_APP $TMP_FILE"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  run /bin/bash -c "dokku config:get $TEST_APP first_key"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "first_value"
+  run /bin/bash -c "dokku config:get $TEST_APP second_key"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "second_value"
+  run /bin/bash -c "rm -f $TMP_FILE"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "echo 'test_var=TESTING2' > $TMP_FILE"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  run /bin/bash -c "chown dokku:dokku $TMP_FILE"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku config:import $TEST_APP $TMP_FILE"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  run /bin/bash -c "dokku config:get $TEST_APP first_key"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "first_value"
+  run /bin/bash -c "dokku config:get $TEST_APP second_key"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "second_value"
+  run /bin/bash -c "dokku config:get $TEST_APP test_var"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "TESTING2"
+  run /bin/bash -c "rm -f $TMP_FILE"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "echo 'test_var=TESTING3' > $TMP_FILE"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  run /bin/bash -c "chown dokku:dokku $TMP_FILE"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku config:import --replace $TEST_APP $TMP_FILE"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  run /bin/bash -c "dokku config:get $TEST_APP first_key"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  run /bin/bash -c "dokku config:get $TEST_APP second_key"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  run /bin/bash -c "dokku config:get $TEST_APP test_var"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "TESTING3"
+  run /bin/bash -c "rm -f $TMP_FILE"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
+@test "(config) config:import file json" {
+  local TMP_FILE=$(mktemp "/tmp/config-import.XXXXX")
+  trap 'popd &>/dev/null || true; rm -rf "$TMP"' INT TERM
+
+  run /bin/bash -c "dokku config:set $TEST_APP first_key=first_value"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "echo '{\"second_key\": \"second_value\"}' > $TMP_FILE"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku config:import --format json $TEST_APP $TMP_FILE"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "chown dokku:dokku $TMP_FILE"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  run /bin/bash -c "dokku config:import --format json $TEST_APP $TMP_FILE"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  run /bin/bash -c "dokku config:get $TEST_APP first_key"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "first_value"
+  run /bin/bash -c "dokku config:get $TEST_APP second_key"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "second_value"
+  run /bin/bash -c "rm -f $TMP_FILE"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "echo '{\"test_var\": \"TESTING2\"}' > $TMP_FILE"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  run /bin/bash -c "chown dokku:dokku $TMP_FILE"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku config:import --format json $TEST_APP $TMP_FILE"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  run /bin/bash -c "dokku config:get $TEST_APP first_key"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "first_value"
+  run /bin/bash -c "dokku config:get $TEST_APP second_key"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "second_value"
+  run /bin/bash -c "dokku config:get $TEST_APP test_var"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "TESTING2"
+  run /bin/bash -c "rm -f $TMP_FILE"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "echo '{\"test_var\": \"TESTING3\"}' > $TMP_FILE"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  run /bin/bash -c "chown dokku:dokku $TMP_FILE"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku config:import --replace --format json $TEST_APP $TMP_FILE"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  run /bin/bash -c "dokku config:get $TEST_APP first_key"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  run /bin/bash -c "dokku config:get $TEST_APP second_key"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  run /bin/bash -c "dokku config:get $TEST_APP test_var"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "TESTING3"
+  run /bin/bash -c "rm -f $TMP_FILE"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
 @test "(config) config:set/get" {
   run ssh "dokku@$DOKKU_DOMAIN" config:set $TEST_APP test_var1=true test_var2=\"hello world\" test_var3='double\"quotes'
   echo "output: $output"
@@ -211,10 +486,15 @@ teardown() {
 
 @test "(config) global config (dockerfile)" {
   run deploy_app dockerfile
-  run /bin/bash -c "dokku run $TEST_APP env | grep -E '^global_test=true'"
   echo "output: $output"
   echo "status: $status"
   assert_success
+
+  run /bin/bash -c "dokku run $TEST_APP env"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "global_test=true"
 }
 
 @test "(config) config:show" {

@@ -294,3 +294,79 @@ teardown() {
   assert_success
   assert_output "http:3000:3000"
 }
+
+@test "(ports) ports not reinitialized on upgrade" {
+  run /bin/bash -c "dokku domains:clear-global"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku domains:disable $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ports:add $TEST_APP http:3001:3001"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku checks:disable $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku domains:report $TEST_APP --domains-global-enabled"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "false"
+
+  run /bin/bash -c "dokku git:from-image $TEST_APP louislam/uptime-kuma:2"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ports:report $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ports:report $TEST_APP --ports-map"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "http:3001:3001"
+
+  run /bin/bash -c "dokku ports:report $TEST_APP --ports-map-detected"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "http:3001:3001"
+
+  run /bin/bash -c "dokku domains:report $TEST_APP --domains-global-enabled"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "false"
+
+  run /bin/bash -c "dokku domains:setup $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Global server virtual host not set, disabling app vhost"
+  assert_output_not_contains "No port set, setting to random open high port"
+  assert_output_not_contains "Random port"
+
+  run /bin/bash -c "dokku ports:report $TEST_APP --ports-map"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "http:3001:3001"
+
+  run /bin/bash -c "dokku ports:report $TEST_APP --ports-map-detected"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "http:3001:3001"
+}

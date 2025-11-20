@@ -128,6 +128,82 @@ func TestConfigUnsetMany(t *testing.T) {
 	Expect(CommandUnset(testAppName+"does-not-exist", keys, false, true)).ToNot(Succeed())
 }
 
+func TestConfigImport(t *testing.T) {
+	RegisterTestingT(t)
+	Expect(setupTests()).To(Succeed())
+	Expect(setupTestApp()).To(Succeed())
+	defer teardownTestApp()
+
+	tempFile, err := os.CreateTemp("", "test-config-import-*.env")
+	Expect(err).To(Succeed())
+	defer os.Remove(tempFile.Name())
+	content := `
+testKey=TESTING-updated1
+testKey2=TESTING-updated2
+`
+	_, err = tempFile.WriteString(content)
+	Expect(err).To(Succeed())
+	tempFile.Close()
+
+	Expect(CommandImport(testAppName, false, false, true, "envfile", tempFile.Name())).To(Succeed())
+	expectValue(testAppName, "testKey", "TESTING-updated1")
+	expectValue(testAppName, "testKey2", "TESTING-updated2")
+
+	env, err := LoadAppEnv(testAppName)
+	Expect(err).To(Succeed())
+	env.Set("testKey", "TESTING-original1")
+	env.Set("testKey2", "TESTING-original2")
+	env.Set("testKey3", "TESTING-original3")
+	env.Write()
+
+	Expect(CommandImport(testAppName, false, false, true, "envfile", tempFile.Name())).To(Succeed())
+	expectValue(testAppName, "testKey", "TESTING-updated1")
+	expectValue(testAppName, "testKey2", "TESTING-updated2")
+	expectValue(testAppName, "testKey3", "TESTING-original3")
+
+	Expect(CommandImport(testAppName, false, true, true, "envfile", tempFile.Name())).To(Succeed())
+	expectValue(testAppName, "testKey", "TESTING-updated1")
+	expectValue(testAppName, "testKey2", "TESTING-updated2")
+	expectNoValue(testAppName, "testKey3")
+}
+
+func TestConfigImportJSON(t *testing.T) {
+	RegisterTestingT(t)
+	Expect(setupTests()).To(Succeed())
+	Expect(setupTestApp()).To(Succeed())
+	defer teardownTestApp()
+
+	tempFile, err := os.CreateTemp("", "test-config-import-*.json")
+	Expect(err).To(Succeed())
+	defer os.Remove(tempFile.Name())
+
+	content := `{"testKey": "TESTING-updated1", "testKey2": "TESTING-updated2"}`
+	_, err = tempFile.WriteString(content)
+	Expect(err).To(Succeed())
+	tempFile.Close()
+
+	Expect(CommandImport(testAppName, false, false, true, "json", tempFile.Name())).To(Succeed())
+	expectValue(testAppName, "testKey", "TESTING-updated1")
+	expectValue(testAppName, "testKey2", "TESTING-updated2")
+
+	env, err := LoadAppEnv(testAppName)
+	Expect(err).To(Succeed())
+	env.Set("testKey", "TESTING-original1")
+	env.Set("testKey2", "TESTING-original2")
+	env.Set("testKey3", "TESTING-original3")
+	env.Write()
+
+	Expect(CommandImport(testAppName, false, false, true, "json", tempFile.Name())).To(Succeed())
+	expectValue(testAppName, "testKey", "TESTING-updated1")
+	expectValue(testAppName, "testKey2", "TESTING-updated2")
+	expectValue(testAppName, "testKey3", "TESTING-original3")
+
+	Expect(CommandImport(testAppName, false, true, true, "json", tempFile.Name())).To(Succeed())
+	expectValue(testAppName, "testKey", "TESTING-updated1")
+	expectValue(testAppName, "testKey2", "TESTING-updated2")
+	expectNoValue(testAppName, "testKey3")
+}
+
 func TestEnvironmentLoading(t *testing.T) {
 	RegisterTestingT(t)
 	Expect(setupTests()).To(Succeed())
@@ -161,12 +237,13 @@ func TestInvalidKeys(t *testing.T) {
 
 	invalidKeys := []string{"0invalidKey", "invalid:key", "invalid=Key", "!invalidKey"}
 	for _, key := range invalidKeys {
-		Expect(SetMany(testAppName, map[string]string{key: "value"}, false)).NotTo(Succeed())
+		Expect(SetMany(testAppName, map[string]string{key: "value"}, false, false)).NotTo(Succeed())
 		Expect(UnsetMany(testAppName, []string{key}, false)).NotTo(Succeed())
 		value, ok := Get(testAppName, key)
 		Expect(ok).To(Equal(false))
-		value = GetWithDefault(testAppName, key, "default")
-		Expect(value).To(Equal("default"))
+		Expect(value).To(Equal(""))
+		value2 := GetWithDefault(testAppName, key, "default")
+		Expect(value2).To(Equal("default"))
 	}
 }
 

@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
+	"regexp"
 	"slices"
 	"sort"
 	"strings"
@@ -400,7 +401,7 @@ func CommandInitialize(ingressClass string, serverIP string, taintScheduling boo
 }
 
 // CommandClusterAdd adds a server to the k3s cluster
-func CommandClusterAdd(role string, remoteHost string, serverIP string, allowUknownHosts bool, taintScheduling bool) error {
+func CommandClusterAdd(profileName string, role string, remoteHost string, serverIP string, allowUknownHosts bool, taintScheduling bool, kubeletArgs []string) error {
 	if err := isK3sInstalled(); err != nil {
 		return fmt.Errorf("k3s not installed, cannot add node to cluster: %w", err)
 	}
@@ -414,8 +415,38 @@ func CommandClusterAdd(role string, remoteHost string, serverIP string, allowUkn
 		return fmt.Errorf("kubernetes api not available, cannot add node to cluster: %w", err)
 	}
 
-	if role != "server" && role != "worker" {
-		return fmt.Errorf("Invalid server-type: %s", role)
+	incomingProfile := NodeProfile{}
+
+	if profileName != "" {
+		properties := common.PropertyGetDefault("scheduler-k3s", "--global", fmt.Sprintf("node-profile-%s.json", profileName), "")
+		if properties == "" {
+			return fmt.Errorf("Node profile %s not found", profileName)
+		}
+
+		err = json.Unmarshal([]byte(properties), &incomingProfile)
+		if err != nil {
+			return fmt.Errorf("Unable to unmarshal node profile: %w", err)
+		}
+	}
+
+	if role != "" {
+		incomingProfile.Role = role
+	}
+
+	if allowUknownHosts {
+		incomingProfile.AllowUknownHosts = allowUknownHosts
+	}
+
+	if taintScheduling {
+		incomingProfile.TaintScheduling = taintScheduling
+	}
+
+	if len(kubeletArgs) > 0 {
+		incomingProfile.KubeletArgs = kubeletArgs
+	}
+
+	if incomingProfile.Role != "server" && incomingProfile.Role != "worker" {
+		return fmt.Errorf("Invalid role: %s", incomingProfile.Role)
 	}
 
 	token := getGlobalGlobalToken()
@@ -423,7 +454,7 @@ func CommandClusterAdd(role string, remoteHost string, serverIP string, allowUkn
 		return fmt.Errorf("Missing k3s token")
 	}
 
-	if taintScheduling && role == "worker" {
+	if incomingProfile.TaintScheduling && incomingProfile.Role == "worker" {
 		return fmt.Errorf("Taint scheduling can only be used on the server role")
 	}
 
@@ -472,14 +503,14 @@ func CommandClusterAdd(role string, remoteHost string, serverIP string, allowUkn
 	}
 	common.LogDebug(fmt.Sprintf("k3s version: %s", k3sVersion))
 
-	common.LogInfo1(fmt.Sprintf("Joining %s to k3s cluster as %s", remoteHost, role))
+	common.LogInfo1(fmt.Sprintf("Joining %s to k3s cluster as %s", remoteHost, incomingProfile.Role))
 	common.LogInfo2Quiet("Updating apt")
 	aptUpdateCmd, err := common.CallSshCommand(common.SshCommandInput{
 		Command: "apt-get",
 		Args: []string{
 			"update",
 		},
-		AllowUknownHosts: allowUknownHosts,
+		AllowUknownHosts: incomingProfile.AllowUknownHosts,
 		RemoteHost:       remoteHost,
 		StreamStdio:      true,
 		Sudo:             true,
@@ -503,7 +534,7 @@ func CommandClusterAdd(role string, remoteHost string, serverIP string, allowUkn
 			"nfs-common",
 			"wireguard",
 		},
-		AllowUknownHosts: allowUknownHosts,
+		AllowUknownHosts: incomingProfile.AllowUknownHosts,
 		RemoteHost:       remoteHost,
 		StreamStdio:      true,
 		Sudo:             true,
@@ -522,7 +553,7 @@ func CommandClusterAdd(role string, remoteHost string, serverIP string, allowUkn
 			"-o /tmp/k3s-installer.sh",
 			"https://get.k3s.io",
 		},
-		AllowUknownHosts: allowUknownHosts,
+		AllowUknownHosts: incomingProfile.AllowUknownHosts,
 		RemoteHost:       remoteHost,
 		StreamStdio:      true,
 	})
@@ -540,7 +571,7 @@ func CommandClusterAdd(role string, remoteHost string, serverIP string, allowUkn
 			"0755",
 			"/tmp/k3s-installer.sh",
 		},
-		AllowUknownHosts: allowUknownHosts,
+		AllowUknownHosts: incomingProfile.AllowUknownHosts,
 		RemoteHost:       remoteHost,
 		StreamStdio:      true,
 	})
@@ -577,7 +608,7 @@ export INSTALL_K3S_VERSION=%s
 	tmpFile.Close()
 
 	sftpCopyCmd, err := common.CallSftpCopy(common.SftpCopyInput{
-		AllowUknownHosts: allowUknownHosts,
+		AllowUknownHosts: incomingProfile.AllowUknownHosts,
 		DestinationPath:  "/tmp/k3s-installer-executor.sh",
 		RemoteHost:       remoteHost,
 		SourcePath:       tmpFile.Name(),
@@ -595,7 +626,7 @@ export INSTALL_K3S_VERSION=%s
 			"0755",
 			"/tmp/k3s-installer-executor.sh",
 		},
-		AllowUknownHosts: allowUknownHosts,
+		AllowUknownHosts: incomingProfile.AllowUknownHosts,
 		RemoteHost:       remoteHost,
 		StreamStdio:      true,
 	})
@@ -634,7 +665,7 @@ export INSTALL_K3S_VERSION=%s
 		token,
 	}
 
-	if role == "server" {
+	if incomingProfile.Role == "server" {
 		args = append([]string{"server"}, args...)
 		// expose etcd metrics
 		args = append(args, "--etcd-expose-metrics")
@@ -661,15 +692,19 @@ export INSTALL_K3S_VERSION=%s
 		args = append(args, "--kube-proxy-arg", "metrics-bind-address=0.0.0.0")
 	}
 
-	if taintScheduling {
+	if incomingProfile.TaintScheduling {
 		args = append(args, "--node-taint", "CriticalAddonsOnly=true:NoSchedule")
+	}
+
+	for _, kubeletArg := range incomingProfile.KubeletArgs {
+		args = append(args, "--kubelet-arg", kubeletArg)
 	}
 
 	common.LogInfo2Quiet(fmt.Sprintf("Adding %s k3s cluster", nodeName))
 	joinCmd, err := common.CallSshCommand(common.SshCommandInput{
 		Command:          "/tmp/k3s-installer-executor.sh",
 		Args:             args,
-		AllowUknownHosts: allowUknownHosts,
+		AllowUknownHosts: incomingProfile.AllowUknownHosts,
 		RemoteHost:       remoteHost,
 		StreamStdio:      true,
 		Sudo:             true,
@@ -695,7 +730,7 @@ export INSTALL_K3S_VERSION=%s
 	}
 
 	labels := ServerLabels
-	if role == "worker" {
+	if incomingProfile.Role == "worker" {
 		labels = WorkerLabels
 	}
 
@@ -988,6 +1023,119 @@ func CommandLabelsSet(appName string, processType string, resourceType string, k
 		return fmt.Errorf("Unable to write property list: %w", err)
 	}
 
+	return nil
+}
+
+// CommandProfilesAdd adds a node profile to the k3s cluster
+func CommandProfilesAdd(profileName string, role string, allowUknownHosts bool, taintScheduling bool, kubeletArgs []string) error {
+	if role != "server" && role != "worker" {
+		return fmt.Errorf("Invalid role: %s", role)
+	}
+
+	if profileName == "" {
+		return fmt.Errorf("Missing profile name")
+	}
+
+	// profile names must only contain alphanumeric characters and dashes and cannot start with a dash
+	if !regexp.MustCompile(`^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?$`).MatchString(profileName) {
+		return fmt.Errorf("Invalid profile name, must only contain alphanumeric characters and dashes and cannot start with a dash: %s", profileName)
+	}
+
+	// ensure profile names are no longer than 32 characters
+	if len(profileName) > 32 {
+		return fmt.Errorf("Profile name is too long, must be less than 32 characters: %s", profileName)
+	}
+
+	profile := NodeProfile{
+		Name:             profileName,
+		Role:             role,
+		AllowUknownHosts: allowUknownHosts,
+		TaintScheduling:  taintScheduling,
+		KubeletArgs:      kubeletArgs,
+	}
+
+	data, err := json.Marshal(profile)
+	if err != nil {
+		return fmt.Errorf("Unable to marshal node profile to json: %w", err)
+	}
+
+	if err := common.PropertyWrite("scheduler-k3s", "--global", fmt.Sprintf("node-profile-%s.json", profileName), string(data)); err != nil {
+		return fmt.Errorf("Unable to write node profile: %w", err)
+	}
+
+	common.LogInfo1(fmt.Sprintf("Node profile %s added", profileName))
+
+	return nil
+}
+
+// CommandProfilesList lists the node profiles in the k3s cluster
+func CommandProfilesList(format string) error {
+	if format != "stdout" && format != "json" {
+		return fmt.Errorf("Invalid format: %s", format)
+	}
+
+	properties, err := common.PropertyGetAllByPrefix("scheduler-k3s", "--global", "node-profile-")
+	if err != nil {
+		return fmt.Errorf("Unable to get node profiles: %w", err)
+	}
+
+	output := []NodeProfile{}
+	for property, data := range properties {
+		if !strings.HasSuffix(property, ".json") {
+			continue
+		}
+
+		var profile NodeProfile
+		err := json.Unmarshal([]byte(data), &profile)
+		if err != nil {
+			return fmt.Errorf("Unable to unmarshal node profile: %w", err)
+		}
+
+		output = append(output, profile)
+	}
+
+	if format == "stdout" {
+		lines := []string{"name|role"}
+		for _, profile := range output {
+			lines = append(lines, fmt.Sprintf("%s|%s", profile.Name, profile.Role))
+		}
+
+		columnized := columnize.SimpleFormat(lines)
+		fmt.Println(columnized)
+		return nil
+	}
+
+	b, err := json.Marshal(output)
+	if err != nil {
+		return fmt.Errorf("Unable to marshal json: %w", err)
+	}
+
+	fmt.Println(string(b))
+
+	return nil
+}
+
+// CommandProfilesRemove removes a node profile from the k3s cluster
+func CommandProfilesRemove(profileName string) error {
+	if profileName == "" {
+		return fmt.Errorf("Missing profile name")
+	}
+
+	// profile names must only contain alphanumeric characters and dashes and cannot start with a dash
+	if !regexp.MustCompile(`^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?$`).MatchString(profileName) {
+		return fmt.Errorf("Invalid profile name, must only contain alphanumeric characters and dashes and cannot start with a dash: %s", profileName)
+	}
+
+	// ensure profile names are no longer than 32 characters
+	if len(profileName) > 32 {
+		return fmt.Errorf("Profile name is too long, must be less than 32 characters: %s", profileName)
+	}
+
+	if err := common.PropertyDelete("scheduler-k3s", "--global", fmt.Sprintf("node-profile-%s.json", profileName)); err != nil {
+		return fmt.Errorf("Unable to delete node profile: %w", err)
+	}
+
+	common.LogInfo1(fmt.Sprintf("Node profile %s removed", profileName))
 	return nil
 }
 

@@ -86,7 +86,7 @@ main() {
   fi
 
   # run core install triggers to force create any folders that may be missing
-  dokku plugin:install --core
+  dokku plugin:install
 
   if [[ -n "$DOKKU_HOSTNAME" ]]; then
     echo "dokku dokku/hostname string $DOKKU_HOSTNAME" | debconf-set-selections

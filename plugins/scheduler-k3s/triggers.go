@@ -163,6 +163,64 @@ func TriggerSchedulerAppStatus(scheduler string, appName string) error {
 	return nil
 }
 
+// TriggerSchedulerCronWrite writes out cron tasks for a given application
+func TriggerSchedulerCronWrite(scheduler string, appName string) error {
+	if scheduler != "k3s" {
+		return nil
+	}
+
+	cronTasks, err := cron.FetchCronTasks(cron.FetchCronTasksInput{AppName: appName})
+	if err != nil {
+		return fmt.Errorf("Error fetching cron tasks: %w", err)
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, os.Interrupt, syscall.SIGHUP,
+		syscall.SIGINT,
+		syscall.SIGQUIT,
+		syscall.SIGTERM)
+	go func() {
+		<-signals
+		common.LogWarn(fmt.Sprintf("Deployment of %s has been cancelled", appName))
+		cancel()
+	}()
+
+	namespace := getComputedNamespace(appName)
+
+	clientset, err := NewKubernetesClient()
+	if err != nil {
+		return fmt.Errorf("Error creating kubernetes client: %w", err)
+	}
+
+	for _, cronTask := range cronTasks {
+		labelSelector := []string{
+			fmt.Sprintf("app.kubernetes.io/part-of=%s", appName),
+			fmt.Sprintf("dokku.com/cron-id=%s", cronTask.ID),
+		}
+
+		if cronTask.Maintenance {
+			err = clientset.SuspendCronJobs(ctx, SuspendCronJobsInput{
+				Namespace:     namespace,
+				LabelSelector: strings.Join(labelSelector, ","),
+			})
+			if err != nil {
+				return fmt.Errorf("Error suspending cron jobs: %w", err)
+			}
+		} else {
+			err = clientset.ResumeCronJobs(ctx, ResumeCronJobsInput{
+				Namespace:     namespace,
+				LabelSelector: strings.Join(labelSelector, ","),
+			})
+			if err != nil {
+				return fmt.Errorf("Error resuming cron jobs: %w", err)
+			}
+		}
+	}
+
+	return nil
+}
+
 // TriggerSchedulerDeploy deploys an image tag for a given application
 func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) error {
 	if scheduler != "k3s" {
@@ -312,16 +370,9 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 
 	workingDir := common.GetWorkingDir(appName, image)
 
-	allCronTasks, err := cron.FetchCronTasks(cron.FetchCronTasksInput{AppName: appName})
+	cronTasks, err := cron.FetchCronTasks(cron.FetchCronTasksInput{AppName: appName})
 	if err != nil {
 		return fmt.Errorf("Error fetching cron tasks: %w", err)
-	}
-	// remove maintenance cron tasks
-	cronTasks := []cron.CronTask{}
-	for _, cronTask := range allCronTasks {
-		if !cronTask.Maintenance {
-			cronTasks = append(cronTasks, cronTask)
-		}
 	}
 
 	domains := []string{}
@@ -648,13 +699,26 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 			return fmt.Errorf("Error getting process labels: %w", err)
 		}
 
+		concurrencyPolicy := strings.ToUpper(cronTask.ConcurrencyPolicy)
+		switch concurrencyPolicy {
+		case "ALLOW":
+			concurrencyPolicy = "Allow"
+		case "FORBID":
+			concurrencyPolicy = "Forbid"
+		case "REPLACE":
+			concurrencyPolicy = "Replace"
+		default:
+			return fmt.Errorf("Invalid concurrency_policy specified: %v", concurrencyPolicy)
+		}
 		processValues := ProcessValues{
 			Args:        words,
 			Annotations: annotations,
 			Cron: ProcessCron{
-				ID:       cronTask.ID,
-				Schedule: cronTask.Schedule,
-				Suffix:   suffix,
+				ID:                cronTask.ID,
+				Schedule:          cronTask.Schedule,
+				Suffix:            suffix,
+				Suspend:           cronTask.Maintenance,
+				ConcurrencyPolicy: ProcessCronConcurrencyPolicy(concurrencyPolicy),
 			},
 			Labels:      labels,
 			ProcessType: ProcessType_Cron,
@@ -1148,10 +1212,44 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 		extraEnv["TRACE"] = "true"
 	}
 
+	namespace := getComputedNamespace(appName)
+	clientset, err := NewKubernetesClient()
+	if err != nil {
+		return fmt.Errorf("Error creating kubernetes client: %w", err)
+	}
+
+	if err := clientset.Ping(); err != nil {
+		return fmt.Errorf("kubernetes api not available: %w", err)
+	}
+
 	processType := "run"
 	if os.Getenv("DOKKU_CRON_ID") != "" {
 		processType = "cron"
 		labels["dokku.com/cron-id"] = os.Getenv("DOKKU_CRON_ID")
+		concurrencyPolicy := strings.ToUpper(os.Getenv("DOKKU_CONCURRENCY_POLICY"))
+		switch concurrencyPolicy {
+		case "forbid":
+			// check if there is a running pod with the same dokku.com/cron-id label
+			pods, err := clientset.ListPods(context.Background(), ListPodsInput{
+				Namespace:     namespace,
+				LabelSelector: fmt.Sprintf("dokku.com/cron-id=%s", os.Getenv("DOKKU_CRON_ID")),
+			})
+			if err != nil {
+				return fmt.Errorf("Error listing pods: %w", err)
+			}
+			if len(pods) > 0 {
+				return fmt.Errorf("There is a running pod with the same dokku.com/cron-id label")
+			}
+		case "replace":
+			// delete any existing pod with the same dokku.com/cron-id label
+			err := clientset.DeletePod(context.Background(), DeletePodInput{
+				Namespace:     namespace,
+				LabelSelector: fmt.Sprintf("dokku.com/cron-id=%s", os.Getenv("DOKKU_CRON_ID")),
+			})
+			if err != nil {
+				return fmt.Errorf("Error deleting pod: %w", err)
+			}
+		}
 	}
 
 	imageSourceType, err := common.DockerInspect(image, "{{ index .Config.Labels \"com.dokku.builder-type\" }}")
@@ -1181,7 +1279,6 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 		entrypoint = "/exec"
 	}
 
-	namespace := getComputedNamespace(appName)
 	helmAgent, err := NewHelmAgent(namespace, DevNullPrinter)
 	if err != nil {
 		return fmt.Errorf("Error creating helm agent: %w", err)
@@ -1211,15 +1308,6 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 
 	attachToPod := os.Getenv("DOKKU_DETACH_CONTAINER") != "1"
 
-	clientset, err := NewKubernetesClient()
-	if err != nil {
-		return fmt.Errorf("Error creating kubernetes client: %w", err)
-	}
-
-	if err := clientset.Ping(); err != nil {
-		return fmt.Errorf("kubernetes api not available: %w", err)
-	}
-
 	imagePullSecrets := getComputedImagePullSecrets(appName)
 	if imagePullSecrets == "" {
 		imagePullSecrets = fmt.Sprintf("ims-%s.%d", appName, deploymentID)
@@ -1241,23 +1329,32 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 		return fmt.Errorf("Error getting security context: %w", err)
 	}
 
+	activeDeadlineSeconds := int64(86400) // 24 hours
+	if os.Getenv("DOKKU_RUN_TTL_SECONDS") != "" {
+		activeDeadlineSeconds, err = strconv.ParseInt(os.Getenv("DOKKU_RUN_TTL_SECONDS"), 10, 64)
+		if err != nil {
+			return fmt.Errorf("Error parsing DOKKU_RUN_TTL_SECONDS value as int64: %w", err)
+		}
+	}
+
 	workingDir := common.GetWorkingDir(appName, image)
 	job, err := templateKubernetesJob(Job{
-		AppName:          appName,
-		Command:          []string{commandShell},
-		DeploymentID:     deploymentID,
-		Entrypoint:       entrypoint,
-		Env:              extraEnv,
-		Image:            image,
-		ImagePullSecrets: imagePullSecrets,
-		ImageSourceType:  imageSourceType,
-		Interactive:      attachToPod || common.ToBool(os.Getenv("DOKKU_FORCE_TTY")),
-		Labels:           labels,
-		Namespace:        namespace,
-		ProcessType:      processType,
-		RemoveContainer:  rmContainer,
-		SecurityContext:  securityContext,
-		WorkingDir:       workingDir,
+		AppName:               appName,
+		Command:               []string{commandShell},
+		DeploymentID:          deploymentID,
+		Entrypoint:            entrypoint,
+		Env:                   extraEnv,
+		Image:                 image,
+		ImagePullSecrets:      imagePullSecrets,
+		ImageSourceType:       imageSourceType,
+		Interactive:           attachToPod || common.ToBool(os.Getenv("DOKKU_FORCE_TTY")),
+		Labels:                labels,
+		Namespace:             namespace,
+		ProcessType:           processType,
+		RemoveContainer:       rmContainer,
+		SecurityContext:       securityContext,
+		WorkingDir:            workingDir,
+		ActiveDeadlineSeconds: activeDeadlineSeconds,
 	})
 	if err != nil {
 		return fmt.Errorf("Error templating job: %w", err)

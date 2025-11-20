@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
+	"github.com/tailscale/hujson"
 	"k8s.io/utils/ptr"
 )
 
@@ -55,8 +56,14 @@ type CronTask struct {
 	// Command is the command to execute
 	Command string `json:"command"`
 
+	// Maintenance is whether or not the cron task is in maintenance mode
+	Maintenance bool `json:"maintenance"`
+
 	// Schedule is the cron schedule to execute the command on
 	Schedule string `json:"schedule"`
+
+	// ConcurrencyPolicy is the concurrency policy for the cron command
+	ConcurrencyPolicy string `json:"concurrency_policy"`
 }
 
 // Formation is a struct that represents the scale for a process from an app.json file
@@ -256,8 +263,14 @@ func ReadAppJSON(path string) (AppJSON, error) {
 		return AppJSON{}, nil
 	}
 
+	ast, err := hujson.Parse(b)
+	if err != nil {
+		return AppJSON{}, fmt.Errorf("Cannot parse app.json as jsonc: %v", err)
+	}
+	ast.Standardize()
+
 	var appJSON AppJSON
-	if err = json.Unmarshal(b, &appJSON); err != nil {
+	if err = json.Unmarshal(ast.Pack(), &appJSON); err != nil {
 		return AppJSON{}, fmt.Errorf("Cannot parse app.json: %v", err)
 	}
 

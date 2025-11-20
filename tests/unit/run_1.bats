@@ -68,7 +68,12 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku config:set --no-restart $TEST_APP DOKKU_CNB_EXPERIMENTAL=1 SECRET_KEY=fjdkslafjdk"
+  run /bin/bash -c "dokku config:set --no-restart $TEST_APP SECRET_KEY=fjdkslafjdk"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku builder:set $TEST_APP selected pack"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -92,4 +97,46 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
+}
+
+@test "(run) run:retire" {
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku run:detached --ttl-seconds=1 $TEST_APP sleep 300"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  container_id="$output"
+
+  # check the labels on the container to ensure the active deadline seconds is set
+  run /bin/bash -c "docker container inspect $container_id --format '{{ index .Config.Labels \"com.dokku.active-deadline-seconds\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "1"
+
+  run /bin/bash -c "dokku run:list --quiet $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "$container_id"
+
+  run /bin/bash -c "sleep 2"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku run:retire"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku run:list --quiet $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_contains "$container_id"
 }

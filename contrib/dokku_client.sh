@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
-export DOKKU_PORT=${DOKKU_PORT:=22}
+export DOKKU_PORT=${DOKKU_PORT:=}
 export DOKKU_HOST=${DOKKU_HOST:=}
+export DOKKU_APP_PATH=${DOKKU_APP_PATH:=}
 
 fn-random-number() {
   [[ -n "$1" ]] && RANGE="$1"
@@ -61,12 +62,42 @@ fn-dokku-host() {
   echo "$DOKKU_HOST"
 }
 
+fn-dokku-app() {
+  declare DOKKU_GIT_REMOTE="$1" DOKKU_REMOTE_HOST="$2"
+  remote_output="$(git remote -v 2>/dev/null | grep -Ei "^${DOKKU_GIT_REMOTE}\s" | head -n 1 | awk '{print $2}')"
+
+  # check if there is a scheme
+  if echo "$remote_output" | grep -qEi "ssh://"; then
+    echo "$remote_output" | grep -Ei "ssh://dokku@$DOKKU_REMOTE_HOST" | cut -f2 -d'@' | cut -f2 -d'/' 2>/dev/null
+  else
+    echo "$remote_output" | grep -Ei "dokku@$DOKKU_REMOTE_HOST" | cut -f2 -d'@' | cut -f2 -d':' 2>/dev/null
+  fi
+}
+
+fn-dokku-port() {
+  declare DOKKU_GIT_REMOTE="$1" DOKKU_REMOTE_HOST="$2"
+  remote_output="$(git remote -v 2>/dev/null | grep -Ei "^${DOKKU_GIT_REMOTE}\s" | head -n 1 | awk '{print $2}')"
+
+  if echo "$remote_output" | grep -qEi "ssh://"; then
+    local output="$(echo "$remote_output" | grep -Ei "ssh://dokku@$DOKKU_REMOTE_HOST" | cut -f2 -d'@' | cut -f1 -d'/' 2>/dev/null)"
+    # check if output has a : and if so, get the port
+    if echo "$output" | grep -qEi ":"; then
+      echo "$output" | cut -f2 -d':' 2>/dev/null
+    else
+      echo "22"
+    fi
+  else
+    echo "22"
+  fi
+}
+
 fn-get-remote() {
   git config dokku.remote 2>/dev/null || echo "dokku"
 }
 
 main() {
   declare CMD="$1" APP_ARG="$2"
+
   local APP="" DOKKU_GIT_REMOTE="$(fn-get-remote)" DOKKU_REMOTE_HOST=""
   local cmd_set=false next_index=1 skip=false args=("$@")
 
@@ -82,6 +113,10 @@ main() {
 
     if [[ "$arg" == "--app" ]]; then
       APP=${args[$next_index]}
+      skip=true
+      shift 2
+    elif [[ "$arg" == "--app-path" ]]; then
+      DOKKU_APP_PATH=${args[$next_index]}
       skip=true
       shift 2
     elif [[ "$arg" == "--remote" ]]; then
@@ -103,6 +138,11 @@ main() {
     next_index=$((next_index + 1))
   done
 
+  if [[ -n "$DOKKU_APP_PATH" ]]; then
+    pushd "$DOKKU_APP_PATH" &>/dev/null || exit 1
+    trap 'popd &>/dev/null || true' RETURN INT TERM
+  fi
+
   DOKKU_REMOTE_HOST="$(fn-dokku-host "$DOKKU_GIT_REMOTE" "$DOKKU_HOST")"
   if [[ -z "$DOKKU_REMOTE_HOST" ]] && [[ "$CMD" != remote ]] && [[ "$CMD" != remote:* ]]; then
     fn-client-help-msg
@@ -111,14 +151,28 @@ main() {
   if [[ -z "$APP" ]]; then
     if [[ -d .git ]] || git rev-parse --git-dir &>/dev/null; then
       set +e
-      APP=$(git remote -v 2>/dev/null | grep -Ei "^${DOKKU_GIT_REMOTE}\s" | grep -Ei "dokku@$DOKKU_REMOTE_HOST" | head -n 1 | cut -f2 -d'@' | cut -f1 -d' ' | cut -f2 -d':' 2>/dev/null)
+      APP="$(fn-dokku-app "$DOKKU_GIT_REMOTE" "$DOKKU_REMOTE_HOST")"
       set -e
     else
       echo " !     This is not a git repository" 1>&2
     fi
   fi
 
+  if [[ -z "$DOKKU_PORT" ]]; then
+    DOKKU_PORT="$(fn-dokku-port "$DOKKU_GIT_REMOTE" "$DOKKU_REMOTE_HOST")"
+  fi
+
   case "$CMD" in
+    remote:show)
+      echo "dokku-app: $APP"
+      echo "dokku-git-remote: $DOKKU_GIT_REMOTE"
+      echo "dokku-host: $DOKKU_HOST"
+      echo "dokku-port: $DOKKU_PORT"
+      echo "dokku-remote-host: $DOKKU_REMOTE_HOST"
+      echo "dokku-ssh-user: dokku"
+      echo "dokku-constructed-remote: ssh://dokku@$DOKKU_REMOTE_HOST:$DOKKU_PORT/$APP"
+      exit 0
+      ;;
     apps:create)
       if [[ -z "$APP" ]] && [[ -z "$APP_ARG" ]]; then
         APP=$(fn-random-name)

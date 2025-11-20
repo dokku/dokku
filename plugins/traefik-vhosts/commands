@@ -1,12 +1,25 @@
 #!/usr/bin/env bash
-[[ " traefik:help help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
+[[ " traefik:help traefik:labels:add traefik:labels:remove traefik:labels:show help " == *" $1 "* ]] || exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
 source "$PLUGIN_AVAILABLE_PATH/traefik-vhosts/help-functions"
+source "$PLUGIN_AVAILABLE_PATH/traefik-vhosts/command-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
 case "$1" in
   help | traefik:help)
     cmd-traefik-help "$@"
+    ;;
+
+  traefik:labels:add)
+    cmd-traefik-labels-add "$@"
+    ;;
+
+  traefik:labels:remove)
+    cmd-traefik-labels-remove "$@"
+    ;;
+
+  traefik:labels:show)
+    cmd-traefik-labels-show "$@"
     ;;
 
   *)

@@ -194,5 +194,12 @@ func main() {
 			fmt.Fprintln(os.Stderr, err.Error())
 			os.Exit(1)
 		}
+	case "setup-app":
+		appName := flag.Arg(2)
+		err := common.PropertySetupApp(pluginName, appName)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err.Error())
+			os.Exit(1)
+		}
 	}
 }

@@ -112,12 +112,11 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  # includes headers
   run /bin/bash -c "dokku --quiet run:list $TEST_APP | wc -l"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "2"
+  assert_output "1"
 
   run /bin/bash -c "dokku run:list $TEST_APP --format json | jq '. | length'"
   echo "output: $output"
@@ -136,12 +135,11 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  # includes headers
   run /bin/bash -c "dokku --quiet run:list $TEST_APP | wc -l"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "3"
+  assert_output "2"
 
   run /bin/bash -c "dokku run:list $TEST_APP --format json | jq '. | length'"
   echo "output: $output"

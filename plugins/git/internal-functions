@@ -211,7 +211,7 @@ cmd-git-sync() {
   DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
   CURRENT_REF="$(fn-git-cmd "$APP_ROOT" rev-parse "$DOKKU_DEPLOY_BRANCH" 2>/dev/null || true)"
 
-  if ! fn-git-cmd "$APP_ROOT" rev-parse "$DOKKU_DEPLOY_BRANCH" >/dev/null 2>&1; then
+  if ! fn-git-cmd "$APP_ROOT" rev-parse "$DOKKU_DEPLOY_BRANCH" &>/dev/null; then
     dokku_log_info1_quiet "Cloning $APP from $GIT_REMOTE#$GIT_REF"
     fn-git-clone "$APP" "$GIT_REMOTE" "$GIT_REF"
   else
@@ -378,7 +378,7 @@ fn-git-clone() {
   [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
 
   local DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
-  if fn-git-cmd "$APP_ROOT" rev-parse "$DOKKU_DEPLOY_BRANCH" >/dev/null 2>&1; then
+  if fn-git-cmd "$APP_ROOT" rev-parse "$DOKKU_DEPLOY_BRANCH" &>/dev/null; then
     dokku_log_fail "The clone subcommand can only be executed for new applications"
   fi
 
@@ -441,7 +441,7 @@ fn-git-fetch() {
   local APP_ROOT="$DOKKU_ROOT/$APP"
 
   local DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
-  if ! fn-git-cmd "$APP_ROOT" rev-parse "$DOKKU_DEPLOY_BRANCH" >/dev/null 2>&1; then
+  if ! fn-git-cmd "$APP_ROOT" rev-parse "$DOKKU_DEPLOY_BRANCH" &>/dev/null; then
     dokku_log_fail "The fetch subcommand can only be executed for existing applications"
   fi
 
