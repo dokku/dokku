@@ -3,6 +3,7 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 export DOKKU_PORT=${DOKKU_PORT:=22}
 export DOKKU_HOST=${DOKKU_HOST:=}
+export DOKKU_APP_PATH=${DOKKU_APP_PATH:=}
 
 fn-random-number() {
   [[ -n "$1" ]] && RANGE="$1"
@@ -67,6 +68,7 @@ fn-get-remote() {
 
 main() {
   declare CMD="$1" APP_ARG="$2"
+
   local APP="" DOKKU_GIT_REMOTE="$(fn-get-remote)" DOKKU_REMOTE_HOST=""
   local cmd_set=false next_index=1 skip=false args=("$@")
 
@@ -82,6 +84,10 @@ main() {
 
     if [[ "$arg" == "--app" ]]; then
       APP=${args[$next_index]}
+      skip=true
+      shift 2
+    elif [[ "$arg" == "--app-path" ]]; then
+      DOKKU_APP_PATH=${args[$next_index]}
       skip=true
       shift 2
     elif [[ "$arg" == "--remote" ]]; then
@@ -102,6 +108,11 @@ main() {
     fi
     next_index=$((next_index + 1))
   done
+
+  if [[ -n "$DOKKU_APP_PATH" ]]; then
+    pushd "$DOKKU_APP_PATH" &>/dev/null || exit 1
+    trap 'popd &>/dev/null || true' RETURN INT TERM
+  fi
 
   DOKKU_REMOTE_HOST="$(fn-dokku-host "$DOKKU_GIT_REMOTE" "$DOKKU_HOST")"
   if [[ -z "$DOKKU_REMOTE_HOST" ]] && [[ "$CMD" != remote ]] && [[ "$CMD" != remote:* ]]; then
