@@ -349,24 +349,25 @@ type ClusterIssuer struct {
 }
 
 type Job struct {
-	AppName          string
-	Command          []string
-	DeploymentID     int64
-	Entrypoint       string
-	Env              map[string]string
-	ID               string
-	Image            string
-	ImagePullSecrets string
-	ImageSourceType  string
-	Interactive      bool
-	Labels           map[string]string
-	Namespace        string
-	ProcessType      string
-	Schedule         string
-	SecurityContext  SecurityContext
-	Suffix           string
-	RemoveContainer  bool
-	WorkingDir       string
+	AppName               string
+	Command               []string
+	DeploymentID          int64
+	Entrypoint            string
+	Env                   map[string]string
+	ID                    string
+	Image                 string
+	ImagePullSecrets      string
+	ImageSourceType       string
+	Interactive           bool
+	Labels                map[string]string
+	Namespace             string
+	ProcessType           string
+	Schedule              string
+	SecurityContext       SecurityContext
+	Suffix                string
+	RemoveContainer       bool
+	WorkingDir            string
+	ActiveDeadlineSeconds int64
 }
 
 // SecurityContext contains the security context for a process
@@ -479,7 +480,8 @@ func templateKubernetesJob(input Job) (batchv1.Job, error) {
 			Annotations: annotations,
 		},
 		Spec: batchv1.JobSpec{
-			BackoffLimit: ptr.To(int32(0)),
+			ActiveDeadlineSeconds: ptr.To(input.ActiveDeadlineSeconds),
+			BackoffLimit:          ptr.To(int32(0)),
 			Template: corev1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels:      labels,

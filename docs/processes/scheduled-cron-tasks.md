@@ -43,6 +43,8 @@ A cron task takes the following properties:
 
 Zero or more cron tasks can be specified per app. Cron tasks are validated after the build artifact is created but before the app is deployed, and the cron schedule is updated during the post-deploy phase.
 
+Cron tasks can run for a maximum of 24 hours via the docker-local scheduler, after which they are reaped from the system.
+
 See the [app.json location documentation](/docs/advanced-usage/deployment-tasks.md#changing-the-appjson-location) for more information on where to place your `app.json` file.
 
 #### Task Environment

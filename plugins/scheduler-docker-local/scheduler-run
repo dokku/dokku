@@ -119,6 +119,10 @@ trigger-scheduler-docker-local-scheduler-run() {
     DOCKER_ARGS+=" --platform=linux/amd64"
   fi
 
+  if [[ -n "$DOKKU_RUN_TTL_SECONDS" ]]; then
+    DOCKER_ARGS+=" --label=com.dokku.active-deadline-seconds=$DOKKU_RUN_TTL_SECONDS"
+  fi
+
   # shellcheck disable=SC2124
   DOCKER_ARGS+=" --label=com.dokku.container-type=$PROCESS_TYPE"
   DOCKER_ARGS+=" --label=com.dokku.app-name=$APP"

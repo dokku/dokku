@@ -9,7 +9,7 @@ fn-run() {
   shift 1
 
   declare APP=""
-  local CRON_ID CONCURRENCY_POLICY="allow"
+  local CRON_ID CONCURRENCY_POLICY="allow" DOKKU_RUN_TTL_SECONDS="86400"
   declare -a RUN_ENV
   RUN_ENV=()
   while [[ $# -gt 0 ]]; do
@@ -61,6 +61,19 @@ fn-run() {
         RUN_ENV+=("$2")
         shift 2
         ;;
+      --ttl-seconds=*)
+        local arg=$(printf "%s" "$1" | sed -E 's/(^--ttl-seconds=)//g')
+        DOKKU_RUN_TTL_SECONDS="$arg"
+        shift
+        ;;
+      --ttl-seconds)
+        if [[ ! $2 ]]; then
+          dokku_log_warn "expected $1 to have an argument"
+          break
+        fi
+        DOKKU_RUN_TTL_SECONDS="$2"
+        shift 2
+        ;;
       *)
         APP="$1"
         shift
@@ -68,6 +81,10 @@ fn-run() {
         ;;
     esac
   done
+
+  if [[ -z "$DOKKU_RUN_TTL_SECONDS" ]]; then
+    DOKKU_RUN_TTL_SECONDS="86400"
+  fi
 
   if [[ "$CMD" == "run:detached" ]] && [[ "$DOKKU_FORCE_TTY" != "true" ]]; then
     export DOKKU_DISABLE_TTY=true
@@ -80,7 +97,7 @@ fn-run() {
   verify_app_name "$APP"
 
   local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
-  DOKKU_CRON_ID="$CRON_ID" DOKKU_CONCURRENCY_POLICY="$CONCURRENCY_POLICY" plugn trigger scheduler-run "$DOKKU_SCHEDULER" "$APP" "${#RUN_ENV[@]}" "${RUN_ENV[@]}" -- "$@"
+  DOKKU_CRON_ID="$CRON_ID" DOKKU_CONCURRENCY_POLICY="$CONCURRENCY_POLICY" DOKKU_RUN_TTL_SECONDS="$DOKKU_RUN_TTL_SECONDS" plugn trigger scheduler-run "$DOKKU_SCHEDULER" "$APP" "${#RUN_ENV[@]}" "${RUN_ENV[@]}" -- "$@"
 }
 
 cmd-run() {
@@ -123,6 +140,10 @@ cmd-run-list() {
         fi
         FORMAT="$2"
         shift 2
+        ;;
+      --quiet)
+        export DOKKU_QUIET_OUTPUT=true
+        shift
         ;;
       *)
         APP="$1"
@@ -201,8 +222,23 @@ cmd-run-logs() {
   plugn trigger scheduler-run-logs "$DOKKU_SCHEDULER" "$APP" "$CONTAINER_NAME" "$TAIL" "$PRETTY_PRINT" "$NUM"
 }
 
+cmd-run-retire() {
+  declare desc="stop all run containers that have exceeded their active deadline"
+  declare cmd="run:retire"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1"
+
+  if [[ -z "$APP" ]]; then
+    plugn trigger scheduler-run-retire
+  else
+    verify_app_name "$APP"
+    local DOKKU_SCHEDULER="$(get_app_scheduler "$APP")"
+    plugn trigger scheduler-run-retire "$DOKKU_SCHEDULER" "$APP"
+  fi
+}
+
 cmd-run-stop() {
-  declare desc="Stops all run containers for an app or a specified run container"
+  declare desc="stops all run containers for an app or a specified run container"
   declare cmd="run:stop"
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP CONTAINER_NAME
