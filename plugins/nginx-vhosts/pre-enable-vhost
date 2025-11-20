@@ -9,10 +9,34 @@ trigger-nginx-vhosts-pre-enable-vhost() {
   declare trigger="pre-enable-vhost"
   declare APP="$1"
 
-  if [[ "$(plugn trigger proxy-type "$APP")" == "nginx" ]]; then
-    DOKKU_QUIET_OUTPUT=1 config_unset --no-restart "$APP" DOKKU_PROXY_PORT DOKKU_PROXY_SSL_PORT
-    plugn trigger ports-clear "$APP"
+  if [[ "$(plugn trigger proxy-type "$APP")" != "nginx" ]]; then
+    return
   fi
+
+  # only clear ports if they are port 80 or 443
+  local PROXY_PORT=$(config_get "$APP" DOKKU_PROXY_PORT)
+  local PROXY_SSL_PORT=$(config_get "$APP" DOKKU_PROXY_SSL_PORT)
+
+  ports_to_clear=()
+  if [[ "$PROXY_PORT" == "80" ]]; then
+    ports_to_clear+=("DOKKU_PROXY_PORT")
+  fi
+  if [[ "$PROXY_SSL_PORT" == "443" ]]; then
+    ports_to_clear+=("DOKKU_PROXY_SSL_PORT")
+  fi
+
+  if [[ "${#ports_to_clear[@]}" -gt 0 ]]; then
+    DOKKU_QUIET_OUTPUT=1 config_unset --no-restart "$APP" "${ports_to_clear[@]}"
+  fi
+
+  # clear ports if there is a mapping starting with http:80 or https:443
+  local PORT_MAPS=$(plugn trigger ports-get "$APP")
+  for PORT_MAP in $PORT_MAPS; do
+    if [[ "$PORT_MAP" == "http:80:"* ]] || [[ "$PORT_MAP" == "https:443:"* ]]; then
+      plugn trigger ports-clear "$APP"
+      break
+    fi
+  done
 }
 
 trigger-nginx-vhosts-pre-enable-vhost "$@"
