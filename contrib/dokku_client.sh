@@ -130,6 +130,16 @@ main() {
   fi
 
   case "$CMD" in
+    remote:show)
+      echo "dokku-app: $APP"
+      echo "dokku-git-remote: $DOKKU_GIT_REMOTE"
+      echo "dokku-host: $DOKKU_HOST"
+      echo "dokku-port: $DOKKU_PORT"
+      echo "dokku-remote-host: $DOKKU_REMOTE_HOST"
+      echo "dokku-ssh-user: dokku"
+      echo "dokku-constructed-remote: ssh://dokku@$DOKKU_REMOTE_HOST:$DOKKU_PORT/$APP"
+      exit 0
+      ;;
     apps:create)
       if [[ -z "$APP" ]] && [[ -z "$APP_ARG" ]]; then
         APP=$(fn-random-name)
