@@ -1080,7 +1080,11 @@ func CommandProfilesList(format string) error {
 	}
 
 	output := []NodeProfile{}
-	for _, data := range properties {
+	for property, data := range properties {
+		if !strings.HasSuffix(property, ".json") {
+			continue
+		}
+
 		var profile NodeProfile
 		err := json.Unmarshal([]byte(data), &profile)
 		if err != nil {
