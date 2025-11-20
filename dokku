@@ -135,6 +135,28 @@ execute_dokku_cmd() {
   local script
   local argv=("$@")
 
+  local -A PLUGIN_ALIASES=(
+    [docker-local]="scheduler-docker-local"
+    [dockerfile]="builder-dockerfile"
+    [herokuish]="builder-herokuish"
+    [k3s]="scheduler-k3s"
+    [lambda]="builder-lambda"
+    [nixpacks]="builder-nixpacks"
+    [pack]="builder-pack"
+    [rails]="builder-railpack"
+  )
+
+  local plugin_alias_source="${PLUGIN_NAME%%:*}"
+  local plugin_alias_target="${PLUGIN_ALIASES[$plugin_alias_source]}"
+  if [[ -n "$plugin_alias_target" ]]; then
+    PLUGIN_NAME="${PLUGIN_NAME/$plugin_alias_source/$plugin_alias_target}"
+    PLUGIN_CMD="${PLUGIN_CMD/$plugin_alias_source/$plugin_alias_target}"
+    # also replace the first argument in $@ with the new PLUGIN_NAME
+    shift 1
+    set -- "$PLUGIN_NAME" "$@"
+    argv=("$PLUGIN_NAME" "${argv[@]:1}")
+  fi
+
   case "$PLUGIN_NAME" in
     events | events:*)
       local PLUGIN_NAME=${PLUGIN_NAME/events/20_events}
