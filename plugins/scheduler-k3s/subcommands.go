@@ -418,7 +418,7 @@ func CommandClusterAdd(profileName string, role string, remoteHost string, serve
 	incomingProfile := NodeProfile{}
 
 	if profileName != "" {
-		properties := common.PropertyGetDefault("scheduler-k3s", "--global", fmt.Sprintf("node-profile-%s", profileName), "")
+		properties := common.PropertyGetDefault("scheduler-k3s", "--global", fmt.Sprintf("node-profile-%s.json", profileName), "")
 		if properties == "" {
 			return fmt.Errorf("Node profile %s not found", profileName)
 		}
