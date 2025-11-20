@@ -1,5 +1,66 @@
 # History
 
+## 0.37.0
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.37.0/bootstrap.sh
+sudo DOKKU_TAG=v0.37.0 bash bootstrap.sh
+```
+
+See the [0.37.0 migration guide](/docs/appendices/0.37.0-migration-guide.md) for more information on migrating to 0.37.0.
+
+### Backwards Compatibility Breaks
+
+- #8140: @josegonzalez Rename the scheduler-k3s:cluster-* commands to use a : instead of - for a delimiter
+- #7982: @josegonzalez Remove references to pack being experimental
+
+### Bug Fixes
+
+- #8136: @josegonzalez Do not reset manually set port mappings when upgrading dokku
+- #8114: @josegonzalez Ensure we can execute run commands when exec is executed as part of an entrypoint
+- #8109: @josegonzalez Allow skipping the install trigger when installing a plugin
+- #8104: @josegonzalez Drop deprecated aufs check
+- #8100: @othercorey Add process-type label for run with procfile cmd
+
+### New Features
+
+- #8139: @josegonzalez Add aliases for select builder and scheduler plugins
+- #8138: @josegonzalez Turn on buildpack trace mode when dokku trace is on
+- #8137: @josegonzalez Add the ability to create k3s node profiles
+- #8135: @josegonzalez Add support for git remotes with port specified inline
+- #8112: @josegonzalez Implement cron and one-off run task TTLs
+- #8106: @josegonzalez Support inline comments for app.json
+- #8105: @josegonzalez Allow specifying kubelet-args when adding a new node to the cluster
+- #8085: @josegonzalez Implement config:import command
+- #8004: @Tashows Add buildpacks:detect subcommand
+- #7991: @josegonzalez Add ability to pause/restart cron jobs
+- #7989: @josegonzalez Add support to prevent overlapping execution of cron tasks
+- #7986: @josegonzalez Add support for specifying CNB buildpacks via buildpacks command
+- #7956: @josegonzalez Add a Railpack builder to Dokku
+- #7608: @dragonhunt02 Add commands to proxy implementations for managing labels
+
+### Refactors
+
+- #8101: @josegonzalez Filter build docker-options correctly for each builder
+
+### Documentation
+
+- #8103: @josegonzalez Correct the release version for railpacks support
+
+### Dependencies
+
+- #8130: @dependabot[bot] chore(deps): bump golang.org/x/crypto from 0.43.0 to 0.45.0 in /plugins/common
+- #8110: @dependabot[bot] chore(deps): bump google.golang.org/grpc from 1.76.0 to 1.77.0 in /tests/apps/gogrpc
+- #8108: @dependabot[bot] chore(deps): bump js-yaml from 3.14.1 to 3.14.2 in /tests/apps/multi
+- #8107: @dependabot[bot] chore(deps): bump click from 8.3.0 to 8.3.1 in /docs/_build
+- #8098: @dependabot[bot] chore(deps): bump traefik from 3.5.4 to 3.6.1 in /plugins/traefik-vhosts
+- #8097: @dependabot[bot] chore(deps): bump timberio/vector from 0.51.0-debian to 0.51.1-debian in /plugins/logs
+- #8094: @dependabot[bot] chore(deps): bump pymdown-extensions from 10.16.1 to 10.17.1 in /docs/_build
+- #8092: @dependabot[bot] chore(deps): bump mkdocs-material from 9.6.23 to 9.7.0 in /docs/_build
+- #8090: @dependabot[bot] chore(deps): bump sigs.k8s.io/kustomize/api from 0.20.1 to 0.21.0 in /plugins/scheduler-k3s
+
 ## 0.36.11
 
 Install/update via the bootstrap script:
