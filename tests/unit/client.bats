@@ -465,7 +465,7 @@ teardown() {
 }
 
 setup_client_repo() {
-  declare TMP=${1:=$(mktemp -d "/tmp/${DOKKU_DOMAIN}.XXXXX")}
+  declare TMP="${1:-$(mktemp -d "/tmp/${DOKKU_DOMAIN}.XXXXX")}"
   rmdir "$TMP" && cp -r "${BATS_TEST_DIRNAME}/../../tests/apps/nodejs-express" "$TMP"
   cd "$TMP" || exit 1
   git init
