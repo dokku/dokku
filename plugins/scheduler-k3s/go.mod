@@ -139,6 +139,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/spf13/cast v1.10.0 // indirect
 	github.com/spf13/cobra v1.10.1 // indirect
+	github.com/tailscale/hujson v0.0.0-20250605163823-992244df8c5a // indirect
 	github.com/traefik/paerser v0.2.2 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	github.com/xlab/treeprint v1.2.0 // indirect

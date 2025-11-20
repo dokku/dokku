@@ -18,6 +18,7 @@
       "postdeploy": "touch /app/postdeploy.test",
       // this is a comment for the predeploy script
       "predeploy": "touch /app/predeploy.test"
-    }
+    },
+    "postdeploy": "touch /app/heroku-postdeploy.test"
   }
 }

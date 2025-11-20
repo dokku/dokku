@@ -1,9 +1,9 @@
 package appjson
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
@@ -42,18 +42,17 @@ func TriggerAppJSONGetContent(appName string) error {
 		return nil
 	}
 
-	b, err := os.ReadFile(getProcessSpecificAppJSONPath(appName))
+	appJSON, err := ReadAppJSON(getProcessSpecificAppJSONPath(appName))
 	if err != nil {
-		return fmt.Errorf("Cannot read app.json file: %v", err)
+		return err
 	}
 
-	content := strings.TrimSpace(string(b))
-	if content == "" {
-		fmt.Print("{}")
-		return nil
+	content, err := json.Marshal(appJSON)
+	if err != nil {
+		return err
 	}
 
-	fmt.Print(content)
+	fmt.Print(string(content))
 	return nil
 }
 

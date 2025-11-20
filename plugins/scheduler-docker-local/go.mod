@@ -26,7 +26,7 @@ require (
 	github.com/pkg/sftp v1.13.5 // indirect
 	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/ryanuber/columnize v2.1.2+incompatible // indirect
-	github.com/stretchr/testify v1.8.4 // indirect
+	github.com/tailscale/hujson v0.0.0-20250605163823-992244df8c5a // indirect
 	golang.org/x/crypto v0.43.0 // indirect
 	golang.org/x/sys v0.37.0 // indirect
 	k8s.io/utils v0.0.0-20240102154912-e7106e64919e // indirect

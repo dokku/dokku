@@ -133,11 +133,7 @@ func cleanupDeploymentContainer(containerID string, phase string) error {
 }
 
 func executeScript(appName string, image string, imageTag string, phase string) error {
-	phaseName := phase
-	if phase == "heroku.postdeploy" {
-		phaseName = "first deploy postdeploy"
-	}
-	common.LogInfo1(fmt.Sprintf("Checking for %s task", phaseName))
+	common.LogInfo1(fmt.Sprintf("Checking for %s task", phase))
 	command := ""
 	phaseSource := ""
 	if phase == "release" {
@@ -152,14 +148,14 @@ func executeScript(appName string, image string, imageTag string, phase string) 
 	}
 
 	if command == "" {
-		common.LogVerbose(fmt.Sprintf("No %s task found, skipping", phaseName))
+		common.LogVerbose(fmt.Sprintf("No %s task found, skipping", phase))
 		return nil
 	}
 
 	if phase == "predeploy" {
-		common.LogVerbose(fmt.Sprintf("Executing %s task from %s: %s", phaseName, phaseSource, command))
+		common.LogVerbose(fmt.Sprintf("Executing %s task from %s: %s", phase, phaseSource, command))
 	} else {
-		common.LogVerbose(fmt.Sprintf("Executing %s task from %s in ephemeral container: %s", phaseName, phaseSource, command))
+		common.LogVerbose(fmt.Sprintf("Executing %s task from %s in ephemeral container: %s", phase, phaseSource, command))
 	}
 
 	isHerokuishImage := common.IsImageHerokuishBased(image, appName)
@@ -271,15 +267,15 @@ func executeScript(appName string, image string, imageTag string, phase string) 
 	defer cleanupDeploymentContainer(containerID, phase)
 
 	if !waitForExecution(containerID) {
-		common.LogInfo2Quiet(fmt.Sprintf("Start of %s %s task (%s) output", appName, phaseName, containerID[0:9]))
+		common.LogInfo2Quiet(fmt.Sprintf("Start of %s %s task (%s) output", appName, phase, containerID[0:9]))
 		common.LogVerboseQuietContainerLogs(containerID)
-		common.LogInfo2Quiet(fmt.Sprintf("End of %s %s task (%s) output", appName, phaseName, containerID[0:9]))
-		return fmt.Errorf("Execution of %s task failed: %s", phaseName, command)
+		common.LogInfo2Quiet(fmt.Sprintf("End of %s %s task (%s) output", appName, phase, containerID[0:9]))
+		return fmt.Errorf("Execution of %s task failed: %s", phase, command)
 	}
 
-	common.LogInfo2Quiet(fmt.Sprintf("Start of %s %s task (%s) output", appName, phaseName, containerID[0:9]))
+	common.LogInfo2Quiet(fmt.Sprintf("Start of %s %s task (%s) output", appName, phase, containerID[0:9]))
 	common.LogVerboseQuietContainerLogs(containerID)
-	common.LogInfo2Quiet(fmt.Sprintf("End of %s %s task (%s) output", appName, phaseName, containerID[0:9]))
+	common.LogInfo2Quiet(fmt.Sprintf("End of %s %s task (%s) output", appName, phase, containerID[0:9]))
 
 	if phase != "predeploy" {
 		return nil
