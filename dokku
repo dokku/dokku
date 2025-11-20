@@ -135,16 +135,15 @@ execute_dokku_cmd() {
   local script
   local argv=("$@")
 
-  local -A PLUGIN_ALIASES=(
-    [docker-local]="scheduler-docker-local"
-    [dockerfile]="builder-dockerfile"
-    [herokuish]="builder-herokuish"
-    [k3s]="scheduler-k3s"
-    [lambda]="builder-lambda"
-    [nixpacks]="builder-nixpacks"
-    [pack]="builder-pack"
-    [rails]="builder-railpack"
-  )
+  local -A PLUGIN_ALIASES
+  PLUGIN_ALIASES["docker-local"]="scheduler-docker-local"
+  PLUGIN_ALIASES["dockerfile"]="builder-dockerfile"
+  PLUGIN_ALIASES["herokuish"]="builder-herokuish"
+  PLUGIN_ALIASES["k3s"]="scheduler-k3s"
+  PLUGIN_ALIASES["lambda"]="builder-lambda"
+  PLUGIN_ALIASES["nixpacks"]="builder-nixpacks"
+  PLUGIN_ALIASES["pack"]="builder-pack"
+  PLUGIN_ALIASES["rails"]="builder-railpack"
 
   local plugin_alias_source="${PLUGIN_NAME%%:*}"
   local plugin_alias_target="${PLUGIN_ALIASES[$plugin_alias_source]}"
