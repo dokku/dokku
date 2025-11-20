@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
-	"github.com/marcozac/go-jsonc"
+	"github.com/tailscale/hujson"
 	"k8s.io/utils/ptr"
 )
 
@@ -263,13 +263,14 @@ func ReadAppJSON(path string) (AppJSON, error) {
 		return AppJSON{}, nil
 	}
 
-	data, err := jsonc.Sanitize(b)
+	ast, err := hujson.Parse(b)
 	if err != nil {
-		return AppJSON{}, fmt.Errorf("Cannot sanitize app.json: %v", err)
+		return AppJSON{}, fmt.Errorf("Cannot parse app.json as jsonc: %v", err)
 	}
+	ast.Standardize()
 
 	var appJSON AppJSON
-	if err = json.Unmarshal(data, &appJSON); err != nil {
+	if err = json.Unmarshal(ast.Pack(), &appJSON); err != nil {
 		return AppJSON{}, fmt.Errorf("Cannot parse app.json: %v", err)
 	}
 
