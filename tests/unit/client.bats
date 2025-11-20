@@ -400,3 +400,16 @@ teardown() {
   assert_success
   assert_output_contains "triggered smoke-test-plugin:args with args: smoke-test-plugin:args, bash, -c, echo Hello"
 }
+
+setup_client_repo() {
+  declare TMP=${1:=$(mktemp -d "/tmp/${DOKKU_DOMAIN}.XXXXX")}
+  rmdir "$TMP" && cp -r "${BATS_TEST_DIRNAME}/../../tests/apps/nodejs-express" "$TMP"
+  cd "$TMP" || exit 1
+  git init
+  git config user.email "robot@example.com"
+  git config user.name "Test Robot"
+
+  [[ -f gitignore ]] && mv gitignore .gitignore
+  git add .
+  git commit -m 'initial commit'
+}
