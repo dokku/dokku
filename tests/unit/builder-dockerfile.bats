@@ -51,6 +51,35 @@ teardown() {
   assert_output_contains 'echo hi' 0
 }
 
+@test "(builder-dockerfile) exec" {
+  run /bin/bash -c "dokku builder-dockerfile:set $TEST_APP dockerfile-path exec.Dockerfile"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku app-json:set $TEST_APP appjson-path app.json-fake"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:set $TEST_APP procfile-path exec.Procfile"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku run $TEST_APP task"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Found 'task' in Procfile, running that command"
+  assert_output_contains 'hi dokku'
+}
+
 @test "(builder-dockerfile) config export" {
   run /bin/bash -c "dokku config:set $TEST_APP GITHUB_TOKEN=custom-value"
   echo "output: $output"
