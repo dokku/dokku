@@ -54,8 +54,8 @@ func main() {
 		args.Parse(os.Args[2:])
 		appName := args.Arg(0)
 		err = scheduler_k3s.CommandAutoscalingAuthReport(appName, *format, *global, *includeMetadata)
-	case "cluster-add":
-		args := flag.NewFlagSet("scheduler-k3s:cluster-add", flag.ExitOnError)
+	case "cluster:add":
+		args := flag.NewFlagSet("scheduler-k3s:cluster:add", flag.ExitOnError)
 		allowUknownHosts := args.Bool("insecure-allow-unknown-hosts", false, "insecure-allow-unknown-hosts: allow unknown hosts")
 		taintScheduling := args.Bool("taint-scheduling", false, "taint-scheduling: add a taint against scheduling app workloads")
 		serverIP := args.String("server-ip", "", "server-ip: IP address of the dokku server node")
@@ -65,13 +65,13 @@ func main() {
 		args.Parse(os.Args[2:])
 		remoteHost := args.Arg(0)
 		err = scheduler_k3s.CommandClusterAdd(*profileName, *role, remoteHost, *serverIP, *allowUknownHosts, *taintScheduling, *kubeletArgs)
-	case "cluster-list":
-		args := flag.NewFlagSet("scheduler-k3s:cluster-list", flag.ExitOnError)
+	case "cluster:list":
+		args := flag.NewFlagSet("scheduler-k3s:cluster:list", flag.ExitOnError)
 		format := args.String("format", "stdout", "format: [ stdout | json ]")
 		args.Parse(os.Args[2:])
 		err = scheduler_k3s.CommandClusterList(*format)
-	case "cluster-remove":
-		args := flag.NewFlagSet("scheduler-k3s:cluster-remove", flag.ExitOnError)
+	case "cluster:remove":
+		args := flag.NewFlagSet("scheduler-k3s:cluster:remove", flag.ExitOnError)
 		args.Parse(os.Args[2:])
 		nodeName := args.Arg(0)
 		err = scheduler_k3s.CommandClusterRemove(nodeName)
