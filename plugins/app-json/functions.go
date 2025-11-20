@@ -133,11 +133,7 @@ func cleanupDeploymentContainer(containerID string, phase string) error {
 }
 
 func executeScript(appName string, image string, imageTag string, phase string) error {
-	phaseName := phase
-	if phase == "heroku.postdeploy" {
-		phaseName = "first deploy postdeploy"
-	}
-	common.LogInfo1(fmt.Sprintf("Checking for %s task", phaseName))
+	common.LogInfo1(fmt.Sprintf("Checking for %s task", phase))
 	command := ""
 	phaseSource := ""
 	if phase == "release" {
