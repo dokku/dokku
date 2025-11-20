@@ -148,7 +148,7 @@ assert_output_contains() {
     input="${input/$expected/}"
     found=$((found + 1))
   done
-  assert_equal "$count" "$found"
+  [[ "$count" -eq "$found" ]] || flunk "expected $count occurrences of '$expected', found $found"
 }
 
 assert_output_not_contains() {
