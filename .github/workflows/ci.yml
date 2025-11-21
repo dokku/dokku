@@ -24,7 +24,7 @@ jobs:
       skip: ${{ steps.check-commit.outputs.skip }}
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
@@ -53,7 +53,7 @@ jobs:
     timeout-minutes: 45
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: set up qemu
         uses: docker/setup-qemu-action@v3
@@ -87,7 +87,7 @@ jobs:
     timeout-minutes: 20
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: build-image
         uses: ./.github/actions/build-image
@@ -101,7 +101,7 @@ jobs:
     timeout-minutes: 20
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: build-image
         uses: ./.github/actions/build-image
@@ -117,7 +117,7 @@ jobs:
       matrix: ${{fromJson(needs.build.outputs.matrix)}}
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: download packages
         uses: actions/download-artifact@v6
@@ -156,7 +156,7 @@ jobs:
       fail-fast: false
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: download packages
         uses: actions/download-artifact@v6
@@ -190,7 +190,7 @@ jobs:
       GITHUB_NODE_INDEX: ${{ matrix.index }}
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: download packages
         uses: actions/download-artifact@v6
