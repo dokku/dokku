@@ -82,8 +82,8 @@ server {
   listen      {{ if $.NGINX_BIND_ADDRESS_IP4 }}{{ $.NGINX_BIND_ADDRESS_IP4 }}:{{end}}{{ $listen_port }} ssl;
   http2 on;
   {{ else }}
-  listen      [{{ $.NGINX_BIND_ADDRESS_IP6 }}]:{{ $listen_port }} ssl {{ if eq $.HTTP2_SUPPORTED "true" }}http2{{ end }};
-  listen      {{ if $.NGINX_BIND_ADDRESS_IP4 }}{{ $.NGINX_BIND_ADDRESS_IP4 }}:{{end}}{{ $listen_port }} ssl {{ if eq $.HTTP2_SUPPORTED "true" }}http2{{ end }};
+  listen      [{{ $.NGINX_BIND_ADDRESS_IP6 }}]:{{ $listen_port }} ssl http2;
+  listen      {{ if $.NGINX_BIND_ADDRESS_IP4 }}{{ $.NGINX_BIND_ADDRESS_IP4 }}:{{end}}{{ $listen_port }} ssl http2;
   {{ end }}
   {{ if $.SSL_SERVER_NAME }}server_name {{ $.SSL_SERVER_NAME }}; {{ end }}
   {{ if $.NOSSL_SERVER_NAME }}server_name {{ $.NOSSL_SERVER_NAME }}; {{ end }}
@@ -93,7 +93,7 @@ server {
 
   ssl_certificate           {{ $.APP_SSL_PATH }}/server.crt;
   ssl_certificate_key       {{ $.APP_SSL_PATH }}/server.key;
-  ssl_protocols             TLSv1.2 {{ if eq $.TLS13_SUPPORTED "true" }}TLSv1.3{{ end }};
+  ssl_protocols             TLSv1.2 TLSv1.3;
   ssl_prefer_server_ciphers off;
 
   {{ if $.CLIENT_BODY_TIMEOUT }}client_body_timeout {{ $.CLIENT_BODY_TIMEOUT }};{{end}}
@@ -159,7 +159,6 @@ server {
   include {{ $.DOKKU_ROOT }}/{{ $.APP }}/nginx.conf.d/*.conf;
 }
 {{ else if eq $scheme "grpc"}}
-{{ if eq $.GRPC_SUPPORTED "true"}}{{ if eq $.HTTP2_SUPPORTED "true"}}
 server {
   {{ if eq $.HTTP2_DIRECTIVE_SUPPORTED "true" }}
   listen      [{{ $.NGINX_BIND_ADDRESS_IP6 }}]:{{ $listen_port }};
@@ -180,9 +179,7 @@ server {
   {{ if $.CLIENT_MAX_BODY_SIZE }}client_max_body_size {{ $.CLIENT_MAX_BODY_SIZE }};{{ end }}
   include {{ $.DOKKU_ROOT }}/{{ $.APP }}/nginx.conf.d/*.conf;
 }
-{{ end }}{{ end }}
 {{ else if eq $scheme "grpcs"}}
-{{ if eq $.GRPC_SUPPORTED "true"}}{{ if eq $.HTTP2_SUPPORTED "true"}}
 server {
   {{ if eq $.HTTP2_DIRECTIVE_SUPPORTED "true" }}
   listen      [{{ $.NGINX_BIND_ADDRESS_IP6 }}]:{{ $listen_port }} ssl;
@@ -199,7 +196,7 @@ server {
 
   ssl_certificate           {{ $.APP_SSL_PATH }}/server.crt;
   ssl_certificate_key       {{ $.APP_SSL_PATH }}/server.key;
-  ssl_protocols             TLSv1.2 {{ if eq $.TLS13_SUPPORTED "true" }}TLSv1.3{{ end }};
+  ssl_protocols             TLSv1.2 TLSv1.3;
   ssl_prefer_server_ciphers off;
 
   location    / {
@@ -209,7 +206,6 @@ server {
   {{ if $.CLIENT_MAX_BODY_SIZE }}client_max_body_size {{ $.CLIENT_MAX_BODY_SIZE }};{{ end }}
   include {{ $.DOKKU_ROOT }}/{{ $.APP }}/nginx.conf.d/*.conf;
 }
-{{ end }}{{ end }}
 {{ end }}
 {{ end }}
 
