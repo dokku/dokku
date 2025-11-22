@@ -80,7 +80,7 @@ redis: https://github.com/dokku/dokku-redis.git
 
 ### Prior to Dokku start
 
-The alternative is to build a custom docker image via a custom Dockerfile. This Dockerfile can run any `plugin:install` command. Note that the version installed at that time will be the one that persists. Below is an example Dockerfile showing this method.
+The alternative is to build a custom docker image via a custom Dockerfile. This Dockerfile can run any `plugin:install` command, though the `install` trigger must be skipped via the `--skip-install-trigger`. The version installed at that time will be the one that persists. Below is an example Dockerfile showing this method.
 
 ```Dockerfile
 FROM dokku/dokku:0.37.0
