@@ -8,17 +8,11 @@ Dokku is an extensible, open source Platform as a Service that runs on a single 
 
 To start using Dokku, you'll need a system that meets the following minimum requirements:
 
-- A fresh installation of any of the following operating systems:
-    - [Ubuntu 22.04/24.04](https://www.ubuntu.com/download)
-    - [Debian 11+ x64](https://www.debian.org/distrib/)
-- A server with one of the following architectures
-    - AMD64 (alternatively known as `x86_64`), commonly used for Intel cloud servers
-    - ARMV8 (alternatively known as `arm64`), commonly used for Raspberry PI and AWS Graviton
-
-To avoid memory pressure during builds or runtime of your applications, we suggest the following:
-
-- At least 1 GB of system memory
-    - If your system has less than 1GB of memory, you can use [this workaround](/docs/getting-started/advanced-installation.md#vms-with-less-than-1-gb-of-memory).
+- Operating Systems: [Ubuntu 22.04/24.04](https://www.ubuntu.com/download) or [Debian 11+ x64](https://www.debian.org/distrib/)
+- Supported Architectures: `AMD64` (`x86_64`) and `arm64` (`armv8`)
+- Minimum Memory:
+    - Docker Scheduler: 1GB of system memory, or [add swap memory](/docs/getting-started/advanced-installation.md#vms-with-less-than-1-gb-of-memory)
+    - K3s Scheduler: 2GB of system memory on every node in the cluster
 
 Finally, we recommend attaching at least one domain name to your server. This is not required, but using a domain name will make app access easier. When connecting a domain, either a single domain or a wildcard may be associated to the server's IP.
 
