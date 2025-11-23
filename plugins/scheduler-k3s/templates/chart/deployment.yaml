@@ -64,7 +64,11 @@ spec:
         {{- if hasKey $config "web" }}
         env:
         - name: PORT
+          {{- if eq $processName "web" }}
           value: "{{ $.Values.global.network.primary_port }}"
+          {{- else }}
+          value: "5000"
+          {{- end }}
         {{- end }}
         envFrom:
         - secretRef:

@@ -232,6 +232,27 @@ The global default value may be set by passing an empty value for the option.
 dokku scheduler-k3s:set --global deploy-timeout
 ```
 
+### Exposing services on the network
+
+Dokku will automatically expose the `web` process as a Kubernetes Service, with all others being treated as background processes. In some cases, it may be useful to have other processes exposed as Kubernetes Service objects so as to segregate internal http endpoints from public http endpoints. This can be done by modifying the `app.json` Formation entry for your process type.
+
+```json
+{
+  "formation": {  
+    "internal-web": {
+      "service": {
+        "exposed": true
+      }
+    }
+  }
+}
+```
+
+In the above example, the `internal-web` process is exposed as a service. The `PORT` variable for the process will be set to `5000`, and a kubernetes `Service` object will be created pointing at your processes.
+
+> [!NOTE]
+> It is not possible to modify the port mapping, nor is it possible to assign domains or SSL to a non-web process.
+
 ### SSL Certificates
 
 #### Enabling letsencrypt integration

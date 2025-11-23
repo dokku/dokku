@@ -623,6 +623,22 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 			}
 
 			sort.Sort(NameSorter(processValues.Web.PortMaps))
+		} else if appJSON.Formation[processType].Service != nil && appJSON.Formation[processType].Service.Exposed {
+			processValues.Web = ProcessWeb{
+				Domains:  []ProcessDomains{},
+				PortMaps: []ProcessPortMap{},
+				TLS: ProcessTls{
+					Enabled: false,
+				},
+			}
+
+			processValues.Web.PortMaps = append(processValues.Web.PortMaps, ProcessPortMap{
+				ContainerPort: 5000,
+				HostPort:      5000,
+				Name:          "http-5000-5000",
+				Protocol:      PortmapProtocol_TCP,
+				Scheme:        "http",
+			})
 		}
 
 		values.Processes[processType] = processValues
