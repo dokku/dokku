@@ -262,7 +262,7 @@ The default value may be set by passing an empty value for the option:
 dokku scheduler-k3s:set node-js-app letsencrypt-server
 ```
 
-The `image-pull-secrets` property can also be set globally. The global default is `production`.
+The `letsencrypt-server` property can also be set globally. The global default is `production`.
 
 ```shell
 dokku scheduler-k3s:set --global letsencrypt-server staging
