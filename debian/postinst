@@ -24,6 +24,39 @@ call-sshcommand() {
   fi
 }
 
+setup-docker-live-restore() {
+  # skip if running in docker-based installation
+  if [[ "$DOKKU_INIT_SYSTEM" == "sv" ]]; then
+    return
+  fi
+
+  # allow disabling via /etc/default/dokku
+  if [[ "$DOKKU_LIVE_RESTORE" == "false" ]]; then
+    return
+  fi
+
+  live_restore="$(docker info --format '{{ .LiveRestoreEnabled }}' || true)"
+  if [ "$live_restore" = "true" ]; then
+    echo "Docker live-restore is already enabled"
+    return
+  fi
+
+  echo "Enabling docker live-restore"
+  if [[ ! -f /etc/docker/daemon.json ]]; then
+    echo "{}" >/etc/docker/daemon.json
+  fi
+
+  config="$(jq '. + {"live-restore": true}' /etc/docker/daemon.json)"
+  echo "$config" >/etc/docker/daemon.json
+  if command -v systemctl &>/dev/null; then
+    if ! systemctl reload docker; then
+      echo "Unable to reload docker, please reload manually" 1>&2
+    fi
+  else
+    echo "Unable to reload docker, please reload manually" 1>&2
+  fi
+}
+
 setup-user() {
   echo "Setting up dokku user"
   call-sshcommand create dokku /usr/bin/dokku
@@ -135,6 +168,7 @@ case "$1" in
     dpkg-handling
     setup-plugins
     setup-sshcommand
+    setup-docker-live-restore
     ;;
 
   *)
