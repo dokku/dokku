@@ -43,6 +43,7 @@
 - `autoscaling` (map of string to object, optional) autoscaling rules. See the autoscaling section for more details
 - `max_parallel`: (int, optional) number of instances to deploy in parallel at a given time
 - `quantity`: (int, optional) number of processes to maintain. Default 1 for web processes, 0 for all others.
+- `service`: (map of string to oject, optional) governs how non-web processes are exposed as services on the network
 
 ### Autoscaling
 
@@ -81,6 +82,24 @@ An autoscaling trigger consists of the following properties:
 - `name`: (string, optional)
 - `type`: (string, optional)
 - `metadata`: (object, optional)
+
+### Service
+
+```json
+{
+  "formation": {  
+    "internal-web": {
+      "service": {
+        "exposed": true
+      }
+    }
+  }
+}
+```
+
+(object, optional) A key-value object specifying how to expose non-web processes as services.
+
+- `service`: (boolean, optional) Whether to expose a process as a network service. The `PORT` variable will be set to 5000.
 
 ## Healthchecks
 

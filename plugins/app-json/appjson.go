@@ -76,6 +76,16 @@ type Formation struct {
 
 	// MaxParallel is the maximum number of processes to start in parallel
 	MaxParallel *int `json:"max_parallel"`
+
+	// Service is a struct that represents how to expose the process to the network
+	// This only applies to non-web processes
+	Service *FormationService `json:"service"`
+}
+
+// FormationService is a struct that represents how to expose a process to the network
+type FormationService struct {
+	// Exposed is whether or not the process is exposed as a service
+	Exposed bool `json:"exposed"`
 }
 
 // FormationAutoscaling is a struct that represents the autoscaling configuration for a process from an app.json file
