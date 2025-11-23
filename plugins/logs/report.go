@@ -14,6 +14,7 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 	}
 
 	os.Setenv("DOKKU_REPORT_FORMAT", format)
+	os.Setenv("DOKKU_REPORT_FLAG", infoFlag)
 	flags := map[string]common.ReportFunc{
 		"--logs-computed-app-label-alias": reportComputedAppLabelAlias,
 		"--logs-computed-max-size":        reportComputedMaxSize,
@@ -73,17 +74,25 @@ func reportVectorGlobalImage(appName string) string {
 
 func reportGlobalVectorSink(appName string) string {
 	value := common.PropertyGet("logs", "--global", "vector-sink")
-	// only show the schema and sanitize the rest
-	if value != "" && os.Getenv("DOKKU_REPORT_FORMAT") == "stdout" {
-		sink, err := SinkValueToConfig("--global", value)
-		if err != nil {
-			return ""
-		}
-
-		return fmt.Sprintf("%s://redacted", sink["type"])
+	if value == "" {
+		return value
 	}
 
-	return ""
+	if os.Getenv("DOKKU_REPORT_FORMAT") != "stdout" {
+		return value
+	}
+
+	if os.Getenv("DOKKU_REPORT_FLAG") == "--logs-global-vector-sink" {
+		return value
+	}
+
+	// only show the schema and sanitize the rest
+	sink, err := SinkValueToConfig("--global", value)
+	if err != nil {
+		return ""
+	}
+
+	return fmt.Sprintf("%s://redacted", sink["type"])
 }
 
 func reportMaxSize(appName string) string {
@@ -92,14 +101,23 @@ func reportMaxSize(appName string) string {
 
 func reportVectorSink(appName string) string {
 	value := common.PropertyGet("logs", appName, "vector-sink")
-	if value != "" && os.Getenv("DOKKU_REPORT_FORMAT") == "stdout" {
-		sink, err := SinkValueToConfig(appName, value)
-		if err != nil {
-			return ""
-		}
-
-		return fmt.Sprintf("%s://redacted", sink["type"])
+	if value == "" {
+		return value
 	}
 
-	return ""
+	if os.Getenv("DOKKU_REPORT_FORMAT") != "stdout" {
+		return value
+	}
+
+	if os.Getenv("DOKKU_REPORT_FLAG") == "--logs-vector-sink" {
+		return value
+	}
+
+	// only show the schema and sanitize the rest
+	sink, err := SinkValueToConfig(appName, value)
+	if err != nil {
+		return ""
+	}
+
+	return fmt.Sprintf("%s://redacted", sink["type"])
 }
