@@ -30,7 +30,9 @@ metadata:
   name: {{ $.Values.global.app_name }}-{{ $processName }}
   namespace: {{ $.Values.global.namespace }}
 spec:
+  {{- if not (and $config.autoscaling (and $config.autoscaling.enabled (eq $config.autoscaling.type "keda"))) }}
   replicas: {{ $config.replicas }}
+  {{- end }}
   revisionHistoryLimit: 5
   selector:
     matchLabels:
