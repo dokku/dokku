@@ -74,7 +74,7 @@ func TriggerPostDelete(appName string) error {
 
 // TriggerPostExtract writes a .buildpacks file into the app
 func TriggerPostExtract(appName string, sourceWorkDir string) error {
-	buildpacks, err := common.PropertyListGet("buildpacks", appName, "buildpacks")
+	buildpacks, err := getBuildpacks(appName)
 	if err != nil {
 		return nil
 	}
@@ -91,13 +91,20 @@ func TriggerPostExtract(appName string, sourceWorkDir string) error {
 
 	w := bufio.NewWriter(file)
 	for _, buildpack := range buildpacks {
+		buildpack, err = validBuildpackURL(buildpack)
+		if err != nil {
+			return err
+		}
+
 		fmt.Fprintln(w, buildpack)
 	}
 
 	if err = w.Flush(); err != nil {
 		return fmt.Errorf("Error writing .buildpacks file: %s", err.Error())
 	}
-	file.Chmod(0600)
+	if err = file.Chmod(0600); err != nil {
+		return fmt.Errorf("Error setting .buildpacks file permissions: %s", err.Error())
+	}
 
 	return nil
 }
