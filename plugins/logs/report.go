@@ -1,6 +1,9 @@
 package logs
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/dokku/dokku/plugins/common"
 )
 
@@ -10,6 +13,7 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 		return err
 	}
 
+	os.Setenv("DOKKU_REPORT_FORMAT", format)
 	flags := map[string]common.ReportFunc{
 		"--logs-computed-app-label-alias": reportComputedAppLabelAlias,
 		"--logs-computed-max-size":        reportComputedMaxSize,
@@ -68,7 +72,18 @@ func reportVectorGlobalImage(appName string) string {
 }
 
 func reportGlobalVectorSink(appName string) string {
-	return common.PropertyGet("logs", "--global", "vector-sink")
+	value := common.PropertyGet("logs", "--global", "vector-sink")
+	// only show the schema and sanitize the rest
+	if value != "" && os.Getenv("DOKKU_REPORT_FORMAT") == "stdout" {
+		sink, err := SinkValueToConfig("--global", value)
+		if err != nil {
+			return ""
+		}
+
+		return fmt.Sprintf("%s://redacted", sink["type"])
+	}
+
+	return ""
 }
 
 func reportMaxSize(appName string) string {
@@ -76,5 +91,15 @@ func reportMaxSize(appName string) string {
 }
 
 func reportVectorSink(appName string) string {
-	return common.PropertyGet("logs", appName, "vector-sink")
+	value := common.PropertyGet("logs", appName, "vector-sink")
+	if value != "" && os.Getenv("DOKKU_REPORT_FORMAT") == "stdout" {
+		sink, err := SinkValueToConfig(appName, value)
+		if err != nil {
+			return ""
+		}
+
+		return fmt.Sprintf("%s://redacted", sink["type"])
+	}
+
+	return ""
 }
