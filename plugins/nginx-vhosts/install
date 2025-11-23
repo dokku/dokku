@@ -156,9 +156,31 @@ trigger-nginx-vhosts-install() {
   # avoid failing runit init calls on install
   # the runit binaries are not yet available during dockerfile building
   # and therefore both these calls will fail
-  if [[ ! -x /usr/bin/sv ]] && [[ "$(fn-plugin-property-get "nginx" "--global" "proxy-status")" != "stopped" ]]; then
-    fn-nginx-vhosts-nginx-init-cmd start || fn-nginx-vhosts-nginx-init-cmd reload
+  if [[ -x /usr/bin/sv ]]; then
+    return
   fi
+
+  # avoid starting nginx if it was stopped via the nginx:stop command
+  if [[ "$(fn-plugin-property-get "nginx" "--global" "proxy-status")" == "stopped" ]]; then
+    return
+  fi
+
+  # only start nginx if there is an app with the nginx proxy type
+  local start_nginx=false
+  local has_apps=false
+  for app in $(dokku_apps "false" 2>/dev/null); do
+    has_apps=true
+    if [[ "$(plugn trigger proxy-type "$app")" == "nginx" ]]; then
+      start_nginx=true
+      break
+    fi
+  done
+
+  if [[ "$start_nginx" == "false" ]] && [[ "$has_apps" == "true" ]]; then
+    return
+  fi
+
+  fn-nginx-vhosts-nginx-init-cmd start || fn-nginx-vhosts-nginx-init-cmd reload
 }
 
 trigger-nginx-vhosts-install "$@"
