@@ -13,11 +13,11 @@ server {
   error_log   {{ $.NGINX_ERROR_LOG_PATH }};
   underscores_in_headers {{ $.NGINX_UNDERSCORE_IN_HEADERS }};
 
-  {{ if $.CLIENT_BODY_TIMEOUT }}client_body_timeout {{ $.CLIENT_BODY_TIMEOUT }};{{end}}
-  {{ if $.CLIENT_HEADER_TIMEOUT }}client_header_timeout {{ $.CLIENT_HEADER_TIMEOUT }};{{end}}
-  {{ if $.KEEPALIVE_TIMEOUT }}keepalive_timeout {{ $.KEEPALIVE_TIMEOUT }};{{end}}
-  {{ if $.LINGERING_TIMEOUT }}lingering_timeout {{ $.LINGERING_TIMEOUT }};{{end}}
-  {{ if $.SEND_TIMEOUT }}send_timeout {{ $.SEND_TIMEOUT }};{{end}}
+  client_body_timeout {{ $.CLIENT_BODY_TIMEOUT }};
+  client_header_timeout {{ $.CLIENT_HEADER_TIMEOUT }};
+  keepalive_timeout {{ $.KEEPALIVE_TIMEOUT }};
+  lingering_timeout {{ $.LINGERING_TIMEOUT }};
+  send_timeout {{ $.SEND_TIMEOUT }};
 
 {{ if (and (eq $listen_port "80") ($.SSL_INUSE)) }}
   include {{ $.DOKKU_ROOT }}/{{ $.APP }}/nginx.conf.d/*.conf;
@@ -36,9 +36,9 @@ server {
 
     proxy_pass  http://{{ $.APP }}-{{ $upstream_port }};
     proxy_http_version 1.1;
-    {{ if $.PROXY_CONNECT_TIMEOUT }}proxy_connect_timeout {{ $.PROXY_CONNECT_TIMEOUT }};{{end}}
-    {{ if $.PROXY_READ_TIMEOUT }}proxy_read_timeout {{ $.PROXY_READ_TIMEOUT }};{{end}}
-    {{ if $.PROXY_SEND_TIMEOUT }}proxy_send_timeout {{ $.PROXY_SEND_TIMEOUT }};{{end}}
+    proxy_connect_timeout {{ $.PROXY_CONNECT_TIMEOUT }};
+    proxy_read_timeout {{ $.PROXY_READ_TIMEOUT }};
+    proxy_send_timeout {{ $.PROXY_SEND_TIMEOUT }};
     proxy_buffer_size {{ $.PROXY_BUFFER_SIZE }};
     proxy_buffering {{ $.PROXY_BUFFERING }};
     proxy_buffers {{ $.PROXY_BUFFERS }};
@@ -53,7 +53,7 @@ server {
     {{ if $.PROXY_X_FORWARDED_SSL }}proxy_set_header X-Forwarded-Ssl {{ $.PROXY_X_FORWARDED_SSL }};{{ end }}
   }
 
-  {{ if $.CLIENT_MAX_BODY_SIZE }}client_max_body_size {{ $.CLIENT_MAX_BODY_SIZE }};{{ end }}
+  client_max_body_size {{ $.CLIENT_MAX_BODY_SIZE }};
 
   error_page 400 401 402 403 405 406 407 408 409 410 411 412 413 414 415 416 417 418 420 422 423 424 426 428 429 431 444 449 450 451 /400-error.html;
   location /400-error.html {
@@ -82,8 +82,8 @@ server {
   listen      {{ if $.NGINX_BIND_ADDRESS_IP4 }}{{ $.NGINX_BIND_ADDRESS_IP4 }}:{{end}}{{ $listen_port }} ssl;
   http2 on;
   {{ else }}
-  listen      [{{ $.NGINX_BIND_ADDRESS_IP6 }}]:{{ $listen_port }} ssl {{ if eq $.HTTP2_SUPPORTED "true" }}http2{{ end }};
-  listen      {{ if $.NGINX_BIND_ADDRESS_IP4 }}{{ $.NGINX_BIND_ADDRESS_IP4 }}:{{end}}{{ $listen_port }} ssl {{ if eq $.HTTP2_SUPPORTED "true" }}http2{{ end }};
+  listen      [{{ $.NGINX_BIND_ADDRESS_IP6 }}]:{{ $listen_port }} ssl http2;
+  listen      {{ if $.NGINX_BIND_ADDRESS_IP4 }}{{ $.NGINX_BIND_ADDRESS_IP4 }}:{{end}}{{ $listen_port }} ssl http2;
   {{ end }}
   {{ if $.SSL_SERVER_NAME }}server_name {{ $.SSL_SERVER_NAME }}; {{ end }}
   {{ if $.NOSSL_SERVER_NAME }}server_name {{ $.NOSSL_SERVER_NAME }}; {{ end }}
@@ -93,14 +93,14 @@ server {
 
   ssl_certificate           {{ $.APP_SSL_PATH }}/server.crt;
   ssl_certificate_key       {{ $.APP_SSL_PATH }}/server.key;
-  ssl_protocols             TLSv1.2 {{ if eq $.TLS13_SUPPORTED "true" }}TLSv1.3{{ end }};
+  ssl_protocols             TLSv1.2 TLSv1.3;
   ssl_prefer_server_ciphers off;
 
-  {{ if $.CLIENT_BODY_TIMEOUT }}client_body_timeout {{ $.CLIENT_BODY_TIMEOUT }};{{end}}
-  {{ if $.CLIENT_HEADER_TIMEOUT }}client_header_timeout {{ $.CLIENT_HEADER_TIMEOUT }};{{end}}
-  {{ if $.KEEPALIVE_TIMEOUT }}keepalive_timeout {{ $.KEEPALIVE_TIMEOUT }};{{end}}
-  {{ if $.LINGERING_TIMEOUT }}lingering_timeout {{ $.LINGERING_TIMEOUT }};{{end}}
-  {{ if $.SEND_TIMEOUT }}send_timeout {{ $.SEND_TIMEOUT }};{{end}}
+  client_body_timeout {{ $.CLIENT_BODY_TIMEOUT }};
+  client_header_timeout {{ $.CLIENT_HEADER_TIMEOUT }};
+  keepalive_timeout {{ $.KEEPALIVE_TIMEOUT }};
+  lingering_timeout {{ $.LINGERING_TIMEOUT }};
+  send_timeout {{ $.SEND_TIMEOUT }};
 
   location    / {
 
@@ -114,9 +114,9 @@ server {
     proxy_pass  http://{{ $.APP }}-{{ $upstream_port }};
     {{ if eq $.HTTP2_PUSH_SUPPORTED "true" }}http2_push_preload on; {{ end }}
     proxy_http_version 1.1;
-    {{ if $.PROXY_CONNECT_TIMEOUT }}proxy_connect_timeout {{ $.PROXY_CONNECT_TIMEOUT }};{{end}}
-    {{ if $.PROXY_READ_TIMEOUT }}proxy_read_timeout {{ $.PROXY_READ_TIMEOUT }};{{end}}
-    {{ if $.PROXY_SEND_TIMEOUT }}proxy_send_timeout {{ $.PROXY_SEND_TIMEOUT }};{{end}}
+    proxy_connect_timeout {{ $.PROXY_CONNECT_TIMEOUT }};
+    proxy_read_timeout {{ $.PROXY_READ_TIMEOUT }};
+    proxy_send_timeout {{ $.PROXY_SEND_TIMEOUT }};
     proxy_buffer_size {{ $.PROXY_BUFFER_SIZE }};
     proxy_buffering {{ $.PROXY_BUFFERING }};
     proxy_buffers {{ $.PROXY_BUFFERS }};
@@ -131,7 +131,7 @@ server {
     {{ if $.PROXY_X_FORWARDED_SSL }}proxy_set_header X-Forwarded-Ssl {{ $.PROXY_X_FORWARDED_SSL }};{{ end }}
   }
 
-  {{ if $.CLIENT_MAX_BODY_SIZE }}client_max_body_size {{ $.CLIENT_MAX_BODY_SIZE }};{{ end }}
+  client_max_body_size {{ $.CLIENT_MAX_BODY_SIZE }};
 
   error_page 400 401 402 403 405 406 407 408 409 410 411 412 413 414 415 416 417 418 420 422 423 424 426 428 429 431 444 449 450 451 /400-error.html;
   location /400-error.html {
@@ -159,7 +159,6 @@ server {
   include {{ $.DOKKU_ROOT }}/{{ $.APP }}/nginx.conf.d/*.conf;
 }
 {{ else if eq $scheme "grpc"}}
-{{ if eq $.GRPC_SUPPORTED "true"}}{{ if eq $.HTTP2_SUPPORTED "true"}}
 server {
   {{ if eq $.HTTP2_DIRECTIVE_SUPPORTED "true" }}
   listen      [{{ $.NGINX_BIND_ADDRESS_IP6 }}]:{{ $listen_port }};
@@ -177,12 +176,10 @@ server {
     grpc_pass  grpc://{{ $.APP }}-{{ $upstream_port }};
   }
 
-  {{ if $.CLIENT_MAX_BODY_SIZE }}client_max_body_size {{ $.CLIENT_MAX_BODY_SIZE }};{{ end }}
+  client_max_body_size {{ $.CLIENT_MAX_BODY_SIZE }};
   include {{ $.DOKKU_ROOT }}/{{ $.APP }}/nginx.conf.d/*.conf;
 }
-{{ end }}{{ end }}
 {{ else if eq $scheme "grpcs"}}
-{{ if eq $.GRPC_SUPPORTED "true"}}{{ if eq $.HTTP2_SUPPORTED "true"}}
 server {
   {{ if eq $.HTTP2_DIRECTIVE_SUPPORTED "true" }}
   listen      [{{ $.NGINX_BIND_ADDRESS_IP6 }}]:{{ $listen_port }} ssl;
@@ -199,17 +196,16 @@ server {
 
   ssl_certificate           {{ $.APP_SSL_PATH }}/server.crt;
   ssl_certificate_key       {{ $.APP_SSL_PATH }}/server.key;
-  ssl_protocols             TLSv1.2 {{ if eq $.TLS13_SUPPORTED "true" }}TLSv1.3{{ end }};
+  ssl_protocols             TLSv1.2 TLSv1.3;
   ssl_prefer_server_ciphers off;
 
   location    / {
     grpc_pass  grpc://{{ $.APP }}-{{ $upstream_port }};
   }
 
-  {{ if $.CLIENT_MAX_BODY_SIZE }}client_max_body_size {{ $.CLIENT_MAX_BODY_SIZE }};{{ end }}
+  client_max_body_size {{ $.CLIENT_MAX_BODY_SIZE }};
   include {{ $.DOKKU_ROOT }}/{{ $.APP }}/nginx.conf.d/*.conf;
 }
-{{ end }}{{ end }}
 {{ end }}
 {{ end }}
 
