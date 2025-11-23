@@ -52,6 +52,10 @@ cmd-git-from-archive() {
     dokku_log_fail "Invalid archive type specified, valid archive types include: tar, tar.gz, zip"
   fi
 
+  if [[ "$DOKKU_REDIRECT_OUTPUT" != "true" ]]; then
+    export DOKKU_REDIRECT_OUTPUT=true
+    exec &> >(tee >(tee | logger -i -t "dokku-${DOKKU_PID}"))
+  fi
   plugn trigger git-from-archive "$APP" "$ARCHIVE_URL" "$ARCHIVE_TYPE" "$USER_NAME" "$USER_EMAIL"
   plugn trigger deploy-source-set "$APP" "$ARCHIVE_TYPE" "$ARCHIVE_URL"
 }
@@ -124,6 +128,10 @@ cmd-git-load-image() {
   [[ -z "$DOCKER_IMAGE" ]] && dokku_log_fail "Please specify a docker image"
   [[ ! -t 0 ]] || dokku_log_fail "Expecting tar archive containing docker image on STDIN"
 
+  if [[ "$DOKKU_REDIRECT_OUTPUT" != "true" ]]; then
+    export DOKKU_REDIRECT_OUTPUT=true
+    exec &> >(tee >(tee | logger -i -t "dokku-${DOKKU_PID}"))
+  fi
   cat | docker load
 
   if ! verify_image "$DOCKER_IMAGE"; then
@@ -168,6 +176,11 @@ cmd-git-from-image() {
   verify_app_name "$APP"
   [[ -z "$DOCKER_IMAGE" ]] && dokku_log_fail "Please specify a docker image"
 
+  if [[ "$DOKKU_REDIRECT_OUTPUT" != "true" ]]; then
+    export DOKKU_REDIRECT_OUTPUT=true
+    exec &> >(tee >(tee | logger -i -t "dokku-${DOKKU_PID}"))
+  fi
+
   if ! plugn trigger git-from-image "$APP" "$DOCKER_IMAGE" "$BUILD_DIR" "$USER_NAME" "$USER_EMAIL"; then
     return 1
   fi
@@ -210,6 +223,11 @@ cmd-git-sync() {
   local APP_ROOT="$DOKKU_ROOT/$APP"
   DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
   CURRENT_REF="$(fn-git-cmd "$APP_ROOT" rev-parse "$DOKKU_DEPLOY_BRANCH" 2>/dev/null || true)"
+
+  if [[ "$DOKKU_REDIRECT_OUTPUT" != "true" ]]; then
+    export DOKKU_REDIRECT_OUTPUT=true
+    exec &> >(tee >(tee | logger -i -t "dokku-${DOKKU_PID}"))
+  fi
 
   if ! fn-git-cmd "$APP_ROOT" rev-parse "$DOKKU_DEPLOY_BRANCH" &>/dev/null; then
     dokku_log_info1_quiet "Cloning $APP from $GIT_REMOTE#$GIT_REF"
