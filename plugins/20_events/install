@@ -3,17 +3,8 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
-trigger-events-install() {
-  declare desc="20_events install plugin trigger"
-  declare trigger="install"
-  DOKKU_RSYSLOG_FILTER_DIR=/etc/rsyslog.d
-  DOKKU_RSYSLOG_FILTER=$DOKKU_RSYSLOG_FILTER_DIR/99-dokku.conf
-  DOKKU_LOGROTATE_FILE=/etc/logrotate.d/dokku
-
-  flag_rsyslog_needs_restart=n
-
-  # This can be done unconditionally as mkdir -p
-  # exits gracefully if the path already exists
+fn-20-events-logs-setup() {
+  declare desc="handles setup of the event logs"
   mkdir -m 775 -p "$DOKKU_LOGS_DIR"
   case "$DOKKU_DISTRO" in
     arch | debian | raspbian)
@@ -37,7 +28,47 @@ trigger-events-install() {
     esac
     chmod 664 "$DOKKU_EVENTS_LOGFILE"
   fi
+}
 
+fn-20-events-logrotate() {
+  declare desc="handles logrotate setup for events"
+  local DOKKU_LOGROTATE_FILE=/etc/logrotate.d/dokku
+
+  cat >"$DOKKU_LOGROTATE_FILE" <<EOF
+$DOKKU_LOGS_DIR/*.log {
+        daily
+        missingok
+        rotate 7
+        compress
+        delaycompress
+        notifempty
+        copytruncate
+}
+EOF
+
+  if [[ "$DOKKU_DISTRO" == "debian" ]] || [[ "$DOKKU_DISTRO" == "raspbian" ]]; then
+    sed -i 's/ syslog dokku$/ root dokku/g' $DOKKU_LOGROTATE_FILE
+  fi
+}
+
+fn-20-events-syslog-ng() {
+  declare desc="handles syslog-ng setup for events"
+  local DOKKU_SYSLOG_NG_FILTER_DIR=/etc/syslog-ng.d
+  local DOKKU_SYSLOG_NG_FILTER=$DOKKU_SYSLOG_NG_FILTER_DIR/99-dokku.conf
+  local DOKKU_LOGROTATE_FILE=/etc/logrotate.d/dokku
+
+  if [[ ! -f "$DOKKU_LOGROTATE_FILE" ]]; then
+    fn-20-events-logrotate
+  fi
+}
+
+fn-20-events-rsyslogd() {
+  declare desc="handles rsyslog setup for events"
+  DOKKU_RSYSLOG_FILTER_DIR=/etc/rsyslog.d
+  DOKKU_RSYSLOG_FILTER=$DOKKU_RSYSLOG_FILTER_DIR/99-dokku.conf
+  DOKKU_LOGROTATE_FILE=/etc/logrotate.d/dokku
+
+  flag_rsyslog_needs_restart=n
   if [[ -d "$DOKKU_RSYSLOG_FILTER_DIR" && ! -f "$DOKKU_RSYSLOG_FILTER" ]]; then
     cat >"$DOKKU_RSYSLOG_FILTER" <<EOF
 :syslogtag, contains, "dokku-event" $DOKKU_EVENTS_LOGFILE
@@ -53,22 +84,7 @@ EOF
   fi
 
   if [[ ! -f "$DOKKU_LOGROTATE_FILE" ]]; then
-    cat >"$DOKKU_LOGROTATE_FILE" <<EOF
-$DOKKU_LOGS_DIR/*.log {
-        daily
-        missingok
-        rotate 7
-        compress
-        delaycompress
-        notifempty
-        copytruncate
-}
-EOF
-
-    if [[ "$DOKKU_DISTRO" == "debian" ]] || [[ "$DOKKU_DISTRO" == "raspbian" ]]; then
-      sed -i 's/ syslog dokku$/ root dokku/g' $DOKKU_LOGROTATE_FILE
-    fi
-
+    fn-20-events-logrotate
     flag_rsyslog_needs_restart=y
   fi
 
@@ -105,6 +121,19 @@ EOF
         systemctl restart rsyslog
         ;;
     esac
+  fi
+}
+
+trigger-events-install() {
+  declare desc="20_events install plugin trigger"
+  declare trigger="install"
+
+  fn-20-events-logs-setup
+  if command -v rsyslogd >/dev/null 2>&1; then
+    fn-20-events-rsyslogd
+  else
+    # assume syslog-ng is installed
+    fn-20-events-syslog-ng
   fi
 
   [[ ! "$DOKKU_EVENTS" ]] || dokku_log_plugn_trigger_call "$(basename "$0")" "$@"
