@@ -48,7 +48,6 @@ RUN mkdir -p /etc/apt/keyrings \
   && apt-get update \
   && apt-get upgrade -y \
   && apt-get -y --no-install-recommends install lambda-builder "/tmp/dokku-$(dpkg --print-architecture).deb" \
-  && apt-get purge -y syslog-ng-core \
   && apt-get autoremove -y \
   && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
