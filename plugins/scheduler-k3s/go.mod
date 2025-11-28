@@ -15,7 +15,7 @@ require (
 	github.com/fatih/color v1.18.0
 	github.com/fluxcd/pkg/kustomize v1.24.0
 	github.com/go-openapi/jsonpointer v0.22.3
-	github.com/go-resty/resty/v2 v2.16.5
+	github.com/go-resty/resty/v2 v2.17.0
 	github.com/gofrs/flock v0.13.0
 	github.com/gosimple/slug v1.15.0
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
