@@ -26,6 +26,9 @@ var (
 
 // AppJSON is a struct that represents an app.json file as understood by Dokku
 type AppJSON struct {
+	// Buildpacks is a list of buildpacks to use for the app
+	Buildpacks []Buildpack `json:"buildpacks"`
+
 	// Cron is a list of cron tasks to execute
 	Cron []CronTask `json:"cron"`
 
@@ -49,6 +52,12 @@ type AppJSON struct {
 		// Postdeploy is a script to execute after a deploy
 		Postdeploy string `json:"postdeploy"`
 	} `json:"scripts"`
+}
+
+// Buildpack is a struct that represents a single buildpack
+type Buildpack struct {
+	// URL is the URL of the buildpack
+	URL string `json:"url"`
 }
 
 // CronTask is a struct that represents a single cron task from an app.json file

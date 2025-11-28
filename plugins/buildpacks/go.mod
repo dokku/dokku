@@ -3,6 +3,7 @@ module github.com/dokku/dokku/plugins/buildpacks
 go 1.25.1
 
 require (
+	github.com/dokku/dokku/plugins/app-json v0.0.0-00010101000000-000000000000
 	github.com/dokku/dokku/plugins/common v0.0.0-00010101000000-000000000000
 	github.com/spf13/pflag v1.0.10
 )
@@ -12,6 +13,7 @@ require (
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/hashicorp/errwrap v1.0.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
+	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/kr/fs v0.1.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
@@ -21,9 +23,13 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pkg/sftp v1.13.5 // indirect
 	github.com/ryanuber/columnize v2.1.2+incompatible // indirect
+	github.com/tailscale/hujson v0.0.0-20250605163823-992244df8c5a // indirect
 	golang.org/x/crypto v0.45.0 // indirect
 	golang.org/x/sync v0.18.0 // indirect
 	golang.org/x/sys v0.38.0 // indirect
+	k8s.io/utils v0.0.0-20240102154912-e7106e64919e // indirect
 )
+
+replace github.com/dokku/dokku/plugins/app-json => ../app-json
 
 replace github.com/dokku/dokku/plugins/common => ../common
