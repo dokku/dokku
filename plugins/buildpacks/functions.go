@@ -24,6 +24,10 @@ func getBuildpacks(appName string) ([]string, error) {
 		return buildpacks, err
 	}
 
+	if len(buildpacks) > 0 {
+		return buildpacks, nil
+	}
+
 	appJSON, err := appjson.GetAppJSON(appName)
 	if err != nil {
 		return buildpacks, err
