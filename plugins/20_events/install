@@ -11,7 +11,11 @@ fn-20-events-logs-setup() {
       chgrp dokku "$DOKKU_LOGS_DIR"
       ;;
     *)
-      chown syslog:dokku "$DOKKU_LOGS_DIR"
+      if command -v rsyslogd >/dev/null 2>&1; then
+        chown syslog:dokku "$DOKKU_LOGS_DIR"
+      else
+        chgrp dokku "$DOKKU_LOGS_DIR"
+      fi
       ;;
   esac
 
@@ -22,8 +26,11 @@ fn-20-events-logs-setup() {
         chgrp dokku "$DOKKU_EVENTS_LOGFILE"
         ;;
       *)
-        # chown syslog:root might not work on SUSE
-        chown syslog:dokku "$DOKKU_EVENTS_LOGFILE"
+        if command -v rsyslogd >/dev/null 2>&1; then
+          chown syslog:dokku "$DOKKU_EVENTS_LOGFILE"
+        else
+          chgrp dokku "$DOKKU_EVENTS_LOGFILE"
+        fi
         ;;
     esac
     chmod 664 "$DOKKU_EVENTS_LOGFILE"
