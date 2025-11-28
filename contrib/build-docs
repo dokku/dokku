@@ -135,20 +135,33 @@ main() {
   mv docs-main docs
   git checkout -- mkdocs.yml docs
 
-  if [[ "$(git -C tmp/docs-build ls-files -dmo)" == "docs/sitemap.xml.gz" ]]; then
+  echo "====> Checking for file changes"
+  changes=$(git -C tmp/docs-build ls-files -dmo)
+  if [[ -z "$changes" ]]; then
+    echo " !    No doc changes found"
+    exit 0
+  fi
+
+  if [[ "$changes" == "docs/sitemap.xml.gz" ]]; then
     echo " !    No doc changes found"
     git -C tmp/docs-build checkout -- docs/sitemap.xml.gz
-  else
-    echo "====> Pushing docs"
-    git -C tmp/docs-build add .
-    git -C tmp/docs-build commit -m "chore: regenerate docs"
-
-    if [[ -n "$BOT_GITHUB_USERNAME" ]] && [[ -n "$BOT_GITHUB_API_TOKEN" ]]; then
-      git -C tmp/docs-build remote set-url origin "https://$BOT_GITHUB_USERNAME:$BOT_GITHUB_API_TOKEN@github.com/dokku/docs.git"
-    fi
-
-    git -C tmp/docs-build push origin master
+    exit 0
   fi
+
+  echo "====> Changes found"
+  echo "$changes"
+
+  echo "====> Committing changes"
+  git -C tmp/docs-build add .
+  git -C tmp/docs-build commit -m "chore: regenerate docs"
+
+  echo "====> Pushing changes"
+  if [[ -n "$BOT_GITHUB_USERNAME" ]] && [[ -n "$BOT_GITHUB_API_TOKEN" ]]; then
+    git -C tmp/docs-build remote set-url origin "https://$BOT_GITHUB_USERNAME:$BOT_GITHUB_API_TOKEN@github.com/dokku/docs.git"
+  fi
+
+  git -C tmp/docs-build push origin master
+
 }
 
 main "$@"
