@@ -8,8 +8,41 @@ import (
 	"regexp"
 	"strings"
 
+	appjson "github.com/dokku/dokku/plugins/app-json"
 	"github.com/dokku/dokku/plugins/common"
 )
+
+// getBuildpacks returns the buildpacks for a given app
+// the order of application is:
+// 1. .buildpacks: if it exists, use it
+// 2. app.json: if it exists and has buildpacks, use them
+// 3. buildpack properties: if they exist, use them
+// 4. buildpack detection
+func getBuildpacks(appName string) ([]string, error) {
+	buildpacks, err := common.PropertyListGet("buildpacks", appName, "buildpacks")
+	if err != nil {
+		return buildpacks, err
+	}
+
+	if len(buildpacks) > 0 {
+		return buildpacks, nil
+	}
+
+	appJSON, err := appjson.GetAppJSON(appName)
+	if err != nil {
+		return buildpacks, err
+	}
+
+	if len(appJSON.Buildpacks) == 0 {
+		return buildpacks, nil
+	}
+
+	for _, b := range appJSON.Buildpacks {
+		buildpacks = append(buildpacks, b.URL)
+	}
+
+	return buildpacks, nil
+}
 
 func rewriteBuildpacksFile(sourceWorkDir string) error {
 	buildpacksPath := filepath.Join(sourceWorkDir, ".buildpacks")
@@ -24,6 +57,10 @@ func rewriteBuildpacksFile(sourceWorkDir string) error {
 
 	for i, buildpack := range buildpacks {
 		if buildpack == "" {
+			continue
+		}
+
+		if strings.HasPrefix(buildpack, "#") {
 			continue
 		}
 
