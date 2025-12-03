@@ -7,7 +7,7 @@ ARG WORKDIR=/go/src/github.com/dokku/dokku
 
 WORKDIR ${WORKDIR}
 
-RUN wget -qO /tmp/go${GOLANG_VERSION}.linux.tar.gz "https://storage.googleapis.com/golang/go${GOLANG_VERSION}.linux-$(dpkg --print-architecture).tar.gz" \
+RUN wget -qO /tmp/go${GOLANG_VERSION}.linux.tar.gz "https://go.dev/dl/go${GOLANG_VERSION}.linux-$(dpkg --print-architecture).tar.gz" \
   && tar -C /usr/local -xzf /tmp/go${GOLANG_VERSION}.linux.tar.gz \
   && cp /usr/local/go/bin/* /usr/local/bin \
   && mkdir -p ${WORKDIR}/contrib
