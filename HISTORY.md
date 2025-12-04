@@ -1,5 +1,70 @@
 # History
 
+## 0.37.1
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.37.1/bootstrap.sh
+sudo DOKKU_TAG=v0.37.1 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #8186: @josegonzalez Update url to download golang
+- #8155: @josegonzalez Sanitize vector sink values in report output
+- #8156: @josegonzalez Do not start nginx if there are no apps with nginx as a proxy
+- #8152: @josegonzalez Ensure keda usage does not cause jank in scaling deployments
+
+### New Features
+
+- #8154: @josegonzalez Enable live-restore by default when installing Dokku
+- #8151: @josegonzalez Allow exposing non-web processes as kubernetes services
+
+### Refactors
+
+- #8149: @josegonzalez Remove nginx checks for functionality that always exists
+
+### Documentation
+
+- #8170: @znz Fix version in migration docs
+- #8169: @josegonzalez Update logging in doc generation to enhance doc generation debugging
+- #8153: @josegonzalez Fix reference to letsencrypt-server property
+- #8150: @josegonzalez Clarify system requirements for k3s usage
+- #8148: @josegonzalez Clarify plugin installation documentation
+
+### Dependencies
+
+- #8192: @dependabot[bot] chore(deps): bump golang from 1.25.4 to 1.25.5 in /tests/apps/go-fail-predeploy
+- #8191: @dependabot[bot] chore(deps): bump golang from 1.25.4 to 1.25.5 in /tests/apps/go-fail-postdeploy
+- #8189: @dependabot[bot] chore(deps): bump golang from 1.25.4 to 1.25.5 in /tests/apps/gogrpc
+- #8193: @dependabot[bot] chore(deps): bump python from 3.14.0-alpine to 3.14.1-alpine in /docs/_build
+- #8190: @dependabot[bot] chore(deps): bump golang from 1.25.4 to 1.25.5 in /tests/apps/zombies-dockerfile-no-tini
+- #8188: @dependabot[bot] chore(deps): bump golang from 1.25.4 to 1.25.5 in /tests/apps/zombies-dockerfile-tini
+- #8194: @dependabot[bot] chore(deps): bump python from 3.14.0-bookworm to 3.14.1-bookworm in /tests/apps/dockerfile-release
+- #8195: @dependabot[bot] chore(deps): bump django from 5.2.8 to 5.2.9 in /tests/apps/dockerfile-release
+- #8177: @dependabot[bot] chore(deps): bump express from 5.1.0 to 5.2.1 in /tests/apps/nodejs-express-noprocfile
+- #8178: @dependabot[bot] chore(deps): bump express from 5.1.0 to 5.2.1 in /tests/apps/dockerfile-procfile-bad
+- #8179: @dependabot[bot] chore(deps): bump express from 5.1.0 to 5.2.1 in /tests/apps/nodejs-express
+- #8180: @dependabot[bot] chore(deps): bump express from 5.1.0 to 5.2.1 in /tests/apps/dockerfile-procfile
+- #8181: @dependabot[bot] chore(deps): bump express from 5.1.0 to 5.2.1 in /tests/apps/gitsubmodules
+- #8183: @dependabot[bot] chore(deps): bump express from 5.1.0 to 5.2.1 in /tests/apps/checks-root
+- #8182: @dependabot[bot] chore(deps): bump express from 5.1.0 to 5.2.1 in /tests/apps/nodejs-express-noappjson
+- #8184: @dependabot[bot] chore(deps): bump express from 5.1.0 to 5.2.1 in /tests/apps/dockerfile-app-json-formations
+- #8172: @dependabot[bot] chore(deps): bump beautifulsoup4 from 4.14.2 to 4.14.3 in /docs/_build
+- #8173: @dependabot[bot] chore(deps): bump werkzeug from 3.1.3 to 3.1.4 in /tests/apps/python-flask
+- #8164: @dependabot[bot] chore(deps): bump body-parser from 2.2.0 to 2.2.1 in /tests/apps/checks-root
+- #8165: @dependabot[bot] chore(deps): bump github.com/go-resty/resty/v2 from 2.16.5 to 2.17.0 in /plugins/scheduler-k3s
+- #8167: @dependabot[bot] chore(deps): bump pymdown-extensions from 10.17.1 to 10.17.2 in /docs/_build
+- #8162: @dependabot[bot] chore(deps): bump github.com/traefik/traefik/v2 from 2.11.30 to 2.11.31 in /plugins/scheduler-k3s
+- #8161: @dependabot[bot] chore(deps): bump github.com/fluxcd/pkg/kustomize from 1.23.0 to 1.24.0 in /plugins/scheduler-k3s
+- #8159: @dependabot[bot] chore(deps): bump helm.sh/helm/v3 from 3.19.0 to 3.19.2 in /plugins/scheduler-k3s
+- #8158: @dependabot[bot] chore(deps): bump k8s.io/kubernetes from 1.34.1 to 1.34.2 in /plugins/scheduler-k3s
+- #8143: @dependabot[bot] chore(deps): bump actions/checkout from 5 to 6
+- #8145: @dependabot[bot] chore(deps): bump github.com/go-openapi/jsonpointer from 0.22.1 to 0.22.3 in /plugins/scheduler-k3s
+- #8146: @dependabot[bot] chore(deps): bump k8s.io/kubectl from 0.34.1 to 0.34.2 in /plugins/scheduler-k3s
+- #8144: @dependabot[bot] chore(deps): bump traefik from 3.6.1 to 3.6.2 in /plugins/traefik-vhosts
+
 ## 0.37.0
 
 Install/update via the bootstrap script:
