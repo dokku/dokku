@@ -343,8 +343,8 @@ github.com/tailscale/hujson v0.0.0-20250605163823-992244df8c5a h1:a6TNDN9CgG+cYj
 github.com/tailscale/hujson v0.0.0-20250605163823-992244df8c5a/go.mod h1:EbW0wDK/qEUYI0A5bqq0C2kF8JTQwWONmGDBbzsxxHo=
 github.com/traefik/paerser v0.2.2 h1:cpzW/ZrQrBh3mdwD/jnp6aXASiUFKOVr6ldP+keJTcQ=
 github.com/traefik/paerser v0.2.2/go.mod h1:7BBDd4FANoVgaTZG+yh26jI6CA2nds7D/4VTEdIsh24=
-github.com/traefik/traefik/v2 v2.11.31 h1:hkhUKL3JTAw+VFHFqC5LILAY3mXCXkXd1RWjoSgXTA4=
-github.com/traefik/traefik/v2 v2.11.31/go.mod h1:JNjmJuYf3VeE0XotmZKUcqqPVrVSZ2sdRqvht/ssOqk=
+github.com/traefik/traefik/v2 v2.11.32 h1:SoUgYd0TgoQWHmsDUPGcIklzx54xiIPZ9PK5YFEU7Jc=
+github.com/traefik/traefik/v2 v2.11.32/go.mod h1:4IsMkzOastNmRZoIvVSKTGFcJ8arGaOkYuenYDOlDM8=
 github.com/x448/float16 v0.8.4 h1:qLwI1I70+NjRFUR3zs1JPUCgaCXSh3SW62uAKT1mSBM=
 github.com/x448/float16 v0.8.4/go.mod h1:14CWIYCyZA/cWjXOioeEpHeN/83MdbZDRQHoFcYsOfg=
 github.com/xlab/treeprint v1.2.0 h1:HzHnuAF1plUN2zGlAFHbSQP2qJ0ZAD3XF5XD7OesXRQ=
