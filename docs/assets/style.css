@@ -25,9 +25,9 @@
 
   /* Avatar section darkmode fade */
   --avatar-before-gradient: rgba(0, 0, 0, 0) linear-gradient(90deg, white 2.52%, rgba(255, 255, 255, 0) 100%) repeat scroll 0% 0%;
-  --avatar-darkmode-before-gradient: rgba(0, 0, 0, 0) linear-gradient(90deg, #043791 2.52%, rgba(255, 255, 255, 0) 100%) repeat scroll 0% 0%;
+  --avatar-darkmode-before-gradient: rgba(0, 0, 0, 0) linear-gradient(90deg, #0.37.2 2.52%, rgba(255, 255, 255, 0) 100%) repeat scroll 0% 0%;
   --avatar-after-gradient: rgba(0, 0, 0, 0) linear-gradient(270deg, white 2.52%, rgba(255, 255, 255, 0) 100%) repeat scroll 0% 0%;
-  --avatar-darkmode-after-gradient: rgba(0, 0, 0, 0) linear-gradient(270deg, #043791 2.52%, rgba(255, 255, 255, 0) 100%) repeat scroll 0% 0%;
+  --avatar-darkmode-after-gradient: rgba(0, 0, 0, 0) linear-gradient(270deg, #0.37.2 2.52%, rgba(255, 255, 255, 0) 100%) repeat scroll 0% 0%;
 }
 
 body {
@@ -1191,15 +1191,15 @@ ul.fas li .fa-large:before {
 
   .getting-started::after {
     background: linear-gradient(0deg, rgba(52, 52, 87, 0.2) -40.97%, rgba(0, 0, 0, 0) 103.19%),
-      #043791;
+      #0.37.2;
   }
 
   .tab-content {
-    background: #043791;
+    background: #0.37.2;
   }
 
   .nav-tabs {
-    background: #043791;
+    background: #0.37.2;
   }
 
   .powered-by_brands {

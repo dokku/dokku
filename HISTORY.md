@@ -1,5 +1,23 @@
 # History
 
+## 0.37.2
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.37.2/bootstrap.sh
+sudo DOKKU_TAG=v0.37.2 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #8198: @josegonzalez Ensure we continue on with logic if the error returned from fetching all apps is NoAppsExist
+
+### Dependencies
+
+- #8196: @dependabot[bot] chore(deps): bump byjg/easy-haproxy from 4.6.0 to 5.0.0 in /plugins/haproxy-vhosts
+- #8197: @dependabot[bot] chore(deps): bump github.com/traefik/traefik/v2 from 2.11.31 to 2.11.32 in /plugins/scheduler-k3s
+
 ## 0.37.1
 
 Install/update via the bootstrap script:
