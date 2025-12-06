@@ -1,6 +1,7 @@
 package apps
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"time"
@@ -48,7 +49,7 @@ func TriggerInstall() error {
 	}
 
 	apps, err := common.UnfilteredDokkuApps()
-	if err != nil {
+	if err != nil && !errors.Is(err, common.NoAppsExist) {
 		return nil
 	}
 

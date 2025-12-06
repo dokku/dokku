@@ -1,6 +1,7 @@
 package scheduler
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/dokku/dokku/plugins/common"
@@ -31,7 +32,7 @@ func TriggerInstall() error {
 	}
 
 	apps, err := common.UnfilteredDokkuApps()
-	if err != nil {
+	if err != nil && !errors.Is(err, common.NoAppsExist) {
 		return nil
 	}
 

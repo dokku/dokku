@@ -1,6 +1,7 @@
 package common
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -78,7 +79,7 @@ func SetupAppData(pluginName string) error {
 	}
 
 	apps, err := UnfilteredDokkuApps()
-	if err != nil {
+	if err != nil && !errors.Is(err, NoAppsExist) {
 		return nil
 	}
 
