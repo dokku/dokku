@@ -1,6 +1,7 @@
 package common
 
 import (
+	"errors"
 	"fmt"
 )
 
@@ -34,7 +35,7 @@ func TriggerInstall() error {
 	}
 
 	apps, err := UnfilteredDokkuApps()
-	if err != nil {
+	if err != nil && !errors.Is(err, NoAppsExist) {
 		return nil
 	}
 
