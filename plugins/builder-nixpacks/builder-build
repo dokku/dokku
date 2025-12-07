@@ -35,7 +35,6 @@ trigger-builder-nixpacks-builder-build() {
 
   local DOCKER_ARGS=$(: | plugn trigger docker-args-build "$APP" "$BUILDER_TYPE")
   DOCKER_ARGS+=$(: | plugn trigger docker-args-process-build "$APP" "$BUILDER_TYPE")
-  DOCKER_ARGS+=" $DOKKU_GLOBAL_BUILD_ARGS"
 
   DOCKER_ARGS=" $DOCKER_ARGS "
   eval set -- "$DOCKER_ARGS"
@@ -244,7 +243,7 @@ trigger-builder-nixpacks-builder-build() {
   eval "$(config_export app "$APP" --merged)"
 
   # shellcheck disable=SC2086
-  if ! nixpacks build "${DOCKER_BUILD_LABEL_ARGS[@]}" "${NIXPACKS_ARGS[@]}" --name "$IMAGE" "$SOURCECODE_WORK_DIR"; then
+  if ! nixpacks build "${DOCKER_BUILD_LABEL_ARGS[@]}" "${NIXPACKS_ARGS[@]}" $DOKKU_GLOBAL_BUILD_ARGS --name "$IMAGE" "$SOURCECODE_WORK_DIR"; then
     dokku_log_warn "Failure building image"
     return 1
   fi
