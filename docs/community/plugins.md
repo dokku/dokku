@@ -113,6 +113,7 @@ The following plugins are available and provided by Dokku maintainers.  Please f
 | [APT](https://github.com/dokku-community/dokku-apt)                                               | [dokku-community][]   | 0.18.x+               |
 | [Auto Sync](https://github.com/IdeaSynthesis/dokku-autosync)<sup>1</sup>                          | [fomojola][]          | 0.8.1+                |
 | [Deploy Webhook](https://github.com/IdeaSynthesis/dokku-deploy-webhook)<sup>2</sup>               | [fomojola][]          | 0.8.1+                |
+| [DNS](https://github.com/deanmarano/dokku-dns)                                                    | [deanmarano][]        | 0.31.0+               |
 | [Docker auto persist volumes](https://github.com/Flink/dokku-docker-auto-volumes)                 | [flink][]             | 0.4.0+                |
 | [Docker Direct](https://github.com/dokku-community/dokku-docker-direct)                           | [josegonzalez][]      | 0.4.0+                |
 | [Dokku Clone](https://github.com/crisward/dokku-clone)                                            | [crisward][]          | 0.4.0+                |
