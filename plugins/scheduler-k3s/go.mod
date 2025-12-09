@@ -14,7 +14,7 @@ require (
 	github.com/dokku/dokku/plugins/nginx-vhosts v0.0.0-20250618161309-8d0c35f1333c
 	github.com/fatih/color v1.18.0
 	github.com/fluxcd/pkg/kustomize v1.24.0
-	github.com/go-openapi/jsonpointer v0.22.3
+	github.com/go-openapi/jsonpointer v0.22.4
 	github.com/go-resty/resty/v2 v2.17.0
 	github.com/gofrs/flock v0.13.0
 	github.com/gosimple/slug v1.15.0
@@ -73,7 +73,7 @@ require (
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-openapi/jsonreference v0.21.2 // indirect
 	github.com/go-openapi/swag v0.23.1 // indirect
-	github.com/go-openapi/swag/jsonname v0.25.1 // indirect
+	github.com/go-openapi/swag/jsonname v0.25.4 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/google/btree v1.1.3 // indirect
