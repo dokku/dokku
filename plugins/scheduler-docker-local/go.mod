@@ -1,6 +1,6 @@
 module github.com/dokku/dokku/plugins/scheduler-docker-local
 
-go 1.25.1
+go 1.25.5
 
 require (
 	github.com/dokku/dokku/plugins/common v0.0.0-00010101000000-000000000000

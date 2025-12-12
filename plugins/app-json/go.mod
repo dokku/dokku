@@ -1,6 +1,6 @@
 module github.com/dokku/dokku/plugins/app-json
 
-go 1.25.1
+go 1.25.5
 
 require (
 	github.com/dokku/dokku/plugins/common v0.0.0-00010101000000-000000000000
@@ -26,7 +26,7 @@ require (
 	github.com/ryanuber/columnize v2.1.2+incompatible // indirect
 	github.com/stretchr/testify v1.8.4 // indirect
 	golang.org/x/crypto v0.45.0 // indirect
-	golang.org/x/sync v0.18.0 // indirect
+	golang.org/x/sync v0.19.0 // indirect
 	golang.org/x/sys v0.38.0 // indirect
 )
 

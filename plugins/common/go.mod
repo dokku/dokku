@@ -1,6 +1,6 @@
 module github.com/dokku/dokku/plugins/common
 
-go 1.25.1
+go 1.25.5
 
 require (
 	github.com/alexellis/go-execute/v2 v2.2.1
@@ -12,7 +12,7 @@ require (
 	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/spf13/pflag v1.0.10
 	golang.org/x/crypto v0.45.0
-	golang.org/x/sync v0.18.0
+	golang.org/x/sync v0.19.0
 )
 
 require (
