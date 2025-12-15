@@ -271,6 +271,7 @@ The following plugins are no longer maintained by their developers.
 [crisward]: https://github.com/crisward
 [cu12]: https://github.com/cu12
 [darkpixel]: https://github.com/darkpixel
+[deanmarano]: https://github.com/deanmarano
 [dokku]: https://github.com/dokku
 [dokku-community]: https://github.com/dokku-community
 [dyson]: https://github.com/dyson
