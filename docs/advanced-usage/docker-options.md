@@ -69,7 +69,7 @@ dokku docker-options:add node-js-app deploy "--shm-size 256m"
 To remove docker options from an app, use the `docker-options:remove` command. This takes an app name, a comma-separated list of phases, and the docker-option to remove.
 
 ```shell
-dokku docker-options:remove node-js-app run ""--ulimit nofile=12"
+dokku docker-options:remove node-js-app run "--ulimit nofile=12"
 ```
 
 Multiple phases can be specified by using a comma when specifying phases:
