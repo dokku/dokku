@@ -43,6 +43,7 @@ setup-docker-live-restore() {
 
   echo "Enabling docker live-restore"
   if [[ ! -f /etc/docker/daemon.json ]]; then
+    mkdir -p /etc/docker
     echo "{}" >/etc/docker/daemon.json
   fi
 
