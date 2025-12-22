@@ -283,9 +283,9 @@ deploy-test-static:
 	cd tests && ./test_deploy ./apps/static $(DOKKU_DOMAIN)
 
 test-ci-binaries:
-	docker exec dokku bash -c "whereis logrotate" || { echo "logrotate not found" ; exit 1}
-	docker exec dokku bash -c "whereis systemd" && {echo "systemd found" ; exit 1}
-	docker exec dokku bash -c "whereis rsyslog" && { echo "systemd found" ; exit 1}
+	docker exec dokku bash -c "whereis logrotate" || { echo "logrotate not found" ; exit 1; }
+	docker exec dokku bash -c "whereis systemd" && {echo "systemd found" ; exit 1; }
+	docker exec dokku bash -c "whereis rsyslog" && { echo "systemd found" ; exit 1; }
 
 deploy-tests:
 	@echo running deploy tests...
