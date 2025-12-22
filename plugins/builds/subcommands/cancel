@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+
+cmd-builds-cancel() {
+  declare desc="cancel a running build for an app"
+  declare cmd="builds:cancel"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare APP="$1"
+  local APP_DEPLOY_LOCK_FILE PROCESS_ID PROCESS_GROUP_ID
+  verify_app_name "$APP"
+
+  local APP_DEPLOY_LOCK_FILE PROCESS_ID PROCESS_GROUP_ID
+  APP_DEPLOY_LOCK_FILE="$DOKKU_LIB_ROOT/data/apps/$APP/.deploy.lock"
+  if [[ ! -f "$APP_DEPLOY_LOCK_FILE" ]]; then
+    dokku_log_info1 "App not currently deploying"
+    return
+  fi
+
+  PROCESS_ID="$(cat "$APP_DEPLOY_LOCK_FILE")"
+  if [[ -z "$PROCESS_ID" ]]; then
+    dokku_log_info1 "No matching app deploy found"
+    return
+  fi
+
+  PROCESS_GROUP_ID="$(ps -o pgid= "$PROCESS_ID" || true)"
+  if [[ -z "$PROCESS_ID" ]]; then
+    dokku_log_info1 "Unable to find process group id for app deploy"
+    return
+  fi
+
+  dokku_log_info1 "Killing app deploy"
+  kill -quit -- "-${PROCESS_GROUP_ID}" && rm -f "$APP_DEPLOY_LOCK_FILE"
+}
+
+cmd-builds-cancel "$@"
