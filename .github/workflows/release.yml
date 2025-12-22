@@ -73,7 +73,7 @@ jobs:
         run: echo "version=$(cat build/next-version)" >> $GITHUB_OUTPUT
 
       - name: upload packages
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: build
           path: build
@@ -109,7 +109,7 @@ jobs:
           PKR_VAR_dokku_version="${VERSION:1}" make image/build/digitalocean
 
       - name: upload packages
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: digitalocean-manifest.json
           path: digitalocean-manifest.json
