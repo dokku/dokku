@@ -4,7 +4,7 @@ go 1.25.5
 
 require (
 	github.com/Masterminds/semver/v3 v3.4.0
-	github.com/cert-manager/cert-manager v1.19.1
+	github.com/cert-manager/cert-manager v1.19.2
 	github.com/dokku/dokku/plugins/app-json v0.0.0-20250618161309-8d0c35f1333c
 	github.com/dokku/dokku/plugins/common v0.0.0-20250618161309-8d0c35f1333c
 	github.com/dokku/dokku/plugins/config v0.0.0-20250618161309-8d0c35f1333c
