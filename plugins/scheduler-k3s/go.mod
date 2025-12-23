@@ -22,7 +22,7 @@ require (
 	github.com/kedacore/keda/v2 v2.18.3
 	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/spf13/pflag v1.0.10
-	github.com/traefik/traefik/v2 v2.11.32
+	github.com/traefik/traefik/v2 v2.11.33
 	golang.org/x/sync v0.19.0
 	gopkg.in/yaml.v3 v3.0.1
 	helm.sh/helm/v3 v3.19.4
