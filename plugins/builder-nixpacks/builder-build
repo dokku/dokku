@@ -6,6 +6,7 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
 trigger-builder-nixpacks-builder-build() {
+  set -x
   declare desc="builder-nixpacks builder-build plugin trigger"
   declare trigger="builder-build"
   declare BUILDER_TYPE="$1" APP="$2" SOURCECODE_WORK_DIR="$3"
@@ -21,7 +22,7 @@ trigger-builder-nixpacks-builder-build() {
   fi
 
   local IMAGE=$(get_app_image_name "$APP")
-  local DOCKER_BUILD_LABEL_ARGS=("--label=dokku" "--label=org.label-schema.schema-version=1.0" "--label=org.label-schema.vendor=dokku" "--label=com.dokku.image-stage=build" "--label=com.dokku.builder-type=nixpacks" "--label=com.dokku.app-name=$APP")
+  local DOCKER_BUILD_LABEL_ARGS=("--label=org.label-schema.schema-version=1.0" "--label=org.label-schema.vendor=dokku" "--label=com.dokku.image-stage=build" "--label=com.dokku.builder-type=nixpacks" "--label=com.dokku.app-name=$APP" "--label=dokku")
 
   pushd "$SOURCECODE_WORK_DIR" &>/dev/null
 
@@ -35,6 +36,7 @@ trigger-builder-nixpacks-builder-build() {
 
   local DOCKER_ARGS=$(: | plugn trigger docker-args-build "$APP" "$BUILDER_TYPE")
   DOCKER_ARGS+=$(: | plugn trigger docker-args-process-build "$APP" "$BUILDER_TYPE")
+  DOCKER_ARGS+=" $DOKKU_GLOBAL_BUILD_ARGS"
 
   DOCKER_ARGS=" $DOCKER_ARGS "
   eval set -- "$DOCKER_ARGS"
@@ -243,7 +245,7 @@ trigger-builder-nixpacks-builder-build() {
   eval "$(config_export app "$APP" --merged)"
 
   # shellcheck disable=SC2086
-  if ! nixpacks build "${DOCKER_BUILD_LABEL_ARGS[@]}" "${NIXPACKS_ARGS[@]}" $DOKKU_GLOBAL_BUILD_ARGS --name "$IMAGE" "$SOURCECODE_WORK_DIR"; then
+  if ! nixpacks build "${DOCKER_BUILD_LABEL_ARGS[@]}" "${NIXPACKS_ARGS[@]}" --name "$IMAGE" "$SOURCECODE_WORK_DIR"; then
     dokku_log_warn "Failure building image"
     return 1
   fi
@@ -255,6 +257,7 @@ trigger-builder-nixpacks-builder-build() {
 
   plugn trigger post-build "$BUILDER_TYPE" "$APP" "$SOURCECODE_WORK_DIR"
   popd &>/dev/null || pushd "/tmp" >/dev/null
+  set +x
 }
 
 trigger-builder-nixpacks-builder-build "$@"
