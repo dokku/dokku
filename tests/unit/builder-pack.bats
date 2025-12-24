@@ -77,6 +77,11 @@ teardown() {
 }
 
 @test "(builder-pack) run" {
+  run /bin/bash -c "dokku config:set $TEST_APP SECRET_KEY=fjdkslafjdk"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku builder:set $TEST_APP selected pack"
   echo "output: $output"
   echo "status: $status"
@@ -95,6 +100,17 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output "['task.py', 'test']"
+
+  run /bin/bash -c "dokku ps:inspect $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku run $TEST_APP env"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "SECRET_KEY=fjdkslafjdk"
 }
 
 @test "(builder-pack) git:from-image without a Procfile" {
@@ -125,32 +141,4 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_contains '"APP_RESPECTS_ENV_VARS": "1"'
-}
-
-@test "(builder-pack) run" {
-  run /bin/bash -c "dokku config:set $TEST_APP SECRET_KEY=fjdkslafjdk"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run /bin/bash -c "dokku builder:set $TEST_APP selected pack"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP add_requirements_txt_cnb
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run /bin/bash -c "dokku ps:inspect $TEST_APP"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run /bin/bash -c "dokku run $TEST_APP env"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  assert_output_contains "SECRET_KEY=fjdkslafjdk"
 }
