@@ -72,7 +72,6 @@ teardown() {
   assert_output_contains "SECRET_KEY=fjdkslafjdk"
 }
 
-
 inject_requirements_txt() {
   local APP="$1"
   local APP_REPO_DIR="$2"

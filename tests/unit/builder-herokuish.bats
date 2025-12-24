@@ -89,7 +89,6 @@ teardown() {
   assert_failure
 }
 
-
 @test "(builder-herokuish) run" {
   run /bin/bash -c "dokku config:set $TEST_APP SECRET_KEY=fjdkslafjdk"
   echo "output: $output"
