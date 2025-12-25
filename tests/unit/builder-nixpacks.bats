@@ -29,7 +29,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains 'load build definition from Dockerfile'
+  assert_output_contains 'load build definition from Dockerfile' -1
   assert_output_contains "SECRET_KEY: fjdkslafjdk"
 
   run /bin/bash -c "dokku builder-nixpacks:set $TEST_APP nixpackstoml-path nonexistent.toml"
@@ -41,7 +41,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains 'load build definition from Dockerfile'
+  assert_output_contains 'load build definition from Dockerfile' -1
 }
 
 @test "(builder-nixpacks) run" {
@@ -59,7 +59,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains 'load build definition from Dockerfile'
+  assert_output_contains 'load build definition from Dockerfile' -1
   assert_output_contains "SECRET_KEY: fjdkslafjdk"
 
   run /bin/bash -c "dokku run $TEST_APP python task.py test"
