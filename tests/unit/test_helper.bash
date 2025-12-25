@@ -148,6 +148,14 @@ assert_output_contains() {
     input="${input/$expected/}"
     found=$((found + 1))
   done
+
+  if [[ "$count" -eq -1 ]]; then
+    if [[ "$found" -gt 0 ]]; then
+      return 0
+    fi
+    flunk "expected at least 1 occurrence of '$expected', found $found"
+  fi
+
   [[ "$count" -eq "$found" ]] || flunk "expected $count occurrences of '$expected', found $found"
 }
 
