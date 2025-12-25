@@ -169,7 +169,7 @@ teardown() {
   run /bin/bash -c "dokku --quiet ps:scale $TEST_APP"
   output=$(echo "$output" | tr -s " ")
   echo "output: ($output)"
-  assert_output $'cron: 0\ncustom: 0\nrelease: 0\nweb: 1\nworker: 1'
+  assert_output $'cron: 0\ncustom: 0\nrelease: 0\ntask: 0\nweb: 1\nworker: 1'
 
   run /bin/bash -c "dokku ps:scale $TEST_APP worker=0"
   echo "output: $output"
@@ -179,7 +179,7 @@ teardown() {
   run /bin/bash -c "dokku --quiet ps:scale $TEST_APP"
   output=$(echo "$output" | tr -s " ")
   echo "output: ($output)"
-  assert_output $'cron: 0\ncustom: 0\nrelease: 0\nweb: 1\nworker: 0'
+  assert_output $'cron: 0\ncustom: 0\nrelease: 0\ntask: 0\nweb: 1\nworker: 0'
 
   run /bin/bash -c "dokku ps:set $TEST_APP procfile-path second.Procfile"
   echo "output: $output"
