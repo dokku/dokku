@@ -105,10 +105,17 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku ps:inspect $TEST_APP"
+  run /bin/bash -c "dokku run $TEST_APP python task.py test"
   echo "output: $output"
   echo "status: $status"
   assert_success
+  assert_output "['task.py', 'test']"
+
+  run /bin/bash -c "dokku run $TEST_APP task"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "['task.py', 'test']"
 
   run /bin/bash -c "dokku run $TEST_APP env"
   echo "output: $output"

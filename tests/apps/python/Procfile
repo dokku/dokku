@@ -8,6 +8,7 @@ web: python3 -u web.py first.Procfile # testing inline comment
 worker: python3 -u worker.py
 custom: echo -n
 release: python3 -u release.py
+task: python3 -u task.py test
 
 
 # Old version with separate processes (use this if you have issues with the threaded version)
