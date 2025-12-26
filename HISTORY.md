@@ -1,5 +1,66 @@
 # History
 
+## 0.37.3
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.37.3/bootstrap.sh
+sudo DOKKU_TAG=v0.37.3 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #8199: @josegonzalez Pass global build args as array when building nixpacks apps
+- #8236: @josegonzalez Ensure the /etc/docker exists when interacting with it via postinst
+
+### Documentation
+
+- #8229: @kleutzinger Fix command syntax for removing docker options
+- #8219: @deanmarano Add deanmarano to community plugins list
+- #8205: @deanmarano Add DNS plugin to community plugins list
+
+### Tests
+
+- #8246: @josegonzalez Add tests to prove that Procfile tasks all work for every builder
+
+### Dependencies
+
+- #8243: @dependabot[bot] chore(deps): bump k8s.io/kubectl from 0.34.2 to 0.35.0 in /plugins/scheduler-k3s
+- #8245: @dependabot[bot] chore(deps): bump github.com/go-resty/resty/v2 from 2.17.0 to 2.17.1 in /plugins/scheduler-k3s
+- #8244: @dependabot[bot] chore(deps): bump k8s.io/kubernetes from 1.34.2 to 1.35.0 in /plugins/scheduler-k3s
+- #8233: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.38.2 to 1.38.3 in /plugins/common
+- #8241: @dependabot[bot] chore(deps): bump github.com/traefik/traefik/v2 from 2.11.32 to 2.11.33 in /plugins/scheduler-k3s
+- #8240: @dependabot[bot] chore(deps): bump github.com/cert-manager/cert-manager from 1.19.1 to 1.19.2 in /plugins/scheduler-k3s
+- #8239: @dependabot[bot] chore(deps): bump pyparsing from 3.2.5 to 3.3.1 in /docs/_build
+- #8238: @dependabot[bot] chore(deps): bump google.golang.org/grpc from 1.77.0 to 1.78.0 in /tests/apps/gogrpc
+- #8237: @dependabot[bot] chore(deps): bump github.com/kedacore/keda/v2 from 2.18.2 to 2.18.3 in /plugins/scheduler-k3s
+- #8235: @dependabot[bot] chore(deps): bump helm.sh/helm/v3 from 3.19.2 to 3.19.4 in /plugins/scheduler-k3s
+- #8232: @dependabot[bot] chore(deps): bump importlib-metadata from 8.7.0 to 8.7.1 in /docs/_build
+- #8234: @dependabot[bot] chore(deps): bump k8s.io/client-go from 0.34.2 to 0.35.0 in /plugins/scheduler-k3s
+- #8231: @dependabot[bot] chore(deps): bump github.com/expr-lang/expr from 1.17.6 to 1.17.7 in /plugins/scheduler-k3s
+- #8208: @dependabot[bot] chore(deps): bump golang.org/x/crypto from 0.45.0 to 0.46.0 in /plugins/common
+- #8201: @dependabot[bot] chore(deps): bump golang.org/x/sync from 0.18.0 to 0.19.0 in /plugins/common
+- #8214: @dependabot[bot] chore(deps): bump google.golang.org/protobuf from 1.36.10 to 1.36.11 in /tests/apps/gogrpc
+- #8216: @dependabot[bot] chore(deps): bump actions/download-artifact from 6 to 7
+- #8217: @dependabot[bot] chore(deps): bump actions/upload-artifact from 5 to 6
+- #8228: @dependabot[bot] chore(deps): bump soupsieve from 2.8 to 2.8.1 in /docs/_build
+- #8226: @dependabot[bot] chore(deps): bump ruby from 3.4.7 to 3.4.8 in /tests/apps/dockerfile-entrypoint
+- #8227: @dependabot[bot] chore(deps): bump mkdocs-material from 9.7.0 to 9.7.1 in /docs/_build
+- #8224: @dependabot[bot] chore(deps): bump traefik from 3.6.4 to 3.6.5 in /plugins/traefik-vhosts
+- #8225: @dependabot[bot] chore(deps): bump timberio/vector from 0.51.1-debian to 0.52.0-debian in /plugins/logs
+- #8220: @dependabot[bot] chore(deps): bump python from 3.14.1-bookworm to 3.14.2-bookworm in /tests/apps/dockerfile-release
+- #8221: @dependabot[bot] chore(deps): bump python from 3.14.1-alpine to 3.14.2-alpine in /docs/_build
+- #8218: @dependabot[bot] chore(deps): bump pymdown-extensions from 10.19 to 10.19.1 in /docs/_build
+- #8215: @dependabot[bot] chore(deps): bump pymdown-extensions from 10.18 to 10.19 in /docs/_build
+- #8209: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.38.2 to 1.38.3 in /plugins/config
+- #8210: @dependabot[bot] chore(deps): bump github.com/kedacore/keda/v2 from 2.18.1 to 2.18.2 in /plugins/scheduler-k3s
+- #8211: @dependabot[bot] chore(deps): bump github.com/go-openapi/jsonpointer from 0.22.3 to 0.22.4 in /plugins/scheduler-k3s
+- #8200: @dependabot[bot] chore(deps): bump pymdown-extensions from 10.17.2 to 10.18 in /docs/_build
+- #8202: @dependabot[bot] chore(deps): bump golang.org/x/sync from 0.18.0 to 0.19.0 in /plugins/scheduler-docker-local
+- #8203: @dependabot[bot] chore(deps): bump traefik from 3.6.2 to 3.6.4 in /plugins/traefik-vhosts
+- #8204: @dependabot[bot] chore(deps): bump golang.org/x/sync from 0.18.0 to 0.19.0 in /plugins/scheduler-k3s
+
 ## 0.37.2
 
 Install/update via the bootstrap script:
