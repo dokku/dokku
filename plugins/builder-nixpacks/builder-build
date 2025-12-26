@@ -6,7 +6,6 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
 trigger-builder-nixpacks-builder-build() {
-  set -x
   declare desc="builder-nixpacks builder-build plugin trigger"
   declare trigger="builder-build"
   declare BUILDER_TYPE="$1" APP="$2" SOURCECODE_WORK_DIR="$3"
@@ -257,7 +256,6 @@ trigger-builder-nixpacks-builder-build() {
 
   plugn trigger post-build "$BUILDER_TYPE" "$APP" "$SOURCECODE_WORK_DIR"
   popd &>/dev/null || pushd "/tmp" >/dev/null
-  set +x
 }
 
 trigger-builder-nixpacks-builder-build "$@"
