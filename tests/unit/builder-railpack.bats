@@ -5,7 +5,6 @@ load test_helper
 setup_file() {
   global_setup
   install_railpack
-  docker run --rm --privileged -d --name buildkit moby/buildkit:latest
   touch /etc/default/dokku
   sudo tee -a /etc/default/dokku <<<"export BUILDKIT_HOST='docker-container://buildkit'"
 }
@@ -16,7 +15,9 @@ teardown_file() {
 }
 
 setup() {
+  global_setup
   create_app
+  docker run --rm --privileged -d --name buildkit moby/buildkit:latest
 }
 
 teardown() {
