@@ -62,7 +62,7 @@ teardown() {
   assert_output_contains 'load build definition from Dockerfile' -1
   assert_output_contains "SECRET_KEY: fjdkslafjdk"
 
-  run /bin/bash -c "dokku run $TEST_APP python task.py test"
+  run /bin/bash -c "dokku run $TEST_APP python3 task.py test"
   echo "output: $output"
   echo "status: $status"
   assert_success

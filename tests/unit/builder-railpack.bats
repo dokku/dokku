@@ -72,7 +72,7 @@ teardown() {
   assert_output_contains 'create mise config'
   assert_output_contains 'Successfully built image in'
 
-  run /bin/bash -c "dokku run $TEST_APP python task.py test"
+  run /bin/bash -c "dokku run $TEST_APP python3 task.py test"
   echo "output: $output"
   echo "status: $status"
   assert_success
