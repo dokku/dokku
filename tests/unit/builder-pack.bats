@@ -101,11 +101,11 @@ teardown() {
   assert_success
   assert_output "['task.py', 'test']"
 
-  run /bin/bash -c "dokku run $TEST_APP task"
+  run /bin/bash -c "dokku --quiet run $TEST_APP task"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "['task.py', 'test']"
+  assert_output "['task.py', 'test']"
 
   run /bin/bash -c "dokku run $TEST_APP env"
   echo "output: $output"
