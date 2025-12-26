@@ -489,13 +489,32 @@ func (k KubernetesClient) ExecCommand(ctx context.Context, input ExecCommandInpu
 		}
 
 		return exec.StreamWithContext(ctx, remotecommand.StreamOptions{
-			Stdin:             os.Stdin,
-			Stdout:            stdout,
-			Stderr:            stderr,
-			Tty:               actuallyTty,
-			TerminalSizeQueue: sizeQueue,
+			Stdin:  os.Stdin,
+			Stdout: stdout,
+			Stderr: stderr,
+			Tty:    actuallyTty,
+			TerminalSizeQueue: &terminalSizeQueueAdapter{
+				delegate: sizeQueue,
+			},
 		})
 	})
+}
+
+// terminalSizeQueueAdapter is an adapter for the terminal size queue to the remotecommand.TerminalSizeQueue interface
+type terminalSizeQueueAdapter struct {
+	delegate term.TerminalSizeQueue
+}
+
+// Next returns the next terminal size
+func (a *terminalSizeQueueAdapter) Next() *remotecommand.TerminalSize {
+	next := a.delegate.Next()
+	if next == nil {
+		return nil
+	}
+	return &remotecommand.TerminalSize{
+		Width:  next.Width,
+		Height: next.Height,
+	}
 }
 
 // GetPodLogsInput contains all the information needed to get the logs for a Kubernetes pod
