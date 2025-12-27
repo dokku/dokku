@@ -509,6 +509,27 @@ fn-nginx-global-send-timeout() {
   fn-get-property --app "$APP" --global "send-timeout"
 }
 
+fn-nginx-proxy-keepalive() {
+  declare desc="get the configured upstream keepalive"
+  declare APP="$1"
+
+  fn-get-property --app "$APP" "proxy-keepalive"
+}
+
+fn-nginx-computed-proxy-keepalive() {
+  declare desc="get the computed upstream keepalive"
+  declare APP="$1"
+
+  fn-get-property --app "$APP" --computed "proxy-keepalive"
+}
+
+fn-nginx-global-proxy-keepalive() {
+  declare desc="get the global upstream keepalive"
+  declare APP="$1"
+
+  fn-get-property --app "$APP" --global "proxy-keepalive"
+}
+
 fn-nginx-underscore-in-headers() {
   declare desc="get the configured underscore in headers value"
   declare APP="$1"
