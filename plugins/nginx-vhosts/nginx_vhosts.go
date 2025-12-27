@@ -518,3 +518,20 @@ func ComputedXForwardedSSL(appName string) string {
 func GlobalXForwardedSSL() string {
 	return common.PropertyGetDefault("nginx", "--global", "x-forwarded-ssl", "")
 }
+
+func AppProxyKeepalive(appName string) string {
+	return common.PropertyGet("nginx", appName, "proxy-keepalive")
+}
+
+func ComputedProxyKeepalive(appName string) string {
+	appValue := AppProxyKeepalive(appName)
+	if appValue != "" {
+		return appValue
+	}
+
+	return GlobalProxyKeepalive()
+}
+
+func GlobalProxyKeepalive() string {
+	return common.PropertyGetDefault("nginx", "--global", "proxy-keepalive", "")
+}
