@@ -25,6 +25,12 @@ cmd-nginx-set() {
     verify_app_name "$APP"
   fi
 
+  if [[ "$KEY" == "proxy-keepalive" ]] && [[ -n "$VALUE" ]]; then
+    if ! is_number "$VALUE"; then
+      dokku_log_fail "Invalid value for proxy-keepalive: must be an integer"
+    fi
+  fi
+
   if [[ -n "$VALUE" ]]; then
     dokku_log_info2_quiet "Setting ${KEY} to ${VALUE}"
     fn-plugin-property-write "nginx" "$APP" "$KEY" "$VALUE"

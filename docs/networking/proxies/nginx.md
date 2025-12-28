@@ -338,7 +338,7 @@ Changing these value globally or on a per-app basis will require rebuilding the 
 | proxy-buffers             | `8 8k`                                | string  | Number and size of the buffers used for reading the proxied server response, for a single connection |
 | proxy-busy-buffers-size   | `16k`                                 | string  | Limits the total size of buffers that can be busy sending a response to the client while the response is not yet fully read. |
 | proxy-connect-timeout     | `60s`                                 | string  | Timeout (with units) for establishing a connection to your backend server           |
-| proxy-keepalive           | empty string                          | string  | Number of idle keepalive connections to upstream servers (disabled by default)      |
+| proxy-keepalive           | empty (disabled)                      | integer | Number of idle keepalive connections to upstream servers (disabled by default)      |
 | proxy-read-timeout        | `60s`                                 | string  | Timeout (with units) for reading response from your backend server                  |
 | proxy-send-timeout        | `60s`                                 | string  | Timeout (with units) for transmitting a request to your backend server              |
 | send-timeout              | `60s`                                 | string  | Timeout (with units) for transmitting a response to your the client                 |
