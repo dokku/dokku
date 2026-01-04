@@ -183,5 +183,6 @@ cron_run_wrapper() {
   [[ -z "$APP" ]] && local APP="$TEST_APP"
 
   add_requirements_txt "$APP" "$APP_REPO_DIR"
+  ls -lah "$APP_REPO_DIR"
   mv -f "$APP_REPO_DIR/app-cnb-cron.json‎" "$APP_REPO_DIR/app.json"
 }
