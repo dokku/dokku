@@ -212,6 +212,7 @@ server {
 {{ if $.DOKKU_APP_WEB_LISTENERS }}
 {{ range $upstream_port := $.PROXY_UPSTREAM_PORTS | split " " }}
 upstream {{ $.APP }}-{{ $upstream_port }} {
+{{ if $.PROXY_KEEPALIVE }}  keepalive {{ $.PROXY_KEEPALIVE }};{{ end }}
 {{ range $listeners := $.DOKKU_APP_WEB_LISTENERS | split " " }}
 {{ $listener_list := $listeners | split ":" }}
 {{ $listener_ip := index $listener_list 0 }}

@@ -304,6 +304,7 @@ nginx_build_config() {
     local PROXY_BUFFERING="$(fn-nginx-computed-proxy-buffering "$APP")"
     local PROXY_BUFFERS="$(fn-nginx-computed-proxy-buffers "$APP")"
     local PROXY_BUSY_BUFFERS_SIZE="$(fn-nginx-computed-proxy-busy-buffers-size "$APP")"
+    local PROXY_KEEPALIVE="$(fn-nginx-computed-proxy-keepalive "$APP")"
 
     if [[ -z "$DOKKU_APP_LISTENERS" ]]; then
       dokku_log_warn_quiet "No web listeners specified for $APP"
@@ -370,6 +371,7 @@ nginx_build_config() {
         PROXY_BUFFERING="$PROXY_BUFFERING"
         PROXY_BUFFERS="$PROXY_BUFFERS"
         PROXY_BUSY_BUFFERS_SIZE="$PROXY_BUSY_BUFFERS_SIZE"
+        PROXY_KEEPALIVE="$PROXY_KEEPALIVE"
         NGINX_UNDERSCORE_IN_HEADERS="$NGINX_UNDERSCORE_IN_HEADERS"
         # Deprecated: Remove this after a few versions
         NGINX_PORT="$PROXY_PORT" NGINX_SSL_PORT="$PROXY_SSL_PORT"

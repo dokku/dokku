@@ -83,6 +83,8 @@ func appValue(appName string, property string) string {
 		value = nginx_vhosts.AppProxyReadTimeout(appName)
 	case "proxy-send-timeout":
 		value = nginx_vhosts.AppProxySendTimeout(appName)
+	case "proxy-keepalive":
+		value = nginx_vhosts.AppProxyKeepalive(appName)
 	case "send-timeout":
 		value = nginx_vhosts.AppSendTimeout(appName)
 	case "underscore-in-headers":
@@ -151,6 +153,8 @@ func computedValue(appName string, property string) string {
 		value = nginx_vhosts.ComputedProxyReadTimeout(appName)
 	case "proxy-send-timeout":
 		value = nginx_vhosts.ComputedProxySendTimeout(appName)
+	case "proxy-keepalive":
+		value = nginx_vhosts.ComputedProxyKeepalive(appName)
 	case "send-timeout":
 		value = nginx_vhosts.ComputedSendTimeout(appName)
 	case "underscore-in-headers":
@@ -219,6 +223,8 @@ func globalValue(appName string, property string) string {
 		value = nginx_vhosts.GlobalProxyReadTimeout()
 	case "proxy-send-timeout":
 		value = nginx_vhosts.GlobalProxySendTimeout()
+	case "proxy-keepalive":
+		value = nginx_vhosts.GlobalProxyKeepalive()
 	case "send-timeout":
 		value = nginx_vhosts.GlobalSendTimeout()
 	case "underscore-in-headers":
