@@ -36,7 +36,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP inject_requirements_txt
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP add_requirements_txt
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -66,7 +66,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP inject_requirements_txt
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP add_requirements_txt
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -90,11 +90,4 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_contains "SECRET_KEY=fjdkslafjdk"
-}
-
-inject_requirements_txt() {
-  local APP="$1"
-  local APP_REPO_DIR="$2"
-  [[ -z "$APP" ]] && local APP="$TEST_APP"
-  echo "flask" >>"$APP_REPO_DIR/requirements.txt"
 }
