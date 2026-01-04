@@ -1,4 +1,10 @@
 {
+  "cron": [
+    {
+      "command": "python3 task.py some cron task",
+      "schedule": "5 5 5 5 5"
+    }
+  ],
   "healthchecks": {
     "web": [
       {
@@ -14,7 +20,9 @@
   },
   "scripts": {
     "dokku": {
+      // this is a comment for the postdeploy script
       "postdeploy": "touch /workspace/postdeploy.test",
+      // this is a comment for the predeploy script
       "predeploy": "touch /workspace/predeploy.test"
     }
   }

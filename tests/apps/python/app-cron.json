@@ -1,0 +1,29 @@
+{
+  "cron": [
+    {
+      "command": "python3 task.py some cron task",
+      "schedule": "5 5 5 5 5"
+    }
+  ],
+  "healthchecks": {
+    "web": [
+      {
+        "attempts": 2,
+        "content": "python/http.server",
+        "name": "check-1",
+        "path": "/",
+        "timeout": 5,
+        "type": "startup",
+        "wait": 2
+      }
+    ]
+  },
+  "scripts": {
+    "dokku": {
+      // this is a comment for the postdeploy script
+      "postdeploy": "touch /app/postdeploy.test",
+      // this is a comment for the predeploy script
+      "predeploy": "touch /app/predeploy.test"
+    }
+  }
+}
