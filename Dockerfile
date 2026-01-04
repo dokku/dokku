@@ -48,6 +48,7 @@ RUN mkdir -p /etc/apt/keyrings \
   && apt-get update \
   && apt-get upgrade -y \
   && apt-get -y --no-install-recommends install lambda-builder "/tmp/dokku-$(dpkg --print-architecture).deb" \
+  && apt-get purge -y syslog-ng-core \
   && apt-get autoremove -y \
   && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -74,4 +75,5 @@ RUN \
   && mv /etc/my_init.d/00_regen_ssh_host_keys.sh /etc/my_init.d/15_regen_ssh_host_keys \
   && rm -f /etc/nginx/sites-enabled/default /usr/share/nginx/html/index.html /etc/my_init.d/10_syslog-ng.init \
   && rm -f /usr/local/openresty/nginx/conf/sites-enabled/default /usr/share/openresty/html/index.html \
+  && sed -i '/imklog/d' /etc/rsyslog.conf \
   && rm -f /var/log/btmp /var/log/wtmp /var/log/*log /var/log/apt/* /var/log/dokku/*.log /var/log/nginx/* /var/log/openresty/*
