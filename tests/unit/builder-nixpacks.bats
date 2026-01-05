@@ -25,7 +25,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP inject_requirements_txt
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP add_requirements_txt
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -55,7 +55,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP inject_requirements_txt
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP add_requirements_txt
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -81,9 +81,44 @@ teardown() {
   assert_output_contains "SECRET_KEY=fjdkslafjdk"
 }
 
-inject_requirements_txt() {
+@test "(builder-nixpacks) cron:run" {
+  run /bin/bash -c "dokku config:set $TEST_APP SECRET_KEY=fjdkslafjdk"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku builder:set $TEST_APP selected nixpacks"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP cron_run_wrapper
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains 'load build definition from Dockerfile' -1
+  assert_output_contains "SECRET_KEY: fjdkslafjdk"
+
+  cron_id="$(dokku cron:list $TEST_APP --format json | jq -r '.[0].id')"
+  run /bin/bash -c "echo $cron_id"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_exists
+
+  run /bin/bash -c "dokku cron:run $TEST_APP $cron_id"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "['task.py', 'some', 'cron', 'task']"
+}
+
+cron_run_wrapper() {
   local APP="$1"
   local APP_REPO_DIR="$2"
   [[ -z "$APP" ]] && local APP="$TEST_APP"
-  echo "flask" >>"$APP_REPO_DIR/requirements.txt"
+  APP_REPO_DIR="$(realpath "$APP_REPO_DIR")"
+
+  add_requirements_txt "$APP" "$APP_REPO_DIR"
+  mv -f "$APP_REPO_DIR/app-cron.json" "$APP_REPO_DIR/app.json"
 }
