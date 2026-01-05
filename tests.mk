@@ -282,6 +282,10 @@ deploy-test-static:
 	@echo deploying static app...
 	cd tests && ./test_deploy ./apps/static $(DOKKU_DOMAIN)
 
+test-ci-binaries:
+	docker exec dokku bash -c "whereis logrotate" || { echo "logrotate not found" ; exit 1; }
+	docker exec dokku bash -c "whereis rsyslog" || { echo "rsyslog not found" ; exit 1; }
+
 deploy-tests:
 	@echo running deploy tests...
 	@$(QUIET) $(MAKE) deploy-test-checks-root
@@ -317,7 +321,7 @@ tests-ci-retry-failed:
 	tar xzf /tmp/bats-retry.tgz -C /usr/local/bin
 	bats-retry --execute test-results/bats
 
-test-ci-docker: setup-docker-deploy-tests deploy-test-checks-root deploy-test-config deploy-test-multi deploy-test-go-fail-predeploy deploy-test-go-fail-postdeploy
+test-ci-docker: setup-docker-deploy-tests deploy-test-checks-root deploy-test-config deploy-test-multi deploy-test-go-fail-predeploy deploy-test-go-fail-postdeploy test-ci-binaries
 
 generate-ssl-tars: generate-ssl-tar generate-ssl-sans-tar generate-ssl-wildcard-tar
 
