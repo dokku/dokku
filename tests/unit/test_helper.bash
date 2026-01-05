@@ -574,6 +574,8 @@ add_requirements_txt() {
   local APP="$1"
   local APP_REPO_DIR="$2"
   [[ -z "$APP" ]] && local APP="$TEST_APP"
+  APP_REPO_DIR="$(realpath "$APP_REPO_DIR")"
+
   echo "flask" >>"$APP_REPO_DIR/requirements.txt"
 }
 
@@ -632,6 +634,8 @@ convert_to_dockerfile() {
   local APP="$1"
   local APP_REPO_DIR="$2"
   [[ -z "$APP" ]] && local APP="$TEST_APP"
+  APP_REPO_DIR="$(realpath "$APP_REPO_DIR")"
+
   mv "$APP_REPO_DIR/dockerfile.Dockerfile" "$APP_REPO_DIR/Dockerfile"
 }
 

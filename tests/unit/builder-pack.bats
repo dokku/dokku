@@ -181,6 +181,7 @@ cron_run_wrapper() {
   local APP="$1"
   local APP_REPO_DIR="$2"
   [[ -z "$APP" ]] && local APP="$TEST_APP"
+  APP_REPO_DIR="$(realpath "$APP_REPO_DIR")"
 
   add_requirements_txt "$APP" "$APP_REPO_DIR"
   ls -lah "$APP_REPO_DIR"
