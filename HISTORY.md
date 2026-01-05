@@ -1,5 +1,35 @@
 # History
 
+## 0.37.4
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.37.4/bootstrap.sh
+sudo DOKKU_TAG=v0.37.4 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #8168: @josegonzalez Install logrotate in the container
+
+### Tests
+
+- #8254: @josegonzalez Add a test to prove cron:run commands work as expected
+- #8255: @josegonzalez Update test ruby app
+
+### Dependencies
+
+- #8252: @dependabot[bot] chore(deps): bump pymdown-extensions from 10.19.1 to 10.20 in /docs/_build
+- #8253: @dependabot[bot] chore(deps): bump qs from 6.14.0 to 6.14.1 in /tests/apps/checks-root
+- #8249: @dependabot[bot] chore(deps): bump traefik from 3.6.5 to 3.6.6 in /plugins/traefik-vhosts
+- #8250: @dependabot[bot] chore(deps): bump github.com/traefik/traefik/v2 from 2.11.33 to 2.11.34 in /plugins/scheduler-k3s
+- #8247: @dependabot[bot] chore(deps): bump ruby from 3.4.8 to 4.0.0 in /tests/apps/dockerfile-entrypoint
+
+### Other
+
+- #8248: @osbre Add `proxy-keepalive` to Nginx properties
+
 ## 0.37.3
 
 Install/update via the bootstrap script:
