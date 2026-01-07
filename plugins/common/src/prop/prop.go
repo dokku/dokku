@@ -81,6 +81,19 @@ func main() {
 		for key, value := range values {
 			fmt.Println(fmt.Sprintf("%s %s", key, strings.TrimSuffix(value, "\n")))
 		}
+
+	case "get-all-by-prefix":
+		appName := flag.Arg(2)
+		prefix := flag.Arg(3)
+		values, err := common.PropertyGetAllByPrefix(pluginName, appName, prefix)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err.Error())
+			os.Exit(1)
+		}
+
+		for key, value := range values {
+			fmt.Println(fmt.Sprintf("%s %s", key, strings.TrimSuffix(value, "\n")))
+		}
 	case "get-with-default":
 		appName := flag.Arg(2)
 		property := flag.Arg(3)

@@ -39,6 +39,12 @@ fn-plugin-property-get-all() {
   "$PLUGIN_CORE_AVAILABLE_PATH/common/prop" "get-all" "$PLUGIN" "$APP"
 }
 
+fn-plugin-property-get-all-by-prefix() {
+  declare desc="returns a map of all properties for a given app with a specified prefix"
+  declare PLUGIN="$1" APP="$2" PREFIX="$3"
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/prop" "get-all-by-prefix" "$PLUGIN" "$APP" "$PREFIX"
+}
+
 fn-plugin-property-get-default() {
   declare desc="returns the value for a given property with a specified default value"
   declare PLUGIN="$1" APP="$2" KEY="$3" DEFAULT="$4"

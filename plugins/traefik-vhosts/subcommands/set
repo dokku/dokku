@@ -9,20 +9,36 @@ cmd-traefik-set() {
   declare cmd="traefik:set"
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1" KEY="$2" VALUE="$3"
-  local VALID_KEYS=("api-enabled" "api-vhost" "dashboard-enabled" "basic-auth-username" "basic-auth-password" "image" "letsencrypt-email" "letsencrypt-server" "log-level" "http-entry-point" "https-entry-point")
-  local GLOBAL_KEYS=("api-enabled" "api-vhost" "dashboard-enabled" "basic-auth-username" "basic-auth-password" "image" "letsencrypt-email" "letsencrypt-server" "log-level" "http-entry-point" "https-entry-point")
+  local VALID_KEYS=("api-enabled" "api-vhost" "challenge-mode" "dashboard-enabled" "basic-auth-username" "basic-auth-password" "dns-provider" "image" "letsencrypt-email" "letsencrypt-server" "log-level" "http-entry-point" "https-entry-point")
+  local GLOBAL_KEYS=("api-enabled" "api-vhost" "challenge-mode" "dashboard-enabled" "basic-auth-username" "basic-auth-password" "dns-provider" "image" "letsencrypt-email" "letsencrypt-server" "log-level" "http-entry-point" "https-entry-point")
+  local GLOBAL_ONLY_KEYS=("challenge-mode" "dns-provider")
 
   [[ -z "$KEY" ]] && dokku_log_fail "No key specified"
 
-  if ! fn-in-array "$KEY" "${VALID_KEYS[@]}"; then
-    dokku_log_fail "Invalid key specified, valid keys include: api-enabled api-vhost dashboard-enabled basic-auth-username basic-auth-password image letsencrypt-email letsencrypt-server log-level"
+  # Allow dns-provider-* keys for setting DNS provider environment variables
+  local is_dns_provider_env_var=false
+  if [[ "$KEY" == dns-provider-* ]]; then
+    is_dns_provider_env_var=true
   fi
 
-  if ! fn-in-array "$KEY" "${GLOBAL_KEYS[@]}"; then
+  if ! fn-in-array "$KEY" "${VALID_KEYS[@]}" && [[ "$is_dns_provider_env_var" != "true" ]]; then
+    dokku_log_fail "Invalid key specified, valid keys include: api-enabled api-vhost challenge-mode dashboard-enabled basic-auth-username basic-auth-password dns-provider dns-provider-<ENV_VAR> image letsencrypt-email letsencrypt-server log-level http-entry-point https-entry-point"
+  fi
+
+  if ! fn-in-array "$KEY" "${GLOBAL_KEYS[@]}" && [[ "$is_dns_provider_env_var" != "true" ]]; then
     if [[ "$APP" == "--global" ]]; then
       dokku_log_fail "The key '$KEY' cannot be set globally"
     fi
     verify_app_name "$APP"
+  fi
+
+  # dns-provider-* keys and GLOBAL_ONLY_KEYS can only be set globally
+  if [[ "$is_dns_provider_env_var" == "true" ]] && [[ "$APP" != "--global" ]]; then
+    dokku_log_fail "The key '$KEY' can only be set globally"
+  fi
+
+  if fn-in-array "$KEY" "${GLOBAL_ONLY_KEYS[@]}" && [[ "$APP" != "--global" ]]; then
+    dokku_log_fail "The key '$KEY' can only be set globally"
   fi
 
   if [[ -n "$VALUE" ]]; then

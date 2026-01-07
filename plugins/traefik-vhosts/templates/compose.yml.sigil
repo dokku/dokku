@@ -21,8 +21,25 @@ services:
       - --certificatesresolvers.leresolver.acme.caserver={{ $.TRAEFIK_LETSENCRYPT_SERVER }}
       - --certificatesresolvers.leresolver.acme.email={{ $.TRAEFIK_LETSENCRYPT_EMAIL }}
       - --certificatesresolvers.leresolver.acme.storage=/data/acme.json
+      {{ if and (eq $.TRAEFIK_CHALLENGE_MODE "dns") ($.TRAEFIK_DNS_PROVIDER) }}
+      - --certificatesresolvers.leresolver.acme.dnschallenge=true
+      - --certificatesresolvers.leresolver.acme.dnschallenge.provider={{ $.TRAEFIK_DNS_PROVIDER }}
+      {{ else }}
       - --certificatesresolvers.leresolver.acme.tlschallenge=true
       {{ end }}
+      {{ end }}
+
+    {{ if $.TRAEFIK_DNS_PROVIDER_ENV_VARS }}
+    environment:
+      {{ range $env_var := $.TRAEFIK_DNS_PROVIDER_ENV_VARS | split "\n" }}
+      {{ $env_parts := $env_var | split " " }}
+      {{ $env_key := index $env_parts 0 }}
+      {{ $env_value := index $env_parts 1 }}
+      {{ if $env_key }}
+      - {{ $env_key | replace "dns-provider-" "" | upper }}={{ $env_value }}
+      {{ end }}
+      {{ end }}
+    {{ end }}
 
     {{ if or (eq $.TRAEFIK_API_ENABLED "true") ($.TRAEFIK_BASIC_AUTH) ($.TRAEFIK_LETSENCRYPT_EMAIL) }}
     labels:
@@ -37,7 +54,7 @@ services:
       - "traefik.http.routers.api.service=api@internal"
       - "traefik.http.routers.api.entrypoints={{ if $.TRAEFIK_LETSENCRYPT_EMAIL }}https{{ else }}http{{ end }}"
       {{ end }}
-      
+
       {{ if $.TRAEFIK_BASIC_AUTH }}
       - "traefik.http.routers.api.middlewares=auth"
       - "traefik.http.middlewares.auth.basicauth.users={{ $.TRAEFIK_BASIC_AUTH }}"
