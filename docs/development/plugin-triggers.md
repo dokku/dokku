@@ -521,6 +521,21 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `config-set`
+
+- Description: Sets one or more config values for an app without restarting (when --no-restart flag is specified)
+- Invoked by: app-json plugin
+- Arguments: `[--no-restart] $APP $KEY1=VALUE1 [$KEY2=VALUE2 ...]`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `core-post-deploy`
 
 > To avoid issues with community plugins, this plugin trigger should be used _only_ for core plugins. Please avoid using this trigger in your own plugins.

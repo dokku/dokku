@@ -71,6 +71,35 @@ dokku config:export --format shell node-js-app
 #   ENV='prod' COMPILE_ASSETS='1'
 ```
 
+## Setting Environment Variables via app.json
+
+Environment variables can also be declared in an `app.json` file in your repository root. This is useful for setting default values, generating secrets, or requiring certain variables to be set before deployment.
+
+```json
+{
+  "env": {
+    "SIMPLE_VAR": "default_value",
+    "SECRET_KEY": {
+      "description": "A secret key for signing tokens",
+      "generator": "secret"
+    },
+    "DATABASE_URL": {
+      "description": "PostgreSQL connection string",
+      "required": true
+    }
+  }
+}
+```
+
+Environment variables from `app.json` are processed during the first deploy, before the predeploy script runs. Variables can be configured as:
+
+- **Simple string values**: Set as defaults if not already configured
+- **Generated secrets**: Use `"generator": "secret"` to auto-generate a 64-character hex string
+- **Required variables**: Use `"required": true` to prompt for or require a value
+- **Synced variables**: Use `"sync": true` to update the value on every deploy
+
+For full details on the `env` schema and behavior, see the [app.json documentation](/docs/appendices/file-formats/app-json.md#env).
+
 ## Special Config Variables
 
 The following config variables have special meanings and can be set in a variety of ways. Unless specified via global app config, the values may not be passed into applications. Usage of these values within applications should be considered unsafe, as they are an internal configuration values that may be moved to the internal properties system in the future.

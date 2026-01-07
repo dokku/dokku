@@ -25,6 +25,103 @@
 - `schedule`: (string, required)
 - `concurrency_policy`: (string, optional, default: `allow`, options: `allow`, `forbid`, `replace`)
 
+## Env
+
+```json
+{
+  "env": {
+    "SIMPLE_VAR": "default_value",
+    "SECRET_KEY": {
+      "description": "A secret key for signing tokens",
+      "generator": "secret"
+    },
+    "DATABASE_URL": {
+      "description": "PostgreSQL connection string",
+      "required": true
+    },
+    "OPTIONAL_VAR": {
+      "description": "An optional configuration value",
+      "value": "default",
+      "required": false
+    },
+    "SYNC_VAR": {
+      "description": "A variable that updates on every deploy",
+      "value": "synced_value",
+      "sync": true
+    }
+  }
+}
+```
+
+(object, optional) A key-value object for environment variable configuration. Keys are the variable names. Values can be either a string (used as the default value) or an object with the following properties:
+
+- `description`: (string, optional) Human-readable explanation of the variable's purpose
+- `value`: (string, optional) Default value for the variable
+- `required`: (boolean, optional, default: `true`) Whether the variable must have a value
+- `generator`: (string, optional) Function to generate the value. Currently only `"secret"` is supported, which generates a 64-character cryptographically secure hex string
+- `sync`: (boolean, optional, default: `false`) If `true`, the value will be set on every deploy, overwriting any existing value
+
+### Behavior
+
+Environment variables from `app.json` are processed during the first deploy, before the predeploy script runs. The behavior depends on the variable configuration:
+
+1. **Variables with `value` or simple string**: The default value is set if the variable doesn't already exist
+2. **Variables with `generator: "secret"`**: A random 64-character hex string is generated if the variable doesn't exist
+3. **Required variables without a value or generator**: If a TTY is available, the user is prompted for a value. Otherwise, the deploy fails with an error
+4. **Optional variables without a value**: Skipped silently if no TTY is available
+
+On subsequent deploys:
+- Variables are NOT re-set unless `sync: true` is specified
+- Variables with `sync: true` are always set to their configured value, overwriting any manual changes
+- Variables that already have values are not modified
+
+### Examples
+
+**Simple default value:**
+```json
+{
+  "env": {
+    "WEB_CONCURRENCY": "5"
+  }
+}
+```
+
+**Generated secret (recommended for API keys, tokens, etc.):**
+```json
+{
+  "env": {
+    "SECRET_KEY_BASE": {
+      "description": "Base secret for session encryption",
+      "generator": "secret"
+    }
+  }
+}
+```
+
+**Required variable that must be provided:**
+```json
+{
+  "env": {
+    "DATABASE_URL": {
+      "description": "PostgreSQL connection URL",
+      "required": true
+    }
+  }
+}
+```
+
+**Variable that stays in sync with app.json:**
+```json
+{
+  "env": {
+    "FEATURE_FLAGS": {
+      "value": "new_ui,dark_mode",
+      "sync": true
+    }
+  }
+}
+```
+
 ## Formation
 
 ```json

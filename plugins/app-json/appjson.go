@@ -24,10 +24,52 @@ var (
 	}
 )
 
+// EnvVarValue represents an environment variable definition in app.json
+// It supports both simple string values and complex object definitions
+type EnvVarValue struct {
+	// Description provides context for the env var (used in prompts)
+	Description string `json:"description,omitempty"`
+
+	// Value is the default value for the env var
+	Value string `json:"value,omitempty"`
+
+	// Required indicates if the env var must have a value (defaults to true per Heroku spec)
+	Required *bool `json:"required,omitempty"`
+
+	// Generator specifies how to auto-generate a value (currently only "secret" is supported)
+	Generator string `json:"generator,omitempty"`
+
+	// Sync indicates if the value should be set on every deploy, not just first
+	Sync bool `json:"sync,omitempty"`
+}
+
+// UnmarshalJSON handles both string and object formats for env vars
+func (e *EnvVarValue) UnmarshalJSON(data []byte) error {
+	var str string
+	if err := json.Unmarshal(data, &str); err == nil {
+		e.Value = str
+		return nil
+	}
+
+	type envVarAlias EnvVarValue
+	return json.Unmarshal(data, (*envVarAlias)(e))
+}
+
+// IsRequired returns true if the env var is required (defaults to true per Heroku spec)
+func (e *EnvVarValue) IsRequired() bool {
+	if e.Required == nil {
+		return true
+	}
+	return *e.Required
+}
+
 // AppJSON is a struct that represents an app.json file as understood by Dokku
 type AppJSON struct {
 	// Cron is a list of cron tasks to execute
 	Cron []CronTask `json:"cron"`
+
+	// Env is a map of environment variables to set
+	Env map[string]EnvVarValue `json:"env,omitempty"`
 
 	// Formation is a map of process types to scale
 	Formation map[string]Formation `json:"formation"`
