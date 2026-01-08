@@ -368,3 +368,60 @@ teardown() {
   assert_success
   assert_output_not_exists
 }
+
+@test "(traefik) healthcheck labels from app.json" {
+  run /bin/bash -c "dokku proxy:set $TEST_APP traefik"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP setup_traefik_healthcheck
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"traefik.http.services.$TEST_APP-web-http.loadbalancer.healthcheck.path\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "/"
+
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"traefik.http.services.$TEST_APP-web-http.loadbalancer.healthcheck.timeout\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "5s"
+
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"traefik.http.services.$TEST_APP-web-http.loadbalancer.healthcheck.interval\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "2s"
+}
+
+@test "(traefik) no healthcheck labels without readiness check" {
+  run /bin/bash -c "dokku proxy:set $TEST_APP traefik"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"traefik.http.services.$TEST_APP-web-http.loadbalancer.healthcheck.path\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_exists
+}
+
+setup_traefik_healthcheck() {
+  local APP="$1"
+  local APP_REPO_DIR="$2"
+  [[ -z "$APP" ]] && local APP="$TEST_APP"
+  APP_REPO_DIR="$(realpath "$APP_REPO_DIR")"
+
+  mv "$APP_REPO_DIR/app-traefik.json" "$APP_REPO_DIR/app.json"
+}
