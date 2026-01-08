@@ -4,7 +4,7 @@
 {{- continue }}
 {{- end }}
 
-{{- if and $config.web.tls.enabled $config.web.domains }}
+{{- if and $config.web.tls.enabled (not $config.web.tls.use_imported_cert) $config.web.domains }}
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate

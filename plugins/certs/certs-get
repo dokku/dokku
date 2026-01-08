@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+source "$PLUGIN_AVAILABLE_PATH/certs/functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-certs-certs-get() {
+  declare desc="returns certificate or key content"
+  declare trigger="certs-get"
+  declare APP="$1" KEY_TYPE="$2"
+
+  local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
+
+  if [[ "$KEY_TYPE" != "key" ]] && [[ "$KEY_TYPE" != "crt" ]]; then
+    return 1
+  fi
+
+  if ! is_ssl_enabled "$APP"; then
+    return 1
+  fi
+
+  cat "$APP_SSL_PATH/server.$KEY_TYPE"
+}
+
+trigger-certs-certs-get "$@"

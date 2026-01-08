@@ -53,7 +53,11 @@ spec:
     {{- end }}
   {{- if $config.web.tls.enabled }}
   tls:
+    {{- if $config.web.tls.use_imported_cert }}
+    secretName: tls-{{ $.Values.global.app_name }}
+    {{- else }}
     secretName: tls-{{ $.Values.global.app_name }}-{{ $processName }}
+    {{- end }}
   {{- end }}
 {{- end }}
 {{- end }}

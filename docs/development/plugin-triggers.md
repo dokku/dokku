@@ -387,6 +387,30 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `certs-get`
+
+- Description: Returns the certificate or key content for an app
+- Invoked by: `scheduler-k3s`
+- Arguments: `$APP $KEY_TYPE`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+# Returns the certificate or key content for an app
+# KEY_TYPE should be "crt" or "key"
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+APP="$1"; KEY_TYPE="$2"
+APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
+
+if [[ "$KEY_TYPE" == "crt" ]]; then
+  cat "$APP_SSL_PATH/server.crt"
+elif [[ "$KEY_TYPE" == "key" ]]; then
+  cat "$APP_SSL_PATH/server.key"
+fi
+```
+
 ### `check-deploy`
 
 - Description: Allows you to run checks on a deploy before Dokku allows the container to handle requests.
