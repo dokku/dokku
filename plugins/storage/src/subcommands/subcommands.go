@@ -38,23 +38,13 @@ func main() {
 		mountPath := args.Arg(1)
 		err = storage.CommandMount(appName, mountPath)
 	case "report":
-		args := flag.NewFlagSet("storage:report", flag.ExitOnError)
-		format := args.String("format", "stdout", "--format: output format (stdout, json)")
-		args.Parse(os.Args[2:])
-
-		osArgs, infoFlag, parseErr := common.ParseReportArgs("storage", args.Args())
-		if parseErr != nil {
-			err = parseErr
-		} else {
-			appName := ""
-			if len(osArgs) > 0 {
-				appName = osArgs[0]
-			}
-			if *format == "stdout" {
-				err = storage.CommandReport(appName, infoFlag)
-			} else {
-				err = storage.CommandReportSingleApp(appName, infoFlag, *format)
-			}
+		args := flag.NewFlagSet("scheduler-k3s:report", flag.ExitOnError)
+		format := args.String("format", "stdout", "format: [ stdout | json ]")
+		osArgs, infoFlag, flagErr := common.ParseReportArgs("scheduler-k3s", os.Args[2:])
+		if flagErr == nil {
+			args.Parse(osArgs)
+			appName := args.Arg(0)
+			err = storage.CommandReport(appName, *format, infoFlag)
 		}
 	case "unmount":
 		args := flag.NewFlagSet("storage:unmount", flag.ExitOnError)

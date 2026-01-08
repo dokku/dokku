@@ -197,45 +197,23 @@ func CommandList(appName string, format string) error {
 }
 
 // CommandReport displays a storage report for one or more apps
-func CommandReport(appName string, infoFlag string) error {
+func CommandReport(appName string, format string, infoFlag string) error {
 	if appName == "" {
 		apps, err := common.DokkuApps()
 		if err != nil {
+			if errors.Is(err, common.NoAppsExist) {
+				common.LogWarn(err.Error())
+				return nil
+			}
 			return err
 		}
-
 		for _, app := range apps {
-			if err := reportSingle(app, infoFlag, "stdout"); err != nil {
+			if err := ReportSingleApp(app, format, infoFlag); err != nil {
 				return err
 			}
 		}
 		return nil
 	}
 
-	return reportSingle(appName, infoFlag, "stdout")
-}
-
-// CommandReportSingleApp displays a storage report for a single app with format support
-func CommandReportSingleApp(appName string, infoFlag string, format string) error {
-	return reportSingle(appName, infoFlag, format)
-}
-
-func reportSingle(appName string, infoFlag string, format string) error {
-	if err := common.VerifyAppName(appName); err != nil {
-		return err
-	}
-
-	infoFlags := map[string]string{
-		"--storage-build-mounts":  GetBindMountsForDisplay(appName, "build"),
-		"--storage-deploy-mounts": GetBindMountsForDisplay(appName, "deploy"),
-		"--storage-run-mounts":    GetBindMountsForDisplay(appName, "run"),
-	}
-
-	infoFlagKeys := []string{
-		"--storage-build-mounts",
-		"--storage-deploy-mounts",
-		"--storage-run-mounts",
-	}
-
-	return common.ReportSingleApp("storage", appName, infoFlag, infoFlags, infoFlagKeys, format, true, true)
+	return ReportSingleApp(appName, format, infoFlag)
 }
