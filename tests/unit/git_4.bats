@@ -35,6 +35,28 @@ teardown() {
   assert_output "ref: refs/heads/master"
 }
 
+@test "(git) git:from-image --force" {
+  run /bin/bash -c "docker image rm linuxserver/foldingathome:7.6.21 2>/dev/null || true"
+
+  run /bin/bash -c "dokku git:from-image $TEST_APP linuxserver/foldingathome:7.6.21"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Pulling image"
+
+  run /bin/bash -c "dokku git:from-image $TEST_APP linuxserver/foldingathome:7.6.21"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Image exists on host, skipping pull"
+  assert_output_contains "No changes detected, skipping git commit"
+
+  run /bin/bash -c "dokku git:from-image --force $TEST_APP linuxserver/foldingathome:7.6.21"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output_contains "Force pulling image"
+  assert_output_contains "No changes detected, skipping git commit"
+}
+
 @test "(git) git:from-image [normal-custom-branch]" {
   run /bin/bash -c "dokku git:set $TEST_APP deploy-branch main"
   echo "output: $output"
