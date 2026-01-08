@@ -34,8 +34,16 @@ cmd-traefik-report() {
   declare cmd="traefik:report"
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1" INFO_FLAG="$2"
+  local FORMAT="stdout"
 
-  if [[ -n "$APP" ]] && [[ "$APP" == --* ]]; then
+  if [[ -n "$APP" ]] && [[ "$APP" == "--format" ]]; then
+    FORMAT="$INFO_FLAG"
+    APP=""
+    INFO_FLAG=""
+  elif [[ -n "$INFO_FLAG" ]] && [[ "$INFO_FLAG" == "--format" ]]; then
+    FORMAT="$3"
+    INFO_FLAG=""
+  elif [[ -n "$APP" ]] && [[ "$APP" == --* ]]; then
     INFO_FLAG="$APP"
     APP=""
   fi
@@ -46,15 +54,15 @@ cmd-traefik-report() {
 
   if [[ -z "$APP" ]]; then
     for app in $(dokku_apps); do
-      cmd-traefik-report-single "$app" "$INFO_FLAG" | tee || true
+      cmd-traefik-report-single "$app" "$INFO_FLAG" "$FORMAT" | tee || true
     done
   else
-    cmd-traefik-report-single "$APP" "$INFO_FLAG"
+    cmd-traefik-report-single "$APP" "$INFO_FLAG" "$FORMAT"
   fi
 }
 
 cmd-traefik-report-single() {
-  declare APP="$1" INFO_FLAG="$2"
+  declare APP="$1" INFO_FLAG="$2" FORMAT="${3:-stdout}"
   if [[ "$INFO_FLAG" == "true" ]]; then
     INFO_FLAG=""
   fi
@@ -64,7 +72,9 @@ cmd-traefik-report-single() {
     "--traefik-api-vhost: $(fn-traefik-api-vhost)"
     "--traefik-basic-auth-password: $(fn-traefik-basic-auth-password)"
     "--traefik-basic-auth-username: $(fn-traefik-basic-auth-username)"
+    "--traefik-challenge-mode: $(fn-traefik-challenge-mode)"
     "--traefik-dashboard-enabled: $(fn-traefik-dashboard-enabled)"
+    "--traefik-dns-provider: $(fn-traefik-dns-provider)"
     "--traefik-image: $(fn-traefik-image)"
     "--traefik-letsencrypt-email: $(fn-traefik-letsencrypt-email)"
     "--traefik-letsencrypt-server: $(fn-traefik-letsencrypt-server)"
@@ -73,7 +83,34 @@ cmd-traefik-report-single() {
     "--traefik-https-entry-point: $(fn-traefik-https-entry-point)"
   )
 
-  if [[ -z "$INFO_FLAG" ]]; then
+  # Get dns-provider-* env vars and add them (masked for stdout, unmasked for json)
+  local dns_provider_env_vars
+  dns_provider_env_vars="$(fn-traefik-dns-provider-env-vars)"
+  if [[ -n "$dns_provider_env_vars" ]]; then
+    while IFS= read -r line; do
+      local key value
+      key="$(echo "$line" | cut -d' ' -f1)"
+      value="$(echo "$line" | cut -d' ' -f2-)"
+      if [[ -n "$key" ]]; then
+        if [[ "$FORMAT" == "json" ]]; then
+          flag_map+=("--traefik-${key}: ${value}")
+        else
+          flag_map+=("--traefik-${key}: *******")
+        fi
+      fi
+    done <<<"$dns_provider_env_vars"
+  fi
+
+  if [[ "$FORMAT" == "json" ]]; then
+    local json_output="{}"
+    for flag in "${flag_map[@]}"; do
+      local key value
+      key="$(echo "$flag" | cut -d':' -f1 | sed 's/^--traefik-//')"
+      value="$(echo "$flag" | cut -d':' -f2- | sed 's/^ //')"
+      json_output="$(echo "$json_output" | jq -c --arg key "$key" --arg value "$value" '. + {($key): $value}')"
+    done
+    echo "$json_output"
+  elif [[ -z "$INFO_FLAG" ]]; then
     dokku_log_info2_quiet "${APP} traefik information"
     for flag in "${flag_map[@]}"; do
       key="$(echo "${flag#--}" | cut -f1 -d' ' | tr - ' ')"

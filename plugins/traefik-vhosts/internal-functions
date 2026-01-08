@@ -42,11 +42,21 @@ fn-traefik-template-compose-file() {
     basic_auth="$(htpasswd -nb "$basic_auth_username" "$basic_auth_password" | sed -e s/\\$/\\$\\$/g)"
   fi
 
+  local dns_provider_env_vars=""
+  local dns_provider
+  dns_provider="$(fn-traefik-dns-provider)"
+  if [[ -n "$dns_provider" ]]; then
+    dns_provider_env_vars="$(fn-traefik-dns-provider-env-vars)"
+  fi
+
   local SIGIL_PARAMS=(TRAEFIK_API_ENABLED="$(fn-traefik-api-enabled)"
   TRAEFIK_API_VHOST="$(fn-traefik-api-vhost)"
   TRAEFIK_BASIC_AUTH="$basic_auth"
+  TRAEFIK_CHALLENGE_MODE="$(fn-traefik-challenge-mode)"
   TRAEFIK_DASHBOARD_ENABLED="$(fn-traefik-dashboard-enabled)"
   TRAEFIK_DATA_DIR="${DOKKU_LIB_ROOT}/data/traefik"
+  TRAEFIK_DNS_PROVIDER="$dns_provider"
+  TRAEFIK_DNS_PROVIDER_ENV_VARS="$dns_provider_env_vars"
   TRAEFIK_IMAGE="$(fn-traefik-image)"
   TRAEFIK_LETSENCRYPT_EMAIL="$(fn-traefik-letsencrypt-email)"
   TRAEFIK_LETSENCRYPT_SERVER="$(fn-traefik-letsencrypt-server)"
@@ -99,4 +109,17 @@ fn-traefik-http-entry-point() {
 
 fn-traefik-https-entry-point() {
   fn-plugin-property-get-default "traefik" "--global" "https-entry-point" "https"
+}
+
+fn-traefik-challenge-mode() {
+  fn-plugin-property-get-default "traefik" "--global" "challenge-mode" "tls"
+}
+
+fn-traefik-dns-provider() {
+  fn-plugin-property-get-default "traefik" "--global" "dns-provider" ""
+}
+
+fn-traefik-dns-provider-env-vars() {
+  declare desc="returns all dns-provider-* environment variables"
+  fn-plugin-property-get-all-by-prefix "traefik" "--global" "dns-provider-"
 }

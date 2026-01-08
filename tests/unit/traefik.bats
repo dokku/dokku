@@ -8,6 +8,8 @@ setup() {
   dokku traefik:set --global letsencrypt-server https://acme-staging-v02.api.letsencrypt.org/directory
   dokku traefik:set --global letsencrypt-email
   dokku traefik:set --global api-enabled
+  dokku traefik:set --global challenge-mode
+  dokku traefik:set --global dns-provider
   dokku traefik:start
   create_app
 }
@@ -367,4 +369,252 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_not_exists
+}
+
+@test "(traefik) [dns-01] challenge-mode property" {
+  run /bin/bash -c "dokku traefik:report $TEST_APP --traefik-challenge-mode"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "tls"
+
+  run /bin/bash -c "dokku traefik:set --global challenge-mode dns"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku traefik:report $TEST_APP --traefik-challenge-mode"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "dns"
+
+  run /bin/bash -c "dokku traefik:set --global challenge-mode"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku traefik:report $TEST_APP --traefik-challenge-mode"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "tls"
+}
+
+@test "(traefik) [dns-01] dns-provider property" {
+  run /bin/bash -c "dokku traefik:report $TEST_APP --traefik-dns-provider"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku traefik:set --global dns-provider cloudflare"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku traefik:report $TEST_APP --traefik-dns-provider"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "cloudflare"
+
+  run /bin/bash -c "dokku traefik:set --global dns-provider"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku traefik:report $TEST_APP --traefik-dns-provider"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_exists
+}
+
+@test "(traefik) [dns-01] dns-provider-* environment variables" {
+  run /bin/bash -c "dokku traefik:set --global dns-provider-cf_api_email test@example.com"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku traefik:set --global dns-provider-cf_api_key secret-key"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku traefik:report $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "dns provider cf_api_email"
+  assert_output_contains "dns provider cf_api_key"
+  assert_output_contains "*******"
+  assert_output_not_contains "test@example.com"
+  assert_output_not_contains "secret-key"
+
+  run /bin/bash -c "dokku traefik:report $TEST_APP --traefik-dns-provider-cf_api_email"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "*******"
+
+  run /bin/bash -c "dokku traefik:set --global dns-provider-cf_api_email"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku traefik:set --global dns-provider-cf_api_key"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku traefik:report $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_contains "dns provider cf_api_email"
+  assert_output_not_contains "dns provider cf_api_key"
+}
+
+@test "(traefik) [dns-01] dns-provider-* can only be set globally" {
+  run /bin/bash -c "dokku traefik:set $TEST_APP dns-provider-cf_api_email test@example.com"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "can only be set globally"
+}
+
+@test "(traefik) [dns-01] challenge-mode can only be set globally" {
+  run /bin/bash -c "dokku traefik:set $TEST_APP challenge-mode dns"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "can only be set globally"
+}
+
+@test "(traefik) [dns-01] dns-provider can only be set globally" {
+  run /bin/bash -c "dokku traefik:set $TEST_APP dns-provider cloudflare"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "can only be set globally"
+}
+
+@test "(traefik) [dns-01] report json format shows unmasked dns-provider-* values" {
+  run /bin/bash -c "dokku traefik:set --global dns-provider-cf_api_email test@example.com"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku traefik:set --global dns-provider-cf_api_key secret-key"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku traefik:report $TEST_APP --format json | jq -r '.\"dns-provider-cf_api_email\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "test@example.com"
+
+  run /bin/bash -c "dokku traefik:report $TEST_APP --format json | jq -r '.\"dns-provider-cf_api_key\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "secret-key"
+
+  # Verify stdout format still shows masked values
+  run /bin/bash -c "dokku traefik:report $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "*******"
+  assert_output_not_contains "test@example.com"
+  assert_output_not_contains "secret-key"
+
+  # Cleanup
+  run /bin/bash -c "dokku traefik:set --global dns-provider-cf_api_email"
+  run /bin/bash -c "dokku traefik:set --global dns-provider-cf_api_key"
+}
+
+@test "(traefik) [dns-01] show-config with tls challenge" {
+  run /bin/bash -c "dokku traefik:set --global letsencrypt-email test@example.com"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku traefik:show-config | yq -r '.services.traefik.command[] | select(. == \"--certificatesresolvers.leresolver.acme.tlschallenge=true\")'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "--certificatesresolvers.leresolver.acme.tlschallenge=true"
+
+  run /bin/bash -c "dokku traefik:show-config | yq -r '.services.traefik.command[] | select(contains(\"dnschallenge\"))'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_exists
+}
+
+@test "(traefik) [dns-01] show-config with dns challenge" {
+  run /bin/bash -c "dokku traefik:set --global letsencrypt-email test@example.com"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku traefik:set --global challenge-mode dns"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku traefik:set --global dns-provider cloudflare"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku traefik:set --global dns-provider-cf_api_email test@example.com"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku traefik:set --global dns-provider-cf_api_key secret-key"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku traefik:show-config | yq -r '.services.traefik.command[] | select(. == \"--certificatesresolvers.leresolver.acme.dnschallenge=true\")'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "--certificatesresolvers.leresolver.acme.dnschallenge=true"
+
+  run /bin/bash -c "dokku traefik:show-config | yq -r '.services.traefik.command[] | select(. == \"--certificatesresolvers.leresolver.acme.dnschallenge.provider=cloudflare\")'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "--certificatesresolvers.leresolver.acme.dnschallenge.provider=cloudflare"
+
+  run /bin/bash -c "dokku traefik:show-config | yq -r '.services.traefik.environment[] | select(. == \"CF_API_EMAIL=test@example.com\")'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "CF_API_EMAIL=test@example.com"
+
+  run /bin/bash -c "dokku traefik:show-config | yq -r '.services.traefik.environment[] | select(. == \"CF_API_KEY=secret-key\")'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "CF_API_KEY=secret-key"
+
+  run /bin/bash -c "dokku traefik:show-config | yq -r '.services.traefik.command[] | select(contains(\"tlschallenge\"))'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_exists
+
+  # Cleanup
+  run /bin/bash -c "dokku traefik:set --global challenge-mode"
+  run /bin/bash -c "dokku traefik:set --global dns-provider"
+  run /bin/bash -c "dokku traefik:set --global dns-provider-cf_api_email"
+  run /bin/bash -c "dokku traefik:set --global dns-provider-cf_api_key"
 }
