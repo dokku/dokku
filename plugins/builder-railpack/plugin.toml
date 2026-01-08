@@ -1,4 +1,4 @@
 [plugin]
 description = "dokku core builder-railpack plugin"
-version = "0.36.7"
+version = "0.37.4"
 [plugin.config]
