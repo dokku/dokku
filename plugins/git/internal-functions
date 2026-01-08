@@ -179,7 +179,7 @@ cmd-git-sync() {
   local cmd="git:sync"
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP GIT_REMOTE GIT_REF FLAG
-  local CURRENT_REF DOKKU_DEPLOY_BRANCH SHOULD_BUILD UPDATED_REF
+  local CURRENT_REF DOKKU_DEPLOY_BRANCH SHOULD_BUILD SKIP_DEPLOY_BRANCH UPDATED_REF
 
   ARGS=()
   for arg in "$@"; do
@@ -190,6 +190,11 @@ cmd-git-sync() {
 
     if [[ "$arg" == "--build-if-changes" ]]; then
       FLAG="--build-if-changes"
+      continue
+    fi
+
+    if [[ "$arg" == "--skip-deploy-branch" ]]; then
+      SKIP_DEPLOY_BRANCH="true"
       continue
     fi
 
@@ -213,7 +218,7 @@ cmd-git-sync() {
 
   if ! fn-git-cmd "$APP_ROOT" rev-parse "$DOKKU_DEPLOY_BRANCH" &>/dev/null; then
     dokku_log_info1_quiet "Cloning $APP from $GIT_REMOTE#$GIT_REF"
-    fn-git-clone "$APP" "$GIT_REMOTE" "$GIT_REF"
+    fn-git-clone "$APP" "$GIT_REMOTE" "$GIT_REF" "$SKIP_DEPLOY_BRANCH"
   else
     dokku_log_verbose "Fetching remote code for $APP from $GIT_REMOTE#$GIT_REF"
     fn-git-fetch "$APP" "$GIT_REMOTE" "$GIT_REF"
@@ -373,7 +378,7 @@ EOF
 
 fn-git-clone() {
   declare desc="creates an app from remote git repo"
-  declare APP="$1" GIT_REMOTE="$2" GIT_REF="$3"
+  declare APP="$1" GIT_REMOTE="$2" GIT_REF="$3" SKIP_DEPLOY_BRANCH="$4"
   local APP_ROOT="$DOKKU_ROOT/$APP"
   [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
 
@@ -404,8 +409,12 @@ fn-git-clone() {
   else
     GIT_TERMINAL_PROMPT=0 suppress_output git clone -n --branch "$GIT_REF" "$GIT_REMOTE" "$TMP_CLONE_DIR"
     if fn-git-cmd "$TMP_CLONE_DIR" show-ref --verify "refs/heads/$GIT_REF" &>/dev/null; then
-      dokku_log_verbose "Detected branch, setting deploy-branch to $GIT_REF"
-      fn-plugin-property-write "git" "$APP" "deploy-branch" "$GIT_REF"
+      if [[ "$SKIP_DEPLOY_BRANCH" != "true" ]]; then
+        dokku_log_verbose "Detected branch, setting deploy-branch to $GIT_REF"
+        fn-plugin-property-write "git" "$APP" "deploy-branch" "$GIT_REF"
+      else
+        dokku_log_verbose "Detected branch $GIT_REF, skipping deploy-branch setting"
+      fi
     fi
   fi
 

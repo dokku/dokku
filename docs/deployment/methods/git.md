@@ -10,7 +10,7 @@ git:from-archive [--archive-type ARCHIVE_TYPE] <app> <archive-url> [<git-usernam
 git:from-image [--build-dir DIRECTORY] <app> <docker-image> [<git-username> <git-email>] # Updates an app's git repository with a given docker image
 git:generate-deploy-key                           # Generates a deploy ssh key
 git:load-image [--build-dir DIRECTORY] <app> <docker-image> [<git-username> <git-email>] # Updates an app's git repository with a docker image loaded from stdin
-git:sync [--build|build-if-changes] <app> <repository> [<git-ref>] # Clone or fetch an app from remote git repo
+git:sync [--build|--build-if-changes] [--skip-deploy-branch] <app> <repository> [<git-ref>] # Clone or fetch an app from remote git repo
 git:initialize <app>                              # Initialize a git repository for an app
 git:public-key                                    # Outputs the dokku public deploy key
 git:report [<app>] [<flag>]                       # Displays a git report for one or more apps
@@ -161,6 +161,12 @@ When running `git:sync` without a reference, it may be useful to only build when
 
 ```shell
 dokku git:sync --build-if-changes node-js-app https://github.com/heroku/node-js-getting-started.git
+```
+
+By default, when running `git:sync` with a git branch reference, Dokku will automatically set the `deploy-branch` property to the specified branch. To skip setting the deploy branch, specify the `--skip-deploy-branch` flag.
+
+```shell
+dokku git:sync --skip-deploy-branch node-js-app https://github.com/heroku/node-js-getting-started.git main
 ```
 
 ### Initializing from private repositories

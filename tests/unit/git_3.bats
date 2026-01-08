@@ -629,3 +629,105 @@ teardown() {
   echo "status: $status"
   assert_success
 }
+
+@test "(git:sync) --skip-deploy-branch" {
+  run /bin/bash -c "dokku git:report $TEST_APP --git-deploy-branch"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "master"
+
+  run /bin/bash -c "dokku git:sync $TEST_APP https://github.com/dokku/smoke-test-app.git another-branch"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Detected branch, setting deploy-branch to another-branch"
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-deploy-branch"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "another-branch"
+
+  run destroy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-deploy-branch"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "master"
+
+  run /bin/bash -c "dokku git:sync --skip-deploy-branch $TEST_APP https://github.com/dokku/smoke-test-app.git another-branch"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "skipping deploy-branch setting"
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-deploy-branch"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "master"
+}
+
+@test "(git:sync) --build --skip-deploy-branch" {
+  run /bin/bash -c "dokku git:report $TEST_APP --git-deploy-branch"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "master"
+
+  run /bin/bash -c "dokku git:sync --build --skip-deploy-branch $TEST_APP https://github.com/dokku/smoke-test-app.git another-branch"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "skipping deploy-branch setting"
+  assert_output_contains "Application deployed"
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-deploy-branch"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "master"
+}
+
+@test "(git:sync) --build-if-changes --skip-deploy-branch" {
+  run /bin/bash -c "dokku git:report $TEST_APP --git-deploy-branch"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "master"
+
+  run /bin/bash -c "dokku git:sync --build-if-changes --skip-deploy-branch $TEST_APP https://github.com/dokku/smoke-test-app.git another-branch"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "skipping deploy-branch setting"
+  assert_output_contains "Application deployed"
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-deploy-branch"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "master"
+
+  run /bin/bash -c "dokku git:sync --build-if-changes --skip-deploy-branch $TEST_APP https://github.com/dokku/smoke-test-app.git another-branch"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Skipping build as no changes were detected"
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-deploy-branch"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "master"
+}
