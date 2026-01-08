@@ -16,10 +16,14 @@ main() {
     exit 1
   fi
 
-  if [[ "$CHOWN_ID" != "32767" ]] && [[ "$CHOWN_ID" != "1000" ]] && [[ "$CHOWN_ID" != "2000" ]]; then
-    echo " !     Unsupported chown permissions. Supported values: 32767, 1000, 2000"
-    exit 1
-  fi
+  case "$CHOWN_ID" in
+    0|1000|2000|32767|165536|166536|167536|198303)
+      ;;
+    *)
+      echo " !     Unsupported chown permissions. Supported values: 0, 1000, 2000, 32767 (and user namespace offset variants)" 1>&2
+      exit 1
+      ;;
+  esac
 
   chown -R "$CHOWN_ID:$CHOWN_ID" "${DOKKU_LIB_ROOT}/data/storage/$DIRECTORY"
 }

@@ -88,6 +88,29 @@ func GetDockerOptionsForPhase(appName string, phase string) ([]string, error) {
 	return options, nil
 }
 
+// RemoveDockerOptionFromPhases removes a docker option from specified phases
+func RemoveDockerOptionFromPhases(appName string, phases []string, option string) error {
+	for _, phase := range phases {
+		options, err := GetDockerOptionsForPhase(appName, phase)
+		if err != nil {
+			return err
+		}
+
+		newOptions := []string{}
+		for _, opt := range options {
+			if opt != option {
+				newOptions = append(newOptions, opt)
+			}
+		}
+
+		sort.Strings(newOptions)
+		if err = writeDockerOptionsForPhase(appName, phase, newOptions); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // GetSpecifiedDockerOptionsForPhase returns the docker options for the specified phase that are in the desiredOptions list
 // It expects desiredOptions to be a list of docker options that are in the format "--option"
 // And will retrieve any lines that start with the desired option
