@@ -17,7 +17,13 @@ In the above example, Dokku will build the app as if the repository contained _o
 FROM my-registry/node-js-getting-started:latest
 ```
 
-If the specified image already exists on the Dokku host, it will not be pulled again, though this behavior may be changed using [build phase docker-options](/docs/advanced-usage/docker-options.md).
+If the specified image already exists on the Dokku host, it will not be pulled again. To force a pull even when the image exists locally, use the `--force` flag:
+
+```shell
+dokku git:from-image --force node-js-app my-registry/node-js-getting-started:latest
+```
+
+This is useful when the remote image has been updated but the tag remains the same.
 
 Triggering a build with the same arguments multiple times will result in Dokku exiting `0` early as there will be no changes detected. If the image tag is reused but the underlying image is different, it is recommended to use the image digest instead of the tag. This can be retrieved via the following command:
 

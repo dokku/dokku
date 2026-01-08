@@ -141,13 +141,18 @@ cmd-git-from-image() {
   local cmd="git:from-image"
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP DOCKER_IMAGE USER_NAME USER_EMAIL
-  local BUILD_DIR
+  local BUILD_DIR FORCE=false
 
   ARGS=()
   skip=false
   for arg in "$@"; do
     if [[ "$arg" == "--build-dir" ]]; then
       skip=true
+      continue
+    fi
+
+    if [[ "$arg" == "--force" ]]; then
+      FORCE=true
       continue
     fi
 
@@ -167,6 +172,10 @@ cmd-git-from-image() {
 
   verify_app_name "$APP"
   [[ -z "$DOCKER_IMAGE" ]] && dokku_log_fail "Please specify a docker image"
+
+  if [[ "$FORCE" == "true" ]]; then
+    export DOKKU_APPS_FORCE_DELETE=1
+  fi
 
   if ! plugn trigger git-from-image "$APP" "$DOCKER_IMAGE" "$BUILD_DIR" "$USER_NAME" "$USER_EMAIL"; then
     return 1

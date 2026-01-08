@@ -26,9 +26,16 @@ trigger-git-git-from-image() {
   echo "FROM $DOCKER_IMAGE" >>"$TMP_WORK_DIR/Dockerfile"
   echo "LABEL com.dokku.docker-image-labeler/alternate-tags=[\\\"$DOCKER_IMAGE\\\"]" >>"$TMP_WORK_DIR/Dockerfile"
 
-  if [[ "$(docker images -q "$DOCKER_IMAGE" 2>/dev/null)" == "" ]]; then
+  if [[ "$("$DOCKER_BIN" image ls -q "$DOCKER_IMAGE" 2>/dev/null)" == "" ]]; then
     dokku_log_info1 "Pulling image"
-    "$DOCKER_BIN" image pull "$DOCKER_IMAGE"
+    if ! "$DOCKER_BIN" image pull "$DOCKER_IMAGE"; then
+      dokku_log_fail "Failed to pull image: $DOCKER_IMAGE"
+    fi
+  elif [[ "$DOKKU_APPS_FORCE_DELETE" == "1" ]]; then
+    dokku_log_info1 "Force pulling image"
+    if ! "$DOCKER_BIN" image pull "$DOCKER_IMAGE"; then
+      dokku_log_fail "Failed to pull image: $DOCKER_IMAGE"
+    fi
   else
     dokku_log_info1 "Image exists on host, skipping pull"
   fi
