@@ -17,8 +17,7 @@ main() {
   fi
 
   case "$CHOWN_ID" in
-    0|1000|2000|32767|165536|166536|167536|198303)
-      ;;
+    0 | 1000 | 2000 | 32767 | 165536 | 166536 | 167536 | 198303) ;;
     *)
       echo " !     Unsupported chown permissions. Supported values: 0, 1000, 2000, 32767 (and user namespace offset variants)" 1>&2
       exit 1
