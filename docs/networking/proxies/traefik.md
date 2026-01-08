@@ -32,6 +32,42 @@ The Traefik plugin has specific rules for routing requests:
 - If no `https:443` mapping is found, the first `https` port mapping is used for https requests.
 - If no `https` mapping is found, the container port from `http:80` will be used for https requests.
 - Requests are routed as soon as the container is running and passing healthchecks.
+- Readiness healthchecks defined in `app.json` with a `path` property are automatically transformed into Traefik healthcheck labels.
+
+### Healthchecks
+
+When an app has a readiness healthcheck defined in its `app.json` file with a `path` property, Dokku automatically generates Traefik healthcheck labels. These labels configure Traefik to perform health checks on the container before routing traffic to it.
+
+The following `app.json` healthcheck properties are mapped to Traefik labels:
+
+| app.json Property | Traefik Label Property | Description |
+|-------------------|------------------------|-------------|
+| `path`            | `healthcheck.path`     | The HTTP path to check (required) |
+| `scheme`          | `healthcheck.scheme`   | The scheme to use (`http` or `https`) |
+| `port`            | `healthcheck.port`     | The port to check |
+| `timeout`         | `healthcheck.timeout`  | Timeout in seconds (formatted as `Xs`) |
+| `wait`            | `healthcheck.interval` | Interval between checks in seconds (formatted as `Xs`) |
+
+Example `app.json` configuration:
+
+```json
+{
+  "healthchecks": {
+    "web": [
+      {
+        "name": "web readiness check",
+        "path": "/health",
+        "timeout": 5,
+        "type": "readiness",
+        "wait": 10
+      }
+    ]
+  }
+}
+```
+
+> [!NOTE]
+> Only the first readiness healthcheck with a `path` property is used. Liveness, startup, and command-based healthchecks are not transformed into Traefik labels.
 
 ### Switching to Traefik
 

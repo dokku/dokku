@@ -129,6 +129,33 @@ trigger-traefik-vhosts-docker-args-process-deploy() {
         output="$output --label \"traefik.http.routers.$APP-$PROC_TYPE-https.rule=$traefik_domains\""
       fi
     fi
+
+    local app_json hc_path hc_scheme hc_port hc_timeout hc_interval hc_filter
+    app_json="$(plugn trigger app-json-get-content "$APP" 2>/dev/null || echo "{}")"
+    hc_filter='.healthchecks.web // [] | map(select(.type == "readiness" and .path != null and .path != "")) | .[0]'
+    hc_path=$(echo "$app_json" | jq -r "$hc_filter | .path // empty")
+    if [[ -n "$hc_path" ]]; then
+      hc_scheme=$(echo "$app_json" | jq -r "$hc_filter | .scheme // empty")
+      hc_port=$(echo "$app_json" | jq -r "$hc_filter | .port // empty")
+      hc_timeout=$(echo "$app_json" | jq -r "$hc_filter | .timeout // empty")
+      hc_interval=$(echo "$app_json" | jq -r "$hc_filter | .wait // empty")
+
+      if [[ -n "$proxy_container_http_port" ]]; then
+        output="$output --label traefik.http.services.$APP-$PROC_TYPE-http.loadbalancer.healthcheck.path=$hc_path"
+        [[ -n "$hc_scheme" ]] && output="$output --label traefik.http.services.$APP-$PROC_TYPE-http.loadbalancer.healthcheck.scheme=$hc_scheme"
+        [[ -n "$hc_port" ]] && output="$output --label traefik.http.services.$APP-$PROC_TYPE-http.loadbalancer.healthcheck.port=$hc_port"
+        [[ -n "$hc_timeout" ]] && output="$output --label traefik.http.services.$APP-$PROC_TYPE-http.loadbalancer.healthcheck.timeout=${hc_timeout}s"
+        [[ -n "$hc_interval" ]] && output="$output --label traefik.http.services.$APP-$PROC_TYPE-http.loadbalancer.healthcheck.interval=${hc_interval}s"
+      fi
+
+      if [[ -n "$proxy_container_https_port" ]]; then
+        output="$output --label traefik.http.services.$APP-$PROC_TYPE-https.loadbalancer.healthcheck.path=$hc_path"
+        [[ -n "$hc_scheme" ]] && output="$output --label traefik.http.services.$APP-$PROC_TYPE-https.loadbalancer.healthcheck.scheme=$hc_scheme"
+        [[ -n "$hc_port" ]] && output="$output --label traefik.http.services.$APP-$PROC_TYPE-https.loadbalancer.healthcheck.port=$hc_port"
+        [[ -n "$hc_timeout" ]] && output="$output --label traefik.http.services.$APP-$PROC_TYPE-https.loadbalancer.healthcheck.timeout=${hc_timeout}s"
+        [[ -n "$hc_interval" ]] && output="$output --label traefik.http.services.$APP-$PROC_TYPE-https.loadbalancer.healthcheck.interval=${hc_interval}s"
+      fi
+    fi
   fi
 
   local proxy_labels_file_path=$(fn-proxy-get-labels-file-path "traefik" "$APP")
