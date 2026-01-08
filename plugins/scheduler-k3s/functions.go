@@ -1262,6 +1262,67 @@ func getGlobalGlobalToken() string {
 	return common.PropertyGet("scheduler-k3s", "--global", "token")
 }
 
+func getDeployedAppImageTag(appName string) (string, error) {
+	appValues, err := helmValuesForApp(appName)
+	if err != nil {
+		return "", err
+	}
+
+	if appValues.Global.Image.Name == "" {
+		return "", fmt.Errorf("image name not found in helm release")
+	}
+
+	return appValues.Global.Image.Name, nil
+}
+
+func helmValuesForApp(appName string) (AppValues, error) {
+	namespace := getComputedNamespace(appName)
+	helmAgent, err := NewHelmAgent(namespace, DevNullPrinter)
+	if err != nil {
+		return AppValues{}, fmt.Errorf("error creating helm agent: %w", err)
+	}
+
+	exists, err := helmAgent.ChartExists(appName)
+	if err != nil {
+		return AppValues{}, fmt.Errorf("error checking if chart exists: %w", err)
+	}
+	if !exists {
+		return AppValues{}, fmt.Errorf("app %s is not deployed", appName)
+	}
+
+	values, err := helmAgent.GetValues(appName)
+	if err != nil {
+		return AppValues{}, fmt.Errorf("error getting helm values: %w", err)
+	}
+
+	b, err := yaml.Marshal(values)
+	if err != nil {
+		return AppValues{}, fmt.Errorf("error marshaling helm values: %w", err)
+	}
+
+	var appValues AppValues
+	if err := yaml.Unmarshal(b, &appValues); err != nil {
+		return AppValues{}, fmt.Errorf("error unmarshaling helm values: %w", err)
+	}
+
+	return appValues, nil
+}
+
+func isAppDeployed(appName string) bool {
+	namespace := getComputedNamespace(appName)
+	helmAgent, err := NewHelmAgent(namespace, DevNullPrinter)
+	if err != nil {
+		return false
+	}
+
+	exists, err := helmAgent.ChartExists(appName)
+	if err != nil {
+		return false
+	}
+
+	return exists
+}
+
 func getProcessHealtchecks(healthchecks []appjson.Healthcheck, primaryPort int32) ProcessHealthchecks {
 	if len(healthchecks) == 0 {
 		return ProcessHealthchecks{}

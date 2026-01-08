@@ -42,6 +42,12 @@ func main() {
 	case "post-create":
 		appName := flag.Arg(0)
 		err = scheduler_k3s.TriggerPostCreate(appName)
+	case "post-certs-update":
+		appName := flag.Arg(0)
+		err = scheduler_k3s.TriggerPostCertsUpdate(appName)
+	case "post-certs-remove":
+		appName := flag.Arg(0)
+		err = scheduler_k3s.TriggerPostCertsRemove(appName)
 	case "post-delete":
 		appName := flag.Arg(0)
 		err = scheduler_k3s.TriggerPostDelete(appName)

@@ -307,6 +307,36 @@ The server can also be disabled globally, and then conditionally enabled on a pe
 dokku scheduler-k3s:set --global letsencrypt-server false
 ```
 
+#### Using imported SSL certificates
+
+SSL certificates imported via the `certs` plugin can be used with the k3s scheduler. When a certificate is imported, it is automatically synced to Kubernetes as a TLS secret and will be used for the app's ingress configuration.
+
+To import a certificate:
+
+```shell
+dokku certs:add node-js-app server.crt server.key
+```
+
+When a certificate is imported:
+
+- A Kubernetes TLS secret named `tls-<app-name>` is created in the app's namespace
+- The ingress configuration is updated to use the imported certificate
+- Automatic Let's Encrypt certificate generation is disabled for the app
+
+Imported certificates take precedence over Let's Encrypt certificates. If you have both an imported certificate and Let's Encrypt configured, the imported certificate will be used.
+
+To remove an imported certificate:
+
+```shell
+dokku certs:remove node-js-app
+```
+
+When a certificate is removed:
+
+- The TLS secret is deleted from Kubernetes
+- The app is automatically redeployed to update the ingress configuration
+- If Let's Encrypt is configured, automatic certificate generation will resume
+
 ### Customizing Annotations and Labels
 
 > [!NOTE]

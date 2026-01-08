@@ -38,7 +38,11 @@ spec:
   tls:
     - hosts:
       - {{ $domain.name | quote }}
+      {{- if $config.web.tls.use_imported_cert }}
+      secretName: tls-{{ $.Values.global.app_name }}
+      {{- else }}
       secretName: tls-{{ $.Values.global.app_name }}-{{ $processName }}
+      {{- end }}
   {{- end }}
   rules:
     - host: {{ $domain.name | quote }}

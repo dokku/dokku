@@ -42,8 +42,6 @@ func TriggerCorePostDeploy(appName string) error {
 			{Path: "kustomization", IsDirectory: true},
 		},
 	})
-
-	return nil
 }
 
 // TriggerCorePostExtract moves a configured kustomize root path to be in the app root dir
@@ -76,7 +74,79 @@ func TriggerInstall() error {
 		return err
 	}
 
+	if err := syncExistingCertificates(); err != nil {
+		common.LogWarn(fmt.Sprintf("Warning: failed to sync existing certificates: %v", err))
+	}
+
 	return nil
+}
+
+// TriggerPostCertsUpdate handles post-certs-update trigger
+func TriggerPostCertsUpdate(appName string) error {
+	scheduler := common.PropertyGetDefault("scheduler", appName, "selected", "")
+	globalScheduler := common.PropertyGetDefault("scheduler", "--global", "selected", "docker-local")
+	if scheduler == "" {
+		scheduler = globalScheduler
+	}
+	if scheduler != "k3s" {
+		return nil
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	common.LogInfo1(fmt.Sprintf("Syncing TLS certificate for %s to kubernetes", appName))
+	if err := CreateOrUpdateTLSSecret(ctx, appName); err != nil {
+		return err
+	}
+
+	if !isAppDeployed(appName) {
+		return nil
+	}
+
+	imageTag, err := getDeployedAppImageTag(appName)
+	if err != nil {
+		return nil
+	}
+
+	common.LogInfo1(fmt.Sprintf("Triggering redeploy for %s to update ingress configuration", appName))
+	return TriggerSchedulerDeploy("k3s", appName, imageTag)
+}
+
+// TriggerPostCertsRemove handles post-certs-remove trigger
+func TriggerPostCertsRemove(appName string) error {
+	scheduler := common.PropertyGetDefault("scheduler", appName, "selected", "")
+	globalScheduler := common.PropertyGetDefault("scheduler", "--global", "selected", "docker-local")
+	if scheduler == "" {
+		scheduler = globalScheduler
+	}
+	if scheduler != "k3s" {
+		return nil
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	deleted, err := DeleteTLSSecret(ctx, appName)
+	if err != nil {
+		return err
+	}
+
+	if !deleted {
+		return nil
+	}
+
+	if !isAppDeployed(appName) {
+		return nil
+	}
+
+	imageTag, err := getDeployedAppImageTag(appName)
+	if err != nil {
+		return nil
+	}
+
+	common.LogInfo1(fmt.Sprintf("Triggering redeploy for %s to update ingress configuration", appName))
+	return TriggerSchedulerDeploy("k3s", appName, imageTag)
 }
 
 // TriggerPostAppCloneSetup creates new scheduler-k3s files
@@ -284,24 +354,41 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 		return fmt.Errorf("Error loading environment for deployment: %w", err)
 	}
 
-	server := getComputedLetsencryptServer(appName)
-	letsencryptEmailStag := getGlobalLetsencryptEmailStag()
-	letsencryptEmailProd := getGlobalLetsencryptEmailProd()
-	tlsEnabled := false
+	// Check for imported TLS certificate first
+	importedCertExists := false
+	if HasImportedTLSCert(appName) {
+		exists, err := TLSSecretExists(ctx, appName)
+		if err == nil && exists {
+			importedCertExists = true
+		}
+	}
 
+	// Determine TLS configuration
+	tlsEnabled := false
 	issuerName := ""
-	switch server {
-	case "prod", "production":
-		issuerName = "letsencrypt-prod"
-		tlsEnabled = letsencryptEmailProd != ""
-	case "stag", "staging":
-		issuerName = "letsencrypt-stag"
-		tlsEnabled = letsencryptEmailStag != ""
-	case "false":
-		issuerName = ""
-		tlsEnabled = false
-	default:
-		return fmt.Errorf("Invalid letsencrypt server config: %s", server)
+	useImportedCert := false
+
+	if importedCertExists {
+		tlsEnabled = true
+		useImportedCert = true
+	} else {
+		server := getComputedLetsencryptServer(appName)
+		letsencryptEmailStag := getGlobalLetsencryptEmailStag()
+		letsencryptEmailProd := getGlobalLetsencryptEmailProd()
+
+		switch server {
+		case "prod", "production":
+			issuerName = "letsencrypt-prod"
+			tlsEnabled = letsencryptEmailProd != ""
+		case "stag", "staging":
+			issuerName = "letsencrypt-stag"
+			tlsEnabled = letsencryptEmailStag != ""
+		case "false":
+			issuerName = ""
+			tlsEnabled = false
+		default:
+			return fmt.Errorf("Invalid letsencrypt server config: %s", server)
+		}
 	}
 
 	chartDir, err := os.MkdirTemp("", "dokku-chart-")
@@ -577,8 +664,9 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 				Domains:  domainValues,
 				PortMaps: []ProcessPortMap{},
 				TLS: ProcessTls{
-					Enabled:    tlsEnabled,
-					IssuerName: issuerName,
+					Enabled:         tlsEnabled,
+					IssuerName:      issuerName,
+					UseImportedCert: useImportedCert,
 				},
 			}
 
@@ -883,20 +971,7 @@ func TriggerSchedulerIsDeployed(scheduler string, appName string) error {
 		return nil
 	}
 
-	// check if there are any helm revisions for the specified appName
-	helmAgent, err := NewHelmAgent(getComputedNamespace(appName), DeployLogPrinter)
-	if err != nil {
-		return fmt.Errorf("Error creating helm agent: %w", err)
-	}
-
-	revisions, err := helmAgent.ListRevisions(ListRevisionsInput{
-		ReleaseName: appName,
-	})
-	if err != nil {
-		return fmt.Errorf("Error listing helm revisions: %w", err)
-	}
-
-	if len(revisions) > 0 {
+	if isAppDeployed(appName) {
 		return nil
 	}
 
