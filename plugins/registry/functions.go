@@ -2,13 +2,57 @@ package registry
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"text/template"
 
 	"github.com/dokku/dokku/plugins/common"
 )
+
+const registryConfigDir = "/var/lib/dokku/config/registry"
+
+// GetAppRegistryConfigDir returns the per-app registry config directory
+func GetAppRegistryConfigDir(appName string) string {
+	return filepath.Join(registryConfigDir, appName)
+}
+
+// GetAppRegistryConfigPath returns the path to per-app docker config.json
+func GetAppRegistryConfigPath(appName string) string {
+	return filepath.Join(GetAppRegistryConfigDir(appName), "config.json")
+}
+
+// HasAppRegistryAuth checks if an app has registry credentials configured
+func HasAppRegistryAuth(appName string) bool {
+	configPath := GetAppRegistryConfigPath(appName)
+	if !common.FileExists(configPath) {
+		return false
+	}
+
+	content, err := os.ReadFile(configPath)
+	if err != nil {
+		return false
+	}
+
+	var config map[string]interface{}
+	if err := json.Unmarshal(content, &config); err != nil {
+		return false
+	}
+
+	auths, ok := config["auths"].(map[string]interface{})
+	return ok && len(auths) > 0
+}
+
+// GetDockerConfigArgs returns docker --config arguments if per-app config exists
+func GetDockerConfigArgs(appName string) []string {
+	if appName == "" || !HasAppRegistryAuth(appName) {
+		return []string{}
+	}
+	return []string{"--config", GetAppRegistryConfigDir(appName)}
+}
 
 func getImageRepoFromTemplate(appName string) (string, error) {
 	imageRepoTemplate := common.PropertyGet("registry", "--global", "image-repo-template")
@@ -119,14 +163,14 @@ func pushToRegistry(appName string, tag int, imageID string, imageRepo string) e
 				}
 			}()
 			common.LogVerboseQuiet(fmt.Sprintf("Pushing %s", extraTagImage))
-			if err := dockerPush(extraTagImage); err != nil {
+			if err := dockerPush(appName, extraTagImage); err != nil {
 				return fmt.Errorf("unable to push image with %s tag: %w", extraTag, err)
 			}
 		}
 	}
 
 	common.LogVerboseQuiet(fmt.Sprintf("Pushing %s", fullImage))
-	if err := dockerPush(fullImage); err != nil {
+	if err := dockerPush(appName, fullImage); err != nil {
 		return fmt.Errorf("unable to push image %s: %w", fullImage, err)
 	}
 
@@ -159,17 +203,19 @@ func dockerTag(imageID string, imageTag string) error {
 	return nil
 }
 
-func dockerPush(imageTag string) error {
+func dockerPush(appName string, imageTag string) error {
+	args := GetDockerConfigArgs(appName)
+	args = append(args, "image", "push", imageTag)
 	result, err := common.CallExecCommand(common.ExecCommandInput{
 		Command:     common.DockerBin(),
-		Args:        []string{"image", "push", imageTag},
+		Args:        args,
 		StreamStdio: true,
 	})
 	if err != nil {
-		return fmt.Errorf("docker push command failed: %w", err)
+		return fmt.Errorf("docker image push command failed: %w", err)
 	}
 	if result.ExitCode != 0 {
-		return fmt.Errorf("docker push command exited with code %d: %s", result.ExitCode, result.Stderr)
+		return fmt.Errorf("docker image push command exited with code %d: %s", result.ExitCode, result.Stderr)
 	}
 	return nil
 }

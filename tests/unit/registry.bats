@@ -27,7 +27,7 @@ teardown() {
   assert_output "$help_output"
 }
 
-@test "(registry) registry:login" {
+@test "(registry:login) global login with deprecated warning" {
   if [[ -z "$DOCKERHUB_USERNAME" ]] || [[ -z "$DOCKERHUB_TOKEN" ]]; then
     skip "skipping due to missing docker.io credentials DOCKERHUB_USERNAME:DOCKERHUB_TOKEN"
   fi
@@ -37,12 +37,100 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_contains "Login Succeeded"
+  assert_output_contains "Deprecated: please use --global flag"
 
   run /bin/bash -c "echo $DOCKERHUB_TOKEN | dokku registry:login docker.io --password-stdin $DOCKERHUB_USERNAME"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output_contains "Login Succeeded"
+}
+
+@test "(registry:login) global login with --global flag" {
+  if [[ -z "$DOCKERHUB_USERNAME" ]] || [[ -z "$DOCKERHUB_TOKEN" ]]; then
+    skip "skipping due to missing docker.io credentials DOCKERHUB_USERNAME:DOCKERHUB_TOKEN"
+  fi
+
+  run /bin/bash -c "dokku registry:login --global docker.io $DOCKERHUB_USERNAME $DOCKERHUB_TOKEN"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Login Succeeded"
+  assert_output_not_contains "Deprecated"
+}
+
+@test "(registry:login) per-app login" {
+  if [[ -z "$DOCKERHUB_USERNAME" ]] || [[ -z "$DOCKERHUB_TOKEN" ]]; then
+    skip "skipping due to missing docker.io credentials DOCKERHUB_USERNAME:DOCKERHUB_TOKEN"
+  fi
+
+  run /bin/bash -c "dokku registry:login $TEST_APP docker.io $DOCKERHUB_USERNAME $DOCKERHUB_TOKEN"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Login Succeeded"
+
+  run /bin/bash -c "test -f /var/lib/dokku/config/registry/$TEST_APP/config.json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
+@test "(registry:logout) per-app logout" {
+  if [[ -z "$DOCKERHUB_USERNAME" ]] || [[ -z "$DOCKERHUB_TOKEN" ]]; then
+    skip "skipping due to missing docker.io credentials DOCKERHUB_USERNAME:DOCKERHUB_TOKEN"
+  fi
+
+  run /bin/bash -c "dokku registry:login $TEST_APP docker.io $DOCKERHUB_USERNAME $DOCKERHUB_TOKEN"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku registry:logout $TEST_APP docker.io"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
+@test "(registry:logout) global logout" {
+  if [[ -z "$DOCKERHUB_USERNAME" ]] || [[ -z "$DOCKERHUB_TOKEN" ]]; then
+    skip "skipping due to missing docker.io credentials DOCKERHUB_USERNAME:DOCKERHUB_TOKEN"
+  fi
+
+  run /bin/bash -c "dokku registry:login --global docker.io $DOCKERHUB_USERNAME $DOCKERHUB_TOKEN"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku registry:logout --global docker.io"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
+@test "(registry) per-app credentials deleted on app destroy" {
+  if [[ -z "$DOCKERHUB_USERNAME" ]] || [[ -z "$DOCKERHUB_TOKEN" ]]; then
+    skip "skipping due to missing docker.io credentials DOCKERHUB_USERNAME:DOCKERHUB_TOKEN"
+  fi
+
+  run /bin/bash -c "dokku registry:login $TEST_APP docker.io $DOCKERHUB_USERNAME $DOCKERHUB_TOKEN"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "test -d /var/lib/dokku/config/registry/$TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  destroy_app
+
+  run /bin/bash -c "test -d /var/lib/dokku/config/registry/$TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  create_app
 }
 
 @test "(registry) registry:set server" {

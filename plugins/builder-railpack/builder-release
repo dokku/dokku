@@ -19,7 +19,9 @@ trigger-builder-railpack-builder-release() {
   trap "rm -rf '$TMP_WORK_DIR' >/dev/null" RETURN INT TERM EXIT
 
   local DOCKER_BUILD_LABEL_ARGS=("--label=org.label-schema.schema-version=1.0" "--label=org.label-schema.vendor=dokku" "--label=com.dokku.image-stage=release" "--label=com.dokku.builder-type=railpack" "--label=com.dokku.app-name=$APP" "--label=dokku")
-
+  local DOCKER_CONFIG
+  DOCKER_CONFIG="$(fn-registry-docker-config "$APP")"
+  [[ -n "$DOCKER_CONFIG" ]] && export DOCKER_CONFIG
   if ! suppress_output "$DOCKER_BIN" image build "${DOCKER_BUILD_LABEL_ARGS[@]}" $DOKKU_GLOBAL_BUILD_ARGS -f "$PLUGIN_AVAILABLE_PATH/builder-railpack/dockerfiles/builder-release.Dockerfile" --build-arg APP_IMAGE="$IMAGE" -t "$IMAGE" "$TMP_WORK_DIR"; then
     dokku_log_warn "Failure injecting docker labels on image"
     return 1
