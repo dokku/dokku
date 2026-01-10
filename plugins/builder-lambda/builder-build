@@ -25,7 +25,7 @@ trigger-builder-lambda-builder-build() {
   plugn trigger pre-build "$BUILDER_TYPE" "$APP" "$SOURCECODE_WORK_DIR"
 
   local DOCKER_CONFIG
-  DOCKER_CONFIG="$(fn-registry-docker-config-dir"$APP")"
+  DOCKER_CONFIG="$(fn-registry-docker-config-dir "$APP")"
   [[ -n "$DOCKER_CONFIG" ]] && export DOCKER_CONFIG
   lambda-builder build --generate-image --write-procfile --image-env=DOCKER_LAMBDA_STAY_OPEN=1 --label=org.label-schema.schema-version=1.0 --label=org.label-schema.vendor=dokku --label=com.dokku.image-stage=build --label=com.dokku.builder-type=lambda "--label=com.dokku.app-name=$APP" $DOKKU_GLOBAL_BUILD_ARGS --port 5000 --tag "$IMAGE" --working-directory "$SOURCECODE_WORK_DIR"
   if [[ ! -f "$SOURCECODE_WORK_DIR/lambda.zip" ]]; then

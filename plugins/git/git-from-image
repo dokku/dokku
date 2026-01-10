@@ -27,7 +27,7 @@ trigger-git-git-from-image() {
   echo "LABEL com.dokku.docker-image-labeler/alternate-tags=[\\\"$DOCKER_IMAGE\\\"]" >>"$TMP_WORK_DIR/Dockerfile"
 
   local DOCKER_CONFIG
-  DOCKER_CONFIG="$(fn-registry-docker-config-dir"$APP")"
+  DOCKER_CONFIG="$(fn-registry-docker-config-dir "$APP")"
   [[ -n "$DOCKER_CONFIG" ]] && export DOCKER_CONFIG
 
   if [[ "$("$DOCKER_BIN" image ls -q "$DOCKER_IMAGE" 2>/dev/null)" == "" ]]; then

@@ -48,7 +48,7 @@ trigger-builder-herokuish-builder-build() {
 
   local DOCKER_BUILD_LABEL_ARGS=("--label=org.label-schema.schema-version=1.0" "--label=org.label-schema.vendor=dokku" "--label=com.dokku.image-stage=build" "--label=com.dokku.builder-type=herokuish" "--label=com.dokku.app-name=$APP" "--label=dokku")
   local DOCKER_CONFIG
-  DOCKER_CONFIG="$(fn-registry-docker-config-dir"$APP")"
+  DOCKER_CONFIG="$(fn-registry-docker-config-dir "$APP")"
   [[ -n "$DOCKER_CONFIG" ]] && export DOCKER_CONFIG
   DOKKU_APP_USER=$(config_get "$APP" DOKKU_APP_USER || true)
   DOKKU_APP_USER=${DOKKU_APP_USER:="herokuishuser"}

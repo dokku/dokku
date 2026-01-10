@@ -247,7 +247,7 @@ trigger-builder-dockerfile-builder-build() {
 
   eval "$(config_export app "$APP")"
   local DOCKER_CONFIG
-  DOCKER_CONFIG="$(fn-registry-docker-config-dir"$APP")"
+  DOCKER_CONFIG="$(fn-registry-docker-config-dir "$APP")"
   [[ -n "$DOCKER_CONFIG" ]] && export DOCKER_CONFIG
   "$DOCKER_BIN" image build "${DOCKER_BUILD_LABEL_ARGS[@]}" "${DOCKERFILE_ARGS[@]}" --tag $IMAGE .
 
