@@ -25,6 +25,14 @@ func GetAppRegistryConfigPath(appName string) string {
 	return filepath.Join(GetAppRegistryConfigDir(appName), "config.json")
 }
 
+func GetComputedAppRegistryConfigDir(appName string) string {
+	if HasAppRegistryAuth(appName) {
+		return GetAppRegistryConfigDir(appName)
+	}
+
+	return filepath.Join(os.Getenv("DOKKU_ROOT"), ".docker")
+}
+
 // HasAppRegistryAuth checks if an app has registry credentials configured
 func HasAppRegistryAuth(appName string) bool {
 	configPath := GetAppRegistryConfigPath(appName)

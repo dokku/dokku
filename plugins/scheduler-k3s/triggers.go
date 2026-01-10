@@ -23,6 +23,7 @@ import (
 	"github.com/dokku/dokku/plugins/config"
 	"github.com/dokku/dokku/plugins/cron"
 	nginxvhosts "github.com/dokku/dokku/plugins/nginx-vhosts"
+	"github.com/dokku/dokku/plugins/registry"
 	"github.com/fatih/color"
 	"github.com/gosimple/slug"
 	"github.com/kballard/go-shellquote"
@@ -405,7 +406,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 	pullSecretBase64 := base64.StdEncoding.EncodeToString([]byte(""))
 	imagePullSecrets := getComputedImagePullSecrets(appName)
 	if imagePullSecrets == "" {
-		dockerConfigPath := filepath.Join(os.Getenv("DOKKU_ROOT"), ".docker/config.json")
+		dockerConfigPath := filepath.Join(registry.GetComputedAppRegistryConfigDir(appName), "config.json")
 		if fi, err := os.Stat(dockerConfigPath); err == nil && !fi.IsDir() {
 			b, err := os.ReadFile(dockerConfigPath)
 			if err != nil {
