@@ -123,6 +123,19 @@ func CorePostDeploy(input CorePostDeployInput) error {
 		return fmt.Errorf("Missing required Destination in CorePostDeploy for plugin %v", input.PluginName)
 	}
 
+	if !DirectoryExists(input.Destination) {
+		if err := os.MkdirAll(input.Destination, 0755); err != nil {
+			return fmt.Errorf("Unable to create destination directory %v: %s", input.Destination, err.Error())
+		}
+
+		if err := SetPermissions(SetPermissionInput{
+			Filename: input.Destination,
+			Mode:     0755,
+		}); err != nil {
+			return fmt.Errorf("Unable to set destination directory permissions %v: %s", input.Destination, err.Error())
+		}
+	}
+
 	for i, extractedPath := range input.ExtractedPaths {
 		if extractedPath.Path == "" {
 			return fmt.Errorf("Missing required Name in CorePostDeploy for index %v for plugin %v", i, input.PluginName)
@@ -249,6 +262,19 @@ func CorePostExtract(input CorePostExtractInput) error {
 		Args:    []string{input.AppName, "source-image"},
 	})
 	sourceImage := results.StdoutContents()
+
+	if !DirectoryExists(input.Destination) {
+		if err := os.MkdirAll(input.Destination, 0755); err != nil {
+			return fmt.Errorf("Unable to create destination directory %v: %s", input.Destination, err.Error())
+		}
+
+		if err := SetPermissions(SetPermissionInput{
+			Filename: input.Destination,
+			Mode:     0755,
+		}); err != nil {
+			return fmt.Errorf("Unable to set destination directory permissions %v: %s", input.Destination, err.Error())
+		}
+	}
 
 	for i, toExtract := range input.ToExtract {
 		if toExtract.Name == "" {
