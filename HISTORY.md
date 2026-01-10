@@ -1,5 +1,40 @@
 # History
 
+## 0.37.5
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.37.5/bootstrap.sh
+sudo DOKKU_TAG=v0.37.5 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #8274: @josegonzalez Delete the tls app chart when the app is deleted
+- #8273: @josegonzalez Ensure the destination directory exists when extracting files from a repository
+- #8263: @josegonzalez Set correct version for builder-railpack plugin
+
+### New Features
+
+- #8268: @josegonzalez Add the ability to log into a registry on a per-app basis
+- #8258: @josegonzalez Add support for dns-01 challenge mode when using traefik
+- #8262: @josegonzalez Use certificates imported by certs plugin when deploying via scheduler-k3s
+- #8266: @josegonzalez Add a method to force build when re-using an image with git:from-image
+- #8265: @josegonzalez Add the ability to skip setting the deploy-branch when running git:sync
+
+### Refactors
+
+- #8264: @josegonzalez Rewrite the storage plugin in golang
+
+### Dependencies
+
+- #8270: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.38.3 to 1.39.0 in /plugins/common
+- #8267: @dependabot[bot] chore(deps): bump werkzeug from 3.1.4 to 3.1.5 in /tests/apps/python-flask
+- #8260: @dependabot[bot] chore(deps): bump django from 5.2.9 to 5.2.10 in /tests/apps/dockerfile-release
+- #8256: @dependabot[bot] chore(deps): bump luizm/action-sh-checker from 0.9.0 to 0.10.0
+- #8257: @dependabot[bot] chore(deps): bump dj-database-url from 3.0.1 to 3.1.0 in /tests/apps/dockerfile-release
+
 ## 0.37.4
 
 Install/update via the bootstrap script:
