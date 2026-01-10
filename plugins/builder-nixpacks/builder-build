@@ -244,7 +244,7 @@ trigger-builder-nixpacks-builder-build() {
   eval "$(config_export app "$APP" --merged)"
 
   local DOCKER_CONFIG
-  DOCKER_CONFIG="$(fn-registry-docker-config "$APP")"
+  DOCKER_CONFIG="$(fn-registry-docker-config-dir"$APP")"
   [[ -n "$DOCKER_CONFIG" ]] && export DOCKER_CONFIG
 
   if ! nixpacks build "${DOCKER_BUILD_LABEL_ARGS[@]}" "${NIXPACKS_ARGS[@]}" --name "$IMAGE" "$SOURCECODE_WORK_DIR"; then
