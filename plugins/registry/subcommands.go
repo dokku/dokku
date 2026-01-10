@@ -48,7 +48,7 @@ func CommandLogin(appName string, server string, username string, password strin
 		if err := os.MkdirAll(configDir, 0700); err != nil {
 			return fmt.Errorf("Unable to create registry config directory: %w", err)
 		}
-		env["DOCKER_CONFIG"] = GetAppRegistryConfigPath(appName)
+		env["DOCKER_CONFIG"] = GetAppRegistryConfigDir(appName)
 	}
 
 	result, err := common.CallExecCommand(common.ExecCommandInput{
@@ -100,7 +100,7 @@ func CommandLogout(appName string, server string) error {
 		if !common.DirectoryExists(configDir) {
 			return fmt.Errorf("No registry credentials found for app %s", appName)
 		}
-		env["DOCKER_CONFIG"] = GetAppRegistryConfigPath(appName)
+		env["DOCKER_CONFIG"] = GetAppRegistryConfigDir(appName)
 	}
 
 	result, err := common.CallExecCommand(common.ExecCommandInput{
