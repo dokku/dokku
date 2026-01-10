@@ -64,6 +64,12 @@ func CommandLogin(appName string, server string, username string, password strin
 		return fmt.Errorf("Unable to run docker login: %s", result.StderrContents())
 	}
 
+	if appName != "" {
+		common.LogWarn(fmt.Sprintf("Login Succeeded for %s", appName))
+	} else {
+		common.LogWarn("Login Succeeded for global registry")
+	}
+
 	// todo: change the signature of the trigger to include the app name
 	_, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
 		Trigger:     "post-registry-login",
