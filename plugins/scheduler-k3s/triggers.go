@@ -1716,6 +1716,12 @@ func TriggerSchedulerPostDelete(scheduler string, appName string) error {
 		return fmt.Errorf("Error uninstalling chart: %w", err)
 	}
 
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	if _, err := DeleteTLSSecret(ctx, appName); err != nil {
+		common.LogWarn(fmt.Sprintf("Error deleting TLS secret for %s: %v", appName, err))
+	}
+
 	return nil
 }
 

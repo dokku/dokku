@@ -337,6 +337,8 @@ When a certificate is removed:
 - The app is automatically redeployed to update the ingress configuration
 - If Let's Encrypt is configured, automatic certificate generation will resume
 
+When an app is destroyed, any associated TLS secret is automatically cleaned up.
+
 ### Customizing Annotations and Labels
 
 > [!NOTE]
