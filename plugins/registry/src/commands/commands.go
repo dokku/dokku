@@ -18,9 +18,10 @@ Manage registry settings for an app
 Additional commands:`
 
 	helpContent = `
-    registry:login [--password-stdin] <server> <username> [<password>], Login to a docker registry
+    registry:login [--global|--password-stdin] [<app>] <server> <username> [<password>], Login to a docker registry
+    registry:logout [--global] [<app>] <server>, Logout from a docker registry
     registry:report [<app>] [<flag>], Displays a registry report for one or more apps
-    registry:set <app> <property> (<value>), Set or clear a registry property for an app`
+    registry:set <app>|--global <property> (<value>), Set or clear a registry property for an app`
 )
 
 func main() {

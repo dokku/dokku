@@ -12,6 +12,7 @@ require (
 	github.com/dokku/dokku/plugins/docker-options v0.0.0-20250618161309-8d0c35f1333c
 	github.com/dokku/dokku/plugins/logs v0.0.0-20250618161309-8d0c35f1333c
 	github.com/dokku/dokku/plugins/nginx-vhosts v0.0.0-20250618161309-8d0c35f1333c
+	github.com/dokku/dokku/plugins/registry v0.0.0-20250618161309-8d0c35f1333c
 	github.com/fatih/color v1.18.0
 	github.com/fluxcd/pkg/kustomize v1.24.0
 	github.com/go-openapi/jsonpointer v0.22.4
@@ -189,6 +190,8 @@ replace github.com/dokku/dokku/plugins/docker-options => ../docker-options
 replace github.com/dokku/dokku/plugins/logs => ../logs
 
 replace github.com/dokku/dokku/plugins/nginx-vhosts => ../nginx-vhosts
+
+replace github.com/dokku/dokku/plugins/registry => ../registry
 
 replace github.com/joho/godotenv => github.com/joho/godotenv v1.2.0
 

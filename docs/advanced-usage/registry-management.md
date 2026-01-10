@@ -4,9 +4,10 @@
 > New as of 0.25.0
 
 ```
-registry:login [--password-stdin] <server> <username> [<password>] # Login to a docker registry
-registry:report [<app>] [<flag>]                                   # Displays a registry report for one or more apps
-registry:set <app> <key> (<value>)                                 # Set or clear a registry property for an app
+registry:login [--global|--password-stdin] [<app>] <server> <username> [<password>] # Login to a docker registry
+registry:logout [--global] [<app>] <server>                                         # Logout from a docker registry
+registry:report [<app>] [<flag>]                                                    # Displays a registry report for one or more apps
+registry:set <app>|--global <key> (<value>)                                         # Set or clear a registry property for an app
 ```
 
 The registry plugin enables interacting with remote registries, which is useful when either deploying images via `git:from-image` or when interacting with custom schedulers to deploy built image artifacts.
@@ -15,33 +16,74 @@ The registry plugin enables interacting with remote registries, which is useful 
 
 ### Logging into a registry
 
-The `registry:login` command can be used to log into a docker registry. The following are examples for logging into various common registries:
+The `registry:login` command can be used to log into a docker registry. Credentials can be stored globally (for all apps) or on a per-app basis.
+
+#### Global login
+
+To log in globally (credentials shared by all apps), use the `--global` flag:
 
 ```shell
 # hub.docker.com
-dokku registry:login docker.io $USERNAME $PASSWORD
+dokku registry:login --global docker.io $USERNAME $PASSWORD
 
 # digitalocean
 # the username and password are both defined as the same api token
-dokku registry:login registry.digitalocean.com $DIGITALOCEAN_API_TOKEN $DIGITALOCEAN_API_TOKEN
+dokku registry:login --global registry.digitalocean.com $DIGITALOCEAN_API_TOKEN $DIGITALOCEAN_API_TOKEN
 
 # github container registry
 # see the following link for information on retrieving a personal access token
 #   https://docs.github.com/en/packages/guides/pushing-and-pulling-docker-images#authenticating-to-github-container-registry
-dokku registry:login ghcr.io $USERNAME $REGISTRY_PAT_TOKEN
+dokku registry:login --global ghcr.io $USERNAME $REGISTRY_PAT_TOKEN
 
 # quay
 # a robot user may be used to login
-dokku registry:login quay.io $USERNAME $PASSWORD
+dokku registry:login --global quay.io $USERNAME $PASSWORD
 ```
 
-For security reasons, the password may also be specified as stdin by specifying the `--password-stdin` flag. This is supported regardless of the registry being logged into.
+> [!NOTE]
+> For backwards compatibility, if the `--global` flag is omitted and only three arguments are provided (server, username, password), the command will behave as a global login but will show a deprecation warning.
+
+#### Per-app login
+
+To log in for a specific app, specify the app name as the first argument:
 
 ```shell
-echo "$PASSWORD" | dokku registry:login --password-stdin docker.io $USERNAME
+# log into docker.io for a specific app
+dokku registry:login node-js-app docker.io $USERNAME $PASSWORD
+
+# log into ghcr.io for a specific app
+dokku registry:login node-js-app ghcr.io $USERNAME $REGISTRY_PAT_TOKEN
+```
+
+Per-app credentials are stored in `/var/lib/dokku/config/registry/$APP/config.json` and are automatically used for docker operations (build, push, pull) for that specific app.
+
+#### Password via stdin
+
+For security reasons, the password may also be specified as stdin by specifying the `--password-stdin` flag. This is supported for both global and per-app logins:
+
+```shell
+# global login via stdin
+echo "$PASSWORD" | dokku registry:login --global --password-stdin docker.io $USERNAME
+
+# per-app login via stdin
+echo "$PASSWORD" | dokku registry:login node-js-app --password-stdin docker.io $USERNAME
 ```
 
 For certain Docker registries - such as Amazon ECR or Google's GCR registries - users may instead wish to use a docker credential helper to automatically authenticate against a server; please see the documentation regarding the credential helper in question for further setup instructions.
+
+### Logging out from a registry
+
+The `registry:logout` command can be used to log out from a docker registry:
+
+```shell
+# global logout
+dokku registry:logout --global docker.io
+
+# per-app logout
+dokku registry:logout node-js-app docker.io
+```
+
+When an app is destroyed, any per-app registry credentials are automatically removed.
 
 ### Setting a remote server
 

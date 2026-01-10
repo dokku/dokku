@@ -2,6 +2,7 @@ package registry
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
@@ -57,11 +58,28 @@ func TriggerInstall() error {
 	return nil
 }
 
+// TriggerPostCreate creates the registry config directory for a new app
+func TriggerPostCreate(appName string) error {
+	return common.PropertySetupApp("registry", appName)
+}
+
 // TriggerPostAppCloneSetup creates new registry files
 func TriggerPostAppCloneSetup(oldAppName string, newAppName string) error {
 	err := common.PropertyClone("registry", oldAppName, newAppName)
 	if err != nil {
 		return err
+	}
+
+	// Clone docker config.json if it exists
+	oldConfigPath := GetAppRegistryConfigPath(oldAppName)
+	if common.FileExists(oldConfigPath) {
+		newConfigDir := GetAppRegistryConfigDir(newAppName)
+		if err := os.MkdirAll(newConfigDir, 0700); err != nil {
+			return fmt.Errorf("Unable to create registry config directory: %w", err)
+		}
+		if err := common.Copy(oldConfigPath, GetAppRegistryConfigPath(newAppName)); err != nil {
+			return fmt.Errorf("Unable to clone registry config: %w", err)
+		}
 	}
 
 	return nil
@@ -71,6 +89,18 @@ func TriggerPostAppCloneSetup(oldAppName string, newAppName string) error {
 func TriggerPostAppRenameSetup(oldAppName string, newAppName string) error {
 	if err := common.PropertyClone("registry", oldAppName, newAppName); err != nil {
 		return err
+	}
+
+	// Move docker config.json if it exists
+	oldConfigPath := GetAppRegistryConfigPath(oldAppName)
+	if common.FileExists(oldConfigPath) {
+		newConfigDir := GetAppRegistryConfigDir(newAppName)
+		if err := os.MkdirAll(newConfigDir, 0700); err != nil {
+			return fmt.Errorf("Unable to create registry config directory: %w", err)
+		}
+		if err := os.Rename(oldConfigPath, GetAppRegistryConfigPath(newAppName)); err != nil {
+			return fmt.Errorf("Unable to rename registry config: %w", err)
+		}
 	}
 
 	if err := common.PropertyDestroy("registry", oldAppName); err != nil {

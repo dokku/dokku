@@ -29,6 +29,9 @@ func main() {
 		err = registry.TriggerDeployedAppRepository(appName)
 	case "install":
 		err = registry.TriggerInstall()
+	case "post-create":
+		appName := flag.Arg(0)
+		err = registry.TriggerPostCreate(appName)
 	case "post-app-clone-setup":
 		oldAppName := flag.Arg(0)
 		newAppName := flag.Arg(1)

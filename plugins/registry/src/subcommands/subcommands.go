@@ -21,11 +21,66 @@ func main() {
 	case "login":
 		args := flag.NewFlagSet("registry:login", flag.ExitOnError)
 		passwordStdin := args.Bool("password-stdin", false, "--password-stdin: read password from stdin")
+		global := args.Bool("global", false, "--global: login globally instead of per-app")
 		args.Parse(os.Args[2:])
-		server := args.Arg(0)
-		username := args.Arg(1)
-		password := args.Arg(2)
-		err = registry.CommandLogin(server, username, password, *passwordStdin)
+
+		argCount := args.NArg()
+		var appName, server, username, password string
+
+		// When --password-stdin is used, password is not in args
+		// Global login: 2 args (server, username) with --password-stdin, 3 args without
+		// Per-app login: 3 args (app, server, username) with --password-stdin, 4 args without
+		globalArgCount := 3
+		perAppArgCount := 4
+		if *passwordStdin {
+			globalArgCount = 2
+			perAppArgCount = 3
+		}
+
+		if *global {
+			// --global: server, username, [password]
+			server = args.Arg(0)
+			username = args.Arg(1)
+			if !*passwordStdin {
+				password = args.Arg(2)
+			}
+		} else if argCount == globalArgCount {
+			// global login without --global flag: warn and treat as global
+			common.LogWarn("Deprecated: please use --global flag for global registry login")
+			server = args.Arg(0)
+			username = args.Arg(1)
+			if !*passwordStdin {
+				password = args.Arg(2)
+			}
+		} else if argCount >= perAppArgCount {
+			// per-app login: app, server, username, [password]
+			appName = args.Arg(0)
+			server = args.Arg(1)
+			username = args.Arg(2)
+			if !*passwordStdin {
+				password = args.Arg(3)
+			}
+		}
+
+		err = registry.CommandLogin(appName, server, username, password, *passwordStdin)
+	case "logout":
+		args := flag.NewFlagSet("registry:logout", flag.ExitOnError)
+		global := args.Bool("global", false, "--global: logout globally instead of per-app")
+		args.Parse(os.Args[2:])
+
+		var appName, server string
+		if *global {
+			server = args.Arg(0)
+		} else if args.NArg() == 1 {
+			// 1 arg: global logout (backwards compatible)
+			server = args.Arg(0)
+		} else {
+			// 2 args: app, server
+			appName = args.Arg(0)
+			server = args.Arg(1)
+		}
+
+		err = registry.CommandLogout(appName, server)
 	case "report":
 		args := flag.NewFlagSet("registry:report", flag.ExitOnError)
 		format := args.String("format", "stdout", "format: [ stdout | json ]")

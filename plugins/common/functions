@@ -947,3 +947,14 @@ fn-migrate-config-to-property() {
     fi
   done
 }
+
+fn-registry-docker-config-dir() {
+  declare desc="returns docker config file path if per-app registry credentials exist"
+  declare APP="$1"
+  local config_dir="/var/lib/dokku/config/registry/$APP"
+  local config_file="$config_dir/config.json"
+
+  if [[ -f "$config_file" ]] && [[ "$(jq -r '.auths | length' "$config_file" 2>/dev/null)" != "0" ]]; then
+    echo "$config_dir"
+  fi
+}
