@@ -52,11 +52,10 @@ func CommandLogin(appName string, server string, username string, password strin
 	}
 
 	result, err := common.CallExecCommand(common.ExecCommandInput{
-		Command:     common.DockerBin(),
-		Args:        []string{"login", "--username", username, "--password-stdin", server},
-		Env:         env,
-		Stdin:       &buffer,
-		StreamStdio: true,
+		Command: common.DockerBin(),
+		Args:    []string{"login", "--username", username, "--password-stdin", server},
+		Env:     env,
+		Stdin:   &buffer,
 	})
 	if err != nil {
 		return fmt.Errorf("Unable to run docker login: %w", err)
@@ -104,10 +103,9 @@ func CommandLogout(appName string, server string) error {
 	}
 
 	result, err := common.CallExecCommand(common.ExecCommandInput{
-		Command:     common.DockerBin(),
-		Args:        []string{"logout", server},
-		Env:         env,
-		StreamStdio: true,
+		Command: common.DockerBin(),
+		Args:    []string{"logout", server},
+		Env:     env,
 	})
 	if err != nil {
 		return fmt.Errorf("Unable to run docker logout: %w", err)
