@@ -102,6 +102,7 @@ This documentation covers the installation, configuration, and usage of Dokku - 
 
 ## Development
 
+- [Architecture](development/architecture.md) - Internal architecture overview for contributors
 - [Plugin Creation](development/plugin-creation.md) - Build custom plugins
 - [Plugin Triggers](development/plugin-triggers.md) - Available plugin hooks
 - [Testing](development/testing.md) - Test Dokku and plugins
