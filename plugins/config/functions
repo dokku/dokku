@@ -65,3 +65,14 @@ config_bundle() {
   declare desc="export tar bundle of config"
   config_sub bundle "$@"
 }
+
+fn-config-set() {
+  declare desc="set config values via trigger (supports --no-restart)"
+  declare APP="$1" NO_RESTART="$2"
+  shift 2
+  if [[ "$NO_RESTART" == "true" ]]; then
+    plugn trigger config-set --no-restart "$APP" "$@"
+  else
+    plugn trigger config-set "$APP" "$@"
+  fi
+}

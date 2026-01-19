@@ -1,16 +1,21 @@
 package appjson
 
 import (
+	"bufio"
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
 	shellquote "github.com/kballard/go-shellquote"
+	"github.com/mattn/go-isatty"
 )
 
 func constructScript(command string, shell string, isHerokuishImage bool, isCnbImage bool, dockerfileEntrypoint string) []string {
@@ -454,4 +459,200 @@ func setScale(appName string) error {
 		StreamStdio: true,
 	})
 	return err
+}
+
+// generateSecret generates a cryptographically secure random hex string of specified length
+func generateSecret(length int) (string, error) {
+	bytes := make([]byte, length/2)
+	if _, err := rand.Read(bytes); err != nil {
+		return "", fmt.Errorf("failed to generate secret: %w", err)
+	}
+	return hex.EncodeToString(bytes), nil
+}
+
+// isInteractive returns true if stdin is a terminal (TTY available)
+func isInteractive() bool {
+	return isatty.IsTerminal(os.Stdin.Fd()) || isatty.IsCygwinTerminal(os.Stdin.Fd())
+}
+
+// promptForValue prompts the user for an environment variable value
+func promptForValue(varName string, envVar EnvVarValue) (string, error) {
+	prompt := fmt.Sprintf("Enter value for %s", varName)
+	if envVar.Description != "" {
+		prompt = fmt.Sprintf("Enter value for %s (%s)", varName, envVar.Description)
+	}
+
+	common.LogInfo1(prompt)
+	fmt.Print("> ")
+
+	reader := bufio.NewReader(os.Stdin)
+	response, err := reader.ReadString('\n')
+	if err != nil {
+		return "", err
+	}
+
+	return strings.TrimSpace(response), nil
+}
+
+// getCurrentConfig retrieves the current config values for an app
+func getCurrentConfig(appName string) (map[string]string, error) {
+	results, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "config-export",
+		Args:    []string{appName, "false", "true", "json"},
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get current config: %w", err)
+	}
+
+	var currentConfig map[string]string
+	if err := json.Unmarshal(results.StdoutBytes(), &currentConfig); err != nil {
+		return nil, fmt.Errorf("failed to parse current config: %w", err)
+	}
+
+	return currentConfig, nil
+}
+
+// setConfigVars sets multiple config vars for an app without triggering restart
+func setConfigVars(appName string, vars map[string]string) error {
+	if len(vars) == 0 {
+		return nil
+	}
+
+	// Build arguments for config-set trigger: --no-restart flag, appName, key=value pairs
+	args := []string{"--no-restart", appName}
+	for key, value := range vars {
+		args = append(args, fmt.Sprintf("%s=%s", key, value))
+	}
+
+	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "config-set",
+		Args:        args,
+		StreamStdio: true,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to set config vars: %w", err)
+	}
+
+	return nil
+}
+
+// processAppJSONEnv processes env vars from app.json and sets them as config
+func processAppJSONEnv(appName string) error {
+	appJSON, err := GetAppJSON(appName)
+	if err != nil {
+		return err
+	}
+
+	if len(appJSON.Env) == 0 {
+		return nil
+	}
+
+	common.LogInfo1("Processing app.json env vars")
+
+	isFirstDeploy := common.PropertyGet("common", appName, "deployed") != "true"
+
+	// Check if env vars have been processed for this deploy
+	envProcessedProperty := "appjson-env-processed"
+	alreadyProcessed := common.PropertyGet("app-json", appName, envProcessedProperty) == "executed"
+
+	// Get current config values
+	currentConfig, err := getCurrentConfig(appName)
+	if err != nil {
+		return err
+	}
+
+	varsToSet := make(map[string]string)
+	interactive := isInteractive()
+
+	// Sort keys for deterministic ordering
+	var keys []string
+	for k := range appJSON.Env {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	for _, varName := range keys {
+		envVar := appJSON.Env[varName]
+
+		// Determine if we should process this var
+		shouldProcess := false
+		if isFirstDeploy && !alreadyProcessed {
+			// First deploy: process all vars
+			shouldProcess = true
+		} else if envVar.Sync {
+			// Subsequent deploy with sync: always process sync vars
+			shouldProcess = true
+		}
+
+		if !shouldProcess {
+			continue
+		}
+
+		// Check if already set (for first deploy, skip if already has value and not sync)
+		currentValue, hasValue := currentConfig[varName]
+		if hasValue && currentValue != "" && !envVar.Sync {
+			common.LogDebug(fmt.Sprintf("Skipping %s: already set", varName))
+			continue
+		}
+
+		// Determine the value
+		var value string
+
+		// Handle generator
+		if envVar.Generator == "secret" {
+			if !hasValue || currentValue == "" || envVar.Sync {
+				generated, err := generateSecret(64)
+				if err != nil {
+					return fmt.Errorf("failed to generate secret for %s: %w", varName, err)
+				}
+				value = generated
+				common.LogDebug(fmt.Sprintf("Generated secret for %s", varName))
+			} else {
+				continue // Already has value, not sync
+			}
+		} else if envVar.Value != "" {
+			// Use default value
+			value = envVar.Value
+		} else if interactive {
+			// Prompt user
+			prompted, err := promptForValue(varName, envVar)
+			if err != nil {
+				if envVar.IsRequired() {
+					return fmt.Errorf("required env var %s has no value and prompt failed: %w", varName, err)
+				}
+				continue
+			}
+			if prompted == "" && envVar.IsRequired() {
+				return fmt.Errorf("required env var %s cannot be empty", varName)
+			}
+			value = prompted
+		} else {
+			// No TTY, no default, no generator
+			if envVar.IsRequired() {
+				return fmt.Errorf("required env var %s has no value, no default, and no TTY for prompt", varName)
+			}
+			continue
+		}
+
+		if value != "" {
+			varsToSet[varName] = value
+		}
+	}
+
+	if len(varsToSet) == 0 {
+		common.LogVerbose("No env vars to set from app.json")
+		if !isFirstDeploy {
+			return common.PropertyWrite("app-json", appName, envProcessedProperty, "executed")
+		}
+		return nil
+	}
+
+	// Set the config vars without restart (we're in middle of deploy)
+	common.LogInfo1(fmt.Sprintf("Setting %d env var(s) from app.json", len(varsToSet)))
+	if err := setConfigVars(appName, varsToSet); err != nil {
+		return fmt.Errorf("failed to set env vars: %w", err)
+	}
+
+	// Mark as processed
+	return common.PropertyWrite("app-json", appName, envProcessedProperty, "executed")
 }
