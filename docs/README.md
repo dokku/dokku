@@ -5,12 +5,12 @@ This documentation covers the installation, configuration, and usage of Dokku - 
 ## Getting Started
 
 - [Installation](getting-started/installation/index.md) - Install Dokku on your server
-  - [Debian](getting-started/install/debian.md)
-  - [Docker](getting-started/install/docker.md)
-  - [DigitalOcean](getting-started/install/digitalocean.md)
-  - [Azure](getting-started/install/azure.md)
-  - [DreamHost](getting-started/install/dreamhost.md)
-  - [Vagrant](getting-started/install/vagrant.md)
+    - [Debian](getting-started/install/debian.md)
+    - [Docker](getting-started/install/docker.md)
+    - [DigitalOcean](getting-started/install/digitalocean.md)
+    - [Azure](getting-started/install/azure.md)
+    - [DreamHost](getting-started/install/dreamhost.md)
+    - [Vagrant](getting-started/install/vagrant.md)
 - [Advanced Installation](getting-started/advanced-installation.md) - Custom installation options
 - [Upgrading](getting-started/upgrading/index.md) - Upgrade to newer Dokku versions
 - [Uninstalling](getting-started/uninstalling.md) - Remove Dokku from your server
