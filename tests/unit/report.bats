@@ -138,3 +138,62 @@ teardown() {
     assert_output_contains "You haven't deployed any applications yet"
   done
 }
+
+@test "(report) storage report when apps exist" {
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku report $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  plugins=(
+    app-json
+    apps
+    builder
+    builder-dockerfile
+    builder-herokuish
+    builder-lambda
+    builder-nixpacks
+    builder-railpack
+    builder-pack
+    buildpacks
+    caddy
+    certs
+    checks
+    cron
+    docker-options
+    domains
+    git
+    haproxy
+    logs
+    network
+    nginx
+    openresty
+    ports
+    proxy
+    ps
+    registry
+    resource
+    scheduler
+    scheduler-docker-local
+    scheduler-k3s
+    storage
+    traefik
+  )
+
+  for plugin in "${plugins[@]}"; do
+    run /bin/bash -c "dokku $plugin:report 2>&1"
+    echo "output: $output"
+    echo "status: $status"
+    assert_success
+
+    run /bin/bash -c "dokku $plugin:report $TEST_APP 2>&1"
+    echo "output: $output"
+    echo "status: $status"
+    assert_success
+  done
+}
