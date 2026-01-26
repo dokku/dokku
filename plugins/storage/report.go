@@ -2,7 +2,7 @@ package storage
 
 import "github.com/dokku/dokku/plugins/common"
 
-func ReportSingleApp(appName string, infoFlag string, format string) error {
+func ReportSingleApp(appName string, format string, infoFlag string) error {
 	if err := common.VerifyAppName(appName); err != nil {
 		return err
 	}
