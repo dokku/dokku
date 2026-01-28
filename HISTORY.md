@@ -1,5 +1,48 @@
 # History
 
+## 0.37.6
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.37.6/bootstrap.sh
+sudo DOKKU_TAG=v0.37.6 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #8306: @josegonzalez Ensure we can call storage:report properly
+
+### Documentation
+
+- #8289: @josegonzalez Add an architecture document for dokku
+- #8288: @josegonzalez Add a readme for the docs folder
+
+### Dependencies
+
+- #8312: @dependabot[bot] chore(deps): bump timberio/vector from 0.52.0-debian to 0.53.0-debian in /plugins/logs
+- #8311: @dependabot[bot] chore(deps): bump gunicorn from 24.0.0 to 24.1.1 in /tests/apps/dockerfile-release
+- #8308: @dependabot[bot] chore(deps): bump gunicorn from 24.0.0 to 24.1.1 in /tests/apps/multi
+- #8309: @dependabot[bot] chore(deps): bump pymdown-extensions from 10.20 to 10.20.1 in /docs/_build
+- #8307: @dependabot[bot] chore(deps): bump gunicorn from 24.0.0 to 24.1.1 in /tests/apps/python-flask
+- #8301: @dependabot[bot] chore(deps): bump helm.sh/helm/v3 from 3.19.5 to 3.20.0 in /plugins/scheduler-k3s
+- #8299: @dependabot[bot] chore(deps): bump ruby from 4.0.0 to 4.0.1 in /tests/apps/dockerfile-entrypoint
+- #8293: @dependabot[bot] chore(deps): bump golang from 1.25.5 to 1.25.6 in /tests/apps/zombies-dockerfile-no-tini
+- #8296: @dependabot[bot] chore(deps): bump soupsieve from 2.8.1 to 2.8.3 in /docs/_build
+- #8295: @dependabot[bot] chore(deps): bump golang from 1.25.5 to 1.25.6 in /tests/apps/go-fail-postdeploy
+- #8294: @dependabot[bot] chore(deps): bump golang from 1.25.5 to 1.25.6 in /tests/apps/gogrpc
+- #8291: @dependabot[bot] chore(deps): bump golang from 1.25.5 to 1.25.6 in /tests/apps/zombies-dockerfile-tini
+- #8292: @dependabot[bot] chore(deps): bump golang from 1.25.5 to 1.25.6 in /tests/apps/go-fail-predeploy
+- #8277: @dependabot[bot] chore(deps): bump github.com/traefik/traefik/v2 from 2.11.34 to 2.11.35 in /plugins/scheduler-k3s
+- #8297: @dependabot[bot] chore(deps): bump pyparsing from 3.3.1 to 3.3.2 in /docs/_build
+- #8298: @dependabot[bot] chore(deps): bump lodash from 4.17.21 to 4.17.23 in /tests/apps/multi
+- #8300: @dependabot[bot] chore(deps): bump packaging from 25.0 to 26.0 in /docs/_build
+- #8303: @dependabot[bot] chore(deps): bump gunicorn from 23.0.0 to 24.0.0 in /tests/apps/python-flask
+- #8305: @dependabot[bot] chore(deps): bump gunicorn from 23.0.0 to 24.0.0 in /tests/apps/dockerfile-release
+- #8304: @dependabot[bot] chore(deps): bump gunicorn from 23.0.0 to 24.0.0 in /tests/apps/multi
+- #8280: @dependabot[bot] chore(deps): bump helm.sh/helm/v3 from 3.19.4 to 3.19.5 in /plugins/scheduler-k3s
+- #8279: @dependabot[bot] chore(deps): bump traefik from 3.6.6 to 3.6.7 in /plugins/traefik-vhosts
+
 ## 0.37.5
 
 Install/update via the bootstrap script:
