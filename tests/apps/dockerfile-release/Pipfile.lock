@@ -53,12 +53,12 @@
         },
         "gunicorn": {
             "hashes": [
-                "sha256:288c002141d73ec8d05fdbb7c8453e3d01d3209d8ff6ad425df0ae1430153ca2",
-                "sha256:8e44f2f7cf791de60c84ce119221c26121fd2ffcb27badfbced5a1c919d35d67"
+                "sha256:1426611d959fa77e7de89f8c0f32eed6aa03ee735f98c01efba3e281b1c47616",
+                "sha256:d0b1236ccf27f72cfe14bce7caadf467186f19e865094ca84221424e839b8b8b"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.10'",
-            "version": "==25.0.2"
+            "version": "==25.1.0"
         },
         "packaging": {
             "hashes": [
