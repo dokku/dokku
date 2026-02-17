@@ -26,12 +26,12 @@
         },
         "dj-database-url": {
             "hashes": [
-                "sha256:155a56fbbecbaaf1348ccd73bf29138b4c9988363ba08261a0f0145e392e638c",
-                "sha256:d80218426b83f9302c8d27d4fccf52de5cf0cab179f0645fb2839f37605d1353"
+                "sha256:245120e5df14008f0552b01c8a7d18127302ceea37f7686e55b8718daadf36f3",
+                "sha256:8c7a6cef2bfde62779df8189c76f9c68010b22cd19a82be4e9dcdfe55b94f881"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.10'",
-            "version": "==3.1.0"
+            "version": "==3.1.1"
         },
         "django": {
             "hashes": [
