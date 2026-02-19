@@ -1,1 +1,1 @@
-FROM byjg/easy-haproxy:5.0.0
+FROM byjg/easy-haproxy:6.0.0
