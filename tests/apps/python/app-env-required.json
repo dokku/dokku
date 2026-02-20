@@ -1,0 +1,8 @@
+{
+  "env": {
+    "REQUIRED_VAR": {
+      "description": "A required variable with no default",
+      "required": true
+    }
+  }
+}

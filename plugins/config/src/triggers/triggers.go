@@ -15,6 +15,7 @@ func main() {
 	parts := strings.Split(os.Args[0], "/")
 	trigger := parts[len(parts)-1]
 	global := flag.Bool("global", false, "--global: Whether global or app-specific")
+	noRestart := flag.Bool("no-restart", false, "--no-restart: Whether to skip restart")
 	flag.Parse()
 
 	var err error
@@ -36,6 +37,10 @@ func main() {
 	case "config-get-global":
 		key := flag.Arg(0)
 		err = config.TriggerConfigGetGlobal(key)
+	case "config-set":
+		appName := flag.Arg(0)
+		pairs := flag.Args()[1:]
+		err = config.TriggerConfigSet(appName, *noRestart, pairs...)
 	case "config-unset":
 		appName := flag.Arg(0)
 		key := flag.Arg(1)

@@ -71,6 +71,11 @@ func TriggerCorePostDeploy(appName string) error {
 
 // TriggerCorePostExtract ensures that the main app.json is the one specified by app-json-path
 func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
+	// Clear the env-processed property on new source extraction to allow re-processing
+	if err := common.PropertyDelete("app-json", appName, "appjson-env-processed"); err != nil {
+		return err
+	}
+
 	destination := common.GetAppDataDirectory("app-json", appName)
 	appJSONPath := strings.Trim(reportComputedAppjsonpath(appName), "/")
 	if appJSONPath == "" {
@@ -190,7 +195,13 @@ func TriggerPostDeploy(appName string, imageTag string) error {
 	return executeScript(appName, image, imageTag, "postdeploy")
 }
 
+// TriggerPreReleaseBuilder processes app.json env vars and executes the predeploy task
 func TriggerPreReleaseBuilder(builderType string, appName string, image string) error {
+	// Process app.json env vars before predeploy script
+	if err := processAppJSONEnv(appName); err != nil {
+		return err
+	}
+
 	parts := strings.Split(image, ":")
 	imageTag := parts[len(parts)-1]
 	return executeScript(appName, image, imageTag, "predeploy")

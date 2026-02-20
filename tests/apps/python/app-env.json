@@ -1,0 +1,27 @@
+{
+  "env": {
+    "SIMPLE_VAR": "simple_value",
+    "OBJECT_VAR": {
+      "description": "A variable with a default value",
+      "value": "object_default"
+    },
+    "SECRET_VAR": {
+      "description": "A generated secret",
+      "generator": "secret"
+    },
+    "OPTIONAL_VAR": {
+      "description": "An optional variable",
+      "required": false
+    },
+    "SYNC_VAR": {
+      "description": "A variable that syncs on every deploy",
+      "value": "sync_value",
+      "sync": true
+    }
+  },
+  "scripts": {
+    "dokku": {
+      "predeploy": "echo ENV_CHECK: SIMPLE_VAR=$SIMPLE_VAR OBJECT_VAR=$OBJECT_VAR"
+    }
+  }
+}
