@@ -49,7 +49,16 @@ fn-traefik-template-compose-file() {
     dns_provider_env_vars="$(fn-traefik-dns-provider-env-vars)"
   fi
 
+  local api_entry_point_address api_entry_point_port=""
+  api_entry_point_address="$(fn-traefik-api-entry-point-address)"
+  if [[ -n "$api_entry_point_address" ]]; then
+    api_entry_point_port="${api_entry_point_address##*:}"
+  fi
+
   local SIGIL_PARAMS=(TRAEFIK_API_ENABLED="$(fn-traefik-api-enabled)"
+  TRAEFIK_API_ENTRY_POINT="$(fn-traefik-api-entry-point)"
+  TRAEFIK_API_ENTRY_POINT_ADDRESS="$api_entry_point_address"
+  TRAEFIK_API_ENTRY_POINT_PORT="$api_entry_point_port"
   TRAEFIK_API_VHOST="$(fn-traefik-api-vhost)"
   TRAEFIK_BASIC_AUTH="$basic_auth"
   TRAEFIK_CHALLENGE_MODE="$(fn-traefik-challenge-mode)"
@@ -109,6 +118,14 @@ fn-traefik-http-entry-point() {
 
 fn-traefik-https-entry-point() {
   fn-plugin-property-get-default "traefik" "--global" "https-entry-point" "https"
+}
+
+fn-traefik-api-entry-point() {
+  fn-plugin-property-get-default "traefik" "--global" "api-entry-point" ""
+}
+
+fn-traefik-api-entry-point-address() {
+  fn-plugin-property-get-default "traefik" "--global" "api-entry-point-address" ""
 }
 
 fn-traefik-challenge-mode() {
