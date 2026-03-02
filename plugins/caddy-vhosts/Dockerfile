@@ -1,1 +1,1 @@
-FROM lucaslorentz/caddy-docker-proxy:2.10
+FROM lucaslorentz/caddy-docker-proxy:2.11
