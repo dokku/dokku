@@ -8,6 +8,8 @@ setup() {
   dokku traefik:set --global letsencrypt-server https://acme-staging-v02.api.letsencrypt.org/directory
   dokku traefik:set --global letsencrypt-email
   dokku traefik:set --global api-enabled
+  dokku traefik:set --global api-entry-point
+  dokku traefik:set --global api-entry-point-address
   dokku traefik:set --global challenge-mode
   dokku traefik:set --global dns-provider
   dokku traefik:start
@@ -554,6 +556,120 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_not_exists
+}
+
+@test "(traefik) api-entry-point property" {
+  run /bin/bash -c "dokku traefik:report $TEST_APP --traefik-api-entry-point"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku traefik:set --global api-entry-point private"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku traefik:report $TEST_APP --traefik-api-entry-point"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "private"
+
+  run /bin/bash -c "dokku traefik:set --global api-entry-point"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku traefik:report $TEST_APP --traefik-api-entry-point"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_exists
+}
+
+@test "(traefik) api-entry-point can only be set globally" {
+  run /bin/bash -c "dokku traefik:set $TEST_APP api-entry-point private"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "can only be set globally"
+}
+
+@test "(traefik) api-entry-point-address can only be set globally" {
+  run /bin/bash -c "dokku traefik:set $TEST_APP api-entry-point-address :8080"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "can only be set globally"
+}
+
+@test "(traefik) show-config with api-entry-point" {
+  run /bin/bash -c "dokku traefik:set --global api-enabled true"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku traefik:set --global api-entry-point private"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku traefik:set --global api-entry-point-address :8080"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku traefik:show-config | yq -r '.services.traefik.command[] | select(. == \"--entrypoints.private.address=:8080\")'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "--entrypoints.private.address=:8080"
+
+  run /bin/bash -c "dokku traefik:show-config | yq -r '.services.traefik.labels[] | select(. == \"traefik.http.routers.api.entrypoints=private\")'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "traefik.http.routers.api.entrypoints=private"
+
+  run /bin/bash -c "dokku traefik:show-config | yq -r '.services.traefik.ports[] | select(. == \":8080:8080\")'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ":8080:8080"
+
+  # Cleanup
+  run /bin/bash -c "dokku traefik:set --global api-enabled"
+  run /bin/bash -c "dokku traefik:set --global api-entry-point"
+  run /bin/bash -c "dokku traefik:set --global api-entry-point-address"
+}
+
+@test "(traefik) show-config with api-entry-point does not set tls cert resolver" {
+  run /bin/bash -c "dokku traefik:set --global letsencrypt-email test@example.com"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku traefik:set --global api-enabled true"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku traefik:set --global api-entry-point private"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku traefik:show-config | yq -r '.services.traefik.labels[] | select(contains(\"certresolver\"))'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_exists
+
+  # Cleanup
+  run /bin/bash -c "dokku traefik:set --global letsencrypt-email"
+  run /bin/bash -c "dokku traefik:set --global api-enabled"
+  run /bin/bash -c "dokku traefik:set --global api-entry-point"
 }
 
 @test "(traefik) [dns-01] show-config with dns challenge" {

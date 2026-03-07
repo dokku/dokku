@@ -69,6 +69,8 @@ cmd-traefik-report-single() {
   verify_app_name "$APP"
   local flag_map=(
     "--traefik-api-enabled: $(fn-traefik-api-enabled)"
+    "--traefik-api-entry-point: $(fn-traefik-api-entry-point)"
+    "--traefik-api-entry-point-address: $(fn-traefik-api-entry-point-address)"
     "--traefik-api-vhost: $(fn-traefik-api-vhost)"
     "--traefik-basic-auth-password: $(fn-traefik-basic-auth-password)"
     "--traefik-basic-auth-username: $(fn-traefik-basic-auth-username)"

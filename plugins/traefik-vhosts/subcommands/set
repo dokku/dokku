@@ -9,9 +9,9 @@ cmd-traefik-set() {
   declare cmd="traefik:set"
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1" KEY="$2" VALUE="$3"
-  local VALID_KEYS=("api-enabled" "api-vhost" "challenge-mode" "dashboard-enabled" "basic-auth-username" "basic-auth-password" "dns-provider" "image" "letsencrypt-email" "letsencrypt-server" "log-level" "http-entry-point" "https-entry-point")
-  local GLOBAL_KEYS=("api-enabled" "api-vhost" "challenge-mode" "dashboard-enabled" "basic-auth-username" "basic-auth-password" "dns-provider" "image" "letsencrypt-email" "letsencrypt-server" "log-level" "http-entry-point" "https-entry-point")
-  local GLOBAL_ONLY_KEYS=("challenge-mode" "dns-provider")
+  local VALID_KEYS=("api-enabled" "api-entry-point" "api-entry-point-address" "api-vhost" "challenge-mode" "dashboard-enabled" "basic-auth-username" "basic-auth-password" "dns-provider" "image" "letsencrypt-email" "letsencrypt-server" "log-level" "http-entry-point" "https-entry-point")
+  local GLOBAL_KEYS=("api-enabled" "api-entry-point" "api-entry-point-address" "api-vhost" "challenge-mode" "dashboard-enabled" "basic-auth-username" "basic-auth-password" "dns-provider" "image" "letsencrypt-email" "letsencrypt-server" "log-level" "http-entry-point" "https-entry-point")
+  local GLOBAL_ONLY_KEYS=("api-entry-point" "api-entry-point-address" "challenge-mode" "dns-provider")
 
   [[ -z "$KEY" ]] && dokku_log_fail "No key specified"
 
@@ -22,7 +22,7 @@ cmd-traefik-set() {
   fi
 
   if ! fn-in-array "$KEY" "${VALID_KEYS[@]}" && [[ "$is_dns_provider_env_var" != "true" ]]; then
-    dokku_log_fail "Invalid key specified, valid keys include: api-enabled api-vhost challenge-mode dashboard-enabled basic-auth-username basic-auth-password dns-provider dns-provider-<ENV_VAR> image letsencrypt-email letsencrypt-server log-level http-entry-point https-entry-point"
+    dokku_log_fail "Invalid key specified, valid keys include: api-enabled api-entry-point api-entry-point-address api-vhost challenge-mode dashboard-enabled basic-auth-username basic-auth-password dns-provider dns-provider-<ENV_VAR> image letsencrypt-email letsencrypt-server log-level http-entry-point https-entry-point"
   fi
 
   if ! fn-in-array "$KEY" "${GLOBAL_KEYS[@]}" && [[ "$is_dns_provider_env_var" != "true" ]]; then
