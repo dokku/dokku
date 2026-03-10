@@ -33,7 +33,7 @@ require (
 	k8s.io/kubectl v0.35.2
 	k8s.io/kubernetes v1.35.0
 	k8s.io/utils v0.0.0-20251002143259-bc988d571ff4
-	mvdan.cc/sh/v3 v3.12.0
+	mvdan.cc/sh/v3 v3.13.0
 	sigs.k8s.io/kustomize/api v0.21.1
 )
 
@@ -148,7 +148,7 @@ require (
 	golang.org/x/mod v0.32.0 // indirect
 	golang.org/x/net v0.51.0 // indirect
 	golang.org/x/oauth2 v0.33.0 // indirect
-	golang.org/x/sys v0.41.0 // indirect
+	golang.org/x/sys v0.42.0 // indirect
 	golang.org/x/term v0.40.0 // indirect
 	golang.org/x/text v0.34.0 // indirect
 	golang.org/x/time v0.14.0 // indirect
