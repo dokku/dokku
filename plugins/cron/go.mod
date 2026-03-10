@@ -28,7 +28,7 @@ require (
 	github.com/pkg/sftp v1.13.5 // indirect
 	github.com/tailscale/hujson v0.0.0-20250605163823-992244df8c5a // indirect
 	golang.org/x/crypto v0.47.0 // indirect
-	golang.org/x/sync v0.19.0 // indirect
+	golang.org/x/sync v0.20.0 // indirect
 	golang.org/x/sys v0.40.0 // indirect
 	k8s.io/utils v0.0.0-20240102154912-e7106e64919e // indirect
 )
