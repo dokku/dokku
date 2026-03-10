@@ -444,7 +444,7 @@ To enable autoscaling, use the `app.json` `formation.$PROCESS_TYPE.autoscaling` 
 - `cooldown_seconds`: (default: 300) The number of seconds to wait in between each scaling event
 - `triggers`: A list of autoscaling triggers.
 
-Autoscaling triggers are passed as is to Keda, and should match the configuration keda uses for a given [scaler](https://keda.sh/docs/2.13/scalers/). Below is an example for [datadog](https://keda.sh/docs/2.13/scalers/datadog/#example-2---driving-scale-directly):
+Autoscaling triggers are passed as is to Keda, and should match the configuration keda uses for a given [scaler](https://keda.sh/docs/2.19/scalers/). Below is an example for [datadog](https://keda.sh/docs/2.19/scalers/datadog/#example-2---driving-scale-directly):
 
 ```json
 {
@@ -742,6 +742,7 @@ Next, run the `scheduler-k3s:ensure-charts` command with the `vector` chart to f
 ```shell
 dokku scheduler-k3s:ensure-charts --charts vector
 ```
+
 Please see the [vector logs documentation](/docs/deployment/logs.md#configuring-a-log-sink) for more information on specifying vector sinks.
 
 ### Supported Resource Management Properties
