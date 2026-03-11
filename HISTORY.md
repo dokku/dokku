@@ -1,5 +1,86 @@
 # History
 
+## 0.37.7
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.37.7/bootstrap.sh
+sudo DOKKU_TAG=v0.37.7 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #8379: @josegonzalez Call correct function for limiting letsencrypt to certain domains
+
+### New Features
+
+- #8405: @josegonzalez Add Debian 13 versions of docker plugin packages
+- #8261: @josegonzalez Configure Traefik readiness healthchecks based on app.json config
+- #8378: @farmdawgnation Support custom entrypoint for api and dashboard
+
+### Dependencies
+
+- #8395: @dependabot[bot] chore(deps): bump mvdan.cc/sh/v3 from 3.12.0 to 3.13.0 in /plugins/cron
+- #8401: @dependabot[bot] chore(deps): bump github.com/traefik/traefik/v2 from 2.11.38 to 2.11.40 in /plugins/scheduler-k3s
+- #8400: @dependabot[bot] chore(deps): bump github.com/melbahja/goph from 1.4.0 to 1.5.0 in /plugins/common
+- #8394: @dependabot[bot] chore(deps): bump golang.org/x/crypto from 0.47.0 to 0.48.0 in /plugins/common
+- #8396: @dependabot[bot] chore(deps): bump golang.org/x/sync from 0.19.0 to 0.20.0 in /plugins/common
+- #8399: @dependabot[bot] chore(deps): bump golang.org/x/sync from 0.19.0 to 0.20.0 in /plugins/scheduler-k3s
+- #8398: @dependabot[bot] chore(deps): bump traefik from 3.6.9 to v3.6.10 in /plugins/traefik-vhosts
+- #8397: @dependabot[bot] chore(deps): bump golang.org/x/sync from 0.19.0 to 0.20.0 in /plugins/scheduler-docker-local
+- #8314: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.39.0 to 1.39.1 in /plugins/common
+- #8380: @dependabot[bot] chore(deps): bump lucaslorentz/caddy-docker-proxy from 2.10 to 2.11 in /plugins/caddy-vhosts
+- #8381: @dependabot[bot] chore(deps): bump k8s.io/kubectl from 0.35.0 to 0.35.2 in /plugins/scheduler-k3s
+- #8382: @dependabot[bot] chore(deps): bump docker/login-action from 3 to 4
+- #8383: @dependabot[bot] chore(deps): bump docker/setup-qemu-action from 3 to 4
+- #8384: @dependabot[bot] chore(deps): bump mkdocs-material from 9.7.3 to 9.7.4 in /docs/_build
+- #8385: @dependabot[bot] chore(deps): bump django from 5.2.11 to 5.2.12 in /tests/apps/dockerfile-release
+- #8387: @dependabot[bot] chore(deps): bump docker/setup-buildx-action from 3 to 4
+- #8388: @dependabot[bot] chore(deps): bump google.golang.org/grpc from 1.79.1 to 1.79.2 in /tests/apps/gogrpc
+- #8389: @dependabot[bot] chore(deps): bump golang from 1.26.0 to 1.26.1 in /tests/apps/go-fail-postdeploy
+- #8390: @dependabot[bot] chore(deps): bump golang from 1.26.0 to 1.26.1 in /tests/apps/gogrpc
+- #8391: @dependabot[bot] chore(deps): bump golang from 1.26.0 to 1.26.1 in /tests/apps/go-fail-predeploy
+- #8392: @dependabot[bot] chore(deps): bump golang from 1.26.0 to 1.26.1 in /tests/apps/zombies-dockerfile-tini
+- #8393: @dependabot[bot] chore(deps): bump golang from 1.26.0 to 1.26.1 in /tests/apps/zombies-dockerfile-no-tini
+- #8354: @dependabot[bot] chore(deps): bump google.golang.org/grpc from 1.78.0 to 1.79.1 in /tests/apps/gogrpc
+- #8340: @dependabot[bot] chore(deps): bump python from 3.14.2-alpine to 3.14.3-alpine in /docs/_build
+- #8353: @dependabot[bot] chore(deps): bump gunicorn from 25.0.2 to 25.1.0 in /tests/apps/multi
+- #8357: @dependabot[bot] chore(deps): bump qs from 6.14.1 to 6.14.2 in /tests/apps/checks-root
+- #8361: @dependabot[bot] chore(deps): bump flask from 3.1.2 to 3.1.3 in /tests/apps/multi
+- #8360: @dependabot[bot] chore(deps): bump rack from 3.2.4 to 3.2.5 in /tests/apps/ruby
+- #8332: @dependabot[bot] chore(deps-dev): bump org.apache.maven.plugins:maven-dependency-plugin from 3.9.0 to 3.10.0 in /tests/apps/java
+- #8336: @dependabot[bot] chore(deps): bump python from 3.14.2-bookworm to 3.14.3-bookworm in /tests/apps/dockerfile-release
+- #8355: @dependabot[bot] chore(deps): bump gunicorn from 25.0.2 to 25.1.0 in /tests/apps/python-flask
+- #8356: @dependabot[bot] chore(deps): bump gunicorn from 25.0.2 to 25.1.0 in /tests/apps/dockerfile-release
+- #8358: @dependabot[bot] chore(deps): bump pymdown-extensions from 10.20.1 to 10.21 in /docs/_build
+- #8371: @dependabot[bot] chore(deps): bump byjg/easy-haproxy from 5.0.0 to 6.0.1 in /plugins/haproxy-vhosts
+- #8362: @dependabot[bot] chore(deps): bump flask from 3.1.2 to 3.1.3 in /tests/apps/python-flask
+- #8374: @dependabot[bot] chore(deps): bump actions/download-artifact from 7 to 8
+- #8375: @dependabot[bot] chore(deps): bump actions/upload-artifact from 6 to 7
+- #8376: @dependabot[bot] chore(deps): bump phusion/baseimage from noble-1.0.2 to noble-1.0.3
+- #8377: @dependabot[bot] chore(deps): bump whitenoise from 6.11.0 to 6.12.0 in /tests/apps/dockerfile-release
+- #8365: @dependabot[bot] chore(deps): bump github.com/traefik/traefik/v2 from 2.11.36 to 2.11.37 in /plugins/scheduler-k3s
+- #8367: @dependabot[bot] chore(deps): bump werkzeug from 3.1.5 to 3.1.6 in /tests/apps/python-flask
+- #8368: @dependabot[bot] chore(deps): bump dj-database-url from 3.1.0 to 3.1.2 in /tests/apps/dockerfile-release
+- #8372: @dependabot[bot] chore(deps): bump mkdocs-material from 9.7.1 to 9.7.3 in /docs/_build
+- #8373: @dependabot[bot] chore(deps): bump traefik from 3.6.7 to 3.6.9 in /plugins/traefik-vhosts
+- #8351: @dependabot[bot] chore(deps): bump golang from 1.25.6 to 1.26.0 in /tests/apps/zombies-dockerfile-tini
+- #8350: @dependabot[bot] chore(deps): bump golang from 1.25.6 to 1.26.0 in /tests/apps/zombies-dockerfile-no-tini
+- #8349: @dependabot[bot] chore(deps): bump golang from 1.25.6 to 1.26.0 in /tests/apps/go-fail-postdeploy
+- #8348: @dependabot[bot] chore(deps): bump golang from 1.25.6 to 1.26.0 in /tests/apps/gogrpc
+- #8347: @dependabot[bot] chore(deps): bump golang from 1.25.6 to 1.26.0 in /tests/apps/go-fail-predeploy
+- #8344: @dependabot[bot] chore(deps): bump sigs.k8s.io/kustomize/api from 0.21.0 to 0.21.1 in /plugins/scheduler-k3s
+- #8329: @dependabot[bot] chore(deps): bump gunicorn from 25.0.1 to 25.0.2 in /tests/apps/multi
+- #8330: @dependabot[bot] chore(deps): bump gunicorn from 25.0.1 to 25.0.2 in /tests/apps/python-flask
+- #8331: @dependabot[bot] chore(deps): bump gunicorn from 25.0.1 to 25.0.2 in /tests/apps/dockerfile-release
+- #8320: @dependabot[bot] chore(deps): bump django from 5.2.10 to 5.2.11 in /tests/apps/dockerfile-release
+- #8321: @dependabot[bot] chore(deps): bump github.com/traefik/traefik/v2 from 2.11.35 to 2.11.36 in /plugins/scheduler-k3s
+- #8319: @dependabot[bot] chore(deps): bump gunicorn from 24.1.1 to 25.0.1 in /tests/apps/dockerfile-release
+- #8318: @dependabot[bot] chore(deps): bump github.com/cert-manager/cert-manager from 1.19.2 to 1.19.3 in /plugins/scheduler-k3s
+- #8317: @dependabot[bot] chore(deps): bump gunicorn from 24.1.1 to 25.0.1 in /tests/apps/multi
+- #8316: @dependabot[bot] chore(deps): bump gunicorn from 24.1.1 to 25.0.1 in /tests/apps/python-flask
+
 ## 0.37.6
 
 Install/update via the bootstrap script:
