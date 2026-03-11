@@ -735,7 +735,6 @@ teardown() {
   run /bin/bash -c "dokku traefik:set --global dns-provider-cf_api_key"
 }
 
-
 @test "(traefik) healthcheck labels from app.json" {
   run /bin/bash -c "dokku proxy:set $TEST_APP traefik"
   echo "output: $output"
