@@ -14,7 +14,7 @@ require (
 	github.com/dokku/dokku/plugins/nginx-vhosts v0.0.0-20250618161309-8d0c35f1333c
 	github.com/dokku/dokku/plugins/registry v0.0.0-20250618161309-8d0c35f1333c
 	github.com/fatih/color v1.18.0
-	github.com/fluxcd/pkg/kustomize v1.24.0
+	github.com/fluxcd/pkg/kustomize v1.28.0
 	github.com/go-openapi/jsonpointer v0.22.5
 	github.com/go-resty/resty/v2 v2.17.2
 	github.com/gofrs/flock v0.13.0
@@ -147,7 +147,7 @@ require (
 	golang.org/x/crypto v0.48.0 // indirect
 	golang.org/x/mod v0.32.0 // indirect
 	golang.org/x/net v0.51.0 // indirect
-	golang.org/x/oauth2 v0.33.0 // indirect
+	golang.org/x/oauth2 v0.34.0 // indirect
 	golang.org/x/sys v0.42.0 // indirect
 	golang.org/x/term v0.40.0 // indirect
 	golang.org/x/text v0.34.0 // indirect
@@ -159,20 +159,20 @@ require (
 	google.golang.org/protobuf v1.36.10 // indirect
 	gopkg.in/evanphx/json-patch.v4 v4.13.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
-	k8s.io/apiextensions-apiserver v0.35.0 // indirect
-	k8s.io/apiserver v0.35.0 // indirect
+	k8s.io/apiextensions-apiserver v0.35.2 // indirect
+	k8s.io/apiserver v0.35.2 // indirect
 	k8s.io/cli-runtime v0.35.2 // indirect
 	k8s.io/component-base v0.35.2 // indirect
 	k8s.io/klog/v2 v2.130.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20250910181357-589584f1c912 // indirect
 	knative.dev/pkg v0.0.0-20250708013613-d3550d4350f9 // indirect
 	oras.land/oras-go/v2 v2.6.0 // indirect
-	sigs.k8s.io/controller-runtime v0.22.4 // indirect
+	sigs.k8s.io/controller-runtime v0.23.3 // indirect
 	sigs.k8s.io/gateway-api v1.4.0 // indirect
 	sigs.k8s.io/json v0.0.0-20250730193827-2d320260d730 // indirect
 	sigs.k8s.io/kustomize/kyaml v0.21.1 // indirect
 	sigs.k8s.io/randfill v1.0.0 // indirect
-	sigs.k8s.io/structured-merge-diff/v6 v6.3.0 // indirect
+	sigs.k8s.io/structured-merge-diff/v6 v6.3.2-0.20260122202528-d9cc6641c482 // indirect
 	sigs.k8s.io/yaml v1.6.0 // indirect
 )
 
