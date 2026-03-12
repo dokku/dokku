@@ -140,7 +140,7 @@ var HelmCharts = []HelmChart{
 		Namespace:       "vector",
 		ReleaseName:     "vector",
 		RepoURL:         "https://helm.vector.dev",
-		Version:         "0.42.0",
+		Version:         "0.50.0",
 	},
 }
 
