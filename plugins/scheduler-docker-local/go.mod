@@ -12,12 +12,12 @@ require (
 require (
 	github.com/alexellis/go-execute/v2 v2.2.1 // indirect
 	github.com/dokku/dokku/plugins/app-json v0.0.0-00010101000000-000000000000 // indirect
-	github.com/fatih/color v1.18.0 // indirect
+	github.com/fatih/color v1.19.0 // indirect
 	github.com/hashicorp/errwrap v1.0.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/kr/fs v0.1.0 // indirect
-	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/melbahja/goph v1.5.0 // indirect
 	github.com/otiai10/copy v1.14.1 // indirect
