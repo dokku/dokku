@@ -3,10 +3,10 @@ module github.com/dokku/dokko/tests/apps/gorpc
 go 1.25.5
 
 require (
-	golang.org/x/net v0.48.0 // indirect
-	golang.org/x/sys v0.39.0 // indirect
-	golang.org/x/text v0.32.0 // indirect
-	google.golang.org/grpc v1.79.3
+	golang.org/x/net v0.49.0 // indirect
+	golang.org/x/sys v0.40.0 // indirect
+	golang.org/x/text v0.33.0 // indirect
+	google.golang.org/grpc v1.80.0
 )
 
 require (
@@ -14,4 +14,4 @@ require (
 	google.golang.org/protobuf v1.36.11
 )
 
-require google.golang.org/genproto/googleapis/rpc v0.0.0-20251202230838-ff82c1b0f217 // indirect
+require google.golang.org/genproto/googleapis/rpc v0.0.0-20260120221211-b8f7ae30c516 // indirect
