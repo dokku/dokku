@@ -238,9 +238,13 @@ main() {
   esac
 
   [[ " apps certs help ls nginx shell storage trace version " == *" $CMD "* ]] && unset APP
-  [[ " certs:chain domains:add-global domains:remove-global domains:set-global ps:restore " == *" $CMD "* ]] && unset APP
+  [[ " certs:chain domains:add-global domains:clear-global domains:remove-global domains:set-global ps:restore " == *" $CMD "* ]] && unset APP
   [[ " storage:ensure-directory " == *" $CMD "* ]] && unset APP
   [[ " network:create network:destroy network:exists network:info network:list network:rebuildall " == *" $CMD "* ]] && unset APP
+  [[ " logs:vector-logs logs:vector-start logs:vector-stop " == *" $CMD "* ]] && unset APP
+  [[ " scheduler-k3s:cluster:add scheduler-k3s:cluster:list scheduler-k3s:cluster:remove " == *" $CMD "* ]] && unset APP
+  [[ " scheduler-k3s:ensure-charts scheduler-k3s:initialize scheduler-k3s:show-kubeconfig scheduler-k3s:uninstall " == *" $CMD "* ]] && unset APP
+  [[ " scheduler-k3s:profiles:add scheduler-k3s:profiles:list scheduler-k3s:profiles:remove " == *" $CMD "* ]] && unset APP
   [[ "$CMD" =~ events*|plugin*|ssh-keys* ]] && unset APP
   [[ -n "$APP_ARG" ]] && [[ "$APP_ARG" == "--global" ]] && unset APP
   if [[ -n "$@" ]] && [[ -n "$APP" ]]; then
