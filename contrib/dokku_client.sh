@@ -183,7 +183,7 @@ main() {
             ssh -p "$DOKKU_PORT" "dokku@$DOKKU_REMOTE_HOST" apps
             exit 1
           else
-            APP=$(random_name)
+            APP=$(fn-random-name)
             counter=$((counter + 1))
           fi
         done
