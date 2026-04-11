@@ -26,7 +26,7 @@ require (
 	github.com/traefik/traefik/v2 v2.11.41
 	golang.org/x/sync v0.20.0
 	gopkg.in/yaml.v3 v3.0.1
-	helm.sh/helm/v3 v3.20.1
+	helm.sh/helm/v3 v3.20.2
 	k8s.io/api v0.35.2
 	k8s.io/apimachinery v0.35.2
 	k8s.io/client-go v0.35.2
