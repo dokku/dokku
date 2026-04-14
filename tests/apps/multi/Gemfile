@@ -1,6 +1,5 @@
 source "https://rubygems.org"
 
-ruby '3.1.4'
+ruby '4.0.2'
 
-gem 'compass', ">= 1.0.1"
-gem 'sass-globbing'
+gem 'kramdown', '~> 2.5'
