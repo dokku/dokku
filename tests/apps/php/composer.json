@@ -2,9 +2,9 @@
   "description": "a test php app for dokku",
   "name": "test-php-app/0.1",
   "require": {
-    "monolog/monolog": "~1.7",
-    "php": ">=5.5.9",
-    "silex/silex": "~2.2"
+    "monolog/monolog": "^3.0",
+    "php": ">=8.2",
+    "slim/slim": "^4.0"
   },
   "require-dev": {
     "heroku/heroku-buildpack-php": "*"
