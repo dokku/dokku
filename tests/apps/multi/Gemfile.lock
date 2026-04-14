@@ -1,37 +1,22 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    chunky_png (1.4.0)
-    compass (1.0.3)
-      chunky_png (~> 1.2)
-      compass-core (~> 1.0.2)
-      compass-import-once (~> 1.0.5)
-      rb-fsevent (>= 0.9.3)
-      rb-inotify (>= 0.9)
-      sass (>= 3.3.13, < 3.5)
-    compass-core (1.0.3)
-      multi_json (~> 1.0)
-      sass (>= 3.3.0, < 3.5)
-    compass-import-once (1.0.5)
-      sass (>= 3.2, < 3.5)
-    ffi (1.15.5)
-    multi_json (1.15.0)
-    rb-fsevent (0.11.2)
-    rb-inotify (0.10.1)
-      ffi (~> 1.0)
-    sass (3.4.25)
-    sass-globbing (1.1.5)
-      sass (>= 3.1)
+    kramdown (2.5.2)
+      rexml (>= 3.4.4)
+    rexml (3.4.4)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
-  compass (>= 1.0.1)
-  sass-globbing
+  kramdown (~> 2.5)
+
+CHECKSUMS
+  kramdown (2.5.2) sha256=1ba542204c66b6f9111ff00dcc26075b95b220b07f2905d8261740c82f7f02fa
+  rexml (3.4.4) sha256=19e0a2c3425dfbf2d4fc1189747bdb2f849b6c5e74180401b15734bc97b5d142
 
 RUBY VERSION
-   ruby 3.1.4p223
+  ruby 4.0.2
 
 BUNDLED WITH
-   2.3.26
+  4.0.6

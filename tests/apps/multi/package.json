@@ -1,22 +1,18 @@
 {
   "author": "Al Johri",
   "dependencies": {
-    "bower": "^1.8.14",
-    "grunt": "~1.6.1",
-    "grunt-cli": "~1.5.0",
-    "grunt-contrib-compass": "~1.1.1",
-    "load-grunt-tasks": "~5.1.0",
-    "tmp": "0.2.5"
+    "bootstrap": "^5.3.8",
+    "sass": "^1.99.0"
   },
   "description": "Test application for heroku multi buildpack.",
   "engines": {
-    "node": "12.x.x",
-    "npm": "6.x.x"
+    "node": "24.x.x",
+    "npm": "11.x.x"
   },
   "license": "ISC",
   "name": "test-buildpack-multi",
   "scripts": {
-    "postinstall": "echo $PATH && ./node_modules/bower/bin/bower install --allow-root && ./node_modules/grunt-cli/bin/grunt --verbose --debug heroku"
+    "postinstall": "bundle exec ruby generate_content.rb && mkdir -p static/.tmp/styles && npx sass static/styles/main.scss static/.tmp/styles/main.css --load-path=node_modules"
   },
   "version": "0.0.0"
 }
