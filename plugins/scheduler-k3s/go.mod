@@ -194,4 +194,6 @@ replace github.com/dokku/dokku/plugins/registry => ../registry
 
 replace github.com/joho/godotenv => github.com/joho/godotenv v1.2.0
 
+replace sigs.k8s.io/controller-runtime => sigs.k8s.io/controller-runtime v0.22.4
+
 replace github.com/imdario/mergo => github.com/imdario/mergo v0.3.16
