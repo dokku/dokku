@@ -1,5 +1,85 @@
 # History
 
+## 0.37.8
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.37.8/bootstrap.sh
+sudo DOKKU_TAG=v0.37.8 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #8451: @mykolasolodukha Fix client prepending `--app` for non-app commands
+
+### New Features
+
+- #8443: @chemicalkosek Add application/graphql-response+json to nginx gzip_types
+
+### Dependencies
+
+- #8470: @dependabot[bot] chore(deps): bump packaging from 26.0 to 26.1 in /docs/_build
+- #8471: @dependabot[bot] chore(deps): bump k8s.io/kubernetes from 1.35.0 to 1.35.3 in /plugins/scheduler-k3s
+- #8472: @dependabot[bot] chore(deps): bump k8s.io/apimachinery from 0.35.2 to 0.35.3 in /plugins/scheduler-k3s
+- #8413: @dependabot[bot] chore(deps): bump github.com/fluxcd/pkg/kustomize from 1.24.0 to 1.28.0 in /plugins/scheduler-k3s
+- #8425: @dependabot[bot] chore(deps): bump github.com/cert-manager/cert-manager from 1.19.3 to 1.20.0 in /plugins/scheduler-k3s
+- #8469: @dependabot[bot] chore(deps): bump zipp from 3.23.0 to 3.23.1 in /docs/_build
+- #8450: @dependabot[bot] chore(deps): bump mvdan.cc/sh/v3 from 3.13.0 to 3.13.1 in /plugins/cron
+- #8465: @dependabot[bot] chore(deps): bump github.com/joho/godotenv from 1.2.0 to 1.5.1 in /plugins/config
+- #8463: @dependabot[bot] chore(deps): bump golang.org/x/crypto from 0.49.0 to 0.50.0 in /plugins/common
+- #8449: @dependabot[bot] chore(deps): bump click from 8.3.1 to 8.3.2 in /docs/_build
+- #8464: @dependabot[bot] chore(deps): bump helm.sh/helm/v3 from 3.20.1 to 3.20.2 in /plugins/scheduler-k3s
+- #8458: @dependabot[bot] chore(deps): bump traefik from v3.6.12 to v3.6.13 in /plugins/traefik-vhosts
+- #8457: @dependabot[bot] chore(deps): bump golang from 1.26.1 to 1.26.2 in /tests/apps/zombies-dockerfile-no-tini
+- #8456: @dependabot[bot] chore(deps): bump golang from 1.26.1 to 1.26.2 in /tests/apps/go-fail-postdeploy
+- #8455: @dependabot[bot] chore(deps): bump golang from 1.26.1 to 1.26.2 in /tests/apps/gogrpc
+- #8454: @dependabot[bot] chore(deps): bump golang from 1.26.1 to 1.26.2 in /tests/apps/zombies-dockerfile-tini
+- #8453: @dependabot[bot] chore(deps): bump golang from 1.26.1 to 1.26.2 in /tests/apps/go-fail-predeploy
+- #8452: @dependabot[bot] chore(deps): bump rack-session from 2.1.1 to 2.1.2 in /tests/apps/ruby
+- #8459: @dependabot[bot] chore(deps): bump django from 5.2.12 to 5.2.13 in /tests/apps/dockerfile-release
+- #8444: @dependabot[bot] chore(deps): bump rack from 3.2.5 to 3.2.6 in /tests/apps/ruby
+- #8445: @dependabot[bot] chore(deps): bump github.com/go-jose/go-jose/v4 from 4.1.3 to 4.1.4 in /plugins/scheduler-k3s
+- #8447: @dependabot[bot] chore(deps): bump werkzeug from 3.1.7 to 3.1.8 in /tests/apps/python-flask
+- #8440: @dependabot[bot] chore(deps): bump pymdown-extensions from 10.21 to 10.21.2 in /docs/_build
+- #8441: @dependabot[bot] chore(deps): bump pygments from 2.19.2 to 2.20.0 in /docs/_build
+- #8442: @dependabot[bot] chore(deps): bump google.golang.org/grpc from 1.79.3 to 1.80.0 in /tests/apps/gogrpc
+- #8410: @dependabot[bot] chore(deps): bump golang.org/x/crypto from 0.48.0 to 0.49.0 in /plugins/common
+- #8422: @dependabot[bot] chore(deps): bump github.com/fatih/color from 1.18.0 to 1.19.0 in /plugins/common
+- #8434: @dependabot[bot] chore(deps): bump gunicorn from 25.2.0 to 25.3.0 in /tests/apps/python-flask
+- #8439: @dependabot[bot] chore(deps): bump brace-expansion from 1.1.12 to 1.1.13 in /tests/apps/multi
+- #8438: @dependabot[bot] chore(deps): bump path-to-regexp from 8.2.0 to 8.4.0 in /tests/apps/checks-root
+- #8437: @dependabot[bot] chore(deps): bump gunicorn from 25.2.0 to 25.3.0 in /tests/apps/dockerfile-release
+- #8436: @dependabot[bot] chore(deps): bump traefik from v3.6.11 to v3.6.12 in /plugins/traefik-vhosts
+- #8435: @dependabot[bot] chore(deps): bump gunicorn from 25.2.0 to 25.3.0 in /tests/apps/multi
+- #8427: @dependabot[bot] chore(deps): bump werkzeug from 3.1.6 to 3.1.7 in /tests/apps/python-flask
+- #8428: @dependabot[bot] chore(deps): bump gunicorn from 25.1.0 to 25.2.0 in /tests/apps/multi
+- #8429: @dependabot[bot] chore(deps): bump gunicorn from 25.1.0 to 25.2.0 in /tests/apps/python-flask
+- #8430: @dependabot[bot] chore(deps): bump djangorestframework from 3.17.0 to 3.17.1 in /tests/apps/dockerfile-release
+- #8431: @dependabot[bot] chore(deps): bump gunicorn from 25.1.0 to 25.2.0 in /tests/apps/dockerfile-release
+- #8432: @dependabot[bot] chore(deps): bump picomatch from 2.3.1 to 2.3.2 in /tests/apps/multi
+- #8423: @dependabot[bot] chore(deps): bump traefik from v3.6.10 to v3.6.11 in /plugins/traefik-vhosts
+- #8420: @dependabot[bot] chore(deps): bump mkdocs-material from 9.7.5 to 9.7.6 in /docs/_build
+- #8421: @dependabot[bot] chore(deps): bump importlib-metadata from 8.8.0 to 9.0.0 in /docs/_build
+- #8424: @dependabot[bot] chore(deps): bump github.com/traefik/traefik/v2 from 2.11.40 to 2.11.41 in /plugins/scheduler-k3s
+- #8411: @dependabot[bot] chore(deps): bump lucaslorentz/caddy-docker-proxy from 2.11 to 2.12 in /plugins/caddy-vhosts
+- #8412: @dependabot[bot] chore(deps): bump helm.sh/helm/v3 from 3.20.0 to 3.20.1 in /plugins/scheduler-k3s
+- #8419: @dependabot[bot] chore(deps): bump djangorestframework from 3.16.1 to 3.17.0 in /tests/apps/dockerfile-release
+- #8418: @dependabot[bot] chore(deps): bump importlib-metadata from 8.7.1 to 8.8.0 in /docs/_build
+- #8417: @dependabot[bot] chore(deps): bump google.golang.org/grpc from 1.77.0-dev to 1.79.3 in /plugins/scheduler-k3s
+- #8416: @dependabot[bot] chore(deps): bump ruby from 4.0.1 to 4.0.2 in /tests/apps/dockerfile-entrypoint
+- #8415: @dependabot[bot] chore(deps): bump google.golang.org/grpc from 1.79.2 to 1.79.3 in /tests/apps/gogrpc
+- #8409: @dependabot[bot] chore(deps): bump github.com/go-openapi/jsonpointer from 0.22.4 to 0.22.5 in /plugins/scheduler-k3s
+- #8408: @dependabot[bot] chore(deps): bump github.com/go-resty/resty/v2 from 2.17.1 to 2.17.2 in /plugins/scheduler-k3s
+- #8407: @dependabot[bot] chore(deps): bump mkdocs-material from 9.7.4 to 9.7.5 in /docs/_build
+- #8406: @dependabot[bot] chore(deps): bump timberio/vector from 0.53.0-debian to 0.54.0-debian in /plugins/logs
+
+### Other
+
+- #8468: @josegonzalez chore: bump dependencies in tests/apps/php
+- #8467: @josegonzalez chore: upgrade traefik from v2.11.41 to v2.11.42
+- #8466: @josegonzalez chore: bump dependencies in tests/apps/multi
+
 ## 0.37.7
 
 Install/update via the bootstrap script:
