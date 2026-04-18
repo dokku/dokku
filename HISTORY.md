@@ -1,5 +1,21 @@
 # History
 
+## 0.37.9
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.37.9/bootstrap.sh
+sudo DOKKU_TAG=v0.37.9 bash bootstrap.sh
+```
+
+### Dependencies
+
+- #8473: @dependabot[bot] chore(deps): bump k8s.io/api from 0.35.2 to 0.35.4 in /plugins/scheduler-k3s
+- #8474: @dependabot[bot] chore(deps): bump github.com/go-openapi/jsonpointer from 0.22.5 to 0.23.0 in /plugins/scheduler-k3s
+- #8476: @dependabot[bot] chore(deps): bump github.com/go-acme/lego/v4 from 4.25.2 to 4.34.0 in /plugins/scheduler-k3s
+- #8475: @dependabot[bot] chore(deps): bump github.com/moby/spdystream from 0.5.0 to 0.5.1 in /plugins/scheduler-k3s
+
 ## 0.37.8
 
 Install/update via the bootstrap script:
