@@ -149,6 +149,7 @@ ci-go-coverage:
 	@$(MAKE) ci-go-coverage-plugin PLUGIN_NAME=common
 	@$(MAKE) ci-go-coverage-plugin PLUGIN_NAME=config
 	@$(MAKE) ci-go-coverage-plugin PLUGIN_NAME=network
+	@$(MAKE) ci-go-coverage-plugin PLUGIN_NAME=buildpacks
 
 ci-go-coverage-plugin:
 	mkdir -p test-results/coverage
@@ -177,9 +178,10 @@ go-tests:
 	@$(MAKE) go-test-plugin PLUGIN_NAME=common
 	@$(MAKE) go-test-plugin PLUGIN_NAME=config
 	@$(MAKE) go-test-plugin PLUGIN_NAME=network
+	@$(MAKE) go-test-plugin PLUGIN_NAME=buildpacks
 
 go-test-plugin:
-	cd plugins/$(PLUGIN_NAME) && go get github.com/onsi/gomega && DOKKU_ROOT=/home/dokku go test -v -p 1 -race -mod=readonly || exit $$?
+	cd plugins/$(PLUGIN_NAME) && go get github.com/onsi/gomega && DOKKU_ROOT=/home/dokku DOKKU_LIB_ROOT=/var/lib/dokku go test -v -p 1 -race -mod=readonly || exit $$?
 
 go-test-plugin-in-docker:
 	@echo running go unit tests...
