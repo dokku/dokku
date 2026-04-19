@@ -28,6 +28,14 @@ func getBuildpacks(appName string) ([]string, error) {
 		return buildpacks, nil
 	}
 
+	results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "git-get-property",
+		Args:    []string{appName, "source-image"},
+	})
+	if results.StdoutContents() != "" {
+		return buildpacks, nil
+	}
+
 	appJSON, err := appjson.GetAppJSON(appName)
 	if err != nil {
 		return buildpacks, err
