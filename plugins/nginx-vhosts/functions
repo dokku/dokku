@@ -318,28 +318,38 @@ nginx_build_config() {
       dokku_log_warn_quiet "No web listeners specified for $APP"
     fi
 
+    local IS_DEPLOYED_WITH_LISTENERS=false
     if [[ -n "$DOKKU_APP_LISTENERS" ]] && (is_deployed "$APP"); then
-      if [[ "$(plugn trigger network-get-static-listeners "$APP" "web")" == "" ]]; then
-        local IMAGE_TAG=$(get_running_image_tag "$APP")
-        local IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG" 2>/dev/null)
-        if ! verify_image "$IMAGE" 2>/dev/null; then
-          dokku_log_fail "Missing image for app"
+      IS_DEPLOYED_WITH_LISTENERS=true
+    fi
+
+    if [[ "$IS_DEPLOYED_WITH_LISTENERS" == "true" ]] || { [[ -z "$DOKKU_APP_LISTENERS" ]] && [[ -z "$PASSED_LISTEN_IP_PORT" ]]; }; then
+      if [[ "$IS_DEPLOYED_WITH_LISTENERS" == "true" ]]; then
+        if [[ "$(plugn trigger network-get-static-listeners "$APP" "web")" == "" ]]; then
+          local IMAGE_TAG=$(get_running_image_tag "$APP")
+          local IMAGE=$(get_deploying_app_image_name "$APP" "$IMAGE_TAG" 2>/dev/null)
+          if ! verify_image "$IMAGE" 2>/dev/null; then
+            dokku_log_fail "Missing image for app"
+          fi
         fi
       fi
 
       local NGINX_BUILD_CONFIG_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
       local NGINX_CONF=$(mktemp --tmpdir="${NGINX_BUILD_CONFIG_TMP_WORK_DIR}" "nginx.conf.XXXXXX")
-      local CUSTOM_NGINX_TEMPLATE="$NGINX_BUILD_CONFIG_TMP_WORK_DIR/$NGINX_TEMPLATE_NAME"
       trap "rm -rf '$NGINX_CONF' '$NGINX_BUILD_CONFIG_TMP_WORK_DIR' >/dev/null" RETURN INT TERM EXIT
 
-      get_custom_nginx_template "$APP" "$CUSTOM_NGINX_TEMPLATE" 2>/dev/null
-      if [[ -f "$CUSTOM_NGINX_TEMPLATE" ]]; then
-        dokku_log_info1 'Overriding default nginx.conf with detected nginx.conf.sigil'
-        local NGINX_TEMPLATE="$CUSTOM_NGINX_TEMPLATE"
-        local NGINX_TEMPLATE_SOURCE="app-supplied"
+      if [[ "$IS_DEPLOYED_WITH_LISTENERS" == "true" ]]; then
+        local CUSTOM_NGINX_TEMPLATE="$NGINX_BUILD_CONFIG_TMP_WORK_DIR/$NGINX_TEMPLATE_NAME"
+        get_custom_nginx_template "$APP" "$CUSTOM_NGINX_TEMPLATE" 2>/dev/null
+        if [[ -f "$CUSTOM_NGINX_TEMPLATE" ]]; then
+          dokku_log_info1 'Overriding default nginx.conf with detected nginx.conf.sigil'
+          local NGINX_TEMPLATE="$CUSTOM_NGINX_TEMPLATE"
+          local NGINX_TEMPLATE_SOURCE="app-supplied"
+        fi
+
+        eval "$(config_export app "$APP")"
       fi
 
-      eval "$(config_export app "$APP")"
       local SIGIL_PARAMS=(-f "$NGINX_TEMPLATE" APP="$APP" DOKKU_ROOT="$DOKKU_ROOT"
         NOSSL_SERVER_NAME="$NOSSL_SERVER_NAME"
         # Deprecated: Remove this after a few versions
@@ -384,86 +394,29 @@ nginx_build_config() {
         PROXY_X_FORWARDED_PROTO="$PROXY_X_FORWARDED_PROTO"
         PROXY_X_FORWARDED_SSL="$PROXY_X_FORWARDED_SSL")
 
-      while read -r line || [[ -n "$line" ]]; do
-        PROC_TYPE=${line%%=*}
-        LISTENERS="$(plugn trigger network-get-listeners "$APP" "$PROC_TYPE" | xargs)"
-        UPP_PROC_TYPE="${PROC_TYPE^^}"
-        UPP_PROC_TYPE="${UPP_PROC_TYPE//-/_}"
-        SIGIL_PARAMS+=("DOKKU_APP_${UPP_PROC_TYPE}_LISTENERS=$LISTENERS")
-      done < <(plugn trigger ps-current-scale "$APP")
+      if [[ "$IS_DEPLOYED_WITH_LISTENERS" == "true" ]]; then
+        while read -r line || [[ -n "$line" ]]; do
+          PROC_TYPE=${line%%=*}
+          LISTENERS="$(plugn trigger network-get-listeners "$APP" "$PROC_TYPE" | xargs)"
+          UPP_PROC_TYPE="${PROC_TYPE^^}"
+          UPP_PROC_TYPE="${UPP_PROC_TYPE//-/_}"
+          SIGIL_PARAMS+=("DOKKU_APP_${UPP_PROC_TYPE}_LISTENERS=$LISTENERS")
+        done < <(plugn trigger ps-current-scale "$APP")
 
-      if grep DOKKU_APP_LISTENERS "$NGINX_TEMPLATE"; then
-        dokku_log_warn "Deprecated: Usage of DOKKU_APP_LISTENERS within nginx.conf.sigil templates is deprecated in favor of DOKKU_APP_WEB_LISTENERS"
+        if grep DOKKU_APP_LISTENERS "$NGINX_TEMPLATE"; then
+          dokku_log_warn "Deprecated: Usage of DOKKU_APP_LISTENERS within nginx.conf.sigil templates is deprecated in favor of DOKKU_APP_WEB_LISTENERS"
+        fi
+
+        if grep NGINX_SSL_PORT "$NGINX_TEMPLATE"; then
+          dokku_log_warn "Deprecated: Usage of NGINX_SSL_PORT within nginx.conf.sigil templates is deprecated in favor of PROXY_SSL_PORT"
+        fi
+
+        if grep NGINX_PORT "$NGINX_TEMPLATE"; then
+          dokku_log_warn "Deprecated: Usage of NGINX_PORT within nginx.conf.sigil templates is deprecated in favor of PROXY_PORT"
+        fi
+      else
+        SIGIL_PARAMS+=(DOKKU_APP_WEB_LISTENERS="")
       fi
-
-      if grep NGINX_SSL_PORT "$NGINX_TEMPLATE"; then
-        dokku_log_warn "Deprecated: Usage of NGINX_SSL_PORT within nginx.conf.sigil templates is deprecated in favor of PROXY_SSL_PORT"
-      fi
-
-      if grep NGINX_PORT "$NGINX_TEMPLATE"; then
-        dokku_log_warn "Deprecated: Usage of NGINX_PORT within nginx.conf.sigil templates is deprecated in favor of PROXY_PORT"
-      fi
-
-      # execute sigil template processing
-      xargs -i echo "-----> Configuring {}...(using $NGINX_TEMPLATE_SOURCE template)" <<<"$(echo "${SSL_VHOSTS}" "${NONSSL_VHOSTS}" | tr ' ' '\n' | sort -u)"
-      sigil "${SIGIL_PARAMS[@]}" | cat -s >"$NGINX_CONF"
-
-      dokku_log_info1 "Creating $SCHEME nginx.conf"
-      mv "$NGINX_CONF" "$DOKKU_ROOT/$APP/nginx.conf"
-
-      fn-nginx-vhosts-manage-hsts "$APP" "$SSL_INUSE"
-
-      plugn trigger nginx-pre-reload "$APP" "$DOKKU_APP_LISTEN_PORT" "$DOKKU_APP_LISTEN_IP"
-
-      dokku_log_verbose "Reloading nginx"
-      validate_nginx && restart_nginx >/dev/null
-    elif [[ -z "$DOKKU_APP_LISTENERS" ]] && [[ -z "$PASSED_LISTEN_IP_PORT" ]]; then
-      local NGINX_BUILD_CONFIG_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
-      local NGINX_CONF=$(mktemp --tmpdir="${NGINX_BUILD_CONFIG_TMP_WORK_DIR}" "nginx.conf.XXXXXX")
-      trap "rm -rf '$NGINX_CONF' '$NGINX_BUILD_CONFIG_TMP_WORK_DIR' >/dev/null" RETURN INT TERM EXIT
-
-      local SIGIL_PARAMS=(-f "$NGINX_TEMPLATE" APP="$APP" DOKKU_ROOT="$DOKKU_ROOT"
-        NOSSL_SERVER_NAME="$NOSSL_SERVER_NAME"
-        DOKKU_APP_LISTENERS=""
-        DOKKU_APP_WEB_LISTENERS=""
-        DOKKU_LIB_ROOT="$DOKKU_LIB_ROOT"
-        PASSED_LISTEN_IP_PORT=""
-        SPDY_SUPPORTED="$SPDY_SUPPORTED"
-        TLS13_SUPPORTED="$TLS13_SUPPORTED"
-        HTTP2_SUPPORTED="$HTTP2_SUPPORTED"
-        NGINX_LOG_ROOT="$NGINX_LOG_ROOT"
-        NGINX_ACCESS_LOG_FORMAT="$NGINX_ACCESS_LOG_FORMAT"
-        NGINX_ACCESS_LOG_PATH="$NGINX_ACCESS_LOG_PATH"
-        NGINX_ERROR_LOG_PATH="$NGINX_ERROR_LOG_PATH"
-        NGINX_BIND_ADDRESS_IP4="$NGINX_BIND_ADDRESS_IP4"
-        NGINX_BIND_ADDRESS_IP6="$NGINX_BIND_ADDRESS_IP6"
-        HTTP2_DIRECTIVE_SUPPORTED="$HTTP2_DIRECTIVE_SUPPORTED"
-        HTTP2_PUSH_SUPPORTED="$HTTP2_PUSH_SUPPORTED"
-        GRPC_SUPPORTED="$GRPC_SUPPORTED"
-        DOKKU_APP_LISTEN_PORT="" DOKKU_APP_LISTEN_IP=""
-        APP_SSL_PATH="$APP_SSL_PATH" SSL_INUSE="$SSL_INUSE" SSL_SERVER_NAME="$SSL_SERVER_NAME"
-        CLIENT_BODY_TIMEOUT="$CLIENT_BODY_TIMEOUT"
-        CLIENT_HEADER_TIMEOUT="$CLIENT_HEADER_TIMEOUT"
-        CLIENT_MAX_BODY_SIZE="$CLIENT_MAX_BODY_SIZE"
-        KEEPALIVE_TIMEOUT="$KEEPALIVE_TIMEOUT"
-        LINGERING_TIMEOUT="$LINGERING_TIMEOUT"
-        PROXY_CONNECT_TIMEOUT="$PROXY_CONNECT_TIMEOUT"
-        PROXY_READ_TIMEOUT="$PROXY_READ_TIMEOUT"
-        PROXY_SEND_TIMEOUT="$PROXY_SEND_TIMEOUT"
-        SEND_TIMEOUT="$SEND_TIMEOUT"
-        PROXY_BUFFER_SIZE="$PROXY_BUFFER_SIZE"
-        PROXY_BUFFERING="$PROXY_BUFFERING"
-        PROXY_BUFFERS="$PROXY_BUFFERS"
-        PROXY_BUSY_BUFFERS_SIZE="$PROXY_BUSY_BUFFERS_SIZE"
-        PROXY_KEEPALIVE="$PROXY_KEEPALIVE"
-        NGINX_UNDERSCORE_IN_HEADERS="$NGINX_UNDERSCORE_IN_HEADERS"
-        NGINX_PORT="$PROXY_PORT" NGINX_SSL_PORT="$PROXY_SSL_PORT"
-        PROXY_PORT="$PROXY_PORT" PROXY_SSL_PORT="$PROXY_SSL_PORT"
-        PROXY_PORT_MAP="$PROXY_PORT_MAP" PROXY_UPSTREAM_PORTS="$PROXY_UPSTREAM_PORTS"
-        PROXY_X_FORWARDED_FOR="$PROXY_X_FORWARDED_FOR"
-        PROXY_X_FORWARDED_PORT="$PROXY_X_FORWARDED_PORT"
-        PROXY_X_FORWARDED_PROTO="$PROXY_X_FORWARDED_PROTO"
-        PROXY_X_FORWARDED_SSL="$PROXY_X_FORWARDED_SSL")
 
       xargs -i echo "-----> Configuring {}...(using $NGINX_TEMPLATE_SOURCE template)" <<<"$(echo "${SSL_VHOSTS}" "${NONSSL_VHOSTS}" | tr ' ' '\n' | sort -u)"
       sigil "${SIGIL_PARAMS[@]}" | cat -s >"$NGINX_CONF"
@@ -471,6 +424,10 @@ nginx_build_config() {
       dokku_log_info1 "Creating $SCHEME nginx.conf"
       mkdir -p "$DOKKU_ROOT/$APP/nginx.conf.d"
       mv "$NGINX_CONF" "$DOKKU_ROOT/$APP/nginx.conf"
+
+      if [[ "$IS_DEPLOYED_WITH_LISTENERS" == "true" ]]; then
+        fn-nginx-vhosts-manage-hsts "$APP" "$SSL_INUSE"
+      fi
 
       plugn trigger nginx-pre-reload "$APP" "$DOKKU_APP_LISTEN_PORT" "$DOKKU_APP_LISTEN_IP"
 
