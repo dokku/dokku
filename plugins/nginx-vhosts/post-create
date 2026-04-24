@@ -15,6 +15,10 @@ trigger-nginx-vhosts-post-create() {
     return
   fi
 
+  if [[ "$(fn-plugin-property-get "nginx" "--global" "proxy-status")" == "stopped" ]]; then
+    return
+  fi
+
   nginx_build_config "$APP"
 }
 
