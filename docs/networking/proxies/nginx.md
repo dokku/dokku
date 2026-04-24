@@ -30,7 +30,7 @@ Nginx will proxy the requests in a [round-robin balancing fashion](http://nginx.
 ### Nginx Configuration for Undeployed Apps
 
 > [!IMPORTANT]
-> New as of 0.37.0
+> New as of 0.38.0
 
 When an app is created but not yet deployed, has no `web` process type, or has no running web processes, Dokku generates a minimal nginx configuration that returns `502 Bad Gateway` responses. This ensures that:
 
