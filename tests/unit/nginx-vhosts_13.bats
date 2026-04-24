@@ -36,6 +36,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
+  sleep 2
 
   assert_http_localhost_response "http" "${TEST_APP}.${DOKKU_DOMAIN}" "80" "/" "" "502"
 }
