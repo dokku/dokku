@@ -26,6 +26,7 @@ server {
   }
 {{ else }}
   location    / {
+{{ if $.DOKKU_APP_WEB_LISTENERS }}
 
     gzip on;
     gzip_min_length  1100;
@@ -51,6 +52,9 @@ server {
     proxy_set_header X-Forwarded-Proto {{ $.PROXY_X_FORWARDED_PROTO }};
     proxy_set_header X-Request-Start $msec;
     {{ if $.PROXY_X_FORWARDED_SSL }}proxy_set_header X-Forwarded-Ssl {{ $.PROXY_X_FORWARDED_SSL }};{{ end }}
+{{ else }}
+    return 502;
+{{ end }}
   }
 
   client_max_body_size {{ $.CLIENT_MAX_BODY_SIZE }};
@@ -103,6 +107,7 @@ server {
   send_timeout {{ $.SEND_TIMEOUT }};
 
   location    / {
+{{ if $.DOKKU_APP_WEB_LISTENERS }}
 
     gzip on;
     gzip_min_length  1100;
@@ -129,6 +134,9 @@ server {
     proxy_set_header X-Forwarded-Proto {{ $.PROXY_X_FORWARDED_PROTO }};
     proxy_set_header X-Request-Start $msec;
     {{ if $.PROXY_X_FORWARDED_SSL }}proxy_set_header X-Forwarded-Ssl {{ $.PROXY_X_FORWARDED_SSL }};{{ end }}
+{{ else }}
+    return 502;
+{{ end }}
   }
 
   client_max_body_size {{ $.CLIENT_MAX_BODY_SIZE }};
@@ -159,6 +167,7 @@ server {
   include {{ $.DOKKU_ROOT }}/{{ $.APP }}/nginx.conf.d/*.conf;
 }
 {{ else if eq $scheme "grpc"}}
+{{ if $.DOKKU_APP_WEB_LISTENERS }}
 server {
   {{ if eq $.HTTP2_DIRECTIVE_SUPPORTED "true" }}
   listen      [{{ $.NGINX_BIND_ADDRESS_IP6 }}]:{{ $listen_port }};
@@ -179,7 +188,9 @@ server {
   client_max_body_size {{ $.CLIENT_MAX_BODY_SIZE }};
   include {{ $.DOKKU_ROOT }}/{{ $.APP }}/nginx.conf.d/*.conf;
 }
+{{ end }}
 {{ else if eq $scheme "grpcs"}}
+{{ if $.DOKKU_APP_WEB_LISTENERS }}
 server {
   {{ if eq $.HTTP2_DIRECTIVE_SUPPORTED "true" }}
   listen      [{{ $.NGINX_BIND_ADDRESS_IP6 }}]:{{ $listen_port }} ssl;
@@ -206,6 +217,7 @@ server {
   client_max_body_size {{ $.CLIENT_MAX_BODY_SIZE }};
   include {{ $.DOKKU_ROOT }}/{{ $.APP }}/nginx.conf.d/*.conf;
 }
+{{ end }}
 {{ end }}
 {{ end }}
 

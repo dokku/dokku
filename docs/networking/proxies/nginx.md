@@ -27,6 +27,21 @@ Nginx will proxy the requests in a [round-robin balancing fashion](http://nginx.
 > [!NOTE]
 > Due to how the plugin is implemented, if an app successfully starts up `web` containers but fails to deploy some other containers, nginx may eventually stop routing requests. Users should revert their code in these cases, or manually trigger `dokku proxy:build-config $APP` in order to ensure requests route to the new web containers.
 
+### Nginx Configuration for Undeployed Apps
+
+> [!IMPORTANT]
+> New as of 0.37.0
+
+When an app is created but not yet deployed, has no `web` process type, or has no running web processes, Dokku generates a minimal nginx configuration that returns `502 Bad Gateway` responses. This ensures that:
+
+- The app's domain resolves and returns a non-200 status code, allowing monitoring tools to detect the issue.
+- SSL certificate provisioning tools such as letsencrypt can function, as an nginx server is listening on the domain.
+- The `nginx.conf.d/` include directory is available for plugin customization.
+
+The 502 error page includes auto-retry JavaScript that will automatically reload the page when the application becomes available.
+
+Once the app is deployed with running `web` processes, the placeholder configuration is automatically replaced with the full proxy configuration.
+
 ### Starting nginx
 
 > [!IMPORTANT]
