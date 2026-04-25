@@ -99,13 +99,13 @@ func TriggerInstall() error {
 		return fmt.Errorf("Unable to install the config plugin: %s", err.Error())
 	}
 
+	if err := migrateGlobalEnv(); err != nil {
+		return fmt.Errorf("Unable to migrate global environment: %s", err.Error())
+	}
+
 	apps, err := common.UnfilteredDokkuApps()
 	if err != nil {
 		return nil
-	}
-
-	if err := migrateGlobalEnv(); err != nil {
-		return fmt.Errorf("Unable to migrate global environment: %s", err.Error())
 	}
 
 	// migrate all app ENV files to config path
