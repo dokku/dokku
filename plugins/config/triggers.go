@@ -60,6 +60,23 @@ func TriggerConfigUnset(appName string, key string, restart bool) error {
 	return nil
 }
 
+func setupAppConfigDir(appName string) error {
+	appFile, err := getAppFile(appName)
+	if err != nil {
+		return err
+	}
+
+	appConfigDir := filepath.Dir(appFile)
+	if err := os.MkdirAll(appConfigDir, 0755); err != nil {
+		return err
+	}
+
+	return common.SetPermissions(common.SetPermissionInput{
+		Filename: appConfigDir,
+		Mode:     os.FileMode(0755),
+	})
+}
+
 func migrateGlobalEnv() error {
 	if err := common.PropertySetup("--global"); err != nil {
 		return fmt.Errorf("Unable to setup global environment: %s", err.Error())
@@ -112,6 +129,10 @@ func TriggerInstall() error {
 	for _, appName := range apps {
 		if err := common.PropertySetupApp("config", appName); err != nil {
 			return fmt.Errorf("Unable to setup app environment: %s", err.Error())
+		}
+
+		if err := setupAppConfigDir(appName); err != nil {
+			return fmt.Errorf("Unable to setup app config directory: %s", err.Error())
 		}
 
 		oldEnvFile := filepath.Join(common.AppRoot(appName), "ENV")
@@ -198,10 +219,19 @@ func TriggerPostAppRenameSetup(oldAppName string, newAppName string) error {
 
 // TriggerPostCreate ensures apps have the correct config structure
 func TriggerPostCreate(appName string) error {
-	return common.PropertySetupApp("config", appName)
+	if err := common.PropertySetupApp("config", appName); err != nil {
+		return err
+	}
+
+	return setupAppConfigDir(appName)
 }
 
 // TriggerPostDelete destroys the config data for a given app container
 func TriggerPostDelete(appName string) error {
+	appFile, err := getAppFile(appName)
+	if err == nil {
+		os.RemoveAll(filepath.Dir(appFile))
+	}
+
 	return common.PropertyDestroy("config", appName)
 }
