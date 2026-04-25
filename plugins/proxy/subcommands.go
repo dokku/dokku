@@ -2,6 +2,7 @@ package proxy
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
 )
@@ -80,8 +81,19 @@ func CommandReport(appName string, format string, infoFlag string) error {
 	return ReportSingleApp(appName, format, infoFlag)
 }
 
-// CommandSet sets a proxy for an app
+// CommandSet set or clear a proxy property for an app
 func CommandSet(appName string, property string, value string) error {
+	// backward compatibility: `proxy:set <app> <proxy-type>` is treated as
+	// `proxy:set <app> type <proxy-type>`
+	if _, ok := DefaultProperties[property]; !ok && value == "" {
+		if strings.Contains(property, ":") {
+			common.LogWarn("Detected potential port mapping instead of proxy type")
+			return errors.New("Consider using ports:set command or specifying a valid proxy")
+		}
+		value = property
+		property = "type"
+	}
+
 	common.CommandPropertySet("proxy", appName, property, value, DefaultProperties, GlobalProperties)
 	return nil
 }
