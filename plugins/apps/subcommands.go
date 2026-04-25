@@ -226,6 +226,12 @@ func CommandReport(appName string, format string, infoFlag string) error {
 	return ReportSingleApp(appName, format, infoFlag)
 }
 
+// CommandSet set or clear an apps property for an app
+func CommandSet(appName string, property string, value string) error {
+	common.CommandPropertySet("apps", appName, property, value, DefaultProperties, GlobalProperties)
+	return nil
+}
+
 // CommandUnlock unlocks an app for deployment
 func CommandUnlock(appName string) error {
 	if err := common.VerifyAppName(appName); err != nil {

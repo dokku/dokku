@@ -62,7 +62,7 @@ teardown() {
 
 @test "(nginx-vhosts) proxy:build-config (global proxy-port)" {
   local GLOBAL_PORT=30999
-  run /bin/bash -c "dokku ports:set --global proxy-port ${GLOBAL_PORT}"
+  run /bin/bash -c "$PLUGIN_CORE_AVAILABLE_PATH/common/prop set ports --global proxy-port ${GLOBAL_PORT}"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -74,7 +74,7 @@ teardown() {
   check_urls "http://${TEST_APP}.${DOKKU_DOMAIN}:${GLOBAL_PORT}"
   assert_http_success "http://${TEST_APP}.${DOKKU_DOMAIN}:${GLOBAL_PORT}"
 
-  run /bin/bash -c "dokku ports:set --global proxy-port"
+  run /bin/bash -c "$PLUGIN_CORE_AVAILABLE_PATH/common/prop del ports --global proxy-port"
   echo "output: $output"
   echo "status: $status"
   assert_success

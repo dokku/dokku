@@ -227,8 +227,8 @@ nginx_build_config() {
 
     # setup nginx listen ports
     plugn trigger ports-configure "$APP"
-    local PROXY_PORT=$(config_get "$APP" DOKKU_PROXY_PORT)
-    local PROXY_SSL_PORT=$(config_get "$APP" DOKKU_PROXY_SSL_PORT)
+    local PROXY_PORT=$(plugn trigger ports-get-property "$APP" "proxy-port")
+    local PROXY_SSL_PORT=$(plugn trigger ports-get-property "$APP" "proxy-ssl-port")
 
     local PORT_MAP PROXY_PORT_MAP proxy_port_map
     while read -r PORT_MAP; do
