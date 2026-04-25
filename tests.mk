@@ -155,6 +155,7 @@ ci-go-coverage-plugin:
 	mkdir -p test-results/coverage
 	docker run --rm \
 		-e DOKKU_ROOT=/home/dokku \
+		-e DOKKU_LIB_ROOT=/var/lib/dokku \
 		-e CODACY_TOKEN=$$CODACY_TOKEN \
 		-e CIRCLE_SHA1=$$CIRCLE_SHA1 \
 		-e GO111MODULE=on \
