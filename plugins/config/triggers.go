@@ -103,6 +103,13 @@ func migrateGlobalEnv() error {
 		return fmt.Errorf("Unable to write global environment: %s", err.Error())
 	}
 
+	if err := common.SetPermissions(common.SetPermissionInput{
+		Filename: globalEnv.Filename(),
+		Mode:     os.FileMode(0600),
+	}); err != nil {
+		return fmt.Errorf("Unable to set permissions on global environment: %s", err.Error())
+	}
+
 	if err := common.PropertyWrite("config", "--global", "env-migrated", "true"); err != nil {
 		return fmt.Errorf("Unable to set env-migrated property: %s", err.Error())
 	}
