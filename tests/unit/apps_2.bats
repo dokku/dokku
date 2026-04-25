@@ -116,7 +116,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  run /bin/bash -c "$PLUGIN_CORE_AVAILABLE_PATH/common/prop set ports $TEST_APP proxy-ssl-port 443"
+  run /bin/bash -c "dokku proxy:set $TEST_APP proxy-ssl-port 443"
   echo "output: $output"
   echo "status: $status"
   assert_success

@@ -7,8 +7,8 @@ source "$PLUGIN_AVAILABLE_PATH/config/functions"
 source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/internal-functions"
 
 fn-nginx-vhosts-migrate-env-vars() {
-  "$PLUGIN_CORE_AVAILABLE_PATH/common/prop" migrate-config-to-property ports proxy-port DOKKU_NGINX_PORT
-  "$PLUGIN_CORE_AVAILABLE_PATH/common/prop" migrate-config-to-property ports proxy-ssl-port DOKKU_NGINX_SSL_PORT
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/prop" migrate-config-to-property proxy proxy-port DOKKU_NGINX_PORT
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/prop" migrate-config-to-property proxy proxy-ssl-port DOKKU_NGINX_SSL_PORT
 }
 
 fn-nginx-vhosts-migrate-nginx-conf-sigil() {

@@ -161,7 +161,7 @@ func getDetectedPortMaps(appName string) []PortMap {
 // getGlobalProxyPort gets the global proxy port
 func getGlobalProxyPort() int {
 	port := 0
-	value := common.PropertyGet("ports", "--global", "proxy-port")
+	value := common.PropertyGet("proxy", "--global", "proxy-port")
 	if intVar, err := strconv.Atoi(value); err == nil {
 		port = intVar
 	}
@@ -172,7 +172,7 @@ func getGlobalProxyPort() int {
 // getGlobalProxySSLPort gets the global proxy ssl port
 func getGlobalProxySSLPort() int {
 	port := 0
-	value := common.PropertyGet("ports", "--global", "proxy-ssl-port")
+	value := common.PropertyGet("proxy", "--global", "proxy-ssl-port")
 	if intVar, err := strconv.Atoi(value); err == nil {
 		port = intVar
 	}
@@ -194,7 +194,7 @@ func getPortMaps(appName string) []PortMap {
 // getProxyPort gets the proxy port for an app
 func getProxyPort(appName string) int {
 	port := 0
-	value := common.PropertyGet("ports", appName, "proxy-port")
+	value := common.PropertyGet("proxy", appName, "proxy-port")
 	if intVar, err := strconv.Atoi(value); err == nil {
 		port = intVar
 	}
@@ -205,7 +205,7 @@ func getProxyPort(appName string) int {
 // getProxySSLPort gets the proxy ssl port for an app
 func getProxySSLPort(appName string) int {
 	port := 0
-	value := common.PropertyGet("ports", appName, "proxy-ssl-port")
+	value := common.PropertyGet("proxy", appName, "proxy-ssl-port")
 	if intVar, err := strconv.Atoi(value); err == nil {
 		port = intVar
 	}
@@ -432,12 +432,12 @@ func setPortMaps(appName string, portMaps []PortMap) error {
 
 // setProxyPort sets the proxy port for an app
 func setProxyPort(appName string, port int) error {
-	return common.PropertyWrite("ports", appName, "proxy-port", fmt.Sprint(port))
+	return common.PropertyWrite("proxy", appName, "proxy-port", fmt.Sprint(port))
 }
 
 // setProxySSLPort sets the proxy ssl port for an app
 func setProxySSLPort(appName string, port int) error {
-	return common.PropertyWrite("ports", appName, "proxy-ssl-port", fmt.Sprint(port))
+	return common.PropertyWrite("proxy", appName, "proxy-ssl-port", fmt.Sprint(port))
 }
 
 // transformPortMap normalizes a port map string for migration to list properties

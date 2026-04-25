@@ -18,10 +18,10 @@ trigger-nginx-vhosts-pre-disable-vhost() {
   local PROXY_SSL_PORT=$(plugn trigger ports-get-property "$APP" "proxy-ssl-port")
 
   if [[ "$PROXY_PORT" == "80" ]]; then
-    fn-plugin-property-delete "ports" "$APP" "proxy-port"
+    fn-plugin-property-delete "proxy" "$APP" "proxy-port"
   fi
   if [[ "$PROXY_SSL_PORT" == "443" ]]; then
-    fn-plugin-property-delete "ports" "$APP" "proxy-ssl-port"
+    fn-plugin-property-delete "proxy" "$APP" "proxy-ssl-port"
   fi
 
   # clear ports if there is a mapping starting with http:80 or https:443

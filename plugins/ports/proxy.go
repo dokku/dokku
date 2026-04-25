@@ -4,19 +4,6 @@ import (
 	"fmt"
 )
 
-var (
-	// DefaultProperties is a map of all valid ports properties with corresponding default property values
-	DefaultProperties = map[string]string{
-		"proxy-port":     "",
-		"proxy-ssl-port": "",
-	}
-
-	// GlobalProperties is a map of all valid global ports properties
-	GlobalProperties = map[string]bool{
-		"proxy-port":     true,
-		"proxy-ssl-port": true,
-	}
-)
 
 // PortMap is a struct that contains a scheme:host-port:container-port mapping
 type PortMap struct {

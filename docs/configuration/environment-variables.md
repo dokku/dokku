@@ -122,8 +122,8 @@ The following environment variables have been migrated to plugin properties. Exi
 | `DOKKU_DISABLE_PROXY` | `dokku proxy:disable <app>` / `dokku proxy:enable <app>` |
 | `DOKKU_DOCKERFILE_START_CMD` | `dokku ps:set <app> dockerfile-start-cmd <value>` |
 | `DOKKU_PARALLEL_ARGUMENTS` | Removed. No longer supported. |
-| `DOKKU_PROXY_PORT` | `dokku ports:set <app> proxy-port <value>` |
-| `DOKKU_PROXY_SSL_PORT` | `dokku ports:set <app> proxy-ssl-port <value>` |
+| `DOKKU_PROXY_PORT` | `dokku proxy:set <app> proxy-port <value>` |
+| `DOKKU_PROXY_SSL_PORT` | `dokku proxy:set <app> proxy-ssl-port <value>` |
 | `DOKKU_SKIP_ALL_CHECKS` | `dokku checks:disable <app>` |
 | `DOKKU_SKIP_CLEANUP` | `dokku builder:set <app> skip-cleanup <true\|false>` |
 | `DOKKU_SKIP_DEFAULT_CHECKS` | `dokku checks:skip <app>` |

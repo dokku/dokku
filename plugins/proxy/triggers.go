@@ -28,6 +28,16 @@ func TriggerInstall() error {
 				return value
 			},
 		},
+		{
+			ConfigVar:       "DOKKU_PROXY_PORT",
+			GlobalConfigVar: "DOKKU_PROXY_PORT",
+			Property:        "proxy-port",
+		},
+		{
+			ConfigVar:       "DOKKU_PROXY_SSL_PORT",
+			GlobalConfigVar: "DOKKU_PROXY_SSL_PORT",
+			Property:        "proxy-ssl-port",
+		},
 	}); err != nil {
 		return err
 	}

@@ -21,16 +21,6 @@ func TriggerInstall() error {
 			ListProperty: true,
 			Transform:    transformPortMap,
 		},
-		{
-			ConfigVar:       "DOKKU_PROXY_PORT",
-			GlobalConfigVar: "DOKKU_PROXY_PORT",
-			Property:        "proxy-port",
-		},
-		{
-			ConfigVar:       "DOKKU_PROXY_SSL_PORT",
-			GlobalConfigVar: "DOKKU_PROXY_SSL_PORT",
-			Property:        "proxy-ssl-port",
-		},
 	}); err != nil {
 		return err
 	}
@@ -166,7 +156,7 @@ func TriggerPostAppRenameSetup(oldAppName string, newAppName string) error {
 
 // TriggerPostCertsRemove unsets port properties after SSL cert is removed
 func TriggerPostCertsRemove(appName string) error {
-	if err := common.PropertyDelete("ports", appName, "proxy-ssl-port"); err != nil {
+	if err := common.PropertyDelete("proxy", appName, "proxy-ssl-port"); err != nil {
 		return err
 	}
 
@@ -175,15 +165,15 @@ func TriggerPostCertsRemove(appName string) error {
 
 // TriggerPostCertsUpdate sets port properties after SSL cert is added
 func TriggerPostCertsUpdate(appName string) error {
-	port := common.PropertyGet("ports", appName, "proxy-port")
-	sslPort := common.PropertyGet("ports", appName, "proxy-ssl-port")
+	port := common.PropertyGet("proxy", appName, "proxy-port")
+	sslPort := common.PropertyGet("proxy", appName, "proxy-ssl-port")
 	portMaps := getPortMaps(appName)
 
 	if port == "80" {
-		common.PropertyDelete("ports", appName, "proxy-port")
+		common.PropertyDelete("proxy", appName, "proxy-port")
 	}
 	if sslPort == "443" {
-		common.PropertyDelete("ports", appName, "proxy-ssl-port")
+		common.PropertyDelete("proxy", appName, "proxy-ssl-port")
 	}
 
 	var http80Ports []PortMap

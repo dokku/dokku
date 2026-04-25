@@ -11,13 +11,17 @@ const RunInSerial = 0
 var (
 	// DefaultProperties is a map of all valid proxy properties with corresponding default property values
 	DefaultProperties = map[string]string{
-		"disabled": "false",
-		"type":     "",
+		"disabled":       "false",
+		"proxy-port":     "",
+		"proxy-ssl-port": "",
+		"type":           "",
 	}
 
 	// GlobalProperties is a map of all valid global proxy properties
 	GlobalProperties = map[string]bool{
-		"type": true,
+		"proxy-port":     true,
+		"proxy-ssl-port": true,
+		"type":           true,
 	}
 )
 
