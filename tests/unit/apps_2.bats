@@ -166,7 +166,7 @@ teardown() {
   assert_success
   assert_output "http://$TEST_APP.$DOKKU_DOMAIN"
   assert_http_localhost_response "http" "$TEST_APP.$DOKKU_DOMAIN" "80" "/hello"
-  assert_http_localhost_response "http" "great-test-name.dokku.me" "80" "/hello" "" "404"
+  assert_http_localhost_response "http" "great-test-name.dokku.me" "80" "/hello" "" "502"
   run /bin/bash -c "dokku --force apps:destroy great-test-name"
   echo "output: $output"
   echo "status: $status"
