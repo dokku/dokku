@@ -132,18 +132,7 @@ func reportRestartPolicy(appName string) string {
 }
 
 func reportRestore(appName string) string {
-	results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
-		Trigger: "config-get",
-		Args:    []string{appName, "DOKKU_APP_RESTORE"},
-	})
-	restore := results.StdoutContents()
-	if restore == "0" {
-		restore = "false"
-	} else {
-		restore = "true"
-	}
-
-	return restore
+	return common.PropertyGetDefault("ps", appName, "restore", "true")
 }
 
 func reportRunningState(appName string) string {

@@ -1,7 +1,6 @@
 package scheduler
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/dokku/dokku/plugins/common"
@@ -31,53 +30,19 @@ func TriggerInstall() error {
 		return fmt.Errorf("Unable to install the scheduler plugin: %s", err.Error())
 	}
 
-	apps, err := common.UnfilteredDokkuApps()
-	if err != nil && !errors.Is(err, common.NoAppsExist) {
-		return nil
-	}
-
-	results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
-		Trigger: "config-get-global",
-		Args:    []string{"DOKKU_SCHEDULER"},
-	})
-	globalScheduler := results.StdoutContents()
-	if globalScheduler != "" {
-		common.LogVerboseQuiet(fmt.Sprintf("Setting scheduler property 'selected' to %v", globalScheduler))
-		if err := common.PropertyWrite("scheduler", "--global", "selected", globalScheduler); err != nil {
-			return err
-		}
-
-		_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
-			Trigger: "config-unset",
-			Args:    []string{"--global", "DOKKU_SCHEDULER"},
-		})
-		if err != nil {
-			common.LogWarn(err.Error())
-		}
-	}
-
-	for _, appName := range apps {
-		results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
-			Trigger: "config-get",
-			Args:    []string{appName, "DOKKU_SCHEDULER"},
-		})
-		scheduler := results.StdoutContents()
-		if scheduler == "" {
-			continue
-		}
-
-		common.LogVerboseQuiet(fmt.Sprintf("Setting %s scheduler property 'selected' to %v", appName, scheduler))
-		if err := common.PropertyWrite("scheduler", appName, "selected", scheduler); err != nil {
-			return err
-		}
-
-		_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
-			Trigger: "config-unset",
-			Args:    []string{appName, "DOKKU_SCHEDULER"},
-		})
-		if err != nil {
-			common.LogWarn(err.Error())
-		}
+	if err := common.MigrateConfigToProperties("scheduler", []common.MigrateConfigEntry{
+		{
+			ConfigVar:       "DOKKU_SCHEDULER",
+			GlobalConfigVar: "DOKKU_SCHEDULER",
+			Property:        "selected",
+		},
+		{
+			ConfigVar:       "DOKKU_APP_SHELL",
+			GlobalConfigVar: "DOKKU_APP_SHELL",
+			Property:        "shell",
+		},
+	}); err != nil {
+		return err
 	}
 
 	return nil

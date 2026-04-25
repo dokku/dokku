@@ -113,7 +113,7 @@ teardown() {
 }
 
 @test "(apps) app autocreate disabled" {
-  run /bin/bash -c "dokku config:set --no-restart --global DOKKU_DISABLE_APP_AUTOCREATION='true'"
+  run /bin/bash -c "dokku apps:set --global disable-autocreation true"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -122,7 +122,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_failure
-  run /bin/bash -c "dokku config:unset --no-restart --global DOKKU_DISABLE_APP_AUTOCREATION"
+  run /bin/bash -c "dokku apps:set --global disable-autocreation"
 }
 
 @test "(apps) apps:destroy" {

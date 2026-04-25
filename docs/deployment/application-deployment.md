@@ -143,11 +143,11 @@ dokku letsencrypt:cron-job --add
 
 ### Skipping deployment
 
-If you only want to rebuild and tag a container, you can skip the deployment phase by setting `$DOKKU_SKIP_DEPLOY` to `true` by running:
+If you only want to rebuild and tag a container, you can skip the deployment phase by setting the `skip-deploy` property to `true`:
 
 ``` shell
 # on the Dokku host
-dokku config:set ruby-getting-started DOKKU_SKIP_DEPLOY=true
+dokku ps:set ruby-getting-started skip-deploy true
 ```
 
 ### Redeploying or restarting

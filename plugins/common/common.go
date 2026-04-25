@@ -606,37 +606,12 @@ func GetRunningImageTag(appName string, imageTag string) (string, error) {
 
 // GetDokkuAppShell returns the shell for a given app
 func GetDokkuAppShell(appName string) string {
-	shell := "/bin/bash"
-	globalShell := ""
-	appShell := ""
-
-	ctx := context.Background()
-	errs, ctx := errgroup.WithContext(ctx)
-	errs.Go(func() error {
-		results, _ := CallPlugnTriggerWithContext(ctx, PlugnTriggerInput{
-			Trigger: "config-get-global",
-			Args:    []string{"DOKKU_APP_SHELL"},
-		})
-		globalShell = results.StdoutContents()
-		return nil
-	})
-	errs.Go(func() error {
-		results, _ := CallPlugnTriggerWithContext(ctx, PlugnTriggerInput{
-			Trigger: "config-get",
-			Args:    []string{appName, "DOKKU_APP_SHELL"},
-		})
-		appShell = results.StdoutContents()
-		return nil
-	})
-
-	errs.Wait()
+	appShell := PropertyGet("scheduler", appName, "shell")
 	if appShell != "" {
-		shell = appShell
-	} else if globalShell != "" {
-		shell = globalShell
+		return appShell
 	}
 
-	return shell
+	return PropertyGetDefault("scheduler", "--global", "shell", "/bin/bash")
 }
 
 // DokkuApps returns a list of all local apps

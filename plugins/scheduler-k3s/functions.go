@@ -434,21 +434,13 @@ func extractStartCommand(input StartCommandInput) string {
 		return "/start " + input.ProcessType
 	}
 
-	resp, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
-		Trigger: "config-get",
-		Args:    []string{input.AppName, "DOKKU_START_CMD"},
-	})
-	if err == nil && resp.ExitCode == 0 && len(resp.Stdout) > 0 {
-		command = strings.TrimSpace(resp.Stdout)
+	if startCmd := common.PropertyGet("ps", input.AppName, "start-cmd"); startCmd != "" {
+		command = startCmd
 	}
 
 	if input.ImageSourceType == "dockerfile" {
-		resp, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
-			Trigger: "config-get",
-			Args:    []string{input.AppName, "DOKKU_DOCKERFILE_START_CMD"},
-		})
-		if err == nil && resp.ExitCode == 0 && len(resp.Stdout) > 0 {
-			command = strings.TrimSpace(resp.Stdout)
+		if dockerfileStartCmd := common.PropertyGet("ps", input.AppName, "dockerfile-start-cmd"); dockerfileStartCmd != "" {
+			command = dockerfileStartCmd
 		}
 	}
 

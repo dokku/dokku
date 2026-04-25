@@ -5,11 +5,13 @@ var (
 	DefaultProperties = map[string]string{
 		"deploy-source":          "",
 		"deploy-source-metadata": "",
+		"disable-autocreation":   "",
 	}
 
 	// GlobalProperties is a map of all valid global apps properties
 	GlobalProperties = map[string]bool{
 		"deploy-source":          true,
 		"deploy-source-metadata": true,
+		"disable-autocreation":   true,
 	}
 )

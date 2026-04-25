@@ -2,12 +2,24 @@ package proxy
 
 import (
 	"github.com/dokku/dokku/plugins/common"
-	"github.com/dokku/dokku/plugins/config"
 )
 
 // RunInSerial is the default value for whether to run a command in parallel or not
 // and defaults to -1 (false)
 const RunInSerial = 0
+
+var (
+	// DefaultProperties is a map of all valid proxy properties with corresponding default property values
+	DefaultProperties = map[string]string{
+		"disabled": "false",
+		"type":     "",
+	}
+
+	// GlobalProperties is a map of all valid global proxy properties
+	GlobalProperties = map[string]bool{
+		"type": true,
+	}
+)
 
 // BuildConfig rebuilds the proxy config for the specified app
 func BuildConfig(appName string) error {
@@ -37,11 +49,7 @@ func Disable(appName string) error {
 	}
 
 	common.LogInfo1("Disabling proxy for app")
-	entries := map[string]string{
-		"DOKKU_DISABLE_PROXY": "1",
-	}
-
-	if err := config.SetMany(appName, entries, false, false); err != nil {
+	if err := common.PropertyWrite("proxy", appName, "disabled", "true"); err != nil {
 		return err
 	}
 
@@ -61,10 +69,10 @@ func Enable(appName string) error {
 	}
 
 	common.LogInfo1("Enabling proxy for app")
-	keys := []string{"DOKKU_DISABLE_PROXY"}
-	if err := config.UnsetMany(appName, keys, false); err != nil {
+	if err := common.PropertyDelete("proxy", appName, "disabled"); err != nil {
 		return err
 	}
+
 	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
 		Trigger:     "proxy-enable",
 		Args:        []string{appName},
@@ -75,10 +83,5 @@ func Enable(appName string) error {
 
 // IsAppProxyEnabled returns true if proxy is enabled; otherwise return false
 func IsAppProxyEnabled(appName string) bool {
-	proxyEnabled := true
-	disableProxy := config.GetWithDefault(appName, "DOKKU_DISABLE_PROXY", "")
-	if disableProxy != "" {
-		proxyEnabled = false
-	}
-	return proxyEnabled
+	return common.PropertyGetDefault("proxy", appName, "disabled", "false") != "true"
 }

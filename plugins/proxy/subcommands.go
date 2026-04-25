@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
-	"github.com/dokku/dokku/plugins/config"
 )
 
 // CommandBuildConfig rebuilds config for a given app
@@ -99,12 +98,6 @@ func CommandSet(appName string, proxyType string) error {
 		return errors.New("Consider using ports:set command or specifying a valid proxy")
 	}
 
-	key := "DOKKU_APP_PROXY_TYPE"
-	if appName == "--global" {
-		key = "DOKKU_PROXY_TYPE"
-	}
-	entries := map[string]string{
-		key: proxyType,
-	}
-	return config.SetMany(appName, entries, false, false)
+	common.CommandPropertySet("proxy", appName, "type", proxyType, DefaultProperties, GlobalProperties)
+	return nil
 }
