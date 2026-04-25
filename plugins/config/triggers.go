@@ -114,7 +114,7 @@ func TriggerInstall() error {
 			return fmt.Errorf("Unable to setup app environment: %s", err.Error())
 		}
 
-		oldEnvFile := filepath.Join(common.AppRoot(appName) + "ENV")
+		oldEnvFile := filepath.Join(common.AppRoot(appName), "ENV")
 		isMigrated := common.PropertyGetDefault("config", appName, "env-migrated", "")
 		// delete the old file on the next install
 		if isMigrated == "true" {

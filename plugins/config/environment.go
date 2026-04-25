@@ -396,5 +396,5 @@ func getAppFile(appName string) (string, error) {
 }
 
 func getGlobalFile() string {
-	return filepath.Join(common.MustGetEnv("DOKKU_ROOT"), "config", "--global", "ENV")
+	return filepath.Join(common.MustGetEnv("DOKKU_LIB_ROOT"), "config", "--global", "ENV")
 }
