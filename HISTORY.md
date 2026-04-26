@@ -1,5 +1,34 @@
 # History
 
+## 0.37.10
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.37.10/bootstrap.sh
+sudo DOKKU_TAG=v0.37.10 bash bootstrap.sh
+```
+
+### Tests
+
+- #8491: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 285 to 287 in /tests/apps/php
+- #8478: @josegonzalez chore: label test app dependency updates as type: tests
+
+### Dependencies
+
+- #8486: @dependabot[bot] chore(deps): bump click from 8.3.2 to 8.3.3 in /docs/_build
+- #8492: @dependabot[bot] chore(deps): bump github.com/fluxcd/pkg/kustomize from 1.29.0 to 1.31.0 in /plugins/scheduler-k3s
+- #8489: @dependabot[bot] chore(deps): bump github.com/traefik/traefik/v2 from 2.11.42 to 2.11.43 in /plugins/scheduler-k3s
+- #8488: @dependabot[bot] chore(deps): bump timberio/vector from 0.54.0-debian to 0.55.0-debian in /plugins/logs
+- #8487: @dependabot[bot] chore(deps): bump traefik from v3.6.13 to v3.6.14 in /plugins/traefik-vhosts
+- #8483: @dependabot[bot] chore(deps): update markdown requirement from <3.11,>=3.2.1 to >=3.10.2,<3.11 in /docs/_build
+- #8485: @dependabot[bot] chore(deps): bump k8s.io/kubectl from 0.35.2 to 0.35.4 in /plugins/scheduler-k3s
+- #8484: @dependabot[bot] chore(deps): bump k8s.io/client-go from 0.35.2 to 0.35.4 in /plugins/scheduler-k3s
+- #8482: @dependabot[bot] chore(deps): bump ruby from 4.0.2 to 4.0.3 in /tests/apps/dockerfile-entrypoint
+- #8481: @dependabot[bot] chore(deps): bump psycopg2-binary from 2.9.11 to 2.9.12 in /tests/apps/dockerfile-release
+- #8479: @dependabot[bot] chore(deps): bump github.com/go-openapi/jsonpointer from 0.23.0 to 0.23.1 in /plugins/scheduler-k3s
+- #8480: @dependabot[bot] chore(deps): bump k8s.io/kubernetes from 1.35.3 to 1.35.4 in /plugins/scheduler-k3s
+
 ## 0.37.9
 
 Install/update via the bootstrap script:
