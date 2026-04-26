@@ -98,26 +98,34 @@ The following config variables have special meanings and can be set in a variety
 | `DOKKU_QUIET_OUTPUT`           | none                            | `--quiet` flag                                                                                                                                   | Silences certain header output for `dokku` commands. |
 | `DOKKU_RM_CONTAINER`           | none                            | `dokku config:set` <br />                                                                                                                        | Deprecated: Whether to keep `dokku run` containers around or not. |
 | `DOKKU_TRACE`                  | none                            | `dokku trace:on`   <br /> `dokku trace:off` <br /> `--trace` flag                                                                                | Turn on very verbose debugging. |
-| `DOKKU_APP_PROXY_TYPE`         | `nginx`                         | `dokku proxy:set`                                                                                                                                | |
-| `DOKKU_APP_RESTORE`            | `1`                             | `dokku config:set` <br /> `dokku ps:stop`                                                                                                        | |
-| `DOKKU_APP_SHELL`              | `/bin/bash`                     | `dokku config:set`                                                                                                                               | Allows users to change the default shell used by Dokku for `dokku enter` and execution of deployment tasks. |
-| `DOKKU_CHECKS_DISABLED`        | none                            | `dokku checks:disable`                                                                                                                           | |
-| `DOKKU_CHECKS_ENABLED`         | none                            | `dokku checks:enable`                                                                                                                            | |
-| `DOKKU_CHECKS_SKIPPED`         | none                            | `dokku checks:skip`                                                                                                                              | |
-| `DOKKU_CHECKS_WAIT`            | `5`                             | `dokku config:set`                                                                                                                               | Wait this many seconds for the container to start before running checks.
-| `DOKKU_CHECKS_TIMEOUT`         | `30`                            | `dokku config:set`                                                                                                                               | Wait this many seconds for each response before marking it as a failure.
-| `DOKKU_CHECKS_ATTEMPTS`        | `5`                             | `dokku config:set`                                                                                                                               | Number of retries for to run for a specific check before marking it as a failure
-| `DOKKU_DEFAULT_CHECKS_WAIT`    | `10`                            | `dokku config:set`                                                                                                                               | If no user-defined checks are specified - or if the process being checked is not a `web` process - this is the period of time Dokku will wait before checking that a container is still running. |
-| `DOKKU_DISABLE_PROXY`          | none                            | `dokku proxy:disable` <br /> `dokku proxy:enable`                                                                                                | Disables the proxy in front of your application, resulting in publicly routing the docker container. |
-| `DOKKU_DISABLE_APP_AUTOCREATION` | none                            | `dokku config:set`                                                                                                                               | Disables automatic creation of a non-existent app on deploy. |
-| `DOKKU_DOCKERFILE_START_CMD`   | none                            | `dokku config:set`                                                                                                                               | |
-| `DOKKU_PARALLEL_ARGUMENTS`.    | none                            | `dokku config:set`                                                                                                                               | Allows passing custom arguments to parallel for `ps:*all` commands |
-| `DOKKU_PROXY_PORT`             | automatically assigned          | `/etc/environment` <br /> `~dokku/.dokkurc` <br /> `~dokku/.dokkurc/*` <br /> `dokku config:set`                                                 | |
-| `DOKKU_PROXY_SSL_PORT`         | automatically assigned          | `/etc/environment` <br /> `~dokku/.dokkurc` <br /> `~dokku/.dokkurc/*` <br /> `dokku config:set`                                                 | |
-| `DOKKU_SKIP_ALL_CHECKS`        | none                            | `dokku config:set`                                                                                                                               | |
-| `DOKKU_SKIP_CLEANUP`           |                                 | `/etc/environment` <br /> `~dokku/.dokkurc` <br /> `~dokku/.dokkurc/*`                                                                           | When a deploy is triggered, if this is set to a non-empty value, then old docker containers and images will not be removed. |
-| `DOKKU_SKIP_DEFAULT_CHECKS`    |                                 | `dokku config:set`                                                                                                                               | |
-| `DOKKU_SKIP_DEPLOY`            |                                 | `dokku config:set`                                                                                                                               | |
-| `DOKKU_START_CMD`              | none                            | `dokku config:set`                                                                                                                               | Command to run instead of `/start $PROC_TYPE` |
+| `DOKKU_SKIP_CLEANUP`           |                                 | `/etc/environment` <br /> `~dokku/.dokkurc` <br /> `~dokku/.dokkurc/*`                                                                           | When a deploy is triggered, if this is set to a non-empty value, then old docker containers and images will not be removed. Falls back to the `builder:set skip-cleanup` property. |
 | `DOKKU_SYSTEM_GROUP`           | `dokku`                         | `/etc/environment` <br /> `~dokku/.dokkurc` <br /> `~dokku/.dokkurc/*`                                                                           | System group to chown files as. |
 | `DOKKU_SYSTEM_USER`            | `dokku`                         | `/etc/environment` <br /> `~dokku/.dokkurc` <br /> `~dokku/.dokkurc/*`                                                                           | System user to chown files as. |
+
+## Deprecated Environment Variables
+
+The following environment variables have been migrated to plugin properties. Existing values will be automatically migrated on upgrade. Use the corresponding property commands going forward.
+
+| Deprecated Env Var | Replacement Command |
+|---|---|
+| `DOKKU_APP_PROXY_TYPE` | `dokku proxy:set <app> type <value>` |
+| `DOKKU_APP_RESTORE` | `dokku ps:set <app> restore <true\|false>` |
+| `DOKKU_APP_SHELL` | `dokku scheduler:set <app> shell <value>` |
+| `DOKKU_CHECKS_DISABLED` | `dokku checks:disable <app> [proctypes]` |
+| `DOKKU_CHECKS_ENABLED` | `dokku checks:enable <app> [proctypes]` |
+| `DOKKU_CHECKS_SKIPPED` | `dokku checks:skip <app> [proctypes]` |
+| `DOKKU_CHECKS_WAIT` | `dokku checks:set <app> wait <value>` |
+| `DOKKU_CHECKS_TIMEOUT` | `dokku checks:set <app> timeout <value>` |
+| `DOKKU_CHECKS_ATTEMPTS` | `dokku checks:set <app> attempts <value>` |
+| `DOKKU_DEFAULT_CHECKS_WAIT` | `dokku checks:set --global default-wait <value>` |
+| `DOKKU_DISABLE_APP_AUTOCREATION` | `dokku apps:set --global disable-autocreation <true\|false>` |
+| `DOKKU_DISABLE_PROXY` | `dokku proxy:disable <app>` / `dokku proxy:enable <app>` |
+| `DOKKU_DOCKERFILE_START_CMD` | `dokku ps:set <app> dockerfile-start-cmd <value>` |
+| `DOKKU_PARALLEL_ARGUMENTS` | Removed. No longer supported. |
+| `DOKKU_PROXY_PORT` | `dokku proxy:set <app> proxy-port <value>` |
+| `DOKKU_PROXY_SSL_PORT` | `dokku proxy:set <app> proxy-ssl-port <value>` |
+| `DOKKU_SKIP_ALL_CHECKS` | `dokku checks:disable <app>` |
+| `DOKKU_SKIP_CLEANUP` | `dokku builder:set <app> skip-cleanup <true\|false>` |
+| `DOKKU_SKIP_DEFAULT_CHECKS` | `dokku checks:skip <app>` |
+| `DOKKU_SKIP_DEPLOY` | `dokku ps:set <app> skip-deploy <true\|false>` |
+| `DOKKU_START_CMD` | `dokku ps:set <app> start-cmd <value>` |

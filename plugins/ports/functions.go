@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
-	"github.com/dokku/dokku/plugins/config"
 	"github.com/ryanuber/columnize"
 )
 
@@ -162,11 +161,8 @@ func getDetectedPortMaps(appName string) []PortMap {
 // getGlobalProxyPort gets the global proxy port
 func getGlobalProxyPort() int {
 	port := 0
-	results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
-		Trigger: "config-get-global",
-		Args:    []string{"DOKKU_PROXY_PORT"},
-	})
-	if intVar, err := strconv.Atoi(results.StdoutContents()); err == nil {
+	value := common.PropertyGet("proxy", "--global", "proxy-port")
+	if intVar, err := strconv.Atoi(value); err == nil {
 		port = intVar
 	}
 
@@ -176,11 +172,8 @@ func getGlobalProxyPort() int {
 // getGlobalProxySSLPort gets the global proxy ssl port
 func getGlobalProxySSLPort() int {
 	port := 0
-	results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
-		Trigger: "config-get-global",
-		Args:    []string{"DOKKU_PROXY_SSL_PORT"},
-	})
-	if intVar, err := strconv.Atoi(results.StdoutContents()); err == nil {
+	value := common.PropertyGet("proxy", "--global", "proxy-ssl-port")
+	if intVar, err := strconv.Atoi(value); err == nil {
 		port = intVar
 	}
 
@@ -201,11 +194,8 @@ func getPortMaps(appName string) []PortMap {
 // getProxyPort gets the proxy port for an app
 func getProxyPort(appName string) int {
 	port := 0
-	results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
-		Trigger: "config-get",
-		Args:    []string{appName, "DOKKU_PROXY_PORT"},
-	})
-	if intVar, err := strconv.Atoi(results.StdoutContents()); err == nil {
+	value := common.PropertyGet("proxy", appName, "proxy-port")
+	if intVar, err := strconv.Atoi(value); err == nil {
 		port = intVar
 	}
 
@@ -215,11 +205,8 @@ func getProxyPort(appName string) int {
 // getProxySSLPort gets the proxy ssl port for an app
 func getProxySSLPort(appName string) int {
 	port := 0
-	results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
-		Trigger: "config-get",
-		Args:    []string{appName, "DOKKU_PROXY_SSL_PORT"},
-	})
-	if intVar, err := strconv.Atoi(results.StdoutContents()); err == nil {
+	value := common.PropertyGet("proxy", appName, "proxy-ssl-port")
+	if intVar, err := strconv.Atoi(value); err == nil {
 		port = intVar
 	}
 
@@ -445,22 +432,22 @@ func setPortMaps(appName string, portMaps []PortMap) error {
 
 // setProxyPort sets the proxy port for an app
 func setProxyPort(appName string, port int) error {
-	return common.EnvWrap(func() error {
-		entries := map[string]string{
-			"DOKKU_PROXY_PORT": fmt.Sprint(port),
-		}
-		return config.SetMany(appName, entries, false, false)
-	}, map[string]string{"DOKKU_QUIET_OUTPUT": "1"})
+	return common.PropertyWrite("proxy", appName, "proxy-port", fmt.Sprint(port))
 }
 
 // setProxySSLPort sets the proxy ssl port for an app
 func setProxySSLPort(appName string, port int) error {
-	return common.EnvWrap(func() error {
-		entries := map[string]string{
-			"DOKKU_PROXY_SSL_PORT": fmt.Sprint(port),
-		}
-		return config.SetMany(appName, entries, false, false)
-	}, map[string]string{"DOKKU_QUIET_OUTPUT": "1"})
+	return common.PropertyWrite("proxy", appName, "proxy-ssl-port", fmt.Sprint(port))
+}
+
+// transformPortMap normalizes a port map string for migration to list properties
+func transformPortMap(value string) string {
+	portMaps, _ := parsePortMapString(value)
+	var parts []string
+	for _, portMap := range portMaps {
+		parts = append(parts, portMap.String())
+	}
+	return strings.Join(parts, " ")
 }
 
 // uniquePortMaps returns a unique set of port maps

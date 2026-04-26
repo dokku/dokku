@@ -108,30 +108,21 @@ func TriggerInstall() error {
 		return fmt.Errorf("Unable to install the builder plugin: %s", err.Error())
 	}
 
-	apps, err := common.UnfilteredDokkuApps()
-	if err != nil && !errors.Is(err, common.NoAppsExist) {
-		return nil
+	if err := common.MigrateConfigToProperties("builder", []common.MigrateConfigEntry{
+		{
+			ConfigVar: "DOKKU_APP_TYPE",
+			Property:  "detected",
+		},
+		{
+			ConfigVar:       "DOKKU_SKIP_CLEANUP",
+			GlobalConfigVar: "DOKKU_SKIP_CLEANUP",
+			Property:        "skip-cleanup",
+		},
+	}); err != nil {
+		return err
 	}
 
-	for _, appName := range apps {
-		if common.PropertyExists("builder", appName, "detected") {
-			continue
-		}
-
-		results, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
-			Trigger: "config-get",
-			Args:    []string{appName, "DOKKU_APP_TYPE"},
-		})
-		if err != nil {
-			return err
-		}
-
-		if results.StdoutContents() != "" {
-			common.PropertyWrite("builder", appName, "detected", results.StdoutContents())
-		}
-	}
-
-	_, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
+	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
 		Trigger: "install-builder-prune",
 	})
 

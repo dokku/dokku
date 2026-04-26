@@ -7,26 +7,8 @@ source "$PLUGIN_AVAILABLE_PATH/config/functions"
 source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/internal-functions"
 
 fn-nginx-vhosts-migrate-env-vars() {
-  # @TODO: Remove this after a few versions
-  for app in $(dokku_apps "false" 2>/dev/null); do
-    nginx_port="$(config_get "$app" DOKKU_NGINX_PORT || true)"
-    nginx_ssl_port="$(config_get "$app" DOKKU_NGINX_SSL_PORT || true)"
-    if [[ -n "$nginx_port" ]] || [[ -n "$nginx_ssl_port" ]]; then
-      dokku_log_info1 "Migrating DOKKU_NGINX env variables. The following variables will be migrated"
-      dokku_log_info2 "DOKKU_NGINX_PORT -> DOKKU_PROXY_PORT"
-      dokku_log_info2 "DOKKU_NGINX_SSL_PORT -> DOKKU_PROXY_SSL_PORT"
-    fi
-    if [[ -n "$nginx_port" ]]; then
-      dokku_log_info1 "Migrating DOKKU_NGINX_PORT to DOKKU_PROXY_PORT for $app"
-      DOKKU_QUIET_OUTPUT=1 config_set --no-restart "$app" DOKKU_PROXY_PORT="$nginx_port"
-      DOKKU_QUIET_OUTPUT=1 config_unset --no-restart "$app" DOKKU_NGINX_PORT
-    fi
-    if [[ -n "$nginx_ssl_port" ]]; then
-      dokku_log_info1 "Migrating DOKKU_NGINX_SSL_PORT to DOKKU_PROXY_SSL_PORT for $app"
-      DOKKU_QUIET_OUTPUT=1 config_set --no-restart "$app" DOKKU_PROXY_SSL_PORT="$nginx_ssl_port"
-      DOKKU_QUIET_OUTPUT=1 config_unset --no-restart "$app" DOKKU_NGINX_SSL_PORT
-    fi
-  done
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/prop" migrate-config-to-property proxy proxy-port DOKKU_NGINX_PORT
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/prop" migrate-config-to-property proxy proxy-ssl-port DOKKU_NGINX_SSL_PORT
 }
 
 fn-nginx-vhosts-migrate-nginx-conf-sigil() {

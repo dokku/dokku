@@ -62,7 +62,7 @@ func SetMany(appName string, entries map[string]string, replace bool, restart bo
 		})
 		triggerUpdate(appName, "set", keys)
 	}
-	if !global && restart && env.GetBoolDefault("DOKKU_APP_RESTORE", true) {
+	if !global && restart && shouldRestart(appName) {
 		triggerRestart(appName)
 	}
 	return
@@ -98,7 +98,7 @@ func UnsetMany(appName string, keys []string, restart bool) (err error) {
 		})
 		triggerUpdate(appName, "unset", keys)
 	}
-	if !global && restart && env.GetBoolDefault("DOKKU_APP_RESTORE", true) {
+	if !global && restart && shouldRestart(appName) {
 		triggerRestart(appName)
 	}
 	return
@@ -125,10 +125,18 @@ func UnsetAll(appName string, restart bool) (err error) {
 		})
 		triggerUpdate(appName, "clear", []string{})
 	}
-	if !global && restart && env.GetBoolDefault("DOKKU_APP_RESTORE", true) {
+	if !global && restart && shouldRestart(appName) {
 		triggerRestart(appName)
 	}
 	return
+}
+
+func shouldRestart(appName string) bool {
+	results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "ps-get-property",
+		Args:    []string{appName, "restore"},
+	})
+	return results.StdoutContents() != "false"
 }
 
 func triggerRestart(appName string) {

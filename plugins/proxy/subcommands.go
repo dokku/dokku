@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
-	"github.com/dokku/dokku/plugins/config"
 )
 
 // CommandBuildConfig rebuilds config for a given app
@@ -82,29 +81,19 @@ func CommandReport(appName string, format string, infoFlag string) error {
 	return ReportSingleApp(appName, format, infoFlag)
 }
 
-// CommandSet sets a proxy for an app
-func CommandSet(appName string, proxyType string) error {
-	if appName != "--global" {
-		if err := common.VerifyAppName(appName); err != nil {
-			return err
+// CommandSet set or clear a proxy property for an app
+func CommandSet(appName string, property string, value string) error {
+	// backward compatibility: `proxy:set <app> <proxy-type>` is treated as
+	// `proxy:set <app> type <proxy-type>`
+	if _, ok := DefaultProperties[property]; !ok && value == "" {
+		if strings.Contains(property, ":") {
+			common.LogWarn("Detected potential port mapping instead of proxy type")
+			return errors.New("Consider using ports:set command or specifying a valid proxy")
 		}
+		value = property
+		property = "type"
 	}
 
-	if len(proxyType) < 2 {
-		return errors.New("Please specify a proxy type")
-	}
-
-	if strings.Contains(proxyType, ":") {
-		common.LogWarn("Detected potential port mapping instead of proxy type")
-		return errors.New("Consider using ports:set command or specifying a valid proxy")
-	}
-
-	key := "DOKKU_APP_PROXY_TYPE"
-	if appName == "--global" {
-		key = "DOKKU_PROXY_TYPE"
-	}
-	entries := map[string]string{
-		key: proxyType,
-	}
-	return config.SetMany(appName, entries, false, false)
+	common.CommandPropertySet("proxy", appName, property, value, DefaultProperties, GlobalProperties)
+	return nil
 }

@@ -2,12 +2,10 @@ package ports
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"sort"
 
 	"github.com/dokku/dokku/plugins/common"
-	"github.com/dokku/dokku/plugins/config"
 )
 
 // TriggerInstall migrates the ports config to properties
@@ -16,44 +14,15 @@ func TriggerInstall() error {
 		return fmt.Errorf("Unable to install the ports plugin: %s", err.Error())
 	}
 
-	apps, err := common.UnfilteredDokkuApps()
-	if err != nil && !errors.Is(err, common.NoAppsExist) {
-		return nil
-	}
-
-	for _, appName := range apps {
-		if common.PropertyExists("ports", appName, "map") {
-			continue
-		}
-
-		results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
-			Trigger: "config-get",
-			Args:    []string{appName, "DOKKU_PROXY_PORT_MAP"},
-		})
-		portMapString := results.StdoutContents()
-		if portMapString == "" {
-			continue
-		}
-
-		common.LogVerboseQuiet(fmt.Sprintf("Setting %s ports property 'map' to %v", appName, portMapString))
-		portMaps, _ := parsePortMapString(portMapString)
-
-		propertyValue := []string{}
-		for _, portMap := range portMaps {
-			propertyValue = append(propertyValue, portMap.String())
-		}
-
-		if err := common.PropertyListWrite("ports", appName, "map", propertyValue); err != nil {
-			return err
-		}
-
-		_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
-			Trigger: "config-unset",
-			Args:    []string{appName, "DOKKU_PROXY_PORT_MAP"},
-		})
-		if err != nil {
-			return err
-		}
+	if err := common.MigrateConfigToProperties("ports", []common.MigrateConfigEntry{
+		{
+			ConfigVar:    "DOKKU_PROXY_PORT_MAP",
+			Property:     "map",
+			ListProperty: true,
+			Transform:    transformPortMap,
+		},
+	}); err != nil {
+		return err
 	}
 
 	return nil
@@ -185,34 +154,26 @@ func TriggerPostAppRenameSetup(oldAppName string, newAppName string) error {
 	return nil
 }
 
-// TriggerPostCertsRemove unsets port config vars after SSL cert is added
+// TriggerPostCertsRemove unsets port properties after SSL cert is removed
 func TriggerPostCertsRemove(appName string) error {
-	keys := []string{"DOKKU_PROXY_SSL_PORT"}
-	if err := config.UnsetMany(appName, keys, false); err != nil {
+	if err := common.PropertyDelete("proxy", appName, "proxy-ssl-port"); err != nil {
 		return err
 	}
 
 	return removePortMaps(appName, filterAppPortMaps(appName, "https", 443))
 }
 
-// TriggerPostCertsUpdate sets port config vars after SSL cert is added
+// TriggerPostCertsUpdate sets port properties after SSL cert is added
 func TriggerPostCertsUpdate(appName string) error {
-	port := config.GetWithDefault(appName, "DOKKU_PROXY_PORT", "")
-	sslPort := config.GetWithDefault(appName, "DOKKU_PROXY_SSL_PORT", "")
+	port := common.PropertyGet("proxy", appName, "proxy-port")
+	sslPort := common.PropertyGet("proxy", appName, "proxy-ssl-port")
 	portMaps := getPortMaps(appName)
 
-	toUnset := []string{}
 	if port == "80" {
-		toUnset = append(toUnset, "DOKKU_PROXY_PORT")
+		common.PropertyDelete("proxy", appName, "proxy-port")
 	}
 	if sslPort == "443" {
-		toUnset = append(toUnset, "DOKKU_PROXY_SSL_PORT")
-	}
-
-	if len(toUnset) > 0 {
-		if err := config.UnsetMany(appName, toUnset, false); err != nil {
-			return err
-		}
+		common.PropertyDelete("proxy", appName, "proxy-ssl-port")
 	}
 
 	var http80Ports []PortMap

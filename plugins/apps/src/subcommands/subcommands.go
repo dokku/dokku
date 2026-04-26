@@ -72,6 +72,19 @@ func main() {
 			appName := args.Arg(0)
 			err = apps.CommandReport(appName, *format, infoFlag)
 		}
+	case "set":
+		args := flag.NewFlagSet("apps:set", flag.ExitOnError)
+		global := args.Bool("global", false, "--global: set a global property")
+		args.Parse(os.Args[2:])
+		appName := args.Arg(0)
+		property := args.Arg(1)
+		value := args.Arg(2)
+		if *global {
+			appName = "--global"
+			property = args.Arg(0)
+			value = args.Arg(1)
+		}
+		err = apps.CommandSet(appName, property, value)
 	case "unlock":
 		args := flag.NewFlagSet("apps:unlock", flag.ExitOnError)
 		args.Parse(os.Args[2:])

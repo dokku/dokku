@@ -72,7 +72,7 @@ cmd-checks-report-single() {
 fn-checks-disabled-list() {
   declare APP="$1"
 
-  local DOKKU_CHECKS_DISABLED=$(config_get "$APP" DOKKU_CHECKS_DISABLED)
+  local DOKKU_CHECKS_DISABLED=$(fn-plugin-property-get-default "checks" "$APP" "disabled" "")
   DOKKU_CHECKS_DISABLED="${DOKKU_CHECKS_DISABLED:-none}"
   echo "$DOKKU_CHECKS_DISABLED"
 }
@@ -80,7 +80,7 @@ fn-checks-disabled-list() {
 fn-checks-skipped-list() {
   declare APP="$1"
 
-  local DOKKU_CHECKS_SKIPPED=$(config_get "$APP" DOKKU_CHECKS_SKIPPED)
+  local DOKKU_CHECKS_SKIPPED=$(fn-plugin-property-get-default "checks" "$APP" "skipped" "")
   DOKKU_CHECKS_SKIPPED="${DOKKU_CHECKS_SKIPPED:-none}"
   echo "$DOKKU_CHECKS_SKIPPED"
 }

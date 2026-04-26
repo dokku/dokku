@@ -53,6 +53,15 @@ func TriggerInstall() error {
 		return nil
 	}
 
+	if err := common.MigrateConfigToProperties("apps", []common.MigrateConfigEntry{
+		{
+			GlobalConfigVar: "DOKKU_DISABLE_APP_AUTOCREATION",
+			Property:        "disable-autocreation",
+		},
+	}); err != nil {
+		return err
+	}
+
 	// migrate all created-at values from app mod-time to property
 	for _, appName := range apps {
 		if common.PropertyExists("apps", appName, "created-at") {

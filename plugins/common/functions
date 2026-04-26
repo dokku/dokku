@@ -632,8 +632,8 @@ release_and_deploy() {
 
   if verify_image "$IMAGE"; then
     IMAGE_SOURCE_TYPE="$(get_image_builder_type "$IMAGE" "$APP")"
-    local DOKKU_APP_SKIP_DEPLOY="$(config_get "$APP" DOKKU_SKIP_DEPLOY || true)"
-    local DOKKU_GLOBAL_SKIP_DEPLOY="$(config_get --global DOKKU_SKIP_DEPLOY || true)"
+    local DOKKU_APP_SKIP_DEPLOY="$(fn-plugin-property-get-default "ps" "$APP" "skip-deploy" "")"
+    local DOKKU_GLOBAL_SKIP_DEPLOY="$(fn-plugin-property-get-default "ps" "--global" "skip-deploy" "")"
 
     local DOKKU_SKIP_DEPLOY=${DOKKU_APP_SKIP_DEPLOY:="$DOKKU_GLOBAL_SKIP_DEPLOY"}
 
@@ -917,7 +917,7 @@ suppress_output() {
 }
 
 fn-migrate-config-to-property() {
-  declare desc="migrates deprecated config variables to property counterpart"
+  declare desc="[deprecated] migrates deprecated config variables to property counterpart. Use 'prop migrate-config-to-property' instead."
   declare PLUGIN="$1" KEY="$2" CONFIG_VAR="$3" GLOBAL_CONFIG_VAR="$4"
 
   # todo: refactor to remove config_unset usage

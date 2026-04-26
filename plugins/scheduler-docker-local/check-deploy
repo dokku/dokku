@@ -36,6 +36,7 @@
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 source "$PLUGIN_AVAILABLE_PATH/checks/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 source "$PLUGIN_AVAILABLE_PATH/scheduler-docker-local/internal-functions"
@@ -59,21 +60,17 @@ trigger-scheduler-docker-local-check-deploy() {
     local DOKKU_APP_CONTAINER_ID=${DOKKU_APP_CIDS[0]}
   fi
 
-  # source global and in-app envs to get DOKKU_CHECKS_WAIT and any other necessary vars
-  eval "$(config_export global)"
-  eval "$(config_export app "$APP")"
-
   if [[ "$(is_app_proctype_checks_skipped "$APP" "$DOKKU_APP_CONTAINER_TYPE")" == "true" ]]; then
     dokku_log_info2_quiet "Zero downtime checks have been skipped ($DOKKU_APP_CONTAINER_TYPE.$CONTAINER_INDEX)"
     exit 0
   fi
 
   # Wait this many seconds (default 5) for server to start before running checks.
-  local WAIT="${DOKKU_CHECKS_WAIT:-5}"
+  local WAIT="$(fn-plugin-property-get-default "checks" "$APP" "wait" "5")"
   # Wait this many seconds (default 30) for each response.
-  local TIMEOUT="${DOKKU_CHECKS_TIMEOUT:-30}"
+  local TIMEOUT="$(fn-plugin-property-get-default "checks" "$APP" "timeout" "30")"
   # use this number of retries for checks
-  local ATTEMPTS="${DOKKU_CHECKS_ATTEMPTS:-5}"
+  local ATTEMPTS="$(fn-plugin-property-get-default "checks" "$APP" "attempts" "5")"
 
   local CHECKS_FILENAME="$(fn-scheduler-docker-local-get-process-specific-checks-file-path "$APP")"
   local IMAGE_TAG="$(get_running_image_tag "$APP")"
@@ -121,7 +118,7 @@ trigger-scheduler-docker-local-check-deploy() {
   }
   trap "checks_check_deploy_cleanup $APP $DOKKU_APP_CONTAINER_TYPE $DOKKU_APP_CONTAINER_ID $CONTAINER_INDEX $TMP_APP_JSON_OUTPUT" RETURN INT TERM EXIT
 
-  local DOKKU_DEFAULT_CHECKS_WAIT="${DOKKU_DEFAULT_CHECKS_WAIT:-10}"
+  local DOKKU_DEFAULT_CHECKS_WAIT="$(fn-plugin-property-get-default "checks" "--global" "default-wait" "10")"
   content="$(docker-container-healthchecker add "$DOKKU_APP_CONTAINER_TYPE" --app-json "$TMP_APP_JSON_OUTPUT" --if-empty --pretty --uptime "$DOKKU_DEFAULT_CHECKS_WAIT")"
   echo "$content" >"$TMP_APP_JSON_OUTPUT"
 

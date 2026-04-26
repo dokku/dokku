@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
@@ -92,10 +93,9 @@ trigger-scheduler-docker-local-scheduler-enter() {
     shift
   fi
 
-  local DOKKU_APP_SHELL="/bin/bash"
-  DOKKU_APP_SHELL="$(config_get --global DOKKU_APP_SHELL || echo "$DOKKU_APP_SHELL")"
-  DOKKU_APP_SHELL="$(config_get "$APP" DOKKU_APP_SHELL || echo "$DOKKU_APP_SHELL")"
-  [[ -z "$DOKKU_APP_SHELL" ]] && DOKKU_APP_SHELL="/bin/bash"
+  local DOKKU_APP_SHELL
+  DOKKU_APP_SHELL="$(fn-plugin-property-get-default "scheduler" "$APP" "shell" "")"
+  [[ -z "$DOKKU_APP_SHELL" ]] && DOKKU_APP_SHELL="$(fn-plugin-property-get-default "scheduler" "--global" "shell" "/bin/bash")"
 
   local EXEC_CMD=""
   has_tty && local DOKKU_RUN_OPTS+=" -i -t"

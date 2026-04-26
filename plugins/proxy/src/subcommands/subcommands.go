@@ -59,12 +59,14 @@ func main() {
 		global := args.Bool("global", false, "--global: set a global property")
 		args.Parse(os.Args[2:])
 		appName := args.Arg(0)
-		proxyType := args.Arg(1)
+		property := args.Arg(1)
+		value := args.Arg(2)
 		if *global {
 			appName = "--global"
-			proxyType = args.Arg(0)
+			property = args.Arg(0)
+			value = args.Arg(1)
 		}
-		err = proxy.CommandSet(appName, proxyType)
+		err = proxy.CommandSet(appName, property, value)
 	default:
 		err = fmt.Errorf("Invalid plugin subcommand call: %s", subcommand)
 	}

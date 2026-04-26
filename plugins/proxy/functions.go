@@ -1,11 +1,11 @@
 package proxy
 
 import (
-	"github.com/dokku/dokku/plugins/config"
+	"github.com/dokku/dokku/plugins/common"
 )
 
 func getAppProxyType(appName string) string {
-	return config.GetWithDefault(appName, "DOKKU_APP_PROXY_TYPE", "")
+	return common.PropertyGet("proxy", appName, "type")
 }
 
 func getComputedProxyType(appName string) string {
@@ -18,5 +18,5 @@ func getComputedProxyType(appName string) string {
 }
 
 func getGlobalProxyType() string {
-	return config.GetWithDefault("--global", "DOKKU_PROXY_TYPE", "nginx")
+	return common.PropertyGetDefault("proxy", "--global", "type", "nginx")
 }
