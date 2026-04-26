@@ -506,7 +506,7 @@ teardown() {
   run /bin/bash -c "dokku --app $TEST_APP config:show"
   echo "output: $output"
   echo "status: $status"
-  assert_output "=====> $TEST_APP env vars"$'\nBKEY:  true\naKey:  true\nbKey:  true\nzKey:  true'
+  assert_output "=====> $TEST_APP env vars"$'\nBKEY:              true\nDOKKU_PROXY_PORT:  80\naKey:              true\nbKey:              true\nzKey:              true'
 }
 
 @test "(config) config:export" {
@@ -518,20 +518,20 @@ teardown() {
   run /bin/bash -c "dokku config:export --format docker-args $TEST_APP"
   echo "output: $output"
   echo "status: $status"
-  assert_output "--env=BKEY='true' --env=aKey='true' --env=bKey='true' --env=zKey='true'"
+  assert_output "--env=BKEY='true' --env=DOKKU_PROXY_PORT='80' --env=aKey='true' --env=bKey='true' --env=zKey='true'"
 
   run /bin/bash -c "dokku config:export --format shell $TEST_APP"
   echo "output: $output"
   echo "status: $status"
-  assert_output "BKEY='true' aKey='true' bKey='true' zKey='true' "
+  assert_output "BKEY='true' DOKKU_PROXY_PORT='80' aKey='true' bKey='true' zKey='true' "
 
   run /bin/bash -c "dokku config:export --format json $TEST_APP"
   echo "output: $output"
   echo "status: $status"
-  assert_output '{"BKEY":"true","aKey":"true","bKey":"true","zKey":"true"}'
+  assert_output '{"BKEY":"true","DOKKU_PROXY_PORT":"80","aKey":"true","bKey":"true","zKey":"true"}'
 
   run /bin/bash -c "dokku config:export --format json-list $TEST_APP"
   echo "output: $output"
   echo "status: $status"
-  assert_output '[{"name":"BKEY","value":"true"},{"name":"aKey","value":"true"},{"name":"bKey","value":"true"},{"name":"zKey","value":"true"}]'
+  assert_output '[{"name":"BKEY","value":"true"},{"name":"DOKKU_PROXY_PORT","value":"80"},{"name":"aKey","value":"true"},{"name":"bKey","value":"true"},{"name":"zKey","value":"true"}]'
 }
