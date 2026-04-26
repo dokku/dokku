@@ -5,14 +5,14 @@ go 1.25.5
 require (
 	github.com/Masterminds/semver/v3 v3.4.0
 	github.com/cert-manager/cert-manager v1.20.2
-	github.com/dokku/dokku/plugins/app-json v0.0.0-20250618161309-8d0c35f1333c
-	github.com/dokku/dokku/plugins/common v0.0.0-20250618161309-8d0c35f1333c
-	github.com/dokku/dokku/plugins/config v0.0.0-20250618161309-8d0c35f1333c
-	github.com/dokku/dokku/plugins/cron v0.0.0-20250618161309-8d0c35f1333c
-	github.com/dokku/dokku/plugins/docker-options v0.0.0-20250618161309-8d0c35f1333c
-	github.com/dokku/dokku/plugins/logs v0.0.0-20250618161309-8d0c35f1333c
-	github.com/dokku/dokku/plugins/nginx-vhosts v0.0.0-20250618161309-8d0c35f1333c
-	github.com/dokku/dokku/plugins/registry v0.0.0-20250618161309-8d0c35f1333c
+	github.com/dokku/dokku/plugins/app-json v0.0.0-00010101000000-000000000000
+	github.com/dokku/dokku/plugins/common v0.0.0-00010101000000-000000000000
+	github.com/dokku/dokku/plugins/config v0.0.0-00010101000000-000000000000
+	github.com/dokku/dokku/plugins/cron v0.0.0-00010101000000-000000000000
+	github.com/dokku/dokku/plugins/docker-options v0.0.0-00010101000000-000000000000
+	github.com/dokku/dokku/plugins/logs v0.0.0-00010101000000-000000000000
+	github.com/dokku/dokku/plugins/nginx-vhosts v0.0.0-00010101000000-000000000000
+	github.com/dokku/dokku/plugins/registry v0.0.0-00010101000000-000000000000
 	github.com/fatih/color v1.19.0
 	github.com/fluxcd/pkg/kustomize v1.31.0
 	github.com/go-openapi/jsonpointer v0.23.1

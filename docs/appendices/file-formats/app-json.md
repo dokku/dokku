@@ -5,6 +5,25 @@
 > [!IMPORTANT]
 > While the `app.json` format used by Dokku is based on the one [supported by Heroku](https://devcenter.heroku.com/articles/app-json-schema), not all Heroku functionality is supported by Dokku.
 
+## Buildpacks
+
+```json
+{
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    },
+    {
+      "url": "https://github.com/heroku/heroku-buildpack-nodejs.git"
+    }
+  ]
+}
+```
+
+(list, optional) A list of buildpacks to use when deploying the app. Each entry is an object with a `url` property. Buildpacks specified via the `buildpacks:add` or `buildpacks:set` commands take precedence over those specified in `app.json`. Buildpack URLs may use the shorthand format (e.g., `heroku/python`) which will be expanded to the full GitHub URL.
+
+- `url`: (string, required) The URL or shorthand reference of the buildpack.
+
 ## Cron
 
 ```json

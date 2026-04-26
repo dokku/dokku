@@ -130,6 +130,24 @@ This will use the latest commit on the `master` branch of the specified buildpac
 dokku buildpacks:set node-js-app https://github.com/heroku/heroku-buildpack-nodejs#v87
 ```
 
+### Specifying buildpacks via app.json
+
+Buildpacks can also be specified in the `app.json` file at the root of your repository:
+
+```json
+{
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    }
+  ]
+}
+```
+
+Buildpacks configured via `buildpacks:add` or `buildpacks:set` commands take precedence over those specified in `app.json`. If no buildpacks are configured via commands and `app.json` contains a `buildpacks` entry, those buildpacks will be used.
+
+Shorthand buildpack references (e.g., `heroku/python`) are expanded to full GitHub URLs automatically.
+
 ### Displaying buildpack reports for an app
 
 You can get a report about the app's buildpacks status using the `buildpacks:report` command:

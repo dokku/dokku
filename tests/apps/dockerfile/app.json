@@ -3,11 +3,6 @@
     "dokku-postgres",
     "dokku-redis"
   ],
-  "buildpacks": [
-    {
-      "url": "https://github.com/heroku/heroku-buildpack-nodejs"
-    }
-  ],
   "description": "Used in dokku's test suite",
   "env": {
     "SECRET_TOKEN": {
