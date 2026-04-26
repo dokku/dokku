@@ -53,7 +53,7 @@ jobs:
       - name: Resolve latest release
         id: latest
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.HOMEBREW_GITHUB_API_TOKEN }}
           REPO: ${{ matrix.repo }}
           CURRENT: ${{ matrix.version }}
         run: |
@@ -95,10 +95,12 @@ jobs:
         if: steps.latest.outputs.outdated == 'true'
         uses: peter-evans/create-pull-request@v7
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.HOMEBREW_GITHUB_API_TOKEN }}
           branch: chore/bump-${{ matrix.name }}-${{ steps.latest.outputs.latest }}
           base: ${{ github.ref_name }}
           delete-branch: true
+          committer: 'Dokku Bot <no-reply@dokku.com>'
+          author: 'Dokku Bot <no-reply@dokku.com>'
           commit-message: 'chore: bump ${{ matrix.name }} to ${{ steps.latest.outputs.latest }}'
           title: 'chore: bump ${{ matrix.name }} to ${{ steps.latest.outputs.latest }}'
           body: |
