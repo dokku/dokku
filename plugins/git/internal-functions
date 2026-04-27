@@ -76,6 +76,8 @@ cmd-git-auth() {
   declare HOST="$1" USERNAME="$2" PASSWORD="$3"
   [[ -z "$HOST" ]] && dokku_log_fail "Please supply a git host"
 
+  PASSWORD="$(fn-git-auth-read-password "$USERNAME" "$PASSWORD")"
+
   if [[ -n "$USERNAME" ]] && [[ -z "$PASSWORD" ]]; then
     dokku_log_fail "Missing password for netrc auth entry"
   fi
@@ -89,6 +91,42 @@ cmd-git-auth() {
   dokku_log_info1 "Setting netrc auth entry for host $HOST"
   touch "${DOKKU_ROOT}/.netrc"
   netrc set "$HOST" "$USERNAME" "$PASSWORD"
+}
+
+cmd-git-auth-status() {
+  declare desc="reports whether netrc authentication matches the requested state"
+  local cmd="git:auth-status"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare HOST="$1" USERNAME="$2" PASSWORD="$3"
+  [[ -z "$HOST" ]] && dokku_log_fail "Please supply a git host"
+
+  PASSWORD="$(fn-git-auth-read-password "$USERNAME" "$PASSWORD")"
+
+  if [[ -n "$USERNAME" ]] && [[ -z "$PASSWORD" ]]; then
+    dokku_log_fail "Missing password for netrc auth entry"
+  fi
+
+  local current
+  current="$(netrc get "$HOST" 2>/dev/null)" || current=""
+
+  if [[ -z "$USERNAME" ]]; then
+    [[ -z "$current" ]] && return 0
+    return 1
+  fi
+
+  [[ "$current" == "${USERNAME}:${PASSWORD}" ]] && return 0
+  return 1
+}
+
+fn-git-auth-read-password() {
+  declare desc="reads a netrc password from stdin when not provided as an argument"
+  declare USERNAME="$1" PASSWORD="$2"
+
+  if [[ -n "$USERNAME" ]] && [[ -z "$PASSWORD" ]] && [[ -p /dev/stdin ]]; then
+    IFS= read -r PASSWORD || true
+  fi
+
+  echo -n "$PASSWORD"
 }
 
 cmd-git-load-image() {

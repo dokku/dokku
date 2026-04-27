@@ -6,6 +6,7 @@
 ```
 git:allow-host <host>                             # Adds a host to known_hosts
 git:auth <host> [<username> <password>]           # Configures netrc authentication for a given git server
+git:auth-status <host> [<username> <password>]    # Reports whether the netrc entry matches the requested state
 git:from-archive [--archive-type ARCHIVE_TYPE] <app> <archive-url> [<git-username> <git-email>] # Updates an app's git repository with a given archive file
 git:from-image [--build-dir DIRECTORY] <app> <docker-image> [<git-username> <git-email>] # Updates an app's git repository with a given docker image
 git:generate-deploy-key                           # Generates a deploy ssh key
@@ -190,6 +191,34 @@ dokku git:auth github.com
 ```
 
 For syncing to a private repository stored on a remote Git product such as GitHub or GitLab, Dokku's recommendation is to use a personal access token on a bot user where possible. Please see your service's documentation for information regarding the recommended best practices.
+
+The password for `git:auth` may also be provided over `STDIN` to avoid placing it on the command line:
+
+```shell
+# pipe the password into git:auth
+echo "personal-access-token" | dokku git:auth github.com username
+```
+
+#### Checking the configured auth state
+
+> [!IMPORTANT]
+> New as of 0.38.0
+
+The `git:auth-status` command reports whether the configured `netrc` entry matches a desired state without exposing the underlying file. It exits `0` when the configured state matches and `1` otherwise. This allows external tooling such as configuration management systems to perform idempotent updates without reading `$DOKKU_ROOT/.netrc` directly.
+
+```shell
+# check whether github.com is configured with the expected credentials
+dokku git:auth-status github.com username personal-access-token
+
+# check whether no credentials are configured for github.com
+dokku git:auth-status github.com
+```
+
+As with `git:auth`, the password may be provided via `STDIN`:
+
+```shell
+echo "personal-access-token" | dokku git:auth-status github.com username
+```
 
 ### Allowing remote repository hosts
 
