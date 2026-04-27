@@ -3,7 +3,6 @@ package dockeroptions
 import (
 	"errors"
 	"fmt"
-	"os"
 
 	"github.com/dokku/dokku/plugins/common"
 )
@@ -95,11 +94,4 @@ func CommandReport(appName string, format string, infoFlag string) error {
 	}
 
 	return ReportSingleApp(appName, format, infoFlag)
-}
-
-func removePhaseFile(appName string, phase string) error {
-	if err := os.Remove(getPhaseFilePath(appName, phase)); err != nil && !os.IsNotExist(err) {
-		return err
-	}
-	return nil
 }
