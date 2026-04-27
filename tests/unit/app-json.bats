@@ -139,7 +139,7 @@ teardown() {
     assert_success
   fi
 
-  run /bin/bash -c "dokku config:set $TEST_APP SECRET_KEY_BASE=derp OTP_SECRET=1234"
+  run /bin/bash -c "dokku config:set $TEST_APP SECRET_KEY_BASE=derp OTP_SECRET=1234 LOCAL_DOMAIN=dokku.me"
   echo "output: $output"
   echo "status: $status"
   assert_success

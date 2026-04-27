@@ -16,7 +16,7 @@
     },
     "WEB_CONCURRENCY": {
       "description": "The number of processes to run.",
-      "generator": "echo 5"
+      "value": "5"
     }
   },
   "healthchecks": {
