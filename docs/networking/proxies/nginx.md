@@ -5,6 +5,7 @@ Dokku uses nginx as its server for routing requests to specific applications. By
 ```
 nginx:access-logs <app> [-t]             # Show the nginx access logs for an application (-t follows)
 nginx:error-logs <app> [-t]              # Show the nginx error logs for an application (-t follows)
+nginx:reload                             # Reloads the nginx server config
 nginx:report [<app>] [<flag>|--format json] # Displays a nginx report for one or more apps
 nginx:set <app> <property> (<value>)     # Set or clear an nginx property for an app
 nginx:show-config <app>                  # Display app nginx config
@@ -63,6 +64,19 @@ The nginx server can be stopped via `nginx:stop`.
 ```shell
 dokku nginx:stop
 ```
+
+### Reloading nginx
+
+> [!IMPORTANT]
+> New as of 0.38.0
+
+The nginx server can be reloaded via `nginx:reload`. This validates the current nginx configuration and, if valid, signals nginx to reload without restarting the running process. This is the preferred command after editing files in `/etc/nginx/conf.d/` directly.
+
+```shell
+dokku nginx:reload
+```
+
+If the configuration is invalid, the command exits non-zero and prints the validation error without reloading.
 
 ### Checking access logs
 
@@ -168,52 +182,91 @@ These are provided as an alternative to the generic Nginx error page, are shared
 
 ### Default site
 
-By default, Dokku will route any received request with an unknown HOST header value to the lexicographically first site in the nginx config stack. This means that accessing the dokku server via its IP address or a bogus domain name may return a seemingly random website.
+> [!IMPORTANT]
+> New as of 0.38.0
 
-> [!WARNING]
-> Some versions of Nginx may create a default site when installed. This site is simply a static page which says "Welcome to Nginx", and if this default site is enabled, Nginx will not route any requests with an unknown HOST header to Dokku. If you want Dokku to receive all requests, run the following commands:
->
-> ```
-> rm /etc/nginx/sites-enabled/default
-> dokku nginx:stop
-> dokku nginx:start
-> ```
+On fresh apt installs, Dokku ships a catch-all default site at `/etc/nginx/conf.d/00-default-vhost.conf` that rejects requests whose Host header (or TLS SNI) does not match any deployed app. The catch-all uses [`ssl_reject_handshake on`](https://nginx.org/en/docs/http/ngx_http_ssl_module.html#ssl_reject_handshake) for HTTPS and [`return 444`](https://nginx.org/en/docs/http/ngx_http_rewrite_module.html#return) for HTTP. Both close the connection without sending a response.
 
-If services should only be accessed via their domain name, you may want to disable the default site by adding the following configuration to the global nginx configuration.
-
-Create the file at `/etc/nginx/conf.d/00-default-vhost.conf`:
+The shipped file looks like:
 
 ```nginx
 server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
-
-    # If services hosted by dokku are available via HTTPS, it is recommended
-    # to also uncomment the following section.
-    #
-    # Please note that in order to let this work, you need an SSL certificate. However
-    # it does not need to be valid. Users of Debian-based distributions can install the
-    # `ssl-cert` package with `sudo apt install ssl-cert` to automatically generate
-    # a self-signed certificate that is stored at `/etc/ssl/certs/ssl-cert-snakeoil.pem`.
-    #
-    #listen 443 ssl;
-    #listen [::]:443 ssl;
-    #ssl_certificate /etc/ssl/certs/ssl-cert-snakeoil.pem;
-    #ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;
+    listen      80 default_server;
+    listen      [::]:80 default_server;
+    listen      443 ssl default_server;
+    listen      [::]:443 ssl default_server;
 
     server_name _;
-    access_log off;
+    access_log  off;
+
+    ssl_reject_handshake on;
     return 444;
 }
 ```
 
-Make sure to reload nginx after creating this file by running `systemctl reload nginx.service`.
+The `00-` prefix forces nginx to load this file before `/etc/nginx/conf.d/dokku.conf`, so its `default_server` markers establish the default for each port before any per-app server blocks are loaded.
 
-This will catch all unknown HOST header values and close the connection without responding. You can replace the `return 444;` with `return 410;` which will cause nginx to respond with an error page.
+#### TLS handshake behavior
 
-The configuration file must be loaded before `/etc/nginx/conf.d/dokku.conf`, so it can not be arranged as a vhost in `/etc/nginx/sites-enabled` that is only processed afterwards.
+The catch-all does not affect TLS handshakes for legitimate apps. nginx selects the matching server block via SNI before completing the handshake; only requests that have no matching app fall through to the catch-all.
 
-Alternatively, you may push an app to your Dokku host with a name like "00-default". As long as it lists first in `ls /home/dokku/*/nginx.conf | head`, it will be used as the default nginx vhost.
+| Request | Result |
+| --- | --- |
+| HTTPS to a configured app's hostname (with matching SNI) and the app has a cert | Handshake completes with the app's cert. Catch-all not consulted. |
+| HTTPS to a configured app's hostname when the app has no cert configured | Handshake rejected by the catch-all. (Previously: nginx fell through to the lexicographically first port-443 server block and presented its cert, producing a confusing cert-mismatch error.) |
+| HTTPS to the server's IP with no SNI, or with an SNI matching no app | Handshake rejected. |
+| HTTP to a configured app's hostname | Routed normally to that app. Catch-all not consulted. |
+| HTTP to a hostname matching no app | Catch-all `return 444`. |
+
+#### Conflicting upstream nginx default vhost
+
+A fresh nginx install ships its own default vhost that also claims port 80 with `default_server`, which would cause `nginx -t` to fail with `a duplicate default server for 0.0.0.0:80` once the dokku catch-all is in place. To avoid this, the dokku postinst renames any of the following files in place to `${path}.dokku-disabled` instead of deleting them, preserving any local customizations:
+
+- `/etc/nginx/sites-enabled/default`
+- `/etc/nginx/sites-available/default`
+- `/etc/nginx/conf.d/default.conf`
+
+To recover an original file, inspect the `.dokku-disabled` sibling.
+
+#### Disabling the catch-all on first install
+
+Select "No" at the `dokku/install_default_site` debconf prompt, or pre-seed the answer before installing:
+
+```shell
+echo 'dokku dokku/install_default_site boolean false' | debconf-set-selections
+```
+
+#### Customizing or removing the catch-all after install
+
+To customize the reject behavior, edit `/etc/nginx/conf.d/00-default-vhost.conf` and reload:
+
+```shell
+dokku nginx:reload
+```
+
+For example, replace `return 444;` with `return 410;` to respond with an HTTP 410 Gone error page instead of dropping the connection.
+
+To disable the catch-all without uninstalling dokku:
+
+```shell
+mv /etc/nginx/conf.d/00-default-vhost.conf{,.disabled}
+dokku nginx:reload
+```
+
+#### Installing the catch-all on upgraded or non-apt installs
+
+Existing dokku installs upgraded from earlier versions do not get the catch-all installed automatically; the upgrade leaves their nginx configuration untouched. To install it manually, copy the shipped template into place and reload nginx:
+
+```shell
+cp /var/lib/dokku/core-plugins/available/nginx-vhosts/templates/default-site.conf /etc/nginx/conf.d/00-default-vhost.conf
+dokku nginx:reload
+```
+
+If the upstream nginx default vhost is also active, disable it first (e.g. `mv /etc/nginx/sites-enabled/default{,.disabled}`) to avoid a duplicate-default-server error.
+
+#### App-name based alternative
+
+As an alternative to the catch-all file, you may push an app to your Dokku host with a name like `00-default`. As long as it lists first in `ls /home/dokku/*/nginx.conf | head`, it will be used as the default nginx vhost.
 
 ### Customizing the nginx configuration
 

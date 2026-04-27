@@ -100,7 +100,7 @@ teardown() {
   assert_success
   assert_output_contains "Setting netrc auth entry for host github.com"
 
-  run /bin/bash -c "netrc get github.com"
+  run /bin/bash -c "netrc get --netrc-file ${DOKKU_ROOT}/.netrc github.com"
   echo "output: $output"
   echo "status: $status"
   assert_success

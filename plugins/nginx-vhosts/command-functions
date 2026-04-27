@@ -235,6 +235,29 @@ cmd-nginx-stop() {
   fn-nginx-vhosts-nginx-init-cmd "disable"
 }
 
+cmd-nginx-reload() {
+  declare desc="reloads the nginx server config"
+  declare cmd="nginx:reload"
+  [[ "$1" == "$cmd" ]] && shift 1
+
+  local NGINX_LOCATION EXIT_CODE
+  NGINX_LOCATION=$(get_nginx_location)
+  if [[ -z "$NGINX_LOCATION" ]]; then
+    exit 1
+  fi
+
+  set +e
+  sudo "$NGINX_LOCATION" -t &>/dev/null
+  EXIT_CODE=$?
+  set -e
+  if [[ "$EXIT_CODE" -ne "0" ]]; then
+    sudo "$NGINX_LOCATION" -t
+    exit "$EXIT_CODE"
+  fi
+
+  fn-nginx-vhosts-nginx-init-cmd "reload"
+}
+
 cmd-nginx-validate-config() {
   declare desc="validates and optionally cleans up invalid nginx configurations"
   declare cmd="nginx:validate-config"
