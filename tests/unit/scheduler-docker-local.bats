@@ -175,3 +175,47 @@ teardown() {
   assert_output_contains "Deploys may fail when publishing ports and scaling to multiple containers" 0
   assert_output_contains "Deploys may fail when publishing ports and enabling zero downtime" 0
 }
+
+@test "(scheduler-docker-local) scale down retires orphaned containers" {
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku checks:set $TEST_APP wait-to-retire 1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:scale $TEST_APP web=2"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker ps --filter label=com.dokku.app-name=$TEST_APP --filter label=com.dokku.process-type=web --format '{{.Names}}' | wc -l"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "2"
+
+  run /bin/bash -c "dokku ps:scale $TEST_APP web=1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  sleep 2
+
+  run /bin/bash -c "dokku ps:retire"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker ps --filter label=com.dokku.app-name=$TEST_APP --filter label=com.dokku.process-type=web --format '{{.Names}}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "$TEST_APP.web.1"
+}
