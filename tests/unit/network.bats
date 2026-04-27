@@ -327,7 +327,7 @@ teardown() {
 }
 
 @test "(network) handle single-udp app" {
-  run /bin/bash -c "dokku docker-options:add $TEST_APP -p 1194:1194"
+  run /bin/bash -c "dokku docker-options:add $TEST_APP deploy -p 1194:1194"
   echo "output: $output"
   echo "status: $status"
   assert_success
