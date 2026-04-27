@@ -1679,17 +1679,57 @@ func installHelmCharts(ctx context.Context, clientset KubernetesClient, shouldIn
 			return fmt.Errorf("Error parsing deploy timeout duration: %w", err)
 		}
 
-		err = helmAgent.InstallOrUpgradeChart(ctx, ChartInput{
-			ChartPath:   chart.ChartPath,
-			Namespace:   chart.Namespace,
-			ReleaseName: chart.ReleaseName,
-			RepoURL:     chart.RepoURL,
-			Values:      values,
-			Version:     chart.Version,
-			Timeout:     timeoutDuration,
-			Wait:        true,
-		})
+		installedRevision, err := helmAgent.InstalledRevision(chart.ReleaseName)
 		if err != nil {
+			return fmt.Errorf("Error getting installed revision for %s: %w", chart.ReleaseName, err)
+		}
+
+		hooks, err := selectChartHooks(chart.ReleaseName, installedRevision.Version, chart.Version)
+		if err != nil {
+			return fmt.Errorf("Error selecting upgrade hooks for chart %s: %w", chart.ReleaseName, err)
+		}
+
+		buildChartInput := func(version string) ChartInput {
+			return ChartInput{
+				ChartPath:   chart.ChartPath,
+				Namespace:   chart.Namespace,
+				ReleaseName: chart.ReleaseName,
+				RepoURL:     chart.RepoURL,
+				Values:      values,
+				Version:     version,
+				Timeout:     timeoutDuration,
+				Wait:        true,
+			}
+		}
+
+		lastUpgradedVersion := ""
+		for _, hook := range hooks {
+			if hook.PreUpgrade != nil {
+				common.LogVerbose(fmt.Sprintf("Running pre-upgrade hook %s@%s", chart.ReleaseName, hook.TargetVersion))
+				if err := hook.PreUpgrade(ctx, clientset, chart, installedRevision); err != nil {
+					return fmt.Errorf("Error running pre-upgrade hook for %s@%s: %w", chart.ReleaseName, hook.TargetVersion, err)
+				}
+			}
+
+			common.LogVerbose(fmt.Sprintf("Upgrading %s to intermediate version %s", chart.ReleaseName, hook.TargetVersion))
+			if err := helmAgent.InstallOrUpgradeChart(ctx, buildChartInput(hook.TargetVersion)); err != nil {
+				return fmt.Errorf("Error installing chart %s at version %s: %w", chart.ChartPath, hook.TargetVersion, err)
+			}
+			lastUpgradedVersion = hook.TargetVersion
+
+			if hook.PostUpgrade != nil {
+				common.LogVerbose(fmt.Sprintf("Running post-upgrade hook %s@%s", chart.ReleaseName, hook.TargetVersion))
+				if err := hook.PostUpgrade(ctx, clientset, chart, installedRevision); err != nil {
+					return fmt.Errorf("Error running post-upgrade hook for %s@%s: %w", chart.ReleaseName, hook.TargetVersion, err)
+				}
+			}
+		}
+
+		if lastUpgradedVersion == chart.Version {
+			continue
+		}
+
+		if err := helmAgent.InstallOrUpgradeChart(ctx, buildChartInput(chart.Version)); err != nil {
 			return fmt.Errorf("Error installing chart %s: %w", chart.ChartPath, err)
 		}
 	}
