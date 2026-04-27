@@ -28,7 +28,9 @@ You may both create user-defined checks for web processes using the `healthcheck
 
 ### wait-to-retire
 
-After a successful deploy, the grace period given to old containers before they are stopped/terminated is determined by the value of `wait-to-retire`. This is useful for ensuring completion of long-running HTTP connections.
+After a successful deploy, Dokku immediately sends `SIGTERM` to old containers so the application can begin a graceful shutdown (draining in-flight connections, flushing buffers, and so on) the moment proxy traffic switches to the new containers. The old containers are then left running for the `wait-to-retire` grace period before being stopped, which sends `SIGTERM` again and ultimately `SIGKILL` after `stop-timeout-seconds`. This mirrors Heroku's [dyno shutdown behavior](https://devcenter.heroku.com/articles/dyno-shutdown-behavior).
+
+The `wait-to-retire` value controls the grace period and is useful for ensuring completion of long-running HTTP connections.
 
 ```shell
 dokku checks:set node-js-app wait-to-retire 30
