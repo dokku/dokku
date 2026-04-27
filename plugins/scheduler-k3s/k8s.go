@@ -296,6 +296,55 @@ func (k KubernetesClient) CreateNamespace(ctx context.Context, input CreateNames
 	return *namespace, err
 }
 
+// DeleteDeploymentInput contains all the information needed to delete one or more Kubernetes deployments
+type DeleteDeploymentInput struct {
+	// Name is the Kubernetes deployment name
+	Name string
+
+	// Namespace is the Kubernetes namespace
+	Namespace string
+
+	// LabelSelector is the Kubernetes label selector
+	LabelSelector string
+}
+
+// DeleteDeployment deletes a Kubernetes deployment by name or label selector,
+// using foreground propagation so dependent ReplicaSets and Pods are removed
+// before the call returns.
+func (k KubernetesClient) DeleteDeployment(ctx context.Context, input DeleteDeploymentInput) error {
+	if input.Name == "" && input.LabelSelector == "" {
+		return fmt.Errorf("name or label selector is required")
+	}
+
+	if input.Name != "" && input.LabelSelector != "" {
+		return fmt.Errorf("name and label selector cannot be used together")
+	}
+
+	deleteOptions := metav1.DeleteOptions{
+		PropagationPolicy: ptr.To(metav1.DeletePropagationForeground),
+	}
+
+	if input.Name != "" {
+		return k.Client.AppsV1().Deployments(input.Namespace).Delete(ctx, input.Name, deleteOptions)
+	}
+
+	deployments, err := k.ListDeployments(ctx, ListDeploymentsInput{
+		Namespace:     input.Namespace,
+		LabelSelector: input.LabelSelector,
+	})
+	if err != nil {
+		return fmt.Errorf("Error listing deployments: %w", err)
+	}
+
+	for _, deployment := range deployments {
+		if err := k.Client.AppsV1().Deployments(input.Namespace).Delete(ctx, deployment.Name, deleteOptions); err != nil {
+			return fmt.Errorf("Error deleting deployment %s: %w", deployment.Name, err)
+		}
+	}
+
+	return nil
+}
+
 // DeleteIngressInput contains all the information needed to delete a Kubernetes ingress
 type DeleteIngressInput struct {
 	// Name is the Kubernetes ingress name

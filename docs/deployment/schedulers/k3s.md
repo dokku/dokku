@@ -683,6 +683,14 @@ Alternatively, a comma separated list of chart names can be specified to only fo
 dokku scheduler-k3s:ensure-charts --charts cert-manager
 ```
 
+### Chart upgrade callbacks
+
+Some chart version transitions require side-effects that a plain `helm upgrade` cannot perform. For example, the upgrade of `keda-add-ons-http` to `0.12.2` introduces breaking changes to deployment selectors, which are immutable in Kubernetes; the chart-managed deployments must be deleted before the upgrade can proceed.
+
+Dokku handles these cases internally by registering version-targeted pre-upgrade and post-upgrade callbacks against affected charts. When `scheduler-k3s:ensure-charts` runs, the installed chart version is compared against the registered callbacks: any whose target version is greater than the currently installed version and at most the configured chart version are executed in ascending semver order, each bracketed around an upgrade to that intermediate version. A final upgrade to the configured chart version then completes the run.
+
+These callbacks are not user-configurable. Failures during a callback or its surrounding upgrade abort the run, and a subsequent `scheduler-k3s:ensure-charts` resumes from the current state.
+
 ## Scheduler Interface
 
 The following sections describe implemented and unimplemented scheduler functionality for the `k3s` scheduler.
