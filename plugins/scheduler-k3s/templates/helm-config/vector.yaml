@@ -59,10 +59,9 @@ customConfig:
       inputs:
         - kubernetes_logs
       source: |
-        .container = del(.kubernetes.container_name)
-        .pod       = del(.kubernetes.pod_name)
-        .namespace = del(.kubernetes.pod_namespace)
-        del(.kubernetes)
+        .container = .kubernetes.container_name
+        .pod       = .kubernetes.pod_name
+        .namespace = .kubernetes.pod_namespace
 
   sinks:
     default_global_sink:
