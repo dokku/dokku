@@ -25,7 +25,6 @@ teardown() {
     mv "${NGINX_DEFAULT_VHOST_PATH}.bats-bak" "$NGINX_DEFAULT_VHOST_PATH"
   fi
   rm -f /etc/nginx/sites-enabled/default.bats-stub
-  rm -f /etc/nginx/sites-enabled/default.bats-stub.dokku-disabled
   [[ -f "$DOKKU_ROOT/VHOST.bak" ]] && mv "$DOKKU_ROOT/VHOST.bak" "$DOKKU_ROOT/VHOST" && chown dokku:dokku "$DOKKU_ROOT/VHOST"
   if sudo nginx -t &>/dev/null; then
     sudo systemctl reload nginx || true
@@ -90,7 +89,7 @@ STOCK
   echo "status: $status"
   assert_failure
 
-  sudo mv /etc/nginx/sites-enabled/default.bats-stub /etc/nginx/sites-enabled/default.bats-stub.dokku-disabled
+  sudo rm -f /etc/nginx/sites-enabled/default.bats-stub
 
   run /bin/bash -c "sudo nginx -t"
   echo "output: $output"
