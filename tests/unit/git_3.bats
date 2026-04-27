@@ -93,6 +93,71 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_contains "Setting netrc auth entry for host github.com"
+
+  run /bin/bash -c "printf 'piped-password' | dokku git:auth github.com piped-username"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Setting netrc auth entry for host github.com"
+
+  run /bin/bash -c "grep piped-username /home/dokku/.netrc"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "piped-password"
+}
+
+@test "(git) git:auth-status" {
+  run /bin/bash -c "dokku git:auth-status"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku git:auth-status github.com"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:auth github.com username password"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:auth-status github.com"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku git:auth-status github.com username password"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:auth-status github.com username wrong-password"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku git:auth-status github.com other-username password"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku git:auth-status github.com username"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Missing password for netrc auth entry"
+
+  run /bin/bash -c "printf 'password' | dokku git:auth-status github.com username"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "printf 'wrong-password' | dokku git:auth-status github.com username"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
 }
 
 @test "(git) git:sync new [errors]" {
