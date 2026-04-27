@@ -10,7 +10,23 @@ cmd-nginx-report() {
   declare desc="displays a nginx report for one or more apps"
   declare cmd="nginx:report"
   [[ "$1" == "$cmd" ]] && shift 1
-  declare APP="$1" INFO_FLAG="$2"
+  local FORMAT="stdout"
+  local args=()
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --format)
+        FORMAT="$2"
+        shift 2
+        ;;
+      *)
+        args+=("$1")
+        shift
+        ;;
+    esac
+  done
+
+  declare APP="${args[0]:-}" INFO_FLAG="${args[1]:-}"
 
   if [[ -n "$APP" ]] && [[ "$APP" == --* ]]; then
     INFO_FLAG="$APP"
@@ -23,15 +39,15 @@ cmd-nginx-report() {
 
   if [[ -z "$APP" ]]; then
     for app in $(dokku_apps); do
-      cmd-nginx-report-single "$app" "$INFO_FLAG" | tee || true
+      cmd-nginx-report-single "$app" "$INFO_FLAG" "$FORMAT" | tee || true
     done
   else
-    cmd-nginx-report-single "$APP" "$INFO_FLAG"
+    cmd-nginx-report-single "$APP" "$INFO_FLAG" "$FORMAT"
   fi
 }
 
 cmd-nginx-report-single() {
-  declare APP="$1" INFO_FLAG="$2"
+  declare APP="$1" INFO_FLAG="$2" FORMAT="${3:-stdout}"
   if [[ "$INFO_FLAG" == "true" ]]; then
     INFO_FLAG=""
   fi
@@ -129,6 +145,22 @@ cmd-nginx-report-single() {
     "--nginx-computed-x-forwarded-ssl: $(fn-nginx-computed-x-forwarded-ssl "$APP")"
     "--nginx-global-x-forwarded-ssl: $(fn-nginx-global-x-forwarded-ssl "$APP")"
   )
+
+  if [[ "$FORMAT" != "stdout" ]] && [[ -n "$INFO_FLAG" ]]; then
+    dokku_log_fail "--format flag cannot be specified when specifying an info flag"
+  fi
+
+  if [[ "$FORMAT" == "json" ]]; then
+    local json_output="{}"
+    for flag in "${flag_map[@]}"; do
+      local key value
+      key="$(echo "$flag" | cut -d':' -f1 | sed 's/^--nginx-//')"
+      value="$(echo "$flag" | cut -d':' -f2- | sed 's/^ //')"
+      json_output="$(echo "$json_output" | jq -c --arg key "$key" --arg value "$value" '. + {($key): $value}')"
+    done
+    echo "$json_output"
+    return
+  fi
 
   if [[ -z "$INFO_FLAG" ]]; then
     dokku_log_info2_quiet "${APP} nginx information"
