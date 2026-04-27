@@ -28,16 +28,43 @@ readinessProbe:
     path: /health
     port: api
 
-extraVolumes:
-  - name: vector-data-dir
+# Replace the chart's defaults so /vector-data-dir is backed by a host directory
+# instead of the chart-managed emptyDir. Other defaults (var-log, var-lib, procfs,
+# sysfs) are preserved as the chart ships them.
+defaultVolumes:
+  - name: data
     hostPath:
       path: /var/lib/vector
       type: DirectoryOrCreate
+  - name: var-log
+    hostPath:
+      path: /var/log/
+  - name: var-lib
+    hostPath:
+      path: /var/lib/
+  - name: procfs
+    hostPath:
+      path: /proc
+  - name: sysfs
+    hostPath:
+      path: /sys
 
-extraVolumeMounts:
-  - name: vector-data-dir
+defaultVolumeMounts:
+  - name: data
     mountPath: /vector-data-dir
     readOnly: false
+  - name: var-log
+    mountPath: /var/log/
+    readOnly: true
+  - name: var-lib
+    mountPath: /var/lib
+    readOnly: true
+  - name: procfs
+    mountPath: /host/proc
+    readOnly: true
+  - name: sysfs
+    mountPath: /host/sys
+    readOnly: true
 
 customConfig:
   data_dir: /vector-data-dir
@@ -61,7 +88,7 @@ customConfig:
         - kubernetes_logs
       source: |
         .container = .kubernetes.container_name
-        .pod = .kubernetes.pod_name
+        .pod       = .kubernetes.pod_name
         .namespace = .kubernetes.pod_namespace
 
   sinks:
