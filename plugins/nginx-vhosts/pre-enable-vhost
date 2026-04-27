@@ -24,6 +24,9 @@ trigger-nginx-vhosts-pre-enable-vhost() {
     fn-plugin-property-delete "proxy" "$APP" "proxy-ssl-port"
   fi
 
+  # clear auto-detected port maps so they get recomputed for vhost mode
+  fn-plugin-property-delete "ports" "$APP" "map-detected"
+
   # clear ports if there is a mapping starting with http:80 or https:443
   local PORT_MAPS=$(plugn trigger ports-get "$APP")
   for PORT_MAP in $PORT_MAPS; do
