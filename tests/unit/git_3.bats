@@ -100,11 +100,11 @@ teardown() {
   assert_success
   assert_output_contains "Setting netrc auth entry for host github.com"
 
-  run /bin/bash -c "grep piped-username /home/dokku/.netrc"
+  run /bin/bash -c "netrc get github.com"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "piped-password"
+  assert_output_contains "piped-username:piped-password"
 }
 
 @test "(git) git:auth-status" {
