@@ -31,7 +31,7 @@ require (
 	k8s.io/apimachinery v0.36.0
 	k8s.io/client-go v0.35.4
 	k8s.io/kubectl v0.35.4
-	k8s.io/kubernetes v1.35.4
+	k8s.io/kubernetes v1.36.0
 	k8s.io/utils v0.0.0-20260210185600-b8788abfbbc2
 	mvdan.cc/sh/v3 v3.13.1
 	sigs.k8s.io/kustomize/api v0.21.1
@@ -127,8 +127,8 @@ require (
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/prometheus/client_golang v1.23.2 // indirect
 	github.com/prometheus/client_model v0.6.2 // indirect
-	github.com/prometheus/common v0.66.1 // indirect
-	github.com/prometheus/procfs v0.17.0 // indirect
+	github.com/prometheus/common v0.67.5 // indirect
+	github.com/prometheus/procfs v0.19.2 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/rubenv/sql-migrate v1.8.1 // indirect
