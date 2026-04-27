@@ -197,6 +197,13 @@ teardown() {
   echo "status: $status"
   assert_success
 
+  sleep 2
+
+  run /bin/bash -c "dokku ps:retire"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "docker ps --filter label=com.dokku.app-name=$TEST_APP --filter label=com.dokku.process-type=web --format '{{.Names}}' | wc -l"
   echo "output: $output"
   echo "status: $status"
