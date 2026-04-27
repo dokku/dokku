@@ -1,12 +1,16 @@
 package dockeroptions
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
 )
 
-// ReportSingleApp displays the docker options report for a single app
+// ReportSingleApp displays the docker options report for a single app.
+// Default-scope options are reported under fixed keys for each phase.
+// Process-scoped options surface as dynamic per-process keys, one per
+// configured process+phase combination.
 func ReportSingleApp(appName string, format string, infoFlag string) error {
 	if err := common.VerifyAppName(appName); err != nil {
 		return err
@@ -16,6 +20,18 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 		"--docker-options-build":  reportBuildOptions,
 		"--docker-options-deploy": reportDeployOptions,
 		"--docker-options-run":    reportRunOptions,
+	}
+
+	processTypes, err := ListProcessTypesWithOptions(appName)
+	if err != nil {
+		return err
+	}
+	for _, processType := range processTypes {
+		processType := processType
+		flagName := fmt.Sprintf("--docker-options-deploy.%s", processType)
+		flags[flagName] = func(app string) string {
+			return joinProcessPhaseOptions(app, processType, "deploy")
+		}
 	}
 
 	flagKeys := []string{}
@@ -30,19 +46,19 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 }
 
 func reportBuildOptions(appName string) string {
-	return joinPhaseOptions(appName, "build")
+	return joinProcessPhaseOptions(appName, DefaultProcessType, "build")
 }
 
 func reportDeployOptions(appName string) string {
-	return joinPhaseOptions(appName, "deploy")
+	return joinProcessPhaseOptions(appName, DefaultProcessType, "deploy")
 }
 
 func reportRunOptions(appName string) string {
-	return joinPhaseOptions(appName, "run")
+	return joinProcessPhaseOptions(appName, DefaultProcessType, "run")
 }
 
-func joinPhaseOptions(appName string, phase string) string {
-	options, err := GetDockerOptionsForPhase(appName, phase)
+func joinProcessPhaseOptions(appName, processType, phase string) string {
+	options, err := GetDockerOptionsForProcessPhase(appName, processType, phase)
 	if err != nil || len(options) == 0 {
 		return ""
 	}

@@ -20,13 +20,8 @@ func main() {
 	case "add":
 		args := flag.NewFlagSet("docker-options:add", flag.ExitOnError)
 		args.SetInterspersed(false)
-		processes := args.StringSlice("process", []string{}, "process types to scope this option to (reserved for future use)")
-		global := args.Bool("global", false, "explicitly mark as a global option (reserved for future use)")
+		processes := args.StringSlice("process", []string{}, "process types to scope this option to (deploy phase only)")
 		args.Parse(os.Args[2:])
-
-		if err = dockeroptions.ErrIfReservedFlagsUsed(*processes, *global); err != nil {
-			break
-		}
 
 		positional := args.Args()
 		appName := ""
@@ -41,17 +36,12 @@ func main() {
 		if len(positional) > 2 {
 			optionParts = positional[2:]
 		}
-		err = dockeroptions.CommandAdd(appName, phases, strings.Join(optionParts, " "))
+		err = dockeroptions.CommandAdd(appName, *processes, phases, strings.Join(optionParts, " "))
 	case "remove":
 		args := flag.NewFlagSet("docker-options:remove", flag.ExitOnError)
 		args.SetInterspersed(false)
-		processes := args.StringSlice("process", []string{}, "process types to scope this option to (reserved for future use)")
-		global := args.Bool("global", false, "explicitly mark as a global option (reserved for future use)")
+		processes := args.StringSlice("process", []string{}, "process types to scope this option to (deploy phase only)")
 		args.Parse(os.Args[2:])
-
-		if err = dockeroptions.ErrIfReservedFlagsUsed(*processes, *global); err != nil {
-			break
-		}
 
 		positional := args.Args()
 		appName := ""
@@ -66,17 +56,12 @@ func main() {
 		if len(positional) > 2 {
 			optionParts = positional[2:]
 		}
-		err = dockeroptions.CommandRemove(appName, phases, strings.Join(optionParts, " "))
+		err = dockeroptions.CommandRemove(appName, *processes, phases, strings.Join(optionParts, " "))
 	case "clear":
 		args := flag.NewFlagSet("docker-options:clear", flag.ExitOnError)
 		args.SetInterspersed(false)
-		processes := args.StringSlice("process", []string{}, "process types to scope this option to (reserved for future use)")
-		global := args.Bool("global", false, "explicitly mark as a global option (reserved for future use)")
+		processes := args.StringSlice("process", []string{}, "process types to scope this option to (deploy phase only)")
 		args.Parse(os.Args[2:])
-
-		if err = dockeroptions.ErrIfReservedFlagsUsed(*processes, *global); err != nil {
-			break
-		}
 
 		positional := args.Args()
 		appName := ""
@@ -87,7 +72,16 @@ func main() {
 		if len(positional) > 1 {
 			phases = positional[1]
 		}
-		err = dockeroptions.CommandClear(appName, phases)
+		err = dockeroptions.CommandClear(appName, *processes, phases)
+	case "list":
+		args := flag.NewFlagSet("docker-options:list", flag.ExitOnError)
+		args.SetInterspersed(false)
+		processType := args.String("process", "", "process type to query (omit for the default scope)")
+		phase := args.String("phase", "", "phase to query [build|deploy|run] (required)")
+		args.Parse(os.Args[2:])
+
+		appName := args.Arg(0)
+		err = dockeroptions.CommandList(appName, *processType, *phase)
 	case "report":
 		args := flag.NewFlagSet("docker-options:report", flag.ExitOnError)
 		format := args.String("format", "stdout", "format: [ stdout | json ]")

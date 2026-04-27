@@ -809,7 +809,7 @@ APP="$1"; IMAGE_SOURCE_TYPE="$2"
 
 ### `docker-args-process-deploy`
 
-- Description: `$PROC_TYPE` may be set to magic `_all_` process type to signify global docker deploy options.
+- Description: emits docker arguments scoped to a specific Procfile process type. The `docker-options` plugin implements this trigger to surface options registered via `docker-options:add --process <PROC>`. `$PROC_TYPE` may be empty (or set to the magic `_default_` value) to signify default-scope docker deploy options.
 - Invoked by: `dokku deploy`
 - Arguments: `$APP $IMAGE_SOURCE_TYPE $IMAGE_TAG [$PROC_TYPE $CONTAINER_INDEX]`
 - Example:

@@ -4,10 +4,11 @@
 > New as of 0.3.17
 
 ```
-docker-options:add <app> <phase(s)> OPTION    # Add Docker option to app for phase (comma-separated phase list)
-docker-options:clear <app> [<phase(s)>...]    # Clear a docker options from app
-docker-options:remove <app> <phase(s)> OPTION # Remove Docker option from app for phase (comma-separated phase list)
-docker-options:report [<app>] [<flag>]        # Displays a docker options report for one or more apps
+docker-options:add [--process PROC...] <app> <phase(s)> OPTION    # Add Docker option to app for phase
+docker-options:clear [--process PROC...] <app> [<phase(s)>...]    # Clear docker options from app
+docker-options:list <app> [--process PROC] --phase PHASE          # List docker options for one process+phase pair
+docker-options:remove [--process PROC...] <app> <phase(s)> OPTION # Remove Docker option from app for phase
+docker-options:report [<app>] [<flag>] [--format json|stdout]     # Displays a docker options report for one or more apps
 ```
 
 The `docker-options` plugin allows users to specify custom [container options](https://docs.docker.com/engine/reference/run/) for containers created by Dokku at various phases.
@@ -159,4 +160,68 @@ You can pass flags which will output only the value of the specific information 
 
 ```shell
 dokku docker-options:report node-js-app --docker-options-build
+```
+
+When process-specific options are configured (see below), the report exposes one additional dynamic flag per configured `process.deploy` pair, named `--docker-options-deploy.<process>`:
+
+```shell
+dokku docker-options:report node-js-app --docker-options-deploy.web
+```
+
+A machine-readable JSON view is available via `--format json`:
+
+```shell
+dokku docker-options:report node-js-app --format json
+```
+
+### Process-Specific Options
+
+> [!IMPORTANT]
+> New as of 0.38.0
+
+Docker options can be scoped to specific process types declared in the app's `Procfile` by passing one or more `--process` flags. This is useful when a deploy-phase option (for example a port mapping) makes sense for one process type but would conflict with another - the canonical case being a `web` process that needs `-p 6789:5000` published while the `worker` process must not bind that port.
+
+Process scoping is supported only for the `deploy` phase. The `build` phase runs once per app and the `run` phase covers ad-hoc commands and cron tasks where no Procfile process type is in play; both reject `--process`.
+
+There is no `--global` flag. Omitting `--process` keeps the historical behavior of applying the option to every container in the app. Avoiding a `--global` flag here is intentional: elsewhere in Dokku `--global` means "across all apps" (e.g. `dokku config:set --global`), which would be misleading in this plugin where the scope is always one app.
+
+#### Setting process-specific options
+
+```shell
+# Add a port mapping only to the web process
+dokku docker-options:add --process web node-js-app deploy "-p 6789:5000"
+
+# Add a GPU mount only to the worker process
+dokku docker-options:add --process worker node-js-app deploy "--gpus all"
+```
+
+Multiple `--process` flags can be combined to apply the same option to several process types in one call:
+
+```shell
+dokku docker-options:add --process web --process api node-js-app deploy "-v /shared:/shared"
+```
+
+If `--process` names a process type that is not currently declared in the app's `Procfile`, the command succeeds but emits a warning. This allows configuring options ahead of a deploy that adds the new process type.
+
+The `_default_` value is reserved internally and cannot be passed to `--process`.
+
+#### Removing and clearing process-specific options
+
+```shell
+# Remove a single option from one process
+dokku docker-options:remove --process web node-js-app deploy "-p 6789:5000"
+
+# Clear every option for a process+phase
+dokku docker-options:clear --process worker node-js-app deploy
+```
+
+Without `--process`, `:remove` and `:clear` operate on the default scope only - per-process lists are left untouched.
+
+#### Listing options for a process and phase
+
+The `docker-options:list` command prints the options stored for a single process+phase pair, one option per line. Omitting `--process` lists the default scope.
+
+```shell
+dokku docker-options:list node-js-app --process web --phase deploy
+dokku docker-options:list node-js-app --phase deploy
 ```

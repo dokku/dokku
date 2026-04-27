@@ -17,6 +17,25 @@ func main() {
 
 	var err error
 	switch trigger {
+	case "install":
+		err = dockeroptions.TriggerInstall()
+	case "docker-args-build":
+		appName := flag.Arg(0)
+		imageSourceType := flag.Arg(1)
+		err = dockeroptions.TriggerDockerArgs("build", appName, imageSourceType, "")
+	case "docker-args-deploy":
+		appName := flag.Arg(0)
+		imageSourceType := flag.Arg(1)
+		err = dockeroptions.TriggerDockerArgs("deploy", appName, imageSourceType, "")
+	case "docker-args-run":
+		appName := flag.Arg(0)
+		imageSourceType := flag.Arg(1)
+		err = dockeroptions.TriggerDockerArgs("run", appName, imageSourceType, "")
+	case "docker-args-process-deploy":
+		appName := flag.Arg(0)
+		imageSourceType := flag.Arg(1)
+		processType := flag.Arg(3)
+		err = dockeroptions.TriggerDockerArgsProcessDeploy(appName, imageSourceType, processType)
 	case "post-app-clone-setup":
 		oldAppName := flag.Arg(0)
 		newAppName := flag.Arg(1)
