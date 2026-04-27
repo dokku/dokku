@@ -5,7 +5,7 @@ Dokku uses nginx as its server for routing requests to specific applications. By
 ```
 nginx:access-logs <app> [-t]             # Show the nginx access logs for an application (-t follows)
 nginx:error-logs <app> [-t]              # Show the nginx error logs for an application (-t follows)
-nginx:report [<app>] [<flag>]            # Displays a nginx report for one or more apps
+nginx:report [<app>] [<flag>|--format json] # Displays a nginx report for one or more apps
 nginx:set <app> <property> (<value>)     # Set or clear an nginx property for an app
 nginx:show-config <app>                  # Display app nginx config
 nginx:start                              # Starts the nginx server
@@ -127,6 +127,34 @@ The `--clean` flag may also be specified for a given app:
 ```shell
 dokku nginx:validate-config node-js-app --clean
 ```
+
+### Displaying nginx reports for an app
+
+You can get a report about the app's nginx configuration using the `nginx:report` command:
+
+```shell
+dokku nginx:report
+```
+
+You can run the command for a specific app also.
+
+```shell
+dokku nginx:report node-js-app
+```
+
+You can pass flags which will output only the value of the specific information you want. For example:
+
+```shell
+dokku nginx:report node-js-app --nginx-bind-address-ipv4
+```
+
+The `nginx:report` command also takes a `--format` flag, with the valid options including `stdout` (default) and `json`. The `json` output format can be used for automation purposes:
+
+```shell
+dokku nginx:report node-js-app --format json
+```
+
+The `--format` flag cannot be combined with an info flag.
 
 ### Custom Error Pages
 

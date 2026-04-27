@@ -13,7 +13,7 @@ git:load-image [--build-dir DIRECTORY] <app> <docker-image> [<git-username> <git
 git:sync [--build|--build-if-changes] [--skip-deploy-branch] <app> <repository> [<git-ref>] # Clone or fetch an app from remote git repo
 git:initialize <app>                              # Initialize a git repository for an app
 git:public-key                                    # Outputs the dokku public deploy key
-git:report [<app>] [<flag>]                       # Displays a git report for one or more apps
+git:report [<app>] [<flag>|--format json]         # Displays a git report for one or more apps
 git:set <app> <key> (<value>)                     # Set or clear a git property for an app
 git:status <app>                                  # Show the working tree status for an app
 ```
@@ -241,3 +241,42 @@ dokku git:public-key
 ```
 
 If there is no key, an error message is shown that displays the command that can be run on the Dokku server to generate a new public/private ssh key pair.
+
+### Displaying git reports for an app
+
+You can get a report about the app's git configuration using the `git:report` command:
+
+```shell
+dokku git:report
+```
+
+```
+=====> node-js-app git information
+       Git deploy branch:             master
+       Git global deploy branch:      master
+       Git keep git dir:              false
+       Git rev env var:               GIT_REV
+       Git sha:                       a1b2c3d
+       Git source image:
+       Git last updated at:           1700000000
+```
+
+You can run the command for a specific app also.
+
+```shell
+dokku git:report node-js-app
+```
+
+You can pass flags which will output only the value of the specific information you want. For example:
+
+```shell
+dokku git:report node-js-app --git-deploy-branch
+```
+
+The `git:report` command also takes a `--format` flag, with the valid options including `stdout` (default) and `json`. The `json` output format can be used for automation purposes:
+
+```shell
+dokku git:report node-js-app --format json
+```
+
+The `--format` flag cannot be combined with an info flag.

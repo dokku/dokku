@@ -278,7 +278,23 @@ cmd-git-report() {
   declare desc="displays a git report for one or more apps"
   declare cmd="git:report"
   [[ "$1" == "$cmd" ]] && shift 1
-  declare APP="$1" INFO_FLAG="$2"
+  local FORMAT="stdout"
+  local args=()
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --format)
+        FORMAT="$2"
+        shift 2
+        ;;
+      *)
+        args+=("$1")
+        shift
+        ;;
+    esac
+  done
+
+  declare APP="${args[0]:-}" INFO_FLAG="${args[1]:-}"
 
   if [[ -n "$APP" ]] && [[ "$APP" == --* ]]; then
     INFO_FLAG="$APP"
@@ -291,15 +307,15 @@ cmd-git-report() {
 
   if [[ -z "$APP" ]]; then
     for app in $(dokku_apps); do
-      cmd-git-report-single "$app" "$INFO_FLAG" | tee || true
+      cmd-git-report-single "$app" "$INFO_FLAG" "$FORMAT" | tee || true
     done
   else
-    cmd-git-report-single "$APP" "$INFO_FLAG"
+    cmd-git-report-single "$APP" "$INFO_FLAG" "$FORMAT"
   fi
 }
 
 cmd-git-report-single() {
-  declare APP="$1" INFO_FLAG="$2"
+  declare APP="$1" INFO_FLAG="$2" FORMAT="${3:-stdout}"
   local APP_ROOT="$DOKKU_ROOT/$APP"
   if [[ "$INFO_FLAG" == "true" ]]; then
     INFO_FLAG=""
@@ -314,6 +330,22 @@ cmd-git-report-single() {
     "--git-source-image: $(fn-git-source-image "$APP")"
     "--git-last-updated-at: $(fn-git-last-updated-at "$APP")"
   )
+
+  if [[ "$FORMAT" != "stdout" ]] && [[ -n "$INFO_FLAG" ]]; then
+    dokku_log_fail "--format flag cannot be specified when specifying an info flag"
+  fi
+
+  if [[ "$FORMAT" == "json" ]]; then
+    local json_output="{}"
+    for flag in "${flag_map[@]}"; do
+      local key value
+      key="$(echo "$flag" | cut -d':' -f1 | sed 's/^--git-//')"
+      value="$(echo "$flag" | cut -d':' -f2- | sed 's/^ //')"
+      json_output="$(echo "$json_output" | jq -c --arg key "$key" --arg value "$value" '. + {($key): $value}')"
+    done
+    echo "$json_output"
+    return
+  fi
 
   if [[ -z "$INFO_FLAG" ]]; then
     dokku_log_info2_quiet "${APP} git information"
