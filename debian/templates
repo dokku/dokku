@@ -22,3 +22,8 @@ Template: dokku/nginx_enable
 Description: Enable nginx-vhosts plugin?
 Type: boolean
 Default: true
+
+Template: dokku/install_default_site
+Description: Install a catch-all nginx default site on fresh install?
+Type: boolean
+Default: true

@@ -14,5 +14,6 @@ db_input "high" "dokku/hostname" || true
 db_input "high" "dokku/vhost_enable" || true
 if [ "$ACTION" != "reconfigure" ]; then
   db_input "high" "dokku/key_file" || true
+  db_input "high" "dokku/install_default_site" || true
 fi
 db_go || true
