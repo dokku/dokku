@@ -13,14 +13,14 @@ trigger-nginx-vhosts-pre-enable-vhost() {
     return
   fi
 
-  # only clear ports if they are port 80 or 443
+  # clear stored proxy ports so they can be recomputed for the enabled state
   local PROXY_PORT=$(plugn trigger ports-get-property "$APP" "proxy-port")
   local PROXY_SSL_PORT=$(plugn trigger ports-get-property "$APP" "proxy-ssl-port")
 
-  if [[ "$PROXY_PORT" == "80" ]]; then
+  if [[ -n "$PROXY_PORT" ]]; then
     fn-plugin-property-delete "proxy" "$APP" "proxy-port"
   fi
-  if [[ "$PROXY_SSL_PORT" == "443" ]]; then
+  if [[ -n "$PROXY_SSL_PORT" ]]; then
     fn-plugin-property-delete "proxy" "$APP" "proxy-ssl-port"
   fi
 
