@@ -85,8 +85,15 @@ fn-scheduler-deploy-process() {
   else
     local CONTAINER_IDX_OFFSET=$((PROC_COUNT + 1))
   fi
-  local container_state_filetype
+  local container_state_filetype orphaned_container_file orphaned_cid
   pushd "$DOKKU_ROOT/$APP" >/dev/null
+  for orphaned_container_file in $(find . -maxdepth 1 -name "CONTAINER.$PROC_TYPE.*" -printf "%f\n" | sort -t . -k 3 -n | tail -n +$CONTAINER_IDX_OFFSET); do
+    [[ -s "$orphaned_container_file" ]] || continue
+    orphaned_cid="$(<"$orphaned_container_file")"
+    [[ -z "$orphaned_cid" ]] && continue
+    dokku_log_verbose "Scheduling orphaned container shutdown in $DOKKU_WAIT_TO_RETIRE seconds (${orphaned_container_file#CONTAINER.})"
+    plugn trigger scheduler-register-retired "$APP" "$orphaned_cid" "$DOKKU_WAIT_TO_RETIRE"
+  done
   for container_state_filetype in CONTAINER IP PORT; do
     find . -maxdepth 1 -name "$container_state_filetype.$PROC_TYPE.*" -printf "%f\n" | sort -t . -k 3 -n | tail -n +$CONTAINER_IDX_OFFSET | xargs rm -f
   done
