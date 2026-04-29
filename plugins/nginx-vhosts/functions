@@ -197,6 +197,7 @@ fn-nginx-vhosts-render-template() {
   declare desc="renders an nginx.conf.sigil template via sigil to an output path"
   declare APP="$1" NGINX_TEMPLATE="$2" OUTPUT_PATH="$3"
   declare DOKKU_APP_LISTEN_PORT="$4" DOKKU_APP_LISTEN_IP="$5"
+  declare PRE_VALIDATE="${6:-false}"
   local VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
   local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
   local DOKKU_APP_LISTENERS PASSED_LISTEN_IP_PORT
@@ -361,6 +362,11 @@ fn-nginx-vhosts-render-template() {
       UPP_PROC_TYPE="${UPP_PROC_TYPE//-/_}"
       SIGIL_PARAMS+=("DOKKU_APP_${UPP_PROC_TYPE}_LISTENERS=$LISTENERS")
     done < <(plugn trigger ps-current-scale "$APP")
+  elif [[ "$PRE_VALIDATE" == "true" ]]; then
+    # During pre-validation no listeners exist yet; supply a placeholder so
+    # any upstream block in the template renders with a static server entry
+    # and nginx -t does not bail out on "host not found in upstream".
+    SIGIL_PARAMS+=(DOKKU_APP_WEB_LISTENERS="127.0.0.1:5000")
   else
     SIGIL_PARAMS+=(DOKKU_APP_WEB_LISTENERS="")
   fi
@@ -412,7 +418,7 @@ fn-nginx-vhosts-pre-validate-custom-template() {
 
   dokku_log_info1 "Pre-validating custom nginx.conf.sigil"
 
-  if ! fn-nginx-vhosts-render-template "$APP" "$PID_TEMPLATE" "$TMP_RENDERED" >/dev/null; then
+  if ! fn-nginx-vhosts-render-template "$APP" "$PID_TEMPLATE" "$TMP_RENDERED" "" "" "true" >/dev/null; then
     dokku_log_warn "Failed to render custom nginx.conf.sigil. Contents below..."
     cat "$PID_TEMPLATE"
     dokku_log_fail "Custom nginx.conf.sigil failed to render via sigil"
