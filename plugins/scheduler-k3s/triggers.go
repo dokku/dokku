@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"crypto/rand"
-	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -168,6 +167,21 @@ func TriggerPostAppRenameSetup(oldAppName string, newAppName string) error {
 
 	if err := common.PropertyDestroy("scheduler-k3s", oldAppName); err != nil {
 		return err
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	if _, err := DeleteTLSSecret(ctx, oldAppName); err != nil {
+		common.LogWarn(fmt.Sprintf("Error deleting TLS secret for old app name %s: %v", oldAppName, err))
+	}
+
+	if err := DeleteConfigSecret(ctx, oldAppName); err != nil {
+		common.LogWarn(fmt.Sprintf("Error deleting config secret for old app name %s: %v", oldAppName, err))
+	}
+
+	if err := DeleteImagePullSecret(ctx, oldAppName); err != nil {
+		common.LogWarn(fmt.Sprintf("Error deleting image pull secret for old app name %s: %v", oldAppName, err))
 	}
 
 	return nil
@@ -403,8 +417,9 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 	}
 
 	deploymentId := time.Now().Unix()
-	pullSecretBase64 := base64.StdEncoding.EncodeToString([]byte(""))
 	imagePullSecrets := getComputedImagePullSecrets(appName)
+	dokkuManagedPullSecret := false
+	var dokkuPullSecretBytes []byte
 	if imagePullSecrets == "" {
 		dockerConfigPath := filepath.Join(registry.GetComputedAppRegistryConfigDir(appName), "config.json")
 		if fi, err := os.Stat(dockerConfigPath); err == nil && !fi.IsDir() {
@@ -413,12 +428,13 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 				return fmt.Errorf("Error reading docker config: %w", err)
 			}
 
-			imagePullSecrets = fmt.Sprintf("ims-%s.%d", appName, deploymentId)
-			pullSecretBase64 = base64.StdEncoding.EncodeToString(b)
+			imagePullSecrets = GetImagePullSecretName(appName)
+			dokkuManagedPullSecret = true
+			dokkuPullSecretBytes = b
 		}
 	}
 
-	globalTemplateFiles := []string{"service-account", "secret", "image-pull-secret"}
+	globalTemplateFiles := []string{"service-account"}
 	for _, templateName := range globalTemplateFiles {
 		b, err := templates.ReadFile(fmt.Sprintf("templates/chart/%s.yaml", templateName))
 		if err != nil {
@@ -541,7 +557,6 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 			Keda:         kedaValues,
 			Image: GlobalImage{
 				ImagePullSecrets: imagePullSecrets,
-				PullSecretBase64: pullSecretBase64,
 				Name:             image,
 				Type:             imageSourceType,
 				WorkingDir:       workingDir,
@@ -553,7 +568,6 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 				PrimaryPort:        primaryPort,
 				PrimaryServicePort: primaryServicePort,
 			},
-			Secrets:         map[string]string{},
 			SecurityContext: securityContext,
 		},
 		Processes: map[string]ProcessValues{},
@@ -851,10 +865,6 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 		}
 	}
 
-	for key, value := range env.Map() {
-		values.Global.Secrets[key] = base64.StdEncoding.EncodeToString([]byte(value))
-	}
-
 	b, err := templates.ReadFile("templates/chart/_helpers.tpl")
 	if err != nil {
 		return fmt.Errorf("Error reading _helpers template: %w", err)
@@ -923,6 +933,38 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 		if err != nil {
 			return fmt.Errorf("Error deleting ingress: %w", err)
 		}
+	}
+
+	if err := CreateOrUpdateConfigSecret(ctx, CreateOrUpdateConfigSecretInput{
+		AppName:     appName,
+		Env:         env.Map(),
+		Annotations: globalAnnotations.SecretAnnotations,
+		Labels:      globalLabels.SecretLabels,
+	}); err != nil {
+		return fmt.Errorf("Error syncing config secret: %w", err)
+	}
+
+	if dokkuManagedPullSecret {
+		if err := CreateOrUpdateImagePullSecret(ctx, CreateOrUpdateImagePullSecretInput{
+			AppName:          appName,
+			DockerConfigJSON: dokkuPullSecretBytes,
+			Annotations:      globalAnnotations.SecretAnnotations,
+			Labels:           globalLabels.SecretLabels,
+		}); err != nil {
+			return fmt.Errorf("Error syncing image pull secret: %w", err)
+		}
+	} else {
+		if err := DeleteImagePullSecret(ctx, appName); err != nil {
+			return fmt.Errorf("Error removing stale image pull secret: %w", err)
+		}
+	}
+
+	keepImagePullSecrets := []string{}
+	if imagePullSecrets != "" {
+		keepImagePullSecrets = []string{imagePullSecrets}
+	}
+	if err := pruneStaleImagePullSecretsFromDeployments(ctx, clientset, namespace, appName, keepImagePullSecrets); err != nil {
+		return fmt.Errorf("Error pruning stale imagePullSecrets entries: %w", err)
 	}
 
 	kustomizeRootPath := ""
@@ -1402,7 +1444,7 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 
 	imagePullSecrets := getComputedImagePullSecrets(appName)
 	if imagePullSecrets == "" {
-		imagePullSecrets = fmt.Sprintf("ims-%s.%d", appName, deploymentID)
+		imagePullSecrets = GetImagePullSecretName(appName)
 		_, err := clientset.GetSecret(context.Background(), GetSecretInput{
 			Name:      imagePullSecrets,
 			Namespace: namespace,
@@ -1721,6 +1763,14 @@ func TriggerSchedulerPostDelete(scheduler string, appName string) error {
 	defer cancel()
 	if _, err := DeleteTLSSecret(ctx, appName); err != nil {
 		common.LogWarn(fmt.Sprintf("Error deleting TLS secret for %s: %v", appName, err))
+	}
+
+	if err := DeleteConfigSecret(ctx, appName); err != nil {
+		common.LogWarn(fmt.Sprintf("Error deleting config secret for %s: %v", appName, err))
+	}
+
+	if err := DeleteImagePullSecret(ctx, appName); err != nil {
+		common.LogWarn(fmt.Sprintf("Error deleting image pull secret for %s: %v", appName, err))
 	}
 
 	return nil

@@ -50,14 +50,12 @@ type GlobalValues struct {
 	Keda            GlobalKedaValues   `yaml:"keda"`
 	Namespace       string             `yaml:"namespace"`
 	Network         GlobalNetwork      `yaml:"network"`
-	Secrets         map[string]string  `yaml:"secrets,omitempty"`
 	SecurityContext SecurityContext    `yaml:"security_context,omitempty"`
 }
 
 type GlobalImage struct {
 	ImagePullSecrets string `yaml:"image_pull_secrets"`
 	Name             string `yaml:"name"`
-	PullSecretBase64 string `yaml:"pull_secret_base64"`
 	Type             string `yaml:"type"`
 	WorkingDir       string `yaml:"working_dir"`
 }
@@ -425,7 +423,7 @@ func templateKubernetesJob(input Job) (batchv1.Job, error) {
 	}
 
 	maps.Copy(labels, input.Labels)
-	secretName := fmt.Sprintf("env-%s.%d", input.AppName, input.DeploymentID)
+	secretName := GetConfigSecretName(input.AppName)
 
 	env := []corev1.EnvVar{}
 	for key, value := range input.Env {
