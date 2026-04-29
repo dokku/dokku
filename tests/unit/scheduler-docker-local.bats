@@ -176,6 +176,44 @@ teardown() {
   assert_output_contains "Deploys may fail when publishing ports and enabling zero downtime" 0
 }
 
+@test "(scheduler-docker-local) sends SIGTERM immediately on deploy" {
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku checks:set $TEST_APP wait-to-retire 600"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  local old_cid
+  old_cid="$(docker ps --filter label=com.dokku.app-name=$TEST_APP --filter label=com.dokku.process-type=web --format '{{.ID}}')"
+  [[ -n "$old_cid" ]]
+
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  sleep 5
+
+  run /bin/bash -c "docker inspect --format '{{.State.Status}}' $old_cid"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "exited"
+
+  run /bin/bash -c "docker ps --filter label=com.dokku.app-name=$TEST_APP --filter label=com.dokku.process-type=web --format '{{.Names}}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "$TEST_APP.web.1"
+}
+
 @test "(scheduler-docker-local) scale down retires orphaned containers" {
   run create_app
   echo "output: $output"
