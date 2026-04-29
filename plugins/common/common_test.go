@@ -115,3 +115,81 @@ func TestCommonStripInlineComments(t *testing.T) {
 	text := StripInlineComments(strings.Join([]string{testEnvLine, "# testing comment"}, " "))
 	Expect(text).To(Equal(testEnvLine))
 }
+
+func TestParseReportArgsEmpty(t *testing.T) {
+	RegisterTestingT(t)
+	args, err := ParseReportArgs("scheduler", []string{})
+	Expect(err).NotTo(HaveOccurred())
+	Expect(args.IsGlobal).To(BeFalse())
+	Expect(args.InfoFlag).To(Equal(""))
+	Expect(args.OSArgs).To(BeEmpty())
+}
+
+func TestParseReportArgsAppOnly(t *testing.T) {
+	RegisterTestingT(t)
+	args, err := ParseReportArgs("scheduler", []string{"myapp"})
+	Expect(err).NotTo(HaveOccurred())
+	Expect(args.IsGlobal).To(BeFalse())
+	Expect(args.InfoFlag).To(Equal(""))
+	Expect(args.OSArgs).To(Equal([]string{"myapp"}))
+}
+
+func TestParseReportArgsFormatJSON(t *testing.T) {
+	RegisterTestingT(t)
+	args, err := ParseReportArgs("scheduler", []string{"myapp", "--format", "json"})
+	Expect(err).NotTo(HaveOccurred())
+	Expect(args.IsGlobal).To(BeFalse())
+	Expect(args.InfoFlag).To(Equal(""))
+	Expect(args.OSArgs).To(Equal([]string{"myapp", "--format", "json"}))
+}
+
+func TestParseReportArgsGlobalAlone(t *testing.T) {
+	RegisterTestingT(t)
+	args, err := ParseReportArgs("scheduler", []string{"--global"})
+	Expect(err).NotTo(HaveOccurred())
+	Expect(args.IsGlobal).To(BeTrue())
+	Expect(args.InfoFlag).To(Equal(""))
+	Expect(args.OSArgs).To(BeEmpty())
+}
+
+func TestParseReportArgsGlobalWithFormat(t *testing.T) {
+	RegisterTestingT(t)
+	args, err := ParseReportArgs("scheduler", []string{"--global", "--format", "json"})
+	Expect(err).NotTo(HaveOccurred())
+	Expect(args.IsGlobal).To(BeTrue())
+	Expect(args.InfoFlag).To(Equal(""))
+	Expect(args.OSArgs).To(Equal([]string{"--format", "json"}))
+}
+
+func TestParseReportArgsInfoFlag(t *testing.T) {
+	RegisterTestingT(t)
+	args, err := ParseReportArgs("scheduler", []string{"myapp", "--scheduler-selected"})
+	Expect(err).NotTo(HaveOccurred())
+	Expect(args.IsGlobal).To(BeFalse())
+	Expect(args.InfoFlag).To(Equal("--scheduler-selected"))
+	Expect(args.OSArgs).To(Equal([]string{"myapp"}))
+}
+
+func TestParseReportArgsAppThenGlobal(t *testing.T) {
+	RegisterTestingT(t)
+	args, err := ParseReportArgs("scheduler", []string{"myapp", "--global"})
+	Expect(err).NotTo(HaveOccurred())
+	Expect(args.IsGlobal).To(BeTrue())
+	Expect(args.InfoFlag).To(Equal(""))
+	Expect(args.OSArgs).To(Equal([]string{"myapp"}))
+}
+
+func TestParseReportArgsGlobalWithInfoFlag(t *testing.T) {
+	RegisterTestingT(t)
+	args, err := ParseReportArgs("scheduler", []string{"--global", "--scheduler-global-selected"})
+	Expect(err).NotTo(HaveOccurred())
+	Expect(args.IsGlobal).To(BeTrue())
+	Expect(args.InfoFlag).To(Equal("--scheduler-global-selected"))
+	Expect(args.OSArgs).To(BeEmpty())
+}
+
+func TestParseReportArgsMultipleInfoFlags(t *testing.T) {
+	RegisterTestingT(t)
+	_, err := ParseReportArgs("scheduler", []string{"--scheduler-selected", "--scheduler-global-selected"})
+	Expect(err).To(HaveOccurred())
+}

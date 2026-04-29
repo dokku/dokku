@@ -9,38 +9,59 @@ import (
 
 // ReportSingleApp is an internal function that displays the scheduler-k3s report for one or more apps
 func ReportSingleApp(appName string, format string, infoFlag string) error {
-	if err := common.VerifyAppName(appName); err != nil {
-		return err
+	if appName != "--global" {
+		if err := common.VerifyAppName(appName); err != nil {
+			return err
+		}
 	}
 
-	flags := map[string]common.ReportFunc{
-		"--scheduler-k3s-computed-deploy-timeout":       reportComputedDeployTimeout,
-		"--scheduler-k3s-deploy-timeout":                reportDeployTimeout,
-		"--scheduler-k3s-global-deploy-timeout":         reportGlobalDeployTimeout,
-		"--scheduler-k3s-computed-image-pull-secrets":   reportComputedImagePullSecrets,
-		"--scheduler-k3s-image-pull-secrets":            reportImagePullSecrets,
-		"--scheduler-k3s-global-image-pull-secrets":     reportGlobalImagePullSecrets,
-		"--scheduler-k3s-global-kubeconfig-path":        reportGlobalKubeconfigPath,
-		"--scheduler-k3s-global-kube-context":           reportGlobalKubeContext,
-		"--scheduler-k3s-computed-letsencrypt-server":   reportComputedLetsencryptServer,
-		"--scheduler-k3s-letsencrypt-server":            reportLetsencryptServer,
-		"--scheduler-k3s-global-letsencrypt-server":     reportGlobalLetsencryptServer,
-		"--scheduler-k3s-global-ingress-class":          reportGlobalIngressClass,
-		"--scheduler-k3s-global-letsencrypt-email-prod": reportGlobalLetsencryptEmailProd,
-		"--scheduler-k3s-global-letsencrypt-email-stag": reportGlobalLetsencryptEmailStag,
-		"--scheduler-k3s-computed-kustomize-root-path":  reportComputedKustomizeRootPath,
-		"--scheduler-k3s-kustomize-root-path":           reportKustomizeRootPath,
-		"--scheduler-k3s-global-kustomize-root-path":    reportGlobalKustomizeRootPath,
-		"--scheduler-k3s-computed-namespace":            reportComputedNamespace,
-		"--scheduler-k3s-namespace":                     reportNamespace,
-		"--scheduler-k3s-global-namespace":              reportGlobalNamespace,
-		"--scheduler-k3s-global-network-interface":      reportGlobalNetworkInterface,
-		"--scheduler-k3s-computed-rollback-on-failure":  reportComputedRollbackOnFailure,
-		"--scheduler-k3s-rollback-on-failure":           reportRollbackOnFailure,
-		"--scheduler-k3s-global-rollback-on-failure":    reportGlobalRollbackOnFailure,
-		"--scheduler-k3s-computed-shm-size":             reportComputedShmSize,
-		"--scheduler-k3s-global-shm-size":               reportGlobalShmSize,
-		"--scheduler-k3s-shm-size":                      reportShmSize,
+	var flags map[string]common.ReportFunc
+	if appName == "--global" {
+		flags = map[string]common.ReportFunc{
+			"--scheduler-k3s-global-deploy-timeout":         reportGlobalDeployTimeout,
+			"--scheduler-k3s-global-image-pull-secrets":     reportGlobalImagePullSecrets,
+			"--scheduler-k3s-global-kubeconfig-path":        reportGlobalKubeconfigPath,
+			"--scheduler-k3s-global-kube-context":           reportGlobalKubeContext,
+			"--scheduler-k3s-global-letsencrypt-server":     reportGlobalLetsencryptServer,
+			"--scheduler-k3s-global-ingress-class":          reportGlobalIngressClass,
+			"--scheduler-k3s-global-letsencrypt-email-prod": reportGlobalLetsencryptEmailProd,
+			"--scheduler-k3s-global-letsencrypt-email-stag": reportGlobalLetsencryptEmailStag,
+			"--scheduler-k3s-global-kustomize-root-path":    reportGlobalKustomizeRootPath,
+			"--scheduler-k3s-global-namespace":              reportGlobalNamespace,
+			"--scheduler-k3s-global-network-interface":      reportGlobalNetworkInterface,
+			"--scheduler-k3s-global-rollback-on-failure":    reportGlobalRollbackOnFailure,
+			"--scheduler-k3s-global-shm-size":               reportGlobalShmSize,
+		}
+	} else {
+		flags = map[string]common.ReportFunc{
+			"--scheduler-k3s-computed-deploy-timeout":       reportComputedDeployTimeout,
+			"--scheduler-k3s-deploy-timeout":                reportDeployTimeout,
+			"--scheduler-k3s-global-deploy-timeout":         reportGlobalDeployTimeout,
+			"--scheduler-k3s-computed-image-pull-secrets":   reportComputedImagePullSecrets,
+			"--scheduler-k3s-image-pull-secrets":            reportImagePullSecrets,
+			"--scheduler-k3s-global-image-pull-secrets":     reportGlobalImagePullSecrets,
+			"--scheduler-k3s-global-kubeconfig-path":        reportGlobalKubeconfigPath,
+			"--scheduler-k3s-global-kube-context":           reportGlobalKubeContext,
+			"--scheduler-k3s-computed-letsencrypt-server":   reportComputedLetsencryptServer,
+			"--scheduler-k3s-letsencrypt-server":            reportLetsencryptServer,
+			"--scheduler-k3s-global-letsencrypt-server":     reportGlobalLetsencryptServer,
+			"--scheduler-k3s-global-ingress-class":          reportGlobalIngressClass,
+			"--scheduler-k3s-global-letsencrypt-email-prod": reportGlobalLetsencryptEmailProd,
+			"--scheduler-k3s-global-letsencrypt-email-stag": reportGlobalLetsencryptEmailStag,
+			"--scheduler-k3s-computed-kustomize-root-path":  reportComputedKustomizeRootPath,
+			"--scheduler-k3s-kustomize-root-path":           reportKustomizeRootPath,
+			"--scheduler-k3s-global-kustomize-root-path":    reportGlobalKustomizeRootPath,
+			"--scheduler-k3s-computed-namespace":            reportComputedNamespace,
+			"--scheduler-k3s-namespace":                     reportNamespace,
+			"--scheduler-k3s-global-namespace":              reportGlobalNamespace,
+			"--scheduler-k3s-global-network-interface":      reportGlobalNetworkInterface,
+			"--scheduler-k3s-computed-rollback-on-failure":  reportComputedRollbackOnFailure,
+			"--scheduler-k3s-rollback-on-failure":           reportRollbackOnFailure,
+			"--scheduler-k3s-global-rollback-on-failure":    reportGlobalRollbackOnFailure,
+			"--scheduler-k3s-computed-shm-size":             reportComputedShmSize,
+			"--scheduler-k3s-global-shm-size":               reportGlobalShmSize,
+			"--scheduler-k3s-shm-size":                      reportShmSize,
+		}
 	}
 
 	chartProperties, err := common.PropertyGetAllByPrefix("scheduler-k3s", "--global", "chart.")

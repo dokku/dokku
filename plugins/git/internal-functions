@@ -316,25 +316,14 @@ cmd-git-report() {
   declare desc="displays a git report for one or more apps"
   declare cmd="git:report"
   [[ "$1" == "$cmd" ]] && shift 1
-  local FORMAT="stdout"
-  local args=()
+  fn-report-parse-args "$@"
+  set -- "${REPORT_ARGS[@]}"
 
-  while [[ $# -gt 0 ]]; do
-    case "$1" in
-      --format)
-        FORMAT="$2"
-        shift 2
-        ;;
-      *)
-        args+=("$1")
-        shift
-        ;;
-    esac
-  done
+  declare APP="${1:-}" INFO_FLAG="${2:-}"
 
-  declare APP="${args[0]:-}" INFO_FLAG="${args[1]:-}"
-
-  if [[ -n "$APP" ]] && [[ "$APP" == --* ]]; then
+  if [[ "$REPORT_IS_GLOBAL" == "true" ]]; then
+    APP="--global"
+  elif [[ -n "$APP" ]] && [[ "$APP" == --* ]]; then
     INFO_FLAG="$APP"
     APP=""
   fi
@@ -343,12 +332,14 @@ cmd-git-report() {
     INFO_FLAG="true"
   fi
 
-  if [[ -z "$APP" ]]; then
+  if [[ "$APP" == "--global" ]]; then
+    cmd-git-report-single "$APP" "$INFO_FLAG" "$REPORT_FORMAT"
+  elif [[ -z "$APP" ]]; then
     for app in $(dokku_apps); do
-      cmd-git-report-single "$app" "$INFO_FLAG" "$FORMAT" | tee || true
+      cmd-git-report-single "$app" "$INFO_FLAG" "$REPORT_FORMAT" | tee || true
     done
   else
-    cmd-git-report-single "$APP" "$INFO_FLAG" "$FORMAT"
+    cmd-git-report-single "$APP" "$INFO_FLAG" "$REPORT_FORMAT"
   fi
 }
 
@@ -358,35 +349,37 @@ cmd-git-report-single() {
   if [[ "$INFO_FLAG" == "true" ]]; then
     INFO_FLAG=""
   fi
-  verify_app_name "$APP"
-  local flag_map=(
-    "--git-deploy-branch: $(fn-plugin-property-get "git" "$APP" "deploy-branch" "master")"
-    "--git-global-deploy-branch: $(fn-plugin-property-get "git" "--global" "deploy-branch" "master")"
-    "--git-keep-git-dir: $(fn-plugin-property-get "git" "$APP" "keep-git-dir" "false")"
-    "--git-rev-env-var: $(fn-plugin-property-get "git" "$APP" "rev-env-var" "GIT_REV")"
-    "--git-sha: $(fn-git-cmd "$APP_ROOT" rev-parse HEAD 2>/dev/null || false)"
-    "--git-source-image: $(fn-git-source-image "$APP")"
-    "--git-last-updated-at: $(fn-git-last-updated-at "$APP")"
-  )
-
-  if [[ "$FORMAT" != "stdout" ]] && [[ -n "$INFO_FLAG" ]]; then
-    dokku_log_fail "--format flag cannot be specified when specifying an info flag"
+  local flag_map=()
+  if [[ "$APP" == "--global" ]]; then
+    flag_map=(
+      "--git-global-deploy-branch: $(fn-plugin-property-get "git" "--global" "deploy-branch" "master")"
+    )
+  else
+    verify_app_name "$APP"
+    flag_map=(
+      "--git-deploy-branch: $(fn-plugin-property-get "git" "$APP" "deploy-branch" "master")"
+      "--git-global-deploy-branch: $(fn-plugin-property-get "git" "--global" "deploy-branch" "master")"
+      "--git-keep-git-dir: $(fn-plugin-property-get "git" "$APP" "keep-git-dir" "false")"
+      "--git-rev-env-var: $(fn-plugin-property-get "git" "$APP" "rev-env-var" "GIT_REV")"
+      "--git-sha: $(fn-git-cmd "$APP_ROOT" rev-parse HEAD 2>/dev/null || false)"
+      "--git-source-image: $(fn-git-source-image "$APP")"
+      "--git-last-updated-at: $(fn-git-last-updated-at "$APP")"
+    )
   fi
 
+  fn-report-validate-format "$FORMAT" "$INFO_FLAG"
+
   if [[ "$FORMAT" == "json" ]]; then
-    local json_output="{}"
-    for flag in "${flag_map[@]}"; do
-      local key value
-      key="$(echo "$flag" | cut -d':' -f1 | sed 's/^--git-//')"
-      value="$(echo "$flag" | cut -d':' -f2- | sed 's/^ //')"
-      json_output="$(echo "$json_output" | jq -c --arg key "$key" --arg value "$value" '. + {($key): $value}')"
-    done
-    echo "$json_output"
+    fn-report-emit-json flag_map "git"
     return
   fi
 
   if [[ -z "$INFO_FLAG" ]]; then
-    dokku_log_info2_quiet "${APP} git information"
+    if [[ "$APP" == "--global" ]]; then
+      dokku_log_info2_quiet "global git information"
+    else
+      dokku_log_info2_quiet "${APP} git information"
+    fi
     for flag in "${flag_map[@]}"; do
       key="$(echo "${flag#--}" | cut -f1 -d' ' | tr - ' ')"
       dokku_log_verbose "$(printf "%-30s %-25s" "${key^}" "${flag#*: }")"

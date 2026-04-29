@@ -62,6 +62,25 @@ teardown() {
   assert_output_contains "--format flag cannot be specified when specifying an info flag"
 }
 
+@test "(nginx:report) --global --format json" {
+  run /bin/bash -c "dokku nginx:report --global --format json | jq -e ."
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:report --global --format json | jq -r 'keys[]' | grep -v 'global-' | wc -l"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "0"
+
+  run /bin/bash -c "dokku nginx:report --global"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "global nginx information"
+}
+
 @test "(nginx-vhosts) proxy:build-config (domains:disable/enable)" {
   run deploy_app
   echo "output: $output"

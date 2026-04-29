@@ -31,11 +31,14 @@ func main() {
 	case "report":
 		args := flag.NewFlagSet("cron:report", flag.ExitOnError)
 		format := args.String("format", "stdout", "format: [ stdout | json ]")
-		osArgs, infoFlag, flagErr := common.ParseReportArgs("cron", os.Args[2:])
+		reportArgs, flagErr := common.ParseReportArgs("cron", os.Args[2:])
 		if flagErr == nil {
-			args.Parse(osArgs)
+			args.Parse(reportArgs.OSArgs)
 			appName := args.Arg(0)
-			err = cron.CommandReport(appName, *format, infoFlag)
+			if reportArgs.IsGlobal {
+				appName = "--global"
+			}
+			err = cron.CommandReport(appName, *format, reportArgs.InfoFlag)
 		}
 	case "resume":
 		args := flag.NewFlagSet("cron:resume", flag.ExitOnError)

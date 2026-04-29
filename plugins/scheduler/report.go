@@ -6,14 +6,23 @@ import (
 
 // ReportSingleApp is an internal function that displays the scheduler report for one or more apps
 func ReportSingleApp(appName string, format string, infoFlag string) error {
-	if err := common.VerifyAppName(appName); err != nil {
-		return err
+	if appName != "--global" {
+		if err := common.VerifyAppName(appName); err != nil {
+			return err
+		}
 	}
 
-	flags := map[string]common.ReportFunc{
-		"--scheduler-computed-selected": reportComputedSelected,
-		"--scheduler-global-selected":   reportGlobalSelected,
-		"--scheduler-selected":          reportSelected,
+	var flags map[string]common.ReportFunc
+	if appName == "--global" {
+		flags = map[string]common.ReportFunc{
+			"--scheduler-global-selected": reportGlobalSelected,
+		}
+	} else {
+		flags = map[string]common.ReportFunc{
+			"--scheduler-computed-selected": reportComputedSelected,
+			"--scheduler-global-selected":   reportGlobalSelected,
+			"--scheduler-selected":          reportSelected,
+		}
 	}
 
 	flagKeys := []string{}

@@ -10,25 +10,14 @@ cmd-nginx-report() {
   declare desc="displays a nginx report for one or more apps"
   declare cmd="nginx:report"
   [[ "$1" == "$cmd" ]] && shift 1
-  local FORMAT="stdout"
-  local args=()
+  fn-report-parse-args "$@"
+  set -- "${REPORT_ARGS[@]}"
 
-  while [[ $# -gt 0 ]]; do
-    case "$1" in
-      --format)
-        FORMAT="$2"
-        shift 2
-        ;;
-      *)
-        args+=("$1")
-        shift
-        ;;
-    esac
-  done
+  declare APP="${1:-}" INFO_FLAG="${2:-}"
 
-  declare APP="${args[0]:-}" INFO_FLAG="${args[1]:-}"
-
-  if [[ -n "$APP" ]] && [[ "$APP" == --* ]]; then
+  if [[ "$REPORT_IS_GLOBAL" == "true" ]]; then
+    APP="--global"
+  elif [[ -n "$APP" ]] && [[ "$APP" == --* ]]; then
     INFO_FLAG="$APP"
     APP=""
   fi
@@ -37,12 +26,14 @@ cmd-nginx-report() {
     INFO_FLAG="true"
   fi
 
-  if [[ -z "$APP" ]]; then
+  if [[ "$APP" == "--global" ]]; then
+    cmd-nginx-report-single "$APP" "$INFO_FLAG" "$REPORT_FORMAT"
+  elif [[ -z "$APP" ]]; then
     for app in $(dokku_apps); do
-      cmd-nginx-report-single "$app" "$INFO_FLAG" "$FORMAT" | tee || true
+      cmd-nginx-report-single "$app" "$INFO_FLAG" "$REPORT_FORMAT" | tee || true
     done
   else
-    cmd-nginx-report-single "$APP" "$INFO_FLAG" "$FORMAT"
+    cmd-nginx-report-single "$APP" "$INFO_FLAG" "$REPORT_FORMAT"
   fi
 }
 
@@ -51,7 +42,9 @@ cmd-nginx-report-single() {
   if [[ "$INFO_FLAG" == "true" ]]; then
     INFO_FLAG=""
   fi
-  verify_app_name "$APP"
+  if [[ "$APP" != "--global" ]]; then
+    verify_app_name "$APP"
+  fi
   local flag_map=(
     "--nginx-access-log-format: $(fn-nginx-access-log-format "$APP")"
     "--nginx-computed-access-log-format: $(fn-nginx-computed-access-log-format "$APP")"
@@ -146,24 +139,23 @@ cmd-nginx-report-single() {
     "--nginx-global-x-forwarded-ssl: $(fn-nginx-global-x-forwarded-ssl "$APP")"
   )
 
-  if [[ "$FORMAT" != "stdout" ]] && [[ -n "$INFO_FLAG" ]]; then
-    dokku_log_fail "--format flag cannot be specified when specifying an info flag"
+  if [[ "$APP" == "--global" ]]; then
+    fn-report-filter-global flag_map
   fi
 
+  fn-report-validate-format "$FORMAT" "$INFO_FLAG"
+
   if [[ "$FORMAT" == "json" ]]; then
-    local json_output="{}"
-    for flag in "${flag_map[@]}"; do
-      local key value
-      key="$(echo "$flag" | cut -d':' -f1 | sed 's/^--nginx-//')"
-      value="$(echo "$flag" | cut -d':' -f2- | sed 's/^ //')"
-      json_output="$(echo "$json_output" | jq -c --arg key "$key" --arg value "$value" '. + {($key): $value}')"
-    done
-    echo "$json_output"
+    fn-report-emit-json flag_map "nginx"
     return
   fi
 
   if [[ -z "$INFO_FLAG" ]]; then
-    dokku_log_info2_quiet "${APP} nginx information"
+    if [[ "$APP" == "--global" ]]; then
+      dokku_log_info2_quiet "global nginx information"
+    else
+      dokku_log_info2_quiet "${APP} nginx information"
+    fi
     for flag in "${flag_map[@]}"; do
       key="$(echo "${flag#--}" | cut -f1 -d' ' | tr - ' ')"
       dokku_log_verbose "$(printf "%-30s %-25s" "${key^}" "${flag#*: }")"

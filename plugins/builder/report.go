@@ -6,18 +6,28 @@ import (
 
 // ReportSingleApp is an internal function that displays the builder report for one or more apps
 func ReportSingleApp(appName string, format string, infoFlag string) error {
-	if err := common.VerifyAppName(appName); err != nil {
-		return err
+	if appName != "--global" {
+		if err := common.VerifyAppName(appName); err != nil {
+			return err
+		}
 	}
 
-	flags := map[string]common.ReportFunc{
-		"--builder-computed-selected":  reportComputedSelected,
-		"--builder-global-selected":    reportGlobalSelected,
-		"--builder-selected":           reportSelected,
-		"--builder-detected":           reportDetected,
-		"--builder-computed-build-dir": reportComputedBuildDir,
-		"--builder-global-build-dir":   reportGlobalBuildDir,
-		"--builder-build-dir":          reportBuildDir,
+	var flags map[string]common.ReportFunc
+	if appName == "--global" {
+		flags = map[string]common.ReportFunc{
+			"--builder-global-selected":  reportGlobalSelected,
+			"--builder-global-build-dir": reportGlobalBuildDir,
+		}
+	} else {
+		flags = map[string]common.ReportFunc{
+			"--builder-computed-selected":  reportComputedSelected,
+			"--builder-global-selected":    reportGlobalSelected,
+			"--builder-selected":           reportSelected,
+			"--builder-detected":           reportDetected,
+			"--builder-computed-build-dir": reportComputedBuildDir,
+			"--builder-global-build-dir":   reportGlobalBuildDir,
+			"--builder-build-dir":          reportBuildDir,
+		}
 	}
 
 	flagKeys := []string{}

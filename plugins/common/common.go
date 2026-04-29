@@ -713,10 +713,18 @@ func GetenvWithDefault(key string, defaultValue string) (val string) {
 	return
 }
 
+// ReportArgs holds the parsed inputs to a :report subcommand
+type ReportArgs struct {
+	OSArgs   []string
+	InfoFlag string
+	IsGlobal bool
+}
+
 // ParseReportArgs splits out flags from non-flags for input into report commands
-func ParseReportArgs(pluginName string, arguments []string) ([]string, string, error) {
+func ParseReportArgs(pluginName string, arguments []string) (ReportArgs, error) {
 	osArgs := []string{}
 	infoFlags := []string{}
+	isGlobal := false
 	skipNext := false
 	for i, argument := range arguments {
 		if skipNext {
@@ -728,6 +736,10 @@ func ParseReportArgs(pluginName string, arguments []string) ([]string, string, e
 			skipNext = true
 			continue
 		}
+		if argument == "--global" {
+			isGlobal = true
+			continue
+		}
 		if strings.HasPrefix(argument, "--") {
 			infoFlags = append(infoFlags, argument)
 		} else {
@@ -736,12 +748,12 @@ func ParseReportArgs(pluginName string, arguments []string) ([]string, string, e
 	}
 
 	if len(infoFlags) == 0 {
-		return osArgs, "", nil
+		return ReportArgs{OSArgs: osArgs, IsGlobal: isGlobal}, nil
 	}
 	if len(infoFlags) == 1 {
-		return osArgs, infoFlags[0], nil
+		return ReportArgs{OSArgs: osArgs, InfoFlag: infoFlags[0], IsGlobal: isGlobal}, nil
 	}
-	return osArgs, "", fmt.Errorf("%s:report command allows only a single flag", pluginName)
+	return ReportArgs{OSArgs: osArgs, IsGlobal: isGlobal}, fmt.Errorf("%s:report command allows only a single flag", pluginName)
 }
 
 // ParseScaleOutput allows golang plugins to properly parse the output of ps-current-scale

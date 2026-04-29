@@ -33,9 +33,13 @@ cmd-haproxy-report() {
   declare desc="displays a haproxy report for one or more apps"
   declare cmd="haproxy:report"
   [[ "$1" == "$cmd" ]] && shift 1
-  declare APP="$1" INFO_FLAG="$2"
+  fn-report-parse-args "$@"
+  set -- "${REPORT_ARGS[@]}"
+  declare APP="${1:-}" INFO_FLAG="${2:-}"
 
-  if [[ -n "$APP" ]] && [[ "$APP" == --* ]]; then
+  if [[ "$REPORT_IS_GLOBAL" == "true" ]]; then
+    APP="--global"
+  elif [[ -n "$APP" ]] && [[ "$APP" == --* ]]; then
     INFO_FLAG="$APP"
     APP=""
   fi
@@ -44,21 +48,25 @@ cmd-haproxy-report() {
     INFO_FLAG="true"
   fi
 
-  if [[ -z "$APP" ]]; then
+  if [[ "$APP" == "--global" ]]; then
+    cmd-haproxy-report-single "$APP" "$INFO_FLAG" "$REPORT_FORMAT"
+  elif [[ -z "$APP" ]]; then
     for app in $(dokku_apps); do
-      cmd-haproxy-report-single "$app" "$INFO_FLAG" | tee || true
+      cmd-haproxy-report-single "$app" "$INFO_FLAG" "$REPORT_FORMAT" | tee || true
     done
   else
-    cmd-haproxy-report-single "$APP" "$INFO_FLAG"
+    cmd-haproxy-report-single "$APP" "$INFO_FLAG" "$REPORT_FORMAT"
   fi
 }
 
 cmd-haproxy-report-single() {
-  declare APP="$1" INFO_FLAG="$2"
+  declare APP="$1" INFO_FLAG="$2" FORMAT="${3:-stdout}"
   if [[ "$INFO_FLAG" == "true" ]]; then
     INFO_FLAG=""
   fi
-  verify_app_name "$APP"
+  if [[ "$APP" != "--global" ]]; then
+    verify_app_name "$APP"
+  fi
   local flag_map=(
     "--haproxy-image: $(fn-haproxy-image)"
     "--haproxy-letsencrypt-email: $(fn-haproxy-letsencrypt-email)"
@@ -66,8 +74,19 @@ cmd-haproxy-report-single() {
     "--haproxy-log-level: $(fn-haproxy-log-level)"
   )
 
+  fn-report-validate-format "$FORMAT" "$INFO_FLAG"
+
+  if [[ "$FORMAT" == "json" ]]; then
+    fn-report-emit-json flag_map "haproxy"
+    return
+  fi
+
   if [[ -z "$INFO_FLAG" ]]; then
-    dokku_log_info2_quiet "${APP} haproxy information"
+    if [[ "$APP" == "--global" ]]; then
+      dokku_log_info2_quiet "global haproxy information"
+    else
+      dokku_log_info2_quiet "${APP} haproxy information"
+    fi
     for flag in "${flag_map[@]}"; do
       key="$(echo "${flag#--}" | cut -f1 -d' ' | tr - ' ')"
       dokku_log_verbose "$(printf "%-30s %-25s" "${key^}" "${flag#*: }")"

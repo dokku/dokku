@@ -41,6 +41,20 @@ teardown() {
   assert_output "$help_output"
 }
 
+@test "(certs:report) --global --format json" {
+  run /bin/bash -c "dokku certs:report --global --format json | jq -e ."
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "{}"
+
+  run /bin/bash -c "dokku certs:report --global"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "global ssl information"
+}
+
 @test "(certs) certs:add" {
   run /bin/bash -c "dokku certs:add $TEST_APP $BATS_TMPDIR/tls/server.crt $BATS_TMPDIR/tls/server.key"
   echo "output: $output"
