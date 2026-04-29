@@ -838,7 +838,7 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_contains "global git information"
-  assert_output_contains "Global deploy branch"
+  assert_output_contains "Git global deploy branch"
 }
 
 @test "(git:report) --global --format json" {
