@@ -116,7 +116,7 @@ var HelmCharts = []HelmChart{
 		Namespace:       "ingress-nginx",
 		ReleaseName:     "ingress-nginx",
 		RepoURL:         "https://kubernetes.github.io/ingress-nginx",
-		Version:         "4.10.0",
+		Version:         "4.15.1",
 	},
 	{
 		ChartPath:       "keda",
@@ -124,7 +124,7 @@ var HelmCharts = []HelmChart{
 		Namespace:       "keda",
 		ReleaseName:     "keda",
 		RepoURL:         "https://kedacore.github.io/charts",
-		Version:         "2.16.0",
+		Version:         "2.19.0",
 	},
 	{
 		ChartPath:       "keda-add-ons-http",
@@ -132,7 +132,7 @@ var HelmCharts = []HelmChart{
 		Namespace:       "keda",
 		ReleaseName:     "keda-add-ons-http",
 		RepoURL:         "https://kedacore.github.io/charts",
-		Version:         "0.8.0",
+		Version:         "0.12.2",
 	},
 	{
 		ChartPath:       "vector",
@@ -140,7 +140,7 @@ var HelmCharts = []HelmChart{
 		Namespace:       "vector",
 		ReleaseName:     "vector",
 		RepoURL:         "https://helm.vector.dev",
-		Version:         "0.42.0",
+		Version:         "0.52.0",
 	},
 }
 

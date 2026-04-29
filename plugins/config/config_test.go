@@ -2,6 +2,7 @@ package config
 
 import (
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -13,8 +14,10 @@ import (
 var (
 	testAppName      = "test-app-1"
 	dokkuRoot        = common.MustGetEnv("DOKKU_ROOT")
-	testAppDir       = strings.Join([]string{dokkuRoot, testAppName}, "/")
-	globalConfigFile = strings.Join([]string{dokkuRoot, "ENV"}, "/")
+	dokkuLibRoot     = common.MustGetEnv("DOKKU_LIB_ROOT")
+	testAppRoot      = filepath.Join(dokkuRoot, testAppName)
+	testAppDir       = filepath.Join(dokkuLibRoot, "config", testAppName)
+	globalConfigFile = filepath.Join(dokkuLibRoot, "config", "--global", "ENV")
 )
 
 func setupTests() (err error) {
@@ -26,12 +29,14 @@ func setupTests() (err error) {
 }
 
 func setupTestApp() (err error) {
+	Expect(os.MkdirAll(testAppRoot, 0766)).To(Succeed())
 	Expect(os.MkdirAll(testAppDir, 0766)).To(Succeed())
 	b := []byte("export testKey=TESTING\n")
 	if err = os.WriteFile(strings.Join([]string{testAppDir, "/ENV"}, ""), b, 0644); err != nil {
 		return
 	}
 
+	Expect(os.MkdirAll(filepath.Dir(globalConfigFile), 0766)).To(Succeed())
 	b = []byte("export testKey=GLOBAL_TESTING\nexport globalKey=GLOBAL_VALUE")
 	if err = os.WriteFile(globalConfigFile, b, 0644); err != nil {
 		return
@@ -40,6 +45,7 @@ func setupTestApp() (err error) {
 }
 
 func teardownTestApp() {
+	os.RemoveAll(testAppRoot)
 	os.RemoveAll(testAppDir)
 }
 

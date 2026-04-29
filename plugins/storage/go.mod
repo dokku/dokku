@@ -1,11 +1,11 @@
 module github.com/dokku/dokku/plugins/storage
 
-go 1.25.5
+go 1.26.2
 
 require (
 	github.com/dokku/dokku/plugins/common v0.0.0-00010101000000-000000000000
 	github.com/dokku/dokku/plugins/docker-options v0.0.0-00010101000000-000000000000
-	github.com/onsi/gomega v1.39.1
+	github.com/onsi/gomega v1.40.0
 	github.com/spf13/pflag v1.0.10
 )
 
@@ -30,6 +30,7 @@ require (
 	golang.org/x/sync v0.20.0 // indirect
 	golang.org/x/sys v0.43.0 // indirect
 	golang.org/x/text v0.36.0 // indirect
+	mvdan.cc/sh/v3 v3.13.1 // indirect
 )
 
 replace github.com/dokku/dokku/plugins/common => ../common

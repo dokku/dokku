@@ -541,8 +541,127 @@ func PropertySetup(pluginName string) error {
 }
 
 func PropertySetupApp(pluginName string, appName string) error {
+	if err := PropertySetup(pluginName); err != nil {
+		return err
+	}
+
 	if err := makePluginAppPropertyPath(pluginName, appName); err != nil {
 		return fmt.Errorf("Unable to create %s config directory for %s: %s", pluginName, appName, err.Error())
+	}
+
+	return nil
+}
+
+// MigrateConfigEntry describes a single config-to-property migration
+type MigrateConfigEntry struct {
+	// ConfigVar is the per-app environment variable name (e.g. "DOKKU_APP_PROXY_TYPE")
+	ConfigVar string
+
+	// GlobalConfigVar is the global environment variable name (e.g. "DOKKU_PROXY_TYPE"), empty if none
+	GlobalConfigVar string
+
+	// Property is the target property name (e.g. "type")
+	Property string
+
+	// Transform is an optional value transformation function applied before writing
+	Transform func(value string) string
+
+	// ListProperty indicates the value should be written as a list property via PropertyListWrite
+	ListProperty bool
+}
+
+// MigrateConfigToProperties migrates config variables to properties for a given plugin
+// across all apps and optionally globally. It is idempotent: if the property already
+// exists, the migration is skipped for that app/entry.
+func MigrateConfigToProperties(pluginName string, entries []MigrateConfigEntry) error {
+	apps, err := UnfilteredDokkuApps()
+	if err != nil && !errors.Is(err, NoAppsExist) {
+		return nil
+	}
+
+	for _, entry := range entries {
+		if entry.GlobalConfigVar != "" {
+			if err := migrateConfigEntry(pluginName, "--global", entry.GlobalConfigVar, entry); err != nil {
+				return err
+			}
+		}
+
+		for _, appName := range apps {
+			if entry.ConfigVar == "" {
+				continue
+			}
+
+			if err := migrateConfigEntry(pluginName, appName, entry.ConfigVar, entry); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+// migrateConfigEntry migrates a single config variable to a property for a given app
+func migrateConfigEntry(pluginName string, appName string, configVar string, entry MigrateConfigEntry) error {
+	if entry.ListProperty {
+		if exists, _ := PropertyListLength(pluginName, appName, entry.Property); exists > 0 {
+			return nil
+		}
+	} else if PropertyExists(pluginName, appName, entry.Property) {
+		return nil
+	}
+
+	triggerName := "config-get"
+	triggerArgs := []string{appName, configVar}
+	if appName == "--global" {
+		triggerName = "config-get-global"
+		triggerArgs = []string{configVar}
+	}
+
+	results, _ := CallPlugnTrigger(PlugnTriggerInput{
+		Trigger: triggerName,
+		Args:    triggerArgs,
+	})
+	value := results.StdoutContents()
+	if value == "" {
+		return nil
+	}
+
+	if entry.Transform != nil {
+		value = entry.Transform(value)
+	}
+
+	if appName == "--global" {
+		LogInfo1(fmt.Sprintf("Migrating deprecated global %s to %s %s property. Use 'dokku %s:set --global %s <value>' to manage this going forward.", configVar, pluginName, entry.Property, pluginName, entry.Property))
+	} else {
+		LogInfo1(fmt.Sprintf("Migrating deprecated %s to %s %s property for %s. Use 'dokku %s:set %s %s <value>' to manage this going forward.", configVar, pluginName, entry.Property, appName, pluginName, appName, entry.Property))
+	}
+
+	if entry.ListProperty {
+		values := strings.Split(value, " ")
+		if err := PropertyListWrite(pluginName, appName, entry.Property, values); err != nil {
+			return err
+		}
+	} else {
+		if err := PropertyWrite(pluginName, appName, entry.Property, value); err != nil {
+			return err
+		}
+	}
+
+	unsetTrigger := "config-unset"
+	unsetArgs := []string{appName, configVar}
+	if appName == "--global" {
+		unsetArgs = []string{"--global", configVar}
+	}
+
+	_, err := CallPlugnTrigger(PlugnTriggerInput{
+		Trigger: unsetTrigger,
+		Args:    unsetArgs,
+		Env: map[string]string{
+			"DOKKU_QUIET_OUTPUT": "1",
+		},
+	})
+	if err != nil {
+		LogWarn(err.Error())
 	}
 
 	return nil

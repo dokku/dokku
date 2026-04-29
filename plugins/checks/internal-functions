@@ -9,9 +9,13 @@ cmd-checks-report() {
   declare desc="shows reports for an app"
   declare cmd="checks:report"
   [[ "$1" == "$cmd" ]] && shift 1
-  declare APP="$1" INFO_FLAG="$2"
+  fn-report-parse-args "$@"
+  set -- "${REPORT_ARGS[@]}"
+  declare APP="${1:-}" INFO_FLAG="${2:-}"
 
-  if [[ -n "$APP" ]] && [[ "$APP" == --* ]]; then
+  if [[ "$REPORT_IS_GLOBAL" == "true" ]]; then
+    APP="--global"
+  elif [[ -n "$APP" ]] && [[ "$APP" == --* ]]; then
     INFO_FLAG="$APP"
     APP=""
   fi
@@ -20,31 +24,51 @@ cmd-checks-report() {
     INFO_FLAG="true"
   fi
 
-  if [[ -z "$APP" ]]; then
+  if [[ "$APP" == "--global" ]]; then
+    cmd-checks-report-single "$APP" "$INFO_FLAG" "$REPORT_FORMAT"
+  elif [[ -z "$APP" ]]; then
     for app in $(dokku_apps); do
-      cmd-checks-report-single "$app" "$INFO_FLAG" | tee || true
+      cmd-checks-report-single "$app" "$INFO_FLAG" "$REPORT_FORMAT" | tee || true
     done
   else
-    cmd-checks-report-single "$APP" "$INFO_FLAG"
+    cmd-checks-report-single "$APP" "$INFO_FLAG" "$REPORT_FORMAT"
   fi
 }
 
 cmd-checks-report-single() {
-  declare APP="$1" INFO_FLAG="$2"
+  declare APP="$1" INFO_FLAG="$2" FORMAT="${3:-stdout}"
   if [[ "$INFO_FLAG" == "true" ]]; then
     INFO_FLAG=""
   fi
-  verify_app_name "$APP"
-  local flag_map=(
-    "--checks-disabled-list: $(fn-checks-disabled-list "$APP")"
-    "--checks-skipped-list: $(fn-checks-skipped-list "$APP")"
-    "--checks-computed-wait-to-retire: $(fn-checks-computed-wait-to-retire "$APP")"
-    "--checks-global-wait-to-retire: $(fn-checks-global-wait-to-retire "$APP")"
-    "--checks-wait-to-retire: $(fn-checks-wait-to-retire "$APP")"
-  )
+  local flag_map=()
+  if [[ "$APP" == "--global" ]]; then
+    flag_map=(
+      "--checks-global-wait-to-retire: $(fn-checks-global-wait-to-retire "$APP")"
+    )
+  else
+    verify_app_name "$APP"
+    flag_map=(
+      "--checks-disabled-list: $(fn-checks-disabled-list "$APP")"
+      "--checks-skipped-list: $(fn-checks-skipped-list "$APP")"
+      "--checks-computed-wait-to-retire: $(fn-checks-computed-wait-to-retire "$APP")"
+      "--checks-global-wait-to-retire: $(fn-checks-global-wait-to-retire "$APP")"
+      "--checks-wait-to-retire: $(fn-checks-wait-to-retire "$APP")"
+    )
+  fi
+
+  fn-report-validate-format "$FORMAT" "$INFO_FLAG"
+
+  if [[ "$FORMAT" == "json" ]]; then
+    fn-report-emit-json flag_map "checks"
+    return
+  fi
 
   if [[ -z "$INFO_FLAG" ]]; then
-    dokku_log_info2_quiet "$APP checks information"
+    if [[ "$APP" == "--global" ]]; then
+      dokku_log_info2_quiet "global checks information"
+    else
+      dokku_log_info2_quiet "$APP checks information"
+    fi
     for flag in "${flag_map[@]}"; do
       key="$(echo "${flag#--}" | cut -f1 -d' ' | tr - ' ')"
       dokku_log_verbose "$(printf "%-30s %-25s" "${key^}" "${flag#*: }")"
@@ -72,7 +96,7 @@ cmd-checks-report-single() {
 fn-checks-disabled-list() {
   declare APP="$1"
 
-  local DOKKU_CHECKS_DISABLED=$(config_get "$APP" DOKKU_CHECKS_DISABLED)
+  local DOKKU_CHECKS_DISABLED=$(fn-plugin-property-get-default "checks" "$APP" "disabled" "")
   DOKKU_CHECKS_DISABLED="${DOKKU_CHECKS_DISABLED:-none}"
   echo "$DOKKU_CHECKS_DISABLED"
 }
@@ -80,7 +104,7 @@ fn-checks-disabled-list() {
 fn-checks-skipped-list() {
   declare APP="$1"
 
-  local DOKKU_CHECKS_SKIPPED=$(config_get "$APP" DOKKU_CHECKS_SKIPPED)
+  local DOKKU_CHECKS_SKIPPED=$(fn-plugin-property-get-default "checks" "$APP" "skipped" "")
   DOKKU_CHECKS_SKIPPED="${DOKKU_CHECKS_SKIPPED:-none}"
   echo "$DOKKU_CHECKS_SKIPPED"
 }

@@ -2,6 +2,7 @@
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 source "$PLUGIN_AVAILABLE_PATH/scheduler-docker-local/internal-functions"
 
@@ -72,6 +73,7 @@ trigger-scheduler-docker-local-scheduler-run() {
   local DYNO_NUMBER="$RANDOM"
   local IMAGE_SOURCE_TYPE="dockerfile"
   is_image_herokuish_based "$IMAGE" "$APP" && IMAGE_SOURCE_TYPE="herokuish"
+  is_image_cnb_based "$IMAGE" && IMAGE_SOURCE_TYPE="pack"
   DOCKER_ARGS+=$(: | plugn trigger docker-args-process-run "$APP" "$IMAGE_SOURCE_TYPE" "$IMAGE_TAG")
   DOCKER_ARGS+=" -e DYNO=$PROCESS_TYPE.$DYNO_NUMBER --name $APP.$PROCESS_TYPE.$DYNO_NUMBER"
 
@@ -95,8 +97,8 @@ trigger-scheduler-docker-local-scheduler-run() {
     done
   fi
 
-  [[ "$IMAGE_SOURCE_TYPE" == "herokuish" ]] && local EXEC_CMD="/exec"
-  is_image_cnb_based "$IMAGE" && EXEC_CMD=""
+  local EXEC_CMD=""
+  [[ "$IMAGE_SOURCE_TYPE" == "herokuish" ]] && EXEC_CMD="/exec"
 
   if [[ "$1" == "--" ]]; then
     shift
@@ -137,8 +139,8 @@ trigger-scheduler-docker-local-scheduler-run() {
   RUN_COMMAND=("$@")
   if [[ "${#RUN_COMMAND[@]}" -eq 0 ]]; then
     if [[ -z "$DOKKU_SHELL" ]]; then
-      local DOKKU_APP_SHELL=$(config_get "$APP" DOKKU_APP_SHELL || true)
-      local DOKKU_GLOBAL_SHELL=$(config_get --global DOKKU_APP_SHELL || true)
+      local DOKKU_APP_SHELL=$(fn-plugin-property-get-default "scheduler" "$APP" "shell" "")
+      local DOKKU_GLOBAL_SHELL=$(fn-plugin-property-get-default "scheduler" "--global" "shell" "")
       local DOKKU_SHELL=${DOKKU_APP_SHELL:="$DOKKU_GLOBAL_SHELL"}
     fi
 

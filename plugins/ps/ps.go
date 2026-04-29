@@ -13,14 +13,19 @@ const RunInSerial = 0
 var (
 	// DefaultProperties is a map of all valid ps properties with corresponding default property values
 	DefaultProperties = map[string]string{
-		"restart-policy":       "on-failure:10",
+		"dockerfile-start-cmd": "",
 		"procfile-path":        "",
+		"restart-policy":       "on-failure:10",
+		"restore":              "true",
+		"skip-deploy":          "",
+		"start-cmd":            "",
 		"stop-timeout-seconds": "30",
 	}
 
 	// GlobalProperties is a map of all valid global ps properties
 	GlobalProperties = map[string]bool{
 		"procfile-path":        true,
+		"skip-deploy":          true,
 		"stop-timeout-seconds": true,
 	}
 )
@@ -165,13 +170,9 @@ func Restore(appName string) error {
 		return nil
 	}
 
-	results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
-		Trigger: "config-get",
-		Args:    []string{appName, "DOKKU_APP_RESTORE"},
-	})
-	restore := results.StdoutContents()
-	if restore == "0" {
-		common.LogWarn(fmt.Sprintf("Skipping ps:restore for %s as DOKKU_APP_RESTORE=%s", appName, restore))
+	restore := common.PropertyGetDefault("ps", appName, "restore", "true")
+	if restore == "false" {
+		common.LogWarn(fmt.Sprintf("Skipping ps:restore for %s as restore property is false", appName))
 		return nil
 	}
 

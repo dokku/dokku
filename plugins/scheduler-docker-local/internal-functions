@@ -9,9 +9,13 @@ cmd-scheduler-docker-local-report() {
   declare desc="displays a scheduler-docker-local report for one or more apps"
   declare cmd="scheduler-docker-local:report"
   [[ "$1" == "$cmd" ]] && shift 1
-  declare APP="$1" INFO_FLAG="$2"
+  fn-report-parse-args "$@"
+  set -- "${REPORT_ARGS[@]}"
+  declare APP="${1:-}" INFO_FLAG="${2:-}"
 
-  if [[ -n "$APP" ]] && [[ "$APP" == --* ]]; then
+  if [[ "$REPORT_IS_GLOBAL" == "true" ]]; then
+    APP="--global"
+  elif [[ -n "$APP" ]] && [[ "$APP" == --* ]]; then
     INFO_FLAG="$APP"
     APP=""
   fi
@@ -20,28 +24,43 @@ cmd-scheduler-docker-local-report() {
     INFO_FLAG="true"
   fi
 
-  if [[ -z "$APP" ]]; then
+  if [[ "$APP" == "--global" ]]; then
+    cmd-scheduler-docker-local-report-single "$APP" "$INFO_FLAG" "$REPORT_FORMAT"
+  elif [[ -z "$APP" ]]; then
     for app in $(dokku_apps); do
-      cmd-scheduler-docker-local-report-single "$app" "$INFO_FLAG" | tee || true
+      cmd-scheduler-docker-local-report-single "$app" "$INFO_FLAG" "$REPORT_FORMAT" | tee || true
     done
   else
-    cmd-scheduler-docker-local-report-single "$APP" "$INFO_FLAG"
+    cmd-scheduler-docker-local-report-single "$APP" "$INFO_FLAG" "$REPORT_FORMAT"
   fi
 }
 
 cmd-scheduler-docker-local-report-single() {
-  declare APP="$1" INFO_FLAG="$2"
+  declare APP="$1" INFO_FLAG="$2" FORMAT="${3:-stdout}"
   if [[ "$INFO_FLAG" == "true" ]]; then
     INFO_FLAG=""
   fi
-  verify_app_name "$APP"
+  if [[ "$APP" != "--global" ]]; then
+    verify_app_name "$APP"
+  fi
   local flag_map=(
     "--scheduler-docker-local-init-process: $(fn-plugin-property-get "scheduler-docker-local" "$APP" "init-process" "true")"
     "--scheduler-docker-local-parallel-schedule-count: $(fn-plugin-property-get "scheduler-docker-local" "$APP" "parallel-schedule-count" "")"
   )
 
+  fn-report-validate-format "$FORMAT" "$INFO_FLAG"
+
+  if [[ "$FORMAT" == "json" ]]; then
+    fn-report-emit-json flag_map "scheduler-docker-local"
+    return
+  fi
+
   if [[ -z "$INFO_FLAG" ]]; then
-    dokku_log_info2_quiet "${APP} scheduler-docker-local information"
+    if [[ "$APP" == "--global" ]]; then
+      dokku_log_info2_quiet "global scheduler-docker-local information"
+    else
+      dokku_log_info2_quiet "${APP} scheduler-docker-local information"
+    fi
     for flag in "${flag_map[@]}"; do
       key="$(echo "${flag#--}" | cut -f1 -d' ' | tr - ' ')"
       dokku_log_verbose "$(printf "%-30s %-25s" "${key^}" "${flag#*: }")"
@@ -243,6 +262,11 @@ fn-scheduler-docker-local-retire-images() {
     fi
 
     if echo "$RM_OUTPUT" | grep -q "image is being used by running container"; then
+      if fn-scheduler-docker-local-image-in-use-by-app "$RETIRE_APP" "$IMAGE_ID" ""; then
+        dokku_log_warn "Image ${IMAGE_ID} is still in use by ${RETIRE_APP}, removing from retire list"
+        DEAD_IMAGES+=("$IMAGE_ID")
+        continue
+      fi
       dokku_log_warn "Image ${IMAGE_ID} has running containers, skipping rm"
       continue
     fi
@@ -271,6 +295,39 @@ fn-scheduler-docker-local-register-retired() {
   if ! grep -q "$DOCKER_ID" "$DEAD_FILE"; then
     echo "${APP} ${DOCKER_ID} ${DEAD_TIME}" >>"${DEAD_FILE}"
   fi
+}
+
+fn-scheduler-docker-local-image-in-use-by-app() {
+  declare desc="returns 0 if IMAGE_ID is used by an app container that is not already pending retirement"
+  declare APP="$1" IMAGE_ID="$2" EXCLUDE_CONTAINER_ID="$3"
+  local DEAD_CONTAINER_FILE="${DOKKU_LIB_ROOT}/data/scheduler-docker-local/dead-containers"
+  local cid exclude_full_id container_image short_cid
+
+  if [[ -z "$IMAGE_ID" ]]; then
+    return 1
+  fi
+
+  if [[ -n "$EXCLUDE_CONTAINER_ID" ]]; then
+    exclude_full_id="$("$DOCKER_BIN" container inspect "$EXCLUDE_CONTAINER_ID" --format '{{.Id}}' 2>/dev/null || true)"
+  fi
+
+  for cid in $("$DOCKER_BIN" container ls -q --no-trunc -f label=com.dokku.app-name="$APP" 2>/dev/null); do
+    [[ -z "$cid" ]] && continue
+    if [[ -n "$exclude_full_id" ]] && [[ "$cid" == "$exclude_full_id" ]]; then
+      continue
+    fi
+
+    short_cid="${cid:0:12}"
+    if [[ -f "$DEAD_CONTAINER_FILE" ]] && grep -q "$short_cid" "$DEAD_CONTAINER_FILE"; then
+      continue
+    fi
+
+    container_image="$("$DOCKER_BIN" container inspect "$cid" --format '{{.Image}}' 2>/dev/null | cut -d: -f2 || true)"
+    if [[ -n "$container_image" ]] && [[ "$container_image" == "$IMAGE_ID" ]]; then
+      return 0
+    fi
+  done
+  return 1
 }
 
 fn-scheduler-docker-local-start-app-container() {

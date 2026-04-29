@@ -12,6 +12,31 @@ teardown() {
   destroy_app
 }
 
+@test "(builder-dockerfile:report) --global --format json" {
+  run /bin/bash -c "dokku builder-dockerfile:report --global --format json | jq -e ."
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku builder-dockerfile:report --global --format json | jq -r '.\"global-dockerfile-path\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "Dockerfile"
+
+  run /bin/bash -c "dokku builder-dockerfile:report --global --format json | jq -r 'has(\"dockerfile-path\")'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku builder-dockerfile:report --global"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "global builder-dockerfile information"
+}
+
 @test "(builder-dockerfile:set)" {
   run deploy_app dockerfile
   echo "output: $output"

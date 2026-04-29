@@ -76,6 +76,8 @@ cmd-git-auth() {
   declare HOST="$1" USERNAME="$2" PASSWORD="$3"
   [[ -z "$HOST" ]] && dokku_log_fail "Please supply a git host"
 
+  PASSWORD="$(fn-git-auth-read-password "$USERNAME" "$PASSWORD")"
+
   if [[ -n "$USERNAME" ]] && [[ -z "$PASSWORD" ]]; then
     dokku_log_fail "Missing password for netrc auth entry"
   fi
@@ -89,6 +91,42 @@ cmd-git-auth() {
   dokku_log_info1 "Setting netrc auth entry for host $HOST"
   touch "${DOKKU_ROOT}/.netrc"
   netrc set "$HOST" "$USERNAME" "$PASSWORD"
+}
+
+cmd-git-auth-status() {
+  declare desc="reports whether netrc authentication matches the requested state"
+  local cmd="git:auth-status"
+  [[ "$1" == "$cmd" ]] && shift 1
+  declare HOST="$1" USERNAME="$2" PASSWORD="$3"
+  [[ -z "$HOST" ]] && dokku_log_fail "Please supply a git host"
+
+  PASSWORD="$(fn-git-auth-read-password "$USERNAME" "$PASSWORD")"
+
+  if [[ -n "$USERNAME" ]] && [[ -z "$PASSWORD" ]]; then
+    dokku_log_fail "Missing password for netrc auth entry"
+  fi
+
+  local current
+  current="$(netrc get "$HOST" 2>/dev/null)" || current=""
+
+  if [[ -z "$USERNAME" ]]; then
+    [[ -z "$current" ]] && return 0
+    return 1
+  fi
+
+  [[ "$current" == "${USERNAME}:${PASSWORD}" ]] && return 0
+  return 1
+}
+
+fn-git-auth-read-password() {
+  declare desc="reads a netrc password from stdin when not provided as an argument"
+  declare USERNAME="$1" PASSWORD="$2"
+
+  if [[ -n "$USERNAME" ]] && [[ -z "$PASSWORD" ]] && [[ -p /dev/stdin ]]; then
+    IFS= read -r PASSWORD || true
+  fi
+
+  echo -n "$PASSWORD"
 }
 
 cmd-git-load-image() {
@@ -278,9 +316,14 @@ cmd-git-report() {
   declare desc="displays a git report for one or more apps"
   declare cmd="git:report"
   [[ "$1" == "$cmd" ]] && shift 1
-  declare APP="$1" INFO_FLAG="$2"
+  fn-report-parse-args "$@"
+  set -- "${REPORT_ARGS[@]}"
 
-  if [[ -n "$APP" ]] && [[ "$APP" == --* ]]; then
+  declare APP="${1:-}" INFO_FLAG="${2:-}"
+
+  if [[ "$REPORT_IS_GLOBAL" == "true" ]]; then
+    APP="--global"
+  elif [[ -n "$APP" ]] && [[ "$APP" == --* ]]; then
     INFO_FLAG="$APP"
     APP=""
   fi
@@ -289,34 +332,54 @@ cmd-git-report() {
     INFO_FLAG="true"
   fi
 
-  if [[ -z "$APP" ]]; then
+  if [[ "$APP" == "--global" ]]; then
+    cmd-git-report-single "$APP" "$INFO_FLAG" "$REPORT_FORMAT"
+  elif [[ -z "$APP" ]]; then
     for app in $(dokku_apps); do
-      cmd-git-report-single "$app" "$INFO_FLAG" | tee || true
+      cmd-git-report-single "$app" "$INFO_FLAG" "$REPORT_FORMAT" | tee || true
     done
   else
-    cmd-git-report-single "$APP" "$INFO_FLAG"
+    cmd-git-report-single "$APP" "$INFO_FLAG" "$REPORT_FORMAT"
   fi
 }
 
 cmd-git-report-single() {
-  declare APP="$1" INFO_FLAG="$2"
+  declare APP="$1" INFO_FLAG="$2" FORMAT="${3:-stdout}"
   local APP_ROOT="$DOKKU_ROOT/$APP"
   if [[ "$INFO_FLAG" == "true" ]]; then
     INFO_FLAG=""
   fi
-  verify_app_name "$APP"
-  local flag_map=(
-    "--git-deploy-branch: $(fn-plugin-property-get "git" "$APP" "deploy-branch" "master")"
-    "--git-global-deploy-branch: $(fn-plugin-property-get "git" "--global" "deploy-branch" "master")"
-    "--git-keep-git-dir: $(fn-plugin-property-get "git" "$APP" "keep-git-dir" "false")"
-    "--git-rev-env-var: $(fn-plugin-property-get "git" "$APP" "rev-env-var" "GIT_REV")"
-    "--git-sha: $(fn-git-cmd "$APP_ROOT" rev-parse HEAD 2>/dev/null || false)"
-    "--git-source-image: $(fn-git-source-image "$APP")"
-    "--git-last-updated-at: $(fn-git-last-updated-at "$APP")"
-  )
+  local flag_map=()
+  if [[ "$APP" == "--global" ]]; then
+    flag_map=(
+      "--git-global-deploy-branch: $(fn-plugin-property-get "git" "--global" "deploy-branch" "master")"
+    )
+  else
+    verify_app_name "$APP"
+    flag_map=(
+      "--git-deploy-branch: $(fn-plugin-property-get "git" "$APP" "deploy-branch" "master")"
+      "--git-global-deploy-branch: $(fn-plugin-property-get "git" "--global" "deploy-branch" "master")"
+      "--git-keep-git-dir: $(fn-plugin-property-get "git" "$APP" "keep-git-dir" "false")"
+      "--git-rev-env-var: $(fn-plugin-property-get "git" "$APP" "rev-env-var" "GIT_REV")"
+      "--git-sha: $(fn-git-cmd "$APP_ROOT" rev-parse HEAD 2>/dev/null || false)"
+      "--git-source-image: $(fn-git-source-image "$APP")"
+      "--git-last-updated-at: $(fn-git-last-updated-at "$APP")"
+    )
+  fi
+
+  fn-report-validate-format "$FORMAT" "$INFO_FLAG"
+
+  if [[ "$FORMAT" == "json" ]]; then
+    fn-report-emit-json flag_map "git"
+    return
+  fi
 
   if [[ -z "$INFO_FLAG" ]]; then
-    dokku_log_info2_quiet "${APP} git information"
+    if [[ "$APP" == "--global" ]]; then
+      dokku_log_info2_quiet "global git information"
+    else
+      dokku_log_info2_quiet "${APP} git information"
+    fi
     for flag in "${flag_map[@]}"; do
       key="$(echo "${flag#--}" | cut -f1 -d' ' | tr - ' ')"
       dokku_log_verbose "$(printf "%-30s %-25s" "${key^}" "${flag#*: }")"

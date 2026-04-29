@@ -28,6 +28,7 @@ Additional commands:`
     apps:locked <app>, Checks if an app is locked for deployment
     apps:rename <old-app> <new-app>, Rename an app
     apps:report [<app>] [<flag>], Display report about an app
+    apps:set <app>|--global <key> <value>, Set or clear an apps property
     apps:unlock <app>, Unlocks an app for deployment`
 )
 

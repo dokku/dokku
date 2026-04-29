@@ -28,7 +28,9 @@ You may both create user-defined checks for web processes using the `healthcheck
 
 ### wait-to-retire
 
-After a successful deploy, the grace period given to old containers before they are stopped/terminated is determined by the value of `wait-to-retire`. This is useful for ensuring completion of long-running HTTP connections.
+After a successful deploy, Dokku immediately sends `SIGTERM` to old containers so the application can begin a graceful shutdown (draining in-flight connections, flushing buffers, and so on) the moment proxy traffic switches to the new containers. The old containers are then left running for the `wait-to-retire` grace period before being stopped, which sends `SIGTERM` again and ultimately `SIGKILL` after `stop-timeout-seconds`. This mirrors Heroku's [dyno shutdown behavior](https://devcenter.heroku.com/articles/dyno-shutdown-behavior).
+
+The `wait-to-retire` value controls the grace period and is useful for ensuring completion of long-running HTTP connections.
 
 ```shell
 dokku checks:set node-js-app wait-to-retire 30
@@ -40,17 +42,17 @@ Defaults to `60`.
 
 You can set the `stop-timeout-seconds` property on the `ps` plugin to change this value (default: `30`). See the [process management documentation](/docs/processes/process-management.md#changing-process-management-settings) for more information.
 
-## Configuring check settings using the `config` plugin
+## Configuring check settings
 
-There are certain settings that can be configured via environment variables:
+There are certain settings that can be configured via the `checks` plugin properties:
 
-- `DOKKU_DEFAULT_CHECKS_WAIT`: (default: `10`) If no user-defined checks are specified - or if the process being checked is not a `web` process - this is the period of time Dokku will wait before checking that a container is still running.
+- `default-wait`: (default: `10`) If no user-defined checks are specified - or if the process being checked is not a `web` process - this is the period of time Dokku will wait before checking that a container is still running. Set globally via `dokku checks:set --global default-wait <value>`.
 
-The following settings may also be specified in the `app.json` file, though are available as environment variables in order to ease application reuse.
+The following settings may also be specified in the `app.json` file, though are available as properties in order to ease application reuse.
 
-- `DOKKU_CHECKS_WAIT`: (default: `5`) Wait this many seconds for the container to start before running checks.
-- `DOKKU_CHECKS_TIMEOUT`: (default: `30`) Wait this many seconds for each response before marking it as a failure.
-- `DOKKU_CHECKS_ATTEMPTS`: (default: `5`) Number of retries for to run for a specific check before marking it as a failure
+- `wait`: (default: `5`) Wait this many seconds for the container to start before running checks. Set via `dokku checks:set <app> wait <value>`.
+- `timeout`: (default: `30`) Wait this many seconds for each response before marking it as a failure. Set via `dokku checks:set <app> timeout <value>`.
+- `attempts`: (default: `5`) Number of retries for to run for a specific check before marking it as a failure. Set via `dokku checks:set <app> attempts <value>`.
 
 ## Skipping and Disabling Checks
 

@@ -21,12 +21,17 @@ trigger-scheduler-docker-local-scheduler-register-retired() {
   if [[ -n "$IMAGE_ID" ]] && [[ -z "$DOKKU_SKIP_IMAGE_CLEANUP_REGISTRATION" ]]; then
     ALT_IMAGE_TAGS="$("$DOCKER_BIN" image inspect --format '{{ index .Config.Labels "com.dokku.docker-image-labeler/alternate-tags" }}' "$IMAGE_ID" 2>/dev/null || true)"
 
-    fn-scheduler-docker-local-register-retired "image" "$APP" "$IMAGE_ID" "$WAIT"
+    if ! fn-scheduler-docker-local-image-in-use-by-app "$APP" "$IMAGE_ID" "$CONTAINER_ID"; then
+      fn-scheduler-docker-local-register-retired "image" "$APP" "$IMAGE_ID" "$WAIT"
+    fi
     if [[ -n "$ALT_IMAGE_TAGS" ]]; then
       ALT_IMAGE_TAG="$(echo "$ALT_IMAGE_TAGS" | jq -r ".[]")"
       if [[ "$(plugn trigger git-get-property "$APP" "source-image")" != "$ALT_IMAGE_TAG" ]]; then
         ALT_IMAGE_ID="$("$DOCKER_BIN" image inspect --format '{{ .Id }}' "$ALT_IMAGE_TAG" 2>/dev/null || true)"
-        fn-scheduler-docker-local-register-retired "image" "$APP" "$(echo "$ALT_IMAGE_ID" | cut -d ':' -f2)" "$WAIT"
+        ALT_IMAGE_ID="$(echo "$ALT_IMAGE_ID" | cut -d ':' -f2)"
+        if [[ -n "$ALT_IMAGE_ID" ]] && ! fn-scheduler-docker-local-image-in-use-by-app "$APP" "$ALT_IMAGE_ID" "$CONTAINER_ID"; then
+          fn-scheduler-docker-local-register-retired "image" "$APP" "$ALT_IMAGE_ID" "$WAIT"
+        fi
       fi
     fi
   fi

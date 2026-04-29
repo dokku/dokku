@@ -444,7 +444,7 @@ To enable autoscaling, use the `app.json` `formation.$PROCESS_TYPE.autoscaling` 
 - `cooldown_seconds`: (default: 300) The number of seconds to wait in between each scaling event
 - `triggers`: A list of autoscaling triggers.
 
-Autoscaling triggers are passed as is to Keda, and should match the configuration keda uses for a given [scaler](https://keda.sh/docs/2.13/scalers/). Below is an example for [datadog](https://keda.sh/docs/2.13/scalers/datadog/#example-2---driving-scale-directly):
+Autoscaling triggers are passed as is to Keda, and should match the configuration keda uses for a given [scaler](https://keda.sh/docs/2.19/scalers/). Below is an example for [datadog](https://keda.sh/docs/2.19/scalers/datadog/#example-2---driving-scale-directly):
 
 ```json
 {
@@ -475,6 +475,8 @@ Each value in the `metadata` stanza can use the following interpolated strings:
 - `DOKKU_DEPLOYMENT_NAME`: The name of the deployment being scaled
 - `DOKKU_PROCESS_TYPE`: The name of the process being scaled
 - `DOKKU_APP_NAME`: The name of the app being scaled
+
+Dokku configures a Keda `fallback` (with a failure threshold of `3` and the configured replica count) on the generated `ScaledObject` so that scaling falls back to the configured replica count when a scaler's metric source becomes unavailable. Keda only allows `fallback` when at least one trigger is something other than `cpu` or `memory`, so Dokku omits the `fallback` block when every configured trigger is a `cpu` or `memory` scaler.
 
 ##### HTTP Autoscaling
 
@@ -683,6 +685,14 @@ Alternatively, a comma separated list of chart names can be specified to only fo
 dokku scheduler-k3s:ensure-charts --charts cert-manager
 ```
 
+### Chart upgrade callbacks
+
+Some chart version transitions require side-effects that a plain `helm upgrade` cannot perform. For example, the upgrade of `keda-add-ons-http` to `0.12.2` introduces breaking changes to deployment selectors, which are immutable in Kubernetes; the chart-managed deployments must be deleted before the upgrade can proceed.
+
+Dokku handles these cases internally by registering version-targeted pre-upgrade and post-upgrade callbacks against affected charts. When `scheduler-k3s:ensure-charts` runs, the installed chart version is compared against the registered callbacks: any whose target version is greater than the currently installed version and at most the configured chart version are executed in ascending semver order, each bracketed around an upgrade to that intermediate version. A final upgrade to the configured chart version then completes the run.
+
+These callbacks are not user-configurable. Failures during a callback or its surrounding upgrade abort the run, and a subsequent `scheduler-k3s:ensure-charts` resumes from the current state.
+
 ## Scheduler Interface
 
 The following sections describe implemented and unimplemented scheduler functionality for the `k3s` scheduler.
@@ -742,6 +752,7 @@ Next, run the `scheduler-k3s:ensure-charts` command with the `vector` chart to f
 ```shell
 dokku scheduler-k3s:ensure-charts --charts vector
 ```
+
 Please see the [vector logs documentation](/docs/deployment/logs.md#configuring-a-log-sink) for more information on specifying vector sinks.
 
 ### Supported Resource Management Properties

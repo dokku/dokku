@@ -2,6 +2,7 @@
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 source "$PLUGIN_AVAILABLE_PATH/checks/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 source "$PLUGIN_AVAILABLE_PATH/scheduler-docker-local/internal-functions"
@@ -35,7 +36,7 @@ trigger-scheduler-docker-local-scheduler-deploy() {
   DOKKU_DOCKER_STOP_TIMEOUT="$(plugn trigger ps-get-property "$APP" stop-timeout-seconds)"
   [[ $DOKKU_DOCKER_STOP_TIMEOUT ]] && DOCKER_STOP_TIME_ARG="-t=${DOKKU_DOCKER_STOP_TIMEOUT}"
 
-  DOKKU_START_CMD="$(config_get "$APP" DOKKU_START_CMD || true)"
+  DOKKU_START_CMD="$(fn-plugin-property-get-default "ps" "$APP" "start-cmd" "")"
 
   local PROCFILE_EXISTS=false
   if plugn trigger procfile-exists "$APP" 2>/dev/null; then
@@ -83,6 +84,19 @@ trigger-scheduler-docker-local-scheduler-deploy() {
 
   # kill the old container
   if [[ -n "$oldids" ]]; then
+    # Send SIGTERM to old containers immediately so the application can begin
+    # graceful shutdown the moment proxy traffic switches to the new containers.
+    # We use `container kill --signal=SIGTERM` rather than `container stop`
+    # because it returns immediately and docker does not follow up with a
+    # SIGKILL on its own when the signal is something other than SIGKILL -
+    # the existing background block below remains responsible for the
+    # eventual hard stop after the wait-to-retire grace period.
+    for oldid in $oldids; do
+      if "$DOCKER_BIN" container inspect "$oldid" &>/dev/null; then
+        "$DOCKER_BIN" container kill --signal=SIGTERM "$oldid" &>/dev/null || true
+      fi
+    done
+
     # Let the old container finish processing requests, before terminating it
     dokku_log_info1 "Shutting down old containers in $DOKKU_WAIT_TO_RETIRE seconds"
     (

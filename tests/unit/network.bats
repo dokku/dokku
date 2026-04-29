@@ -31,6 +31,41 @@ teardown() {
   assert_output "$help_output"
 }
 
+@test "(network:report) --global --format json" {
+  run /bin/bash -c "dokku network:set --global tld dokku.test"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku network:report --global --format json | jq -e ."
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku network:report --global --format json | jq -r '.\"network-global-tld\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "dokku.test"
+
+  run /bin/bash -c "dokku network:report --global --format json | jq -r 'has(\"network-tld\")'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku network:report --global"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "--global"
+
+  run /bin/bash -c "dokku network:set --global tld"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
 @test "(network) network:set bind-all-interfaces" {
   run deploy_app
   echo "output: $output"
@@ -327,7 +362,7 @@ teardown() {
 }
 
 @test "(network) handle single-udp app" {
-  run /bin/bash -c "dokku docker-options:add $TEST_APP -p 1194:1194"
+  run /bin/bash -c "dokku docker-options:add $TEST_APP deploy -p 1194:1194"
   echo "output: $output"
   echo "status: $status"
   assert_success

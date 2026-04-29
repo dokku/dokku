@@ -141,6 +141,28 @@ trigger-builder-dockerfile-builder-build() {
         DOCKERFILE_ARGS+=("--label" "${1#--label=}")
         shift 1
         ;;
+      --memory | -m)
+        DOCKERFILE_ARGS+=("--memory")
+        DOCKERFILE_ARGS+=("$2")
+        shift 2
+        ;;
+      --memory=* | -m=*)
+        if [[ "$1" == "--memory=*" ]]; then
+          DOCKERFILE_ARGS+=("--memory" "${1#--memory=}")
+        elif [[ "$1" == "-m=*" ]]; then
+          DOCKERFILE_ARGS+=("--memory" "${1#-m=}")
+        fi
+        shift 1
+        ;;
+      --memory-swap)
+        DOCKERFILE_ARGS+=("--memory-swap")
+        DOCKERFILE_ARGS+=("$2")
+        shift 2
+        ;;
+      --memory-swap=*)
+        DOCKERFILE_ARGS+=("--memory-swap" "${1#--memory-swap=}")
+        shift 1
+        ;;
       --network)
         DOCKERFILE_ARGS+=("--network")
         DOCKERFILE_ARGS+=("$2")
@@ -205,12 +227,21 @@ trigger-builder-dockerfile-builder-build() {
         shift 1
         ;;
       --ssh)
-        DOCKERFILE_ARGS+=("--platform")
+        DOCKERFILE_ARGS+=("--ssh")
         DOCKERFILE_ARGS+=("$2")
         shift 2
         ;;
       --ssh=*)
         DOCKERFILE_ARGS+=("--ssh" "${1#--ssh=}")
+        shift 1
+        ;;
+      --tag)
+        DOCKERFILE_ARGS+=("--tag")
+        DOCKERFILE_ARGS+=("$2")
+        shift 2
+        ;;
+      --tag=*)
+        DOCKERFILE_ARGS+=("--tag" "${1#--tag=}")
         shift 1
         ;;
       --target)
@@ -223,12 +254,12 @@ trigger-builder-dockerfile-builder-build() {
         shift 1
         ;;
       --ulimit)
-        DOCKERFILE_ARGS+=("--tag")
+        DOCKERFILE_ARGS+=("--ulimit")
         DOCKERFILE_ARGS+=("$2")
         shift 2
         ;;
-      --tag=*)
-        DOCKERFILE_ARGS+=("--tag" "${1#--tag=}")
+      --ulimit=*)
+        DOCKERFILE_ARGS+=("--ulimit" "${1#--ulimit=}")
         shift 1
         ;;
       --check | -D | --debug | --no-cache)

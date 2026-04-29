@@ -632,8 +632,8 @@ release_and_deploy() {
 
   if verify_image "$IMAGE"; then
     IMAGE_SOURCE_TYPE="$(get_image_builder_type "$IMAGE" "$APP")"
-    local DOKKU_APP_SKIP_DEPLOY="$(config_get "$APP" DOKKU_SKIP_DEPLOY || true)"
-    local DOKKU_GLOBAL_SKIP_DEPLOY="$(config_get --global DOKKU_SKIP_DEPLOY || true)"
+    local DOKKU_APP_SKIP_DEPLOY="$(fn-plugin-property-get-default "ps" "$APP" "skip-deploy" "")"
+    local DOKKU_GLOBAL_SKIP_DEPLOY="$(fn-plugin-property-get-default "ps" "--global" "skip-deploy" "")"
 
     local DOKKU_SKIP_DEPLOY=${DOKKU_APP_SKIP_DEPLOY:="$DOKKU_GLOBAL_SKIP_DEPLOY"}
 
@@ -917,7 +917,7 @@ suppress_output() {
 }
 
 fn-migrate-config-to-property() {
-  declare desc="migrates deprecated config variables to property counterpart"
+  declare desc="[deprecated] migrates deprecated config variables to property counterpart. Use 'prop migrate-config-to-property' instead."
   declare PLUGIN="$1" KEY="$2" CONFIG_VAR="$3" GLOBAL_CONFIG_VAR="$4"
 
   # todo: refactor to remove config_unset usage
@@ -956,5 +956,64 @@ fn-registry-docker-config-dir() {
 
   if [[ -f "$config_file" ]] && [[ "$(jq -r '.auths | length' "$config_file" 2>/dev/null)" != "0" ]]; then
     echo "$config_dir"
+  fi
+}
+
+fn-report-parse-args() {
+  declare desc="strips --format and --global flags from a report invocation, populating REPORT_FORMAT, REPORT_IS_GLOBAL, REPORT_ARGS"
+  REPORT_FORMAT="stdout"
+  REPORT_IS_GLOBAL="false"
+  REPORT_ARGS=()
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --format)
+        REPORT_FORMAT="$2"
+        shift 2
+        ;;
+      --global)
+        REPORT_IS_GLOBAL="true"
+        shift
+        ;;
+      *)
+        REPORT_ARGS+=("$1")
+        shift
+        ;;
+    esac
+  done
+}
+
+fn-report-emit-json() {
+  declare desc="serializes a flag_map array (passed by name) as a JSON object, stripping the --<prefix>- prefix from each key"
+  declare flag_map_name="$1" prefix="$2"
+  local -n flag_map_ref="$flag_map_name"
+  local json_output="{}"
+  for flag in "${flag_map_ref[@]}"; do
+    local key value
+    key="$(echo "$flag" | cut -d':' -f1 | sed "s/^--${prefix}-//")"
+    value="$(echo "$flag" | cut -d':' -f2- | sed 's/^ //')"
+    json_output="$(echo "$json_output" | jq -c --arg key "$key" --arg value "$value" '. + {($key): $value}')"
+  done
+  echo "$json_output"
+}
+
+fn-report-filter-global() {
+  declare desc="filters a flag_map array (passed by name) in place, keeping only entries with -global- in their flag name"
+  declare flag_map_name="$1"
+  local -n flag_map_ref="$flag_map_name"
+  local filtered=()
+  for flag in "${flag_map_ref[@]}"; do
+    local key="$(echo "$flag" | cut -d':' -f1)"
+    if [[ "$key" == *"-global-"* ]]; then
+      filtered+=("$flag")
+    fi
+  done
+  flag_map_ref=("${filtered[@]}")
+}
+
+fn-report-validate-format() {
+  declare desc="rejects --format json when an info flag is also specified"
+  declare FORMAT="$1" INFO_FLAG="$2"
+  if [[ "$FORMAT" != "stdout" ]] && [[ -n "$INFO_FLAG" ]]; then
+    dokku_log_fail "--format flag cannot be specified when specifying an info flag"
   fi
 }

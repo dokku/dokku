@@ -49,11 +49,14 @@ func main() {
 	case "report":
 		args := flag.NewFlagSet("ports:report", flag.ExitOnError)
 		format := args.String("format", "stdout", "format: [ stdout | json ]")
-		osArgs, infoFlag, flagErr := common.ParseReportArgs("ports", os.Args[2:])
+		reportArgs, flagErr := common.ParseReportArgs("ports", os.Args[2:])
 		if flagErr == nil {
-			args.Parse(osArgs)
+			args.Parse(reportArgs.OSArgs)
 			appName := args.Arg(0)
-			err = ports.CommandReport(appName, *format, infoFlag)
+			if reportArgs.IsGlobal {
+				appName = "--global"
+			}
+			err = ports.CommandReport(appName, *format, reportArgs.InfoFlag)
 		}
 	default:
 		err = fmt.Errorf("Invalid plugin subcommand call: %s", subcommand)

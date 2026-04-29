@@ -2,7 +2,11 @@ package config
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"strconv"
+
+	"github.com/dokku/dokku/plugins/common"
 )
 
 // TriggerConfigExport returns a global config value by key
@@ -45,9 +49,138 @@ func TriggerConfigGetGlobal(key string) error {
 	return nil
 }
 
+// TriggerConfigSet sets config values for an app
+func TriggerConfigSet(appName string, noRestart bool, pairs ...string) error {
+	return SubSet(appName, pairs, noRestart, false)
+}
+
 // TriggerConfigUnset unsets an app config value by key
 func TriggerConfigUnset(appName string, key string, restart bool) error {
 	UnsetMany(appName, []string{key}, restart)
+	return nil
+}
+
+func setupAppConfigDir(appName string) error {
+	appFile, err := getAppFile(appName)
+	if err != nil {
+		return err
+	}
+
+	appConfigDir := filepath.Dir(appFile)
+	if err := os.MkdirAll(appConfigDir, 0755); err != nil {
+		return err
+	}
+
+	return common.SetPermissions(common.SetPermissionInput{
+		Filename: appConfigDir,
+		Mode:     os.FileMode(0755),
+	})
+}
+
+func migrateGlobalEnv() error {
+	if err := common.PropertySetup("--global"); err != nil {
+		return fmt.Errorf("Unable to setup global environment: %s", err.Error())
+	}
+
+	oldGlobalEnvFile := filepath.Join(common.MustGetEnv("DOKKU_ROOT"), "ENV")
+	isGlobalMigrated := common.PropertyGetDefault("config", "--global", "env-migrated", "")
+	if isGlobalMigrated == "true" {
+		return nil
+	}
+
+	oldGlobalEnv, err := loadFromFile("--global", oldGlobalEnvFile)
+	if err != nil {
+		return fmt.Errorf("Unable to load old global environment: %s", err.Error())
+	}
+
+	globalEnv, err := LoadGlobalEnv()
+	if err != nil {
+		return fmt.Errorf("Unable to load global environment: %s", err.Error())
+	}
+
+	globalEnv.Merge(oldGlobalEnv)
+	if err := globalEnv.Write(); err != nil {
+		return fmt.Errorf("Unable to write global environment: %s", err.Error())
+	}
+
+	if err := common.SetPermissions(common.SetPermissionInput{
+		Filename: globalEnv.Filename(),
+		Mode:     os.FileMode(0600),
+	}); err != nil {
+		return fmt.Errorf("Unable to set permissions on global environment: %s", err.Error())
+	}
+
+	if err := common.PropertyWrite("config", "--global", "env-migrated", "true"); err != nil {
+		return fmt.Errorf("Unable to set env-migrated property: %s", err.Error())
+	}
+
+	return nil
+}
+
+// TriggerInstall runs the install step for the config plugin
+func TriggerInstall() error {
+	if err := common.PropertySetup("config"); err != nil {
+		return fmt.Errorf("Unable to install the config plugin: %s", err.Error())
+	}
+
+	if err := migrateGlobalEnv(); err != nil {
+		return fmt.Errorf("Unable to migrate global environment: %s", err.Error())
+	}
+
+	apps, err := common.UnfilteredDokkuApps()
+	if err != nil {
+		return nil
+	}
+
+	// migrate all app ENV files to config path
+	for _, appName := range apps {
+		if err := common.PropertySetupApp("config", appName); err != nil {
+			return fmt.Errorf("Unable to setup app environment: %s", err.Error())
+		}
+
+		if err := setupAppConfigDir(appName); err != nil {
+			return fmt.Errorf("Unable to setup app config directory: %s", err.Error())
+		}
+
+		oldEnvFile := filepath.Join(common.AppRoot(appName), "ENV")
+		isMigrated := common.PropertyGetDefault("config", appName, "env-migrated", "")
+		// delete the old file on the next install
+		if isMigrated == "true" {
+			if err := os.RemoveAll(oldEnvFile); err != nil {
+				return fmt.Errorf("Unable to remove old ENV file: %s", err.Error())
+			}
+			continue
+		}
+
+		// skip if the file doesn't exist
+		if _, err := os.Stat(oldEnvFile); err != nil {
+			if err := common.PropertyWrite("config", appName, "env-migrated", "true"); err != nil {
+				return fmt.Errorf("Unable to set env-migrated property: %s", err.Error())
+			}
+			continue
+		}
+
+		// merge in the old env into the new env
+		oldEnv, err := loadFromFile(appName, oldEnvFile)
+		if err != nil {
+			return fmt.Errorf("Unable to load old environment: %s", err.Error())
+		}
+
+		env, err := LoadAppEnv(appName)
+		if err != nil {
+			return fmt.Errorf("Unable to load app environment: %s", err.Error())
+		}
+
+		env.Merge(oldEnv)
+		if err := env.Write(); err != nil {
+			return fmt.Errorf("Unable to write app environment: %s", err.Error())
+		}
+
+		if err := common.PropertyWrite("config", appName, "env-migrated", "true"); err != nil {
+			return fmt.Errorf("Unable to set env-migrated property: %s", err.Error())
+		}
+	}
+
 	return nil
 }
 
@@ -89,4 +222,23 @@ func TriggerPostAppRenameSetup(oldAppName string, newAppName string) error {
 	}
 
 	return nil
+}
+
+// TriggerPostCreate ensures apps have the correct config structure
+func TriggerPostCreate(appName string) error {
+	if err := common.PropertySetupApp("config", appName); err != nil {
+		return err
+	}
+
+	return setupAppConfigDir(appName)
+}
+
+// TriggerPostDelete destroys the config data for a given app container
+func TriggerPostDelete(appName string) error {
+	appFile, err := getAppFile(appName)
+	if err == nil {
+		os.RemoveAll(filepath.Dir(appFile))
+	}
+
+	return common.PropertyDestroy("config", appName)
 }

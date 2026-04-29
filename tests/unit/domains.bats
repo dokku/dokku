@@ -28,6 +28,25 @@ teardown() {
   assert_output "$help_output"
 }
 
+@test "(domains:report) --global --format json" {
+  run /bin/bash -c "dokku domains:report --global --format json | jq -e ."
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku domains:report --global --format json | jq -r 'keys[]' | grep -v 'global-' | wc -l"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "0"
+
+  run /bin/bash -c "dokku domains:report --global"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Global domains information"
+}
+
 @test "(domains) domains" {
   run /bin/bash -c "dokku domains:report $TEST_APP 2>/dev/null | grep ${TEST_APP}.${DOKKU_DOMAIN}"
   echo "output: $output"
@@ -386,6 +405,62 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output "other-name.${DOKKU_DOMAIN} $TEST_APP.dokku.test"
+
+  run /bin/bash -c "dokku apps:rename other-name $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
+@test "(domains) app rename preserves all subdomains across multiple global vhosts" {
+  run /bin/bash -c "dokku domains:set-global ${DOKKU_DOMAIN} dokku.test"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku domains:set $TEST_APP $TEST_APP.${DOKKU_DOMAIN} $TEST_APP.dokku.test custom.example.com"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku apps:rename $TEST_APP other-name"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku domains:report other-name --domains-app-vhosts"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "other-name.${DOKKU_DOMAIN} other-name.dokku.test custom.example.com"
+
+  run /bin/bash -c "dokku apps:rename other-name $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
+@test "(domains) app rename preserves custom domains when no global vhost is set" {
+  run /bin/bash -c "dokku domains:clear-global"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku domains:set $TEST_APP custom.example.com other.example.org"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku apps:rename $TEST_APP other-name"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku domains:report other-name --domains-app-vhosts"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "custom.example.com other.example.org"
 
   run /bin/bash -c "dokku apps:rename other-name $TEST_APP"
   echo "output: $output"

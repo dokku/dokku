@@ -9,22 +9,34 @@ import (
 
 // ReportSingleApp is an internal function that displays the logs report for one or more apps
 func ReportSingleApp(appName string, format string, infoFlag string) error {
-	if err := common.VerifyAppName(appName); err != nil {
-		return err
+	if appName != "--global" {
+		if err := common.VerifyAppName(appName); err != nil {
+			return err
+		}
 	}
 
 	os.Setenv("DOKKU_REPORT_FORMAT", format)
 	os.Setenv("DOKKU_REPORT_FLAG", infoFlag)
-	flags := map[string]common.ReportFunc{
-		"--logs-computed-app-label-alias": reportComputedAppLabelAlias,
-		"--logs-computed-max-size":        reportComputedMaxSize,
-		"--logs-global-app-label-alias":   reportGlobalAppLabelAlias,
-		"--logs-global-max-size":          reportGlobalMaxSize,
-		"--logs-global-vector-sink":       reportGlobalVectorSink,
-		"--logs-app-label-alias":          reportAppLabelAlias,
-		"--logs-max-size":                 reportMaxSize,
-		"--logs-vector-global-image":      reportVectorGlobalImage,
-		"--logs-vector-sink":              reportVectorSink,
+	var flags map[string]common.ReportFunc
+	if appName == "--global" {
+		flags = map[string]common.ReportFunc{
+			"--logs-global-app-label-alias": reportGlobalAppLabelAlias,
+			"--logs-global-max-size":        reportGlobalMaxSize,
+			"--logs-global-vector-sink":     reportGlobalVectorSink,
+			"--logs-vector-global-image":    reportVectorGlobalImage,
+		}
+	} else {
+		flags = map[string]common.ReportFunc{
+			"--logs-computed-app-label-alias": reportComputedAppLabelAlias,
+			"--logs-computed-max-size":        reportComputedMaxSize,
+			"--logs-global-app-label-alias":   reportGlobalAppLabelAlias,
+			"--logs-global-max-size":          reportGlobalMaxSize,
+			"--logs-global-vector-sink":       reportGlobalVectorSink,
+			"--logs-app-label-alias":          reportAppLabelAlias,
+			"--logs-max-size":                 reportMaxSize,
+			"--logs-vector-global-image":      reportVectorGlobalImage,
+			"--logs-vector-sink":              reportVectorSink,
+		}
 	}
 
 	flagKeys := []string{}

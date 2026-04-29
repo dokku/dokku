@@ -6,21 +6,42 @@ tolerations:
     key: node-role.kubernetes.io/master
     operator: Exists
   - effect: NoSchedule
+    key: node-role.kubernetes.io/control-plane
+    operator: Exists
+  - effect: NoSchedule
     key: node-role.kubernetes.io/infra
     operator: Exists
 
 service:
   ports:
-  - name: prom-exporter
-    port: 9090
-    protocol: TCP
+    - name: prom-exporter
+      port: 9090
+      protocol: TCP
+      targetPort: 9090
+
+livenessProbe:
+  httpGet:
+    path: /health
+    port: api
+readinessProbe:
+  httpGet:
+    path: /health
+    port: api
 
 customConfig:
   data_dir: /vector-data-dir
 
+  api:
+    enabled: true
+    address: 0.0.0.0:8686
+    playground: false
+
   sources:
     kubernetes_logs:
       type: kubernetes_logs
+
+    internal_metrics:
+      type: internal_metrics
 
   transforms:
     kubernetes_container_logs:
@@ -28,9 +49,8 @@ customConfig:
       inputs:
         - kubernetes_logs
       source: |
-        .message = .message
         .container = .kubernetes.container_name
-        .pod = .kubernetes.pod_name
+        .pod       = .kubernetes.pod_name
         .namespace = .kubernetes.pod_namespace
 
   sinks:
@@ -40,3 +60,9 @@ customConfig:
         - kubernetes_container_logs
       encoding:
         codec: json
+
+    prom_exporter:
+      type: prometheus_exporter
+      inputs:
+        - internal_metrics
+      address: 0.0.0.0:9090

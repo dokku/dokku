@@ -33,9 +33,17 @@ spec:
   pollingInterval: {{ $config.autoscaling.polling_interval_seconds }}
   minReplicaCount: {{ $config.autoscaling.min_replicas }}
   maxReplicaCount: {{ $config.autoscaling.max_replicas }}
+  {{- $hasFallbackTrigger := false }}
+  {{- range $config.autoscaling.triggers }}
+  {{- if and (ne .type "cpu") (ne .type "memory") }}
+  {{- $hasFallbackTrigger = true }}
+  {{- end }}
+  {{- end }}
+  {{- if $hasFallbackTrigger }}
   fallback:
     failureThreshold: 3
     replicas: {{ $config.replicas }}
+  {{- end }}
   {{- if $config.autoscaling.triggers }}
   triggers:
   {{- with $config.autoscaling.triggers }}

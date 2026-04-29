@@ -175,3 +175,136 @@ teardown() {
   assert_output_contains "Deploys may fail when publishing ports and scaling to multiple containers" 0
   assert_output_contains "Deploys may fail when publishing ports and enabling zero downtime" 0
 }
+
+@test "(scheduler-docker-local) sends SIGTERM immediately on deploy" {
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku checks:set $TEST_APP wait-to-retire 600"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  local old_cid
+  old_cid="$(docker ps --filter label=com.dokku.app-name=$TEST_APP --filter label=com.dokku.process-type=web --format '{{.ID}}')"
+  [[ -n "$old_cid" ]]
+
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  sleep 5
+
+  run /bin/bash -c "docker inspect --format '{{.State.Status}}' $old_cid"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "exited"
+
+  run /bin/bash -c "docker ps --filter label=com.dokku.app-name=$TEST_APP --filter label=com.dokku.process-type=web --format '{{.Names}}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "$TEST_APP.web.1"
+}
+
+@test "(scheduler-docker-local) scale down retires orphaned containers" {
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku checks:set $TEST_APP wait-to-retire 1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:scale $TEST_APP web=2"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  sleep 2
+
+  run /bin/bash -c "dokku ps:retire"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker ps --filter label=com.dokku.app-name=$TEST_APP --filter label=com.dokku.process-type=web --format '{{.Names}}' | wc -l"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "2"
+
+  run /bin/bash -c "dokku ps:scale $TEST_APP web=1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  sleep 2
+
+  run /bin/bash -c "dokku ps:retire"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker ps --filter label=com.dokku.app-name=$TEST_APP --filter label=com.dokku.process-type=web --format '{{.Names}}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "$TEST_APP.web.1"
+}
+
+@test "(scheduler-docker-local) ps:rebuild with image-based deploy keeps running image" {
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku checks:set $TEST_APP wait-to-retire 1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:from-image $TEST_APP cockpithq/cockpit:core-latest"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  local running_image
+  running_image="$(docker container inspect "$TEST_APP.web.1" --format '{{.Image}}' | cut -d: -f2)"
+  [[ -n "$running_image" ]]
+
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  sleep 3
+
+  run /bin/bash -c "dokku ps:retire"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "has running containers, skipping rm" 0
+
+  run /bin/bash -c "grep -F \"$running_image\" /var/lib/dokku/data/scheduler-docker-local/dead-images 2>/dev/null || true"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output ""
+
+  run /bin/bash -c "docker container inspect $TEST_APP.web.1 --format '{{.State.Status}}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "running"
+}

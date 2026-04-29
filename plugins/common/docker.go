@@ -390,23 +390,17 @@ func DockerBin() string {
 func DockerCleanup(appName string, forceCleanup bool) error {
 	if !forceCleanup {
 		skipCleanup := false
-		if appName != "" {
-			triggerName := "config-get"
-			triggerArgs := []string{appName, "DOKKU_SKIP_CLEANUP"}
-			if appName == "--global" {
-				triggerName = "config-get-global"
-				triggerArgs = []string{"DOKKU_SKIP_CLEANUP"}
-			}
-
-			results, _ := CallPlugnTrigger(PlugnTriggerInput{
-				Trigger: triggerName,
-				Args:    triggerArgs,
-			})
-			if results.StdoutContents() == "true" {
+		if appName != "" && appName != "--global" {
+			if PropertyGet("builder", appName, "skip-cleanup") == "true" {
 				skipCleanup = true
 			}
 		}
 
+		if !skipCleanup && PropertyGet("builder", "--global", "skip-cleanup") == "true" {
+			skipCleanup = true
+		}
+
+		// Fallback for .dokkurc compatibility
 		if skipCleanup || os.Getenv("DOKKU_SKIP_CLEANUP") == "true" {
 			LogInfo1("DOKKU_SKIP_CLEANUP set. Skipping dokku cleanup")
 			return nil

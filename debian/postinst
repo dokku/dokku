@@ -135,6 +135,65 @@ setup-sshcommand() {
   fi
 }
 
+disable-default-vhost-path() {
+  local path="$1"
+  local backup_path="${path}.dokku-disabled"
+
+  if [ ! -e "$path" ] && [ ! -L "$path" ]; then
+    return
+  fi
+
+  if [ -e "$backup_path" ] || [ -L "$backup_path" ]; then
+    return
+  fi
+
+  case "$path" in
+    /etc/nginx/sites-enabled/*)
+      rm -f "$path"
+      echo "Removed conflicting nginx default at $path" 1>&2
+      return
+      ;;
+  esac
+
+  if [ -L "$path" ]; then
+    rm -f "$path"
+    echo "Removed conflicting nginx default symlink at $path" 1>&2
+    return
+  fi
+
+  mv -n "$path" "$backup_path"
+  echo "Disabled $path (renamed to $backup_path)" 1>&2
+}
+
+setup-default-site() {
+  db_get "dokku/install_default_site"
+  if [ "$RET" != "true" ]; then
+    return
+  fi
+
+  local default_vhost_target="/etc/nginx/conf.d/00-default-vhost.conf"
+  local default_vhost_source="${DOKKU_LIB_ROOT}/core-plugins/available/nginx-vhosts/templates/default-site.conf"
+
+  if [ -e "$default_vhost_target" ]; then
+    return
+  fi
+
+  if [ ! -f "$default_vhost_source" ]; then
+    return
+  fi
+
+  for path in /etc/nginx/sites-enabled/default /etc/nginx/sites-available/default /etc/nginx/conf.d/default.conf; do
+    disable-default-vhost-path "$path"
+  done
+
+  echo "Installing nginx default catch-all site at $default_vhost_target"
+  install -m 0644 -o root -g root "$default_vhost_source" "$default_vhost_target"
+
+  if command -v dokku &>/dev/null; then
+    dokku nginx:reload || true
+  fi
+}
+
 dpkg-handling() {
   if [ -f "${DOKKU_ROOT}/VHOST" ]; then
     echo "VHOST file detected, skipping modification"
@@ -170,6 +229,9 @@ case "$1" in
     setup-plugins
     setup-sshcommand
     setup-docker-live-restore
+    if [ -z "$2" ]; then
+      setup-default-site
+    fi
     ;;
 
   *)

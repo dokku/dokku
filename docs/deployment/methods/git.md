@@ -6,6 +6,7 @@
 ```
 git:allow-host <host>                             # Adds a host to known_hosts
 git:auth <host> [<username> <password>]           # Configures netrc authentication for a given git server
+git:auth-status <host> [<username> <password>]    # Reports whether the netrc entry matches the requested state
 git:from-archive [--archive-type ARCHIVE_TYPE] <app> <archive-url> [<git-username> <git-email>] # Updates an app's git repository with a given archive file
 git:from-image [--build-dir DIRECTORY] <app> <docker-image> [<git-username> <git-email>] # Updates an app's git repository with a given docker image
 git:generate-deploy-key                           # Generates a deploy ssh key
@@ -13,7 +14,7 @@ git:load-image [--build-dir DIRECTORY] <app> <docker-image> [<git-username> <git
 git:sync [--build|--build-if-changes] [--skip-deploy-branch] <app> <repository> [<git-ref>] # Clone or fetch an app from remote git repo
 git:initialize <app>                              # Initialize a git repository for an app
 git:public-key                                    # Outputs the dokku public deploy key
-git:report [<app>] [<flag>]                       # Displays a git report for one or more apps
+git:report [<app>] [<flag>|--format json]         # Displays a git report for one or more apps
 git:set <app> <key> (<value>)                     # Set or clear a git property for an app
 git:status <app>                                  # Show the working tree status for an app
 ```
@@ -191,6 +192,34 @@ dokku git:auth github.com
 
 For syncing to a private repository stored on a remote Git product such as GitHub or GitLab, Dokku's recommendation is to use a personal access token on a bot user where possible. Please see your service's documentation for information regarding the recommended best practices.
 
+The password for `git:auth` may also be provided over `STDIN` to avoid placing it on the command line:
+
+```shell
+# pipe the password into git:auth
+echo "personal-access-token" | dokku git:auth github.com username
+```
+
+#### Checking the configured auth state
+
+> [!IMPORTANT]
+> New as of 0.38.0
+
+The `git:auth-status` command reports whether the configured `netrc` entry matches a desired state without exposing the underlying file. It exits `0` when the configured state matches and `1` otherwise. This allows external tooling such as configuration management systems to perform idempotent updates without reading `$DOKKU_ROOT/.netrc` directly.
+
+```shell
+# check whether github.com is configured with the expected credentials
+dokku git:auth-status github.com username personal-access-token
+
+# check whether no credentials are configured for github.com
+dokku git:auth-status github.com
+```
+
+As with `git:auth`, the password may be provided via `STDIN`:
+
+```shell
+echo "personal-access-token" | dokku git:auth-status github.com username
+```
+
 ### Allowing remote repository hosts
 
 By default, the Dokku host may not have access to a server containing the remote repository. This can be initialized via the `git:allow-host` command.
@@ -241,3 +270,42 @@ dokku git:public-key
 ```
 
 If there is no key, an error message is shown that displays the command that can be run on the Dokku server to generate a new public/private ssh key pair.
+
+### Displaying git reports for an app
+
+You can get a report about the app's git configuration using the `git:report` command:
+
+```shell
+dokku git:report
+```
+
+```
+=====> node-js-app git information
+       Git deploy branch:             master
+       Git global deploy branch:      master
+       Git keep git dir:              false
+       Git rev env var:               GIT_REV
+       Git sha:                       a1b2c3d
+       Git source image:
+       Git last updated at:           1700000000
+```
+
+You can run the command for a specific app also.
+
+```shell
+dokku git:report node-js-app
+```
+
+You can pass flags which will output only the value of the specific information you want. For example:
+
+```shell
+dokku git:report node-js-app --git-deploy-branch
+```
+
+The `git:report` command also takes a `--format` flag, with the valid options including `stdout` (default) and `json`. The `json` output format can be used for automation purposes:
+
+```shell
+dokku git:report node-js-app --format json
+```
+
+The `--format` flag cannot be combined with an info flag.

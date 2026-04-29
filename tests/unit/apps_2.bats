@@ -116,7 +116,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  run /bin/bash -c "dokku config:set --no-restart $TEST_APP DOKKU_PROXY_SSL_PORT=443"
+  run /bin/bash -c "dokku proxy:set $TEST_APP proxy-ssl-port 443"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -132,10 +132,6 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_output "http 80 5000"
-  run /bin/bash -c "dokku config:get app-without-ssl DOKKU_PROXY_SSL_PORT"
-  echo "output: $output"
-  echo "status: $status"
-  assert_output_not_exists
   run /bin/bash -c "dokku --force apps:destroy app-without-ssl"
   echo "output: $output"
   echo "status: $status"
@@ -166,7 +162,7 @@ teardown() {
   assert_success
   assert_output "http://$TEST_APP.$DOKKU_DOMAIN"
   assert_http_localhost_response "http" "$TEST_APP.$DOKKU_DOMAIN" "80" "/hello"
-  assert_http_localhost_response "http" "great-test-name.dokku.me" "80" "/hello" "" "404"
+  assert_http_localhost_response "http" "great-test-name.dokku.me" "80" "/hello" "" "502"
   run /bin/bash -c "dokku --force apps:destroy great-test-name"
   echo "output: $output"
   echo "status: $status"

@@ -9,15 +9,24 @@ import (
 
 // ReportSingleApp is an internal function that displays the buildpacks report for one or more apps
 func ReportSingleApp(appName string, format string, infoFlag string) error {
-	if err := common.VerifyAppName(appName); err != nil {
-		return err
+	if appName != "--global" {
+		if err := common.VerifyAppName(appName); err != nil {
+			return err
+		}
 	}
 
-	flags := map[string]common.ReportFunc{
-		"--buildpacks-computed-stack": reportComputedStack,
-		"--buildpacks-global-stack":   reportGlobalStack,
-		"--buildpacks-list":           reportList,
-		"--buildpacks-stack":          reportStack,
+	var flags map[string]common.ReportFunc
+	if appName == "--global" {
+		flags = map[string]common.ReportFunc{
+			"--buildpacks-global-stack": reportGlobalStack,
+		}
+	} else {
+		flags = map[string]common.ReportFunc{
+			"--buildpacks-computed-stack": reportComputedStack,
+			"--buildpacks-global-stack":   reportGlobalStack,
+			"--buildpacks-list":           reportList,
+			"--buildpacks-stack":          reportStack,
+		}
 	}
 
 	flagKeys := []string{}

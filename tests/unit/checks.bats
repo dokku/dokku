@@ -16,6 +16,41 @@ teardown() {
   global_teardown
 }
 
+@test "(checks:report) --global --format json" {
+  run /bin/bash -c "dokku checks:set --global wait-to-retire 90"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku checks:report --global --format json | jq -e ."
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku checks:report --global --format json | jq -r '.\"global-wait-to-retire\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "90"
+
+  run /bin/bash -c "dokku checks:report --global --format json | jq -r 'has(\"wait-to-retire\")'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku checks:report --global"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "global checks information"
+
+  run /bin/bash -c "dokku checks:set --global wait-to-retire"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
 @test "(checks) checks:help" {
   run /bin/bash -c "dokku checks"
   echo "output: $output"
@@ -36,7 +71,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku config:get $TEST_APP DOKKU_CHECKS_DISABLED"
+  run /bin/bash -c "dokku checks:report $TEST_APP --checks-disabled-list"
   echo "output: $output"
   echo "status: $status"
   assert_output "_all_"
@@ -48,30 +83,30 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku config:get $TEST_APP DOKKU_CHECKS_DISABLED"
+  run /bin/bash -c "dokku checks:report $TEST_APP --checks-disabled-list"
   echo "output: $output"
   echo "status: $status"
   assert_output "_all_"
 
-  run /bin/bash -c "dokku config:get $TEST_APP DOKKU_CHECKS_SKIPPED"
+  run /bin/bash -c "dokku checks:report $TEST_APP --checks-skipped-list"
   echo "output: $output"
   echo "status: $status"
-  assert_output_not_exists
+  assert_output "none"
 
   run /bin/bash -c "dokku checks:enable $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku config:get $TEST_APP DOKKU_CHECKS_DISABLED"
+  run /bin/bash -c "dokku checks:report $TEST_APP --checks-disabled-list"
   echo "output: $output"
   echo "status: $status"
-  assert_output_not_exists
+  assert_output "none"
 
-  run /bin/bash -c "dokku config:get $TEST_APP DOKKU_CHECKS_SKIPPED"
+  run /bin/bash -c "dokku checks:report $TEST_APP --checks-skipped-list"
   echo "output: $output"
   echo "status: $status"
-  assert_output_not_exists
+  assert_output "none"
 }
 
 @test "(checks) checks:disable -> checks:skip" {
@@ -80,27 +115,27 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku config:get $TEST_APP DOKKU_CHECKS_DISABLED"
+  run /bin/bash -c "dokku checks:report $TEST_APP --checks-disabled-list"
   echo "output: $output"
   echo "status: $status"
   assert_output "web,worker,urgentworker,notifications"
 
-  run /bin/bash -c "dokku config:get $TEST_APP DOKKU_CHECKS_SKIPPED"
+  run /bin/bash -c "dokku checks:report $TEST_APP --checks-skipped-list"
   echo "output: $output"
   echo "status: $status"
-  assert_output_not_exists
+  assert_output "none"
 
   run /bin/bash -c "dokku checks:skip $TEST_APP urgentworker,worker"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku config:get $TEST_APP DOKKU_CHECKS_SKIPPED"
+  run /bin/bash -c "dokku checks:report $TEST_APP --checks-skipped-list"
   echo "output: $output"
   echo "status: $status"
   assert_output "urgentworker,worker"
 
-  run /bin/bash -c "dokku config:get $TEST_APP DOKKU_CHECKS_DISABLED"
+  run /bin/bash -c "dokku checks:report $TEST_APP --checks-disabled-list"
   echo "output: $output"
   echo "status: $status"
   assert_output "web,notifications"
@@ -112,7 +147,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku config:get $TEST_APP DOKKU_CHECKS_SKIPPED"
+  run /bin/bash -c "dokku checks:report $TEST_APP --checks-skipped-list"
   echo "output: $output"
   echo "status: $status"
   assert_output "_all_"
@@ -124,30 +159,30 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku config:get $TEST_APP DOKKU_CHECKS_SKIPPED"
+  run /bin/bash -c "dokku checks:report $TEST_APP --checks-skipped-list"
   echo "output: $output"
   echo "status: $status"
   assert_output "_all_"
 
-  run /bin/bash -c "dokku config:get $TEST_APP DOKKU_CHECKS_DISABLED"
+  run /bin/bash -c "dokku checks:report $TEST_APP --checks-disabled-list"
   echo "output: $output"
   echo "status: $status"
-  assert_output_not_exists
+  assert_output "none"
 
   run /bin/bash -c "dokku checks:enable $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku config:get $TEST_APP DOKKU_CHECKS_SKIPPED"
+  run /bin/bash -c "dokku checks:report $TEST_APP --checks-skipped-list"
   echo "output: $output"
   echo "status: $status"
-  assert_output_not_exists
+  assert_output "none"
 
-  run /bin/bash -c "dokku config:get $TEST_APP DOKKU_CHECKS_DISABLED"
+  run /bin/bash -c "dokku checks:report $TEST_APP --checks-disabled-list"
   echo "output: $output"
   echo "status: $status"
-  assert_output_not_exists
+  assert_output "none"
 }
 
 @test "(checks) checks:skip -> checks:disable" {
@@ -156,27 +191,27 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku config:get $TEST_APP DOKKU_CHECKS_SKIPPED"
+  run /bin/bash -c "dokku checks:report $TEST_APP --checks-skipped-list"
   echo "output: $output"
   echo "status: $status"
   assert_output "web,worker,urgentworker,notifications"
 
-  run /bin/bash -c "dokku config:get $TEST_APP DOKKU_CHECKS_DISABLED"
+  run /bin/bash -c "dokku checks:report $TEST_APP --checks-disabled-list"
   echo "output: $output"
   echo "status: $status"
-  assert_output_not_exists
+  assert_output "none"
 
   run /bin/bash -c "dokku checks:disable $TEST_APP urgentworker,worker"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku config:get $TEST_APP DOKKU_CHECKS_DISABLED"
+  run /bin/bash -c "dokku checks:report $TEST_APP --checks-disabled-list"
   echo "output: $output"
   echo "status: $status"
   assert_output "urgentworker,worker"
 
-  run /bin/bash -c "dokku config:get $TEST_APP DOKKU_CHECKS_SKIPPED"
+  run /bin/bash -c "dokku checks:report $TEST_APP --checks-skipped-list"
   echo "output: $output"
   echo "status: $status"
   assert_output "web,notifications"

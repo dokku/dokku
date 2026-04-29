@@ -1,18 +1,18 @@
 module github.com/dokku/dokku/plugins/scheduler-k3s
 
-go 1.25.5
+go 1.26.2
 
 require (
 	github.com/Masterminds/semver/v3 v3.4.0
 	github.com/cert-manager/cert-manager v1.20.2
-	github.com/dokku/dokku/plugins/app-json v0.0.0-20250618161309-8d0c35f1333c
-	github.com/dokku/dokku/plugins/common v0.0.0-20250618161309-8d0c35f1333c
-	github.com/dokku/dokku/plugins/config v0.0.0-20250618161309-8d0c35f1333c
-	github.com/dokku/dokku/plugins/cron v0.0.0-20250618161309-8d0c35f1333c
-	github.com/dokku/dokku/plugins/docker-options v0.0.0-20250618161309-8d0c35f1333c
-	github.com/dokku/dokku/plugins/logs v0.0.0-20250618161309-8d0c35f1333c
-	github.com/dokku/dokku/plugins/nginx-vhosts v0.0.0-20250618161309-8d0c35f1333c
-	github.com/dokku/dokku/plugins/registry v0.0.0-20250618161309-8d0c35f1333c
+	github.com/dokku/dokku/plugins/app-json v0.0.0-00010101000000-000000000000
+	github.com/dokku/dokku/plugins/common v0.0.0-00010101000000-000000000000
+	github.com/dokku/dokku/plugins/config v0.0.0-00010101000000-000000000000
+	github.com/dokku/dokku/plugins/cron v0.0.0-00010101000000-000000000000
+	github.com/dokku/dokku/plugins/docker-options v0.0.0-00010101000000-000000000000
+	github.com/dokku/dokku/plugins/logs v0.0.0-00010101000000-000000000000
+	github.com/dokku/dokku/plugins/nginx-vhosts v0.0.0-00010101000000-000000000000
+	github.com/dokku/dokku/plugins/registry v0.0.0-00010101000000-000000000000
 	github.com/fatih/color v1.19.0
 	github.com/fluxcd/pkg/kustomize v1.31.0
 	github.com/go-openapi/jsonpointer v0.23.1
@@ -23,15 +23,15 @@ require (
 	github.com/kedacore/keda/v2 v2.18.3
 	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/spf13/pflag v1.0.10
-	github.com/traefik/traefik/v2 v2.11.43
+	github.com/traefik/traefik/v2 v2.11.44
 	golang.org/x/sync v0.20.0
 	gopkg.in/yaml.v3 v3.0.1
 	helm.sh/helm/v3 v3.20.2
 	k8s.io/api v0.35.4
-	k8s.io/apimachinery v0.35.4
+	k8s.io/apimachinery v0.36.0
 	k8s.io/client-go v0.35.4
 	k8s.io/kubectl v0.35.4
-	k8s.io/kubernetes v1.35.4
+	k8s.io/kubernetes v1.36.0
 	k8s.io/utils v0.0.0-20260210185600-b8788abfbbc2
 	mvdan.cc/sh/v3 v3.13.1
 	sigs.k8s.io/kustomize/api v0.21.1
@@ -68,7 +68,7 @@ require (
 	github.com/fastfishio/qson v1.0.2 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/fxamacker/cbor/v2 v2.9.0 // indirect
-	github.com/go-acme/lego/v4 v4.34.0 // indirect
+	github.com/go-acme/lego/v4 v4.35.2 // indirect
 	github.com/go-errors/errors v1.5.1 // indirect
 	github.com/go-gorp/gorp/v3 v3.1.0 // indirect
 	github.com/go-jose/go-jose/v4 v4.1.4 // indirect
@@ -116,7 +116,6 @@ require (
 	github.com/monochromegane/go-gitignore v0.0.0-20200626010858-205db1a8cc00 // indirect
 	github.com/multiformats/go-base36 v0.2.0 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
-	github.com/mxk/go-flowrate v0.0.0-20140419014527-cca7078d478f // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.1 // indirect
 	github.com/otiai10/copy v1.14.1 // indirect
@@ -128,8 +127,8 @@ require (
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/prometheus/client_golang v1.23.2 // indirect
 	github.com/prometheus/client_model v0.6.2 // indirect
-	github.com/prometheus/common v0.66.1 // indirect
-	github.com/prometheus/procfs v0.17.0 // indirect
+	github.com/prometheus/common v0.67.5 // indirect
+	github.com/prometheus/procfs v0.19.2 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/rubenv/sql-migrate v1.8.1 // indirect
@@ -157,7 +156,7 @@ require (
 	gomodules.xyz/jsonpatch/v2 v2.5.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260401024825-9d38bb4040a9 // indirect
 	google.golang.org/grpc v1.80.0 // indirect
-	google.golang.org/protobuf v1.36.11 // indirect
+	google.golang.org/protobuf v1.36.12-0.20260120151049-f2248ac996af // indirect
 	gopkg.in/evanphx/json-patch.v4 v4.13.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	k8s.io/apiextensions-apiserver v0.35.2 // indirect
@@ -165,7 +164,8 @@ require (
 	k8s.io/cli-runtime v0.35.4 // indirect
 	k8s.io/component-base v0.35.4 // indirect
 	k8s.io/klog/v2 v2.140.0 // indirect
-	k8s.io/kube-openapi v0.0.0-20260127142750-a19766b6e2d4 // indirect
+	k8s.io/kube-openapi v0.0.0-20260317180543-43fb72c5454a // indirect
+	k8s.io/streaming v0.36.0 // indirect
 	knative.dev/pkg v0.0.0-20250708013613-d3550d4350f9 // indirect
 	oras.land/oras-go/v2 v2.6.0 // indirect
 	sigs.k8s.io/controller-runtime v0.23.3 // indirect

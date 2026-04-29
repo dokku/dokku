@@ -10,28 +10,38 @@ import (
 
 // ReportSingleApp is an internal function that displays the ps report for one or more apps
 func ReportSingleApp(appName string, format string, infoFlag string) error {
-	if err := common.VerifyAppName(appName); err != nil {
-		return err
+	if appName != "--global" {
+		if err := common.VerifyAppName(appName); err != nil {
+			return err
+		}
 	}
 
-	flags := map[string]common.ReportFunc{
-		"--deployed":                      reportDeployed,
-		"--processes":                     reportProcesses,
-		"--ps-can-scale":                  reportCanScale,
-		"--ps-restart-policy":             reportRestartPolicy,
-		"--ps-computed-procfile-path":     reportComputedProcfilePath,
-		"--ps-global-procfile-path":       reportGlobalProcfilePath,
-		"--ps-procfile-path":              reportProcfilePath,
-		"--restore":                       reportRestore,
-		"--running":                       reportRunningState,
-		"--global-stop-timeout-seconds":   reportGlobalStopTimeoutSeconds,
-		"--computed-stop-timeout-seconds": reportComputedStopTimeoutSeconds,
-		"--stop-timeout-seconds":          reportStopTimeoutSeconds,
-	}
+	var flags map[string]common.ReportFunc
+	if appName == "--global" {
+		flags = map[string]common.ReportFunc{
+			"--ps-global-procfile-path":     reportGlobalProcfilePath,
+			"--global-stop-timeout-seconds": reportGlobalStopTimeoutSeconds,
+		}
+	} else {
+		flags = map[string]common.ReportFunc{
+			"--deployed":                      reportDeployed,
+			"--processes":                     reportProcesses,
+			"--ps-can-scale":                  reportCanScale,
+			"--ps-restart-policy":             reportRestartPolicy,
+			"--ps-computed-procfile-path":     reportComputedProcfilePath,
+			"--ps-global-procfile-path":       reportGlobalProcfilePath,
+			"--ps-procfile-path":              reportProcfilePath,
+			"--restore":                       reportRestore,
+			"--running":                       reportRunningState,
+			"--global-stop-timeout-seconds":   reportGlobalStopTimeoutSeconds,
+			"--computed-stop-timeout-seconds": reportComputedStopTimeoutSeconds,
+			"--stop-timeout-seconds":          reportStopTimeoutSeconds,
+		}
 
-	extraFlags := addStatusFlags(appName, infoFlag)
-	for flag, fn := range extraFlags {
-		flags[flag] = fn
+		extraFlags := addStatusFlags(appName, infoFlag)
+		for flag, fn := range extraFlags {
+			flags[flag] = fn
+		}
 	}
 
 	flagKeys := []string{}
@@ -132,18 +142,7 @@ func reportRestartPolicy(appName string) string {
 }
 
 func reportRestore(appName string) string {
-	results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
-		Trigger: "config-get",
-		Args:    []string{appName, "DOKKU_APP_RESTORE"},
-	})
-	restore := results.StdoutContents()
-	if restore == "0" {
-		restore = "false"
-	} else {
-		restore = "true"
-	}
-
-	return restore
+	return common.PropertyGetDefault("ps", appName, "restore", "true")
 }
 
 func reportRunningState(appName string) string {

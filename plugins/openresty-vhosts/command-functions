@@ -33,9 +33,13 @@ cmd-openresty-report() {
   declare desc="displays a openresty report for one or more apps"
   declare cmd="openresty:report"
   [[ "$1" == "$cmd" ]] && shift 1
-  declare APP="$1" INFO_FLAG="$2"
+  fn-report-parse-args "$@"
+  set -- "${REPORT_ARGS[@]}"
+  declare APP="${1:-}" INFO_FLAG="${2:-}"
 
-  if [[ -n "$APP" ]] && [[ "$APP" == --* ]]; then
+  if [[ "$REPORT_IS_GLOBAL" == "true" ]]; then
+    APP="--global"
+  elif [[ -n "$APP" ]] && [[ "$APP" == --* ]]; then
     INFO_FLAG="$APP"
     APP=""
   fi
@@ -44,59 +48,83 @@ cmd-openresty-report() {
     INFO_FLAG="true"
   fi
 
-  if [[ -z "$APP" ]]; then
+  if [[ "$APP" == "--global" ]]; then
+    cmd-openresty-report-single "$APP" "$INFO_FLAG" "$REPORT_FORMAT"
+  elif [[ -z "$APP" ]]; then
     for app in $(dokku_apps); do
-      cmd-openresty-report-single "$app" "$INFO_FLAG" | tee || true
+      cmd-openresty-report-single "$app" "$INFO_FLAG" "$REPORT_FORMAT" | tee || true
     done
   else
-    cmd-openresty-report-single "$APP" "$INFO_FLAG"
+    cmd-openresty-report-single "$APP" "$INFO_FLAG" "$REPORT_FORMAT"
   fi
 }
 
 cmd-openresty-report-single() {
-  declare APP="$1" INFO_FLAG="$2"
+  declare APP="$1" INFO_FLAG="$2" FORMAT="${3:-stdout}"
   if [[ "$INFO_FLAG" == "true" ]]; then
     INFO_FLAG=""
   fi
-  verify_app_name "$APP"
-  local flag_map=(
-    "--openresty-access-log-format: $(fn-openresty-access-log-format "$APP")"
-    "--openresty-access-log-path: $(fn-openresty-access-log-path "$APP")"
-    "--openresty-allowed-letsencrypt-domains-func-base64: $(fn-openresty-allowed-letsencrypt-domains-func-base64)"
-    "--openresty-bind-address-ipv4: $(fn-openresty-bind-address-ipv4 "$APP")"
-    "--openresty-bind-address-ipv6: $(fn-openresty-bind-address-ipv6 "$APP")"
-    "--openresty-client-body-timeout: $(fn-openresty-client-body-timeout "$APP")"
-    "--openresty-client-header-timeout: $(fn-openresty-client-header-timeout "$APP")"
-    "--openresty-client-max-body-size: $(fn-openresty-client-max-body-size "$APP")"
-    "--openresty-error-log-path: $(fn-openresty-error-log-path "$APP")"
-    "--openresty-global-hsts: $(fn-plugin-property-get-default "openresty" "--global" "hsts" "true")"
-    "--openresty-computed-hsts: $(fn-openresty-hsts-is-enabled "$APP")"
-    "--openresty-hsts: $(fn-plugin-property-get-default "openresty" "$APP" "hsts" "")"
-    "--openresty-hsts-include-subdomains: $(fn-openresty-hsts-include-subdomains "$APP")"
-    "--openresty-hsts-max-age: $(fn-openresty-hsts-max-age "$APP")"
-    "--openresty-hsts-preload: $(fn-openresty-hsts-preload "$APP")"
-    "--openresty-image: $(fn-openresty-image)"
-    "--openresty-keepalive-timeout: $(fn-openresty-keepalive-timeout "$APP")"
-    "--openresty-letsencrypt-email: $(fn-openresty-letsencrypt-email)"
-    "--openresty-letsencrypt-server: $(fn-openresty-letsencrypt-server)"
-    "--openresty-lingering-timeout: $(fn-openresty-lingering-timeout "$APP")"
-    "--openresty-proxy-buffer-size: $(fn-openresty-proxy-buffer-size "$APP")"
-    "--openresty-proxy-buffering: $(fn-openresty-proxy-buffering "$APP")"
-    "--openresty-proxy-buffers: $(fn-openresty-proxy-buffers "$APP")"
-    "--openresty-proxy-busy-buffers-size: $(fn-openresty-proxy-busy-buffers-size "$APP")"
-    "--openresty-proxy-connect-timeout: $(fn-openresty-proxy-connect-timeout "$APP")"
-    "--openresty-proxy-read-timeout: $(fn-openresty-proxy-read-timeout "$APP")"
-    "--openresty-proxy-send-timeout: $(fn-openresty-proxy-send-timeout "$APP")"
-    "--openresty-send-timeout: $(fn-openresty-send-timeout "$APP")"
-    "--openresty-underscore-in-headers: $(fn-openresty-underscore-in-headers "$APP")"
-    "--openresty-x-forwarded-for-value: $(fn-openresty-x-forwarded-for-value "$APP")"
-    "--openresty-x-forwarded-port-value: $(fn-openresty-x-forwarded-port-value "$APP")"
-    "--openresty-x-forwarded-proto-value: $(fn-openresty-x-forwarded-proto-value "$APP")"
-    "--openresty-x-forwarded-ssl: $(fn-openresty-x-forwarded-ssl "$APP")"
-  )
+  local flag_map=()
+  if [[ "$APP" == "--global" ]]; then
+    flag_map=(
+      "--openresty-allowed-letsencrypt-domains-func-base64: $(fn-openresty-allowed-letsencrypt-domains-func-base64)"
+      "--openresty-global-hsts: $(fn-plugin-property-get-default "openresty" "--global" "hsts" "true")"
+      "--openresty-image: $(fn-openresty-image)"
+      "--openresty-letsencrypt-email: $(fn-openresty-letsencrypt-email)"
+      "--openresty-letsencrypt-server: $(fn-openresty-letsencrypt-server)"
+    )
+  else
+    verify_app_name "$APP"
+    flag_map=(
+      "--openresty-access-log-format: $(fn-openresty-access-log-format "$APP")"
+      "--openresty-access-log-path: $(fn-openresty-access-log-path "$APP")"
+      "--openresty-allowed-letsencrypt-domains-func-base64: $(fn-openresty-allowed-letsencrypt-domains-func-base64)"
+      "--openresty-bind-address-ipv4: $(fn-openresty-bind-address-ipv4 "$APP")"
+      "--openresty-bind-address-ipv6: $(fn-openresty-bind-address-ipv6 "$APP")"
+      "--openresty-client-body-timeout: $(fn-openresty-client-body-timeout "$APP")"
+      "--openresty-client-header-timeout: $(fn-openresty-client-header-timeout "$APP")"
+      "--openresty-client-max-body-size: $(fn-openresty-client-max-body-size "$APP")"
+      "--openresty-error-log-path: $(fn-openresty-error-log-path "$APP")"
+      "--openresty-global-hsts: $(fn-plugin-property-get-default "openresty" "--global" "hsts" "true")"
+      "--openresty-computed-hsts: $(fn-openresty-hsts-is-enabled "$APP")"
+      "--openresty-hsts: $(fn-plugin-property-get-default "openresty" "$APP" "hsts" "")"
+      "--openresty-hsts-include-subdomains: $(fn-openresty-hsts-include-subdomains "$APP")"
+      "--openresty-hsts-max-age: $(fn-openresty-hsts-max-age "$APP")"
+      "--openresty-hsts-preload: $(fn-openresty-hsts-preload "$APP")"
+      "--openresty-image: $(fn-openresty-image)"
+      "--openresty-keepalive-timeout: $(fn-openresty-keepalive-timeout "$APP")"
+      "--openresty-letsencrypt-email: $(fn-openresty-letsencrypt-email)"
+      "--openresty-letsencrypt-server: $(fn-openresty-letsencrypt-server)"
+      "--openresty-lingering-timeout: $(fn-openresty-lingering-timeout "$APP")"
+      "--openresty-proxy-buffer-size: $(fn-openresty-proxy-buffer-size "$APP")"
+      "--openresty-proxy-buffering: $(fn-openresty-proxy-buffering "$APP")"
+      "--openresty-proxy-buffers: $(fn-openresty-proxy-buffers "$APP")"
+      "--openresty-proxy-busy-buffers-size: $(fn-openresty-proxy-busy-buffers-size "$APP")"
+      "--openresty-proxy-connect-timeout: $(fn-openresty-proxy-connect-timeout "$APP")"
+      "--openresty-proxy-read-timeout: $(fn-openresty-proxy-read-timeout "$APP")"
+      "--openresty-proxy-send-timeout: $(fn-openresty-proxy-send-timeout "$APP")"
+      "--openresty-send-timeout: $(fn-openresty-send-timeout "$APP")"
+      "--openresty-underscore-in-headers: $(fn-openresty-underscore-in-headers "$APP")"
+      "--openresty-x-forwarded-for-value: $(fn-openresty-x-forwarded-for-value "$APP")"
+      "--openresty-x-forwarded-port-value: $(fn-openresty-x-forwarded-port-value "$APP")"
+      "--openresty-x-forwarded-proto-value: $(fn-openresty-x-forwarded-proto-value "$APP")"
+      "--openresty-x-forwarded-ssl: $(fn-openresty-x-forwarded-ssl "$APP")"
+    )
+  fi
+
+  fn-report-validate-format "$FORMAT" "$INFO_FLAG"
+
+  if [[ "$FORMAT" == "json" ]]; then
+    fn-report-emit-json flag_map "openresty"
+    return
+  fi
 
   if [[ -z "$INFO_FLAG" ]]; then
-    dokku_log_info2_quiet "${APP} openresty information"
+    if [[ "$APP" == "--global" ]]; then
+      dokku_log_info2_quiet "global openresty information"
+    else
+      dokku_log_info2_quiet "${APP} openresty information"
+    fi
     for flag in "${flag_map[@]}"; do
       key="$(echo "${flag#--}" | cut -f1 -d' ' | tr - ' ')"
       dokku_log_verbose "$(printf "%-30s %-25s" "${key^}" "${flag#*: }")"

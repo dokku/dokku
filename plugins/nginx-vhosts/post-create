@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
+source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-nginx-vhosts-post-create() {
+  declare desc="nginx-vhosts post-create trigger"
+  declare trigger="post-create"
+  declare APP="$1"
+
+  fn-plugin-property-setup-app "nginx" "$APP"
+
+  if [[ "$(plugn trigger proxy-type "$APP")" != "nginx" ]]; then
+    return
+  fi
+
+  if [[ "$(fn-plugin-property-get "nginx" "--global" "proxy-status")" == "stopped" ]]; then
+    return
+  fi
+
+  nginx_build_config "$APP"
+}
+
+trigger-nginx-vhosts-post-create "$@"

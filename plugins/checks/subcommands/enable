@@ -2,7 +2,7 @@
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-source "$PLUGIN_AVAILABLE_PATH/checks/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 
 cmd-checks-enable() {
   declare desc="enable zero-downtime checks for app/proctypes"
@@ -13,13 +13,13 @@ cmd-checks-enable() {
   verify_app_name "$APP"
   local PROCTYPES="${2:-_all_}"
 
-  local DOKKU_CHECKS_DISABLED=$(config_get "$APP" DOKKU_CHECKS_DISABLED || true)
-  local DOKKU_CHECKS_SKIPPED=$(config_get "$APP" DOKKU_CHECKS_SKIPPED || true)
+  local DOKKU_CHECKS_DISABLED=$(fn-plugin-property-get-default "checks" "$APP" "disabled" "")
+  local DOKKU_CHECKS_SKIPPED=$(fn-plugin-property-get-default "checks" "$APP" "skipped" "")
 
   if [[ "$PROCTYPES" == "_all_" ]]; then
     dokku_log_info1 "Enabling zero downtime for app's ($APP)"
-    DOKKU_QUIET_OUTPUT=1 config_unset --no-restart "$APP" DOKKU_CHECKS_DISABLED
-    DOKKU_QUIET_OUTPUT=1 config_unset --no-restart "$APP" DOKKU_CHECKS_SKIPPED
+    fn-plugin-property-delete "checks" "$APP" "disabled"
+    fn-plugin-property-delete "checks" "$APP" "skipped"
   else
     dokku_log_info1 "Enabling zero downtime for app's ($APP) proctypes ($PROCTYPES)"
     local PROCTYPE OIFS="$IFS" IFS=,
@@ -30,15 +30,15 @@ cmd-checks-enable() {
 
     IFS="$OIFS"
     if [[ -z "$DOKKU_CHECKS_DISABLED" ]]; then
-      DOKKU_QUIET_OUTPUT=1 config_unset --no-restart "$APP" DOKKU_CHECKS_DISABLED
+      fn-plugin-property-delete "checks" "$APP" "disabled"
     else
-      DOKKU_QUIET_OUTPUT=1 config_set --no-restart "$APP" DOKKU_CHECKS_DISABLED="$DOKKU_CHECKS_DISABLED"
+      fn-plugin-property-write "checks" "$APP" "disabled" "$DOKKU_CHECKS_DISABLED"
     fi
 
     if [[ -z "$DOKKU_CHECKS_SKIPPED" ]]; then
-      DOKKU_QUIET_OUTPUT=1 config_unset --no-restart "$APP" DOKKU_CHECKS_SKIPPED
+      fn-plugin-property-delete "checks" "$APP" "skipped"
     else
-      DOKKU_QUIET_OUTPUT=1 config_set --no-restart "$APP" DOKKU_CHECKS_SKIPPED="$DOKKU_CHECKS_SKIPPED"
+      fn-plugin-property-write "checks" "$APP" "skipped" "$DOKKU_CHECKS_SKIPPED"
     fi
   fi
 }

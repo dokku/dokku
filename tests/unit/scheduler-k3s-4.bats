@@ -52,6 +52,66 @@ teardown() {
   assert_output "5000"
 }
 
+@test "(scheduler-k3s) deploy autoscaling cpu-only trigger [keda-fallback]" {
+  if [[ -z "$DOCKERHUB_USERNAME" ]] || [[ -z "$DOCKERHUB_TOKEN" ]]; then
+    skip "skipping due to missing docker.io credentials DOCKERHUB_USERNAME:DOCKERHUB_TOKEN"
+  fi
+
+  INGRESS_CLASS=nginx install_k3s
+
+  run /bin/bash -c "dokku apps:create $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP inject_cpu_autoscaling_app_json
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "kubectl get scaledobjects.keda.sh $TEST_APP-web -o=jsonpath='{.spec.fallback}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "kubectl get scaledobjects.keda.sh $TEST_APP-web -o=jsonpath='{.spec.triggers[0].type}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "cpu"
+}
+
+@test "(scheduler-k3s) deploy autoscaling external trigger [keda-fallback]" {
+  if [[ -z "$DOCKERHUB_USERNAME" ]] || [[ -z "$DOCKERHUB_TOKEN" ]]; then
+    skip "skipping due to missing docker.io credentials DOCKERHUB_USERNAME:DOCKERHUB_TOKEN"
+  fi
+
+  INGRESS_CLASS=nginx install_k3s
+
+  run /bin/bash -c "dokku apps:create $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP inject_prometheus_autoscaling_app_json
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "kubectl get scaledobjects.keda.sh $TEST_APP-web -o=jsonpath='{.spec.fallback.failureThreshold}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "3"
+
+  run /bin/bash -c "kubectl get scaledobjects.keda.sh $TEST_APP-web -o=jsonpath='{.spec.fallback.replicas}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "1"
+}
+
 inject_app_json() {
   local APP="$1"
   local APP_REPO_DIR="$2"
@@ -62,6 +122,63 @@ inject_app_json() {
     "worker": {
       "service": {
         "exposed": true
+      }
+    }
+  }
+}
+EOF
+}
+
+inject_cpu_autoscaling_app_json() {
+  local APP="$1"
+  local APP_REPO_DIR="$2"
+  [[ -z "$APP" ]] && local APP="$TEST_APP"
+  cat <<EOF >"$APP_REPO_DIR/app.json"
+{
+  "formation": {
+    "web": {
+      "autoscaling": {
+        "min_quantity": 1,
+        "max_quantity": 3,
+        "triggers": [
+          {
+            "name": "cpu-trigger",
+            "type": "cpu",
+            "metadata": {
+              "value": "80"
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+EOF
+}
+
+inject_prometheus_autoscaling_app_json() {
+  local APP="$1"
+  local APP_REPO_DIR="$2"
+  [[ -z "$APP" ]] && local APP="$TEST_APP"
+  cat <<EOF >"$APP_REPO_DIR/app.json"
+{
+  "formation": {
+    "web": {
+      "autoscaling": {
+        "min_quantity": 1,
+        "max_quantity": 3,
+        "triggers": [
+          {
+            "name": "prom-trigger",
+            "type": "prometheus",
+            "metadata": {
+              "serverAddress": "http://prometheus.example.com:9090",
+              "metricName": "http_requests_total",
+              "threshold": "100",
+              "query": "sum(rate(http_requests_total{deployment=\"[[ .DEPLOYMENT_NAME ]]\"}[2m]))"
+            }
+          }
+        ]
       }
     }
   }

@@ -434,21 +434,13 @@ func extractStartCommand(input StartCommandInput) string {
 		return "/start " + input.ProcessType
 	}
 
-	resp, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
-		Trigger: "config-get",
-		Args:    []string{input.AppName, "DOKKU_START_CMD"},
-	})
-	if err == nil && resp.ExitCode == 0 && len(resp.Stdout) > 0 {
-		command = strings.TrimSpace(resp.Stdout)
+	if startCmd := common.PropertyGet("ps", input.AppName, "start-cmd"); startCmd != "" {
+		command = startCmd
 	}
 
 	if input.ImageSourceType == "dockerfile" {
-		resp, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
-			Trigger: "config-get",
-			Args:    []string{input.AppName, "DOKKU_DOCKERFILE_START_CMD"},
-		})
-		if err == nil && resp.ExitCode == 0 && len(resp.Stdout) > 0 {
-			command = strings.TrimSpace(resp.Stdout)
+		if dockerfileStartCmd := common.PropertyGet("ps", input.AppName, "dockerfile-start-cmd"); dockerfileStartCmd != "" {
+			command = dockerfileStartCmd
 		}
 	}
 
@@ -814,6 +806,63 @@ func getComputedImagePullSecrets(appName string) string {
 	}
 
 	return imagePullSecrets
+}
+
+// pruneStaleImagePullSecretsFromDeployments rewrites the imagePullSecrets list on existing app
+// Deployments to contain only the names in keepNames. This removes references that helm has
+// lost track of due to strategic-merge accumulation on PodSpec.ImagePullSecrets, which is the
+// root cause of stale-secret pod hard crashes after rollbacks. The patch is a no-op when the
+// live list already matches.
+func pruneStaleImagePullSecretsFromDeployments(ctx context.Context, clientset KubernetesClient, namespace string, appName string, keepNames []string) error {
+	deployments, err := clientset.ListDeployments(ctx, ListDeploymentsInput{
+		Namespace:     namespace,
+		LabelSelector: fmt.Sprintf("app.kubernetes.io/part-of=%s", appName),
+	})
+	if err != nil {
+		return fmt.Errorf("error listing deployments: %w", err)
+	}
+
+	keepSet := map[string]struct{}{}
+	for _, name := range keepNames {
+		if name != "" {
+			keepSet[name] = struct{}{}
+		}
+	}
+
+	for _, deployment := range deployments {
+		live := deployment.Spec.Template.Spec.ImagePullSecrets
+		if needsImagePullSecretsPrune(live, keepSet) {
+			common.LogVerboseQuiet(fmt.Sprintf("Pruning stale imagePullSecrets entries from deployment %s", deployment.Name))
+			err := clientset.SetDeploymentImagePullSecrets(ctx, SetDeploymentImagePullSecretsInput{
+				Name:             deployment.Name,
+				Namespace:        namespace,
+				ImagePullSecrets: keepNames,
+			})
+			if err != nil {
+				return fmt.Errorf("error pruning deployment %s: %w", deployment.Name, err)
+			}
+		}
+	}
+
+	return nil
+}
+
+// needsImagePullSecretsPrune reports whether the live imagePullSecrets list differs from the
+// desired keep-set (either contains entries not in the keep-set or is missing entries in it).
+func needsImagePullSecretsPrune(live []corev1.LocalObjectReference, keepSet map[string]struct{}) bool {
+	if len(live) != len(keepSet) {
+		return true
+	}
+
+	seen := map[string]struct{}{}
+	for _, ref := range live {
+		if _, ok := keepSet[ref.Name]; !ok {
+			return true
+		}
+		seen[ref.Name] = struct{}{}
+	}
+
+	return len(seen) != len(keepSet)
 }
 
 func getGlobalIngressClass() string {
@@ -1687,17 +1736,57 @@ func installHelmCharts(ctx context.Context, clientset KubernetesClient, shouldIn
 			return fmt.Errorf("Error parsing deploy timeout duration: %w", err)
 		}
 
-		err = helmAgent.InstallOrUpgradeChart(ctx, ChartInput{
-			ChartPath:   chart.ChartPath,
-			Namespace:   chart.Namespace,
-			ReleaseName: chart.ReleaseName,
-			RepoURL:     chart.RepoURL,
-			Values:      values,
-			Version:     chart.Version,
-			Timeout:     timeoutDuration,
-			Wait:        true,
-		})
+		installedRevision, err := helmAgent.InstalledRevision(chart.ReleaseName)
 		if err != nil {
+			return fmt.Errorf("Error getting installed revision for %s: %w", chart.ReleaseName, err)
+		}
+
+		hooks, err := selectChartHooks(chart.ReleaseName, installedRevision.Version, chart.Version)
+		if err != nil {
+			return fmt.Errorf("Error selecting upgrade hooks for chart %s: %w", chart.ReleaseName, err)
+		}
+
+		buildChartInput := func(version string) ChartInput {
+			return ChartInput{
+				ChartPath:   chart.ChartPath,
+				Namespace:   chart.Namespace,
+				ReleaseName: chart.ReleaseName,
+				RepoURL:     chart.RepoURL,
+				Values:      values,
+				Version:     version,
+				Timeout:     timeoutDuration,
+				Wait:        true,
+			}
+		}
+
+		lastUpgradedVersion := ""
+		for _, hook := range hooks {
+			if hook.PreUpgrade != nil {
+				common.LogVerbose(fmt.Sprintf("Running pre-upgrade hook %s@%s", chart.ReleaseName, hook.TargetVersion))
+				if err := hook.PreUpgrade(ctx, clientset, chart, installedRevision); err != nil {
+					return fmt.Errorf("Error running pre-upgrade hook for %s@%s: %w", chart.ReleaseName, hook.TargetVersion, err)
+				}
+			}
+
+			common.LogVerbose(fmt.Sprintf("Upgrading %s to intermediate version %s", chart.ReleaseName, hook.TargetVersion))
+			if err := helmAgent.InstallOrUpgradeChart(ctx, buildChartInput(hook.TargetVersion)); err != nil {
+				return fmt.Errorf("Error installing chart %s at version %s: %w", chart.ChartPath, hook.TargetVersion, err)
+			}
+			lastUpgradedVersion = hook.TargetVersion
+
+			if hook.PostUpgrade != nil {
+				common.LogVerbose(fmt.Sprintf("Running post-upgrade hook %s@%s", chart.ReleaseName, hook.TargetVersion))
+				if err := hook.PostUpgrade(ctx, clientset, chart, installedRevision); err != nil {
+					return fmt.Errorf("Error running post-upgrade hook for %s@%s: %w", chart.ReleaseName, hook.TargetVersion, err)
+				}
+			}
+		}
+
+		if lastUpgradedVersion == chart.Version {
+			continue
+		}
+
+		if err := helmAgent.InstallOrUpgradeChart(ctx, buildChartInput(chart.Version)); err != nil {
 			return fmt.Errorf("Error installing chart %s: %w", chart.ChartPath, err)
 		}
 	}

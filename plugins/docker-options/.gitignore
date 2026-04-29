@@ -1,0 +1,11 @@
+/commands
+/subcommands/*
+/triggers/*
+/triggers
+/install
+/post-*
+/report
+/docker-args-build
+/docker-args-deploy
+/docker-args-process-deploy
+/docker-args-run

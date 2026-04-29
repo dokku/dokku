@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
-	"github.com/dokku/dokku/plugins/config"
 	dockeroptions "github.com/dokku/dokku/plugins/docker-options"
 )
 
@@ -37,13 +36,7 @@ func TriggerCorePostDeploy(appName string) error {
 		return err
 	}
 
-	entries := map[string]string{
-		"DOKKU_APP_RESTORE": "1",
-	}
-
-	return common.SuppressOutput(func() error {
-		return config.SetMany(appName, entries, false, false)
-	})
+	return common.PropertyWrite("ps", appName, "restore", "true")
 }
 
 // TriggerCorePostExtract ensures that the main Procfile is the one specified by procfile-path
@@ -135,29 +128,40 @@ func TriggerInstall() error {
 		if common.FileExists(dokkuScaleExtracted) {
 			os.Remove(dokkuScaleExtracted)
 		}
-
-		results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
-			Trigger: "config-get",
-			Args:    []string{appName, "DOKKU_DOCKER_STOP_TIMEOUT"},
-		})
-		stopTimeout := results.StdoutContents()
-		if stopTimeout == "" {
-			continue
-		}
-
-		common.LogVerboseQuiet(fmt.Sprintf("Setting %s ps property 'stop-timeout-seconds' to %v", appName, stopTimeout))
-		if err := common.PropertyWrite("ps", appName, "stop-timeout-seconds", stopTimeout); err != nil {
-			return err
-		}
-
-		_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
-			Trigger: "config-unset",
-			Args:    []string{appName, "DOKKU_DOCKER_STOP_TIMEOUT"},
-		})
-		if err != nil {
-			return err
-		}
 	}
+
+	if err := common.MigrateConfigToProperties("ps", []common.MigrateConfigEntry{
+		{
+			ConfigVar: "DOKKU_DOCKER_STOP_TIMEOUT",
+			Property:  "stop-timeout-seconds",
+		},
+		{
+			ConfigVar: "DOKKU_APP_RESTORE",
+			Property:  "restore",
+			Transform: func(value string) string {
+				if value == "0" {
+					return "false"
+				}
+				return "true"
+			},
+		},
+		{
+			ConfigVar:       "DOKKU_SKIP_DEPLOY",
+			GlobalConfigVar: "DOKKU_SKIP_DEPLOY",
+			Property:        "skip-deploy",
+		},
+		{
+			ConfigVar: "DOKKU_START_CMD",
+			Property:  "start-cmd",
+		},
+		{
+			ConfigVar: "DOKKU_DOCKERFILE_START_CMD",
+			Property:  "dockerfile-start-cmd",
+		},
+	}); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -240,13 +244,7 @@ func TriggerPostDelete(appName string) error {
 
 // TriggerPostStop sets the restore property to false
 func TriggerPostStop(appName string) error {
-	entries := map[string]string{
-		"DOKKU_APP_RESTORE": "0",
-	}
-
-	return common.SuppressOutput(func() error {
-		return config.SetMany(appName, entries, false, false)
-	})
+	return common.PropertyWrite("ps", appName, "restore", "false")
 }
 
 // TriggerPostReleaseBuilder ensures an app has an up to date scale parameters
@@ -321,14 +319,24 @@ func TriggerPsSetScale(appName string, skipDeploy bool, clearExisting bool, proc
 
 func TriggerPsGetProperty(appName string, property string) error {
 	computedValueMap := map[string]common.ReportFunc{
+		"restore":              reportRestore,
+		"skip-deploy":          reportComputedSkipDeploy,
 		"stop-timeout-seconds": reportComputedStopTimeoutSeconds,
 	}
 
 	fn, ok := computedValueMap[property]
 	if !ok {
-		return fmt.Errorf("Invalid network property specified: %v", property)
+		return fmt.Errorf("Invalid ps property specified: %v", property)
 	}
 
 	fmt.Println(fn(appName))
 	return nil
+}
+
+func reportComputedSkipDeploy(appName string) string {
+	value := common.PropertyGet("ps", appName, "skip-deploy")
+	if value == "" {
+		value = common.PropertyGet("ps", "--global", "skip-deploy")
+	}
+	return value
 }

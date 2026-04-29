@@ -336,6 +336,33 @@ teardown() {
   assert_output_contains "heroku-buildpack-python"
 }
 
+@test "(buildpacks) deploy with buildpacks from app.json" {
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP template_buildpacks_appjson
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "heroku-buildpack-python"
+}
+
+template_buildpacks_appjson() {
+  local APP="$1"
+  local APP_REPO_DIR="$2"
+  [[ -z "$APP" ]] && local APP="$TEST_APP"
+  echo "injecting app.json with buildpacks -> $APP_REPO_DIR/app.json"
+  cat <<EOF >"$APP_REPO_DIR/app.json"
+{
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    }
+  ]
+}
+EOF
+
+  echo "injecting requirements.txt -> $APP_REPO_DIR/requirements.txt"
+  touch "$APP_REPO_DIR/requirements.txt"
+}
+
 template_buildpacks_cleanup() {
   local APP="$1"
   local APP_REPO_DIR="$2"

@@ -93,6 +93,71 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_contains "Setting netrc auth entry for host github.com"
+
+  run /bin/bash -c "printf 'piped-password' | dokku git:auth github.com piped-username"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Setting netrc auth entry for host github.com"
+
+  run /bin/bash -c "netrc get --netrc-file ${DOKKU_ROOT}/.netrc github.com"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "piped-username:piped-password"
+}
+
+@test "(git) git:auth-status" {
+  run /bin/bash -c "dokku git:auth-status"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku git:auth-status github.com"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:auth github.com username password"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:auth-status github.com"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku git:auth-status github.com username password"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:auth-status github.com username wrong-password"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku git:auth-status github.com other-username password"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku git:auth-status github.com username"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Missing password for netrc auth entry"
+
+  run /bin/bash -c "printf 'password' | dokku git:auth-status github.com username"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "printf 'wrong-password' | dokku git:auth-status github.com username"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
 }
 
 @test "(git) git:sync new [errors]" {
@@ -730,4 +795,67 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output "master"
+}
+
+@test "(git:report) --format json" {
+  run /bin/bash -c "dokku git:set $TEST_APP deploy-branch main"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:report $TEST_APP --format json | jq -r '.\"deploy-branch\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "main"
+
+  run /bin/bash -c "dokku git:report $TEST_APP --format json | jq -r '.\"global-deploy-branch\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "master"
+
+  run /bin/bash -c "dokku git:report $TEST_APP --format json | jq -e ."
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:report --format json | jq -e ."
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:report $TEST_APP --format json --git-deploy-branch"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "--format flag cannot be specified when specifying an info flag"
+}
+
+@test "(git:report) --global" {
+  run /bin/bash -c "dokku git:report --global"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "global git information"
+  assert_output_contains "Git global deploy branch"
+}
+
+@test "(git:report) --global --format json" {
+  run /bin/bash -c "dokku git:report --global --format json | jq -e ."
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:report --global --format json | jq -r '.\"global-deploy-branch\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "master"
+
+  run /bin/bash -c "dokku git:report --global --format json | jq -r 'has(\"deploy-branch\")'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
 }

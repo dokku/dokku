@@ -545,6 +545,21 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `config-set`
+
+- Description: Sets one or more config values for an app without restarting (when --no-restart flag is specified)
+- Invoked by: app-json plugin
+- Arguments: `[--no-restart] $APP $KEY1=VALUE1 [$KEY2=VALUE2 ...]`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+# TODO
+```
+
 ### `core-post-deploy`
 
 > To avoid issues with community plugins, this plugin trigger should be used _only_ for core plugins. Please avoid using this trigger in your own plugins.
@@ -794,7 +809,7 @@ APP="$1"; IMAGE_SOURCE_TYPE="$2"
 
 ### `docker-args-process-deploy`
 
-- Description: `$PROC_TYPE` may be set to magic `_all_` process type to signify global docker deploy options.
+- Description: emits docker arguments scoped to a specific Procfile process type. The `docker-options` plugin implements this trigger to surface options registered via `docker-options:add --process <PROC>`. `$PROC_TYPE` may be empty (or set to the magic `_default_` value) to signify default-scope docker deploy options.
 - Invoked by: `dokku deploy`
 - Arguments: `$APP $IMAGE_SOURCE_TYPE $IMAGE_TAG [$PROC_TYPE $CONTAINER_INDEX]`
 - Example:

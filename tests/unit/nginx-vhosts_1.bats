@@ -28,6 +28,59 @@ teardown() {
   assert_output "$help_output"
 }
 
+@test "(nginx:report) --format json" {
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:set $TEST_APP bind-address-ipv4 127.0.0.1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:report $TEST_APP --format json | jq -r '.\"bind-address-ipv4\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "127.0.0.1"
+
+  run /bin/bash -c "dokku nginx:report $TEST_APP --format json | jq -e ."
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:report --format json | jq -e ."
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:report $TEST_APP --format json --nginx-bind-address-ipv4"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "--format flag cannot be specified when specifying an info flag"
+}
+
+@test "(nginx:report) --global --format json" {
+  run /bin/bash -c "dokku nginx:report --global --format json | jq -e ."
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:report --global --format json | jq -r 'keys[]' | grep -v 'global-' | wc -l"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "0"
+
+  run /bin/bash -c "dokku nginx:report --global"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "global nginx information"
+}
+
 @test "(nginx-vhosts) proxy:build-config (domains:disable/enable)" {
   run deploy_app
   echo "output: $output"

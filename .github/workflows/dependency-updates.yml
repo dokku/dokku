@@ -1,0 +1,110 @@
+---
+name: 'dependency-updates'
+
+# yamllint disable-line rule:truthy
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  prepare:
+    name: prepare
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - name: Clone
+        uses: actions/checkout@v6
+
+      - name: Build dependency matrix
+        id: matrix
+        run: |
+          matrix=$(jq -c '
+            [
+              (.dependencies[]      | {section: "dependencies",      name, version, url: .urls.amd64}),
+              (.predependencies[]   | {section: "predependencies",   name, version, url: .urls.amd64}),
+              (.recommendations[]   | {section: "recommendations",   name, version, url: .urls.amd64})
+            ]
+            | map(. + {repo: (.url | capture("https://github.com/(?<r>[^/]+/[^/]+)/releases").r)})
+            | map(del(.url))
+            | {include: .}
+          ' contrib/dependencies.json)
+          echo "matrix=${matrix}" >> "$GITHUB_OUTPUT"
+
+  update:
+    name: 'update / ${{ matrix.name }}'
+    runs-on: ubuntu-24.04
+    needs: prepare
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
+    concurrency:
+      group: dependency-updates-${{ matrix.name }}
+      cancel-in-progress: false
+    steps:
+      - name: Clone
+        uses: actions/checkout@v6
+
+      - name: Resolve latest release
+        id: latest
+        env:
+          GH_TOKEN: ${{ secrets.HOMEBREW_GITHUB_API_TOKEN }}
+          REPO: ${{ matrix.repo }}
+          CURRENT: ${{ matrix.version }}
+        run: |
+          tag=$(gh release view --repo "$REPO" --json tagName -q .tagName)
+          latest="${tag#v}"
+          echo "latest=${latest}" >> "$GITHUB_OUTPUT"
+          if dpkg --compare-versions "$latest" gt "$CURRENT"; then
+            echo "outdated=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "outdated=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Bump dependency entry
+        if: steps.latest.outputs.outdated == 'true'
+        env:
+          SECTION: ${{ matrix.section }}
+          NAME: ${{ matrix.name }}
+          OLD: ${{ matrix.version }}
+          NEW: ${{ steps.latest.outputs.latest }}
+        run: |
+          tmp=$(mktemp)
+          jq --arg section "$SECTION" \
+             --arg name "$NAME" \
+             --arg old "$OLD" \
+             --arg new "$NEW" '
+            ($old) as $oldv |
+            ($new) as $newv |
+            (.[$section]) |= map(
+              if .name == $name then
+                .version = $newv
+                | .urls.amd64 |= (gsub("v" + $oldv; "v" + $newv) | gsub($oldv; $newv))
+                | .urls.arm64 |= (gsub("v" + $oldv; "v" + $newv) | gsub($oldv; $newv))
+              else . end
+            )
+          ' contrib/dependencies.json > "$tmp"
+          mv "$tmp" contrib/dependencies.json
+
+      - name: Open pull request
+        if: steps.latest.outputs.outdated == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.HOMEBREW_GITHUB_API_TOKEN }}
+          branch: chore/bump-${{ matrix.name }}-${{ steps.latest.outputs.latest }}
+          base: ${{ github.ref_name }}
+          delete-branch: true
+          committer: 'Dokku Bot <no-reply@dokku.com>'
+          author: 'Dokku Bot <no-reply@dokku.com>'
+          commit-message: 'chore: bump ${{ matrix.name }} to ${{ steps.latest.outputs.latest }}'
+          title: 'chore: bump ${{ matrix.name }} to ${{ steps.latest.outputs.latest }}'
+          body: |
+            Bumps `${{ matrix.name }}` from `${{ matrix.version }}` to `${{ steps.latest.outputs.latest }}`.
+
+            Release notes: https://github.com/${{ matrix.repo }}/releases/tag/v${{ steps.latest.outputs.latest }}
+          labels: dependencies

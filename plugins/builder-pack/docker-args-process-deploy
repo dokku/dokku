@@ -20,7 +20,7 @@ trigger-builder-pack-docker-args-process-deploy() {
 
   if [[ "$inject_launcher" == "true" ]]; then
     # without this, the command and arguments are passed as args to the default process type
-    output="--entrypoint launcher "
+    output=" --entrypoint launcher"
   fi
 
   echo -n "$STDIN$output"

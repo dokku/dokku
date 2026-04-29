@@ -77,7 +77,7 @@ spec:
             {{- end }}
             envFrom:
             - secretRef:
-                name: env-{{ $.Values.global.app_name }}.{{ $.Values.global.deployment_id }}
+                name: config-{{ $.Values.global.app_name }}
                 optional: true
             image: {{ $.Values.global.image.name }}
             imagePullPolicy: Always
