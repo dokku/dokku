@@ -808,6 +808,63 @@ func getComputedImagePullSecrets(appName string) string {
 	return imagePullSecrets
 }
 
+// pruneStaleImagePullSecretsFromDeployments rewrites the imagePullSecrets list on existing app
+// Deployments to contain only the names in keepNames. This removes references that helm has
+// lost track of due to strategic-merge accumulation on PodSpec.ImagePullSecrets, which is the
+// root cause of stale-secret pod hard crashes after rollbacks. The patch is a no-op when the
+// live list already matches.
+func pruneStaleImagePullSecretsFromDeployments(ctx context.Context, clientset KubernetesClient, namespace string, appName string, keepNames []string) error {
+	deployments, err := clientset.ListDeployments(ctx, ListDeploymentsInput{
+		Namespace:     namespace,
+		LabelSelector: fmt.Sprintf("app.kubernetes.io/part-of=%s", appName),
+	})
+	if err != nil {
+		return fmt.Errorf("error listing deployments: %w", err)
+	}
+
+	keepSet := map[string]struct{}{}
+	for _, name := range keepNames {
+		if name != "" {
+			keepSet[name] = struct{}{}
+		}
+	}
+
+	for _, deployment := range deployments {
+		live := deployment.Spec.Template.Spec.ImagePullSecrets
+		if needsImagePullSecretsPrune(live, keepSet) {
+			common.LogVerboseQuiet(fmt.Sprintf("Pruning stale imagePullSecrets entries from deployment %s", deployment.Name))
+			err := clientset.SetDeploymentImagePullSecrets(ctx, SetDeploymentImagePullSecretsInput{
+				Name:             deployment.Name,
+				Namespace:        namespace,
+				ImagePullSecrets: keepNames,
+			})
+			if err != nil {
+				return fmt.Errorf("error pruning deployment %s: %w", deployment.Name, err)
+			}
+		}
+	}
+
+	return nil
+}
+
+// needsImagePullSecretsPrune reports whether the live imagePullSecrets list differs from the
+// desired keep-set (either contains entries not in the keep-set or is missing entries in it).
+func needsImagePullSecretsPrune(live []corev1.LocalObjectReference, keepSet map[string]struct{}) bool {
+	if len(live) != len(keepSet) {
+		return true
+	}
+
+	seen := map[string]struct{}{}
+	for _, ref := range live {
+		if _, ok := keepSet[ref.Name]; !ok {
+			return true
+		}
+		seen[ref.Name] = struct{}{}
+	}
+
+	return len(seen) != len(keepSet)
+}
+
 func getGlobalIngressClass() string {
 	return common.PropertyGetDefault("scheduler-k3s", "--global", "ingress-class", DefaultIngressClass)
 }

@@ -3,6 +3,7 @@ package scheduler_k3s
 import (
 	"bufio"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -972,6 +973,64 @@ func (k KubernetesClient) ScaleDeployment(ctx context.Context, input ScaleDeploy
 	}, metav1.UpdateOptions{})
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+// SetDeploymentImagePullSecretsInput contains all the information needed to overwrite a Deployment's imagePullSecrets list
+type SetDeploymentImagePullSecretsInput struct {
+	// Name is the Kubernetes deployment name
+	Name string
+
+	// Namespace is the Kubernetes namespace
+	Namespace string
+
+	// ImagePullSecrets is the desired list of imagePullSecret names. May be empty.
+	ImagePullSecrets []string
+}
+
+// SetDeploymentImagePullSecrets overwrites the deployment pod template's imagePullSecrets list with exactly
+// the names supplied in input.ImagePullSecrets. Strategic-merge patches honor patchMergeKey semantics, which
+// is precisely what causes leaked entries to accumulate in the first place. To force a hard replace we use
+// a JSON merge patch on the imagePullSecrets path; JSON merge patch replaces array fields wholesale.
+func (k KubernetesClient) SetDeploymentImagePullSecrets(ctx context.Context, input SetDeploymentImagePullSecretsInput) error {
+	type patchPodSpec struct {
+		ImagePullSecrets []corev1.LocalObjectReference `json:"imagePullSecrets"`
+	}
+	type patchPodTemplate struct {
+		Spec patchPodSpec `json:"spec"`
+	}
+	type patchSpec struct {
+		Template patchPodTemplate `json:"template"`
+	}
+	type patchBody struct {
+		Spec patchSpec `json:"spec"`
+	}
+
+	refs := make([]corev1.LocalObjectReference, 0, len(input.ImagePullSecrets))
+	for _, name := range input.ImagePullSecrets {
+		refs = append(refs, corev1.LocalObjectReference{Name: name})
+	}
+
+	body := patchBody{
+		Spec: patchSpec{
+			Template: patchPodTemplate{
+				Spec: patchPodSpec{
+					ImagePullSecrets: refs,
+				},
+			},
+		},
+	}
+
+	data, err := json.Marshal(body)
+	if err != nil {
+		return fmt.Errorf("error marshalling deployment patch: %w", err)
+	}
+
+	_, err = k.Client.AppsV1().Deployments(input.Namespace).Patch(ctx, input.Name, types.MergePatchType, data, metav1.PatchOptions{})
+	if err != nil {
+		return fmt.Errorf("error patching deployment imagePullSecrets: %w", err)
 	}
 
 	return nil
