@@ -119,7 +119,9 @@ dokku nginx:show-config node-js-app
 
 ### Validating nginx configs
 
-It may be desired to validate an nginx config outside of the deployment process. To do so, run the `nginx:validate-config` command. With no arguments, this will validate all app nginx configs, one at a time. A minimal wrapper nginx config is generated for each app's nginx config, upon which `nginx -t` will be run.
+App-supplied `nginx.conf.sigil` files are pre-validated automatically at the start of every deploy, immediately after the template is extracted from the source tree and before the build phase runs. The template is rendered with sigil and run through `nginx -t` against a minimal wrapper config; if validation fails, the deploy is aborted before any build work begins. To bypass this behavior, set `disable-custom-config` to `true` (see "Disabling custom nginx config" below).
+
+It may also be desired to validate an nginx config outside of the deployment process. To do so, run the `nginx:validate-config` command. With no arguments, this will validate all app nginx configs, one at a time. A minimal wrapper nginx config is generated for each app's nginx config, upon which `nginx -t` will be run.
 
 ```shell
 dokku nginx:validate-config

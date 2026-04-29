@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/internal-functions"
+source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
@@ -49,6 +50,8 @@ trigger-nginx-vhosts-core-post-extract() {
   else
     fn-nginx-vhosts-copy-from-directory "$APP" "$SOURCECODE_WORK_DIR" "$CONF_SIGIL_PATH"
   fi
+
+  fn-nginx-vhosts-pre-validate-custom-template "$APP"
 }
 
 trigger-nginx-vhosts-core-post-extract "$@"

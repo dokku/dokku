@@ -96,4 +96,6 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_failure
+  assert_output_contains "Pre-validating custom nginx.conf.sigil"
+  assert_output_contains "Custom nginx.conf.sigil failed nginx -t validation"
 }
