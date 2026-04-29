@@ -264,11 +264,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  run /bin/bash -c "echo '-v /tmp' >> $DOKKU_ROOT/$TEST_APP/DOCKER_OPTIONS_DEPLOY"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  run /bin/bash -c "echo '# comment' >> $DOKKU_ROOT/$TEST_APP/DOCKER_OPTIONS_DEPLOY"
+  run /bin/bash -c "dokku docker-options:add $TEST_APP deploy \"-v /tmp\""
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -295,11 +291,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  run /bin/bash -c "echo '-v /tmp' >> $DOKKU_ROOT/$TEST_APP/DOCKER_OPTIONS_DEPLOY"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  run /bin/bash -c "echo '# comment' >> $DOKKU_ROOT/$TEST_APP/DOCKER_OPTIONS_DEPLOY"
+  run /bin/bash -c "dokku docker-options:add $TEST_APP deploy \"-v /tmp\""
   echo "output: $output"
   echo "status: $status"
   assert_success

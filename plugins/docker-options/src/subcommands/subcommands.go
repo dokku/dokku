@@ -75,7 +75,6 @@ func main() {
 		err = dockeroptions.CommandClear(appName, *processes, phases)
 	case "list":
 		args := flag.NewFlagSet("docker-options:list", flag.ExitOnError)
-		args.SetInterspersed(false)
 		processType := args.String("process", "", "process type to query (omit for the default scope)")
 		phase := args.String("phase", "", "phase to query [build|deploy|run] (required)")
 		args.Parse(os.Args[2:])

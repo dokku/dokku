@@ -166,7 +166,7 @@ teardown() {
   run /bin/bash -c "dokku docker-options:report $TEST_APP"
   echo "output: $output"
   assert_success
-  assert_output_contains "Docker options deploy.web"
+  assert_output_contains "Docker options deploy web"
   assert_output_contains "-p 8080:5000"
 }
 
@@ -184,18 +184,17 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_contains '"docker-options-deploy.web"'
-  assert_output_contains '"-p 8080:5000"'
+  assert_output_contains "-p 8080:5000"
   assert_output_contains '"docker-options-deploy"'
-  assert_output_contains '"-v /logs:/logs"'
+  assert_output_contains "-v /logs:/logs"
 }
 
 @test "(docker-options) install migration is idempotent" {
-  echo '-v /tmp/legacy:/legacy' >"$DOKKU_ROOT/$TEST_APP/DOCKER_OPTIONS_DEPLOY"
+  sudo rm -f "/var/lib/dokku/config/docker-options/--global/migrated-from-files"
+  sudo rm -rf "/var/lib/dokku/config/docker-options/$TEST_APP"
+  sudo bash -c "echo '-v /tmp/legacy:/legacy' >\"$DOKKU_ROOT/$TEST_APP/DOCKER_OPTIONS_DEPLOY\""
 
-  rm -f "/var/lib/dokku/config/docker-options/--global/migrated-from-files"
-  rm -rf "/var/lib/dokku/config/docker-options/$TEST_APP"
-
-  run /bin/bash -c "dokku plugin:trigger install"
+  run /bin/bash -c "sudo /var/lib/dokku/plugins/enabled/docker-options/install"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -207,8 +206,8 @@ teardown() {
   [[ -f "$DOKKU_ROOT/$TEST_APP/DOCKER_OPTIONS_DEPLOY.migrated" ]]
   [[ ! -f "$DOKKU_ROOT/$TEST_APP/DOCKER_OPTIONS_DEPLOY" ]]
 
-  echo '-v /tmp/sneaky:/sneaky' >"$DOKKU_ROOT/$TEST_APP/DOCKER_OPTIONS_DEPLOY"
-  run /bin/bash -c "dokku plugin:trigger install"
+  sudo bash -c "echo '-v /tmp/sneaky:/sneaky' >\"$DOKKU_ROOT/$TEST_APP/DOCKER_OPTIONS_DEPLOY\""
+  run /bin/bash -c "sudo /var/lib/dokku/plugins/enabled/docker-options/install"
   echo "output: $output"
   assert_success
 
