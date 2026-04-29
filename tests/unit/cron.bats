@@ -103,22 +103,18 @@ teardown() {
 }
 
 @test "(cron:report) --global --format json" {
-  run /bin/bash -c "dokku cron:set --global mailto admin@example.com"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
   run /bin/bash -c "dokku cron:report --global --format json | jq -e ."
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku cron:report --global"
+  run /bin/bash -c "dokku cron:report --global --format json | jq -r 'has(\"cron-maintenance\")'"
   echo "output: $output"
   echo "status: $status"
   assert_success
+  assert_output "false"
 
-  run /bin/bash -c "dokku cron:set --global mailto"
+  run /bin/bash -c "dokku cron:report --global"
   echo "output: $output"
   echo "status: $status"
   assert_success
