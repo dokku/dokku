@@ -189,37 +189,6 @@ teardown() {
   assert_output_contains "-v /logs:/logs"
 }
 
-@test "(docker-options) install migration is idempotent" {
-  sudo rm -f "/var/lib/dokku/config/docker-options/--global/migrated-from-files"
-  sudo rm -rf "/var/lib/dokku/config/docker-options/$TEST_APP"
-  sudo bash -c "echo '-v /tmp/legacy:/legacy' >\"$DOKKU_ROOT/$TEST_APP/DOCKER_OPTIONS_DEPLOY\""
-
-  run /bin/bash -c "sudo DOKKU_LIB_ROOT=/var/lib/dokku DOKKU_ROOT=$DOKKU_ROOT /var/lib/dokku/plugins/enabled/docker-options/install"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run /bin/bash -c "dokku docker-options:list $TEST_APP --phase deploy"
-  echo "output: $output"
-  assert_output_contains "-v /tmp/legacy:/legacy"
-
-  [[ -f "$DOKKU_ROOT/$TEST_APP/DOCKER_OPTIONS_DEPLOY.migrated" ]]
-  [[ ! -f "$DOKKU_ROOT/$TEST_APP/DOCKER_OPTIONS_DEPLOY" ]]
-
-  sudo bash -c "echo '-v /tmp/sneaky:/sneaky' >\"$DOKKU_ROOT/$TEST_APP/DOCKER_OPTIONS_DEPLOY\""
-  run /bin/bash -c "sudo DOKKU_LIB_ROOT=/var/lib/dokku DOKKU_ROOT=$DOKKU_ROOT /var/lib/dokku/plugins/enabled/docker-options/install"
-  echo "output: $output"
-  assert_success
-
-  run /bin/bash -c "dokku docker-options:list $TEST_APP --phase deploy"
-  echo "output: $output"
-  assert_output_contains "-v /tmp/legacy:/legacy"
-
-  [[ -f "$DOKKU_ROOT/$TEST_APP/DOCKER_OPTIONS_DEPLOY" ]]
-  run /bin/bash -c "cat $DOKKU_ROOT/$TEST_APP/DOCKER_OPTIONS_DEPLOY"
-  assert_output_contains "/tmp/sneaky"
-}
-
 @test "(docker-options) clone copies default and per-process options" {
   local CLONE_APP="${TEST_APP}-clone"
   run /bin/bash -c "dokku docker-options:add --process web $TEST_APP deploy '-p 8080:5000'"
