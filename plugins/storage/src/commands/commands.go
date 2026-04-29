@@ -18,8 +18,12 @@ Manage mounted volumes
 Additional commands:`
 
 	helpContent = `
-    storage:ensure-directory [--chown option] <directory>, Creates a persistent storage directory in the recommended storage path
+    storage:create <name> [<path>] [flags], Register a named storage entry
+    storage:destroy <name>, Remove a named storage entry (must be unmounted from every app first)
+    storage:ensure-directory [--chown option] <directory>, [DEPRECATED] use storage:create instead
+    storage:info <name> [--format text|json], Show details for one storage entry
     storage:list <app> [--format text|json], List bind mounts for app's container(s) (host:container)
+    storage:list-entries [--scheduler s] [--format text|json], List registered storage entries
     storage:mount <app> <host-dir:container-dir>, Create a new bind mount
     storage:report [<app>] [<flag>], Displays a storage report for one or more apps
     storage:unmount <app> <host-dir:container-dir>, Remove an existing bind mount`
