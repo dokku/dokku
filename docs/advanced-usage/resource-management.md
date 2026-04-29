@@ -32,7 +32,7 @@ Valid resource options include:
 
 See the [Supported Resource Management Properties](/docs/deployment/schedulers/docker-local.md#supported-resource-management-properties) section of the docker local scheduler documentation for more information on how each resource limit maps to Docker.
 
-Resource limits and reservations are applied only during the `run` and `deploy` phases of an application, and will not impact the `build` phase of an application.
+Resource reservations are applied only during the `run` and `deploy` phases of an application. Resource limits also apply during the `build` phase when explicitly configured against the `build` process type - see [Build-time Resource Limits](#build-time-resource-limits) below.
 
 ### Resource Limits
 
@@ -119,6 +119,40 @@ dokku resource:limit --process-type web node-js-app
        network-egress:
        nvidia-gpu:
 ```
+
+#### Build-time Resource Limits
+
+> [!IMPORTANT]
+> New as of 0.38.0
+
+Resource limits may be applied to the build container by using the special `build` process type. This allows constraining memory and CPU usage during the `build` phase, which is otherwise unconstrained.
+
+```shell
+dokku resource:limit --memory 4g --process-type build node-js-app
+```
+
+```
+=====> Setting resource limits for node-js-app (build)
+       memory: 4g
+```
+
+Build-time limits are applied via the `docker-args-process-build` plugin trigger. They do not inherit from default (`_default_`) limits - only limits explicitly set against the `build` process type are applied at build time. This is intentional: build phases often require more memory than the runtime process, and silently inheriting a small runtime limit would cause confusing OOM failures.
+
+> [!WARNING]
+> Do not use `build` as a runtime process type in your `Procfile`. The `build` name is reserved by the resource plugin to scope limits to the build container, and using it as a Procfile entry will cause those limits to be applied to that runtime container as well.
+
+Supported limits per builder:
+
+| Builder    | `--cpu` | `--memory` | `--memory-swap` | `--nvidia-gpu` |
+|------------|---------|------------|-----------------|----------------|
+| herokuish  | yes     | yes        | yes             | yes            |
+| dockerfile | no      | yes        | yes             | no             |
+| pack       | no      | no         | no              | no             |
+| nixpacks   | no      | no         | no              | no             |
+| railpack   | no      | no         | no              | no             |
+| lambda     | no      | no         | no              | no             |
+
+Resource keys outside the supported set for a builder are silently ignored. Reservations (`resource:reserve`) are never applied at build time - only limits.
 
 #### Clearing Resource Limits
 
