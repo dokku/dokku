@@ -91,6 +91,84 @@ func TriggerDockerArgsProcessDeploy(appName string, processType string) error {
 	return nil
 }
 
+// TriggerDockerArgsProcessBuild outputs build-phase docker options for a builder
+func TriggerDockerArgsProcessBuild(appName string, builderType string) error {
+	stdin, err := io.ReadAll(os.Stdin)
+	if err != nil {
+		return err
+	}
+
+	if os.Getenv("DOKKU_OMIT_RESOURCE_ARGS") == "1" {
+		fmt.Print(string(stdin))
+		return nil
+	}
+
+	allowed := validBuildLimitsForBuilder(builderType)
+	if len(allowed) == 0 {
+		fmt.Print(string(stdin))
+		return nil
+	}
+
+	resources, err := common.PropertyGetAll("resource", appName)
+	if err != nil {
+		fmt.Print(string(stdin))
+		return nil
+	}
+
+	limits := make(map[string]string)
+	prefix := "build.limit."
+	for key, value := range resources {
+		if !strings.HasPrefix(key, prefix) {
+			continue
+		}
+		resourceKey := strings.TrimPrefix(key, prefix)
+		if !allowed[resourceKey] {
+			continue
+		}
+
+		flagName := resourceKey
+		if resourceKey == "cpu" {
+			flagName = "cpus"
+		}
+		if resourceKey == "nvidia-gpu" {
+			flagName = "gpus"
+		}
+		limits[flagName] = value
+	}
+
+	for key, value := range limits {
+		if value == "" {
+			continue
+		}
+		value = addMemorySuffixForDocker(key, value)
+		fmt.Printf(" --%s=%s ", key, value)
+	}
+
+	fmt.Print(string(stdin))
+	return nil
+}
+
+// validBuildLimitsForBuilder returns the resource keys (in property-key form)
+// that the named builder can apply during the build phase. An empty map means
+// the builder does not support build-phase resource limits.
+func validBuildLimitsForBuilder(builderType string) map[string]bool {
+	switch builderType {
+	case "herokuish":
+		return map[string]bool{
+			"cpu":         true,
+			"memory":      true,
+			"memory-swap": true,
+			"nvidia-gpu":  true,
+		}
+	case "dockerfile":
+		return map[string]bool{
+			"memory":      true,
+			"memory-swap": true,
+		}
+	}
+	return nil
+}
+
 // TriggerInstall runs the install step for the resource plugin
 func TriggerInstall() error {
 	if err := common.PropertySetup("resource"); err != nil {

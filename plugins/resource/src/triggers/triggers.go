@@ -18,6 +18,10 @@ func main() {
 
 	var err error
 	switch trigger {
+	case "docker-args-process-build":
+		appName := flag.Arg(0)
+		builderType := flag.Arg(1)
+		err = resource.TriggerDockerArgsProcessBuild(appName, builderType)
 	case "docker-args-process-deploy":
 		appName := flag.Arg(0)
 		processType := flag.Arg(3)

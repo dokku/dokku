@@ -5,6 +5,7 @@
 /install
 /post-*
 /report
+/docker-args-process-build
 /docker-args-process-deploy
 /docker-args-process-run
 /resource-get-property
