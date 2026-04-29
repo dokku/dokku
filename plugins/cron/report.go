@@ -10,22 +10,33 @@ import (
 
 // ReportSingleApp is an internal function that displays the cron report for one or more apps
 func ReportSingleApp(appName string, format string, infoFlag string) error {
-	if err := common.VerifyAppName(appName); err != nil {
-		return err
+	if appName != "--global" {
+		if err := common.VerifyAppName(appName); err != nil {
+			return err
+		}
 	}
 
-	flags := map[string]common.ReportFunc{
-		"--cron-mailfrom":             reportMailfrom,
-		"--cron-mailto":               reportMailto,
-		"--cron-task-count":           reportTasks,
-		"--cron-global-maintenance":   reportGlobalMaintenance,
-		"--cron-computed-maintenance": reportComputedMaintenance,
-		"--cron-maintenance":          reportMaintenance,
-	}
+	var flags map[string]common.ReportFunc
+	if appName == "--global" {
+		flags = map[string]common.ReportFunc{
+			"--cron-mailfrom":           reportMailfrom,
+			"--cron-mailto":             reportMailto,
+			"--cron-global-maintenance": reportGlobalMaintenance,
+		}
+	} else {
+		flags = map[string]common.ReportFunc{
+			"--cron-mailfrom":             reportMailfrom,
+			"--cron-mailto":               reportMailto,
+			"--cron-task-count":           reportTasks,
+			"--cron-global-maintenance":   reportGlobalMaintenance,
+			"--cron-computed-maintenance": reportComputedMaintenance,
+			"--cron-maintenance":          reportMaintenance,
+		}
 
-	extraFlags := addCronMaintenanceFlags(appName, infoFlag)
-	for flag, fn := range extraFlags {
-		flags[flag] = fn
+		extraFlags := addCronMaintenanceFlags(appName, infoFlag)
+		for flag, fn := range extraFlags {
+			flags[flag] = fn
+		}
 	}
 
 	flagKeys := []string{}

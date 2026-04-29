@@ -831,3 +831,31 @@ teardown() {
   assert_failure
   assert_output_contains "--format flag cannot be specified when specifying an info flag"
 }
+
+@test "(git:report) --global" {
+  run /bin/bash -c "dokku git:report --global"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "global git information"
+  assert_output_contains "Git global deploy branch"
+}
+
+@test "(git:report) --global --format json" {
+  run /bin/bash -c "dokku git:report --global --format json | jq -e ."
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:report --global --format json | jq -r '.\"global-deploy-branch\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "master"
+
+  run /bin/bash -c "dokku git:report --global --format json | jq -r 'has(\"deploy-branch\")'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
+}

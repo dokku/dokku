@@ -8,13 +8,20 @@ import (
 
 // ReportSingleApp is an internal function that displays the ports report for one or more apps
 func ReportSingleApp(appName string, format string, infoFlag string) error {
-	if err := common.VerifyAppName(appName); err != nil {
-		return err
+	if appName != "--global" {
+		if err := common.VerifyAppName(appName); err != nil {
+			return err
+		}
 	}
 
-	flags := map[string]common.ReportFunc{
-		"--ports-map":          reportPortMap,
-		"--ports-map-detected": reportPortMapDetected,
+	var flags map[string]common.ReportFunc
+	if appName == "--global" {
+		flags = map[string]common.ReportFunc{}
+	} else {
+		flags = map[string]common.ReportFunc{
+			"--ports-map":          reportPortMap,
+			"--ports-map-detected": reportPortMapDetected,
+		}
 	}
 
 	flagKeys := []string{}

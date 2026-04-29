@@ -175,6 +175,40 @@ teardown() {
   assert_line 0 "herokuish"
 }
 
+@test "(builder:report) --global --format json" {
+  run /bin/bash -c "dokku builder:set --global selected dockerfile"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku builder:report --global --format json | jq -e ."
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku builder:report --global --format json | jq -r '.\"builder-global-selected\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "dockerfile"
+
+  run /bin/bash -c "dokku builder:report --global --format json | jq -r 'has(\"builder-selected\")'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku builder:report --global"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku builder:set --global selected"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
 @test "(builder:set)" {
   run deploy_app python
   echo "output: $output"

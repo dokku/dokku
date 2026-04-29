@@ -16,6 +16,41 @@ teardown() {
   global_teardown
 }
 
+@test "(checks:report) --global --format json" {
+  run /bin/bash -c "dokku checks:set --global wait-to-retire 90"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku checks:report --global --format json | jq -e ."
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku checks:report --global --format json | jq -r '.\"global-wait-to-retire\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "90"
+
+  run /bin/bash -c "dokku checks:report --global --format json | jq -r 'has(\"wait-to-retire\")'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku checks:report --global"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "global checks information"
+
+  run /bin/bash -c "dokku checks:set --global wait-to-retire"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
 @test "(checks) checks:help" {
   run /bin/bash -c "dokku checks"
   echo "output: $output"

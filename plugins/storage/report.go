@@ -3,14 +3,21 @@ package storage
 import "github.com/dokku/dokku/plugins/common"
 
 func ReportSingleApp(appName string, format string, infoFlag string) error {
-	if err := common.VerifyAppName(appName); err != nil {
-		return err
+	if appName != "--global" {
+		if err := common.VerifyAppName(appName); err != nil {
+			return err
+		}
 	}
 
-	flags := map[string]common.ReportFunc{
-		"--storage-build-mounts":  reportBuildMounts,
-		"--storage-deploy-mounts": reportDeployMounts,
-		"--storage-run-mounts":    reportRunMounts,
+	var flags map[string]common.ReportFunc
+	if appName == "--global" {
+		flags = map[string]common.ReportFunc{}
+	} else {
+		flags = map[string]common.ReportFunc{
+			"--storage-build-mounts":  reportBuildMounts,
+			"--storage-deploy-mounts": reportDeployMounts,
+			"--storage-run-mounts":    reportRunMounts,
+		}
 	}
 
 	flagKeys := []string{}

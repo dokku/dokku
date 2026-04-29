@@ -12,14 +12,21 @@ import (
 // Process-scoped options surface as dynamic per-process keys, one per
 // configured process+phase combination.
 func ReportSingleApp(appName string, format string, infoFlag string) error {
-	if err := common.VerifyAppName(appName); err != nil {
-		return err
+	if appName != "--global" {
+		if err := common.VerifyAppName(appName); err != nil {
+			return err
+		}
 	}
 
-	flags := map[string]common.ReportFunc{
-		"--docker-options-build":  reportBuildOptions,
-		"--docker-options-deploy": reportDeployOptions,
-		"--docker-options-run":    reportRunOptions,
+	var flags map[string]common.ReportFunc
+	if appName == "--global" {
+		flags = map[string]common.ReportFunc{}
+	} else {
+		flags = map[string]common.ReportFunc{
+			"--docker-options-build":  reportBuildOptions,
+			"--docker-options-deploy": reportDeployOptions,
+			"--docker-options-run":    reportRunOptions,
+		}
 	}
 
 	processTypes, err := ListProcessTypesWithOptions(appName)

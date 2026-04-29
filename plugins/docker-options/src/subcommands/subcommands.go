@@ -84,11 +84,14 @@ func main() {
 	case "report":
 		args := flag.NewFlagSet("docker-options:report", flag.ExitOnError)
 		format := args.String("format", "stdout", "format: [ stdout | json ]")
-		osArgs, infoFlag, flagErr := common.ParseReportArgs("docker-options", os.Args[2:])
+		reportArgs, flagErr := common.ParseReportArgs("docker-options", os.Args[2:])
 		if flagErr == nil {
-			args.Parse(osArgs)
+			args.Parse(reportArgs.OSArgs)
 			appName := args.Arg(0)
-			err = dockeroptions.CommandReport(appName, *format, infoFlag)
+			if reportArgs.IsGlobal {
+				appName = "--global"
+			}
+			err = dockeroptions.CommandReport(appName, *format, reportArgs.InfoFlag)
 		} else {
 			err = flagErr
 		}

@@ -21,11 +21,14 @@ func main() {
 	case "report":
 		args := flag.NewFlagSet("app-json:report", flag.ExitOnError)
 		format := args.String("format", "stdout", "format: [ stdout | json ]")
-		osArgs, infoFlag, flagErr := common.ParseReportArgs("appjson", os.Args[2:])
+		reportArgs, flagErr := common.ParseReportArgs("appjson", os.Args[2:])
 		if flagErr == nil {
-			args.Parse(osArgs)
+			args.Parse(reportArgs.OSArgs)
 			appName := args.Arg(0)
-			err = appjson.CommandReport(appName, *format, infoFlag)
+			if reportArgs.IsGlobal {
+				appName = "--global"
+			}
+			err = appjson.CommandReport(appName, *format, reportArgs.InfoFlag)
 		}
 	case "set":
 		args := flag.NewFlagSet("app-json:set", flag.ExitOnError)

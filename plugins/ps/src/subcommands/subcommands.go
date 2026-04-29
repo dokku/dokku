@@ -33,11 +33,14 @@ func main() {
 	case "report":
 		args := flag.NewFlagSet("ps:report", flag.ExitOnError)
 		format := args.String("format", "stdout", "format: [ stdout | json ]")
-		osArgs, infoFlag, flagErr := common.ParseReportArgs("ps", os.Args[2:])
+		reportArgs, flagErr := common.ParseReportArgs("ps", os.Args[2:])
 		if flagErr == nil {
-			args.Parse(osArgs)
+			args.Parse(reportArgs.OSArgs)
 			appName := args.Arg(0)
-			err = ps.CommandReport(appName, *format, infoFlag)
+			if reportArgs.IsGlobal {
+				appName = "--global"
+			}
+			err = ps.CommandReport(appName, *format, reportArgs.InfoFlag)
 		}
 	case "restart":
 		args := flag.NewFlagSet("ps:restart", flag.ExitOnError)

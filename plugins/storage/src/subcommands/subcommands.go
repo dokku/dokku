@@ -40,11 +40,14 @@ func main() {
 	case "report":
 		args := flag.NewFlagSet("storage:report", flag.ExitOnError)
 		format := args.String("format", "stdout", "format: [ stdout | json ]")
-		osArgs, infoFlag, flagErr := common.ParseReportArgs("storage", os.Args[2:])
+		reportArgs, flagErr := common.ParseReportArgs("storage", os.Args[2:])
 		if flagErr == nil {
-			args.Parse(osArgs)
+			args.Parse(reportArgs.OSArgs)
 			appName := args.Arg(0)
-			err = storage.CommandReport(appName, *format, infoFlag)
+			if reportArgs.IsGlobal {
+				appName = "--global"
+			}
+			err = storage.CommandReport(appName, *format, reportArgs.InfoFlag)
 		}
 	case "unmount":
 		args := flag.NewFlagSet("storage:unmount", flag.ExitOnError)

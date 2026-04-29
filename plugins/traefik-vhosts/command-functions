@@ -33,16 +33,12 @@ cmd-traefik-report() {
   declare desc="displays a traefik report for one or more apps"
   declare cmd="traefik:report"
   [[ "$1" == "$cmd" ]] && shift 1
-  declare APP="$1" INFO_FLAG="$2"
-  local FORMAT="stdout"
+  fn-report-parse-args "$@"
+  set -- "${REPORT_ARGS[@]}"
+  declare APP="${1:-}" INFO_FLAG="${2:-}"
 
-  if [[ -n "$APP" ]] && [[ "$APP" == "--format" ]]; then
-    FORMAT="$INFO_FLAG"
-    APP=""
-    INFO_FLAG=""
-  elif [[ -n "$INFO_FLAG" ]] && [[ "$INFO_FLAG" == "--format" ]]; then
-    FORMAT="$3"
-    INFO_FLAG=""
+  if [[ "$REPORT_IS_GLOBAL" == "true" ]]; then
+    APP="--global"
   elif [[ -n "$APP" ]] && [[ "$APP" == --* ]]; then
     INFO_FLAG="$APP"
     APP=""
@@ -52,12 +48,14 @@ cmd-traefik-report() {
     INFO_FLAG="true"
   fi
 
-  if [[ -z "$APP" ]]; then
+  if [[ "$APP" == "--global" ]]; then
+    cmd-traefik-report-single "$APP" "$INFO_FLAG" "$REPORT_FORMAT"
+  elif [[ -z "$APP" ]]; then
     for app in $(dokku_apps); do
-      cmd-traefik-report-single "$app" "$INFO_FLAG" "$FORMAT" | tee || true
+      cmd-traefik-report-single "$app" "$INFO_FLAG" "$REPORT_FORMAT" | tee || true
     done
   else
-    cmd-traefik-report-single "$APP" "$INFO_FLAG" "$FORMAT"
+    cmd-traefik-report-single "$APP" "$INFO_FLAG" "$REPORT_FORMAT"
   fi
 }
 
@@ -66,7 +64,9 @@ cmd-traefik-report-single() {
   if [[ "$INFO_FLAG" == "true" ]]; then
     INFO_FLAG=""
   fi
-  verify_app_name "$APP"
+  if [[ "$APP" != "--global" ]]; then
+    verify_app_name "$APP"
+  fi
   local flag_map=(
     "--traefik-api-enabled: $(fn-traefik-api-enabled)"
     "--traefik-api-entry-point: $(fn-traefik-api-entry-point)"
@@ -85,7 +85,6 @@ cmd-traefik-report-single() {
     "--traefik-https-entry-point: $(fn-traefik-https-entry-point)"
   )
 
-  # Get dns-provider-* env vars and add them (masked for stdout, unmasked for json)
   local dns_provider_env_vars
   dns_provider_env_vars="$(fn-traefik-dns-provider-env-vars)"
   if [[ -n "$dns_provider_env_vars" ]]; then
@@ -103,17 +102,19 @@ cmd-traefik-report-single() {
     done <<<"$dns_provider_env_vars"
   fi
 
+  fn-report-validate-format "$FORMAT" "$INFO_FLAG"
+
   if [[ "$FORMAT" == "json" ]]; then
-    local json_output="{}"
-    for flag in "${flag_map[@]}"; do
-      local key value
-      key="$(echo "$flag" | cut -d':' -f1 | sed 's/^--traefik-//')"
-      value="$(echo "$flag" | cut -d':' -f2- | sed 's/^ //')"
-      json_output="$(echo "$json_output" | jq -c --arg key "$key" --arg value "$value" '. + {($key): $value}')"
-    done
-    echo "$json_output"
-  elif [[ -z "$INFO_FLAG" ]]; then
-    dokku_log_info2_quiet "${APP} traefik information"
+    fn-report-emit-json flag_map "traefik"
+    return
+  fi
+
+  if [[ -z "$INFO_FLAG" ]]; then
+    if [[ "$APP" == "--global" ]]; then
+      dokku_log_info2_quiet "global traefik information"
+    else
+      dokku_log_info2_quiet "${APP} traefik information"
+    fi
     for flag in "${flag_map[@]}"; do
       key="$(echo "${flag#--}" | cut -f1 -d' ' | tr - ' ')"
       dokku_log_verbose "$(printf "%-30s %-25s" "${key^}" "${flag#*: }")"
