@@ -6,12 +6,124 @@ import (
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
+	"mvdan.cc/sh/v3/shell"
 )
 
 // DefaultProcessType is the sentinel process-type key used for options that
 // apply to every container in an app (i.e. options not scoped to a specific
 // Procfile process type).
 const DefaultProcessType = "_default_"
+
+// SplitOptionString shell-tokenizes input, groups tokens on flag boundaries,
+// and returns one re-serialized option per group. A docker-options subcommand
+// flag (currently just --process) that lands inside the option content -
+// because the user typed it after the app name, where pflag's
+// SetInterspersed(false) hands it back as positional - is lifted into the
+// returned processes slice rather than stored as a docker option. The caller
+// merges those processes with whatever pflag already captured. Empty or
+// whitespace-only input returns empty slices.
+func SplitOptionString(input string) (options []string, processes []string, err error) {
+	if strings.TrimSpace(input) == "" {
+		return nil, nil, nil
+	}
+
+	fields, err := shell.Fields(input, func(string) string { return "" })
+	if err != nil {
+		return nil, nil, fmt.Errorf("Unable to parse docker option: %s", err.Error())
+	}
+
+	var current []string
+	flush := func() error {
+		if len(current) == 0 {
+			return nil
+		}
+		head := current[0]
+		if head == "--process" {
+			if len(current) < 2 {
+				return fmt.Errorf("--process requires a value")
+			}
+			if len(current) > 2 {
+				return fmt.Errorf("--process accepts a single value, got %d", len(current)-1)
+			}
+			processes = append(processes, current[1])
+			current = nil
+			return nil
+		}
+		if strings.HasPrefix(head, "--process=") {
+			if len(current) > 1 {
+				return fmt.Errorf("--process=value cannot be followed by additional tokens")
+			}
+			processes = append(processes, head[len("--process="):])
+			current = nil
+			return nil
+		}
+		options = append(options, joinShellTokens(current))
+		current = nil
+		return nil
+	}
+
+	for _, tok := range fields {
+		if isFlagToken(tok) && len(current) > 0 {
+			if err := flush(); err != nil {
+				return nil, nil, err
+			}
+		}
+		current = append(current, tok)
+	}
+	if err := flush(); err != nil {
+		return nil, nil, err
+	}
+
+	return options, processes, nil
+}
+
+// isFlagToken reports whether tok looks like a CLI flag (long or short) rather
+// than a value. Treating any token that begins with `-` and has more than one
+// character as a flag matches docker's flag conventions and avoids the need
+// for a per-flag whitelist.
+func isFlagToken(tok string) bool {
+	return len(tok) > 1 && tok[0] == '-'
+}
+
+// joinShellTokens joins tokens into a single string suitable for storage,
+// shell-quoting any token that contains characters the bash scheduler's
+// `eval` re-tokenization would interpret. The stored line round-trips through
+// `eval set -- "$line"` back to the original token slice.
+func joinShellTokens(tokens []string) string {
+	parts := make([]string, len(tokens))
+	for i, tok := range tokens {
+		parts[i] = quoteShellArg(tok)
+	}
+	return strings.Join(parts, " ")
+}
+
+// quoteShellArg returns s wrapped in single quotes when it contains characters
+// the shell would otherwise interpret (whitespace, quotes, expansion sigils,
+// globs, redirections, etc.). Embedded single quotes are escaped with the
+// standard `'\''` close-escape-open sequence. Tokens free of such characters
+// are returned verbatim so the stored representation stays human-readable for
+// the common case.
+func quoteShellArg(s string) string {
+	if s == "" {
+		return "''"
+	}
+	if !needsShellQuoting(s) {
+		return s
+	}
+	return "'" + strings.ReplaceAll(s, "'", `'\''`) + "'"
+}
+
+func needsShellQuoting(s string) bool {
+	for _, r := range s {
+		switch r {
+		case ' ', '\t', '\n', '"', '\'', '$', '`', '\\',
+			'*', '?', '[', ']', '<', '>', '|', '&', ';',
+			'(', ')', '{', '}', '!', '#', '~':
+			return true
+		}
+	}
+	return false
+}
 
 func propertyKey(processType, phase string) string {
 	if processType == "" {

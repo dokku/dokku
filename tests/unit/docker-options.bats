@@ -362,3 +362,75 @@ teardown() {
   assert_success
   assert_output_contains "TOKEN is: hello" 2
 }
+
+@test "(docker-options:add) splits multi-flag input into separate options" {
+  run /bin/bash -c "dokku docker-options:add $TEST_APP build --build-arg X=Y --link foo --link bar"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku docker-options:list $TEST_APP --phase build"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "--build-arg X=Y"
+  assert_output_contains "--link foo"
+  assert_output_contains "--link bar"
+
+  run /bin/bash -c "dokku docker-options:report $TEST_APP --docker-options-build"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "--build-arg X=Y"
+  assert_output_contains "--link foo"
+  assert_output_contains "--link bar"
+}
+
+@test "(docker-options:remove) symmetrically removes multi-flag input" {
+  run /bin/bash -c "dokku docker-options:add $TEST_APP build --build-arg X=Y --link foo --link bar"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku docker-options:remove $TEST_APP build --build-arg X=Y --link foo --link bar"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku docker-options:list $TEST_APP --phase build"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+}
+
+@test "(docker-options:add) lifts misplaced --process out of option content" {
+  run /bin/bash -c "dokku docker-options:add $TEST_APP deploy --link foo --process web"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku docker-options:list $TEST_APP --process web --phase deploy"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "--link foo"
+
+  run /bin/bash -c "dokku docker-options:list $TEST_APP --phase deploy"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "--link foo" 0
+}
+
+@test "(docker-options) dockerfile build skips unsupported flags from multi-flag input" {
+  run /bin/bash -c "dokku docker-options:add $TEST_APP build --build-arg PAYPAL_CLIENT_ID=abc --link postgres"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app dockerfile
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
