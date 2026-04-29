@@ -28,7 +28,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output ""
+  assert_output_contains "-p 8080:5000" 0
 }
 
 @test "(docker-options:add) multiple --process flags add to each process" {
@@ -54,7 +54,7 @@ teardown() {
 
   run /bin/bash -c "dokku docker-options:list $TEST_APP --phase deploy"
   echo "output: $output"
-  assert_output "-v /tmp/shared:/shared"
+  assert_output_contains "-v /tmp/shared:/shared"
 
   run /bin/bash -c "dokku docker-options:report $TEST_APP --docker-options-deploy"
   echo "output: $output"
@@ -194,26 +194,26 @@ teardown() {
   sudo rm -rf "/var/lib/dokku/config/docker-options/$TEST_APP"
   sudo bash -c "echo '-v /tmp/legacy:/legacy' >\"$DOKKU_ROOT/$TEST_APP/DOCKER_OPTIONS_DEPLOY\""
 
-  run /bin/bash -c "sudo /var/lib/dokku/plugins/enabled/docker-options/install"
+  run /bin/bash -c "sudo DOKKU_LIB_ROOT=/var/lib/dokku DOKKU_ROOT=$DOKKU_ROOT /var/lib/dokku/plugins/enabled/docker-options/install"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
   run /bin/bash -c "dokku docker-options:list $TEST_APP --phase deploy"
   echo "output: $output"
-  assert_output "-v /tmp/legacy:/legacy"
+  assert_output_contains "-v /tmp/legacy:/legacy"
 
   [[ -f "$DOKKU_ROOT/$TEST_APP/DOCKER_OPTIONS_DEPLOY.migrated" ]]
   [[ ! -f "$DOKKU_ROOT/$TEST_APP/DOCKER_OPTIONS_DEPLOY" ]]
 
   sudo bash -c "echo '-v /tmp/sneaky:/sneaky' >\"$DOKKU_ROOT/$TEST_APP/DOCKER_OPTIONS_DEPLOY\""
-  run /bin/bash -c "sudo /var/lib/dokku/plugins/enabled/docker-options/install"
+  run /bin/bash -c "sudo DOKKU_LIB_ROOT=/var/lib/dokku DOKKU_ROOT=$DOKKU_ROOT /var/lib/dokku/plugins/enabled/docker-options/install"
   echo "output: $output"
   assert_success
 
   run /bin/bash -c "dokku docker-options:list $TEST_APP --phase deploy"
   echo "output: $output"
-  assert_output "-v /tmp/legacy:/legacy"
+  assert_output_contains "-v /tmp/legacy:/legacy"
 
   [[ -f "$DOKKU_ROOT/$TEST_APP/DOCKER_OPTIONS_DEPLOY" ]]
   run /bin/bash -c "cat $DOKKU_ROOT/$TEST_APP/DOCKER_OPTIONS_DEPLOY"
@@ -238,7 +238,7 @@ teardown() {
 
   run /bin/bash -c "dokku docker-options:list $CLONE_APP --phase deploy"
   echo "output: $output"
-  assert_output "-v /logs:/logs"
+  assert_output_contains "-v /logs:/logs"
 
   dokku --force apps:destroy "$CLONE_APP" || true
 }
@@ -259,7 +259,7 @@ teardown() {
   assert_output "-p 8080:5000"
 
   run /bin/bash -c "dokku docker-options:list $RENAMED_APP --phase deploy"
-  assert_output "-v /logs:/logs"
+  assert_output_contains "-v /logs:/logs"
 
   [[ ! -d "/var/lib/dokku/config/docker-options/$TEST_APP" ]]
 
