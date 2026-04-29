@@ -5,7 +5,7 @@ go 1.25.5
 require (
 	github.com/dokku/dokku/plugins/common v0.0.0-00010101000000-000000000000
 	github.com/joho/godotenv v1.5.1
-	github.com/onsi/gomega v1.39.1
+	github.com/onsi/gomega v1.40.0
 	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/spf13/pflag v1.0.10
 )
@@ -17,6 +17,7 @@ require (
 	github.com/hashicorp/errwrap v1.0.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/kr/fs v0.1.0 // indirect
+	github.com/kr/text v0.2.0 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/melbahja/goph v1.5.0 // indirect
