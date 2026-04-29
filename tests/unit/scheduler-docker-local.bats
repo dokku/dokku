@@ -298,10 +298,10 @@ teardown() {
   assert_success
   assert_output_contains "has running containers, skipping rm" 0
 
-  run /bin/bash -c "test -f /var/lib/dokku/data/scheduler-docker-local/dead-images && grep -c \"$running_image\" /var/lib/dokku/data/scheduler-docker-local/dead-images || echo 0"
+  run /bin/bash -c "grep -F \"$running_image\" /var/lib/dokku/data/scheduler-docker-local/dead-images 2>/dev/null || true"
   echo "output: $output"
   echo "status: $status"
-  assert_output "0"
+  assert_output ""
 
   run /bin/bash -c "docker container inspect $TEST_APP.web.1 --format '{{.State.Status}}'"
   echo "output: $output"
