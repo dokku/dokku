@@ -183,3 +183,107 @@ teardown() {
   assert_success
   assert_output "mount_volume:/mount"
 }
+
+@test "(storage) storage:create / storage:list-entries / storage:destroy" {
+  run /bin/bash -c "dokku storage:create rdmtest-entry"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku storage:list-entries --format json | jq -r '.[].name' | grep '^rdmtest-entry$'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "rdmtest-entry"
+
+  run /bin/bash -c "dokku storage:info rdmtest-entry --format json | jq -r '.scheduler'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "docker-local"
+
+  run /bin/bash -c "dokku storage:destroy rdmtest-entry"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
+@test "(storage) storage:create rejects invalid names" {
+  # underscore: rejected
+  run /bin/bash -c "dokku storage:create rdmtest_invalid"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  # uppercase: rejected
+  run /bin/bash -c "dokku storage:create RdmTest"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  # 46 chars: too long
+  long_name=$(printf 'a%.0s' {1..46})
+  run /bin/bash -c "dokku storage:create $long_name"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  # legacy- prefix: reserved
+  run /bin/bash -c "dokku storage:create legacy-foo"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+}
+
+@test "(storage) storage:create + storage:mount with named entry attaches multiple entries to one app" {
+  run /bin/bash -c "dokku storage:create rdmtest-data"
+  assert_success
+  run /bin/bash -c "dokku storage:create rdmtest-cache"
+  assert_success
+
+  run /bin/bash -c "dokku storage:mount $TEST_APP rdmtest-data --container-dir /data"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku storage:mount $TEST_APP rdmtest-cache --container-dir /cache"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  # cleanup
+  run /bin/bash -c "dokku storage:unmount $TEST_APP rdmtest-data"
+  assert_success
+  run /bin/bash -c "dokku storage:unmount $TEST_APP rdmtest-cache"
+  assert_success
+  run /bin/bash -c "dokku storage:destroy rdmtest-data"
+  assert_success
+  run /bin/bash -c "dokku storage:destroy rdmtest-cache"
+  assert_success
+}
+
+@test "(storage) storage:destroy refuses to remove a still-mounted entry" {
+  run /bin/bash -c "dokku storage:create rdmtest-busy"
+  assert_success
+  run /bin/bash -c "dokku storage:mount $TEST_APP rdmtest-busy --container-dir /data"
+  assert_success
+
+  run /bin/bash -c "dokku storage:destroy rdmtest-busy"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "still mounted"
+
+  run /bin/bash -c "dokku storage:unmount $TEST_APP rdmtest-busy"
+  assert_success
+  run /bin/bash -c "dokku storage:destroy rdmtest-busy"
+  assert_success
+}
+
+@test "(storage) storage:ensure-directory emits deprecation warning" {
+  run /bin/bash -c "dokku storage:ensure-directory $TEST_APP 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "deprecated"
+}

@@ -2920,6 +2920,34 @@ APP="$1"
 # TODO
 ```
 
+### `storage-app-mounts`
+
+- Description: Returns the (entry, attachment) pairs an app has for the given phase, in JSON. Schedulers consume this to render volume mounts.
+- Invoked by: scheduler plugins during deploy
+- Arguments: `$APP $PHASE`
+- Output: a JSON array of objects shaped `{"entry": Entry, "attachment": Attachment}`
+
+### `storage-create`
+
+- Description: Provisions or updates the underlying volume for a k3s storage entry. Called when `storage:create` or `storage:set` runs against a k3s entry. Receives the JSON-encoded entry on stdin.
+- Invoked by: `dokku storage:create`, `dokku storage:set`
+- Arguments: `$ENTRY_NAME`
+- Stdin: JSON-encoded `Entry` payload
+
+### `storage-destroy`
+
+- Description: Releases the underlying volume for a k3s storage entry. Called when `storage:destroy` runs against a k3s entry. Receives the JSON-encoded entry on stdin.
+- Invoked by: `dokku storage:destroy`
+- Arguments: `$ENTRY_NAME`
+- Stdin: JSON-encoded `Entry` payload
+
+### `storage-status`
+
+- Description: Returns the current status of a storage entry's underlying volume. Used by `storage:wait` to poll the cluster. The handler should print one line: `Bound`, `Pending`, or `Lost` for k3s entries.
+- Invoked by: `dokku storage:wait`
+- Arguments: `$ENTRY_NAME`
+- Stdin: JSON-encoded `Entry` payload
+
 ### `traefik-template-source`
 
 - Description: Retrieves an alternative template for the traefik compose config
