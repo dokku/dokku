@@ -935,12 +935,22 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 		}
 	}
 
-	if err := CreateOrUpdateConfigSecret(ctx, appName, env.Map()); err != nil {
+	if err := CreateOrUpdateConfigSecret(ctx, CreateOrUpdateConfigSecretInput{
+		AppName:     appName,
+		Env:         env.Map(),
+		Annotations: globalAnnotations.SecretAnnotations,
+		Labels:      globalLabels.SecretLabels,
+	}); err != nil {
 		return fmt.Errorf("Error syncing config secret: %w", err)
 	}
 
 	if dokkuManagedPullSecret {
-		if err := CreateOrUpdateImagePullSecret(ctx, appName, dokkuPullSecretBytes); err != nil {
+		if err := CreateOrUpdateImagePullSecret(ctx, CreateOrUpdateImagePullSecretInput{
+			AppName:          appName,
+			DockerConfigJSON: dokkuPullSecretBytes,
+			Annotations:      globalAnnotations.SecretAnnotations,
+			Labels:           globalLabels.SecretLabels,
+		}); err != nil {
 			return fmt.Errorf("Error syncing image pull secret: %w", err)
 		}
 	} else {

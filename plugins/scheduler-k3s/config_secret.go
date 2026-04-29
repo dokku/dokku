@@ -17,9 +17,11 @@ type ConfigSecretValues struct {
 
 // ConfigSecretGlobalValues contains the global values for the config secret chart
 type ConfigSecretGlobalValues struct {
-	AppName   string            `yaml:"app_name"`
-	Namespace string            `yaml:"namespace"`
-	Secrets   map[string]string `yaml:"secrets,omitempty"`
+	Annotations map[string]string `yaml:"annotations,omitempty"`
+	AppName     string            `yaml:"app_name"`
+	Labels      map[string]string `yaml:"labels,omitempty"`
+	Namespace   string            `yaml:"namespace"`
+	Secrets     map[string]string `yaml:"secrets,omitempty"`
 }
 
 // GetConfigSecretReleaseName returns the helm release name for the config secret
@@ -32,8 +34,17 @@ func GetConfigSecretName(appName string) string {
 	return fmt.Sprintf("config-%s", appName)
 }
 
+// CreateOrUpdateConfigSecretInput contains the inputs to CreateOrUpdateConfigSecret
+type CreateOrUpdateConfigSecretInput struct {
+	AppName     string
+	Env         map[string]string
+	Annotations map[string]string
+	Labels      map[string]string
+}
+
 // CreateOrUpdateConfigSecret creates or updates the config env secret helm chart for an app
-func CreateOrUpdateConfigSecret(ctx context.Context, appName string, env map[string]string) error {
+func CreateOrUpdateConfigSecret(ctx context.Context, input CreateOrUpdateConfigSecretInput) error {
+	appName := input.AppName
 	if err := isKubernetesAvailable(); err != nil {
 		common.LogDebug("kubernetes not available, skipping config secret creation")
 		return nil
@@ -94,15 +105,17 @@ func CreateOrUpdateConfigSecret(ctx context.Context, appName string, env map[str
 	}
 
 	encodedSecrets := map[string]string{}
-	for key, value := range env {
+	for key, value := range input.Env {
 		encodedSecrets[key] = base64.StdEncoding.EncodeToString([]byte(value))
 	}
 
 	values := &ConfigSecretValues{
 		Global: ConfigSecretGlobalValues{
-			AppName:   appName,
-			Namespace: namespace,
-			Secrets:   encodedSecrets,
+			Annotations: input.Annotations,
+			AppName:     appName,
+			Labels:      input.Labels,
+			Namespace:   namespace,
+			Secrets:     encodedSecrets,
 		},
 	}
 

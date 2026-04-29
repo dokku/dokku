@@ -17,9 +17,11 @@ type ImagePullSecretValues struct {
 
 // ImagePullSecretGlobalValues contains the global values for the image pull secret chart
 type ImagePullSecretGlobalValues struct {
-	AppName          string `yaml:"app_name"`
-	Namespace        string `yaml:"namespace"`
-	PullSecretBase64 string `yaml:"pull_secret_base64"`
+	Annotations      map[string]string `yaml:"annotations,omitempty"`
+	AppName          string            `yaml:"app_name"`
+	Labels           map[string]string `yaml:"labels,omitempty"`
+	Namespace        string            `yaml:"namespace"`
+	PullSecretBase64 string            `yaml:"pull_secret_base64"`
 }
 
 // GetImagePullSecretReleaseName returns the helm release name for the image pull secret
@@ -32,8 +34,17 @@ func GetImagePullSecretName(appName string) string {
 	return fmt.Sprintf("pull-secret-%s", appName)
 }
 
+// CreateOrUpdateImagePullSecretInput contains the inputs to CreateOrUpdateImagePullSecret
+type CreateOrUpdateImagePullSecretInput struct {
+	AppName          string
+	DockerConfigJSON []byte
+	Annotations      map[string]string
+	Labels           map[string]string
+}
+
 // CreateOrUpdateImagePullSecret creates or updates the image pull secret helm chart for an app
-func CreateOrUpdateImagePullSecret(ctx context.Context, appName string, dockerConfigJSON []byte) error {
+func CreateOrUpdateImagePullSecret(ctx context.Context, input CreateOrUpdateImagePullSecretInput) error {
+	appName := input.AppName
 	if err := isKubernetesAvailable(); err != nil {
 		common.LogDebug("kubernetes not available, skipping image pull secret creation")
 		return nil
@@ -95,9 +106,11 @@ func CreateOrUpdateImagePullSecret(ctx context.Context, appName string, dockerCo
 
 	values := &ImagePullSecretValues{
 		Global: ImagePullSecretGlobalValues{
+			Annotations:      input.Annotations,
 			AppName:          appName,
+			Labels:           input.Labels,
 			Namespace:        namespace,
-			PullSecretBase64: base64.StdEncoding.EncodeToString(dockerConfigJSON),
+			PullSecretBase64: base64.StdEncoding.EncodeToString(input.DockerConfigJSON),
 		},
 	}
 

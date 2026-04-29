@@ -44,7 +44,12 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run deploy_app python "dokku@$DOKKU_DOMAIN:$TEST_APP"
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "sleep 30"
   echo "output: $output"
   echo "status: $status"
   assert_success
