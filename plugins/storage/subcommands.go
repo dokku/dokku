@@ -125,38 +125,102 @@ func isUserNamespacesEnabled() (bool, error) {
 	return strings.TrimSpace(result.StdoutContents()) == "true", nil
 }
 
-// CommandMount creates a new bind mount for an app
-func CommandMount(appName string, mountPath string) error {
-	if err := common.VerifyAppName(appName); err != nil {
-		return err
-	}
-
-	if err := VerifyPaths(mountPath); err != nil {
-		return err
-	}
-
-	if CheckIfPathExists(appName, mountPath, MountPhases) {
-		return errors.New("Mount path already exists.")
-	}
-
-	return dockeroptions.AddDockerOptionToPhases(appName, MountPhases, fmt.Sprintf("-v %s", mountPath))
+// CommandMountInput captures the optional flags accepted by storage:mount
+// when the second argument is a named entry rather than a colon-form path.
+type CommandMountInput struct {
+	AppName       string
+	NameOrPath    string
+	ContainerDir  string
+	Phases        []string
+	ProcessType   string
+	Subpath       string
+	Readonly      bool
+	VolumeOptions string
+	VolumeChown   string
 }
 
-// CommandUnmount removes an existing bind mount from an app
-func CommandUnmount(appName string, mountPath string) error {
-	if err := common.VerifyAppName(appName); err != nil {
+// CommandMount creates a new bind mount for an app. The second positional
+// argument may be either a legacy host:container[:options] string (kept
+// for back-compat on docker-local) or a registered storage entry name.
+func CommandMount(input CommandMountInput) error {
+	if err := common.VerifyAppName(input.AppName); err != nil {
 		return err
 	}
 
-	if err := VerifyPaths(mountPath); err != nil {
+	// Legacy colon form: keep writing into docker-options so existing
+	// users see no behavior change.
+	if strings.Contains(input.NameOrPath, ":") {
+		if err := VerifyPaths(input.NameOrPath); err != nil {
+			return err
+		}
+		if CheckIfPathExists(input.AppName, input.NameOrPath, MountPhases) {
+			return errors.New("Mount path already exists.")
+		}
+		return dockeroptions.AddDockerOptionToPhases(input.AppName, MountPhases, fmt.Sprintf("-v %s", input.NameOrPath))
+	}
+
+	// Named-entry form: persist as an attachment.
+	if !EntryExists(input.NameOrPath) {
+		return fmt.Errorf("storage entry %q does not exist; create it first with `dokku storage:create`", input.NameOrPath)
+	}
+	if input.ContainerDir == "" {
+		return errors.New("--container-dir is required when mounting a named storage entry")
+	}
+
+	entry, err := LoadEntry(input.NameOrPath)
+	if err != nil {
 		return err
 	}
 
-	if !CheckIfPathExists(appName, mountPath, MountPhases) {
-		return errors.New("Mount path does not exist.")
+	phases := input.Phases
+	if len(phases) == 0 {
+		phases = []string{PhaseDeploy, PhaseRun}
 	}
 
-	return dockeroptions.RemoveDockerOptionFromPhases(appName, MountPhases, fmt.Sprintf("-v %s", mountPath))
+	processType := input.ProcessType
+	if processType == "" {
+		processType = DefaultProcessType
+	}
+
+	attachment := &Attachment{
+		EntryName:     entry.Name,
+		ContainerPath: input.ContainerDir,
+		Phases:        phases,
+		ProcessType:   processType,
+		Subpath:       input.Subpath,
+		Readonly:      input.Readonly,
+		VolumeOptions: input.VolumeOptions,
+		VolumeChown:   input.VolumeChown,
+	}
+
+	return AddAttachment(input.AppName, attachment)
+}
+
+// CommandUnmountInput captures the flags accepted by storage:unmount when
+// the second argument is a named entry.
+type CommandUnmountInput struct {
+	AppName      string
+	NameOrPath   string
+	ContainerDir string
+}
+
+// CommandUnmount removes an existing bind mount from an app.
+func CommandUnmount(input CommandUnmountInput) error {
+	if err := common.VerifyAppName(input.AppName); err != nil {
+		return err
+	}
+
+	if strings.Contains(input.NameOrPath, ":") {
+		if err := VerifyPaths(input.NameOrPath); err != nil {
+			return err
+		}
+		if !CheckIfPathExists(input.AppName, input.NameOrPath, MountPhases) {
+			return errors.New("Mount path does not exist.")
+		}
+		return dockeroptions.RemoveDockerOptionFromPhases(input.AppName, MountPhases, fmt.Sprintf("-v %s", input.NameOrPath))
+	}
+
+	return RemoveAttachment(input.AppName, input.NameOrPath, input.ContainerDir)
 }
 
 // CommandList lists all bind mounts for an app

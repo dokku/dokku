@@ -86,10 +86,23 @@ func main() {
 		err = storage.CommandListEntries(*scheduler, *format)
 	case "mount":
 		args := flag.NewFlagSet("storage:mount", flag.ExitOnError)
+		containerDir := args.String("container-dir", "", "--container-dir: container path (named-entry form)")
+		phases := args.StringSlice("phase", nil, "--phase: phase to mount in (deploy, run; default both)")
+		processType := args.String("process-type", "", "--process-type: process type to mount for")
+		subpath := args.String("volume-subpath", "", "--volume-subpath: subpath within the entry")
+		readonly := args.Bool("volume-readonly", false, "--volume-readonly: mount the volume read-only")
+		volumeChown := args.String("volume-chown", "", "--volume-chown: chown option applied at mount time")
 		args.Parse(os.Args[2:])
-		appName := args.Arg(0)
-		mountPath := args.Arg(1)
-		err = storage.CommandMount(appName, mountPath)
+		err = storage.CommandMount(storage.CommandMountInput{
+			AppName:      args.Arg(0),
+			NameOrPath:   args.Arg(1),
+			ContainerDir: *containerDir,
+			Phases:       *phases,
+			ProcessType:  *processType,
+			Subpath:      *subpath,
+			Readonly:     *readonly,
+			VolumeChown:  *volumeChown,
+		})
 	case "report":
 		args := flag.NewFlagSet("storage:report", flag.ExitOnError)
 		format := args.String("format", "stdout", "format: [ stdout | json ]")
@@ -104,10 +117,13 @@ func main() {
 		}
 	case "unmount":
 		args := flag.NewFlagSet("storage:unmount", flag.ExitOnError)
+		containerDir := args.String("container-dir", "", "--container-dir: container path (named-entry form, disambiguates duplicates)")
 		args.Parse(os.Args[2:])
-		appName := args.Arg(0)
-		mountPath := args.Arg(1)
-		err = storage.CommandUnmount(appName, mountPath)
+		err = storage.CommandUnmount(storage.CommandUnmountInput{
+			AppName:      args.Arg(0),
+			NameOrPath:   args.Arg(1),
+			ContainerDir: *containerDir,
+		})
 	default:
 		err = fmt.Errorf("Invalid plugin subcommand call: %s", subcommand)
 	}
