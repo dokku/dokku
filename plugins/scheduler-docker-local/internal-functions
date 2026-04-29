@@ -243,6 +243,11 @@ fn-scheduler-docker-local-retire-images() {
     fi
 
     if echo "$RM_OUTPUT" | grep -q "image is being used by running container"; then
+      if fn-scheduler-docker-local-image-in-use-by-app "$RETIRE_APP" "$IMAGE_ID" ""; then
+        dokku_log_warn "Image ${IMAGE_ID} is still in use by ${RETIRE_APP}, removing from retire list"
+        DEAD_IMAGES+=("$IMAGE_ID")
+        continue
+      fi
       dokku_log_warn "Image ${IMAGE_ID} has running containers, skipping rm"
       continue
     fi
@@ -271,6 +276,39 @@ fn-scheduler-docker-local-register-retired() {
   if ! grep -q "$DOCKER_ID" "$DEAD_FILE"; then
     echo "${APP} ${DOCKER_ID} ${DEAD_TIME}" >>"${DEAD_FILE}"
   fi
+}
+
+fn-scheduler-docker-local-image-in-use-by-app() {
+  declare desc="returns 0 if IMAGE_ID is used by an app container that is not already pending retirement"
+  declare APP="$1" IMAGE_ID="$2" EXCLUDE_CONTAINER_ID="$3"
+  local DEAD_CONTAINER_FILE="${DOKKU_LIB_ROOT}/data/scheduler-docker-local/dead-containers"
+  local cid exclude_full_id container_image short_cid
+
+  if [[ -z "$IMAGE_ID" ]]; then
+    return 1
+  fi
+
+  if [[ -n "$EXCLUDE_CONTAINER_ID" ]]; then
+    exclude_full_id="$("$DOCKER_BIN" container inspect "$EXCLUDE_CONTAINER_ID" --format '{{.Id}}' 2>/dev/null || true)"
+  fi
+
+  for cid in $("$DOCKER_BIN" container ls -q --no-trunc -f label=com.dokku.app-name="$APP" 2>/dev/null); do
+    [[ -z "$cid" ]] && continue
+    if [[ -n "$exclude_full_id" ]] && [[ "$cid" == "$exclude_full_id" ]]; then
+      continue
+    fi
+
+    short_cid="${cid:0:12}"
+    if [[ -f "$DEAD_CONTAINER_FILE" ]] && grep -q "$short_cid" "$DEAD_CONTAINER_FILE"; then
+      continue
+    fi
+
+    container_image="$("$DOCKER_BIN" container inspect "$cid" --format '{{.Image}}' 2>/dev/null | cut -d: -f2 || true)"
+    if [[ -n "$container_image" ]] && [[ "$container_image" == "$IMAGE_ID" ]]; then
+      return 0
+    fi
+  done
+  return 1
 }
 
 fn-scheduler-docker-local-start-app-container() {

@@ -264,3 +264,47 @@ teardown() {
   echo "status: $status"
   assert_output "$TEST_APP.web.1"
 }
+
+@test "(scheduler-docker-local) ps:rebuild with image-based deploy keeps running image" {
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku checks:set $TEST_APP wait-to-retire 1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:from-image $TEST_APP cockpithq/cockpit:core-latest"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  local running_image
+  running_image="$(docker container inspect "$TEST_APP.web.1" --format '{{.Image}}' | cut -d: -f2)"
+  [[ -n "$running_image" ]]
+
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  sleep 3
+
+  run /bin/bash -c "dokku ps:retire"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "has running containers, skipping rm" 0
+
+  run /bin/bash -c "test -f /var/lib/dokku/data/scheduler-docker-local/dead-images && grep -c \"$running_image\" /var/lib/dokku/data/scheduler-docker-local/dead-images || echo 0"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "0"
+
+  run /bin/bash -c "docker container inspect $TEST_APP.web.1 --format '{{.State.Status}}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "running"
+}
