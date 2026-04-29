@@ -476,6 +476,8 @@ Each value in the `metadata` stanza can use the following interpolated strings:
 - `DOKKU_PROCESS_TYPE`: The name of the process being scaled
 - `DOKKU_APP_NAME`: The name of the app being scaled
 
+Dokku configures a Keda `fallback` (with a failure threshold of `3` and the configured replica count) on the generated `ScaledObject` so that scaling falls back to the configured replica count when a scaler's metric source becomes unavailable. Keda only allows `fallback` when at least one trigger is something other than `cpu` or `memory`, so Dokku omits the `fallback` block when every configured trigger is a `cpu` or `memory` scaler.
+
 ##### HTTP Autoscaling
 
 In addition to the built-in scalers that Keda provides, Dokku also supports Keda's HTTP Add On. This requires that the addon be properly installed and configured. For existing k3s clusters, this can be performed by the `scheduler-k3s:ensure-charts` command:
