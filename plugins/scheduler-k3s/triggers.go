@@ -605,10 +605,19 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 		})
 	}
 
+	deployMountPairs, err := LoadAppMounts(appName, "deploy")
+	if err != nil {
+		return fmt.Errorf("error loading storage app mounts: %w", err)
+	}
+	deployVolumes, err := ToProcessVolumes(deployMountPairs)
+	if err != nil {
+		return err
+	}
+	processVolumes = append(processVolumes, deployVolumes...)
+
 	for processType, processCount := range processes {
 		// todo: implement deployment annotations
 		// todo: implement pod annotations
-		// todo: implement volumes
 
 		healthchecks, ok := appJSON.Healthchecks[processType]
 		if !ok {
@@ -778,7 +787,6 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 	for _, cronTask := range cronTasks {
 		// todo: implement deployment annotations
 		// todo: implement pod annotations
-		// todo: implement volumes
 		suffix := ""
 		for _, cronJob := range cronJobs {
 			if cronJob.Labels["dokku.com/cron-id"] == cronTask.ID {

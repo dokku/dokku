@@ -127,12 +127,44 @@ spec:
             {{- if $.Values.global.image.working_dir }}
             workingDir: {{ $.Values.global.image.working_dir }}
             {{- end }}
+            {{- if $config.volumes }}
+            volumeMounts:
+            {{- range $volume := $config.volumes }}
+            - name: {{ $volume.name }}
+              mountPath: {{ $volume.mount_path }}
+              {{- if $volume.sub_path }}
+              subPath: {{ $volume.sub_path }}
+              {{- end }}
+              {{- if $volume.read_only }}
+              readOnly: true
+              {{- end }}
+            {{- end }}
+            {{- end }}
           {{- if $.Values.global.image.image_pull_secrets }}
           imagePullSecrets:
           - name: {{ $.Values.global.image.image_pull_secrets }}
           {{- end }}
           restartPolicy: Never
           serviceAccountName: {{ $.Values.global.app_name }}
+          {{- if $config.volumes }}
+          volumes:
+            {{- range $volume := $config.volumes }}
+            - name: {{ $volume.name }}
+              {{- if $volume.empty_dir }}
+              emptyDir:
+                {{- if $volume.empty_dir.medium }}
+                medium: {{ $volume.empty_dir.medium }}
+                {{- end }}
+                {{- if $volume.empty_dir.size_limit }}
+                sizeLimit: {{ $volume.empty_dir.size_limit }}
+                {{- end }}
+              {{- end }}
+              {{- if $volume.persistent_claim }}
+              persistentVolumeClaim:
+                claimName: {{ $volume.persistent_claim.claim_name }}
+              {{- end }}
+            {{- end }}
+          {{- end }}
   schedule: {{ $config.cron.schedule }}
   startingDeadlineSeconds: 60
   successfulJobsHistoryLimit: 10

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strconv"
@@ -158,6 +159,15 @@ func main() {
 		appName := flag.Arg(1)
 		format := flag.Arg(2)
 		err = scheduler_k3s.TriggerSchedulerRunList(scheduler, appName, format)
+	case "storage-create":
+		entryName := flag.Arg(0)
+		err = scheduler_k3s.TriggerStorageCreate(context.Background(), entryName)
+	case "storage-destroy":
+		entryName := flag.Arg(0)
+		err = scheduler_k3s.TriggerStorageDestroy(context.Background(), entryName)
+	case "storage-status":
+		entryName := flag.Arg(0)
+		err = scheduler_k3s.TriggerStorageStatus(context.Background(), entryName)
 	default:
 		err = fmt.Errorf("Invalid plugin trigger call: %s", trigger)
 	}
