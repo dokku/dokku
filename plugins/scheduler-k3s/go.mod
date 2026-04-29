@@ -23,7 +23,7 @@ require (
 	github.com/kedacore/keda/v2 v2.18.3
 	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/spf13/pflag v1.0.10
-	github.com/traefik/traefik/v2 v2.11.43
+	github.com/traefik/traefik/v2 v2.11.44
 	golang.org/x/sync v0.20.0
 	gopkg.in/yaml.v3 v3.0.1
 	helm.sh/helm/v3 v3.20.2
@@ -68,7 +68,7 @@ require (
 	github.com/fastfishio/qson v1.0.2 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/fxamacker/cbor/v2 v2.9.0 // indirect
-	github.com/go-acme/lego/v4 v4.34.0 // indirect
+	github.com/go-acme/lego/v4 v4.35.2 // indirect
 	github.com/go-errors/errors v1.5.1 // indirect
 	github.com/go-gorp/gorp/v3 v3.1.0 // indirect
 	github.com/go-jose/go-jose/v4 v4.1.4 // indirect
