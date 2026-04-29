@@ -23,7 +23,7 @@ teardown() {
   echo "status: $status"
   assert_output "256m"
 
-  run /bin/bash -c "PLUGIN_PATH=$PLUGIN_PATH plugn trigger docker-args-process-build $TEST_APP herokuish < /dev/null"
+  run /bin/bash -c "PLUGIN_PATH=$PLUGIN_PATH PLUGIN_CORE_AVAILABLE_PATH=$PLUGIN_CORE_AVAILABLE_PATH DOKKU_LIB_ROOT=$DOKKU_LIB_ROOT plugn trigger docker-args-process-build $TEST_APP herokuish < /dev/null"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -39,7 +39,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "PLUGIN_PATH=$PLUGIN_PATH plugn trigger docker-args-process-build $TEST_APP dockerfile < /dev/null"
+  run /bin/bash -c "PLUGIN_PATH=$PLUGIN_PATH PLUGIN_CORE_AVAILABLE_PATH=$PLUGIN_CORE_AVAILABLE_PATH DOKKU_LIB_ROOT=$DOKKU_LIB_ROOT plugn trigger docker-args-process-build $TEST_APP dockerfile < /dev/null"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -55,13 +55,13 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "PLUGIN_PATH=$PLUGIN_PATH plugn trigger docker-args-process-build $TEST_APP pack < /dev/null"
+  run /bin/bash -c "PLUGIN_PATH=$PLUGIN_PATH PLUGIN_CORE_AVAILABLE_PATH=$PLUGIN_CORE_AVAILABLE_PATH DOKKU_LIB_ROOT=$DOKKU_LIB_ROOT plugn trigger docker-args-process-build $TEST_APP pack < /dev/null"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output_not_contains "--memory"
 
-  run /bin/bash -c "PLUGIN_PATH=$PLUGIN_PATH plugn trigger docker-args-process-build $TEST_APP lambda < /dev/null"
+  run /bin/bash -c "PLUGIN_PATH=$PLUGIN_PATH PLUGIN_CORE_AVAILABLE_PATH=$PLUGIN_CORE_AVAILABLE_PATH DOKKU_LIB_ROOT=$DOKKU_LIB_ROOT plugn trigger docker-args-process-build $TEST_APP lambda < /dev/null"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -74,7 +74,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "PLUGIN_PATH=$PLUGIN_PATH plugn trigger docker-args-process-build $TEST_APP herokuish < /dev/null"
+  run /bin/bash -c "PLUGIN_PATH=$PLUGIN_PATH PLUGIN_CORE_AVAILABLE_PATH=$PLUGIN_CORE_AVAILABLE_PATH DOKKU_LIB_ROOT=$DOKKU_LIB_ROOT plugn trigger docker-args-process-build $TEST_APP herokuish < /dev/null"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -87,7 +87,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "PLUGIN_PATH=$PLUGIN_PATH plugn trigger docker-args-process-build $TEST_APP herokuish < /dev/null"
+  run /bin/bash -c "PLUGIN_PATH=$PLUGIN_PATH PLUGIN_CORE_AVAILABLE_PATH=$PLUGIN_CORE_AVAILABLE_PATH DOKKU_LIB_ROOT=$DOKKU_LIB_ROOT plugn trigger docker-args-process-build $TEST_APP herokuish < /dev/null"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -101,7 +101,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "PLUGIN_PATH=$PLUGIN_PATH DOKKU_OMIT_RESOURCE_ARGS=1 plugn trigger docker-args-process-build $TEST_APP herokuish < /dev/null"
+  run /bin/bash -c "PLUGIN_PATH=$PLUGIN_PATH PLUGIN_CORE_AVAILABLE_PATH=$PLUGIN_CORE_AVAILABLE_PATH DOKKU_LIB_ROOT=$DOKKU_LIB_ROOT DOKKU_OMIT_RESOURCE_ARGS=1 plugn trigger docker-args-process-build $TEST_APP herokuish < /dev/null"
   echo "output: $output"
   echo "status: $status"
   assert_success
