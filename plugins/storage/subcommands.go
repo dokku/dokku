@@ -22,12 +22,15 @@ Additional commands:`
     storage:create <name> [<path>] [flags], Register a named storage entry
     storage:destroy <name>, Remove a named storage entry (must be unmounted from every app first)
     storage:ensure-directory [--chown option] <directory>, [DEPRECATED] use storage:create instead
+    storage:exec <name> [-- <cmd>...], Run a command (or shell) in a temporary container that mounts the entry
     storage:info <name> [--format text|json], Show details for one storage entry
     storage:list <app> [--format text|json], List bind mounts for app's container(s) (host:container)
     storage:list-entries [--scheduler s] [--format text|json], List registered storage entries
     storage:mount <app> <host-dir:container-dir>, Create a new bind mount
     storage:report [<app>] [<flag>], Displays a storage report for one or more apps
-    storage:unmount <app> <host-dir:container-dir>, Remove an existing bind mount`
+    storage:set <name> [flags], Update a storage entry in place
+    storage:unmount <app> <host-dir:container-dir>, Remove an existing bind mount
+    storage:wait <name>, Wait for a storage entry's PVC to be bound (k3s)`
 )
 
 // CommandHelp displays help for the storage plugin
@@ -266,6 +269,17 @@ func CommandList(appName string, format string) error {
 
 // CommandReport displays a storage report for one or more apps
 func CommandReport(appName string, format string, infoFlag string) error {
+	if appName == "--global" {
+		// Global storage report: list every registered entry and its
+		// attachment count; falls back to the legacy per-app loop when
+		// no entries exist so existing automation keeps working.
+		reportFormat := format
+		if reportFormat == "stdout" {
+			reportFormat = "text"
+		}
+		return CommandReportGlobal(reportFormat)
+	}
+
 	if appName == "" {
 		apps, err := common.DokkuApps()
 		if err != nil {

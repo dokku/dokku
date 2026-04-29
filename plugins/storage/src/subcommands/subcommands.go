@@ -78,6 +78,57 @@ func main() {
 		args.Parse(os.Args[2:])
 		appName := args.Arg(0)
 		err = storage.CommandList(appName, *format)
+	case "set":
+		args := flag.NewFlagSet("storage:set", flag.ExitOnError)
+		size := args.String("size", "", "--size: new PVC size (k3s)")
+		accessMode := args.String("access-mode", "", "--access-mode: existing access mode (must match)")
+		storageClass := args.String("storage-class-name", "", "--storage-class-name: existing storage class (must match)")
+		namespace := args.String("namespace", "", "--namespace: new namespace")
+		chown := args.String("chown", "", "--chown: chown option")
+		reclaim := args.String("reclaim-policy", "", "--reclaim-policy: PV reclaim policy")
+		annotations := args.StringSlice("annotation", nil, "--annotation key=value: PVC annotation (repeatable, replaces all)")
+		labels := args.StringSlice("label", nil, "--label key=value: PVC label (repeatable, replaces all)")
+		args.Parse(os.Args[2:])
+		annotMap, parseErr := parseKVPairs(*annotations)
+		if parseErr != nil {
+			err = parseErr
+			break
+		}
+		labelMap, parseErr := parseKVPairs(*labels)
+		if parseErr != nil {
+			err = parseErr
+			break
+		}
+		err = storage.CommandSet(storage.CommandSetInput{
+			Name:          args.Arg(0),
+			Size:          *size,
+			AccessMode:    *accessMode,
+			StorageClass:  *storageClass,
+			Namespace:     *namespace,
+			Chown:         *chown,
+			ReclaimPolicy: *reclaim,
+			Annotations:   annotMap,
+			Labels:        labelMap,
+		})
+	case "exec":
+		args := flag.NewFlagSet("storage:exec", flag.ExitOnError)
+		image := args.String("image", "", "--image: container image to use (default alpine:3)")
+		args.Parse(os.Args[2:])
+		positional := args.Args()
+		if len(positional) == 0 {
+			err = fmt.Errorf("storage:exec requires a storage entry name")
+			break
+		}
+		name := positional[0]
+		var cmd []string
+		if len(positional) > 1 {
+			cmd = positional[1:]
+		}
+		err = storage.CommandExec(name, *image, cmd)
+	case "wait":
+		args := flag.NewFlagSet("storage:wait", flag.ExitOnError)
+		args.Parse(os.Args[2:])
+		err = storage.CommandWait(args.Arg(0))
 	case "list-entries":
 		args := flag.NewFlagSet("storage:list-entries", flag.ExitOnError)
 		scheduler := args.String("scheduler", "", "--scheduler: filter to a single scheduler")
