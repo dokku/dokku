@@ -73,6 +73,7 @@ trigger-scheduler-docker-local-scheduler-run() {
   local DYNO_NUMBER="$RANDOM"
   local IMAGE_SOURCE_TYPE="dockerfile"
   is_image_herokuish_based "$IMAGE" "$APP" && IMAGE_SOURCE_TYPE="herokuish"
+  is_image_cnb_based "$IMAGE" && IMAGE_SOURCE_TYPE="pack"
   DOCKER_ARGS+=$(: | plugn trigger docker-args-process-run "$APP" "$IMAGE_SOURCE_TYPE" "$IMAGE_TAG")
   DOCKER_ARGS+=" -e DYNO=$PROCESS_TYPE.$DYNO_NUMBER --name $APP.$PROCESS_TYPE.$DYNO_NUMBER"
 
@@ -96,8 +97,8 @@ trigger-scheduler-docker-local-scheduler-run() {
     done
   fi
 
-  [[ "$IMAGE_SOURCE_TYPE" == "herokuish" ]] && local EXEC_CMD="/exec"
-  is_image_cnb_based "$IMAGE" && EXEC_CMD=""
+  local EXEC_CMD=""
+  [[ "$IMAGE_SOURCE_TYPE" == "herokuish" ]] && EXEC_CMD="/exec"
 
   if [[ "$1" == "--" ]]; then
     shift
