@@ -28,17 +28,6 @@ readinessProbe:
     path: /health
     port: api
 
-extraVolumes:
-  - name: vector-data-dir
-    hostPath:
-      path: /var/lib/vector
-      type: DirectoryOrCreate
-
-extraVolumeMounts:
-  - name: vector-data-dir
-    mountPath: /vector-data-dir
-    readOnly: false
-
 customConfig:
   data_dir: /vector-data-dir
 
@@ -61,7 +50,7 @@ customConfig:
         - kubernetes_logs
       source: |
         .container = .kubernetes.container_name
-        .pod = .kubernetes.pod_name
+        .pod       = .kubernetes.pod_name
         .namespace = .kubernetes.pod_namespace
 
   sinks:
