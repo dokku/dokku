@@ -58,11 +58,17 @@ Multiple phases can be specified by using a comma when specifying phases:
 dokku docker-options:add node-js-app deploy,run "--ulimit nofile=12"
 ```
 
-The `docker-options:add` does not support setting multiple options in a single call. To specify multiple options, call `docker-options:add` multiple times.
+Multiple docker options can also be specified in a single call. Each `--flag [value]` group is detected on flag boundaries, shell-tokenized for quoting safety, and stored as its own entry so it round-trips through `docker-options:report` and `docker-options:list`:
 
 ```shell
-dokku docker-options:add node-js-app deploy "--ulimit nofile=12"
-dokku docker-options:add node-js-app deploy "--shm-size 256m"
+dokku docker-options:add node-js-app deploy "--ulimit nofile=12" "--shm-size 256m"
+```
+
+A misplaced `--process PROC` (i.e. one specified after the app name instead of before it) is honored as a subcommand flag rather than stored as a docker option, so the example above and the equivalent process-scoped form below behave identically:
+
+```shell
+dokku docker-options:add --process web node-js-app deploy "--ulimit nofile=12" "--shm-size 256m"
+dokku docker-options:add node-js-app deploy "--ulimit nofile=12" "--shm-size 256m" --process web
 ```
 
 #### Remove a Docker option
@@ -79,11 +85,10 @@ Multiple phases can be specified by using a comma when specifying phases:
 dokku docker-options:remove node-js-app deploy,run "--ulimit nofile=12"
 ```
 
-The `docker-options:remove` does not support setting multiple options in a single call. To specify multiple options, call `docker-options:remove` multiple times.
+Multiple docker options can also be removed in a single call, mirroring the splitting that `docker-options:add` performs:
 
 ```shell
-dokku docker-options:remove node-js-app deploy "--ulimit nofile=12"
-dokku docker-options:remove node-js-app deploy "--shm-size 256m"
+dokku docker-options:remove node-js-app deploy "--ulimit nofile=12" "--shm-size 256m"
 ```
 
 #### Clear all Docker options for an app

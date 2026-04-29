@@ -15,6 +15,12 @@ import (
 // to every container in the app); otherwise it is added to each named
 // process type. The default and process flows are mutually exclusive
 // because process scoping is only valid for the deploy phase.
+//
+// The option string is split on flag boundaries via SplitOptionString so a
+// single invocation may carry multiple flags (e.g. `--build-arg X=Y --link a
+// --link b`); each split flag becomes a separate stored option. A misplaced
+// `--process` inside the option content is lifted into the process slice
+// rather than stored as a docker option.
 func CommandAdd(appName string, processes []string, phasesArg string, option string) error {
 	if err := common.VerifyAppName(appName); err != nil {
 		return err
@@ -25,9 +31,16 @@ func CommandAdd(appName string, processes []string, phasesArg string, option str
 		return err
 	}
 
-	if option == "" {
+	options, extractedProcesses, err := SplitOptionString(option)
+	if err != nil {
+		return err
+	}
+
+	if len(options) == 0 {
 		return errors.New("Please specify docker options to add to the phase")
 	}
+
+	processes = dedupeProcesses(append(processes, extractedProcesses...))
 
 	if err := ValidateProcessFlag(processes, phases); err != nil {
 		return err
@@ -37,15 +50,24 @@ func CommandAdd(appName string, processes []string, phasesArg string, option str
 		WarnIfProcessNotInProcfile(appName, processType)
 	}
 
-	if len(processes) == 0 {
-		return AddDockerOptionToPhases(appName, phases, option)
+	for _, opt := range options {
+		if len(processes) == 0 {
+			if err := AddDockerOptionToPhases(appName, phases, opt); err != nil {
+				return err
+			}
+			continue
+		}
+		if err := AddDockerOptionToProcessPhases(appName, processes, phases, opt); err != nil {
+			return err
+		}
 	}
 
-	return AddDockerOptionToProcessPhases(appName, processes, phases, option)
+	return nil
 }
 
 // CommandRemove removes a docker option from the specified phases for an app.
-// Process-flag handling matches CommandAdd.
+// Process-flag handling matches CommandAdd, including splitting a multi-flag
+// option string and lifting a misplaced `--process` into the process slice.
 func CommandRemove(appName string, processes []string, phasesArg string, option string) error {
 	if err := common.VerifyAppName(appName); err != nil {
 		return err
@@ -56,19 +78,50 @@ func CommandRemove(appName string, processes []string, phasesArg string, option 
 		return err
 	}
 
-	if option == "" {
+	options, extractedProcesses, err := SplitOptionString(option)
+	if err != nil {
+		return err
+	}
+
+	if len(options) == 0 {
 		return errors.New("Please specify docker options to remove from the phase")
 	}
+
+	processes = dedupeProcesses(append(processes, extractedProcesses...))
 
 	if err := ValidateProcessFlag(processes, phases); err != nil {
 		return err
 	}
 
-	if len(processes) == 0 {
-		return RemoveDockerOptionFromPhases(appName, phases, option)
+	for _, opt := range options {
+		if len(processes) == 0 {
+			if err := RemoveDockerOptionFromPhases(appName, phases, opt); err != nil {
+				return err
+			}
+			continue
+		}
+		if err := RemoveDockerOptionFromProcessPhases(appName, processes, phases, opt); err != nil {
+			return err
+		}
 	}
 
-	return RemoveDockerOptionFromProcessPhases(appName, processes, phases, option)
+	return nil
+}
+
+// dedupeProcesses preserves order while collapsing repeated process names,
+// which can occur when --process is specified both before the app (captured
+// by pflag) and after (lifted by SplitOptionString).
+func dedupeProcesses(processes []string) []string {
+	seen := map[string]bool{}
+	result := make([]string, 0, len(processes))
+	for _, p := range processes {
+		if seen[p] {
+			continue
+		}
+		seen[p] = true
+		result = append(result, p)
+	}
+	return result
 }
 
 // CommandClear removes all docker options for an app, optionally limited to
