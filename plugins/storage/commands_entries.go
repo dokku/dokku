@@ -323,6 +323,44 @@ func stdinModes() (interactive bool, tty bool) {
 	return interactive, tty
 }
 
+// CommandMigrate re-runs the legacy `-v` → entry/attachment migration
+// for a single app or every app on the install. Useful when an operator
+// has restored an app from a backup that predates the install-time
+// migration, or when they've added `-v` lines via docker-options:add
+// after the per-app flag was set.
+func CommandMigrate(appName string, all bool) error {
+	if all && appName != "" {
+		return errors.New("storage:migrate accepts either an app name or --all, not both")
+	}
+	if !all && appName == "" {
+		return errors.New("storage:migrate requires an app name (or --all)")
+	}
+	if all {
+		apps, err := common.DokkuApps()
+		if err != nil {
+			if errors.Is(err, common.NoAppsExist) {
+				return nil
+			}
+			return err
+		}
+		for _, app := range apps {
+			if err := MigrateApp(app); err != nil {
+				return err
+			}
+		}
+		common.LogInfo1(fmt.Sprintf("Re-migrated %d app(s)", len(apps)))
+		return nil
+	}
+	if err := common.VerifyAppName(appName); err != nil {
+		return err
+	}
+	if err := MigrateApp(appName); err != nil {
+		return err
+	}
+	common.LogInfo1(fmt.Sprintf("Re-migrated %s", appName))
+	return nil
+}
+
 // CommandWait blocks until a k3s storage entry's PVC is bound.
 func CommandWait(name string) error {
 	if !EntryExists(name) {

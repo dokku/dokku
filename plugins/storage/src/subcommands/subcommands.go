@@ -131,6 +131,11 @@ func main() {
 			AsUser: *asUser,
 			Args:   cmd,
 		})
+	case "migrate":
+		args := flag.NewFlagSet("storage:migrate", flag.ExitOnError)
+		all := args.Bool("all", false, "--all: re-migrate every app on this install")
+		args.Parse(os.Args[2:])
+		err = storage.CommandMigrate(args.Arg(0), *all)
 	case "wait":
 		args := flag.NewFlagSet("storage:wait", flag.ExitOnError)
 		args.Parse(os.Args[2:])

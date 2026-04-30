@@ -25,6 +25,21 @@ func migrationFlagFile(appName string) string {
 	return filepath.Join(migrationFlagDir(), appName)
 }
 
+// MigrateApp re-runs the legacy migration for a single app, ignoring
+// the per-app flag file so an operator can force-rescan an app whose
+// docker-options state changed after the bulk install-time pass.
+// Used by `dokku storage:migrate <app>`.
+func MigrateApp(appName string) error {
+	if err := os.MkdirAll(migrationFlagDir(), 0755); err != nil {
+		return fmt.Errorf("unable to create migration flag dir: %w", err)
+	}
+	_ = os.Remove(migrationFlagFile(appName))
+	if err := migrateApp(appName); err != nil {
+		return fmt.Errorf("storage migration failed for app %q: %w", appName, err)
+	}
+	return nil
+}
+
 // MigrateLegacyMounts walks every app and converts its legacy `-v`
 // docker-options entries into named storage entries plus attachments.
 // Idempotent: per-app flag files short-circuit re-runs.

@@ -25,6 +25,7 @@ Additional commands:`
     storage:info <name> [--format text|json], Show details for one storage entry
     storage:list <app> [--format text|json], List bind mounts for app's container(s) (host:container)
     storage:list-entries [--scheduler s] [--format text|json], List registered storage entries
+    storage:migrate [<app>|--all], Re-run the legacy -v to attachment migration for an app
     storage:mount <app> <host-dir:container-dir>, Create a new bind mount
     storage:report [<app>] [<flag>], Displays a storage report for one or more apps
     storage:set <name> [flags], Update a storage entry in place
