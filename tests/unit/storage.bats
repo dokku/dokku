@@ -299,6 +299,29 @@ teardown() {
   assert_success
 }
 
+@test "(storage) storage:exec runs a non-interactive command and propagates exit code" {
+  run /bin/bash -c "dokku storage:create rdmtest-exec"
+  assert_success
+
+  # docker pull image up-front so the test isn't gated on registry latency.
+  run /bin/bash -c "docker pull alpine:3 >/dev/null"
+  assert_success
+
+  run /bin/bash -c "dokku storage:exec rdmtest-exec -- /bin/sh -c 'touch /data/marker && ls /data/marker'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "/data/marker"
+
+  run /bin/bash -c "dokku storage:exec rdmtest-exec -- /bin/sh -c 'exit 42'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_equal "$status" 42
+
+  run /bin/bash -c "dokku storage:destroy rdmtest-exec"
+  assert_success
+}
+
 @test "(storage) storage:ensure-directory emits deprecation warning" {
   run /bin/bash -c "dokku storage:ensure-directory $TEST_APP 2>&1"
   echo "output: $output"

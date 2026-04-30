@@ -65,8 +65,17 @@ func TestEntryValidateDockerLocal(t *testing.T) {
 	noPath := &Entry{Name: "foo", Scheduler: SchedulerDockerLocal}
 	Expect(noPath.Validate()).To(HaveOccurred())
 
+	// A leading-slash-less but DNS-1123-ish token is treated as a docker
+	// named volume and accepted.
+	namedVolume := &Entry{Name: "foo", Scheduler: SchedulerDockerLocal, HostPath: "myvolume"}
+	Expect(namedVolume.Validate()).To(Succeed())
+
+	// Slash-containing relative paths still fail, as do tokens with bad chars.
 	relativePath := &Entry{Name: "foo", Scheduler: SchedulerDockerLocal, HostPath: "relative/path"}
 	Expect(relativePath.Validate()).To(HaveOccurred())
+
+	badToken := &Entry{Name: "foo", Scheduler: SchedulerDockerLocal, HostPath: "with spaces"}
+	Expect(badToken.Validate()).To(HaveOccurred())
 
 	withSize := &Entry{Name: "foo", Scheduler: SchedulerDockerLocal, HostPath: "/data", Size: "2Gi"}
 	Expect(withSize.Validate()).To(HaveOccurred())

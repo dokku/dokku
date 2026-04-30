@@ -46,7 +46,7 @@ func CommandEnsureDirectory(directory string, chownFlag string) error {
 		return err
 	}
 
-	chownID, err := resolveChownID(chownFlag)
+	chownID, err := ResolveChownID(chownFlag)
 	if err != nil {
 		return err
 	}
@@ -80,8 +80,8 @@ func CommandEnsureDirectory(directory string, chownFlag string) error {
 	return nil
 }
 
-// resolveChownID converts a chown flag value to a numeric UID
-func resolveChownID(chownFlag string) (string, error) {
+// ResolveChownID converts a chown flag value to a numeric UID
+func ResolveChownID(chownFlag string) (string, error) {
 	var chownID string
 
 	switch chownFlag {

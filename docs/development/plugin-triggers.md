@@ -2944,6 +2944,13 @@ DOKKU_SCHEDULER="$1"; APP="$2"; REMOVE_CONTAINERS="$3";
 - Arguments: `$ENTRY_NAME`
 - Stdin: JSON-encoded `Entry` payload
 
+### `scheduler-storage-exec`
+
+- Description: Runs an interactive or non-interactive command against a storage entry. The storage plugin fires this with `<scheduler>` as the first arg; each scheduler plugin's handler matches against its own scheduler name and either handles or no-ops, mirroring `scheduler-deploy` / `scheduler-app-status`. Plugn forwards stdin/stdout/stderr to the handler subprocess so an interactive shell streams cleanly. The handler exits with the underlying tool's status code so `dokku storage:exec` propagates exit codes verbatim.
+- Invoked by: `dokku storage:exec`
+- Arguments: `$SCHEDULER $ENTRY_NAME $IMAGE [-- $cmd...]`
+- Flags: `--interactive` (stdin is open), `--tty` (stdin is a terminal), `--as-user <uid>` (override `entry.Chown`).
+
 ### `traefik-template-source`
 
 - Description: Retrieves an alternative template for the traefik compose config

@@ -44,6 +44,10 @@ var (
 	// required for resource names like PVCs and Helm releases.
 	dns1123LabelRegexp = regexp.MustCompile(`^[a-z0-9]([-a-z0-9]*[a-z0-9])?$`)
 
+	// dockerNamedVolumeRegexp matches a Docker named-volume token. Same
+	// rule docker uses to disambiguate volume names from bind paths.
+	dockerNamedVolumeRegexp = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9_.-]+$`)
+
 	// supportedSchedulers lists the values accepted for --scheduler.
 	supportedSchedulers = map[string]bool{
 		SchedulerDockerLocal: true,
@@ -225,8 +229,8 @@ func (e *Entry) Validate() error {
 		if e.HostPath == "" {
 			return fmt.Errorf("storage entry %q (docker-local) is missing host_path", e.Name)
 		}
-		if !filepath.IsAbs(e.HostPath) {
-			return fmt.Errorf("storage entry %q host_path must be absolute, got %q", e.Name, e.HostPath)
+		if !filepath.IsAbs(e.HostPath) && !dockerNamedVolumeRegexp.MatchString(e.HostPath) {
+			return fmt.Errorf("storage entry %q host_path must be an absolute path or a docker named volume token, got %q", e.Name, e.HostPath)
 		}
 		if e.Size != "" {
 			return fmt.Errorf("storage entry %q (docker-local) does not accept --size", e.Name)

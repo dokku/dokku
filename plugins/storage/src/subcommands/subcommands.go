@@ -113,6 +113,7 @@ func main() {
 	case "exec":
 		args := flag.NewFlagSet("storage:exec", flag.ExitOnError)
 		image := args.String("image", "", "--image: container image to use (default alpine:3)")
+		asUser := args.String("as-user", "", "--as-user: numeric uid to run the exec container as (overrides the entry's chown)")
 		args.Parse(os.Args[2:])
 		positional := args.Args()
 		if len(positional) == 0 {
@@ -124,7 +125,12 @@ func main() {
 		if len(positional) > 1 {
 			cmd = positional[1:]
 		}
-		err = storage.CommandExec(name, *image, cmd)
+		err = storage.CommandExec(storage.CommandExecInput{
+			Name:   name,
+			Image:  *image,
+			AsUser: *asUser,
+			Args:   cmd,
+		})
 	case "wait":
 		args := flag.NewFlagSet("storage:wait", flag.ExitOnError)
 		args.Parse(os.Args[2:])

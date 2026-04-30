@@ -244,85 +244,78 @@ func CommandSet(input CommandSetInput) error {
 	return nil
 }
 
-// CommandExec spawns a temporary container/Pod that mounts the entry
-// and runs the given command (or an interactive shell when args is
-// empty). It execs into the underlying CLI (docker or kubectl) so
-// stdin/stdout/stderr stream naturally.
-func CommandExec(name string, image string, args []string) error {
-	if !EntryExists(name) {
-		return fmt.Errorf("storage entry %q does not exist", name)
+// CommandExecInput captures the storage:exec subcommand inputs.
+type CommandExecInput struct {
+	Name   string
+	Image  string
+	AsUser string
+	Args   []string
+}
+
+// CommandExec delegates the actual exec to the scheduler plugin that owns
+// the storage entry, by firing the scheduler-storage-exec plugn trigger
+// with stdin/stdout/stderr streamed through. The handler decides between
+// docker run, the k8s exec SDK, etc. - storage stays scheduler-agnostic.
+//
+// Exit codes from the underlying tool are propagated verbatim via
+// os.Exit so callers in scripts see the right status.
+func CommandExec(input CommandExecInput) error {
+	if !EntryExists(input.Name) {
+		return fmt.Errorf("storage entry %q does not exist", input.Name)
 	}
-	entry, err := LoadEntry(name)
+	entry, err := LoadEntry(input.Name)
 	if err != nil {
 		return err
 	}
+
+	image := input.Image
 	if image == "" {
 		image = "alpine:3"
 	}
 
-	cmd := args
-	if len(cmd) == 0 {
-		cmd = []string{"sh", "-c", "command -v bash >/dev/null 2>&1 && exec bash || exec sh"}
+	interactive, tty := stdinModes()
+
+	triggerArgs := []string{
+		entry.Scheduler,
+		entry.Name,
+		image,
+	}
+	triggerArgs = append(triggerArgs, fmt.Sprintf("--interactive=%t", interactive))
+	triggerArgs = append(triggerArgs, fmt.Sprintf("--tty=%t", tty))
+	if input.AsUser != "" {
+		triggerArgs = append(triggerArgs, "--as-user", input.AsUser)
+	}
+	if len(input.Args) > 0 {
+		triggerArgs = append(triggerArgs, "--")
+		triggerArgs = append(triggerArgs, input.Args...)
 	}
 
-	if entry.Scheduler == SchedulerDockerLocal {
-		dockerArgs := []string{"run", "--rm", "-it", "-v", fmt.Sprintf("%s:/data", entry.HostPath), image}
-		dockerArgs = append(dockerArgs, cmd...)
-		return execStream(common.DockerBin(), dockerArgs)
-	}
-
-	// k3s: render a Pod-spec override that mounts the PVC, then kubectl run.
-	namespace := entry.Namespace
-	if namespace == "" {
-		namespace = "default"
-	}
-	overrides := map[string]any{
-		"apiVersion": "v1",
-		"spec": map[string]any{
-			"containers": []map[string]any{
-				{
-					"name":         "exec",
-					"image":        image,
-					"stdin":        true,
-					"tty":          true,
-					"volumeMounts": []map[string]any{{"name": "data", "mountPath": "/data"}},
-				},
-			},
-			"volumes": []map[string]any{
-				{"name": "data", "persistentVolumeClaim": map[string]any{"claimName": entry.Name}},
-			},
-		},
-	}
-	overrideJSON, err := json.Marshal(overrides)
-	if err != nil {
-		return err
-	}
-	kubectlArgs := []string{
-		"run", "dokku-storage-exec-" + entry.Name,
-		"--rm", "-it",
-		"--namespace=" + namespace,
-		"--image=" + image,
-		"--restart=Never",
-		"--overrides=" + string(overrideJSON),
-		"--",
-	}
-	kubectlArgs = append(kubectlArgs, cmd...)
-	return execStream("kubectl", kubectlArgs)
-}
-
-func execStream(bin string, args []string) error {
-	result, err := common.CallExecCommand(common.ExecCommandInput{
-		Command:     bin,
-		Args:        args,
+	results, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "scheduler-storage-exec",
+		Args:        triggerArgs,
 		StreamStdio: true,
 	})
 	if err != nil {
 		return err
 	}
-	if result.ExitCode != 0 {
-		return fmt.Errorf("%s exited with %d", bin, result.ExitCode)
+	if results.ExitCode != 0 {
+		os.Exit(results.ExitCode)
 	}
 	return nil
+}
+
+// stdinModes inspects os.Stdin to decide whether docker / the k8s exec
+// SDK should request an interactive session and a TTY.
+func stdinModes() (interactive bool, tty bool) {
+	fi, err := os.Stdin.Stat()
+	if err != nil || fi == nil {
+		return false, false
+	}
+	mode := fi.Mode()
+	tty = mode&os.ModeCharDevice != 0
+	hasStdinData := mode&os.ModeNamedPipe != 0
+	interactive = tty || hasStdinData
+	return interactive, tty
 }
 
 // CommandWait blocks until a k3s storage entry's PVC is bound.
@@ -463,7 +456,7 @@ func ensureDockerLocalPath(entry *Entry) error {
 	}
 
 	if entry.Chown != "" && entry.Chown != "false" {
-		chownID, err := resolveChownID(entry.Chown)
+		chownID, err := ResolveChownID(entry.Chown)
 		if err != nil {
 			return err
 		}
