@@ -5,13 +5,16 @@ go 1.26.2
 require (
 	github.com/dokku/dokku/plugins/common v0.0.0-00010101000000-000000000000
 	github.com/dokku/dokku/plugins/cron v0.0.0-00010101000000-000000000000
+	github.com/dokku/dokku/plugins/storage v0.0.0-00010101000000-000000000000
 	github.com/multiformats/go-base36 v0.2.0
+	github.com/spf13/pflag v1.0.10
 	golang.org/x/sync v0.20.0
 )
 
 require (
 	github.com/alexellis/go-execute/v2 v2.2.1 // indirect
 	github.com/dokku/dokku/plugins/app-json v0.0.0-00010101000000-000000000000 // indirect
+	github.com/dokku/dokku/plugins/docker-options v0.0.0-00010101000000-000000000000 // indirect
 	github.com/fatih/color v1.19.0 // indirect
 	github.com/hashicorp/errwrap v1.0.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
@@ -38,3 +41,7 @@ replace github.com/dokku/dokku/plugins/app-json => ../app-json
 replace github.com/dokku/dokku/plugins/common => ../common
 
 replace github.com/dokku/dokku/plugins/cron => ../cron
+
+replace github.com/dokku/dokku/plugins/storage => ../storage
+
+replace github.com/dokku/dokku/plugins/docker-options => ../docker-options

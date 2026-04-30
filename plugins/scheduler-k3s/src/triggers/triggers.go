@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strconv"
@@ -18,6 +19,9 @@ func main() {
 	parts := strings.Split(os.Args[0], "/")
 	trigger := parts[len(parts)-1]
 	podIdentifier := flag.String("container-id", "", "--container-id: A pod identifier")
+	storageExecInteractive := flag.Bool("interactive", false, "--interactive: stdin is open (storage:exec)")
+	storageExecTty := flag.Bool("tty", false, "--tty: stdin is a terminal (storage:exec)")
+	storageExecAsUser := flag.String("as-user", "", "--as-user: numeric uid override (storage:exec)")
 	flag.Parse()
 
 	var err error
@@ -158,6 +162,36 @@ func main() {
 		appName := flag.Arg(1)
 		format := flag.Arg(2)
 		err = scheduler_k3s.TriggerSchedulerRunList(scheduler, appName, format)
+	case "storage-create":
+		entryName := flag.Arg(0)
+		err = scheduler_k3s.TriggerStorageCreate(context.Background(), entryName)
+	case "storage-destroy":
+		entryName := flag.Arg(0)
+		err = scheduler_k3s.TriggerStorageDestroy(context.Background(), entryName)
+	case "storage-status":
+		entryName := flag.Arg(0)
+		err = scheduler_k3s.TriggerStorageStatus(context.Background(), entryName)
+	case "scheduler-storage-exec":
+		positional := flag.Args()
+		if len(positional) < 3 {
+			err = fmt.Errorf("scheduler-storage-exec requires <scheduler> <entry-name> <image>")
+			break
+		}
+		schedulerName := positional[0]
+		entryName := positional[1]
+		image := positional[2]
+		var cmd []string
+		if len(positional) > 3 {
+			cmd = positional[3:]
+		}
+		err = scheduler_k3s.TriggerSchedulerStorageExec(context.Background(), schedulerName, scheduler_k3s.StorageExecInput{
+			EntryName:   entryName,
+			Image:       image,
+			Interactive: *storageExecInteractive,
+			Tty:         *storageExecTty,
+			AsUser:      *storageExecAsUser,
+			Command:     cmd,
+		})
 	default:
 		err = fmt.Errorf("Invalid plugin trigger call: %s", trigger)
 	}

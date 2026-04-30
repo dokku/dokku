@@ -2904,21 +2904,52 @@ DOKKU_SCHEDULER="$1"; APP="$2"; REMOVE_CONTAINERS="$3";
 # TODO
 ```
 
-### `storage-list`
+### `storage-list` (deprecated)
 
-- Description: Returns a list of storage mounts
-- Invoked by: `dokku storage:list` and `dokku deploy`
+> [!WARNING]
+> Deprecated as of 0.38.0. The trigger handler still functions for back-compat
+> with external plugins but emits a deprecation warning on every invocation.
+> In-process callers should use the `storage-app-mounts` trigger instead, or
+> the `storage` Go package directly.
+
+- Description: Returns a list of storage mounts for an app
+- Invoked by: external plugins (the core `storage:list` subcommand no longer uses it)
 - Arguments: `$APP $PHASE $FORMAT`
-- Example:
 
-```shell
-#!/usr/bin/env bash
+### `storage-app-mounts`
 
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-APP="$1"
+- Description: Returns the (entry, attachment) pairs an app has for the given phase, in JSON. Schedulers consume this to render volume mounts.
+- Invoked by: scheduler plugins during deploy
+- Arguments: `$APP $PHASE`
+- Output: a JSON array of objects shaped `{"entry": Entry, "attachment": Attachment}`
 
-# TODO
-```
+### `storage-create`
+
+- Description: Provisions or updates the underlying volume for a k3s storage entry. Called when `storage:create` or `storage:set` runs against a k3s entry. Receives the JSON-encoded entry on stdin.
+- Invoked by: `dokku storage:create`, `dokku storage:set`
+- Arguments: `$ENTRY_NAME`
+- Stdin: JSON-encoded `Entry` payload
+
+### `storage-destroy`
+
+- Description: Releases the underlying volume for a k3s storage entry. Called when `storage:destroy` runs against a k3s entry. Receives the JSON-encoded entry on stdin.
+- Invoked by: `dokku storage:destroy`
+- Arguments: `$ENTRY_NAME`
+- Stdin: JSON-encoded `Entry` payload
+
+### `storage-status`
+
+- Description: Returns the current status of a storage entry's underlying volume. Used by `storage:wait` to poll the cluster. The handler should print one line: `Bound`, `Pending`, or `Lost` for k3s entries.
+- Invoked by: `dokku storage:wait`
+- Arguments: `$ENTRY_NAME`
+- Stdin: JSON-encoded `Entry` payload
+
+### `scheduler-storage-exec`
+
+- Description: Runs an interactive or non-interactive command against a storage entry. The storage plugin fires this with `<scheduler>` as the first arg; each scheduler plugin's handler matches against its own scheduler name and either handles or no-ops, mirroring `scheduler-deploy` / `scheduler-app-status`. Plugn forwards stdin/stdout/stderr to the handler subprocess so an interactive shell streams cleanly. The handler exits with the underlying tool's status code so `dokku storage:exec` propagates exit codes verbatim.
+- Invoked by: `dokku storage:exec`
+- Arguments: `$SCHEDULER $ENTRY_NAME $IMAGE [-- $cmd...]`
+- Flags: `--interactive` (stdin is open), `--tty` (stdin is a terminal), `--as-user <uid>` (override `entry.Chown`).
 
 ### `traefik-template-source`
 

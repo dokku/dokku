@@ -117,14 +117,21 @@ type ProcessValues struct {
 }
 
 type ProcessVolume struct {
-	Name      string                 `yaml:"name"`
-	MountPath string                 `yaml:"mount_path"`
-	EmptyDir  *ProcessVolumeEmptyDir `yaml:"empty_dir,omitempty"`
+	Name            string                        `yaml:"name"`
+	MountPath       string                        `yaml:"mount_path"`
+	SubPath         string                        `yaml:"sub_path,omitempty"`
+	ReadOnly        bool                          `yaml:"read_only,omitempty"`
+	EmptyDir        *ProcessVolumeEmptyDir        `yaml:"empty_dir,omitempty"`
+	PersistentClaim *ProcessVolumePersistentClaim `yaml:"persistent_claim,omitempty"`
 }
 
 type ProcessVolumeEmptyDir struct {
 	Medium    string `yaml:"medium"`
 	SizeLimit string `yaml:"size_limit"`
+}
+
+type ProcessVolumePersistentClaim struct {
+	ClaimName string `yaml:"claim_name"`
 }
 
 type ProcessAnnotations struct {

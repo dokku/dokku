@@ -685,6 +685,27 @@ Alternatively, a comma separated list of chart names can be specified to only fo
 dokku scheduler-k3s:ensure-charts --charts cert-manager
 ```
 
+### Persistent storage
+
+K3s apps mount persistent volumes through the Dokku storage plugin. A `storage:create --scheduler k3s` call provisions a PersistentVolumeClaim through a small per-entry helm release; `storage:mount <app> <name> --container-dir <path>` then attaches it to an app. Because storage entries are global, the same PVC can be mounted into multiple apps (for `ReadWriteMany` workloads) or into the same app at multiple subpaths.
+
+```shell
+# dynamically-provisioned PVC backed by Longhorn
+dokku storage:create demo-data \
+  --scheduler k3s \
+  --size 2Gi \
+  --access-mode ReadWriteOnce \
+  --storage-class-name longhorn
+
+dokku storage:mount demo demo-data --container-dir /data
+dokku storage:wait demo-data
+git push dokku master
+```
+
+For a hostPath-backed PV (no StorageClass), pass `<path>` as the second positional argument and omit `--storage-class-name`. The plugin renders both the PV and the PVC into the entry's helm release. The `--reclaim-policy` flag (`Retain` or `Delete`) controls whether the underlying PV survives `storage:destroy`. Annotations and labels on `storage:create` / `storage:set` propagate to both the PVC and the PV so backup tools (Velero, Longhorn snapshots) can find them.
+
+The legacy `storage:mount <app> <host>:<container>` colon form is rejected on k3s apps; create a named entry instead. See [Persistent Storage](/docs/advanced-usage/persistent-storage.md) for the full command reference.
+
 ### Chart upgrade callbacks
 
 Some chart version transitions require side-effects that a plain `helm upgrade` cannot perform. For example, the upgrade of `keda-add-ons-http` to `0.12.2` introduces breaking changes to deployment selectors, which are immutable in Kubernetes; the chart-managed deployments must be deleted before the upgrade can proceed.

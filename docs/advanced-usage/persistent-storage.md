@@ -1,24 +1,37 @@
 # Persistent Storage
 
 > [!IMPORTANT]
-> New as of 0.5.0
+> New as of 0.5.0. Named storage entries new as of 0.38.0.
 
-The preferred method to mount external containers to a Dokku managed container, is to use the Dokku storage plugin.
+The preferred method to attach persistent storage to a Dokku-managed container is the Dokku storage plugin.
 
 ```
-storage:ensure-directory [--chown option] <directory>  # Creates a persistent storage directory in the recommended storage path
-storage:list <app> [--format text|json]                # List bind mounts for app's container(s) (host:container)
-storage:mount <app> <host-dir:container-dir>           # Create a new bind mount
-storage:report [<app>] [<flag>]                        # Displays a checks report for one or more apps
-storage:unmount <app> <host-dir:container-dir>         # Remove an existing bind mount
+storage:create <name> [<path>] [flags]                 # Register a named storage entry
+storage:destroy <name>                                 # Remove a named storage entry (must be unmounted from every app first)
+storage:ensure-directory [--chown option] <directory>  # [DEPRECATED] use storage:create instead
+storage:exec <name> [-- <cmd>...]                      # Run a command (or shell) in a temporary container that mounts the entry
+storage:info <name> [--format text|json]               # Show details for one storage entry
+storage:list <app> [--format text|json]                # List bind mounts for an app's container(s) (legacy host:container view)
+storage:list-entries [--scheduler s] [--format text|json]  # List registered storage entries
+storage:mount <app> <name> --container-dir <path> [flags]  # Mount a named entry into an app
+storage:mount <app> <host-dir:container-dir>           # [LEGACY] colon-form mount, docker-local only
+storage:report [<app>] [<flag>]                        # Display a storage report for one or more apps
+storage:report --global                                # Display a cluster-wide entry inventory
+storage:set <name> [flags]                             # Update a storage entry in place
+storage:unmount <app> <name> [--container-dir <path>]  # Remove an attachment
+storage:wait <name>                                    # Block until a k3s entry's PVC is bound
 ```
 
-> The storage plugin is compatible with storage mounts created with the docker-options. The storage plugin will only list mounts from the deploy/run phase.
+A storage entry is the source of truth for the underlying volume - a host directory on docker-local, or a PersistentVolumeClaim on k3s. Multiple apps can mount the same entry, and an attachment carries the per-app details (container path, phases, subpath, readonly, process type). Names are globally unique across the install and must be DNS-1123 labels (lowercase letters, digits, dashes) of 45 characters or less so they can be used verbatim as Helm release and PVC names.
+
+The legacy `storage:mount <app> <host>:<container>` form continues to work on docker-local. On a k3s app it is rejected; create a named entry with `storage:create --scheduler k3s` and mount it instead. Existing colon-form mounts are migrated automatically the first time the new code runs - they show up as `legacy-<hash>` entries in `storage:list-entries`.
 
 The storage plugin supports the following mount points:
 
-- explicit paths that exist on the host
-- docker volumes
+- explicit paths that exist on the host (docker-local)
+- docker volumes (docker-local)
+- PersistentVolumeClaims provisioned via a StorageClass (k3s)
+- hostPath-backed PVs (k3s)
 
 ## Usage
 

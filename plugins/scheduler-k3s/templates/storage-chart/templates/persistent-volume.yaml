@@ -1,0 +1,29 @@
+{{- if .Values.global.host_path }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Values.global.entry_name }}
+  labels:
+    app.kubernetes.io/name: {{ .Values.global.entry_name }}
+    app.kubernetes.io/managed-by: dokku
+    {{- range $k, $v := .Values.global.labels }}
+    {{ $k }}: {{ $v | quote }}
+    {{- end }}
+  annotations:
+    dokku.com/managed: "true"
+    {{- range $k, $v := .Values.global.annotations }}
+    {{ $k }}: {{ $v | quote }}
+    {{- end }}
+spec:
+  capacity:
+    storage: {{ .Values.global.size }}
+  accessModes:
+  - {{ .Values.global.access_mode | default "ReadWriteOnce" }}
+  persistentVolumeReclaimPolicy: {{ .Values.global.reclaim_policy | default "Retain" }}
+  hostPath:
+    path: {{ .Values.global.host_path }}
+  storageClassName: ""
+  claimRef:
+    namespace: {{ .Values.global.namespace }}
+    name: {{ .Values.global.entry_name }}
+{{- end }}

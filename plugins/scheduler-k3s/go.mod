@@ -13,6 +13,7 @@ require (
 	github.com/dokku/dokku/plugins/logs v0.0.0-00010101000000-000000000000
 	github.com/dokku/dokku/plugins/nginx-vhosts v0.0.0-00010101000000-000000000000
 	github.com/dokku/dokku/plugins/registry v0.0.0-00010101000000-000000000000
+	github.com/dokku/dokku/plugins/storage v0.0.0-00010101000000-000000000000
 	github.com/fatih/color v1.19.0
 	github.com/fluxcd/pkg/kustomize v1.31.0
 	github.com/go-openapi/jsonpointer v0.23.1
@@ -192,6 +193,8 @@ replace github.com/dokku/dokku/plugins/logs => ../logs
 replace github.com/dokku/dokku/plugins/nginx-vhosts => ../nginx-vhosts
 
 replace github.com/dokku/dokku/plugins/registry => ../registry
+
+replace github.com/dokku/dokku/plugins/storage => ../storage
 
 replace github.com/joho/godotenv => github.com/joho/godotenv v1.2.0
 

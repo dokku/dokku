@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.global.entry_name }}
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .Values.global.entry_name }}
+    app.kubernetes.io/managed-by: dokku
+    {{- range $k, $v := .Values.global.labels }}
+    {{ $k }}: {{ $v | quote }}
+    {{- end }}
+  annotations:
+    dokku.com/managed: "true"
+    {{- range $k, $v := .Values.global.annotations }}
+    {{ $k }}: {{ $v | quote }}
+    {{- end }}
+spec:
+  accessModes:
+  - {{ .Values.global.access_mode | default "ReadWriteOnce" }}
+  resources:
+    requests:
+      storage: {{ .Values.global.size }}
+  {{- if .Values.global.storage_class }}
+  storageClassName: {{ .Values.global.storage_class }}
+  {{- end }}
+  {{- if .Values.global.host_path }}
+  volumeName: {{ .Values.global.entry_name }}
+  storageClassName: ""
+  {{- end }}

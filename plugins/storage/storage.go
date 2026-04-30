@@ -51,19 +51,18 @@ func CheckIfPathExists(appName string, mountPath string, phases []string) bool {
 	return false
 }
 
-// GetBindMounts returns the bind mounts for an app and phase
+// GetBindMounts returns the bind mounts for an app and phase, synthesized
+// from the attachment store. The returned strings use the legacy colon
+// form (host:container[:options]) so existing display paths keep
+// working unchanged.
 func GetBindMounts(appName string, phase string) ([]string, error) {
-	mounts := []string{}
-	options, err := dockeroptions.GetDockerOptionsForPhase(appName, phase)
+	entries, err := ListAppMountEntries(appName, phase)
 	if err != nil {
-		return mounts, err
+		return nil, err
 	}
-
-	for _, option := range options {
-		if strings.HasPrefix(option, "-v ") {
-			mount := strings.TrimPrefix(option, "-v ")
-			mounts = append(mounts, mount)
-		}
+	mounts := make([]string, 0, len(entries))
+	for _, entry := range entries {
+		mounts = append(mounts, formatStorageListEntry(entry))
 	}
 	return mounts, nil
 }
@@ -82,11 +81,69 @@ func GetBindMountsForDisplay(appName string, phase string) string {
 	return strings.Join(result, " ")
 }
 
-// StorageListEntry represents a storage mount entry for JSON output
+// StorageListEntry represents a storage mount entry for JSON output.
 type StorageListEntry struct {
+	EntryName     string `json:"entry_name,omitempty"`
 	HostPath      string `json:"host_path"`
 	ContainerPath string `json:"container_path"`
 	VolumeOptions string `json:"volume_options"`
+}
+
+// ListAppMountEntries returns one StorageListEntry per attachment on
+// an app for the requested phase, joining each attachment with its
+// referenced storage entry. Used by storage:list and the deprecated
+// storage-list trigger.
+func ListAppMountEntries(appName string, phase string) ([]StorageListEntry, error) {
+	if phase == "" {
+		phase = PhaseDeploy
+	}
+	attachments, err := AttachmentsForPhase(appName, phase)
+	if err != nil {
+		return nil, err
+	}
+
+	rows := make([]StorageListEntry, 0, len(attachments))
+	for _, attachment := range attachments {
+		entry, err := LoadEntry(attachment.EntryName)
+		if err != nil {
+			return nil, fmt.Errorf("attachment on %q references missing entry %q: %w", appName, attachment.EntryName, err)
+		}
+
+		host := entry.HostPath
+		if host == "" {
+			// k3s-only entries with no host path: surface the entry
+			// name as the host token so the colon-form output is
+			// well-formed and parseable.
+			host = entry.Name
+		}
+
+		options := ""
+		switch {
+		case attachment.Readonly && attachment.VolumeOptions != "":
+			options = "ro," + attachment.VolumeOptions
+		case attachment.Readonly:
+			options = "ro"
+		case attachment.VolumeOptions != "":
+			options = attachment.VolumeOptions
+		}
+
+		rows = append(rows, StorageListEntry{
+			EntryName:     entry.Name,
+			HostPath:      host,
+			ContainerPath: attachment.ContainerPath,
+			VolumeOptions: options,
+		})
+	}
+	return rows, nil
+}
+
+// formatStorageListEntry renders a StorageListEntry into the legacy
+// host:container[:options] colon form for textual output.
+func formatStorageListEntry(entry StorageListEntry) string {
+	if entry.VolumeOptions == "" {
+		return fmt.Sprintf("%s:%s", entry.HostPath, entry.ContainerPath)
+	}
+	return fmt.Sprintf("%s:%s:%s", entry.HostPath, entry.ContainerPath, entry.VolumeOptions)
 }
 
 // ParseMountPath parses a mount path into its components
