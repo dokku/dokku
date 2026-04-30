@@ -64,11 +64,15 @@ func TriggerSchedulerStorageExec(scheduler string, input StorageExecInput) error
 		Args:        args,
 		StreamStdio: true,
 	})
-	if err != nil {
-		return err
-	}
+	// CallExecCommand wraps non-zero exit as an error; for storage:exec
+	// the docker-run exit code is the signal we want to forward to the
+	// caller. Propagate it before falling through to the err return,
+	// which would otherwise be collapsed to exit 1 by the dispatcher.
 	if result.ExitCode != 0 {
 		os.Exit(result.ExitCode)
+	}
+	if err != nil {
+		return err
 	}
 	return nil
 }

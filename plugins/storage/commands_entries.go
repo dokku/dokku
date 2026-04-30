@@ -295,11 +295,16 @@ func CommandExec(input CommandExecInput) error {
 		Args:        triggerArgs,
 		StreamStdio: true,
 	})
-	if err != nil {
-		return err
-	}
+	// common.CallExecCommand wraps a non-zero exit code as an error, but
+	// for storage:exec the underlying tool's exit code IS the signal we
+	// want to surface - it's how `dokku storage:exec demo -- exit 42`
+	// reaches the user as exit 42. Check ExitCode first so that branch
+	// runs before err collapses to LogFailWithError → exit 1.
 	if results.ExitCode != 0 {
 		os.Exit(results.ExitCode)
+	}
+	if err != nil {
+		return err
 	}
 	return nil
 }

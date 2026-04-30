@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
-	dockeroptions "github.com/dokku/dokku/plugins/docker-options"
 )
 
 const (
@@ -151,16 +150,12 @@ func CommandMount(input CommandMountInput) error {
 		return err
 	}
 
-	// Legacy colon form: keep writing into docker-options so existing
-	// users see no behavior change.
+	// Legacy colon form: synthesize a legacy-<hash> entry plus an
+	// attachment so storage:list (now attachment-only) sees the mount.
+	// The storage docker-args trigger emits the corresponding -v flag at
+	// deploy time, so behavior at the docker-run boundary is unchanged.
 	if strings.Contains(input.NameOrPath, ":") {
-		if err := VerifyPaths(input.NameOrPath); err != nil {
-			return err
-		}
-		if CheckIfPathExists(input.AppName, input.NameOrPath, MountPhases) {
-			return errors.New("Mount path already exists.")
-		}
-		return dockeroptions.AddDockerOptionToPhases(input.AppName, MountPhases, fmt.Sprintf("-v %s", input.NameOrPath))
+		return mountLegacyColon(input.AppName, input.NameOrPath)
 	}
 
 	// Named-entry form: persist as an attachment.
@@ -215,16 +210,80 @@ func CommandUnmount(input CommandUnmountInput) error {
 	}
 
 	if strings.Contains(input.NameOrPath, ":") {
-		if err := VerifyPaths(input.NameOrPath); err != nil {
-			return err
-		}
-		if !CheckIfPathExists(input.AppName, input.NameOrPath, MountPhases) {
-			return errors.New("Mount path does not exist.")
-		}
-		return dockeroptions.RemoveDockerOptionFromPhases(input.AppName, MountPhases, fmt.Sprintf("-v %s", input.NameOrPath))
+		return unmountLegacyColon(input.AppName, input.NameOrPath)
 	}
 
 	return RemoveAttachment(input.AppName, input.NameOrPath, input.ContainerDir)
+}
+
+// mountLegacyColon translates a `<host>:<container>[:options]` mount
+// string into a synthesized legacy-<hash> entry plus an attachment.
+// Idempotent: re-running the same mount errors with the existing
+// "already mounted" message via AddAttachment's duplicate check.
+func mountLegacyColon(appName string, mountPath string) error {
+	if err := VerifyPaths(mountPath); err != nil {
+		return err
+	}
+	parsed := ParseMountPath(mountPath)
+	if parsed.ContainerPath == "" {
+		return errors.New("Storage path must be two valid paths divided by colon.")
+	}
+
+	entry := LegacyMountToEntry(mountPath)
+	if !EntryExists(entry.Name) {
+		if err := SaveEntry(entry); err != nil {
+			return err
+		}
+	}
+
+	attachment := &Attachment{
+		EntryName:     entry.Name,
+		ContainerPath: parsed.ContainerPath,
+		Phases:        []string{PhaseDeploy, PhaseRun},
+		ProcessType:   DefaultProcessType,
+	}
+	switch parsed.VolumeOptions {
+	case "":
+	case "ro":
+		attachment.Readonly = true
+	default:
+		attachment.VolumeOptions = parsed.VolumeOptions
+	}
+
+	if err := AddAttachment(appName, attachment); err != nil {
+		// AddAttachment's duplicate error mentions the entry name, but
+		// the legacy form historically said "Mount path already
+		// exists." - preserve that exact wording so existing automation
+		// and the bats suite keep matching.
+		if strings.Contains(err.Error(), "is already mounted at") {
+			return errors.New("Mount path already exists.")
+		}
+		return err
+	}
+	return nil
+}
+
+// unmountLegacyColon is the inverse of mountLegacyColon. The legacy
+// mount string identifies an entry+container-path tuple deterministically
+// via LegacyMountToEntry, so we can route to RemoveAttachment.
+func unmountLegacyColon(appName string, mountPath string) error {
+	if err := VerifyPaths(mountPath); err != nil {
+		return err
+	}
+	parsed := ParseMountPath(mountPath)
+	if parsed.ContainerPath == "" {
+		return errors.New("Storage path must be two valid paths divided by colon.")
+	}
+
+	entry := LegacyMountToEntry(mountPath)
+	if err := RemoveAttachment(appName, entry.Name, parsed.ContainerPath); err != nil {
+		// Match the legacy wording for "not currently mounted".
+		if strings.Contains(err.Error(), "is not mounted") {
+			return errors.New("Mount path does not exist.")
+		}
+		return err
+	}
+	return nil
 }
 
 // CommandList lists all bind mounts for an app. Reads attachments
