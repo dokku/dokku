@@ -76,10 +76,19 @@ type Entry struct {
 	SchemaVersion  int               `json:"schema_version"`
 }
 
+// RegistryDirectory returns the parent directory for storage-plugin
+// state that lives outside the property store. Kept under data/ rather
+// than config/ so it doesn't collide with the property-list paths
+// `config/storage/<appName>/<property>` that the rest of the plugin
+// relies on for per-app attachments.
+func RegistryDirectory() string {
+	root := common.GetenvWithDefault("DOKKU_LIB_ROOT", "/var/lib/dokku")
+	return filepath.Join(root, "data", "storage-registry")
+}
+
 // EntriesDirectory returns the directory holding per-entry JSON files.
 func EntriesDirectory() string {
-	root := common.GetenvWithDefault("DOKKU_LIB_ROOT", "/var/lib/dokku")
-	return filepath.Join(root, "config", "storage", "entries")
+	return filepath.Join(RegistryDirectory(), "entries")
 }
 
 // entryPath returns the on-disk path for a named entry.

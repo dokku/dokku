@@ -138,7 +138,7 @@ func TestEntryRoundTrip(t *testing.T) {
 	Expect(loaded.Labels).To(Equal(original.Labels))
 	Expect(loaded.SchemaVersion).To(Equal(SchemaVersion))
 
-	expectedPath := filepath.Join(root, "config", "storage", "entries", "demo-data.json")
+	expectedPath := filepath.Join(root, "data", "storage-registry", "entries", "demo-data.json")
 	Expect(expectedPath).To(BeARegularFile())
 
 	Expect(DeleteEntry("demo-data")).To(Succeed())

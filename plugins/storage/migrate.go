@@ -14,10 +14,11 @@ import (
 
 // migrationFlagDir contains per-app flag files written after a successful
 // per-app migration; presence means the app's legacy -v lines have been
-// drained into the attachment store.
+// drained into the attachment store. Lives under the registry directory
+// so it doesn't collide with the property-store path
+// `config/storage/<appName>`.
 func migrationFlagDir() string {
-	root := common.GetenvWithDefault("DOKKU_LIB_ROOT", "/var/lib/dokku")
-	return filepath.Join(root, "config", "storage", ".migrated")
+	return filepath.Join(RegistryDirectory(), "migrations")
 }
 
 func migrationFlagFile(appName string) string {

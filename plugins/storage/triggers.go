@@ -14,6 +14,10 @@ import (
 // TriggerInstall sets up the storage plugin on installation and runs
 // the bulk legacy-mount migration once per upgrade.
 func TriggerInstall() error {
+	if err := common.PropertySetup(PluginName); err != nil {
+		return fmt.Errorf("Unable to install the storage plugin: %s", err.Error())
+	}
+
 	storageDir := GetStorageDirectory()
 
 	if err := os.MkdirAll(storageDir, 0755); err != nil {
@@ -55,9 +59,15 @@ func TriggerInstall() error {
 }
 
 // TriggerPostDelete clears any attachment list for an app that's being
-// destroyed. Entries are global and survive app deletion.
+// destroyed. Entries are global and survive app deletion. Skipped when
+// the app has no attachments to begin with so we don't trigger a
+// pointless propertyTouch that could fail on installs with no
+// property-list state for this plugin yet.
 func TriggerPostDelete(appName string) error {
 	if appName == "" {
+		return nil
+	}
+	if !common.PropertyExists(PluginName, appName, AttachmentsProperty) {
 		return nil
 	}
 	return common.PropertyListWrite(PluginName, appName, AttachmentsProperty, []string{})
@@ -67,6 +77,9 @@ func TriggerPostDelete(appName string) error {
 // cloned app. Entries are global so no entry-level work is needed.
 func TriggerPostAppCloneSetup(oldName string, newName string) error {
 	if oldName == "" || newName == "" {
+		return nil
+	}
+	if !common.PropertyExists(PluginName, oldName, AttachmentsProperty) {
 		return nil
 	}
 	attachments, err := LoadAttachments(oldName)
@@ -80,6 +93,9 @@ func TriggerPostAppCloneSetup(oldName string, newName string) error {
 // new name and clears the old.
 func TriggerPostAppRenameSetup(oldName string, newName string) error {
 	if oldName == "" || newName == "" {
+		return nil
+	}
+	if !common.PropertyExists(PluginName, oldName, AttachmentsProperty) {
 		return nil
 	}
 	attachments, err := LoadAttachments(oldName)
