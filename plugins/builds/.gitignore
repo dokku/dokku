@@ -1,0 +1,10 @@
+/commands
+/subcommands/*
+/triggers/*
+/triggers
+/builds-generate-id
+/builds-record-finalize
+/builds-record-start
+/install
+/post-app-rename-setup
+/post-delete

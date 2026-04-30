@@ -147,7 +147,7 @@ func triggerRestart(appName string) {
 	common.LogInfo1(fmt.Sprintf("Restarting app %s", appName))
 	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
 		Trigger:     "release-and-deploy",
-		Args:        []string{appName},
+		Args:        []string{appName, "", "config-redeploy"},
 		StreamStdio: true,
 	})
 	if err != nil {

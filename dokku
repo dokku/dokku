@@ -188,9 +188,8 @@ execute_dokku_cmd() {
     set -- "$PLUGIN_CMD" "$@"
   fi
 
-  if [[ "$PLUGIN_NAME" == "git-hook" ]] || [[ "$PLUGIN_NAME" == "ps:rebuild" ]] || [[ "$PLUGIN_NAME" == "ps:restart" ]] || [[ "$PLUGIN_NAME" == "deploy" ]]; then
-    export DOKKU_REDIRECT_OUTPUT=true
-    exec &> >(tee >(tee | logger -i -t "dokku-${DOKKU_PID}"))
+  if [[ "$PLUGIN_NAME" == "git-hook" ]] || [[ "$PLUGIN_NAME" == "ps:rebuild" ]] || [[ "$PLUGIN_NAME" == "ps:restart" ]]; then
+    dokku_setup_build_capture "$2" "$PLUGIN_NAME"
   fi
 
   if [[ -x $PLUGIN_ENABLED_PATH/$PLUGIN_NAME/subcommands/default ]]; then
