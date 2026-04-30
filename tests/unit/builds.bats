@@ -33,6 +33,7 @@ write_finished_record() {
 }
 EOF
   : >"$dir/$id.log"
+  chown -R dokku:dokku "$DOKKU_LIB_ROOT/data/builds"
 }
 
 write_running_record() {
@@ -53,6 +54,7 @@ write_running_record() {
 }
 EOF
   : >"$dir/$id.log"
+  chown -R dokku:dokku "$DOKKU_LIB_ROOT/data/builds"
 }
 
 @test "(builds) builds:help" {
@@ -200,7 +202,7 @@ EOF
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "info001"
+  assert_output_contains "info001" -1
   assert_output_contains "succeeded"
   assert_output_contains "Log:"
 
@@ -224,6 +226,7 @@ EOF
   write_finished_record "$TEST_APP" "done01" "succeeded" "git-hook" 1234 "build"
   mkdir -p "$DOKKU_LIB_ROOT/data/apps/$TEST_APP"
   echo "done01" >"$DOKKU_LIB_ROOT/data/apps/$TEST_APP/.deploy.lock"
+  chown dokku:dokku "$DOKKU_LIB_ROOT/data/apps/$TEST_APP/.deploy.lock"
 
   run /bin/bash -c "dokku builds:cancel $TEST_APP"
   echo "output: $output"
@@ -238,6 +241,7 @@ EOF
   write_running_record "$TEST_APP" "abnd01" 99999 "git-hook"
   mkdir -p "$DOKKU_LIB_ROOT/data/apps/$TEST_APP"
   echo "abnd01" >"$DOKKU_LIB_ROOT/data/apps/$TEST_APP/.deploy.lock"
+  chown dokku:dokku "$DOKKU_LIB_ROOT/data/apps/$TEST_APP/.deploy.lock"
 
   run /bin/bash -c "dokku builds:cancel $TEST_APP"
   echo "output: $output"
@@ -255,6 +259,7 @@ EOF
 @test "(builds:output) cats the log file for a finished build" {
   write_finished_record "$TEST_APP" "out001" "succeeded" "git-hook" 1234 "build"
   echo "build log line" >"$DOKKU_LIB_ROOT/data/builds/$TEST_APP/out001.log"
+  chown dokku:dokku "$DOKKU_LIB_ROOT/data/builds/$TEST_APP/out001.log"
 
   run /bin/bash -c "dokku builds:output $TEST_APP out001"
   echo "output: $output"
