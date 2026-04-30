@@ -628,7 +628,12 @@ release_and_deploy() {
 
   local APP="$1"
   local IMAGE_TAG="${2:-latest}"
+  local SOURCE="${3:-deploy}"
+
+  dokku_setup_build_capture "$APP" "$SOURCE"
+
   local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
+  local exit_code=0
 
   if verify_image "$IMAGE"; then
     IMAGE_SOURCE_TYPE="$(get_image_builder_type "$IMAGE" "$APP")"
@@ -638,20 +643,28 @@ release_and_deploy() {
     local DOKKU_SKIP_DEPLOY=${DOKKU_APP_SKIP_DEPLOY:="$DOKKU_GLOBAL_SKIP_DEPLOY"}
 
     dokku_log_info1 "Releasing $APP..."
-    dokku_release "$APP" "$IMAGE_SOURCE_TYPE" "$IMAGE_TAG"
+    dokku_release "$APP" "$IMAGE_SOURCE_TYPE" "$IMAGE_TAG" || exit_code="$?"
 
-    if [[ "$DOKKU_SKIP_DEPLOY" != "true" ]]; then
+    if [[ "$exit_code" -eq 0 ]] && [[ "$DOKKU_SKIP_DEPLOY" != "true" ]]; then
       local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
       dokku_log_info1 "Deploying $APP via the $DOKKU_SCHEDULER scheduler..."
-      cmd-deploy "$APP" "$IMAGE_TAG"
-      dokku_log_info2 "Application deployed:"
-      plugn trigger domains-urls "$APP" urls | sed "s/^/       /"
-    else
+      cmd-deploy "$APP" "$IMAGE_TAG" || exit_code="$?"
+      if [[ "$exit_code" -eq 0 ]]; then
+        dokku_log_info2 "Application deployed:"
+        plugn trigger domains-urls "$APP" urls | sed "s/^/       /"
+      fi
+    elif [[ "$exit_code" -eq 0 ]]; then
       dokku_log_info1 "Skipping deployment"
     fi
 
     echo
   fi
+
+  if [[ -n "$DOKKU_BUILD_ID" ]]; then
+    plugn trigger builds-record-finalize "$APP" "$DOKKU_BUILD_ID" "$exit_code" || true
+  fi
+
+  return "$exit_code"
 }
 
 dokku_receive() {
@@ -847,6 +860,30 @@ merge_dedupe_list() {
   echo "$merged_list"
 }
 
+dokku_setup_build_capture() {
+  declare desc="generate a build-id, write a record, and redirect output to log + journald"
+  declare APP="$1" SOURCE="${2:-unknown}"
+  [[ "$DOKKU_REDIRECT_OUTPUT" == "true" ]] && return 0
+  if [[ -z "$APP" ]]; then
+    return 0
+  fi
+  export DOKKU_REDIRECT_OUTPUT=true
+  if [[ -z "$DOKKU_BUILD_ID" ]]; then
+    DOKKU_BUILD_ID="$(plugn trigger builds-generate-id 2>/dev/null)"
+    if [[ -z "$DOKKU_BUILD_ID" ]]; then
+      DOKKU_BUILD_ID="pid-${DOKKU_PID}"
+    fi
+    export DOKKU_BUILD_ID
+  fi
+  export DOKKU_BUILD_SOURCE="$SOURCE"
+  local DIR="$DOKKU_LIB_ROOT/data/builds/$APP"
+  local LOG="$DIR/${DOKKU_BUILD_ID}.log"
+  mkdir -p "$DIR" && : >"$LOG"
+  export DOKKU_BUILD_LOG_FILE="$LOG"
+  plugn trigger builds-record-start "$APP" "$DOKKU_BUILD_ID" "$$" "$SOURCE" || true
+  exec &> >(tee -a "$LOG" >(logger -i -t "dokku-${DOKKU_BUILD_ID}"))
+}
+
 acquire_app_deploy_lock() {
   declare desc="acquire advisory lock for use in deploys"
   local APP="$1"
@@ -855,13 +892,26 @@ acquire_app_deploy_lock() {
   local LOCK_WAITING_MSG="$APP currently has a deploy lock in place. Waiting..."
   local LOCK_FAILED_MSG="$APP currently has a deploy lock in place. Exiting..."
 
+  if [[ -z "$DOKKU_BUILD_ID" ]]; then
+    DOKKU_BUILD_ID="$(plugn trigger builds-generate-id 2>/dev/null)"
+    if [[ -z "$DOKKU_BUILD_ID" ]]; then
+      DOKKU_BUILD_ID="pid-${DOKKU_PID}"
+    fi
+    export DOKKU_BUILD_ID
+  fi
+
   acquire_advisory_lock "$APP_DEPLOY_LOCK_FILE" "$LOCK_TYPE" "$LOCK_WAITING_MSG" "$LOCK_FAILED_MSG"
 }
 
 release_app_deploy_lock() {
   declare desc="release advisory lock used in deploys"
   local APP="$1"
+  local EXIT_CODE="${2:-0}"
   local APP_DEPLOY_LOCK_FILE="$DOKKU_LIB_ROOT/data/apps/$APP/.deploy.lock"
+
+  if [[ -n "$DOKKU_BUILD_ID" ]]; then
+    plugn trigger builds-record-finalize "$APP" "$DOKKU_BUILD_ID" "$EXIT_CODE" || true
+  fi
 
   release_advisory_lock "$APP_DEPLOY_LOCK_FILE"
 }
@@ -890,7 +940,7 @@ acquire_advisory_lock() {
       dokku_log_fail "Run 'apps:unlock' to release the existing deploy lock"
     fi
   fi
-  echo "$DOKKU_PID" >"$LOCK_FILE"
+  echo "${DOKKU_BUILD_ID:-$DOKKU_PID}" >"$LOCK_FILE"
 }
 
 release_advisory_lock() {

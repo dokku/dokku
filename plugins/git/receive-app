@@ -7,6 +7,8 @@ trigger-git-receive-app() {
   declare desc="builds the app from the local git repository"
   declare trigger="receive-app"
 
+  dokku_setup_build_capture "$1" "git-hook"
+
   git_receive_app "$@"
   return $?
 }
