@@ -35,6 +35,21 @@ func TriggerInstall() error {
 		return err
 	}
 
+	// The install trigger runs as root; the directories it just made are
+	// root-owned, but the dokku user is the one that runs storage:create
+	// and writes entry / migration-flag files into them.
+	for _, dir := range []string{RegistryDirectory(), EntriesDirectory(), migrationFlagDir()} {
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			return fmt.Errorf("Unable to create %s: %s", dir, err.Error())
+		}
+		if err := common.SetPermissions(common.SetPermissionInput{
+			Filename: dir,
+			Mode:     0755,
+		}); err != nil {
+			return fmt.Errorf("Unable to set permissions on %s: %s", dir, err.Error())
+		}
+	}
+
 	if err := MigrateLegacyMounts(); err != nil {
 		return fmt.Errorf("storage migration failed: %w", err)
 	}
