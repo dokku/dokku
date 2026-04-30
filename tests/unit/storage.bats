@@ -251,11 +251,30 @@ teardown() {
   echo "status: $status"
   assert_success
 
+  run /bin/bash -c "dokku storage:list $TEST_APP --format json | jq -r '. | length'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "2"
+
+  run /bin/bash -c "dokku storage:list $TEST_APP --format json | jq -r '.[].entry_name' | sort | xargs"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "rdmtest-cache rdmtest-data"
+
   # cleanup
   run /bin/bash -c "dokku storage:unmount $TEST_APP rdmtest-data"
   assert_success
   run /bin/bash -c "dokku storage:unmount $TEST_APP rdmtest-cache"
   assert_success
+
+  run /bin/bash -c "dokku storage:list $TEST_APP --format json | jq -r '. | length'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "0"
+
   run /bin/bash -c "dokku storage:destroy rdmtest-data"
   assert_success
   run /bin/bash -c "dokku storage:destroy rdmtest-cache"

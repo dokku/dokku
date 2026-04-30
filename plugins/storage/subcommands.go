@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -226,7 +227,9 @@ func CommandUnmount(input CommandUnmountInput) error {
 	return RemoveAttachment(input.AppName, input.NameOrPath, input.ContainerDir)
 }
 
-// CommandList lists all bind mounts for an app
+// CommandList lists all bind mounts for an app. Reads attachments
+// directly from the storage plugin's own state rather than going through
+// the deprecated `storage-list` plugn trigger.
 func CommandList(appName string, format string) error {
 	if err := common.VerifyAppName(appName); err != nil {
 		return err
@@ -236,34 +239,29 @@ func CommandList(appName string, format string) error {
 		return errors.New("Invalid --format value specified")
 	}
 
-	if format == "text" {
-		common.LogInfo1Quiet(fmt.Sprintf("%s volume bind-mounts:", appName))
-	}
-
-	results, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
-		Trigger: "storage-list",
-		Args:    []string{appName, "deploy", format},
-	})
+	rows, err := ListAppMountEntries(appName, PhaseDeploy)
 	if err != nil {
 		return err
 	}
 
-	output := results.StdoutContents()
-	if format == "text" && output != "" {
-		lines := strings.Split(strings.TrimSpace(output), "\n")
-		for _, line := range lines {
-			if line != "" {
-				if os.Getenv("DOKKU_QUIET_OUTPUT") != "" {
-					fmt.Println(line)
-				} else {
-					common.LogVerbose(line)
-				}
-			}
+	if format == "json" {
+		output, err := json.Marshal(rows)
+		if err != nil {
+			return err
 		}
-	} else if output != "" {
-		fmt.Println(output)
+		fmt.Println(string(output))
+		return nil
 	}
 
+	common.LogInfo1Quiet(fmt.Sprintf("%s volume bind-mounts:", appName))
+	for _, row := range rows {
+		line := formatStorageListEntry(row)
+		if os.Getenv("DOKKU_QUIET_OUTPUT") != "" {
+			fmt.Println(line)
+		} else {
+			common.LogVerbose(line)
+		}
+	}
 	return nil
 }
 

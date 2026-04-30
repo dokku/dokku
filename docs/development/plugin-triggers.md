@@ -2904,21 +2904,17 @@ DOKKU_SCHEDULER="$1"; APP="$2"; REMOVE_CONTAINERS="$3";
 # TODO
 ```
 
-### `storage-list`
+### `storage-list` (deprecated)
 
-- Description: Returns a list of storage mounts
-- Invoked by: `dokku storage:list` and `dokku deploy`
+> [!WARNING]
+> Deprecated as of 0.38.0. The trigger handler still functions for back-compat
+> with external plugins but emits a deprecation warning on every invocation.
+> In-process callers should use the `storage-app-mounts` trigger instead, or
+> the `storage` Go package directly.
+
+- Description: Returns a list of storage mounts for an app
+- Invoked by: external plugins (the core `storage:list` subcommand no longer uses it)
 - Arguments: `$APP $PHASE $FORMAT`
-- Example:
-
-```shell
-#!/usr/bin/env bash
-
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-APP="$1"
-
-# TODO
-```
 
 ### `storage-app-mounts`
 

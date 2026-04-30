@@ -125,30 +125,31 @@ func detectDistro() string {
 	return ""
 }
 
-// TriggerStorageList outputs storage mounts for an app
+// TriggerStorageList outputs storage mounts for an app.
+//
+// Deprecated: the storage-list plugn trigger is retained for back-compat
+// with external plugins that may still call it, but in-process callers
+// should use storage.ListAppMountEntries directly. A deprecation warning
+// is emitted on every invocation.
 func TriggerStorageList(appName string, phase string, format string) error {
-	mounts, err := GetBindMounts(appName, phase)
+	common.LogWarn("the storage-list plugn trigger is deprecated; use the storage-app-mounts trigger or the storage Go package directly")
+
+	rows, err := ListAppMountEntries(appName, phase)
 	if err != nil {
 		return err
 	}
 
 	if format == "json" {
-		entries := []StorageListEntry{}
-		for _, mount := range mounts {
-			entries = append(entries, ParseMountPath(mount))
-		}
-
-		output, err := json.Marshal(entries)
+		output, err := json.Marshal(rows)
 		if err != nil {
 			return err
 		}
 		fmt.Println(string(output))
-	} else {
-		for _, mount := range mounts {
-			fmt.Println(mount)
-		}
+		return nil
 	}
-
+	for _, row := range rows {
+		fmt.Println(formatStorageListEntry(row))
+	}
 	return nil
 }
 
