@@ -267,7 +267,7 @@ EOF
   dokku builds:set "$TEST_APP" retention 2
 
   for i in 1 2 3 4 5; do
-    write_finished_record "$TEST_APP" "p$i" "succeeded" "git-hook" $((1000+i)) "build"
+    write_finished_record "$TEST_APP" "p$i" "succeeded" "git-hook" $((1000 + i)) "build"
     sleep 1
   done
 
