@@ -58,19 +58,15 @@ func TriggerInstall() error {
 	return nil
 }
 
-// TriggerPostDelete clears any attachment list for an app that's being
-// destroyed. Entries are global and survive app deletion. Skipped when
-// the app has no attachments to begin with so we don't trigger a
-// pointless propertyTouch that could fail on installs with no
-// property-list state for this plugin yet.
+// TriggerPostDelete removes the attachment store for an app that's being
+// destroyed. Entries are global and survive app deletion. The whole
+// per-app property folder goes away rather than being rewritten as
+// empty, matching what other plugins do on app deletion.
 func TriggerPostDelete(appName string) error {
 	if appName == "" {
 		return nil
 	}
-	if !common.PropertyExists(PluginName, appName, AttachmentsProperty) {
-		return nil
-	}
-	return common.PropertyListWrite(PluginName, appName, AttachmentsProperty, []string{})
+	return common.PropertyDestroy(PluginName, appName)
 }
 
 // TriggerPostAppCloneSetup copies attachments from the source app to the
@@ -90,7 +86,7 @@ func TriggerPostAppCloneSetup(oldName string, newName string) error {
 }
 
 // TriggerPostAppRenameSetup moves attachments from the old name to the
-// new name and clears the old.
+// new name and removes the old per-app property folder.
 func TriggerPostAppRenameSetup(oldName string, newName string) error {
 	if oldName == "" || newName == "" {
 		return nil
@@ -105,7 +101,7 @@ func TriggerPostAppRenameSetup(oldName string, newName string) error {
 	if err := SaveAttachments(newName, attachments); err != nil {
 		return err
 	}
-	return common.PropertyListWrite(PluginName, oldName, AttachmentsProperty, []string{})
+	return common.PropertyDestroy(PluginName, oldName)
 }
 
 // detectDistro returns the Linux distribution name
