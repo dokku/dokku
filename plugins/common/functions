@@ -881,7 +881,7 @@ dokku_setup_build_capture() {
   mkdir -p "$DIR" && : >"$LOG"
   export DOKKU_BUILD_LOG_FILE="$LOG"
   plugn trigger builds-record-start "$APP" "$DOKKU_BUILD_ID" "$$" "$SOURCE" || true
-  exec &> >(tee -a "$LOG" | logger -i -t "dokku-${DOKKU_BUILD_ID}")
+  exec &> >(tee -a "$LOG" >(logger -i -t "dokku-${DOKKU_BUILD_ID}"))
 }
 
 acquire_app_deploy_lock() {
