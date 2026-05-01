@@ -1409,16 +1409,22 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 			Trigger: "procfile-get-command",
 			Args:    []string{appName, args[0], "5000"},
 		})
-		if err == nil && resp.Stdout != "" {
+		if err == nil && resp.StdoutContents() != "" {
 			common.LogInfo1Quiet(fmt.Sprintf("Found '%s' in Procfile, running that command", args[0]))
-			return err
+			words, err := shellquote.Split(resp.StdoutContents())
+			if err != nil {
+				return fmt.Errorf("Error parsing Procfile command: %w", err)
+			}
+			command = words
 		}
-		// todo: run command in procfile
 	}
 
 	entrypoint := ""
-	if imageSourceType == "herokuish" {
+	switch imageSourceType {
+	case "herokuish":
 		entrypoint = "/exec"
+	case "pack":
+		entrypoint = "launcher"
 	}
 
 	helmAgent, err := NewHelmAgent(namespace, DevNullPrinter)
@@ -1482,7 +1488,7 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 	workingDir := common.GetWorkingDir(appName, image)
 	job, err := templateKubernetesJob(Job{
 		AppName:               appName,
-		Command:               []string{commandShell},
+		Command:               command,
 		DeploymentID:          deploymentID,
 		Entrypoint:            entrypoint,
 		Env:                   extraEnv,

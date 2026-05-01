@@ -75,6 +75,10 @@ spec:
             {{- range $config.args }}
             - {{ . }}
             {{- end }}
+            {{- if eq $.Values.global.image.type "pack" }}
+            command:
+            - launcher
+            {{- end }}
             envFrom:
             - secretRef:
                 name: config-{{ $.Values.global.app_name }}
