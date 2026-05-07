@@ -163,7 +163,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "PLUGIN_PATH=$PLUGIN_PATH PLUGIN_AVAILABLE_PATH=$PLUGIN_AVAILABLE_PATH PLUGIN_ENABLED_PATH=$PLUGIN_ENABLED_PATH PLUGIN_CORE_AVAILABLE_PATH=$PLUGIN_CORE_AVAILABLE_PATH DOKKU_LIB_ROOT=$DOKKU_LIB_ROOT $PLUGIN_ENABLED_PATH/builder-lambda/core-post-extract $TEST_APP $TMP_DIR HEAD"
+  run_plugin_script builder-lambda core-post-extract "$TEST_APP" "$TMP_DIR" HEAD
   echo "output: $output"
   echo "status: $status"
   assert_success

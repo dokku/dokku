@@ -231,6 +231,29 @@ destroy_key() {
   rm -f /tmp/testkey* &>/dev/null || true
 }
 
+# Run a plugn trigger with the env vars plugn needs, capturing $output/$status via bats `run`.
+# Optional VAR=VAL pairs before <trigger> are forwarded as extra env vars on the bash command line.
+# Usage: run_plugn_trigger [VAR=VAL ...] <trigger> <args...>
+run_plugn_trigger() {
+  local extra_env=""
+  while [[ "$1" == *=* ]]; do
+    extra_env+=" $1"
+    shift
+  done
+  local TRIGGER="$1"
+  shift
+  run /bin/bash -c "PLUGIN_PATH=$PLUGIN_PATH PLUGIN_CORE_AVAILABLE_PATH=$PLUGIN_CORE_AVAILABLE_PATH DOKKU_LIB_ROOT=$DOKKU_LIB_ROOT${extra_env} plugn trigger $TRIGGER $* < /dev/null"
+}
+
+# Run a single plugin's trigger script directly so other plugins' handlers do not fire.
+# Captures $output/$status via bats `run`.
+# Usage: run_plugin_script <plugin_name> <script_name> <args...>
+run_plugin_script() {
+  local PLUGIN_NAME="$1" SCRIPT_NAME="$2"
+  shift 2
+  run /bin/bash -c "PLUGIN_PATH=$PLUGIN_PATH PLUGIN_AVAILABLE_PATH=$PLUGIN_AVAILABLE_PATH PLUGIN_ENABLED_PATH=$PLUGIN_ENABLED_PATH PLUGIN_CORE_AVAILABLE_PATH=$PLUGIN_CORE_AVAILABLE_PATH DOKKU_LIB_ROOT=$DOKKU_LIB_ROOT $PLUGIN_ENABLED_PATH/$PLUGIN_NAME/$SCRIPT_NAME $*"
+}
+
 check_urls() {
   local PATTERN="$1"
   run /bin/bash -c "dokku urls $TEST_APP | grep -E \"${PATTERN}\""
