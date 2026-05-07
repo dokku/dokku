@@ -107,4 +107,4 @@ jobs:
             Bumps `${{ matrix.name }}` from `${{ matrix.version }}` to `${{ steps.latest.outputs.latest }}`.
 
             Release notes: https://github.com/${{ matrix.repo }}/releases/tag/v${{ steps.latest.outputs.latest }}
-          labels: dependencies
+          labels: 'type: dependencies'
