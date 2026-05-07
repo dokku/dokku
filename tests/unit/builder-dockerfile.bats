@@ -155,6 +155,29 @@ EOF
   assert_output "3001/udp 3000/tcp 3003"
 }
 
+@test "(builder-dockerfile) core-post-extract renames the configured dockerfile" {
+  local TMP_DIR
+  TMP_DIR="$(mktemp -d "/tmp/dokku-test-builder-dockerfile.XXXXXX")"
+  trap "rm -rf '$TMP_DIR'" RETURN
+  echo "FROM scratch" >"$TMP_DIR/second.Dockerfile"
+
+  run /bin/bash -c "dokku builder-dockerfile:set $TEST_APP dockerfile-path second.Dockerfile"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "PLUGIN_PATH=$PLUGIN_PATH PLUGIN_AVAILABLE_PATH=$PLUGIN_AVAILABLE_PATH PLUGIN_ENABLED_PATH=$PLUGIN_ENABLED_PATH PLUGIN_CORE_AVAILABLE_PATH=$PLUGIN_CORE_AVAILABLE_PATH DOKKU_LIB_ROOT=$DOKKU_LIB_ROOT $PLUGIN_ENABLED_PATH/builder-dockerfile/core-post-extract $TEST_APP $TMP_DIR HEAD"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "test -f $TMP_DIR/Dockerfile"
+  assert_success
+
+  run /bin/bash -c "test ! -e $TMP_DIR/second.Dockerfile"
+  assert_success
+}
+
 @test "(builder-dockerfile) ps:rebuild fetches files from image" {
   run /bin/bash -c "dokku --trace git:from-image $TEST_APP dokku/smoke-test-app:dockerfile"
   echo "output: $output"

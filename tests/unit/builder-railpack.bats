@@ -142,6 +142,29 @@ teardown() {
   assert_output "['task.py', 'some', 'cron', 'task']"
 }
 
+@test "(builder-railpack) core-post-extract renames the configured railpack.json" {
+  local TMP_DIR
+  TMP_DIR="$(mktemp -d "/tmp/dokku-test-builder-railpack.XXXXXX")"
+  trap "rm -rf '$TMP_DIR'" RETURN
+  echo "{}" >"$TMP_DIR/railpack.alt.json"
+
+  run /bin/bash -c "dokku builder-railpack:set $TEST_APP railpackjson-path railpack.alt.json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "PLUGIN_PATH=$PLUGIN_PATH PLUGIN_AVAILABLE_PATH=$PLUGIN_AVAILABLE_PATH PLUGIN_ENABLED_PATH=$PLUGIN_ENABLED_PATH PLUGIN_CORE_AVAILABLE_PATH=$PLUGIN_CORE_AVAILABLE_PATH DOKKU_LIB_ROOT=$DOKKU_LIB_ROOT $PLUGIN_ENABLED_PATH/builder-railpack/core-post-extract $TEST_APP $TMP_DIR HEAD"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "test -f $TMP_DIR/railpack.json"
+  assert_success
+
+  run /bin/bash -c "test ! -e $TMP_DIR/railpack.alt.json"
+  assert_success
+}
+
 cron_run_wrapper() {
   local APP="$1"
   local APP_REPO_DIR="$2"

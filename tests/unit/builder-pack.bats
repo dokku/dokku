@@ -228,6 +228,29 @@ teardown() {
   assert_output "['task.py', 'test']"
 }
 
+@test "(builder-pack) core-post-extract renames the configured project.toml" {
+  local TMP_DIR
+  TMP_DIR="$(mktemp -d "/tmp/dokku-test-builder-pack.XXXXXX")"
+  trap "rm -rf '$TMP_DIR'" RETURN
+  echo "" >"$TMP_DIR/project2.toml"
+
+  run /bin/bash -c "dokku builder-pack:set $TEST_APP projecttoml-path project2.toml"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "PLUGIN_PATH=$PLUGIN_PATH PLUGIN_AVAILABLE_PATH=$PLUGIN_AVAILABLE_PATH PLUGIN_ENABLED_PATH=$PLUGIN_ENABLED_PATH PLUGIN_CORE_AVAILABLE_PATH=$PLUGIN_CORE_AVAILABLE_PATH DOKKU_LIB_ROOT=$DOKKU_LIB_ROOT $PLUGIN_ENABLED_PATH/builder-pack/core-post-extract $TEST_APP $TMP_DIR HEAD"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "test -f $TMP_DIR/project.toml"
+  assert_success
+
+  run /bin/bash -c "test ! -e $TMP_DIR/project2.toml"
+  assert_success
+}
+
 cron_run_wrapper() {
   local APP="$1"
   local APP_REPO_DIR="$2"

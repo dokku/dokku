@@ -152,6 +152,29 @@ teardown() {
   assert_success
 }
 
+@test "(builder-lambda) core-post-extract renames the configured lambda.yml" {
+  local TMP_DIR
+  TMP_DIR="$(mktemp -d "/tmp/dokku-test-builder-lambda.XXXXXX")"
+  trap "rm -rf '$TMP_DIR'" RETURN
+  echo "---" >"$TMP_DIR/lambda2.yml"
+
+  run /bin/bash -c "dokku builder-lambda:set $TEST_APP lambdayml-path lambda2.yml"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "PLUGIN_PATH=$PLUGIN_PATH PLUGIN_AVAILABLE_PATH=$PLUGIN_AVAILABLE_PATH PLUGIN_ENABLED_PATH=$PLUGIN_ENABLED_PATH PLUGIN_CORE_AVAILABLE_PATH=$PLUGIN_CORE_AVAILABLE_PATH DOKKU_LIB_ROOT=$DOKKU_LIB_ROOT $PLUGIN_ENABLED_PATH/builder-lambda/core-post-extract $TEST_APP $TMP_DIR HEAD"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "test -f $TMP_DIR/lambda.yml"
+  assert_success
+
+  run /bin/bash -c "test ! -e $TMP_DIR/lambda2.yml"
+  assert_success
+}
+
 inject_lambda_yml() {
   local APP="$1"
   local APP_REPO_DIR="$2"

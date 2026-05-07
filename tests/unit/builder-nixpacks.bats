@@ -131,6 +131,29 @@ teardown() {
   assert_output "['task.py', 'some', 'cron', 'task']"
 }
 
+@test "(builder-nixpacks) core-post-extract renames the configured nixpacks.toml" {
+  local TMP_DIR
+  TMP_DIR="$(mktemp -d "/tmp/dokku-test-builder-nixpacks.XXXXXX")"
+  trap "rm -rf '$TMP_DIR'" RETURN
+  echo "" >"$TMP_DIR/nixpacks.alt.toml"
+
+  run /bin/bash -c "dokku builder-nixpacks:set $TEST_APP nixpackstoml-path nixpacks.alt.toml"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "PLUGIN_PATH=$PLUGIN_PATH PLUGIN_AVAILABLE_PATH=$PLUGIN_AVAILABLE_PATH PLUGIN_ENABLED_PATH=$PLUGIN_ENABLED_PATH PLUGIN_CORE_AVAILABLE_PATH=$PLUGIN_CORE_AVAILABLE_PATH DOKKU_LIB_ROOT=$DOKKU_LIB_ROOT $PLUGIN_ENABLED_PATH/builder-nixpacks/core-post-extract $TEST_APP $TMP_DIR HEAD"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "test -f $TMP_DIR/nixpacks.toml"
+  assert_success
+
+  run /bin/bash -c "test ! -e $TMP_DIR/nixpacks.alt.toml"
+  assert_success
+}
+
 cron_run_wrapper() {
   local APP="$1"
   local APP_REPO_DIR="$2"
