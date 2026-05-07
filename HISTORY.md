@@ -1,5 +1,52 @@
 # History
 
+## 0.38.1
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.38.1/bootstrap.sh
+sudo DOKKU_TAG=v0.38.1 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #8563: @josegonzalez Source property-functions where fn-plugin-property-* helpers are used
+- #8559: @josegonzalez Install cnb pack from github releases instead of ppa
+- #8558: @josegonzalez Chown migrated legacy storage entries to dokku
+- #8545: @josegonzalez Deflake haproxy bats tests
+
+### Refactors
+
+- #8546: @josegonzalez Consolidate nginx.conf.sigil server blocks
+
+### Documentation
+
+- #8548: @josegonzalez Use explicit type property in proxy:set examples
+- #8547: @josegonzalez Document plugin properties migrated from env vars
+- #8544: @josegonzalez Fix reference to when the build plugin was introduced
+
+### Tests
+
+- #8565: @dependabot[bot] chore(deps): bump google.golang.org/grpc from 1.80.0 to 1.81.0 in /tests/apps/gogrpc
+- #8568: @dependabot[bot] chore(deps): bump gunicorn from 25.3.0 to 26.0.0 in /tests/apps/multi
+- #8572: @dependabot[bot] chore(deps): bump django from 5.2.13 to 5.2.14 in /tests/apps/dockerfile-release
+- #8570: @dependabot[bot] chore(deps): bump gunicorn from 25.3.0 to 26.0.0 in /tests/apps/dockerfile-release
+- #8567: @dependabot[bot] chore(deps): bump gunicorn from 25.3.0 to 26.0.0 in /tests/apps/python-flask
+
+### Dependencies
+
+- #8571: @dependabot[bot] chore(deps): bump traefik from v3.6.15 to v3.7.0 in /plugins/traefik-vhosts
+- #8569: @dependabot[bot] chore(deps): bump github.com/traefik/traefik/v2 from 2.11.44 to 2.11.45 in /plugins/scheduler-k3s
+- #8561: @dokku-bot chore: bump pack to 0.40.4
+- #8555: @dependabot[bot] chore(deps): bump github.com/mattn/go-isatty from 0.0.20 to 0.0.22 in /plugins/app-json
+- #8556: @dependabot[bot] chore(deps): bump github.com/Masterminds/semver/v3 from 3.4.0 to 3.5.0 in /plugins/scheduler-k3s
+- #8550: @dokku-bot chore: bump docker-container-healthchecker to 0.15.2
+- #8553: @dokku-bot chore: bump dokku-event-listener to 0.19.1
+- #8552: @dokku-bot chore: bump lambda-builder to 0.9.3
+- #8551: @dokku-bot chore: bump procfile-util to 0.20.7
+- #8554: @dependabot[bot] chore(deps): bump peter-evans/create-pull-request from 7 to 8
+
 ## 0.38.0
 
 Install/update via the bootstrap script:
