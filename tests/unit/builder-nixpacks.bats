@@ -132,25 +132,22 @@ teardown() {
 }
 
 @test "(builder-nixpacks) core-post-extract renames the configured nixpacks.toml" {
-  local TMP_DIR
-  TMP_DIR="$(mktemp -d "/tmp/dokku-test-builder-nixpacks.XXXXXX")"
-  trap "rm -rf '$TMP_DIR'" RETURN
-  echo "" >"$TMP_DIR/nixpacks.alt.toml"
+  echo "" >"$BATS_TEST_TMPDIR/nixpacks.alt.toml"
 
   run /bin/bash -c "dokku builder-nixpacks:set $TEST_APP nixpackstoml-path nixpacks.alt.toml"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run_plugin_script builder-nixpacks core-post-extract "$TEST_APP" "$TMP_DIR" HEAD
+  run_plugin_script builder-nixpacks core-post-extract "$TEST_APP" "$BATS_TEST_TMPDIR" HEAD
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "test -f $TMP_DIR/nixpacks.toml"
+  run /bin/bash -c "test -f $BATS_TEST_TMPDIR/nixpacks.toml"
   assert_success
 
-  run /bin/bash -c "test ! -e $TMP_DIR/nixpacks.alt.toml"
+  run /bin/bash -c "test ! -e $BATS_TEST_TMPDIR/nixpacks.alt.toml"
   assert_success
 }
 

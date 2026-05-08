@@ -229,25 +229,22 @@ teardown() {
 }
 
 @test "(builder-pack) core-post-extract renames the configured project.toml" {
-  local TMP_DIR
-  TMP_DIR="$(mktemp -d "/tmp/dokku-test-builder-pack.XXXXXX")"
-  trap "rm -rf '$TMP_DIR'" RETURN
-  echo "" >"$TMP_DIR/project2.toml"
+  echo "" >"$BATS_TEST_TMPDIR/project2.toml"
 
   run /bin/bash -c "dokku builder-pack:set $TEST_APP projecttoml-path project2.toml"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run_plugin_script builder-pack core-post-extract "$TEST_APP" "$TMP_DIR" HEAD
+  run_plugin_script builder-pack core-post-extract "$TEST_APP" "$BATS_TEST_TMPDIR" HEAD
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "test -f $TMP_DIR/project.toml"
+  run /bin/bash -c "test -f $BATS_TEST_TMPDIR/project.toml"
   assert_success
 
-  run /bin/bash -c "test ! -e $TMP_DIR/project2.toml"
+  run /bin/bash -c "test ! -e $BATS_TEST_TMPDIR/project2.toml"
   assert_success
 }
 

@@ -143,25 +143,22 @@ teardown() {
 }
 
 @test "(builder-railpack) core-post-extract renames the configured railpack.json" {
-  local TMP_DIR
-  TMP_DIR="$(mktemp -d "/tmp/dokku-test-builder-railpack.XXXXXX")"
-  trap "rm -rf '$TMP_DIR'" RETURN
-  echo "{}" >"$TMP_DIR/railpack.alt.json"
+  echo "{}" >"$BATS_TEST_TMPDIR/railpack.alt.json"
 
   run /bin/bash -c "dokku builder-railpack:set $TEST_APP railpackjson-path railpack.alt.json"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run_plugin_script builder-railpack core-post-extract "$TEST_APP" "$TMP_DIR" HEAD
+  run_plugin_script builder-railpack core-post-extract "$TEST_APP" "$BATS_TEST_TMPDIR" HEAD
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "test -f $TMP_DIR/railpack.json"
+  run /bin/bash -c "test -f $BATS_TEST_TMPDIR/railpack.json"
   assert_success
 
-  run /bin/bash -c "test ! -e $TMP_DIR/railpack.alt.json"
+  run /bin/bash -c "test ! -e $BATS_TEST_TMPDIR/railpack.alt.json"
   assert_success
 }
 
