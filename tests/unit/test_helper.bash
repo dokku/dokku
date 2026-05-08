@@ -143,11 +143,8 @@ assert_output_contains() {
   local input="$output"
   local expected="$1"
   local count="${2:-1}"
-  local found=0
-  until [ "${input/$expected/}" = "$input" ]; do
-    input="${input/$expected/}"
-    found=$((found + 1))
-  done
+  local found
+  found=$(printf '%s' "$input" | grep -F -o -- "$expected" | wc -l | tr -d ' ')
 
   if [[ "$count" -eq -1 ]]; then
     if [[ "$found" -gt 0 ]]; then
