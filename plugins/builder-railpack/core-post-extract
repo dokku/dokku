@@ -10,7 +10,7 @@ trigger-builder-railpack-core-post-extract() {
   declare APP="$1" SOURCECODE_WORK_DIR="$2"
   local NEW_RAILPACK_JSON="$(fn-builder-railpack-computed-railpackjson-path "$APP")"
 
-  pushd "$TMP_WORK_DIR" >/dev/null
+  pushd "$SOURCECODE_WORK_DIR" >/dev/null
 
   if [[ -z "$NEW_RAILPACK_JSON" ]]; then
     return

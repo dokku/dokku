@@ -155,6 +155,26 @@ EOF
   assert_output "3001/udp 3000/tcp 3003"
 }
 
+@test "(builder-dockerfile) core-post-extract renames the configured dockerfile" {
+  echo "FROM scratch" >"$BATS_TEST_TMPDIR/second.Dockerfile"
+
+  run /bin/bash -c "dokku builder-dockerfile:set $TEST_APP dockerfile-path second.Dockerfile"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run_plugin_script builder-dockerfile core-post-extract "$TEST_APP" "$BATS_TEST_TMPDIR" HEAD
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "test -f $BATS_TEST_TMPDIR/Dockerfile"
+  assert_success
+
+  run /bin/bash -c "test ! -e $BATS_TEST_TMPDIR/second.Dockerfile"
+  assert_success
+}
+
 @test "(builder-dockerfile) ps:rebuild fetches files from image" {
   run /bin/bash -c "dokku --trace git:from-image $TEST_APP dokku/smoke-test-app:dockerfile"
   echo "output: $output"

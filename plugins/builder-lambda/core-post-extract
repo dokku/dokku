@@ -10,7 +10,7 @@ trigger-builder-lambda-core-post-extract() {
   declare APP="$1" SOURCECODE_WORK_DIR="$2"
   local NEW_LAMBDA_YML="$(fn-builder-lambda-computed-lambdayml-path "$APP")"
 
-  pushd "$TMP_WORK_DIR" >/dev/null
+  pushd "$SOURCECODE_WORK_DIR" >/dev/null
 
   if [[ -z "$NEW_LAMBDA_YML" ]]; then
     return
