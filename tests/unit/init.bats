@@ -24,7 +24,8 @@ teardown() {
 
   run "$DOCKER_BIN" container top "$CIDS"
   echo "output: $output"
-  assert_output_contains "<defunct>" "0"
+  echo "status: $status"
+  assert_output_not_contains "<defunct>"
 }
 
 @test "(init) dockerfile no tini" {
@@ -39,7 +40,8 @@ teardown() {
 
   run "$DOCKER_BIN" container top "$CIDS"
   echo "output: $output"
-  assert_output_contains "<defunct>" "0"
+  echo "status: $status"
+  assert_output_not_contains "<defunct>"
 }
 
 @test "(init) dockerfile with tini" {
@@ -54,5 +56,6 @@ teardown() {
 
   run "$DOCKER_BIN" container top "$CIDS"
   echo "output: $output"
-  assert_output_contains "<defunct>" "0"
+  echo "status: $status"
+  assert_output_not_contains "<defunct>"
 }
