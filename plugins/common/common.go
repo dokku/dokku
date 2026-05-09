@@ -931,18 +931,18 @@ func IsValidAppName(appName string) error {
 	return errors.New("App name must begin with lowercase alphanumeric character, and may only contain lowercase alphanumerics, dots, and hyphens")
 }
 
-// isValidAppNameOld verifies that the app name matches the old naming restrictions
-func isValidAppNameOld(appName string) error {
+// IsValidAppNameOld verifies that the app name matches the old naming restrictions
+func IsValidAppNameOld(appName string) error {
 	if appName == "" {
 		return errors.New("Please specify an app to run the command on")
 	}
 
-	r, _ := regexp.Compile("^[a-z0-9][a-z0-9.-]*$")
+	r, _ := regexp.Compile("^[a-z0-9][a-z0-9._-]*$")
 	if r.MatchString(appName) {
 		return nil
 	}
 
-	return errors.New("App name must begin with lowercase alphanumeric character, and may only contain lowercase alphanumerics, dots, and hyphens")
+	return errors.New("App name must begin with lowercase alphanumeric character, and may only contain lowercase alphanumerics, dots, hyphens, and underscores")
 }
 
 // AppDoesNotExist wraps error to include the app name
@@ -981,7 +981,7 @@ func VarArgs(arguments []string, skip int) []string {
 // naming conventions exists
 func VerifyAppName(appName string) error {
 	newErr := IsValidAppName(appName)
-	oldErr := isValidAppNameOld(appName)
+	oldErr := IsValidAppNameOld(appName)
 	if newErr != nil && oldErr != nil {
 		return newErr
 	}

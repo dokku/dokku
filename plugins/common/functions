@@ -222,22 +222,14 @@ fn-is-valid-app-name() {
   declare desc="verify that the app name matches naming restrictions"
   local APP="$1"
   [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
-  if [[ "$APP" =~ ^[a-z0-9][a-z0-9.-]*$ ]]; then
-    return 0
-  fi
-
-  return 1
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/common" --quiet is-valid-app-name "$APP"
 }
 
 fn-is-valid-app-name-old() {
   declare desc="verify that the app name matches the old naming restrictions"
   local APP="$1"
   [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
-  if [[ "$APP" =~ ^[a-z0-9][a-z0-9.-]*$ ]]; then
-    return 0
-  fi
-
-  return 1
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/common" --quiet is-valid-app-name-old "$APP"
 }
 
 fn-plugn-trigger-exists() {

@@ -94,6 +94,36 @@ func TestCommonIsValidAppName(t *testing.T) {
 	}
 }
 
+func TestCommonIsValidAppNameOld(t *testing.T) {
+	RegisterTestingT(t)
+	validNames := []string{
+		"myapp",
+		"my-app",
+		"my.app",
+		"my_app",
+		"legacy_app_name",
+		"app_v2",
+	}
+	for _, name := range validNames {
+		Expect(IsValidAppNameOld(name)).To(Succeed(), "expected %q to be a valid app name", name)
+	}
+
+	invalidNames := []string{
+		"app;id",
+		"app$cmd",
+		"app|cat",
+		"app/cmd",
+		"app:cmd",
+		"App",
+		"-app",
+		"_app",
+		"",
+	}
+	for _, name := range invalidNames {
+		Expect(IsValidAppNameOld(name)).To(HaveOccurred(), "expected %q to be rejected", name)
+	}
+}
+
 func TestCommonIsValidAppNameRejectsShellMetacharacters(t *testing.T) {
 	RegisterTestingT(t)
 	invalidNames := []string{
