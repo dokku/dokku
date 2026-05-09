@@ -250,7 +250,7 @@ fn-repo-update-history-and-commit() {
   declare desc="Updates the history file and commits the changes"
   declare CURRENT_VERSION="$1" NEXT_VERSION="$2" IS_PATCH="$3"
   local PULL_REQUEST_ID TITLE AUTHOR TYPE CHANGELOG_TEXT
-  local COMMIT_MESSAGE HISTORY HISTORY_CONTENTS HISTORY_BUG HISTORY_DEPENDENCY HISTORY_DEPRECATION HISTORY_DOCUMENTATION HISTORY_ENHANCEMENT HISTORY_BC_BREAK HISTORY_REFACTOR HISTORY_REMOVAL HISTORY_OTHER HISTORY_TESTS ISSUE_FILE
+  local COMMIT_MESSAGE HISTORY HISTORY_CONTENTS HISTORY_BUG HISTORY_DEPENDENCY HISTORY_DEPRECATION HISTORY_DOCUMENTATION HISTORY_ENHANCEMENT HISTORY_BC_BREAK HISTORY_REFACTOR HISTORY_REMOVAL HISTORY_SECURITY HISTORY_OTHER HISTORY_TESTS ISSUE_FILE
 
   pushd "$ROOT_DIR" >/dev/null
 
@@ -295,6 +295,8 @@ fn-repo-update-history-and-commit() {
       HISTORY_REFACTOR="${HISTORY_REFACTOR}"$'\n'"$CHANGELOG_TEXT"
     elif [[ "$TYPE" == "removal" ]]; then
       HISTORY_REMOVAL="${HISTORY_REMOVAL}"$'\n'"$CHANGELOG_TEXT"
+    elif [[ "$TYPE" == "security" ]]; then
+      HISTORY_SECURITY="${HISTORY_SECURITY}"$'\n'"$CHANGELOG_TEXT"
     elif [[ "$TYPE" == "tests" ]]; then
       HISTORY_TESTS="${HISTORY_TESTS}"$'\n'"$CHANGELOG_TEXT"
     else
@@ -312,6 +314,11 @@ fn-repo-update-history-and-commit() {
 
   if [[ -f "docs/appendices/${NEXT_VERSION}-migration-guide.md" ]]; then
     HISTORY="${HISTORY}"$'\n\n'"See the [${NEXT_VERSION} migration guide](/docs/appendices/${NEXT_VERSION}-migration-guide.md) for more information on migrating to ${NEXT_VERSION}."
+  fi
+
+  if [[ "$HISTORY_SECURITY" ]]; then
+    HISTORY="${HISTORY}"$'\n\n'"### Security"
+    HISTORY="${HISTORY}"$'\n'"$HISTORY_SECURITY"
   fi
 
   if [[ "$HISTORY_BC_BREAK" ]]; then
