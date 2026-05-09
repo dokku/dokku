@@ -22,7 +22,7 @@ teardown() {
 
   local CIDS=$(get_app_container_ids "$APP")
 
-  run "$DOCKER_BIN" container top "$CIDS"
+  run /bin/bash -c "$DOCKER_BIN container top $CIDS"
   echo "output: $output"
   echo "status: $status"
   assert_output_not_contains "<defunct>"
@@ -38,7 +38,7 @@ teardown() {
 
   local CIDS=$(get_app_container_ids "$APP")
 
-  run "$DOCKER_BIN" container top "$CIDS"
+  run /bin/bash -c "$DOCKER_BIN container top $CIDS"
   echo "output: $output"
   echo "status: $status"
   assert_output_not_contains "<defunct>"
@@ -54,7 +54,7 @@ teardown() {
 
   local CIDS=$(get_app_container_ids "$APP")
 
-  run "$DOCKER_BIN" container top "$CIDS"
+  run /bin/bash -c "$DOCKER_BIN container top $CIDS"
   echo "output: $output"
   echo "status: $status"
   assert_output_not_contains "<defunct>"
