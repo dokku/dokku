@@ -77,6 +77,60 @@ func TestCommonVerifyAppNameInvalid(t *testing.T) {
 	Expect(VerifyAppName("1994testApp")).To(HaveOccurred())
 }
 
+func TestCommonIsValidAppName(t *testing.T) {
+	RegisterTestingT(t)
+	validNames := []string{
+		"myapp",
+		"my-app",
+		"my.app",
+		"app123",
+		"123app",
+		"my-app.prod",
+		"a",
+		"0",
+	}
+	for _, name := range validNames {
+		Expect(IsValidAppName(name)).To(Succeed(), "expected %q to be a valid app name", name)
+	}
+}
+
+func TestCommonIsValidAppNameRejectsShellMetacharacters(t *testing.T) {
+	RegisterTestingT(t)
+	invalidNames := []string{
+		"app;id",
+		"app$cmd",
+		"app`whoami`",
+		"app|cat",
+		"app&background",
+		"app>file",
+		"app<file",
+		"app(cmd)",
+		"app{cmd}",
+		"app[cmd]",
+		"app*",
+		"app?",
+		"app!",
+		"app#",
+		"app\\cmd",
+		"app\"quote",
+		"app'quote",
+		"app cmd",
+		"app\tcmd",
+		"app\ncmd",
+		"app~cmd",
+		"app/cmd",
+		"app:cmd",
+		"app_name",
+		"App",
+		"-app",
+		".app",
+		"",
+	}
+	for _, name := range invalidNames {
+		Expect(IsValidAppName(name)).To(HaveOccurred(), "expected %q to be rejected", name)
+	}
+}
+
 func TestCommonVerifyAppName(t *testing.T) {
 	RegisterTestingT(t)
 	Expect(setupTests()).To(Succeed())

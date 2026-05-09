@@ -464,7 +464,7 @@ fn-git-create-hook() {
 set -e
 set -o pipefail
 
-cat | DOKKU_ROOT="$DOKKU_ROOT" dokku git-hook $APP
+cat | DOKKU_ROOT="$DOKKU_ROOT" dokku git-hook "$APP"
 EOF
   chmod +x "$PRERECEIVE_HOOK"
 }

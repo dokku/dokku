@@ -923,12 +923,12 @@ func IsValidAppName(appName string) error {
 		return errors.New("Please specify an app to run the command on")
 	}
 
-	r, _ := regexp.Compile("^[a-z0-9][^/:_A-Z]*$")
+	r, _ := regexp.Compile("^[a-z0-9][a-z0-9.-]*$")
 	if r.MatchString(appName) {
 		return nil
 	}
 
-	return errors.New("App name must begin with lowercase alphanumeric character, and cannot include uppercase characters, colons, or underscores")
+	return errors.New("App name must begin with lowercase alphanumeric character, and may only contain lowercase alphanumerics, dots, and hyphens")
 }
 
 // isValidAppNameOld verifies that the app name matches the old naming restrictions
@@ -937,12 +937,12 @@ func isValidAppNameOld(appName string) error {
 		return errors.New("Please specify an app to run the command on")
 	}
 
-	r, _ := regexp.Compile("^[a-z0-9][^/:A-Z]*$")
+	r, _ := regexp.Compile("^[a-z0-9][a-z0-9.-]*$")
 	if r.MatchString(appName) {
 		return nil
 	}
 
-	return errors.New("App name must begin with lowercase alphanumeric character, and cannot include uppercase characters, or colons")
+	return errors.New("App name must begin with lowercase alphanumeric character, and may only contain lowercase alphanumerics, dots, and hyphens")
 }
 
 // AppDoesNotExist wraps error to include the app name
