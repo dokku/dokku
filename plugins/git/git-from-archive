@@ -26,13 +26,13 @@ trigger-git-git-from-archive() {
     local COMMON_PREFIX=$(tar -tf "$TMP_WORK_DIR_2/src.tar" | sed -e 'N;s/^\(.*\).*\n\1.*$/\1\n\1/;D')
     local BOGUS_PARTS=$(echo "$COMMON_PREFIX " | awk 'BEGIN{FS="/"} {print NF-1}')
     dokku_log_verbose "Striping $BOGUS_PARTS worth of directories from tarball"
-    tar -x -C "$TMP_WORK_DIR_3" -f "$TMP_WORK_DIR_2/src.tar" --strip-components="$BOGUS_PARTS"
+    fn-archive-extract-tar "$TMP_WORK_DIR_2/src.tar" "$TMP_WORK_DIR_3" "tar" "$BOGUS_PARTS"
   elif [[ "$ARCHIVE_TYPE" == "tar.gz" ]]; then
     dokku_log_verbose "Extracting gzipped tarball"
-    tar -x -C "$TMP_WORK_DIR_3" -f "$TMP_WORK_DIR_2/src.tar.gz" -z
+    fn-archive-extract-tar "$TMP_WORK_DIR_2/src.tar.gz" "$TMP_WORK_DIR_3" "tar.gz" 0
   elif [[ "$ARCHIVE_TYPE" == "zip" ]]; then
     dokku_log_verbose "Extracting zipball"
-    unzip -d "$TMP_WORK_DIR_3" "$TMP_WORK_DIR_2/src.zip"
+    fn-archive-extract-zip "$TMP_WORK_DIR_2/src.zip" "$TMP_WORK_DIR_3"
   fi
 
   chmod -R u+r "$TMP_WORK_DIR_3"

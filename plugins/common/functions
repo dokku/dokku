@@ -2,6 +2,10 @@
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
+if [[ -f "${PLUGIN_CORE_AVAILABLE_PATH:-/var/lib/dokku/core-plugins/available}/common/archive-functions" ]]; then
+  source "${PLUGIN_CORE_AVAILABLE_PATH:-/var/lib/dokku/core-plugins/available}/common/archive-functions"
+fi
+
 has_tty() {
   declare desc="return 0 if we have a tty"
   if [[ "$DOKKU_FORCE_TTY" == "true" ]]; then

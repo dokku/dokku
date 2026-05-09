@@ -369,12 +369,16 @@ cmd-git-report-single() {
   local flag_map=()
   if [[ "$APP" == "--global" ]]; then
     flag_map=(
+      "--git-global-archive-max-files: $(fn-plugin-property-get "git" "--global" "archive-max-files" "10000")"
+      "--git-global-archive-max-size: $(fn-plugin-property-get "git" "--global" "archive-max-size" "1073741824")"
       "--git-global-deploy-branch: $(fn-plugin-property-get "git" "--global" "deploy-branch" "master")"
     )
   else
     verify_app_name "$APP"
     flag_map=(
       "--git-deploy-branch: $(fn-plugin-property-get "git" "$APP" "deploy-branch" "master")"
+      "--git-global-archive-max-files: $(fn-plugin-property-get "git" "--global" "archive-max-files" "10000")"
+      "--git-global-archive-max-size: $(fn-plugin-property-get "git" "--global" "archive-max-size" "1073741824")"
       "--git-global-deploy-branch: $(fn-plugin-property-get "git" "--global" "deploy-branch" "master")"
       "--git-keep-git-dir: $(fn-plugin-property-get "git" "$APP" "keep-git-dir" "false")"
       "--git-rev-env-var: $(fn-plugin-property-get "git" "$APP" "rev-env-var" "GIT_REV")"
