@@ -20,7 +20,7 @@ Before using Railpacks, the following steps must be taken:
        ```shell
        touch /etc/default/dokku
        echo "export BUILDKIT_HOST='docker-container://buildkit'" >> /etc/default/dokku
-       ````
+       ```
 
 ### Detection
 
