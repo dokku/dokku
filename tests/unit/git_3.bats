@@ -105,6 +105,80 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_contains "piped-username:piped-password"
+
+  run /bin/bash -c "stat -c '%a' ${DOKKU_ROOT}/.netrc"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "600"
+
+  run /bin/bash -c "stat -c '%U:%G' ${DOKKU_ROOT}/.netrc"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "dokku:dokku"
+}
+
+@test "(git) git:auth repairs world-readable .netrc" {
+  run /bin/bash -c "chmod 644 ${DOKKU_ROOT}/.netrc"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "stat -c '%a' ${DOKKU_ROOT}/.netrc"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "644"
+
+  run /bin/bash -c "dokku git:auth github.com username password"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Setting netrc auth entry for host github.com"
+
+  run /bin/bash -c "stat -c '%a' ${DOKKU_ROOT}/.netrc"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "600"
+
+  run /bin/bash -c "stat -c '%U:%G' ${DOKKU_ROOT}/.netrc"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "dokku:dokku"
+}
+
+@test "(git) git:auth unset preserves 0600 on remaining .netrc" {
+  run /bin/bash -c "dokku git:auth github.com username password"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:auth other.example.com user2 pass2"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "chmod 644 ${DOKKU_ROOT}/.netrc"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:auth github.com"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Removing netrc auth entry for host github.com"
+
+  if [[ -f "${DOKKU_ROOT}/.netrc" ]]; then
+    run /bin/bash -c "stat -c '%a' ${DOKKU_ROOT}/.netrc"
+    echo "output: $output"
+    echo "status: $status"
+    assert_success
+    assert_output "600"
+  fi
 }
 
 @test "(git) git:auth-status" {
