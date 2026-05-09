@@ -253,6 +253,24 @@ teardown() {
   assert_output_contains "charset UTF-8;"
 }
 
+@test "(openresty) [security] eval injection via malicious include filename" {
+  rm -f /tmp/openresty-include
+
+  run /bin/bash -c "dokku proxy:set $TEST_APP openresty"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP add_openresty_include_unsafe
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "unsafe filename" -1
+
+  # No injection payload to test since we're using a simple space character
+  # The test should have failed during core-post-extract, not during eval
+}
+
 @test "(openresty) label management" {
   run /bin/bash -c "dokku proxy:set $TEST_APP openresty"
   echo "output: $output"
@@ -334,4 +352,17 @@ add_openresty_include() {
   mkdir -p "$APP_REPO_DIR/openresty/http-location-includes"
   touch "$APP_REPO_DIR/openresty/http-location-includes/example.conf"
   echo "# location-block" >>"$APP_REPO_DIR/openresty/http-location-includes/example.conf"
+}
+
+add_openresty_include_unsafe() {
+  local APP="$1"
+  local APP_REPO_DIR="$2"
+  [[ -z "$APP" ]] && local APP="$TEST_APP"
+
+  mkdir -p "$APP_REPO_DIR/openresty/http-includes"
+  # Create a filename with a space - simpler test that should be rejected by [^a-zA-Z0-9_.-]
+  printf 'charset UTF-8;\n' >"$APP_REPO_DIR/openresty/http-includes/unsafe filename.conf"
+
+  mkdir -p "$APP_REPO_DIR/openresty/http-location-includes"
+  printf '# location\n' >"$APP_REPO_DIR/openresty/http-location-includes/unsafe filename.conf"
 }

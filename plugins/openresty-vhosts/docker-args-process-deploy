@@ -43,6 +43,18 @@ trigger-openresty-vhosts-docker-args-process-deploy() {
         continue
       fi
 
+      # check that filename includes only alphanumeric characters, underscores, and dots
+      if [[ "$filename" =~ [^a-zA-Z0-9_.-] ]]; then
+        dokku_log_warn "Skipping include file with non-alphanumeric characters: $filename"
+        continue
+      fi
+
+      # check that filename does not contain any special characters
+      if [[ "$filename" =~ [\'\"\ \$\`\(\)\;] ]]; then
+        dokku_log_warn "Skipping include file with unsafe filename: $filename"
+        continue
+      fi
+
       DATA="$(base64 -w 0 <"$include_dir/$filename")"
       output="$output '--label=openresty.include-http-$filename=$DATA'"
     done
@@ -58,6 +70,18 @@ trigger-openresty-vhosts-docker-args-process-deploy() {
       fi
 
       if [[ $filename != *.conf ]]; then
+        continue
+      fi
+
+      # check that filename includes only alphanumeric characters, underscores, and dots
+      if [[ "$filename" =~ [^a-zA-Z0-9_.-] ]]; then
+        dokku_log_warn "Skipping include file with non-alphanumeric characters: $filename"
+        continue
+      fi
+
+      # check that filename does not contain any special characters
+      if [[ "$filename" =~ [\'\"\ \$\`\(\)\;] ]]; then
+        dokku_log_warn "Skipping include file with unsafe filename: $filename"
         continue
       fi
 

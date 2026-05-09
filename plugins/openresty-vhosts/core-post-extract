@@ -4,6 +4,42 @@ source "$PLUGIN_AVAILABLE_PATH/openresty-vhosts/internal-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
+fn-openresty-vhosts-copy-includes-from-source() {
+  declare desc="copy regular include files from the app repo; abort on unsafe filenames"
+  declare SRC_DIR="$1" DEST_DIR="$2"
+  local file filename
+
+  [[ -d "$SRC_DIR" ]] || return 0
+  for file in "$SRC_DIR"/*; do
+    [[ -e "$file" ]] || continue
+    filename="$(basename "$file")"
+    if [[ "$filename" =~ [^a-zA-Z0-9_.-] ]]; then
+      dokku_log_fail "Aborting deploy: include file has unsafe filename: $filename"
+    fi
+    [[ -L "$file" ]] && continue
+    [[ -f "$file" ]] || continue
+    cp -f "$file" "$DEST_DIR/"
+  done
+}
+
+fn-openresty-vhosts-sanitize-extracted-includes() {
+  declare desc="post-extract: abort on unsafe filenames; remove non-regular files"
+  declare TARGET_DIR="$1"
+  local file filename
+
+  [[ -d "$TARGET_DIR" ]] || return 0
+  for file in "$TARGET_DIR"/*; do
+    [[ -e "$file" ]] || continue
+    filename="$(basename "$file")"
+    if [[ "$filename" =~ [^a-zA-Z0-9_.-] ]]; then
+      dokku_log_fail "Aborting deploy: include file has unsafe filename: $filename"
+    fi
+    if [[ -L "$file" ]] || [[ ! -f "$file" ]]; then
+      rm -rf "$file"
+    fi
+  done
+}
+
 fn-openresty-vhosts-copy-from-image() {
   declare APP="$1" IMAGE_NAME="$2"
   local CONF_PATH="openresty/http-includes"
@@ -12,12 +48,14 @@ fn-openresty-vhosts-copy-from-image() {
   mkdir -p "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP"
   find "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/" -maxdepth 1 -name 'openresty-http-includes.*' -type d -exec rm -r {} +
   copy_dir_from_image "$IMAGE_NAME" "$CONF_PATH" "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-http-includes.$DOKKU_PID" 2>/dev/null || true
+  fn-openresty-vhosts-sanitize-extracted-includes "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-http-includes.$DOKKU_PID"
   if [[ ! -f "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-http-includes.$DOKKU_PID" ]]; then
     touch "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-http-includes.$DOKKU_PID.missing"
   fi
 
   find "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/" -maxdepth 1 -name 'openresty-location-includes.*' -type d -exec rm -r {} +
   copy_dir_from_image "$IMAGE_NAME" "$LOCATION_CONF_PATH" "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-location-includes.$DOKKU_PID" 2>/dev/null || true
+  fn-openresty-vhosts-sanitize-extracted-includes "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-location-includes.$DOKKU_PID"
   if [[ ! -f "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-location-includes.$DOKKU_PID" ]]; then
     touch "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-location-includes.$DOKKU_PID.missing"
   fi
@@ -32,7 +70,7 @@ fn-openresty-vhosts-copy-from-directory() {
     pushd "$SOURCECODE_WORK_DIR" >/dev/null
     find "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/" -maxdepth 1 -name 'openresty-http-includes.*' -type d -exec rm -r {} +
     mkdir -p "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-http-includes.$DOKKU_PID/"
-    cp -f "$CONF_PATH"/* "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-http-includes.$DOKKU_PID/"
+    fn-openresty-vhosts-copy-includes-from-source "$CONF_PATH" "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-http-includes.$DOKKU_PID"
     popd &>/dev/null || pushd "/tmp" >/dev/null
   else
     touch "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-http-includes.$DOKKU_PID.missing"
@@ -42,7 +80,7 @@ fn-openresty-vhosts-copy-from-directory() {
     pushd "$SOURCECODE_WORK_DIR" >/dev/null
     find "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/" -maxdepth 1 -name 'openresty-location-includes.*' -type d -exec rm -r {} +
     mkdir -p "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-location-includes.$DOKKU_PID/"
-    cp -f "$LOCATION_CONF_PATH"/* "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-location-includes.$DOKKU_PID/"
+    fn-openresty-vhosts-copy-includes-from-source "$LOCATION_CONF_PATH" "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-location-includes.$DOKKU_PID"
     popd &>/dev/null || pushd "/tmp" >/dev/null
   else
     touch "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-location-includes.$DOKKU_PID.missing"

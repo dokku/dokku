@@ -124,6 +124,8 @@ The following folders within an app repository may have `*.conf` files that will
 - `openresty/http-includes/`: Injected in the `server` block serving http(s) requests for the app.
 - `openresty/http-location-includes/`: Injected in the `location` block that proxies to the app in the app's respective `server` block.
 
+Custom snippets filenames may only include alphanumeric, underscore, and dot characters. For security reasons, filenames that contain other characters will be ignored.
+
 ### Label Management
 
 The OpenResty plugin allows you to add custom container labels to apps. These labels are injected into containers during deployment and can be used to configure OpenResty behavior beyond what the plugin provides by default.
