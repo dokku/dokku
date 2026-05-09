@@ -22,9 +22,10 @@ teardown() {
 
   local CIDS=$(get_app_container_ids "$APP")
 
-  run "$DOCKER_BIN" container top "$CIDS"
+  run /bin/bash -c "$DOCKER_BIN container top $CIDS"
   echo "output: $output"
-  assert_output_contains "<defunct>" "0"
+  echo "status: $status"
+  assert_output_not_contains "<defunct>"
 }
 
 @test "(init) dockerfile no tini" {
@@ -37,9 +38,10 @@ teardown() {
 
   local CIDS=$(get_app_container_ids "$APP")
 
-  run "$DOCKER_BIN" container top "$CIDS"
+  run /bin/bash -c "$DOCKER_BIN container top $CIDS"
   echo "output: $output"
-  assert_output_contains "<defunct>" "0"
+  echo "status: $status"
+  assert_output_not_contains "<defunct>"
 }
 
 @test "(init) dockerfile with tini" {
@@ -52,7 +54,8 @@ teardown() {
 
   local CIDS=$(get_app_container_ids "$APP")
 
-  run "$DOCKER_BIN" container top "$CIDS"
+  run /bin/bash -c "$DOCKER_BIN container top $CIDS"
   echo "output: $output"
-  assert_output_contains "<defunct>" "0"
+  echo "status: $status"
+  assert_output_not_contains "<defunct>"
 }

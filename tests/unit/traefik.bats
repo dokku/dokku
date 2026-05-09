@@ -468,7 +468,7 @@ teardown() {
   assert_success
   assert_output_contains "dns provider cf_api_email"
   assert_output_contains "dns provider cf_api_key"
-  assert_output_contains "*******"
+  assert_output_contains "*******" 2
   assert_output_not_contains "test@example.com"
   assert_output_not_contains "secret-key"
 
@@ -548,7 +548,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "*******"
+  assert_output_contains "*******" 2
   assert_output_not_contains "test@example.com"
   assert_output_not_contains "secret-key"
 
