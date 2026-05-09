@@ -171,8 +171,28 @@ setup-default-site() {
     return
   fi
 
+  local nginx_bin nginx_version major minor patch
+  nginx_bin="$(command -v nginx || true)"
+  if [ -z "$nginx_bin" ]; then
+    return
+  fi
+
+  nginx_version="$("$nginx_bin" -v 2>&1 | cut -d'/' -f 2 | awk '{print $1}')"
+  major="$(echo "$nginx_version" | awk -F. '{print $1}')"
+  minor="$(echo "$nginx_version" | awk -F. '{print $2}')"
+  patch="$(echo "$nginx_version" | awk -F. '{print $3}')"
+
+  # ssl_reject_handshake requires nginx >= 1.19.4; older nginx gets the
+  # HTTP-only catch-all so the SSL listen lines do not require a cert.
+  local default_vhost_basename="default-site.conf"
+  if [ "${major:-0}" -lt 2 ]; then
+    if [ "${major:-0}" -lt 1 ] || [ "${minor:-0}" -lt 19 ] || { [ "${minor:-0}" -eq 19 ] && [ "${patch:-0}" -lt 4 ]; }; then
+      default_vhost_basename="default-site-legacy.conf"
+    fi
+  fi
+
   local default_vhost_target="/etc/nginx/conf.d/00-default-vhost.conf"
-  local default_vhost_source="${DOKKU_LIB_ROOT}/core-plugins/available/nginx-vhosts/templates/default-site.conf"
+  local default_vhost_source="${DOKKU_LIB_ROOT}/core-plugins/available/nginx-vhosts/templates/${default_vhost_basename}"
 
   if [ -e "$default_vhost_target" ]; then
     return

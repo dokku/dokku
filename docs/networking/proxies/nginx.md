@@ -208,6 +208,22 @@ server {
 
 The `00-` prefix forces nginx to load this file before `/etc/nginx/conf.d/dokku.conf`, so its `default_server` markers establish the default for each port before any per-app server blocks are loaded.
 
+On systems running nginx older than 1.19.4 (e.g., Debian Bullseye, which ships nginx 1.18.0), `ssl_reject_handshake` is not available. The postinst detects this and installs an HTTP-only variant instead:
+
+```nginx
+server {
+    listen      80 default_server;
+    listen      [::]:80 default_server;
+
+    server_name _;
+    access_log  off;
+
+    return 444;
+}
+```
+
+On these systems, HTTPS requests to unknown hosts are not rejected by the catch-all - nginx falls through to the lexicographically first port-443 server block and presents that block's certificate, the same behavior as before 0.38.0.
+
 #### TLS handshake behavior
 
 The catch-all does not affect TLS handshakes for legitimate apps. nginx selects the matching server block via SNI before completing the handshake; only requests that have no matching app fall through to the catch-all.
@@ -215,8 +231,8 @@ The catch-all does not affect TLS handshakes for legitimate apps. nginx selects 
 | Request | Result |
 | --- | --- |
 | HTTPS to a configured app's hostname (with matching SNI) and the app has a cert | Handshake completes with the app's cert. Catch-all not consulted. |
-| HTTPS to a configured app's hostname when the app has no cert configured | Handshake rejected by the catch-all. (Previously: nginx fell through to the lexicographically first port-443 server block and presented its cert, producing a confusing cert-mismatch error.) |
-| HTTPS to the server's IP with no SNI, or with an SNI matching no app | Handshake rejected. |
+| HTTPS to a configured app's hostname when the app has no cert configured | Handshake rejected by the catch-all on nginx 1.19.4+. On older nginx, falls through to the lexicographically first port-443 server block and presents its cert, producing a cert-mismatch error. |
+| HTTPS to the server's IP with no SNI, or with an SNI matching no app | Handshake rejected on nginx 1.19.4+. On older nginx, falls through to the first port-443 server block. |
 | HTTP to a configured app's hostname | Routed normally to that app. Catch-all not consulted. |
 | HTTP to a hostname matching no app | Catch-all `return 444`. |
 
