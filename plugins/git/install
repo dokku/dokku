@@ -14,6 +14,17 @@ trigger-git-install() {
 
   fn-plugin-property-setup "git"
   migrate_git_vars_0_12_0 "$@"
+  migrate_netrc_permissions "$@"
+}
+
+migrate_netrc_permissions() {
+  declare desc="enforces 0600 permissions on a pre-existing .netrc from older dokku versions"
+  local netrc_file="${DOKKU_ROOT}/.netrc"
+
+  [[ ! -f "$netrc_file" ]] && return 0
+
+  chmod 600 "$netrc_file"
+  chown "${DOKKU_SYSTEM_USER}:${DOKKU_SYSTEM_GROUP}" "$netrc_file"
 }
 
 migrate_git_vars_0_12_0() {

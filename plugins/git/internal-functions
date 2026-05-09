@@ -86,12 +86,21 @@ cmd-git-auth() {
   if [[ -z "$USERNAME" ]]; then
     dokku_log_info1 "Removing netrc auth entry for host $HOST"
     netrc unset "$HOST"
-    return $?
+    local exit_code=$?
+    fn-git-auth-secure-netrc
+    return $exit_code
   fi
 
   dokku_log_info1 "Setting netrc auth entry for host $HOST"
-  touch "${DOKKU_ROOT}/.netrc"
   netrc set "$HOST" "$USERNAME" "$PASSWORD"
+  fn-git-auth-secure-netrc
+}
+
+fn-git-auth-secure-netrc() {
+  declare desc="enforces 0600 permissions and dokku ownership on the netrc file"
+  [[ ! -f "${DOKKU_ROOT}/.netrc" ]] && return 0
+  chmod 600 "${DOKKU_ROOT}/.netrc"
+  chown "${DOKKU_SYSTEM_USER:-dokku}:${DOKKU_SYSTEM_GROUP:-dokku}" "${DOKKU_ROOT}/.netrc"
 }
 
 cmd-git-auth-status() {
