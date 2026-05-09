@@ -13,6 +13,8 @@ setup() {
 teardown() {
   rm -rf "$ARCHIVE_TMP_DIR"
   rm -f /tmp/dokku-archive-security-canary.txt
+  dokku git:set --global archive-max-size "" >/dev/null 2>&1 || true
+  dokku git:set --global archive-max-files "" >/dev/null 2>&1 || true
   destroy_app
   global_teardown
 }
@@ -82,6 +84,20 @@ with tarfile.open(output, mode) as t:
     fi = tarfile.TarInfo("../../../tmp/dokku-archive-security-canary.txt")
     fi.size = len(payload)
     t.addfile(fi, io.BytesIO(payload))
+PY
+}
+
+create_safe_multi_file_tar() {
+  local OUTPUT="$1"
+  python3 - "$OUTPUT" <<'PY'
+import io, sys, tarfile
+output = sys.argv[1]
+with tarfile.open(output, "w") as t:
+    for name in ("README.md", "Procfile", "app.py", "requirements.txt"):
+        payload = (name + " contents\n").encode()
+        ti = tarfile.TarInfo(name)
+        ti.size = len(payload)
+        t.addfile(ti, io.BytesIO(payload))
 PY
 }
 
@@ -174,5 +190,60 @@ PY
   run /bin/bash -c "dokku certs:add $TEST_APP < $BATS_TEST_DIRNAME/server_ssl.tar"
   echo "output: $output"
   echo "status: $status"
+  assert_success
+}
+
+@test "(archive-security) git:from-archive enforces archive-max-size property" {
+  create_safe_multi_file_tar "$ARCHIVE_TMP_DIR/safe.tar"
+  run /bin/bash -c "dokku git:set --global archive-max-size 1"
+  assert_success
+
+  run /bin/bash -c "cat $ARCHIVE_TMP_DIR/safe.tar | dokku git:from-archive $TEST_APP --"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Archive exceeds maximum allowed size of 1 bytes"
+
+  run /bin/bash -c "dokku git:set --global archive-max-size"
+  assert_success
+}
+
+@test "(archive-security) git:from-archive enforces archive-max-files property" {
+  create_safe_multi_file_tar "$ARCHIVE_TMP_DIR/safe.tar"
+  run /bin/bash -c "dokku git:set --global archive-max-files 1"
+  assert_success
+
+  run /bin/bash -c "cat $ARCHIVE_TMP_DIR/safe.tar | dokku git:from-archive $TEST_APP --"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "exceeds the maximum of 1"
+
+  run /bin/bash -c "dokku git:set --global archive-max-files"
+  assert_success
+}
+
+@test "(archive-security) git:report exposes archive-max-size and archive-max-files" {
+  run /bin/bash -c "dokku git:report --global --git-global-archive-max-size"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "1073741824"
+
+  run /bin/bash -c "dokku git:report --global --git-global-archive-max-files"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "10000"
+
+  run /bin/bash -c "dokku git:set --global archive-max-size 2147483648"
+  assert_success
+  run /bin/bash -c "dokku git:report --global --git-global-archive-max-size"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "2147483648"
+
+  run /bin/bash -c "dokku git:set --global archive-max-size"
   assert_success
 }

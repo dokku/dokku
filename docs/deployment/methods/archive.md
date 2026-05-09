@@ -37,7 +37,24 @@ curl -sSL https://github.com/dokku/smoke-test-app/releases/download/2.0.0/smoke-
 
 Archive contents are validated before extraction to prevent path traversal and symlink escape attacks. Archives containing absolute paths, parent directory traversal entries (`..`), or symlinks pointing outside the extraction directory are rejected.
 
-The following limits can be configured via environment variables:
+The following limits can be configured via global git properties:
 
-- `DOKKU_ARCHIVE_MAX_SIZE` - maximum archive size in bytes (default: `1073741824`, 1 GiB)
-- `DOKKU_ARCHIVE_MAX_FILES` - maximum number of entries in an archive (default: `10000`)
+- `archive-max-size` - maximum archive size in bytes (default: `1073741824`, 1 GiB)
+- `archive-max-files` - maximum number of entries in an archive (default: `10000`)
+
+```shell
+dokku git:set --global archive-max-size 2147483648
+dokku git:set --global archive-max-files 20000
+```
+
+Unset a property to restore the default:
+
+```shell
+dokku git:set --global archive-max-size
+```
+
+The current values can be inspected via the global git report:
+
+```shell
+dokku git:report --global
+```

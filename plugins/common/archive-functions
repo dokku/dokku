@@ -2,8 +2,24 @@
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
-DOKKU_ARCHIVE_MAX_SIZE="${DOKKU_ARCHIVE_MAX_SIZE:-1073741824}"
-DOKKU_ARCHIVE_MAX_FILES="${DOKKU_ARCHIVE_MAX_FILES:-10000}"
+if ! declare -F fn-plugin-property-get >/dev/null 2>&1; then
+  if [[ -f "${PLUGIN_CORE_AVAILABLE_PATH:-/var/lib/dokku/core-plugins/available}/common/property-functions" ]]; then
+    source "${PLUGIN_CORE_AVAILABLE_PATH:-/var/lib/dokku/core-plugins/available}/common/property-functions"
+  fi
+fi
+
+DOKKU_ARCHIVE_MAX_SIZE_DEFAULT="1073741824"
+DOKKU_ARCHIVE_MAX_FILES_DEFAULT="10000"
+
+fn-archive-max-size() {
+  declare desc="returns the configured max archive size in bytes"
+  fn-plugin-property-get "git" "--global" "archive-max-size" "$DOKKU_ARCHIVE_MAX_SIZE_DEFAULT"
+}
+
+fn-archive-max-files() {
+  declare desc="returns the configured max archive entry count"
+  fn-plugin-property-get "git" "--global" "archive-max-files" "$DOKKU_ARCHIVE_MAX_FILES_DEFAULT"
+}
 
 fn-archive-log-security-event() {
   declare desc="logs an archive security event for auditing"
@@ -26,12 +42,16 @@ fn-archive-tar-flag() {
 fn-archive-check-bomb-protection() {
   declare desc="validates archive against bomb protection limits"
   declare ARCHIVE_PATH="$1" ARCHIVE_TYPE="$2"
+  local MAX_SIZE MAX_FILES
+  MAX_SIZE="$(fn-archive-max-size)"
+  MAX_FILES="$(fn-archive-max-files)"
+
   local ARCHIVE_SIZE
   ARCHIVE_SIZE="$(stat -c %s "$ARCHIVE_PATH" 2>/dev/null || stat -f %z "$ARCHIVE_PATH" 2>/dev/null || echo 0)"
 
-  if [[ "$ARCHIVE_SIZE" -gt "$DOKKU_ARCHIVE_MAX_SIZE" ]]; then
-    fn-archive-log-security-event "rejected_archive_too_large" "$ARCHIVE_TYPE" "$ARCHIVE_PATH" "size=${ARCHIVE_SIZE} max=${DOKKU_ARCHIVE_MAX_SIZE}"
-    dokku_log_fail "Archive exceeds maximum allowed size of ${DOKKU_ARCHIVE_MAX_SIZE} bytes"
+  if [[ "$ARCHIVE_SIZE" -gt "$MAX_SIZE" ]]; then
+    fn-archive-log-security-event "rejected_archive_too_large" "$ARCHIVE_TYPE" "$ARCHIVE_PATH" "size=${ARCHIVE_SIZE} max=${MAX_SIZE}"
+    dokku_log_fail "Archive exceeds maximum allowed size of ${MAX_SIZE} bytes"
   fi
 
   local TAR_FLAG
@@ -44,9 +64,9 @@ fn-archive-check-bomb-protection() {
     FILE_COUNT="$(tar -tf "$ARCHIVE_PATH" 2>/dev/null | wc -l)"
   fi
 
-  if [[ "$FILE_COUNT" -gt "$DOKKU_ARCHIVE_MAX_FILES" ]]; then
-    fn-archive-log-security-event "rejected_archive_too_many_files" "$ARCHIVE_TYPE" "$ARCHIVE_PATH" "count=${FILE_COUNT} max=${DOKKU_ARCHIVE_MAX_FILES}"
-    dokku_log_fail "Archive contains ${FILE_COUNT} entries which exceeds the maximum of ${DOKKU_ARCHIVE_MAX_FILES}"
+  if [[ "$FILE_COUNT" -gt "$MAX_FILES" ]]; then
+    fn-archive-log-security-event "rejected_archive_too_many_files" "$ARCHIVE_TYPE" "$ARCHIVE_PATH" "count=${FILE_COUNT} max=${MAX_FILES}"
+    dokku_log_fail "Archive contains ${FILE_COUNT} entries which exceeds the maximum of ${MAX_FILES}"
   fi
 }
 
@@ -169,19 +189,22 @@ fn-archive-extract-tar-stdin() {
 fn-archive-extract-zip() {
   declare desc="safely extracts a zip archive with post-extraction symlink validation"
   declare ARCHIVE_PATH="$1" DEST_DIR="$2"
+  local MAX_SIZE MAX_FILES
+  MAX_SIZE="$(fn-archive-max-size)"
+  MAX_FILES="$(fn-archive-max-files)"
 
   local ARCHIVE_SIZE
   ARCHIVE_SIZE="$(stat -c %s "$ARCHIVE_PATH" 2>/dev/null || stat -f %z "$ARCHIVE_PATH" 2>/dev/null || echo 0)"
-  if [[ "$ARCHIVE_SIZE" -gt "$DOKKU_ARCHIVE_MAX_SIZE" ]]; then
-    fn-archive-log-security-event "rejected_archive_too_large" "zip" "$ARCHIVE_PATH" "size=${ARCHIVE_SIZE} max=${DOKKU_ARCHIVE_MAX_SIZE}"
-    dokku_log_fail "Archive exceeds maximum allowed size of ${DOKKU_ARCHIVE_MAX_SIZE} bytes"
+  if [[ "$ARCHIVE_SIZE" -gt "$MAX_SIZE" ]]; then
+    fn-archive-log-security-event "rejected_archive_too_large" "zip" "$ARCHIVE_PATH" "size=${ARCHIVE_SIZE} max=${MAX_SIZE}"
+    dokku_log_fail "Archive exceeds maximum allowed size of ${MAX_SIZE} bytes"
   fi
 
   local FILE_COUNT
   FILE_COUNT="$(unzip -l "$ARCHIVE_PATH" 2>/dev/null | tail -n 1 | awk '{print $2}')"
-  if [[ -n "$FILE_COUNT" ]] && [[ "$FILE_COUNT" -gt "$DOKKU_ARCHIVE_MAX_FILES" ]]; then
-    fn-archive-log-security-event "rejected_archive_too_many_files" "zip" "$ARCHIVE_PATH" "count=${FILE_COUNT} max=${DOKKU_ARCHIVE_MAX_FILES}"
-    dokku_log_fail "Archive contains ${FILE_COUNT} entries which exceeds the maximum of ${DOKKU_ARCHIVE_MAX_FILES}"
+  if [[ -n "$FILE_COUNT" ]] && [[ "$FILE_COUNT" -gt "$MAX_FILES" ]]; then
+    fn-archive-log-security-event "rejected_archive_too_many_files" "zip" "$ARCHIVE_PATH" "count=${FILE_COUNT} max=${MAX_FILES}"
+    dokku_log_fail "Archive contains ${FILE_COUNT} entries which exceeds the maximum of ${MAX_FILES}"
   fi
 
   if unzip -l "$ARCHIVE_PATH" 2>/dev/null | awk 'NR>3 {print $NF}' | grep -qE '(^/|(^|/)\.\.(/|$))'; then
