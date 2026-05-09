@@ -41,6 +41,9 @@ dokku certs:add node-js-app < cert-key.tar
 cat yourdomain_com.crt yourdomain_com.ca-bundle > server.crt
 ```
 
+> [!NOTE]
+> Archives passed to `certs:add` are validated before extraction to prevent path traversal and symlink escape attacks. Archives containing absolute paths, parent directory traversal entries, or symlinks pointing outside the extraction directory will be rejected.
+
 #### SSL and Multiple Domains
 
 When an SSL certificate is associated to an application, the certificate will be associated with _all_ domains currently associated with said application. Your certificate _should_ be associated with all of those domains, otherwise accessing the application will result in SSL errors. If you wish to remove one of the domains from the application, refer to the [domain configuration documentation](/docs/configuration/domains.md).

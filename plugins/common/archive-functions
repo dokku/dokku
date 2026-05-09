@@ -1,0 +1,196 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+DOKKU_ARCHIVE_MAX_SIZE="${DOKKU_ARCHIVE_MAX_SIZE:-1073741824}"
+DOKKU_ARCHIVE_MAX_FILES="${DOKKU_ARCHIVE_MAX_FILES:-10000}"
+
+fn-archive-log-security-event() {
+  declare desc="logs an archive security event for auditing"
+  declare EVENT="$1" ARCHIVE_TYPE="$2" SOURCE="$3" DETAILS="$4"
+  local TIMESTAMP="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+  local USERNAME="${SUDO_USER:-${USER:-unknown}}"
+  echo "[archive-security] timestamp=${TIMESTAMP} user=${USERNAME} event=${EVENT} archive_type=${ARCHIVE_TYPE} source=${SOURCE} details=${DETAILS}" 1>&2
+}
+
+fn-archive-tar-flag() {
+  declare desc="returns the appropriate decompression flag for tar based on archive type"
+  declare ARCHIVE_TYPE="$1"
+  case "$ARCHIVE_TYPE" in
+    tar) echo "" ;;
+    tar.gz) echo "-z" ;;
+    *) return 1 ;;
+  esac
+}
+
+fn-archive-check-bomb-protection() {
+  declare desc="validates archive against bomb protection limits"
+  declare ARCHIVE_PATH="$1" ARCHIVE_TYPE="$2"
+  local ARCHIVE_SIZE
+  ARCHIVE_SIZE="$(stat -c %s "$ARCHIVE_PATH" 2>/dev/null || stat -f %z "$ARCHIVE_PATH" 2>/dev/null || echo 0)"
+
+  if [[ "$ARCHIVE_SIZE" -gt "$DOKKU_ARCHIVE_MAX_SIZE" ]]; then
+    fn-archive-log-security-event "rejected_archive_too_large" "$ARCHIVE_TYPE" "$ARCHIVE_PATH" "size=${ARCHIVE_SIZE} max=${DOKKU_ARCHIVE_MAX_SIZE}"
+    dokku_log_fail "Archive exceeds maximum allowed size of ${DOKKU_ARCHIVE_MAX_SIZE} bytes"
+  fi
+
+  local TAR_FLAG
+  TAR_FLAG="$(fn-archive-tar-flag "$ARCHIVE_TYPE")" || return 0
+
+  local FILE_COUNT
+  if [[ -n "$TAR_FLAG" ]]; then
+    FILE_COUNT="$(tar "$TAR_FLAG" -tf "$ARCHIVE_PATH" 2>/dev/null | wc -l)"
+  else
+    FILE_COUNT="$(tar -tf "$ARCHIVE_PATH" 2>/dev/null | wc -l)"
+  fi
+
+  if [[ "$FILE_COUNT" -gt "$DOKKU_ARCHIVE_MAX_FILES" ]]; then
+    fn-archive-log-security-event "rejected_archive_too_many_files" "$ARCHIVE_TYPE" "$ARCHIVE_PATH" "count=${FILE_COUNT} max=${DOKKU_ARCHIVE_MAX_FILES}"
+    dokku_log_fail "Archive contains ${FILE_COUNT} entries which exceeds the maximum of ${DOKKU_ARCHIVE_MAX_FILES}"
+  fi
+}
+
+fn-archive-validate-tar-entries() {
+  declare desc="pre-scans a tar archive for dangerous path entries"
+  declare ARCHIVE_PATH="$1" ARCHIVE_TYPE="$2"
+  local TAR_FLAG NAMES VERBOSE
+  TAR_FLAG="$(fn-archive-tar-flag "$ARCHIVE_TYPE")" || dokku_log_fail "Unsupported archive type for validation: ${ARCHIVE_TYPE}"
+
+  if [[ -n "$TAR_FLAG" ]]; then
+    NAMES="$(tar "$TAR_FLAG" -tf "$ARCHIVE_PATH" 2>/dev/null)"
+    VERBOSE="$(tar "$TAR_FLAG" -tvf "$ARCHIVE_PATH" 2>/dev/null)"
+  else
+    NAMES="$(tar -tf "$ARCHIVE_PATH" 2>/dev/null)"
+    VERBOSE="$(tar -tvf "$ARCHIVE_PATH" 2>/dev/null)"
+  fi
+
+  if echo "$NAMES" | grep -qE '^/'; then
+    fn-archive-log-security-event "rejected_absolute_path" "$ARCHIVE_TYPE" "$ARCHIVE_PATH" "absolute path detected"
+    dokku_log_fail "Archive contains entries with absolute paths"
+  fi
+
+  if echo "$NAMES" | grep -qE '(^|/)\.\.(/|$)'; then
+    fn-archive-log-security-event "rejected_path_traversal" "$ARCHIVE_TYPE" "$ARCHIVE_PATH" "parent directory traversal detected"
+    dokku_log_fail "Archive contains entries with parent directory traversal"
+  fi
+
+  while IFS= read -r entry; do
+    [[ -z "$entry" ]] && continue
+    [[ "${entry:0:1}" != "l" ]] && continue
+    local target="${entry##*-> }"
+    case "$target" in
+      /*)
+        fn-archive-log-security-event "rejected_unsafe_symlink" "$ARCHIVE_TYPE" "$ARCHIVE_PATH" "absolute symlink target=${target}"
+        dokku_log_fail "Archive contains symlinks with absolute targets"
+        ;;
+      *..*)
+        fn-archive-log-security-event "rejected_unsafe_symlink" "$ARCHIVE_TYPE" "$ARCHIVE_PATH" "traversal symlink target=${target}"
+        dokku_log_fail "Archive contains symlinks pointing outside extraction directory"
+        ;;
+    esac
+  done <<<"$VERBOSE"
+}
+
+fn-archive-validate-extracted-symlinks() {
+  declare desc="validates that no symlinks in the extraction directory point outside it"
+  declare EXTRACTION_DIR="$1"
+  local CANONICAL_DIR
+  CANONICAL_DIR="$(readlink -f "$EXTRACTION_DIR")"
+
+  local SYMLINKS
+  SYMLINKS="$(find "$EXTRACTION_DIR" -type l 2>/dev/null || true)"
+  [[ -z "$SYMLINKS" ]] && return 0
+
+  while IFS= read -r link; do
+    [[ -z "$link" ]] && continue
+    local target
+    target="$(readlink -f "$link" 2>/dev/null || echo "")"
+    if [[ -z "$target" ]] || [[ "$target" != "$CANONICAL_DIR"* ]]; then
+      fn-archive-log-security-event "rejected_extracted_symlink" "post_extraction" "$link" "target=${target} dir=${CANONICAL_DIR}"
+      dokku_log_fail "Archive contains symlinks pointing outside extraction directory"
+    fi
+  done <<<"$SYMLINKS"
+}
+
+fn-archive-tar-supports-no-unsafe-links() {
+  declare desc="returns 0 if the tar binary supports --no-unsafe-links"
+  if tar --help 2>&1 | grep -q -- "--no-unsafe-links"; then
+    return 0
+  fi
+  return 1
+}
+
+fn-archive-extract-tar() {
+  declare desc="safely extracts a tar archive with symlink protection"
+  declare ARCHIVE_PATH="$1" DEST_DIR="$2" ARCHIVE_TYPE="$3" STRIP_COMPONENTS="${4:-0}"
+  local TAR_FLAG
+  TAR_FLAG="$(fn-archive-tar-flag "$ARCHIVE_TYPE")" || dokku_log_fail "Unsupported archive type for extraction: ${ARCHIVE_TYPE}"
+
+  fn-archive-check-bomb-protection "$ARCHIVE_PATH" "$ARCHIVE_TYPE"
+  fn-archive-validate-tar-entries "$ARCHIVE_PATH" "$ARCHIVE_TYPE"
+
+  fn-archive-log-security-event "extraction_started" "$ARCHIVE_TYPE" "$ARCHIVE_PATH" "dest=${DEST_DIR}"
+
+  local TAR_ARGS=()
+  if fn-archive-tar-supports-no-unsafe-links; then
+    TAR_ARGS+=("--no-unsafe-links")
+  fi
+  if [[ "$STRIP_COMPONENTS" -gt 0 ]]; then
+    TAR_ARGS+=("--strip-components=$STRIP_COMPONENTS")
+  fi
+
+  if [[ -n "$TAR_FLAG" ]] && [[ "${#TAR_ARGS[@]}" -gt 0 ]]; then
+    tar -x "$TAR_FLAG" -C "$DEST_DIR" -f "$ARCHIVE_PATH" "${TAR_ARGS[@]}"
+  elif [[ -n "$TAR_FLAG" ]]; then
+    tar -x "$TAR_FLAG" -C "$DEST_DIR" -f "$ARCHIVE_PATH"
+  elif [[ "${#TAR_ARGS[@]}" -gt 0 ]]; then
+    tar -x -C "$DEST_DIR" -f "$ARCHIVE_PATH" "${TAR_ARGS[@]}"
+  else
+    tar -x -C "$DEST_DIR" -f "$ARCHIVE_PATH"
+  fi
+
+  fn-archive-validate-extracted-symlinks "$DEST_DIR"
+  fn-archive-log-security-event "extraction_completed" "$ARCHIVE_TYPE" "$ARCHIVE_PATH" "dest=${DEST_DIR}"
+}
+
+fn-archive-extract-tar-stdin() {
+  declare desc="safely extracts a tar archive from stdin into the current directory"
+  declare DEST_DIR="$1" SOURCE_LABEL="${2:-stdin}"
+
+  local STDIN_TMP
+  STDIN_TMP="$(mktemp "/tmp/dokku-${DOKKU_PID}-archive.XXXXXX")"
+  trap "rm -f '$STDIN_TMP' >/dev/null 2>&1 || true" RETURN
+
+  cat <&0 >"$STDIN_TMP"
+  fn-archive-extract-tar "$STDIN_TMP" "$DEST_DIR" "tar" 0
+  rm -f "$STDIN_TMP" >/dev/null 2>&1 || true
+}
+
+fn-archive-extract-zip() {
+  declare desc="safely extracts a zip archive with post-extraction symlink validation"
+  declare ARCHIVE_PATH="$1" DEST_DIR="$2"
+
+  local ARCHIVE_SIZE
+  ARCHIVE_SIZE="$(stat -c %s "$ARCHIVE_PATH" 2>/dev/null || stat -f %z "$ARCHIVE_PATH" 2>/dev/null || echo 0)"
+  if [[ "$ARCHIVE_SIZE" -gt "$DOKKU_ARCHIVE_MAX_SIZE" ]]; then
+    fn-archive-log-security-event "rejected_archive_too_large" "zip" "$ARCHIVE_PATH" "size=${ARCHIVE_SIZE} max=${DOKKU_ARCHIVE_MAX_SIZE}"
+    dokku_log_fail "Archive exceeds maximum allowed size of ${DOKKU_ARCHIVE_MAX_SIZE} bytes"
+  fi
+
+  local FILE_COUNT
+  FILE_COUNT="$(unzip -l "$ARCHIVE_PATH" 2>/dev/null | tail -n 1 | awk '{print $2}')"
+  if [[ -n "$FILE_COUNT" ]] && [[ "$FILE_COUNT" -gt "$DOKKU_ARCHIVE_MAX_FILES" ]]; then
+    fn-archive-log-security-event "rejected_archive_too_many_files" "zip" "$ARCHIVE_PATH" "count=${FILE_COUNT} max=${DOKKU_ARCHIVE_MAX_FILES}"
+    dokku_log_fail "Archive contains ${FILE_COUNT} entries which exceeds the maximum of ${DOKKU_ARCHIVE_MAX_FILES}"
+  fi
+
+  if unzip -l "$ARCHIVE_PATH" 2>/dev/null | awk 'NR>3 {print $NF}' | grep -qE '(^/|(^|/)\.\.(/|$))'; then
+    fn-archive-log-security-event "rejected_unsafe_zip_path" "zip" "$ARCHIVE_PATH" "absolute or traversal path detected"
+    dokku_log_fail "Archive contains entries with unsafe paths"
+  fi
+
+  fn-archive-log-security-event "extraction_started" "zip" "$ARCHIVE_PATH" "dest=${DEST_DIR}"
+  unzip -d "$DEST_DIR" "$ARCHIVE_PATH"
+  fn-archive-validate-extracted-symlinks "$DEST_DIR"
+  fn-archive-log-security-event "extraction_completed" "zip" "$ARCHIVE_PATH" "dest=${DEST_DIR}"
+}

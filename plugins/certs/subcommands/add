@@ -44,7 +44,7 @@ cmd-certs-set() {
     local CERTS_SET_TMP_WORK_DIR=$(mktemp -d "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
     pushd "$CERTS_SET_TMP_WORK_DIR" &>/dev/null
     trap "popd &>/dev/null || true; rm -rf '$CERTS_SET_TMP_WORK_DIR' >/dev/null" RETURN
-    tar xvf - <&0
+    fn-archive-extract-tar-stdin "$CERTS_SET_TMP_WORK_DIR" "certs:add"
 
     local CRT_FILE_SEARCH=$(find . -not -path '*/\.*' -type f | grep ".crt$")
     local CRT_FILE_COUNT=$(printf "%s" "$CRT_FILE_SEARCH" | grep -c '^')

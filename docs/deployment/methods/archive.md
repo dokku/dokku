@@ -32,3 +32,12 @@ Finally, if the archive url is specified as `--`, the archive will be fetched fr
 ```shell
 curl -sSL https://github.com/dokku/smoke-test-app/releases/download/2.0.0/smoke-test-app.tar | dokku git:from-archive node-js-app  --
 ```
+
+## Archive Safety
+
+Archive contents are validated before extraction to prevent path traversal and symlink escape attacks. Archives containing absolute paths, parent directory traversal entries (`..`), or symlinks pointing outside the extraction directory are rejected.
+
+The following limits can be configured via environment variables:
+
+- `DOKKU_ARCHIVE_MAX_SIZE` - maximum archive size in bytes (default: `1073741824`, 1 GiB)
+- `DOKKU_ARCHIVE_MAX_FILES` - maximum number of entries in an archive (default: `10000`)
