@@ -56,7 +56,13 @@ server {
     gzip_vary on;
     gzip_comp_level  6;
 
+{{ if ne $.NGINX_DNS_RESOLVER "off" }}
+    resolver {{ $.NGINX_DNS_RESOLVER }} valid=10s ipv6=off;
+    set $dokku_upstream "{{ $.DOKKU_APP_WEB_LISTENER_HOST }}:{{ $upstream_port }}";
+    proxy_pass http://$dokku_upstream;
+{{ else }}
     proxy_pass  http://{{ $.APP }}-{{ $upstream_port }};
+{{ end }}
     {{ if and $is_ssl (eq $.HTTP2_PUSH_SUPPORTED "true") }}http2_push_preload on; {{ end }}
     proxy_http_version 1.1;
     proxy_connect_timeout {{ $.PROXY_CONNECT_TIMEOUT }};
@@ -138,7 +144,13 @@ server {
   {{ end }}
 
   location    / {
+{{ if ne $.NGINX_DNS_RESOLVER "off" }}
+    resolver {{ $.NGINX_DNS_RESOLVER }} valid=10s ipv6=off;
+    set $dokku_upstream "{{ $.DOKKU_APP_WEB_LISTENER_HOST }}:{{ $upstream_port }}";
+    grpc_pass grpc://$dokku_upstream;
+{{ else }}
     grpc_pass  grpc://{{ $.APP }}-{{ $upstream_port }};
+{{ end }}
   }
 
   client_max_body_size {{ $.CLIENT_MAX_BODY_SIZE }};
@@ -148,6 +160,7 @@ server {
 {{ end }}
 {{ end }}
 
+{{ if eq $.NGINX_DNS_RESOLVER "off" }}
 {{ if $.DOKKU_APP_WEB_LISTENERS }}
 {{ range $upstream_port := $.PROXY_UPSTREAM_PORTS | split " " }}
 upstream {{ $.APP }}-{{ $upstream_port }} {
@@ -157,4 +170,4 @@ upstream {{ $.APP }}-{{ $upstream_port }} {
 {{ $listener_ip := index $listener_list 0 }}
   server {{ $listener_ip }}:{{ $upstream_port }};{{ end }}
 }
-{{ end }}{{ end }}
+{{ end }}{{ end }}{{ end }}

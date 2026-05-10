@@ -51,6 +51,10 @@ func appValue(appName string, property string) string {
 		value = nginx_vhosts.AppClientHeaderTimeout(appName)
 	case "disable-custom-config":
 		value = nginx_vhosts.AppDisableCustomConfig(appName)
+	case "dns-resolver":
+		value = nginx_vhosts.AppDnsResolver(appName)
+	case "dns-zone":
+		value = nginx_vhosts.AppDnsZone(appName)
 	case "error-log-path":
 		value = nginx_vhosts.AppErrorLogPath(appName)
 	case "hsts-include-subdomains":
@@ -121,6 +125,10 @@ func computedValue(appName string, property string) string {
 		value = nginx_vhosts.ComputedClientMaxBodySize(appName)
 	case "disable-custom-config":
 		value = nginx_vhosts.ComputedDisableCustomConfig(appName)
+	case "dns-resolver":
+		value = nginx_vhosts.ComputedDnsResolver(appName)
+	case "dns-zone":
+		value = nginx_vhosts.ComputedDnsZone(appName)
 	case "error-log-path":
 		value = nginx_vhosts.ComputedErrorLogPath(appName)
 	case "hsts-include-subdomains":
@@ -191,6 +199,10 @@ func globalValue(appName string, property string) string {
 		value = nginx_vhosts.GlobalClientMaxBodySize()
 	case "disable-custom-config":
 		value = nginx_vhosts.GlobalDisableCustomConfig()
+	case "dns-resolver":
+		value = nginx_vhosts.GlobalDnsResolver()
+	case "dns-zone":
+		value = nginx_vhosts.GlobalDnsZone()
 	case "error-log-path":
 		value = nginx_vhosts.GlobalErrorLogPath()
 	case "hsts-include-subdomains":

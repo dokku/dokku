@@ -28,6 +28,34 @@ Nginx will proxy the requests in a [round-robin balancing fashion](http://nginx.
 > [!NOTE]
 > Due to how the plugin is implemented, if an app successfully starts up `web` containers but fails to deploy some other containers, nginx may eventually stop routing requests. Users should revert their code in these cases, or manually trigger `dokku proxy:build-config $APP` in order to ensure requests route to the new web containers.
 
+### Upstream Resolution via coredns-docker
+
+> [!IMPORTANT]
+> New as of 0.39.0
+
+Dokku resolves nginx upstreams through [coredns-docker](https://github.com/dokku/coredns-docker), a CoreDNS plugin that watches the Docker daemon and serves fresh `A` records keyed off container labels. The nginx `resolver` directive points at coredns-docker's local socket (`127.0.0.1:1053`) and the rendered upstream is a variable-based `proxy_pass`, which forces nginx to re-resolve at request time honoring DNS TTL. This is how nginx avoids serving the wrong vhost after a host reboot, after `apt upgrade docker`, or after a single container restarts mid-runtime: the on-disk nginx config no longer pins a stale IP.
+
+`coredns-docker` (>= `0.6.0`) is installed automatically as a transitive `Depends:` of the `dokku` Debian package, so `apt install dokku` and `apt upgrade dokku` pull it in without operator action. The shipped `/etc/coredns/Corefile` already binds `127.0.0.1:1053`, serves the `docker.` zone, and synthesizes `<app>.<process-type>.docker` and `<app>.docker` `A` records from Dokku's existing `com.dokku.app-name` and `com.dokku.process-type` container labels. Multiple containers for the same process type collapse onto one multi-A record set, so scaled apps load-balance across instances via DNS without any per-container configuration. The bundled Docker image of Dokku ships coredns-docker preinstalled and runs it under runit on the same port.
+
+No `systemd-resolved` or `/etc/resolv.conf` change is required - nginx talks to `coredns-docker` directly via the `resolver` directive in each app's `nginx.conf`.
+
+The behavior is controlled by two global nginx properties:
+
+- `dns-resolver` (default: `127.0.0.1:1053`) - the resolver address nginx talks to.
+- `dns-zone` (default: `docker`) - the suffix appended to `<app>.<process-type>` when constructing the upstream hostname.
+
+To revert to the legacy IP-based upstream block (for instance on a host where `coredns-docker` cannot be installed):
+
+```shell
+dokku nginx:set --global dns-resolver off
+dokku proxy:build-config --all
+```
+
+> [!NOTE]
+> The sentinel for disabling the feature is the literal string `off`. Setting `dns-resolver` to the empty string (`""`) does **not** disable it - that deletes the property and the default (`127.0.0.1:1053`) re-engages. Use `off` to disable, the default to re-enable.
+
+See [the `nginx.conf.sigil` reference](/docs/appendices/file-formats/nginx-conf-sigil.md) for the sigil variables that drive the resolver-based render, and how vendored templates can adopt or skip it.
+
 ### Nginx Configuration for Undeployed Apps
 
 > [!IMPORTANT]
