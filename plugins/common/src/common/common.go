@@ -86,6 +86,12 @@ func main() {
 		} else {
 			fmt.Print("false")
 		}
+	case "is-valid-app-name":
+		appName := flag.Arg(1)
+		err = common.IsValidAppName(appName)
+	case "is-valid-app-name-old":
+		appName := flag.Arg(1)
+		err = common.IsValidAppNameOld(appName)
 	case "verify-app-name":
 		appName := flag.Arg(1)
 		err = common.VerifyAppName(appName)

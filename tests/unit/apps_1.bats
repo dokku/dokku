@@ -96,6 +96,26 @@ teardown() {
   echo "status: $status"
   assert_failure
 
+  run /bin/bash -c "dokku apps:create 'test;id'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku apps:create 'test\$cmd'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku apps:create 'test|cmd'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku apps:create 'test&cmd'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
   run /bin/bash -c "dokku --app $TEST_APP apps:create"
   echo "output: $output"
   echo "status: $status"
@@ -156,7 +176,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "git-hook $TEST_APP"
+  assert_output_contains "git-hook \"$TEST_APP\""
   run /bin/bash -c "dokku apps:rename $TEST_APP great-test-name"
   echo "output: $output"
   echo "status: $status"
@@ -165,7 +185,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "git-hook great-test-name"
+  assert_output_contains "git-hook \"great-test-name\""
   run /bin/bash -c "dokku apps:list | grep $TEST_APP"
   echo "output: $output"
   echo "status: $status"

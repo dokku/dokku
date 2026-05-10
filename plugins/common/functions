@@ -222,26 +222,14 @@ fn-is-valid-app-name() {
   declare desc="verify that the app name matches naming restrictions"
   local APP="$1"
   [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
-  if [[ "$APP" =~ ^[a-z].* ]] || [[ "$APP" =~ ^[0-9].* ]]; then
-    if [[ ! $APP =~ [A-Z] ]] && [[ ! $APP =~ [:] ]] && [[ ! $APP =~ [_] ]]; then
-      return 0
-    fi
-  fi
-
-  return 1
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/common" --quiet is-valid-app-name "$APP"
 }
 
 fn-is-valid-app-name-old() {
   declare desc="verify that the app name matches the old naming restrictions"
   local APP="$1"
   [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
-  if [[ "$APP" =~ ^[a-z].* ]] || [[ "$APP" =~ ^[0-9].* ]]; then
-    if [[ ! $APP =~ [A-Z] ]] && [[ ! $APP =~ [:] ]]; then
-      return 0
-    fi
-  fi
-
-  return 1
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/common" --quiet is-valid-app-name-old "$APP"
 }
 
 fn-plugn-trigger-exists() {
@@ -265,7 +253,7 @@ is_valid_app_name() {
     return
   fi
 
-  dokku_log_fail "App name must begin with lowercase alphanumeric character, and cannot include uppercase characters, colons, or underscores"
+  dokku_log_fail "App name must begin with lowercase alphanumeric character, and may only contain lowercase alphanumerics, dots, and hyphens"
 }
 
 is_valid_app_name_old() {
@@ -276,7 +264,7 @@ is_valid_app_name_old() {
     return
   fi
 
-  dokku_log_fail "App name must begin with lowercase alphanumeric character, and cannot include uppercase characters, or colons"
+  dokku_log_fail "App name must begin with lowercase alphanumeric character, and may only contain lowercase alphanumerics, dots, and hyphens"
 }
 
 verify_app_name() {
