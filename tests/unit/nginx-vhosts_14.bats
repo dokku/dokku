@@ -10,7 +10,34 @@
 load test_helper
 
 NGINX_DEFAULT_VHOST_PATH="/etc/nginx/conf.d/00-default-vhost.conf"
-NGINX_DEFAULT_VHOST_SOURCE="/var/lib/dokku/core-plugins/available/nginx-vhosts/templates/default-site.conf"
+NGINX_DEFAULT_VHOST_SOURCE_MODERN="/var/lib/dokku/core-plugins/available/nginx-vhosts/templates/default-site.conf"
+NGINX_DEFAULT_VHOST_SOURCE_LEGACY="/var/lib/dokku/core-plugins/available/nginx-vhosts/templates/default-site-legacy.conf"
+
+fn-nginx-supports-ssl-reject-handshake() {
+  local nginx_version major minor patch
+  nginx_version="$(nginx -v 2>&1 | cut -d'/' -f 2 | awk '{print $1}')"
+  major="$(echo "$nginx_version" | awk -F. '{print $1}')"
+  minor="$(echo "$nginx_version" | awk -F. '{print $2}')"
+  patch="$(echo "$nginx_version" | awk -F. '{print $3}')"
+  if [ "${major:-0}" -ge 2 ]; then
+    return 0
+  fi
+  if [ "${major:-0}" -eq 1 ] && [ "${minor:-0}" -gt 19 ]; then
+    return 0
+  fi
+  if [ "${major:-0}" -eq 1 ] && [ "${minor:-0}" -eq 19 ] && [ "${patch:-0}" -ge 4 ]; then
+    return 0
+  fi
+  return 1
+}
+
+fn-default-site-source() {
+  if fn-nginx-supports-ssl-reject-handshake; then
+    echo "$NGINX_DEFAULT_VHOST_SOURCE_MODERN"
+  else
+    echo "$NGINX_DEFAULT_VHOST_SOURCE_LEGACY"
+  fi
+}
 
 setup() {
   global_setup
@@ -51,10 +78,11 @@ teardown() {
   sudo rm -f "$invalid_conf"
 }
 
-@test "(nginx-vhosts) [default-site] shipped template installs and validates" {
-  [[ -f "$NGINX_DEFAULT_VHOST_SOURCE" ]] || skip "default-site template not installed; run 'sudo make copyfiles'"
+@test "(nginx-vhosts) [default-site] modern template installs and validates on nginx >= 1.19.4" {
+  fn-nginx-supports-ssl-reject-handshake || skip "nginx < 1.19.4 does not support ssl_reject_handshake"
+  [[ -f "$NGINX_DEFAULT_VHOST_SOURCE_MODERN" ]] || skip "default-site template not installed; run 'sudo make copyfiles'"
 
-  sudo install -m 0644 -o root -g root "$NGINX_DEFAULT_VHOST_SOURCE" "$NGINX_DEFAULT_VHOST_PATH"
+  sudo install -m 0644 -o root -g root "$NGINX_DEFAULT_VHOST_SOURCE_MODERN" "$NGINX_DEFAULT_VHOST_PATH"
 
   run /bin/bash -c "sudo grep -F 'ssl_reject_handshake on' '$NGINX_DEFAULT_VHOST_PATH'"
   assert_success
@@ -69,8 +97,33 @@ teardown() {
   assert_success
 }
 
+@test "(nginx-vhosts) [default-site] legacy template installs and validates on nginx < 1.19.4" {
+  if fn-nginx-supports-ssl-reject-handshake; then
+    skip "nginx >= 1.19.4 uses the modern default-site template"
+  fi
+  [[ -f "$NGINX_DEFAULT_VHOST_SOURCE_LEGACY" ]] || skip "default-site-legacy template not installed; run 'sudo make copyfiles'"
+
+  sudo install -m 0644 -o root -g root "$NGINX_DEFAULT_VHOST_SOURCE_LEGACY" "$NGINX_DEFAULT_VHOST_PATH"
+
+  run /bin/bash -c "sudo grep -F 'return 444' '$NGINX_DEFAULT_VHOST_PATH'"
+  assert_success
+  run /bin/bash -c "sudo grep -F 'default_server' '$NGINX_DEFAULT_VHOST_PATH'"
+  assert_success
+  run /bin/bash -c "sudo grep -F 'ssl_reject_handshake' '$NGINX_DEFAULT_VHOST_PATH'"
+  assert_failure
+  run /bin/bash -c "sudo grep -E 'listen[[:space:]]+(\\[::\\]:)?443' '$NGINX_DEFAULT_VHOST_PATH'"
+  assert_failure
+
+  run /bin/bash -c "sudo nginx -t"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
 @test "(nginx-vhosts) [default-site] coexists with stock sites-enabled/default" {
-  [[ -f "$NGINX_DEFAULT_VHOST_SOURCE" ]] || skip "default-site template not installed; run 'sudo make copyfiles'"
+  local default_vhost_source
+  default_vhost_source="$(fn-default-site-source)"
+  [[ -f "$default_vhost_source" ]] || skip "default-site template not installed; run 'sudo make copyfiles'"
 
   sudo mkdir -p /etc/nginx/sites-enabled
   sudo tee /etc/nginx/sites-enabled/default.bats-stub >/dev/null <<'STOCK'
@@ -82,7 +135,7 @@ server {
 }
 STOCK
 
-  sudo install -m 0644 -o root -g root "$NGINX_DEFAULT_VHOST_SOURCE" "$NGINX_DEFAULT_VHOST_PATH"
+  sudo install -m 0644 -o root -g root "$default_vhost_source" "$NGINX_DEFAULT_VHOST_PATH"
 
   run /bin/bash -c "sudo nginx -t"
   echo "output: $output"
