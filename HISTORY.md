@@ -1,5 +1,50 @@
 # History
 
+## 0.38.2
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.38.2/bootstrap.sh
+sudo DOKKU_TAG=v0.38.2 bash bootstrap.sh
+```
+
+### Security
+
+- #8590: @josegonzalez Restrict app names to prevent command injection
+- #8591: @josegonzalez Harden archive extraction against symlink traversal
+- #8589: @josegonzalez Enforce 0600 permissions on .netrc credentials file
+- #8588: @josegonzalez Sanitize openresty include filenames to prevent eval injection
+
+### Bug Fixes
+
+- #8593: @josegonzalez Gate ssl_reject_handshake behind nginx 1.19.4
+- #8578: @josegonzalez Reference SOURCECODE_WORK_DIR in builder core-post-extract
+
+### Documentation
+
+- #8592: @josegonzalez Add security section to release changelog
+- #8587: @vixalien Correct buildkit builder code block syntax
+- #8580: @othercorey Set issue type in bug report template
+
+### Tests
+
+- #8586: @josegonzalez Count assert_output_contains matches as fixed strings
+- #8581: @dependabot[bot] chore(deps): bump golang from 1.26.2 to 1.26.3 in /tests/apps/go-fail-predeploy
+- #8582: @dependabot[bot] chore(deps): bump golang from 1.26.2 to 1.26.3 in /tests/apps/gogrpc
+- #8584: @dependabot[bot] chore(deps): bump golang from 1.26.2 to 1.26.3 in /tests/apps/go-fail-postdeploy
+- #8583: @dependabot[bot] chore(deps): bump golang from 1.26.2 to 1.26.3 in /tests/apps/zombies-dockerfile-tini
+- #8585: @dependabot[bot] chore(deps): bump golang from 1.26.2 to 1.26.3 in /tests/apps/zombies-dockerfile-no-tini
+- #8574: @dependabot[bot] chore(deps): bump node from 25-alpine to 26-alpine in /tests/apps/dockerfile-noexpose
+- #8575: @dependabot[bot] chore(deps): bump node from 25-alpine to 26-alpine in /tests/apps/dockerfile-procfile-bad
+- #8577: @dependabot[bot] chore(deps): bump node from 25-alpine to 26-alpine in /tests/apps/dockerfile-app-json-formations
+- #8576: @dependabot[bot] chore(deps): bump node from 25-alpine to 26-alpine in /tests/apps/dockerfile
+- #8573: @dependabot[bot] chore(deps): bump node from 25-alpine to 26-alpine in /tests/apps/dockerfile-procfile
+
+### Dependencies
+
+- #8579: @josegonzalez Use type prefix for dokku-bot dependency label
+
 ## 0.38.1
 
 Install/update via the bootstrap script:
