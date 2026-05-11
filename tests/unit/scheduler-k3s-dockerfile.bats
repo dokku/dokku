@@ -4,10 +4,6 @@ load test_helper
 
 TEST_APP="rdmtestapp"
 
-setup_file() {
-  install_pack
-}
-
 setup() {
   uninstall_k3s || true
   global_setup
@@ -21,7 +17,7 @@ teardown() {
   uninstall_k3s || true
 }
 
-@test "(scheduler-k3s) cnb deployment sets command launcher for non-web process" {
+@test "(scheduler-k3s) dockerfile deployment sets command for non-web process" {
   if [[ -z "$DOCKERHUB_USERNAME" ]] || [[ -z "$DOCKERHUB_TOKEN" ]]; then
     skip "skipping due to missing docker.io credentials DOCKERHUB_USERNAME:DOCKERHUB_TOKEN"
   fi
@@ -29,11 +25,6 @@ teardown() {
   INGRESS_CLASS=nginx install_k3s
 
   run /bin/bash -c "dokku apps:create $TEST_APP"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run /bin/bash -c "dokku builder:set $TEST_APP selected pack"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -43,26 +34,31 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP add_requirements_txt_cnb
+  run deploy_app dockerfile-procfile dokku@$DOKKU_DOMAIN:$TEST_APP
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains 'from cnb stack'
 
-  run /bin/bash -c "kubectl get deployment $TEST_APP-worker -o=jsonpath='{.spec.template.spec.containers[0].command[0]}'"
+  run /bin/bash -c "kubectl get deployment $TEST_APP-worker -o=jsonpath='{.spec.template.spec.containers[0].command}'"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "launcher"
+  assert_output ""
 
   run /bin/bash -c "kubectl get deployment $TEST_APP-worker -o=jsonpath='{.spec.template.spec.containers[0].args[0]}'"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "python3"
+  assert_output "node"
+
+  run /bin/bash -c "kubectl get deployment $TEST_APP-worker -o=jsonpath='{.spec.template.spec.containers[0].args[1]}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "worker.js"
 }
 
-@test "(scheduler-k3s) cnb cronjob manifest sets command launcher" {
+@test "(scheduler-k3s) dockerfile cronjob manifest sets command" {
   if [[ -z "$DOCKERHUB_USERNAME" ]] || [[ -z "$DOCKERHUB_TOKEN" ]]; then
     skip "skipping due to missing docker.io credentials DOCKERHUB_USERNAME:DOCKERHUB_TOKEN"
   fi
@@ -74,27 +70,22 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku config:set $TEST_APP SECRET_KEY=fjdkslafjdk"
+  run deploy_app dockerfile-procfile dokku@$DOKKU_DOMAIN:$TEST_APP cron_run_wrapper
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku builder:set $TEST_APP selected pack"
+  run /bin/bash -c "kubectl get cronjob -o=jsonpath='{.items[0].spec.jobTemplate.spec.template.spec.containers[0].command}'"
   echo "output: $output"
   echo "status: $status"
   assert_success
+  assert_output ""
 
-  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP cron_run_wrapper
+  run /bin/bash -c "kubectl get cronjob -o=jsonpath='{.items[0].spec.jobTemplate.spec.template.spec.containers[0].args[0]}'"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains 'from cnb stack'
-
-  run /bin/bash -c "kubectl get cronjob -o=jsonpath='{.items[0].spec.jobTemplate.spec.template.spec.containers[0].command[0]}'"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  assert_output "launcher"
+  assert_output "echo"
 
   cron_id="$(dokku cron:list $TEST_APP --format json | jq -r '.[0].id')"
   run /bin/bash -c "echo $cron_id"
@@ -107,10 +98,10 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "['task.py']"
+  assert_output_contains "hello-from-cron"
 }
 
-@test "(scheduler-k3s) cnb dokku run uses launcher entrypoint" {
+@test "(scheduler-k3s) dockerfile dokku run executes command" {
   if [[ -z "$DOCKERHUB_USERNAME" ]] || [[ -z "$DOCKERHUB_TOKEN" ]]; then
     skip "skipping due to missing docker.io credentials DOCKERHUB_USERNAME:DOCKERHUB_TOKEN"
   fi
@@ -127,22 +118,16 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku builder:set $TEST_APP selected pack"
+  run deploy_app dockerfile-procfile dokku@$DOKKU_DOMAIN:$TEST_APP
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP add_requirements_txt_cnb
+  run /bin/bash -c "dokku --quiet run $TEST_APP echo hello-from-run"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains 'from cnb stack'
-
-  run /bin/bash -c "dokku --quiet run $TEST_APP python3 task.py test"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  assert_output_contains "['task.py', 'test']"
+  assert_output_contains "hello-from-run"
 
   run /bin/bash -c "dokku --quiet run $TEST_APP env"
   echo "output: $output"
@@ -151,7 +136,7 @@ teardown() {
   assert_output_contains "SECRET_KEY=fjdkslafjdk"
 }
 
-@test "(scheduler-k3s) cnb dokku run resolves Procfile key" {
+@test "(scheduler-k3s) dockerfile dokku run resolves Procfile key" {
   if [[ -z "$DOCKERHUB_USERNAME" ]] || [[ -z "$DOCKERHUB_TOKEN" ]]; then
     skip "skipping due to missing docker.io credentials DOCKERHUB_USERNAME:DOCKERHUB_TOKEN"
   fi
@@ -168,22 +153,16 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku builder:set $TEST_APP selected pack"
+  run deploy_app dockerfile-procfile dokku@$DOKKU_DOMAIN:$TEST_APP cron_run_procfile_wrapper
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP cron_run_procfile_wrapper
+  run /bin/bash -c "dokku --quiet run $TEST_APP release"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains 'from cnb stack'
-
-  run /bin/bash -c "dokku --quiet run $TEST_APP task"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  assert_output_contains "['task.py', 'test']"
+  assert_output_contains "SECRET_KEY: fjdkslafjdk"
 
   cron_id="$(dokku cron:list $TEST_APP --format json | jq -r '.[0].id')"
   run /bin/bash -c "echo $cron_id"
@@ -196,10 +175,10 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "['task.py', 'test']"
+  assert_output_contains "SECRET_KEY: fjdkslafjdk"
 }
 
-@test "(scheduler-k3s) cnb dokku run:detached returns pod name with launcher entrypoint" {
+@test "(scheduler-k3s) dockerfile dokku run:detached returns pod name" {
   if [[ -z "$DOCKERHUB_USERNAME" ]] || [[ -z "$DOCKERHUB_TOKEN" ]]; then
     skip "skipping due to missing docker.io credentials DOCKERHUB_USERNAME:DOCKERHUB_TOKEN"
   fi
@@ -211,16 +190,10 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku builder:set $TEST_APP selected pack"
+  run deploy_app dockerfile dokku@$DOKKU_DOMAIN:$TEST_APP
   echo "output: $output"
   echo "status: $status"
   assert_success
-
-  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP add_requirements_txt_cnb
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  assert_output_contains 'from cnb stack'
 
   run /bin/bash -c "dokku --quiet run:detached $TEST_APP sleep 300"
   echo "output: $output"
@@ -239,19 +212,13 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "pack"
+  assert_output "dockerfile"
 
-  run /bin/bash -c "kubectl get pod $pod_name -o=jsonpath='{.spec.containers[0].command[0]}'"
+  run /bin/bash -c "kubectl get pod $pod_name -o=jsonpath='{.spec.containers[0].command}'"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "launcher"
-
-  run /bin/bash -c "kubectl get pod $pod_name -o=jsonpath='{.spec.containers[0].args[0]}'"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  assert_output "sleep"
+  assert_output ""
 }
 
 cron_run_wrapper() {
@@ -260,8 +227,7 @@ cron_run_wrapper() {
   [[ -z "$APP" ]] && local APP="$TEST_APP"
   APP_REPO_DIR="$(realpath "$APP_REPO_DIR")"
 
-  add_requirements_txt "$APP" "$APP_REPO_DIR"
-  mv -f "$APP_REPO_DIR/app-cnb-cron.json" "$APP_REPO_DIR/app.json"
+  mv -f "$APP_REPO_DIR/app-cron.json" "$APP_REPO_DIR/app.json"
 }
 
 cron_run_procfile_wrapper() {
@@ -270,6 +236,5 @@ cron_run_procfile_wrapper() {
   [[ -z "$APP" ]] && local APP="$TEST_APP"
   APP_REPO_DIR="$(realpath "$APP_REPO_DIR")"
 
-  add_requirements_txt "$APP" "$APP_REPO_DIR"
-  mv -f "$APP_REPO_DIR/app-cnb-cron-procfile.json" "$APP_REPO_DIR/app.json"
+  mv -f "$APP_REPO_DIR/app-cron-procfile.json" "$APP_REPO_DIR/app.json"
 }
