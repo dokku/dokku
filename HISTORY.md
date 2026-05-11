@@ -1,5 +1,24 @@
 # History
 
+## 0.38.3
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.38.3/bootstrap.sh
+sudo DOKKU_TAG=v0.38.3 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #8602: @josegonzalez Reject per-app sets for global-only proxy properties
+- #8601: @josegonzalez Rename app-json:report flags to match property
+- #8600: @josegonzalez Report info-flag should not error when app undeployed
+
+### New Features
+
+- #8599: @josegonzalez Add docker healthcheck to dokku container
+
 ## 0.38.2
 
 Install/update via the bootstrap script:
