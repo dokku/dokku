@@ -282,7 +282,7 @@ func TriggerSchedulerCronWrite(scheduler string, appName string) error {
 	for _, cronTask := range cronTasks {
 		labelSelector := []string{
 			fmt.Sprintf("app.kubernetes.io/part-of=%s", appName),
-			fmt.Sprintf("dokku.com/cron-id=%s", cronTask.ID),
+			fmt.Sprintf("dokku.com/cron-hash=%s", cronIDLabelValue(cronTask.ID)),
 		}
 
 		if cronTask.Maintenance {
@@ -790,7 +790,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 		// todo: implement pod annotations
 		suffix := ""
 		for _, cronJob := range cronJobs {
-			if cronJob.Labels["dokku.com/cron-id"] == cronTask.ID {
+			if cronJob.Annotations["dokku.com/cron-id"] == cronTask.ID {
 				var ok bool
 				suffix, ok = cronJob.Annotations["dokku.com/job-suffix"]
 				if !ok {
@@ -843,6 +843,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 			Annotations: annotations,
 			Cron: ProcessCron{
 				ID:                cronTask.ID,
+				Hash:              cronIDLabelValue(cronTask.ID),
 				Schedule:          cronTask.Schedule,
 				Suffix:            suffix,
 				Suspend:           cronTask.Maintenance,
@@ -1368,26 +1369,25 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 	processType := "run"
 	if os.Getenv("DOKKU_CRON_ID") != "" {
 		processType = "cron"
-		labels["dokku.com/cron-id"] = os.Getenv("DOKKU_CRON_ID")
+		cronHash := cronIDLabelValue(os.Getenv("DOKKU_CRON_ID"))
+		labels["dokku.com/cron-hash"] = cronHash
 		concurrencyPolicy := strings.ToUpper(os.Getenv("DOKKU_CONCURRENCY_POLICY"))
 		switch concurrencyPolicy {
 		case "forbid":
-			// check if there is a running pod with the same dokku.com/cron-id label
 			pods, err := clientset.ListPods(context.Background(), ListPodsInput{
 				Namespace:     namespace,
-				LabelSelector: fmt.Sprintf("dokku.com/cron-id=%s", os.Getenv("DOKKU_CRON_ID")),
+				LabelSelector: fmt.Sprintf("dokku.com/cron-hash=%s", cronHash),
 			})
 			if err != nil {
 				return fmt.Errorf("Error listing pods: %w", err)
 			}
 			if len(pods) > 0 {
-				return fmt.Errorf("There is a running pod with the same dokku.com/cron-id label")
+				return fmt.Errorf("There is a running pod with the same dokku.com/cron-hash label")
 			}
 		case "replace":
-			// delete any existing pod with the same dokku.com/cron-id label
 			err := clientset.DeletePod(context.Background(), DeletePodInput{
 				Namespace:     namespace,
-				LabelSelector: fmt.Sprintf("dokku.com/cron-id=%s", os.Getenv("DOKKU_CRON_ID")),
+				LabelSelector: fmt.Sprintf("dokku.com/cron-hash=%s", cronHash),
 			})
 			if err != nil {
 				return fmt.Errorf("Error deleting pod: %w", err)
@@ -1572,7 +1572,7 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 		Clientset:     clientset,
 		Namespace:     namespace,
 		LabelSelector: batchJobSelector,
-		Timeout:       10,
+		Timeout:       30,
 		Waiter:        isPodReady,
 	})
 	if streamLogsOnly && (err == nil || errors.Is(err, conditions.ErrPodCompleted)) {
@@ -1748,9 +1748,9 @@ func TriggerSchedulerRunList(scheduler string, appName string, format string) er
 			}
 		}
 
-		cronID, ok := cronJob.Labels["dokku.com/cron-id"]
+		cronID, ok := cronJob.Annotations["dokku.com/cron-id"]
 		if !ok {
-			common.LogWarn(fmt.Sprintf("Cron job %s does not have a cron ID label", cronJob.Name))
+			common.LogWarn(fmt.Sprintf("Cron job %s does not have a cron ID annotation", cronJob.Name))
 			continue
 		}
 

@@ -305,6 +305,7 @@ const (
 
 type ProcessCron struct {
 	ID                string                       `yaml:"id"`
+	Hash              string                       `yaml:"hash"`
 	Schedule          string                       `yaml:"schedule"`
 	Suffix            string                       `yaml:"suffix"`
 	Suspend           bool                         `yaml:"suspend"`

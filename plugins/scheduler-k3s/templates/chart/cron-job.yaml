@@ -9,18 +9,18 @@ kind: CronJob
 metadata:
   annotations:
     app.kubernetes.io/version: {{ $.Values.global.deployment_id | quote }}
-    dokku.com/builder-type: {{ $.Values.global.image.type }}
-    dokku.com/cron-id: {{ $config.cron.id }}
-    dokku.com/job-suffix: {{ $config.cron.suffix }}
+    dokku.com/builder-type: {{ $.Values.global.image.type | quote }}
+    dokku.com/cron-id: {{ $config.cron.id | quote }}
+    dokku.com/job-suffix: {{ $config.cron.suffix | quote }}
     dokku.com/managed: "true"
-    kubectl.kubernetes.io/default-container: {{ $.Values.global.app_name }}-cron
+    kubectl.kubernetes.io/default-container: {{ printf "%s-cron" $.Values.global.app_name | quote }}
     {{ include "print.annotations" (dict "config" $.Values.global "key" "cronjob") | indent 4 }}
     {{ include "print.annotations" (dict "config" $config "key" "cronjob") | indent 4 }}
   labels:
-    app.kubernetes.io/instance: {{ $.Values.global.app_name }}-cron-{{ $config.cron.suffix }}
+    app.kubernetes.io/instance: {{ printf "%s-cron-%s" $.Values.global.app_name $config.cron.suffix | quote }}
     app.kubernetes.io/name: cron
-    app.kubernetes.io/part-of: {{ $.Values.global.app_name }}
-    dokku.com/cron-id: {{ $config.cron.id }}
+    app.kubernetes.io/part-of: {{ $.Values.global.app_name | quote }}
+    dokku.com/cron-hash: {{ $config.cron.hash | quote }}
     {{ include "print.labels" (dict "config" $.Values.global "key" "cronjob") | indent 4 }}
     {{ include "print.labels" (dict "config" $config "key" "cronjob") | indent 4 }}
   name: {{ $.Values.global.app_name }}-cron-{{ $config.cron.suffix }}
@@ -32,18 +32,18 @@ spec:
     metadata:
       annotations:
         app.kubernetes.io/version: {{ $.Values.global.deployment_id | quote }}
-        dokku.com/builder-type: {{ $.Values.global.image.type }}
-        dokku.com/cron-id: {{ $config.cron.id }}
-        dokku.com/job-suffix: {{ $config.cron.suffix }}
+        dokku.com/builder-type: {{ $.Values.global.image.type | quote }}
+        dokku.com/cron-id: {{ $config.cron.id | quote }}
+        dokku.com/job-suffix: {{ $config.cron.suffix | quote }}
         dokku.com/managed: "true"
-        kubectl.kubernetes.io/default-container: {{ $.Values.global.app_name }}-cron
+        kubectl.kubernetes.io/default-container: {{ printf "%s-cron" $.Values.global.app_name | quote }}
         {{ include "print.annotations" (dict "config" $.Values.global "key" "job") | indent 8 }}
         {{ include "print.annotations" (dict "config" $config "key" "job") | indent 8 }}
       labels:
-        app.kubernetes.io/instance: {{ $.Values.global.app_name }}-cron-{{ $config.cron.suffix }}
+        app.kubernetes.io/instance: {{ printf "%s-cron-%s" $.Values.global.app_name $config.cron.suffix | quote }}
         app.kubernetes.io/name: cron
-        app.kubernetes.io/part-of: {{ $.Values.global.app_name }}
-        dokku.com/cron-id: {{ $config.cron.id }}
+        app.kubernetes.io/part-of: {{ $.Values.global.app_name | quote }}
+        dokku.com/cron-hash: {{ $config.cron.hash | quote }}
         {{ include "print.labels" (dict "config" $.Values.global "key" "job") | indent 8 }}
         {{ include "print.labels" (dict "config" $config "key" "job") | indent 8 }}
     spec:
@@ -55,18 +55,18 @@ spec:
         metadata:
           annotations:
             app.kubernetes.io/version: {{ $.Values.global.deployment_id | quote }}
-            dokku.com/builder-type: {{ $.Values.global.image.type }}
-            dokku.com/cron-id: {{ $config.cron.id }}
-            dokku.com/job-suffix: {{ $config.cron.suffix }}
+            dokku.com/builder-type: {{ $.Values.global.image.type | quote }}
+            dokku.com/cron-id: {{ $config.cron.id | quote }}
+            dokku.com/job-suffix: {{ $config.cron.suffix | quote }}
             dokku.com/managed: "true"
-            kubectl.kubernetes.io/default-container: {{ $.Values.global.app_name }}-cron
+            kubectl.kubernetes.io/default-container: {{ printf "%s-cron" $.Values.global.app_name | quote }}
             {{ include "print.annotations" (dict "config" $.Values.global "key" "pod") | indent 12 }}
             {{ include "print.annotations" (dict "config" $config "key" "pod") | indent 12 }}
           labels:
-            app.kubernetes.io/instance: {{ $.Values.global.app_name }}-cron-{{ $config.cron.suffix }}
+            app.kubernetes.io/instance: {{ printf "%s-cron-%s" $.Values.global.app_name $config.cron.suffix | quote }}
             app.kubernetes.io/name: cron
-            app.kubernetes.io/part-of: {{ $.Values.global.app_name }}
-            dokku.com/cron-id: {{ $config.cron.id }}
+            app.kubernetes.io/part-of: {{ $.Values.global.app_name | quote }}
+            dokku.com/cron-hash: {{ $config.cron.hash | quote }}
             {{ include "print.labels" (dict "config" $.Values.global "key" "pod") | indent 12 }}
             {{ include "print.labels" (dict "config" $config "key" "pod") | indent 12 }}
         spec:

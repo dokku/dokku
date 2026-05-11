@@ -3,6 +3,7 @@ package scheduler_k3s
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"encoding/base64"
 	"errors"
 	"fmt"
@@ -23,6 +24,7 @@ import (
 	nginxvhosts "github.com/dokku/dokku/plugins/nginx-vhosts"
 	resty "github.com/go-resty/resty/v2"
 	kedav1alpha1 "github.com/kedacore/keda/v2/apis/keda/v1alpha1"
+	"github.com/multiformats/go-base36"
 	"golang.org/x/sync/errgroup"
 	"gopkg.in/yaml.v3"
 	"helm.sh/helm/v3/pkg/strvals"
@@ -2079,6 +2081,14 @@ func kubernetesNodeToNode(node v1.Node) Node {
 		RemoteHost: remoteHost,
 		Version:    node.Status.NodeInfo.KubeletVersion,
 	}
+}
+
+// cronIDLabelValue returns a Kubernetes-label-safe hash of a cron ID.
+// The raw cron ID can exceed the 63-byte label cap, so we keep it as an
+// annotation and use this short hash for selectors.
+func cronIDLabelValue(cronID string) string {
+	sum := sha256.Sum256([]byte(cronID))
+	return base36.EncodeToStringLc(sum[:16])
 }
 
 // parseMemoryQuantity parses a string into a valid memory quantity
