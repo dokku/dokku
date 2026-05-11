@@ -134,6 +134,23 @@ type WaitForPodBySelectorRunningInput struct {
 	Waiter func(ctx context.Context, clientset KubernetesClient, podName, namespace string) wait.ConditionWithContextFunc
 }
 
+type WaitForPodBySelectorCompletedInput struct {
+	// Clientset is the kubernetes clientset
+	Clientset KubernetesClient
+
+	// Namespace is the namespace to search in
+	Namespace string
+
+	// LabelSelector is the label selector to search for
+	LabelSelector string
+
+	// PodName is the pod name to search for
+	PodName string
+
+	// Timeout is the timeout in seconds to wait for the pod to reach a terminal phase
+	Timeout float64
+}
+
 type WaitForPodToExistInput struct {
 	Clientset     KubernetesClient
 	Namespace     string
@@ -1979,6 +1996,52 @@ func isPodReady(ctx context.Context, clientset KubernetesClient, podName, namesp
 		}
 		return false, nil
 	}
+}
+
+// waitForPodBySelectorCompleted polls the first pod matching the input
+// selector until it reaches a terminal phase (PodSucceeded / PodFailed) or
+// the timeout elapses. Used after a Follow=true StreamLogs returns, to
+// handle the kubelet -> apiserver phase propagation delay for short-lived
+// run pods.
+func waitForPodBySelectorCompleted(ctx context.Context, input WaitForPodBySelectorCompletedInput) (v1.Pod, error) {
+	pods, err := waitForPodToExist(ctx, WaitForPodToExistInput{
+		Clientset:     input.Clientset,
+		LabelSelector: input.LabelSelector,
+		Namespace:     input.Namespace,
+		PodName:       input.PodName,
+		RetryCount:    3,
+	})
+	if err != nil {
+		return v1.Pod{}, fmt.Errorf("Error waiting for pod to exist: %w", err)
+	}
+
+	if len(pods) == 0 {
+		return v1.Pod{}, fmt.Errorf("no pods in %s with selector %s", input.Namespace, input.LabelSelector)
+	}
+
+	podName := pods[0].Name
+	if input.PodName != "" {
+		podName = input.PodName
+	}
+
+	timeout := time.Duration(input.Timeout * float64(time.Second))
+	var pod v1.Pod
+	err = wait.PollUntilContextTimeout(ctx, time.Second, timeout, true, func(ctx context.Context) (bool, error) {
+		p, err := input.Clientset.GetPod(ctx, GetPodInput{
+			Name:      podName,
+			Namespace: input.Namespace,
+		})
+		if err != nil {
+			return false, err
+		}
+		pod = p
+		switch p.Status.Phase {
+		case v1.PodSucceeded, v1.PodFailed:
+			return true, nil
+		}
+		return false, nil
+	})
+	return pod, err
 }
 
 // kubernetesNodeToNode converts a kubernetes node to a Node

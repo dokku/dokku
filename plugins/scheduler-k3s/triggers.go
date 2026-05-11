@@ -1585,17 +1585,15 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 			return fmt.Errorf("Error streaming logs: %w", streamErr)
 		}
 
-		pods, listErr := clientset.ListPods(ctx, ListPodsInput{
+		selectedPod, waitErr := waitForPodBySelectorCompleted(ctx, WaitForPodBySelectorCompletedInput{
+			Clientset:     clientset,
 			Namespace:     namespace,
 			LabelSelector: batchJobSelector,
+			Timeout:       10,
 		})
-		if listErr != nil {
-			return fmt.Errorf("Error getting pod: %w", listErr)
+		if waitErr != nil {
+			return fmt.Errorf("Pod did not reach terminal state after logs streamed: %w", waitErr)
 		}
-		if len(pods) == 0 {
-			return fmt.Errorf("No pods found matching specified labels")
-		}
-		selectedPod := pods[0]
 		switch selectedPod.Status.Phase {
 		case v1.PodSucceeded:
 			return nil
@@ -1610,9 +1608,8 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 				return fmt.Errorf("Unable to attach as the pod has already exited with a failed exit code: %s", status.State.Terminated.Message)
 			}
 			return fmt.Errorf("Unable to attach as the pod has already exited with a failed exit code")
-		default:
-			return fmt.Errorf("Unable to attach as the pod is in an unknown state: %s", selectedPod.Status.Phase)
 		}
+		return fmt.Errorf("Unable to attach as the pod is in an unknown state: %s", selectedPod.Status.Phase)
 	}
 	if err != nil {
 		if errors.Is(err, conditions.ErrPodCompleted) {
