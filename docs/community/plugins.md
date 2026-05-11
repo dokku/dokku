@@ -104,6 +104,7 @@ The following plugins are available and provided by Dokku maintainers.  Please f
 | [InfluxDB](https://github.com/basgys/dokku-influxdb)                                              | [basgys][]            | 0.4.x                 |
 | [RethinkDB](https://github.com/stuartpb/dokku-rethinkdb-plugin)                                   | [stuartpb][]          | 0.3.x                 |
 | [Headless Chrome](https://github.com/lazyatom/dokku-chrome)                                       | [lazyatom][]          | 0.8.1+                |
+| [HTTP OAuth](https://github.com/cheif/dokku-http-oauth)                                           | [cheif][]             | 0.4.0+                |
 
 ### Plugins Implementing New Dokku Functionality
 
@@ -267,6 +268,7 @@ The following plugins are no longer maintained by their developers.
 [candlewaster]: https://notabug.org/candlewaster
 [cedricziel]: https://github.com/cedricziel
 [cef]: https://github.com/cef
+[cheif]: https://github.com/cheif
 [cjblomqvist]: https://github.com/cjblomqvist
 [crisward]: https://github.com/crisward
 [cu12]: https://github.com/cu12
