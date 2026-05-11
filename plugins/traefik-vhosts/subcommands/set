@@ -11,7 +11,7 @@ cmd-traefik-set() {
   declare APP="$1" KEY="$2" VALUE="$3"
   local VALID_KEYS=("api-enabled" "api-entry-point" "api-entry-point-address" "api-vhost" "challenge-mode" "dashboard-enabled" "basic-auth-username" "basic-auth-password" "dns-provider" "image" "letsencrypt-email" "letsencrypt-server" "log-level" "http-entry-point" "https-entry-point")
   local GLOBAL_KEYS=("api-enabled" "api-entry-point" "api-entry-point-address" "api-vhost" "challenge-mode" "dashboard-enabled" "basic-auth-username" "basic-auth-password" "dns-provider" "image" "letsencrypt-email" "letsencrypt-server" "log-level" "http-entry-point" "https-entry-point")
-  local GLOBAL_ONLY_KEYS=("api-entry-point" "api-entry-point-address" "challenge-mode" "dns-provider")
+  local GLOBAL_ONLY_KEYS=("api-enabled" "api-entry-point" "api-entry-point-address" "api-vhost" "basic-auth-username" "basic-auth-password" "challenge-mode" "dashboard-enabled" "dns-provider" "image" "letsencrypt-email" "letsencrypt-server" "log-level" "http-entry-point" "https-entry-point")
 
   [[ -z "$KEY" ]] && dokku_log_fail "No key specified"
 

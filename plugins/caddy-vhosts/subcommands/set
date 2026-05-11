@@ -11,6 +11,7 @@ cmd-caddy-set() {
   declare APP="$1" KEY="$2" VALUE="$3"
   local VALID_KEYS=("image" "letsencrypt-email" "letsencrypt-server" "log-level" "polling-interval" "tls-internal")
   local GLOBAL_KEYS=("image" "letsencrypt-email" "letsencrypt-server" "log-level" "polling-interval")
+  local GLOBAL_ONLY_KEYS=("image" "letsencrypt-email" "letsencrypt-server" "log-level" "polling-interval")
 
   [[ -z "$KEY" ]] && dokku_log_fail "No key specified"
 
@@ -23,6 +24,10 @@ cmd-caddy-set() {
       dokku_log_fail "The key '$KEY' cannot be set globally"
     fi
     verify_app_name "$APP"
+  fi
+
+  if fn-in-array "$KEY" "${GLOBAL_ONLY_KEYS[@]}" && [[ "$APP" != "--global" ]]; then
+    dokku_log_fail "The key '$KEY' can only be set globally"
   fi
 
   if [[ -n "$VALUE" ]]; then

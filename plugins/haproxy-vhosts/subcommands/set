@@ -11,7 +11,7 @@ cmd-haproxy-set() {
   declare APP="$1" KEY="$2" VALUE="$3"
   local VALID_KEYS=("image" "log-level" "letsencrypt-email" "letsencrypt-server" "refresh-conf")
   local GLOBAL_KEYS=("image" "log-level" "letsencrypt-email" "letsencrypt-server" "refresh-conf")
-  local GLOBAL_ONLY_KEYS=("refresh-conf")
+  local GLOBAL_ONLY_KEYS=("image" "log-level" "letsencrypt-email" "letsencrypt-server" "refresh-conf")
 
   [[ -z "$KEY" ]] && dokku_log_fail "No key specified"
 

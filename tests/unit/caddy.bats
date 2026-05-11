@@ -36,6 +36,33 @@ teardown() {
   assert_success
 }
 
+@test "(caddy) global-only keys" {
+  for key in image letsencrypt-email letsencrypt-server log-level polling-interval; do
+    run /bin/bash -c "dokku caddy:set $TEST_APP $key somevalue"
+    echo "key: $key"
+    echo "output: $output"
+    echo "status: $status"
+    assert_failure
+    assert_output_contains "can only be set globally"
+  done
+
+  run /bin/bash -c "dokku caddy:set $TEST_APP tls-internal true"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku caddy:report $TEST_APP --caddy-tls-internal"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku caddy:set $TEST_APP tls-internal"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
 @test "(caddy) caddy:help" {
   run /bin/bash -c "dokku caddy"
   echo "output: $output"
