@@ -10,6 +10,30 @@ teardown() {
   destroy_app
 }
 
+@test "(builder-lambda:report) info-flag works before deploy" {
+  run /bin/bash -c "dokku builder-lambda:report $TEST_APP --builder-lambda-lambdayml-path"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku builder-lambda:set $TEST_APP lambdayml-path lambda.alt.yml"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku builder-lambda:report $TEST_APP --builder-lambda-lambdayml-path"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "lambda.alt.yml"
+
+  run /bin/bash -c "dokku builder-lambda:report $TEST_APP --builder-lambda-invalid-flag"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Invalid flag passed"
+}
+
 @test "(builder-lambda:report) --global --builder-lambda-global-lambdayml-path" {
   run /bin/bash -c "dokku builder-lambda:set --global lambdayml-path lambda.alt.yml"
   echo "output: $output"

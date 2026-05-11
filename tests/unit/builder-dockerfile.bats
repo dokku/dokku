@@ -12,6 +12,30 @@ teardown() {
   destroy_app
 }
 
+@test "(builder-dockerfile:report) info-flag works before deploy" {
+  run /bin/bash -c "dokku builder-dockerfile:report $TEST_APP --builder-dockerfile-dockerfile-path"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku builder-dockerfile:set $TEST_APP dockerfile-path second.Dockerfile"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku builder-dockerfile:report $TEST_APP --builder-dockerfile-dockerfile-path"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "second.Dockerfile"
+
+  run /bin/bash -c "dokku builder-dockerfile:report $TEST_APP --builder-dockerfile-invalid-flag"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Invalid flag passed"
+}
+
 @test "(builder-dockerfile:report) --global --format json" {
   run /bin/bash -c "dokku builder-dockerfile:report --global --format json | jq -e ."
   echo "output: $output"

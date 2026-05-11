@@ -18,6 +18,32 @@ teardown() {
   assert_output "true"
 }
 
+@test "(scheduler-docker-local:report) info-flag works before deploy" {
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku scheduler-docker-local:report $TEST_APP --scheduler-docker-local-parallel-schedule-count"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku scheduler-docker-local:report $TEST_APP --scheduler-docker-local-init-process"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku scheduler-docker-local:report $TEST_APP --scheduler-docker-local-invalid-flag"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Invalid flag passed"
+
+  destroy_app
+}
+
 @test "(scheduler-docker-local) scheduler-docker-local:help" {
   run /bin/bash -c "dokku scheduler-docker-local"
   echo "output: $output"

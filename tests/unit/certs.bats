@@ -41,6 +41,25 @@ teardown() {
   assert_output "$help_output"
 }
 
+@test "(certs:report) info-flag works before deploy" {
+  run /bin/bash -c "dokku certs:report $TEST_APP --ssl-hostnames"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku certs:report $TEST_APP --ssl-dir"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "/$TEST_APP/tls"
+
+  run /bin/bash -c "dokku certs:report $TEST_APP --ssl-invalid-flag"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Invalid flag passed"
+}
+
 @test "(certs:report) --global --format json" {
   run /bin/bash -c "dokku certs:report --global --format json | jq -e ."
   echo "output: $output"

@@ -16,6 +16,30 @@ teardown() {
   global_teardown
 }
 
+@test "(checks:report) info-flag works before deploy" {
+  run /bin/bash -c "dokku checks:report $TEST_APP --checks-wait-to-retire"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku checks:set $TEST_APP wait-to-retire 30"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku checks:report $TEST_APP --checks-wait-to-retire"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "30"
+
+  run /bin/bash -c "dokku checks:report $TEST_APP --checks-invalid-flag"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Invalid flag passed"
+}
+
 @test "(checks:report) --global --format json" {
   run /bin/bash -c "dokku checks:set --global wait-to-retire 90"
   echo "output: $output"

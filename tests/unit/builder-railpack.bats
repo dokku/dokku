@@ -25,6 +25,30 @@ teardown() {
   global_teardown
 }
 
+@test "(builder-railpack:report) info-flag works before deploy" {
+  run /bin/bash -c "dokku builder-railpack:report $TEST_APP --builder-railpack-railpackjson-path"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku builder-railpack:set $TEST_APP railpackjson-path railpack.alt.json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku builder-railpack:report $TEST_APP --builder-railpack-railpackjson-path"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "railpack.alt.json"
+
+  run /bin/bash -c "dokku builder-railpack:report $TEST_APP --builder-railpack-invalid-flag"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Invalid flag passed"
+}
+
 @test "(builder-railpack:report) --global --builder-railpack-global-railpackjson-path" {
   run /bin/bash -c "dokku builder-railpack:set --global railpackjson-path railpack.alt.json"
   echo "output: $output"
