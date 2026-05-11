@@ -38,7 +38,7 @@ start-container() {
 
 wait-for-catchall-vhost() {
   local deadline=$((SECONDS + 30))
-  while (( SECONDS < deadline )); do
+  while ((SECONDS < deadline)); do
     if docker exec "$CONTAINER_NAME" test -f /etc/nginx/conf.d/00-default-vhost.conf; then
       return 0
     fi
@@ -53,7 +53,7 @@ plugins/nginx-vhosts/templates/default-site.conf. Rebuild the deb before running
 wait-for-healthy() {
   local deadline=$((SECONDS + START_TIMEOUT_SECONDS))
   local status
-  while (( SECONDS < deadline )); do
+  while ((SECONDS < deadline)); do
     status=$(docker inspect --format='{{.State.Health.Status}}' "$CONTAINER_NAME" 2>/dev/null || echo "missing")
     if [[ "$status" == "healthy" ]]; then
       log-info "Container reached healthy status"
@@ -95,14 +95,14 @@ assert-unhealthy-after-sentinel-removed() {
 
   local exit_code=0
   docker exec "$CONTAINER_NAME" curl -fsS http://127.0.0.1:18080/_dokku/health >/dev/null 2>&1 || exit_code=$?
-  if (( exit_code == 0 )); then
+  if ((exit_code == 0)); then
     log-fail "Health endpoint still returned success after the readiness sentinel was removed"
   fi
 
   log-info "Waiting for docker to flip the health status to unhealthy"
   local deadline=$((SECONDS + UNHEALTHY_TIMEOUT_SECONDS))
   local status
-  while (( SECONDS < deadline )); do
+  while ((SECONDS < deadline)); do
     status=$(docker inspect --format='{{.State.Health.Status}}' "$CONTAINER_NAME" 2>/dev/null || echo "missing")
     if [[ "$status" == "unhealthy" ]]; then
       log-info "Container flipped to unhealthy"

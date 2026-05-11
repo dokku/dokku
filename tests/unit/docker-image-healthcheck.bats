@@ -26,8 +26,8 @@ DOCKERFILE="${REPO_ROOT}/Dockerfile"
   [[ -n "$sshd_line" ]]
   [[ -n "$nginx_line" ]]
   [[ -n "$touch_line" ]]
-  (( touch_line > sshd_line ))
-  (( touch_line > nginx_line ))
+  ((touch_line > sshd_line))
+  ((touch_line > nginx_line))
 }
 
 @test "(docker-image) [healthcheck] my_init clears stale sentinel on container boot" {
@@ -43,10 +43,10 @@ DOCKERFILE="${REPO_ROOT}/Dockerfile"
   [[ -n "$mkdir_line" ]]
   [[ -n "$plugin_line" ]]
   [[ -n "$hostname_line" ]]
-  (( rm_line < plugin_line ))
-  (( rm_line < hostname_line ))
-  (( mkdir_line < plugin_line ))
-  (( mkdir_line < hostname_line ))
+  ((rm_line < plugin_line))
+  ((rm_line < hostname_line))
+  ((mkdir_line < plugin_line))
+  ((mkdir_line < hostname_line))
 }
 
 @test "(docker-image) [healthcheck] Dockerfile declares HEALTHCHECK with the expected endpoint" {
