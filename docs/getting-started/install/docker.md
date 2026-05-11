@@ -44,7 +44,38 @@ services:
     restart: unless-stopped
 ```
 
-The above command will start a new docker container that is ready when a message similar to `Runit started as PID 12345` appears.
+## Container readiness
+
+The image ships with a Docker `HEALTHCHECK` that flips from `starting` to `healthy` once first-boot bootstrap is complete (skel restored, `plugin-list` plugins installed, core install triggers fired), nginx and sshd are accepting connections, and `dokku ps:restore` has finished. Until those conditions hold, the container is considered unhealthy and dependent services should not yet send traffic.
+
+To check the current state from the host:
+
+```shell
+docker inspect --format='{{.State.Health.Status}}' dokku
+```
+
+Internally, the check is backed by a loopback-only HTTP endpoint:
+
+```shell
+docker exec dokku curl -fsS http://127.0.0.1:18080/_dokku/health
+```
+
+The endpoint binds to `127.0.0.1:18080` inside the container by design - it is not published to the host and does not interfere with user app vhosts on ports 80/443.
+
+Compose dependents can gate on the healthcheck via `depends_on` with `condition: service_healthy`:
+
+```yaml
+services:
+  dokku:
+    image: dokku/dokku:0.38.2
+    # ...
+  bootstrap:
+    image: alpine:3.20
+    command: ["echo", "dokku is ready"]
+    depends_on:
+      dokku:
+        condition: service_healthy
+```
 
 Dokku is run in the following configuration:
 

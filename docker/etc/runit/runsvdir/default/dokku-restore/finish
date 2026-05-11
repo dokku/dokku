@@ -10,6 +10,10 @@ if [[ "$1" -ne 0 ]]; then
 fi
 
 echo "Done restoring dokku apps."
-exec sleep infinity
 
-exit 0
+while ! (echo > /dev/tcp/127.0.0.1/22) >/dev/null 2>&1; do sleep 1; done
+while ! (echo > /dev/tcp/127.0.0.1/80) >/dev/null 2>&1; do sleep 1; done
+touch /var/run/dokku/ready
+echo "Dokku is ready."
+
+exec sleep infinity
