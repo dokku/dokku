@@ -10,6 +10,30 @@ teardown() {
   destroy_app
 }
 
+@test "(builder-herokuish:report) info-flag works before deploy" {
+  run /bin/bash -c "dokku builder-herokuish:report $TEST_APP --builder-herokuish-allowed"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku builder-herokuish:set $TEST_APP allowed false"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku builder-herokuish:report $TEST_APP --builder-herokuish-allowed"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku builder-herokuish:report $TEST_APP --builder-herokuish-invalid-flag"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Invalid flag passed"
+}
+
 @test "(builder-herokuish:report) --global --builder-herokuish-global-allowed" {
   run /bin/bash -c "dokku builder-herokuish:set --global allowed false"
   echo "output: $output"

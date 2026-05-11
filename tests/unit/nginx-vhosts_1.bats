@@ -28,6 +28,35 @@ teardown() {
   assert_output "$help_output"
 }
 
+@test "(nginx:report) info-flag works before deploy" {
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:report $TEST_APP --nginx-bind-address-ipv4"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:set $TEST_APP bind-address-ipv4 127.0.0.1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:report $TEST_APP --nginx-bind-address-ipv4"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "127.0.0.1"
+
+  run /bin/bash -c "dokku nginx:report $TEST_APP --nginx-invalid-flag"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Invalid flag passed"
+}
+
 @test "(nginx:report) --format json" {
   run create_app
   echo "output: $output"

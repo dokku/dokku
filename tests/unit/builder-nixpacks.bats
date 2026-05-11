@@ -14,6 +14,30 @@ teardown() {
   destroy_app
 }
 
+@test "(builder-nixpacks:report) info-flag works before deploy" {
+  run /bin/bash -c "dokku builder-nixpacks:report $TEST_APP --builder-nixpacks-nixpackstoml-path"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku builder-nixpacks:set $TEST_APP nixpackstoml-path nixpacks.alt.toml"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku builder-nixpacks:report $TEST_APP --builder-nixpacks-nixpackstoml-path"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "nixpacks.alt.toml"
+
+  run /bin/bash -c "dokku builder-nixpacks:report $TEST_APP --builder-nixpacks-invalid-flag"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Invalid flag passed"
+}
+
 @test "(builder-nixpacks:report) --global --builder-nixpacks-global-nixpackstoml-path" {
   run /bin/bash -c "dokku builder-nixpacks:set --global nixpackstoml-path nixpacks.alt.toml"
   echo "output: $output"

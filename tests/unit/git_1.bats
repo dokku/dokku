@@ -12,6 +12,36 @@ teardown() {
   global_teardown
 }
 
+@test "(git:report) info-flag works before deploy" {
+  run /bin/bash -c "dokku git:report $TEST_APP --git-deploy-branch"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "master"
+
+  run /bin/bash -c "dokku git:set $TEST_APP deploy-branch main"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-deploy-branch"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "main"
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-sha"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-invalid-flag"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Invalid flag passed"
+}
+
 @test "(git) git:help" {
   run /bin/bash -c "dokku git"
   echo "output: $output"

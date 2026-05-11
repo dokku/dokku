@@ -16,6 +16,30 @@ teardown() {
   global_teardown
 }
 
+@test "(builder-pack:report) info-flag works before deploy" {
+  run /bin/bash -c "dokku builder-pack:report $TEST_APP --builder-pack-projecttoml-path"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku builder-pack:set $TEST_APP projecttoml-path project.alt.toml"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku builder-pack:report $TEST_APP --builder-pack-projecttoml-path"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "project.alt.toml"
+
+  run /bin/bash -c "dokku builder-pack:report $TEST_APP --builder-pack-invalid-flag"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Invalid flag passed"
+}
+
 @test "(builder-pack:report) --global --builder-pack-global-projecttoml-path" {
   run /bin/bash -c "dokku builder-pack:set --global projecttoml-path project.alt.toml"
   echo "output: $output"
