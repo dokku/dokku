@@ -74,14 +74,13 @@ cmd-builder-herokuish-report-single() {
     done
   else
     local match=false
-    local value_exists=false
     for flag in "${flag_map[@]}"; do
       valid_flags="${valid_flags} $(echo "$flag" | cut -d':' -f1)"
       if [[ "$flag" == "${INFO_FLAG}:"* ]]; then
         value=${flag#*: }
         size="${#value}"
         if [[ "$size" -ne 0 ]]; then
-          echo "$value" && match=true && value_exists=true
+          echo "$value" && match=true
         else
           match=true
         fi
