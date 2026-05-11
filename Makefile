@@ -226,3 +226,8 @@ vagrant-acl-add:
 
 vagrant-dokku:
 	vagrant ssh -- "sudo -H -u root bash -c 'dokku $(RUN_ARGS)'"
+
+IMAGE_TAG ?= dokku/dokku:latest
+
+test-image-healthcheck:
+	IMAGE_TAG=$(IMAGE_TAG) ./tests/image/healthcheck.sh

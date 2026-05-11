@@ -35,6 +35,9 @@ main() {
 
   support-userns
 
+  rm -f /var/run/dokku/ready
+  mkdir -p /var/run/dokku
+
   if [[ ! -d /mnt/dokku ]]; then
     log-info "Creating missing /mnt/dokku"
     mkdir -p /mnt/dokku

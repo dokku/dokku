@@ -45,6 +45,7 @@ RUN mkdir -p /etc/apt/keyrings \
   && echo "dokku dokku/hostname string $DOKKU_HOSTNAME" | debconf-set-selections \
   && echo "dokku dokku/skip_key_file boolean $DOKKU_SKIP_KEY_FILE" | debconf-set-selections \
   && echo "dokku dokku/vhost_enable boolean $DOKKU_VHOST_ENABLE" | debconf-set-selections \
+  && echo "dokku dokku/install_default_site boolean true" | debconf-set-selections \
   && curl -sSL https://packagecloud.io/dokku/dokku/gpgkey | apt-key add - \
   && echo "deb https://packagecloud.io/dokku/dokku/ubuntu/ noble main" | tee /etc/apt/sources.list.d/dokku.list \
   && mkdir -p /etc/nginx/ \
@@ -81,3 +82,6 @@ RUN \
   && rm -f /usr/local/openresty/nginx/conf/sites-enabled/default /usr/share/openresty/html/index.html \
   && sed -i '/imklog/d' /etc/rsyslog.conf \
   && rm -f /var/log/btmp /var/log/wtmp /var/log/*log /var/log/apt/* /var/log/dokku/*.log /var/log/nginx/* /var/log/openresty/*
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5m --retries=3 \
+  CMD curl -fsS http://127.0.0.1:18080/_dokku/health || exit 1

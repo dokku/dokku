@@ -26,6 +26,12 @@ runs:
       shell: bash
       run: |
         docker buildx build \
+                --load \
                 --progress plain \
                 --tag "dokku/dokku:latest" \
                 .
+
+    - name: smoke test image
+      shell: bash
+      run: |
+        make test-image-healthcheck IMAGE_TAG=dokku/dokku:latest
