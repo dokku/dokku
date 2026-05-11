@@ -29,6 +29,7 @@ import (
 	"github.com/ryanuber/columnize"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/core/v1"
+	"k8s.io/kubectl/pkg/util/term"
 	"k8s.io/kubernetes/pkg/client/conditions"
 )
 
@@ -1456,6 +1457,12 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 
 	attachToPod := os.Getenv("DOKKU_DETACH_CONTAINER") != "1"
 
+	forceTTY := common.ToBool(os.Getenv("DOKKU_FORCE_TTY"))
+	disableTTY := common.ToBool(os.Getenv("DOKKU_DISABLE_TTY"))
+	ttyProbe := term.TTY{Out: os.Stdout}
+	hasTTY := ttyProbe.MonitorSize(ttyProbe.GetSize()) != nil
+	streamLogsOnly := attachToPod && !forceTTY && (disableTTY || !hasTTY)
+
 	imagePullSecrets := getComputedImagePullSecrets(appName)
 	if imagePullSecrets == "" {
 		imagePullSecrets = GetImagePullSecretName(appName)
@@ -1568,6 +1575,45 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 		Timeout:       10,
 		Waiter:        isPodReady,
 	})
+	if streamLogsOnly && (err == nil || errors.Is(err, conditions.ErrPodCompleted)) {
+		if streamErr := clientset.StreamLogs(ctx, StreamLogsInput{
+			Follow:        true,
+			LabelSelector: []string{batchJobSelector},
+			Namespace:     namespace,
+			Quiet:         true,
+		}); streamErr != nil {
+			return fmt.Errorf("Error streaming logs: %w", streamErr)
+		}
+
+		pods, listErr := clientset.ListPods(ctx, ListPodsInput{
+			Namespace:     namespace,
+			LabelSelector: batchJobSelector,
+		})
+		if listErr != nil {
+			return fmt.Errorf("Error getting pod: %w", listErr)
+		}
+		if len(pods) == 0 {
+			return fmt.Errorf("No pods found matching specified labels")
+		}
+		selectedPod := pods[0]
+		switch selectedPod.Status.Phase {
+		case v1.PodSucceeded:
+			return nil
+		case v1.PodFailed:
+			for _, status := range selectedPod.Status.ContainerStatuses {
+				if status.Name != fmt.Sprintf("%s-%s", appName, processType) {
+					continue
+				}
+				if status.State.Terminated == nil {
+					continue
+				}
+				return fmt.Errorf("Unable to attach as the pod has already exited with a failed exit code: %s", status.State.Terminated.Message)
+			}
+			return fmt.Errorf("Unable to attach as the pod has already exited with a failed exit code")
+		default:
+			return fmt.Errorf("Unable to attach as the pod is in an unknown state: %s", selectedPod.Status.Phase)
+		}
+	}
 	if err != nil {
 		if errors.Is(err, conditions.ErrPodCompleted) {
 			pods, podErr := clientset.ListPods(ctx, ListPodsInput{
