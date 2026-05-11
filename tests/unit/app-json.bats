@@ -256,6 +256,63 @@ teardown() {
   assert_output_contains "touch /app/predeploy3.test"
 }
 
+@test "(app-json:report) appjson-path round-trip" {
+  run /bin/bash -c "dokku app-json:set $TEST_APP appjson-path app2.json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku app-json:report $TEST_APP --app-json-appjson-path"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "app2.json"
+
+  run /bin/bash -c "dokku app-json:report $TEST_APP --app-json-computed-appjson-path"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "app2.json"
+
+  run /bin/bash -c "dokku app-json:report $TEST_APP --app-json-global-appjson-path"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "app.json"
+
+  run /bin/bash -c "dokku app-json:report $TEST_APP --format json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains '"app-json-appjson-path":"app2.json"'
+  assert_output_contains '"app-json-computed-appjson-path":"app2.json"'
+  assert_output_contains '"app-json-global-appjson-path":"app.json"'
+  assert_output_contains "app-json-selected" 0
+
+  run /bin/bash -c "dokku app-json:report $TEST_APP --app-json-selected"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Invalid flag passed"
+
+  run /bin/bash -c "dokku app-json:set $TEST_APP appjson-path"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku app-json:report $TEST_APP --app-json-appjson-path"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku app-json:report $TEST_APP --app-json-computed-appjson-path"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "app.json"
+}
+
 copy_app_json_to_sub_app() {
   local APP="$1"
   local APP_REPO_DIR="$2"

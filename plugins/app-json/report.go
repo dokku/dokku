@@ -15,13 +15,13 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 	var flags map[string]common.ReportFunc
 	if appName == "--global" {
 		flags = map[string]common.ReportFunc{
-			"--app-json-global-selected": reportGlobalAppjsonpath,
+			"--app-json-global-appjson-path": reportGlobalAppjsonpath,
 		}
 	} else {
 		flags = map[string]common.ReportFunc{
-			"--app-json-computed-selected": reportComputedAppjsonpath,
-			"--app-json-global-selected":   reportGlobalAppjsonpath,
-			"--app-json-selected":          reportAppjsonpath,
+			"--app-json-computed-appjson-path": reportComputedAppjsonpath,
+			"--app-json-global-appjson-path":   reportGlobalAppjsonpath,
+			"--app-json-appjson-path":          reportAppjsonpath,
 		}
 	}
 
