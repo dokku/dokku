@@ -34,6 +34,17 @@ teardown() {
   assert_output "$help_output"
 }
 
+@test "(haproxy) global-only keys" {
+  for key in image log-level letsencrypt-email letsencrypt-server refresh-conf; do
+    run /bin/bash -c "dokku haproxy:set $TEST_APP $key somevalue"
+    echo "key: $key"
+    echo "output: $output"
+    echo "status: $status"
+    assert_failure
+    assert_output_contains "can only be set globally"
+  done
+}
+
 @test "(haproxy) refresh-conf" {
   run /bin/bash -c "dokku haproxy:set $TEST_APP refresh-conf 2"
   echo "output: $output"

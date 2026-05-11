@@ -41,6 +41,23 @@ teardown() {
   assert_success
 }
 
+@test "(traefik) global-only keys" {
+  for key in api-enabled api-entry-point api-entry-point-address api-vhost basic-auth-username basic-auth-password challenge-mode dashboard-enabled dns-provider image letsencrypt-email letsencrypt-server log-level http-entry-point https-entry-point; do
+    run /bin/bash -c "dokku traefik:set $TEST_APP $key somevalue"
+    echo "key: $key"
+    echo "output: $output"
+    echo "status: $status"
+    assert_failure
+    assert_output_contains "can only be set globally"
+  done
+
+  run /bin/bash -c "dokku traefik:set $TEST_APP dns-provider-CF_API_TOKEN somevalue"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "can only be set globally"
+}
+
 @test "(traefik) traefik:help" {
   run /bin/bash -c "dokku traefik"
   echo "output: $output"
