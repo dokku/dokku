@@ -10,7 +10,7 @@ cmd-caddy-set() {
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1" KEY="$2" VALUE="$3"
   local VALID_KEYS=("image" "letsencrypt-email" "letsencrypt-server" "log-level" "polling-interval" "tls-internal")
-  local GLOBAL_KEYS=("image" "letsencrypt-email" "letsencrypt-server" "log-level" "polling-interval")
+  local GLOBAL_KEYS=("image" "letsencrypt-email" "letsencrypt-server" "log-level" "polling-interval" "tls-internal")
   local GLOBAL_ONLY_KEYS=("image" "letsencrypt-email" "letsencrypt-server" "log-level" "polling-interval")
 
   [[ -z "$KEY" ]] && dokku_log_fail "No key specified"
