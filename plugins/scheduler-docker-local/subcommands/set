@@ -5,12 +5,12 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
 cmd-scheduler-docker-local-set() {
-  declare desc="set or clear a scheduler-docker-local property for an app"
+  declare desc="set or clear a scheduler-docker-local property for an app or globally"
   declare cmd="scheduler-docker-local:set"
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1" KEY="$2" VALUE="$3"
   local VALID_KEYS=("init-process" "parallel-schedule-count")
-  verify_app_name "$APP"
+  [[ "$APP" == "--global" ]] || verify_app_name "$APP"
 
   [[ -z "$KEY" ]] && dokku_log_fail "No key specified"
 

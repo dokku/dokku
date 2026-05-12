@@ -5,7 +5,7 @@
 
 ```
 scheduler-docker-local:report [<app>] [<flag>]              # Displays a scheduler-docker-local report for one or more apps
-scheduler-docker-local:set <app> <key> (<value>)            # Set or clear a scheduler-docker-local property for an app
+scheduler-docker-local:set [<app>|--global] <key> (<value>) # Set or clear a scheduler-docker-local property for an app or globally
 ```
 
 > [!IMPORTANT]
@@ -46,7 +46,19 @@ Once set, you may re-enable it by setting a blank value for `init-process`:
 dokku scheduler-docker-local:set node-js-app init-process
 ```
 
-All image containers with the label `org.opencontainers.image.vendor=linuxserver.io` will have the automatic init process injection force-disabled without further intervention.
+The default value may also be configured globally with the `--global` flag. Per-app values take precedence over the global value when set.
+
+```shell
+dokku scheduler-docker-local:set --global init-process false
+```
+
+The global value may also be unset by setting a blank value.
+
+```shell
+dokku scheduler-docker-local:set --global init-process
+```
+
+All image containers with the label `org.opencontainers.image.vendor=linuxserver.io` will have the automatic init process injection force-disabled without further intervention when neither an app-level nor a global value is set.
 
 ### Deploying Process Types in Parallel
 
@@ -64,6 +76,18 @@ Once set, you may reset it by setting a blank value for `parallel-schedule-count
 
 ```shell
 dokku scheduler-docker-local:set node-js-app parallel-schedule-count
+```
+
+The default value may also be configured globally with the `--global` flag. Per-app values take precedence over the global value when set.
+
+```shell
+dokku scheduler-docker-local:set --global parallel-schedule-count 4
+```
+
+The global value may also be unset by setting a blank value.
+
+```shell
+dokku scheduler-docker-local:set --global parallel-schedule-count
 ```
 
 If the value of `parallel-schedule-count` is increased and a given process type fails to schedule successfully, then any in-flight process types will continue to be processed, while all process types that have not been scheduled will be skipped before the deployment finally fails.
@@ -99,6 +123,57 @@ Omitting or removing the entry will result in parallelism for that process type 
 Note that increasing the value of `max_parallel` may significantly impact CPU utilization on your host as your app containers - and their respective processes - start up. Setting a value higher than the number of available CPUs is discouraged. It is recommended that users carefully set this value so as not to overburden their server.
 
 See the [app.json location documentation](/docs/advanced-usage/deployment-tasks.md#changing-the-appjson-location) for more information on where to place your `app.json` file.
+
+### Displaying scheduler-docker-local reports for an app
+
+You can get a report about the app's scheduler-docker-local configuration using the `scheduler-docker-local:report` command:
+
+```shell
+dokku scheduler-docker-local:report
+```
+
+```
+=====> node-js-app scheduler-docker-local information
+       Scheduler docker local computed init process:          true
+       Scheduler docker local computed parallel schedule count:1
+       Scheduler docker local global init process:            true
+       Scheduler docker local global parallel schedule count: 1
+       Scheduler docker local init process:
+       Scheduler docker local parallel schedule count:
+```
+
+You can run the command for a specific app also.
+
+```shell
+dokku scheduler-docker-local:report node-js-app
+```
+
+You can pass flags which will output only the value of the specific information you want. For example:
+
+```shell
+dokku scheduler-docker-local:report node-js-app --scheduler-docker-local-computed-init-process
+```
+
+When run against `--global`, only the global keys are reported.
+
+```shell
+dokku scheduler-docker-local:report --global
+```
+
+The available keys are:
+
+- `--scheduler-docker-local-init-process`: the raw per-app init-process value (empty when unset).
+- `--scheduler-docker-local-computed-init-process`: the effective init-process value, computed as the per-app value if set, otherwise the global value, otherwise `true`.
+- `--scheduler-docker-local-global-init-process`: the global init-process value (defaults to `true`).
+- `--scheduler-docker-local-parallel-schedule-count`: the raw per-app parallel-schedule-count value (empty when unset).
+- `--scheduler-docker-local-computed-parallel-schedule-count`: the effective parallel-schedule-count value, computed as the per-app value if set, otherwise the global value, otherwise `1`.
+- `--scheduler-docker-local-global-parallel-schedule-count`: the global parallel-schedule-count value (defaults to `1`).
+
+The report may also be emitted as JSON using `--format json`, which is useful for external tooling that needs to distinguish a value set on the app from one that is defaulting.
+
+```shell
+dokku scheduler-docker-local:report node-js-app --format json
+```
 
 ## Scheduler Interface
 

@@ -10,12 +10,18 @@ teardown() {
   global_teardown
 }
 
-@test "(scheduler-docker-local:report) --global --scheduler-docker-local-init-process" {
-  run /bin/bash -c "dokku scheduler-docker-local:report --global --scheduler-docker-local-init-process"
+@test "(scheduler-docker-local:report) --global --scheduler-docker-local-global-init-process" {
+  run /bin/bash -c "dokku scheduler-docker-local:report --global --scheduler-docker-local-global-init-process"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output "true"
+
+  run /bin/bash -c "dokku scheduler-docker-local:report --global --scheduler-docker-local-global-parallel-schedule-count"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "1"
 }
 
 @test "(scheduler-docker-local:report) info-flag works before deploy" {
@@ -28,8 +34,33 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku scheduler-docker-local:report $TEST_APP --scheduler-docker-local-computed-parallel-schedule-count"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "1"
+
+  run /bin/bash -c "dokku scheduler-docker-local:report $TEST_APP --scheduler-docker-local-global-parallel-schedule-count"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "1"
 
   run /bin/bash -c "dokku scheduler-docker-local:report $TEST_APP --scheduler-docker-local-init-process"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku scheduler-docker-local:report $TEST_APP --scheduler-docker-local-computed-init-process"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku scheduler-docker-local:report $TEST_APP --scheduler-docker-local-global-init-process"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -40,6 +71,104 @@ teardown() {
   echo "status: $status"
   assert_failure
   assert_output_contains "Invalid flag passed"
+
+  destroy_app
+}
+
+@test "(scheduler-docker-local:report) --format json" {
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku scheduler-docker-local:report $TEST_APP --format json | jq -e ."
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku scheduler-docker-local:report $TEST_APP --format json | jq -r '.\"init-process\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output ""
+
+  run /bin/bash -c "dokku scheduler-docker-local:report $TEST_APP --format json | jq -r '.\"computed-init-process\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "true"
+
+  run /bin/bash -c "dokku scheduler-docker-local:report $TEST_APP --format json | jq -r '.\"global-init-process\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "true"
+
+  run /bin/bash -c "dokku scheduler-docker-local:report $TEST_APP --format json | jq -r '.\"parallel-schedule-count\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output ""
+
+  run /bin/bash -c "dokku scheduler-docker-local:report $TEST_APP --format json | jq -r '.\"computed-parallel-schedule-count\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "1"
+
+  run /bin/bash -c "dokku scheduler-docker-local:report $TEST_APP --format json | jq -r '.\"global-parallel-schedule-count\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "1"
+
+  run /bin/bash -c "dokku scheduler-docker-local:set $TEST_APP init-process false"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku scheduler-docker-local:report $TEST_APP --format json | jq -r '.\"init-process\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "false"
+
+  run /bin/bash -c "dokku scheduler-docker-local:report $TEST_APP --format json | jq -r '.\"computed-init-process\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "false"
+
+  destroy_app
+}
+
+@test "(scheduler-docker-local:set) --global" {
+  run /bin/bash -c "dokku scheduler-docker-local:set --global parallel-schedule-count 4"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku scheduler-docker-local:report --global --format json | jq -r '.\"global-parallel-schedule-count\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "4"
+
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku scheduler-docker-local:report $TEST_APP --format json | jq -r '.\"parallel-schedule-count\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output ""
+
+  run /bin/bash -c "dokku scheduler-docker-local:report $TEST_APP --format json | jq -r '.\"computed-parallel-schedule-count\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "4"
+
+  run /bin/bash -c "dokku scheduler-docker-local:report $TEST_APP --format json | jq -r '.\"global-parallel-schedule-count\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "4"
+
+  run /bin/bash -c "dokku scheduler-docker-local:set --global parallel-schedule-count"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 
   destroy_app
 }
