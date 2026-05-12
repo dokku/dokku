@@ -42,13 +42,23 @@ cmd-scheduler-docker-local-report-single() {
   if [[ "$INFO_FLAG" == "true" ]]; then
     INFO_FLAG=""
   fi
-  if [[ "$APP" != "--global" ]]; then
+  local flag_map=()
+  if [[ "$APP" == "--global" ]]; then
+    flag_map=(
+      "--scheduler-docker-local-global-init-process: $(fn-scheduler-docker-local-global-init-process "$APP")"
+      "--scheduler-docker-local-global-parallel-schedule-count: $(fn-scheduler-docker-local-global-parallel-schedule-count "$APP")"
+    )
+  else
     verify_app_name "$APP"
+    flag_map=(
+      "--scheduler-docker-local-computed-init-process: $(fn-scheduler-docker-local-computed-init-process "$APP")"
+      "--scheduler-docker-local-computed-parallel-schedule-count: $(fn-scheduler-docker-local-computed-parallel-schedule-count "$APP")"
+      "--scheduler-docker-local-global-init-process: $(fn-scheduler-docker-local-global-init-process "$APP")"
+      "--scheduler-docker-local-global-parallel-schedule-count: $(fn-scheduler-docker-local-global-parallel-schedule-count "$APP")"
+      "--scheduler-docker-local-init-process: $(fn-scheduler-docker-local-init-process "$APP")"
+      "--scheduler-docker-local-parallel-schedule-count: $(fn-scheduler-docker-local-parallel-schedule-count "$APP")"
+    )
   fi
-  local flag_map=(
-    "--scheduler-docker-local-init-process: $(fn-plugin-property-get "scheduler-docker-local" "$APP" "init-process" "true")"
-    "--scheduler-docker-local-parallel-schedule-count: $(fn-plugin-property-get "scheduler-docker-local" "$APP" "parallel-schedule-count" "")"
-  )
 
   fn-report-validate-format "$FORMAT" "$INFO_FLAG"
 
@@ -83,6 +93,46 @@ cmd-scheduler-docker-local-report-single() {
     done
     [[ "$match" == "true" ]] || dokku_log_fail "Invalid flag passed, valid flags:${valid_flags}"
   fi
+}
+
+fn-scheduler-docker-local-init-process() {
+  declare APP="$1"
+  fn-plugin-property-get-default "scheduler-docker-local" "$APP" "init-process" ""
+}
+
+fn-scheduler-docker-local-computed-init-process() {
+  declare APP="$1"
+  local value
+  value="$(fn-scheduler-docker-local-init-process "$APP")"
+  if [[ -z "$value" ]]; then
+    value="$(fn-scheduler-docker-local-global-init-process "$APP")"
+  fi
+  echo "$value"
+}
+
+fn-scheduler-docker-local-global-init-process() {
+  declare APP="$1"
+  fn-plugin-property-get-default "scheduler-docker-local" "--global" "init-process" "true"
+}
+
+fn-scheduler-docker-local-parallel-schedule-count() {
+  declare APP="$1"
+  fn-plugin-property-get-default "scheduler-docker-local" "$APP" "parallel-schedule-count" ""
+}
+
+fn-scheduler-docker-local-computed-parallel-schedule-count() {
+  declare APP="$1"
+  local value
+  value="$(fn-scheduler-docker-local-parallel-schedule-count "$APP")"
+  if [[ -z "$value" ]]; then
+    value="$(fn-scheduler-docker-local-global-parallel-schedule-count "$APP")"
+  fi
+  echo "$value"
+}
+
+fn-scheduler-docker-local-global-parallel-schedule-count() {
+  declare APP="$1"
+  fn-plugin-property-get-default "scheduler-docker-local" "--global" "parallel-schedule-count" "1"
 }
 
 fn-scheduler-docker-local-get-checks-file-path() {

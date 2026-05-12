@@ -28,6 +28,6 @@ fn-help-content() {
   declare desc="return help content"
   cat <<help_content
     scheduler-docker-local:report [<app>] [<flag>], Displays a scheduler-docker-local report for one or more apps
-    scheduler-docker-local:set <app> <property> (<value>), Set or clear a scheduler-docker-local property for an app
+    scheduler-docker-local:set [<app>|--global] <property> (<value>), Set or clear a scheduler-docker-local property for an app or globally
 help_content
 }
