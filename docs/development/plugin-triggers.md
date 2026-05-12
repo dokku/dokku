@@ -411,6 +411,42 @@ elif [[ "$KEY_TYPE" == "key" ]]; then
 fi
 ```
 
+### `certs-remove`
+
+- Description: Removes the SSL cert/key pair from an app and fires the `post-certs-remove` and `post-domains-update` triggers. Fails if no app-specific SSL endpoint is defined.
+- Invoked by:
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+# Removes the SSL endpoint for an app
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+APP="$1"
+
+dokku certs:remove "$APP"
+```
+
+### `certs-set`
+
+- Description: Installs an SSL cert/key pair onto an app and fires the `post-certs-update` and `post-domains-update` triggers. `$CRT_FILE` and `$KEY_FILE` must be paths to readable PEM-encoded files.
+- Invoked by:
+- Arguments: `$APP $CRT_FILE $KEY_FILE`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+# Installs a cert/key pair for an app
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+APP="$1"; CRT_FILE="$2"; KEY_FILE="$3"
+
+dokku certs:add "$APP" "$CRT_FILE" "$KEY_FILE"
+```
+
 ### `check-deploy`
 
 - Description: Allows you to run checks on a deploy before Dokku allows the container to handle requests.

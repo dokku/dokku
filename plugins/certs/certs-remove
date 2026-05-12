@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/certs/internal-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-certs-certs-remove() {
+  declare desc="removes the SSL cert/key pair from an app"
+  declare trigger="certs-remove"
+  declare APP="$1"
+
+  verify_app_name "$APP"
+  fn-certs-remove "$APP"
+}
+
+trigger-certs-certs-remove "$@"

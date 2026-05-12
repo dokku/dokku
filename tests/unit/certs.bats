@@ -131,6 +131,44 @@ teardown() {
   assert_success
 }
 
+@test "(certs) certs-set plugin trigger" {
+  run /bin/bash -c "plugn trigger certs-set $TEST_APP $BATS_TMPDIR/tls/server.crt $BATS_TMPDIR/tls/server.key"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  [[ -f "$DOKKU_ROOT/$TEST_APP/tls/server.crt" ]]
+  [[ -f "$DOKKU_ROOT/$TEST_APP/tls/server.key" ]]
+}
+
+@test "(certs) certs-set plugin trigger missing key file" {
+  run /bin/bash -c "plugn trigger certs-set $TEST_APP $BATS_TMPDIR/tls/server.crt /nonexistent/server.key"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "KEY file specified not found"
+}
+
+@test "(certs) certs-remove plugin trigger" {
+  run /bin/bash -c "dokku certs:add $TEST_APP $BATS_TMPDIR/tls/server.crt $BATS_TMPDIR/tls/server.key"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "plugn trigger certs-remove $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  [[ ! -d "$DOKKU_ROOT/$TEST_APP/tls" ]]
+}
+
+@test "(certs) certs-remove plugin trigger without endpoint" {
+  run /bin/bash -c "plugn trigger certs-remove $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "An app-specific SSL endpoint is not defined"
+}
+
 @test "(certs) certs:show" {
   run /bin/bash -c "dokku certs:show fake-app-name 2>&1"
   echo "output: $output"

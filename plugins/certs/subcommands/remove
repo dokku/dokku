@@ -2,6 +2,7 @@
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/certs/internal-functions"
 
 cmd-certs-remove() {
   declare desc="removes SSL cert/key from specified app"
@@ -10,16 +11,7 @@ cmd-certs-remove() {
   declare APP="$1"
 
   verify_app_name "$APP"
-  local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
-
-  if [[ -d "$APP_SSL_PATH" ]]; then
-    dokku_log_info1 "Removing SSL endpoint from $APP"
-    rm -rf "$APP_SSL_PATH"
-    plugn trigger post-certs-remove "$APP"
-    plugn trigger post-domains-update "$APP"
-  else
-    dokku_log_fail "An app-specific SSL endpoint is not defined"
-  fi
+  fn-certs-remove "$APP"
 }
 
 cmd-certs-remove "$@"

@@ -4,6 +4,48 @@ source "$PLUGIN_AVAILABLE_PATH/certs/functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
+fn-certs-set() {
+  declare desc="installs an SSL cert/key pair onto an app"
+  declare APP="$1" CRT_FILE="$2" KEY_FILE="$3"
+  local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
+
+  if [[ -z "$CRT_FILE" ]] || [[ -z "$KEY_FILE" ]]; then
+    dokku_log_fail "Both CRT and KEY file paths are required"
+  fi
+
+  if [[ ! -r "$CRT_FILE" ]]; then
+    dokku_log_fail "CRT file specified not found, please check file paths"
+  fi
+
+  if [[ ! -r "$KEY_FILE" ]]; then
+    dokku_log_fail "KEY file specified not found, please check file paths"
+  fi
+
+  mkdir -p "$APP_SSL_PATH"
+  rm -f "$APP_SSL_PATH/server.crt" "$APP_SSL_PATH/server.key"
+  cp "$CRT_FILE" "$APP_SSL_PATH/server.crt"
+  cp "$KEY_FILE" "$APP_SSL_PATH/server.key"
+  chmod 750 "$APP_SSL_PATH"
+  chmod 640 "$APP_SSL_PATH/server.crt" "$APP_SSL_PATH/server.key"
+  plugn trigger post-certs-update "$APP"
+  plugn trigger post-domains-update "$APP"
+}
+
+fn-certs-remove() {
+  declare desc="removes the SSL cert/key pair from an app"
+  declare APP="$1"
+  local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
+
+  if [[ ! -d "$APP_SSL_PATH" ]]; then
+    dokku_log_fail "An app-specific SSL endpoint is not defined"
+  fi
+
+  dokku_log_info1 "Removing SSL endpoint from $APP"
+  rm -rf "$APP_SSL_PATH"
+  plugn trigger post-certs-remove "$APP"
+  plugn trigger post-domains-update "$APP"
+}
+
 cmd-certs-report() {
   declare desc="displays an ssl report for one or more apps"
   declare cmd="certs:report"
