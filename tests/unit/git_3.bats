@@ -770,7 +770,7 @@ teardown() {
 }
 
 @test "(git:sync) --skip-deploy-branch" {
-  run /bin/bash -c "dokku git:report $TEST_APP --git-deploy-branch"
+  run /bin/bash -c "dokku git:report $TEST_APP --git-computed-deploy-branch"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -798,7 +798,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku git:report $TEST_APP --git-deploy-branch"
+  run /bin/bash -c "dokku git:report $TEST_APP --git-computed-deploy-branch"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -810,7 +810,7 @@ teardown() {
   assert_success
   assert_output_contains "skipping deploy-branch setting"
 
-  run /bin/bash -c "dokku git:report $TEST_APP --git-deploy-branch"
+  run /bin/bash -c "dokku git:report $TEST_APP --git-computed-deploy-branch"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -818,7 +818,7 @@ teardown() {
 }
 
 @test "(git:sync) --build --skip-deploy-branch" {
-  run /bin/bash -c "dokku git:report $TEST_APP --git-deploy-branch"
+  run /bin/bash -c "dokku git:report $TEST_APP --git-computed-deploy-branch"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -831,7 +831,7 @@ teardown() {
   assert_output_contains "skipping deploy-branch setting"
   assert_output_contains "Application deployed"
 
-  run /bin/bash -c "dokku git:report $TEST_APP --git-deploy-branch"
+  run /bin/bash -c "dokku git:report $TEST_APP --git-computed-deploy-branch"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -839,7 +839,7 @@ teardown() {
 }
 
 @test "(git:sync) --build-if-changes --skip-deploy-branch" {
-  run /bin/bash -c "dokku git:report $TEST_APP --git-deploy-branch"
+  run /bin/bash -c "dokku git:report $TEST_APP --git-computed-deploy-branch"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -852,7 +852,7 @@ teardown() {
   assert_output_contains "skipping deploy-branch setting"
   assert_output_contains "Application deployed"
 
-  run /bin/bash -c "dokku git:report $TEST_APP --git-deploy-branch"
+  run /bin/bash -c "dokku git:report $TEST_APP --git-computed-deploy-branch"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -864,7 +864,7 @@ teardown() {
   assert_success
   assert_output_contains "Skipping build as no changes were detected"
 
-  run /bin/bash -c "dokku git:report $TEST_APP --git-deploy-branch"
+  run /bin/bash -c "dokku git:report $TEST_APP --git-computed-deploy-branch"
   echo "output: $output"
   echo "status: $status"
   assert_success

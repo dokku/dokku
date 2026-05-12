@@ -17,6 +17,12 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-computed-deploy-branch"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
   assert_output "master"
 
   run /bin/bash -c "dokku git:set $TEST_APP deploy-branch main"
@@ -30,6 +36,29 @@ teardown() {
   assert_success
   assert_output "main"
 
+  run /bin/bash -c "dokku git:report $TEST_APP --git-computed-deploy-branch"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "main"
+
+  run /bin/bash -c "dokku git:set $TEST_APP deploy-branch"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-deploy-branch"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-computed-deploy-branch"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "master"
+
   run /bin/bash -c "dokku git:report $TEST_APP --git-sha"
   echo "output: $output"
   echo "status: $status"
@@ -40,6 +69,80 @@ teardown() {
   echo "status: $status"
   assert_failure
   assert_output_contains "Invalid flag passed"
+}
+
+@test "(git:report) keep-git-dir raw vs computed" {
+  run /bin/bash -c "dokku git:report $TEST_APP --git-keep-git-dir"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-computed-keep-git-dir"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku git:set $TEST_APP keep-git-dir true"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-keep-git-dir"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-computed-keep-git-dir"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku git:set $TEST_APP keep-git-dir"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-keep-git-dir"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-computed-keep-git-dir"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
+}
+
+@test "(git:report) raw and computed keys in --format json" {
+  run /bin/bash -c "dokku git:report $TEST_APP --format json | jq -r '.\"deploy-branch\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku git:report $TEST_APP --format json | jq -r '.\"computed-deploy-branch\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "master"
+
+  run /bin/bash -c "dokku git:report $TEST_APP --format json | jq -r '.\"keep-git-dir\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku git:report $TEST_APP --format json | jq -r '.\"computed-keep-git-dir\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
 }
 
 @test "(git) git:help" {
