@@ -45,6 +45,7 @@ jobs:
   packer:
     name: packer
     runs-on: ubuntu-24.04
+    if: github.event.pull_request.user.login != 'dependabot[bot]'
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
