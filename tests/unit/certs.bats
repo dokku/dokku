@@ -87,6 +87,40 @@ teardown() {
   assert_success
 }
 
+@test "(certs:add) preserves explicit https:443 port mapping" {
+  run /bin/bash -c "dokku ports:set $TEST_APP http:80:80 https:443:443"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku certs:add $TEST_APP $BATS_TMPDIR/tls/server.crt $BATS_TMPDIR/tls/server.key"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku --quiet ports:report $TEST_APP --ports-map"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "http:80:80 https:443:443"
+}
+
+@test "(certs:add) adds default https:443 mapping when none exists" {
+  run /bin/bash -c "dokku ports:set $TEST_APP http:80:5000"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku certs:add $TEST_APP $BATS_TMPDIR/tls/server.crt $BATS_TMPDIR/tls/server.key"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku --quiet ports:report $TEST_APP --ports-map"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "http:80:5000 https:443:5000"
+}
+
 @test "(certs) certs:add with multiple dots in the filename" {
   run /bin/bash -c "dokku certs:add $TEST_APP $BATS_TMPDIR/tls/domain.com.crt $BATS_TMPDIR/tls/domain.com.key"
   echo "output: $output"
