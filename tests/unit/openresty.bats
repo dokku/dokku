@@ -26,6 +26,33 @@ teardown() {
   assert_output "https://acme-staging-v02.api.letsencrypt.org/directory"
 }
 
+@test "(openresty) global-only keys" {
+  for key in allowed-letsencrypt-domains-func-base64 image log-level letsencrypt-email letsencrypt-server; do
+    run /bin/bash -c "dokku openresty:set $TEST_APP $key somevalue"
+    echo "key: $key"
+    echo "output: $output"
+    echo "status: $status"
+    assert_failure
+    assert_output_contains "can only be set globally"
+  done
+
+  run /bin/bash -c "dokku openresty:set $TEST_APP bind-address-ipv4 127.0.0.1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku openresty:report $TEST_APP --openresty-bind-address-ipv4"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "127.0.0.1"
+
+  run /bin/bash -c "dokku openresty:set $TEST_APP bind-address-ipv4"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
 @test "(openresty) openresty:help" {
   run /bin/bash -c "dokku openresty"
   echo "output: $output"

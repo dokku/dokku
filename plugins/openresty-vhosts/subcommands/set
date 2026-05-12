@@ -11,6 +11,7 @@ cmd-openresty-set() {
   declare APP="$1" KEY="$2" VALUE="$3"
   local VALID_KEYS=("access-log-format" "access-log-path" "allowed-letsencrypt-domains-func-base64" "bind-address-ipv4" "bind-address-ipv6" "client-body-timeout" "client-header-timeout" "client-max-body-size" "error-log-path" "hsts" "hsts-include-subdomains" "hsts-preload" "hsts-max-age" "image" "keepalive-timeout" "log-level" "letsencrypt-email" "letsencrypt-server" "lingering-timeout" "proxy-buffer-size" "proxy-buffering" "proxy-buffers" "proxy-busy-buffers-size" "proxy-connect-timeout" "proxy-read-timeout" "send-timeout" "proxy-send-timeout" "underscore-in-headers" "x-forwarded-for-value" "x-forwarded-port-value" "x-forwarded-proto-value" "x-forwarded-ssl")
   local GLOBAL_KEYS=("allowed-letsencrypt-domains-func-base64" "image" "log-level" "letsencrypt-email" "letsencrypt-server")
+  local GLOBAL_ONLY_KEYS=("allowed-letsencrypt-domains-func-base64" "image" "log-level" "letsencrypt-email" "letsencrypt-server")
 
   [[ -z "$KEY" ]] && dokku_log_fail "No key specified"
 
@@ -23,6 +24,10 @@ cmd-openresty-set() {
       dokku_log_fail "The key '$KEY' cannot be set globally"
     fi
     verify_app_name "$APP"
+  fi
+
+  if fn-in-array "$KEY" "${GLOBAL_ONLY_KEYS[@]}" && [[ "$APP" != "--global" ]]; then
+    dokku_log_fail "The key '$KEY' can only be set globally"
   fi
 
   if [[ -n "$VALUE" ]]; then
