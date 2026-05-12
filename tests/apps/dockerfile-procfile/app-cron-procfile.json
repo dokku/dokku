@@ -1,0 +1,21 @@
+{
+  "cron": [
+    {
+      "command": "release",
+      "schedule": "5 5 5 5 5"
+    }
+  ],
+  "healthchecks": {
+    "web": [
+      {
+        "attempts": 2,
+        "content": "nodejs/express",
+        "name": "check-1",
+        "path": "/",
+        "timeout": 5,
+        "type": "startup",
+        "wait": 2
+      }
+    ]
+  }
+}

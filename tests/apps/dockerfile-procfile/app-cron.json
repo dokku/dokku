@@ -1,7 +1,7 @@
 {
   "cron": [
     {
-      "command": "python3 task.py",
+      "command": "echo hello-from-cron",
       "schedule": "5 5 5 5 5"
     }
   ],
@@ -9,7 +9,7 @@
     "web": [
       {
         "attempts": 2,
-        "content": "python/http.server",
+        "content": "nodejs/express",
         "name": "check-1",
         "path": "/",
         "timeout": 5,
@@ -20,10 +20,8 @@
   },
   "scripts": {
     "dokku": {
-      // this is a comment for the postdeploy script
-      "postdeploy": "touch /workspace/postdeploy.test",
-      // this is a comment for the predeploy script
-      "predeploy": "touch /workspace/predeploy.test"
+      "postdeploy": "touch /app/postdeploy.test",
+      "predeploy": "touch /app/predeploy.test"
     }
   }
 }

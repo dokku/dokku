@@ -3,6 +3,7 @@ package scheduler_k3s
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"encoding/base64"
 	"errors"
 	"fmt"
@@ -23,6 +24,7 @@ import (
 	nginxvhosts "github.com/dokku/dokku/plugins/nginx-vhosts"
 	resty "github.com/go-resty/resty/v2"
 	kedav1alpha1 "github.com/kedacore/keda/v2/apis/keda/v1alpha1"
+	"github.com/multiformats/go-base36"
 	"golang.org/x/sync/errgroup"
 	"gopkg.in/yaml.v3"
 	"helm.sh/helm/v3/pkg/strvals"
@@ -132,6 +134,23 @@ type WaitForPodBySelectorRunningInput struct {
 
 	// Waiter is the waiter function
 	Waiter func(ctx context.Context, clientset KubernetesClient, podName, namespace string) wait.ConditionWithContextFunc
+}
+
+type WaitForPodBySelectorCompletedInput struct {
+	// Clientset is the kubernetes clientset
+	Clientset KubernetesClient
+
+	// Namespace is the namespace to search in
+	Namespace string
+
+	// LabelSelector is the label selector to search for
+	LabelSelector string
+
+	// PodName is the pod name to search for
+	PodName string
+
+	// Timeout is the timeout in seconds to wait for the pod to reach a terminal phase
+	Timeout float64
 }
 
 type WaitForPodToExistInput struct {
@@ -1981,6 +2000,52 @@ func isPodReady(ctx context.Context, clientset KubernetesClient, podName, namesp
 	}
 }
 
+// waitForPodBySelectorCompleted polls the first pod matching the input
+// selector until it reaches a terminal phase (PodSucceeded / PodFailed) or
+// the timeout elapses. Used after a Follow=true StreamLogs returns, to
+// handle the kubelet -> apiserver phase propagation delay for short-lived
+// run pods.
+func waitForPodBySelectorCompleted(ctx context.Context, input WaitForPodBySelectorCompletedInput) (v1.Pod, error) {
+	pods, err := waitForPodToExist(ctx, WaitForPodToExistInput{
+		Clientset:     input.Clientset,
+		LabelSelector: input.LabelSelector,
+		Namespace:     input.Namespace,
+		PodName:       input.PodName,
+		RetryCount:    3,
+	})
+	if err != nil {
+		return v1.Pod{}, fmt.Errorf("Error waiting for pod to exist: %w", err)
+	}
+
+	if len(pods) == 0 {
+		return v1.Pod{}, fmt.Errorf("no pods in %s with selector %s", input.Namespace, input.LabelSelector)
+	}
+
+	podName := pods[0].Name
+	if input.PodName != "" {
+		podName = input.PodName
+	}
+
+	timeout := time.Duration(input.Timeout * float64(time.Second))
+	var pod v1.Pod
+	err = wait.PollUntilContextTimeout(ctx, time.Second, timeout, true, func(ctx context.Context) (bool, error) {
+		p, err := input.Clientset.GetPod(ctx, GetPodInput{
+			Name:      podName,
+			Namespace: input.Namespace,
+		})
+		if err != nil {
+			return false, err
+		}
+		pod = p
+		switch p.Status.Phase {
+		case v1.PodSucceeded, v1.PodFailed:
+			return true, nil
+		}
+		return false, nil
+	})
+	return pod, err
+}
+
 // kubernetesNodeToNode converts a kubernetes node to a Node
 func kubernetesNodeToNode(node v1.Node) Node {
 	roles := []string{}
@@ -2016,6 +2081,14 @@ func kubernetesNodeToNode(node v1.Node) Node {
 		RemoteHost: remoteHost,
 		Version:    node.Status.NodeInfo.KubeletVersion,
 	}
+}
+
+// cronIDLabelValue returns a Kubernetes-label-safe hash of a cron ID.
+// The raw cron ID can exceed the 63-byte label cap, so we keep it as an
+// annotation and use this short hash for selectors.
+func cronIDLabelValue(cronID string) string {
+	sum := sha256.Sum256([]byte(cronID))
+	return base36.EncodeToStringLc(sum[:16])
 }
 
 // parseMemoryQuantity parses a string into a valid memory quantity

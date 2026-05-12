@@ -29,6 +29,7 @@ import (
 	"github.com/ryanuber/columnize"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/core/v1"
+	"k8s.io/kubectl/pkg/util/term"
 	"k8s.io/kubernetes/pkg/client/conditions"
 )
 
@@ -281,7 +282,7 @@ func TriggerSchedulerCronWrite(scheduler string, appName string) error {
 	for _, cronTask := range cronTasks {
 		labelSelector := []string{
 			fmt.Sprintf("app.kubernetes.io/part-of=%s", appName),
-			fmt.Sprintf("dokku.com/cron-id=%s", cronTask.ID),
+			fmt.Sprintf("dokku.com/cron-hash=%s", cronIDLabelValue(cronTask.ID)),
 		}
 
 		if cronTask.Maintenance {
@@ -789,7 +790,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 		// todo: implement pod annotations
 		suffix := ""
 		for _, cronJob := range cronJobs {
-			if cronJob.Labels["dokku.com/cron-id"] == cronTask.ID {
+			if cronJob.Annotations["dokku.com/cron-id"] == cronTask.ID {
 				var ok bool
 				suffix, ok = cronJob.Annotations["dokku.com/job-suffix"]
 				if !ok {
@@ -842,6 +843,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 			Annotations: annotations,
 			Cron: ProcessCron{
 				ID:                cronTask.ID,
+				Hash:              cronIDLabelValue(cronTask.ID),
 				Schedule:          cronTask.Schedule,
 				Suffix:            suffix,
 				Suspend:           cronTask.Maintenance,
@@ -1367,26 +1369,25 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 	processType := "run"
 	if os.Getenv("DOKKU_CRON_ID") != "" {
 		processType = "cron"
-		labels["dokku.com/cron-id"] = os.Getenv("DOKKU_CRON_ID")
+		cronHash := cronIDLabelValue(os.Getenv("DOKKU_CRON_ID"))
+		labels["dokku.com/cron-hash"] = cronHash
 		concurrencyPolicy := strings.ToUpper(os.Getenv("DOKKU_CONCURRENCY_POLICY"))
 		switch concurrencyPolicy {
 		case "forbid":
-			// check if there is a running pod with the same dokku.com/cron-id label
 			pods, err := clientset.ListPods(context.Background(), ListPodsInput{
 				Namespace:     namespace,
-				LabelSelector: fmt.Sprintf("dokku.com/cron-id=%s", os.Getenv("DOKKU_CRON_ID")),
+				LabelSelector: fmt.Sprintf("dokku.com/cron-hash=%s", cronHash),
 			})
 			if err != nil {
 				return fmt.Errorf("Error listing pods: %w", err)
 			}
 			if len(pods) > 0 {
-				return fmt.Errorf("There is a running pod with the same dokku.com/cron-id label")
+				return fmt.Errorf("There is a running pod with the same dokku.com/cron-hash label")
 			}
 		case "replace":
-			// delete any existing pod with the same dokku.com/cron-id label
 			err := clientset.DeletePod(context.Background(), DeletePodInput{
 				Namespace:     namespace,
-				LabelSelector: fmt.Sprintf("dokku.com/cron-id=%s", os.Getenv("DOKKU_CRON_ID")),
+				LabelSelector: fmt.Sprintf("dokku.com/cron-hash=%s", cronHash),
 			})
 			if err != nil {
 				return fmt.Errorf("Error deleting pod: %w", err)
@@ -1409,16 +1410,22 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 			Trigger: "procfile-get-command",
 			Args:    []string{appName, args[0], "5000"},
 		})
-		if err == nil && resp.Stdout != "" {
+		if err == nil && resp.StdoutContents() != "" {
 			common.LogInfo1Quiet(fmt.Sprintf("Found '%s' in Procfile, running that command", args[0]))
-			return err
+			words, err := shellquote.Split(resp.StdoutContents())
+			if err != nil {
+				return fmt.Errorf("Error parsing Procfile command: %w", err)
+			}
+			command = words
 		}
-		// todo: run command in procfile
 	}
 
 	entrypoint := ""
-	if imageSourceType == "herokuish" {
+	switch imageSourceType {
+	case "herokuish":
 		entrypoint = "/exec"
+	case "pack":
+		entrypoint = "launcher"
 	}
 
 	helmAgent, err := NewHelmAgent(namespace, DevNullPrinter)
@@ -1449,6 +1456,12 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 	}
 
 	attachToPod := os.Getenv("DOKKU_DETACH_CONTAINER") != "1"
+
+	forceTTY := common.ToBool(os.Getenv("DOKKU_FORCE_TTY"))
+	disableTTY := common.ToBool(os.Getenv("DOKKU_DISABLE_TTY"))
+	ttyProbe := term.TTY{Out: os.Stdout}
+	hasTTY := ttyProbe.MonitorSize(ttyProbe.GetSize()) != nil
+	streamLogsOnly := attachToPod && !forceTTY && (disableTTY || !hasTTY)
 
 	imagePullSecrets := getComputedImagePullSecrets(appName)
 	if imagePullSecrets == "" {
@@ -1482,7 +1495,7 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 	workingDir := common.GetWorkingDir(appName, image)
 	job, err := templateKubernetesJob(Job{
 		AppName:               appName,
-		Command:               []string{commandShell},
+		Command:               command,
 		DeploymentID:          deploymentID,
 		Entrypoint:            entrypoint,
 		Env:                   extraEnv,
@@ -1559,9 +1572,45 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 		Clientset:     clientset,
 		Namespace:     namespace,
 		LabelSelector: batchJobSelector,
-		Timeout:       10,
+		Timeout:       30,
 		Waiter:        isPodReady,
 	})
+	if streamLogsOnly && (err == nil || errors.Is(err, conditions.ErrPodCompleted)) {
+		if streamErr := clientset.StreamLogs(ctx, StreamLogsInput{
+			Follow:        true,
+			LabelSelector: []string{batchJobSelector},
+			Namespace:     namespace,
+			Quiet:         true,
+		}); streamErr != nil {
+			return fmt.Errorf("Error streaming logs: %w", streamErr)
+		}
+
+		selectedPod, waitErr := waitForPodBySelectorCompleted(ctx, WaitForPodBySelectorCompletedInput{
+			Clientset:     clientset,
+			Namespace:     namespace,
+			LabelSelector: batchJobSelector,
+			Timeout:       10,
+		})
+		if waitErr != nil {
+			return fmt.Errorf("Pod did not reach terminal state after logs streamed: %w", waitErr)
+		}
+		switch selectedPod.Status.Phase {
+		case v1.PodSucceeded:
+			return nil
+		case v1.PodFailed:
+			for _, status := range selectedPod.Status.ContainerStatuses {
+				if status.Name != fmt.Sprintf("%s-%s", appName, processType) {
+					continue
+				}
+				if status.State.Terminated == nil {
+					continue
+				}
+				return fmt.Errorf("Unable to attach as the pod has already exited with a failed exit code: %s", status.State.Terminated.Message)
+			}
+			return fmt.Errorf("Unable to attach as the pod has already exited with a failed exit code")
+		}
+		return fmt.Errorf("Unable to attach as the pod is in an unknown state: %s", selectedPod.Status.Phase)
+	}
 	if err != nil {
 		if errors.Is(err, conditions.ErrPodCompleted) {
 			pods, podErr := clientset.ListPods(ctx, ListPodsInput{
@@ -1699,9 +1748,9 @@ func TriggerSchedulerRunList(scheduler string, appName string, format string) er
 			}
 		}
 
-		cronID, ok := cronJob.Labels["dokku.com/cron-id"]
+		cronID, ok := cronJob.Annotations["dokku.com/cron-id"]
 		if !ok {
-			common.LogWarn(fmt.Sprintf("Cron job %s does not have a cron ID label", cronJob.Name))
+			common.LogWarn(fmt.Sprintf("Cron job %s does not have a cron ID annotation", cronJob.Name))
 			continue
 		}
 

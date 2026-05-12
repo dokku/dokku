@@ -16,15 +16,15 @@ kind: Deployment
 metadata:
   annotations:
     app.kubernetes.io/version: {{ $.Values.global.deployment_id | quote }}
-    dokku.com/builder-type: {{ $.Values.global.image.type }}
+    dokku.com/builder-type: {{ $.Values.global.image.type | quote }}
     dokku.com/managed: "true"
-    kubectl.kubernetes.io/default-container: {{ $.Values.global.app_name }}-{{ $processName }}
+    kubectl.kubernetes.io/default-container: {{ printf "%s-%s" $.Values.global.app_name $processName | quote }}
     {{ include "print.annotations" (dict "config" $.Values.global "key" "deployment") | indent 4 }}
     {{ include "print.annotations" (dict "config" $config "key" "deployment") | indent 4 }}
   labels:
-    app.kubernetes.io/instance: {{ $.Values.global.app_name }}-{{ $processName }}
-    app.kubernetes.io/name: {{ $processName }}
-    app.kubernetes.io/part-of: {{ $.Values.global.app_name }}
+    app.kubernetes.io/instance: {{ printf "%s-%s" $.Values.global.app_name $processName | quote }}
+    app.kubernetes.io/name: {{ $processName | quote }}
+    app.kubernetes.io/part-of: {{ $.Values.global.app_name | quote }}
     {{ include "print.labels" (dict "config" $.Values.global "key" "deployment") | indent 4 }}
     {{ include "print.labels" (dict "config" $config "key" "deployment") | indent 4 }}
   name: {{ $.Values.global.app_name }}-{{ $processName }}
@@ -62,6 +62,10 @@ spec:
       - args:
         {{- range $config.args }}
         - {{ . }}
+        {{- end }}
+        {{- if and (eq $.Values.global.image.type "pack") $config.args }}
+        command:
+        - launcher
         {{- end }}
         {{- if hasKey $config "web" }}
         env:
