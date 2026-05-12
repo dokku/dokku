@@ -376,11 +376,13 @@ cmd-git-report-single() {
   else
     verify_app_name "$APP"
     flag_map=(
-      "--git-deploy-branch: $(fn-plugin-property-get "git" "$APP" "deploy-branch" "master")"
+      "--git-computed-deploy-branch: $(fn-git-deploy-branch "$APP")"
+      "--git-computed-keep-git-dir: $(fn-git-keep-git-dir "$APP")"
+      "--git-deploy-branch: $(fn-plugin-property-get "git" "$APP" "deploy-branch" "")"
       "--git-global-archive-max-files: $(fn-plugin-property-get "git" "--global" "archive-max-files" "10000")"
       "--git-global-archive-max-size: $(fn-plugin-property-get "git" "--global" "archive-max-size" "1073741824")"
       "--git-global-deploy-branch: $(fn-plugin-property-get "git" "--global" "deploy-branch" "master")"
-      "--git-keep-git-dir: $(fn-plugin-property-get "git" "$APP" "keep-git-dir" "false")"
+      "--git-keep-git-dir: $(fn-plugin-property-get "git" "$APP" "keep-git-dir" "")"
       "--git-rev-env-var: $(fn-plugin-property-get "git" "$APP" "rev-env-var" "GIT_REV")"
       "--git-sha: $(fn-git-cmd "$APP_ROOT" rev-parse HEAD 2>/dev/null || false)"
       "--git-source-image: $(fn-git-source-image "$APP")"
@@ -607,9 +609,22 @@ fn-git-deploy-branch() {
   fi
 }
 
+fn-git-keep-git-dir() {
+  declare desc="retrieve the keep-git-dir value for a given application"
+  local APP="$1"
+  local DEFAULT_KEEP_GIT_DIR="${2-false}"
+
+  local DOKKU_KEEP_GIT_DIR="$(fn-plugin-property-get "git" "$APP" "keep-git-dir" "")"
+  if [[ -n "$DOKKU_KEEP_GIT_DIR" ]]; then
+    echo "$DOKKU_KEEP_GIT_DIR"
+  else
+    echo "$DEFAULT_KEEP_GIT_DIR"
+  fi
+}
+
 fn-git-setup-build-dir() {
   declare APP="$1" GIT_WORKDIR="$2" REV="$3"
-  local DOKKU_KEEP_GIT_DIR="$(fn-plugin-property-get "git" "$APP" "keep-git-dir" "")"
+  local DOKKU_KEEP_GIT_DIR="$(fn-git-keep-git-dir "$APP")"
 
   if [[ "$DOKKU_KEEP_GIT_DIR" == "true" ]]; then
     fn-git-setup-build-dir-new "$APP" "$GIT_WORKDIR" "$REV"
@@ -656,7 +671,7 @@ fn-git-setup-build-dir-worktree() {
 
 fn-git-setup-build-dir-submodules() {
   declare APP="$1" GIT_WORKDIR="$2"
-  local DOKKU_KEEP_GIT_DIR="$(fn-plugin-property-get "git" "$APP" "keep-git-dir" "")"
+  local DOKKU_KEEP_GIT_DIR="$(fn-git-keep-git-dir "$APP")"
 
   # unset the git quarantine path to allow us to use 2.13.0+
   # See this issue for more information: https://github.com/dokku/dokku/issues/2796
