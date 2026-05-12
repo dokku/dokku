@@ -1,5 +1,43 @@
 # History
 
+## 0.38.4
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.38.4/bootstrap.sh
+sudo DOKKU_TAG=v0.38.4 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #8615: @josegonzalez Reject per-app sets for openresty global-only properties
+- #8613: @josegonzalez Expose raw deploy-branch and keep-git-dir in git:report
+- #8549: @josegonzalez Route CNB images through launcher on scheduler-k3s
+
+### New Features
+
+- #8614: @josegonzalez Split scheduler-docker-local report into raw, computed, and global
+
+### Documentation
+
+- #8603: @cheif Add `dokku-http-oauth` to community plugins
+
+### Tests
+
+- #8618: @josegonzalez Isolate scheduler-k3s registry tags per bats file
+- #8616: @josegonzalez Migrate from junit_files to files in EnricoMi/publish-unit-test-result-action
+- #8617: @josegonzalez Upgrade actions in shared build-image compose action
+- #8609: @josegonzalez Skip packer lint job on dependabot PRs
+- #8604: @dependabot[bot] chore(deps): bump python from 3.14.3-bookworm to 3.15.0b1-bookworm in /tests/apps/dockerfile-release
+
+### Dependencies
+
+- #8606: @dependabot[bot] chore(deps): bump golang.org/x/crypto from 0.50.0 to 0.51.0 in /plugins/common
+- #8608: @dependabot[bot] chore(deps): bump github.com/traefik/traefik/v2 from 2.11.45 to 2.11.46 in /plugins/scheduler-k3s
+- #8607: @dependabot[bot] chore(deps): bump dokku/openresty-docker-proxy from 0.10.0 to 0.11.0 in /plugins/openresty-vhosts
+- #8605: @dependabot[bot] chore(deps): bump python from 3.14.3-alpine to 3.15.0b1-alpine in /docs/_build
+
 ## 0.38.3
 
 Install/update via the bootstrap script:
