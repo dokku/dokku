@@ -228,7 +228,7 @@ destroy_key() {
   rm -f /tmp/testkey* &>/dev/null || true
 }
 
-# Run a plugn trigger with the env vars plugn needs, capturing $output/$status via bats `run`.
+# Run a plugn trigger via `dokku plugin:trigger`, capturing $output/$status via bats `run`.
 # Optional VAR=VAL pairs before <trigger> are forwarded as extra env vars on the bash command line.
 # Usage: run_plugn_trigger [VAR=VAL ...] <trigger> <args...>
 run_plugn_trigger() {
@@ -239,7 +239,7 @@ run_plugn_trigger() {
   done
   local TRIGGER="$1"
   shift
-  run /bin/bash -c "DOKKU_ROOT=$DOKKU_ROOT PLUGIN_PATH=$PLUGIN_PATH PLUGIN_AVAILABLE_PATH=$PLUGIN_AVAILABLE_PATH PLUGIN_ENABLED_PATH=$PLUGIN_ENABLED_PATH PLUGIN_CORE_AVAILABLE_PATH=$PLUGIN_CORE_AVAILABLE_PATH DOKKU_LIB_ROOT=$DOKKU_LIB_ROOT${extra_env} plugn trigger $TRIGGER $* < /dev/null"
+  run /bin/bash -c "${extra_env} dokku plugin:trigger $TRIGGER $* < /dev/null"
 }
 
 # Run a single plugin's trigger script directly so other plugins' handlers do not fire.
