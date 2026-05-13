@@ -9,6 +9,7 @@ setup() {
 }
 
 teardown() {
+  sudo systemctl start coredns-docker >/dev/null 2>&1 || true
   dokku --quiet nginx:set --global dns-resolver
   dokku --quiet nginx:set --global dns-zone
   destroy_app
@@ -136,4 +137,28 @@ teardown() {
   assert_output_not_contains "resolver 127.0.0.1:1053"
   assert_output_not_contains "\$dokku_upstream"
   assert_output_contains "upstream ${TEST_APP}-"
+}
+
+@test "(nginx-vhosts) nginx returns 502 when coredns-docker is stopped" {
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run sudo systemctl stop coredns-docker
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run curl --connect-to "$TEST_APP.$DOKKU_DOMAIN:80:localhost:80" -kSso /dev/null -w "%{http_code}" -m 5 "http://$TEST_APP.$DOKKU_DOMAIN/"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "502"
+
+  run sudo systemctl start coredns-docker
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  assert_http_localhost_response http "$TEST_APP.$DOKKU_DOMAIN" 80 / "" 200
 }
