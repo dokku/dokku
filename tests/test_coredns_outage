@@ -18,31 +18,31 @@ cleanup() {
 
 stop_coredns_docker() {
   case "$SCOPE" in
-  docker)
-    docker exec dokku sv stop coredns-docker
-    ;;
-  host)
-    sudo systemctl stop coredns-docker
-    ;;
-  *)
-    echo "Unknown scope: $SCOPE"
-    exit 1
-    ;;
+    docker)
+      docker exec dokku sv stop coredns-docker
+      ;;
+    host)
+      sudo systemctl stop coredns-docker
+      ;;
+    *)
+      echo "Unknown scope: $SCOPE"
+      exit 1
+      ;;
   esac
 }
 
 start_coredns_docker() {
   case "$SCOPE" in
-  docker)
-    docker exec dokku sv start coredns-docker
-    ;;
-  host)
-    sudo systemctl start coredns-docker
-    ;;
-  *)
-    echo "Unknown scope: $SCOPE"
-    exit 1
-    ;;
+    docker)
+      docker exec dokku sv start coredns-docker
+      ;;
+    host)
+      sudo systemctl start coredns-docker
+      ;;
+    *)
+      echo "Unknown scope: $SCOPE"
+      exit 1
+      ;;
   esac
 }
 
