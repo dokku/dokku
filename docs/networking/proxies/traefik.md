@@ -331,42 +331,29 @@ dokku traefik:report
 
 ```
 =====> node-js-app traefik information
-       Traefik api enabled:           false
-       Traefik api vhost:             traefik.dokku.me
-       Traefik basic auth password:   password
-       Traefik basic auth username:   user
-       Traefik challenge mode:        tls
-       Traefik dashboard enabled:     false
-       Traefik dns provider:
-       Traefik image:                 traefik:v2.8
-       Traefik letsencrypt email:
-       Traefik letsencrypt server:
-       Traefik log level:             ERROR
-=====> python-app traefik information
-       Traefik api enabled:           false
-       Traefik api vhost:             traefik.dokku.me
-       Traefik basic auth password:   password
-       Traefik basic auth username:   user
-       Traefik challenge mode:        tls
-       Traefik dashboard enabled:     false
-       Traefik dns provider:
-       Traefik image:                 traefik:v2.8
-       Traefik letsencrypt email:
-       Traefik letsencrypt server:
-       Traefik log level:             ERROR
-=====> ruby-app traefik information
-       Traefik api enabled:           false
-       Traefik api vhost:             traefik.dokku.me
-       Traefik basic auth password:   password
-       Traefik basic auth username:   user
-       Traefik challenge mode:        tls
-       Traefik dashboard enabled:     false
-       Traefik dns provider:
-       Traefik image:                 traefik:v2.8
-       Traefik letsencrypt email:
-       Traefik letsencrypt server:
-       Traefik log level:             ERROR
+       Traefik computed api enabled:      false
+       Traefik computed api vhost:        traefik.dokku.me
+       Traefik computed challenge mode:   tls
+       Traefik computed dashboard enabled: false
+       Traefik computed http entry point: http
+       Traefik computed https entry point: https
+       Traefik computed image:            traefik:v2.8
+       Traefik computed letsencrypt email:
+       Traefik computed letsencrypt server: https://acme-v02.api.letsencrypt.org/directory
+       Traefik computed log level:        ERROR
+       Traefik global api enabled:
+       Traefik global api vhost:
+       Traefik global challenge mode:
+       Traefik global dashboard enabled:
+       Traefik global http entry point:
+       Traefik global https entry point:
+       Traefik global image:
+       Traefik global letsencrypt email:
+       Traefik global letsencrypt server:
+       Traefik global log level:
 ```
+
+The `global-<prop>` keys hold the raw global value and are empty when nothing has been set globally. The `computed-<prop>` keys hold the effective value used at deploy time, falling back to the built-in default when the global value is empty.
 
 You can run the command for a specific app also.
 
@@ -376,21 +363,30 @@ dokku traefik:report node-js-app
 
 ```
 =====> node-js-app traefik information
-       Traefik api enabled:           false
-       Traefik api vhost:             traefik.dokku.me
-       Traefik basic auth password:   password
-       Traefik basic auth username:   user
-       Traefik challenge mode:        tls
-       Traefik dashboard enabled:     false
-       Traefik dns provider:
-       Traefik image:                 traefik:v2.8
-       Traefik letsencrypt email:
-       Traefik letsencrypt server:
-       Traefik log level:             ERROR
+       Traefik computed api enabled:      false
+       Traefik computed api vhost:        traefik.dokku.me
+       Traefik computed challenge mode:   tls
+       Traefik computed dashboard enabled: false
+       Traefik computed http entry point: http
+       Traefik computed https entry point: https
+       Traefik computed image:            traefik:v2.8
+       Traefik computed letsencrypt email:
+       Traefik computed letsencrypt server: https://acme-v02.api.letsencrypt.org/directory
+       Traefik computed log level:        ERROR
+       Traefik global api enabled:
+       Traefik global api vhost:
+       Traefik global challenge mode:
+       Traefik global dashboard enabled:
+       Traefik global http entry point:
+       Traefik global https entry point:
+       Traefik global image:
+       Traefik global letsencrypt email:
+       Traefik global letsencrypt server:
+       Traefik global log level:
 ```
 
 You can pass flags which will output only the value of the specific information you want. For example:
 
 ```shell
-dokku traefik:report node-js-app --traefik-api-enabled
+dokku traefik:report node-js-app --traefik-computed-api-enabled
 ```

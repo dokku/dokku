@@ -101,17 +101,19 @@ dokku app-json:report
 ```
 =====> node-js-app app-json information
        App-json computed appjson path: app2.json
-       App-json global appjson path:   app.json
+       App-json global appjson path:
        App-json appjson path:          app2.json
 =====> python-sample app-json information
        App-json computed appjson path: app.json
-       App-json global appjson path:   app.json
+       App-json global appjson path:
        App-json appjson path:
 =====> ruby-sample app-json information
        App-json computed appjson path: app.json
-       App-json global appjson path:   app.json
+       App-json global appjson path:
        App-json appjson path:
 ```
+
+The `appjson-path` and `global-appjson-path` keys hold the raw per-app and global value respectively, and are empty when nothing has been set. The `computed-appjson-path` key holds the effective value used at deploy time, falling back to the global value (where one has been set) and then to the built-in default of `app.json`.
 
 You can run the command for a specific app also.
 
@@ -122,7 +124,7 @@ dokku app-json:report node-js-app
 ```
 =====> node-js-app app-json information
        App-json computed appjson path: app2.json
-       App-json global appjson path:   app.json
+       App-json global appjson path:
        App-json appjson path:          app2.json
 ```
 

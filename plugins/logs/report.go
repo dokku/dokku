@@ -20,11 +20,13 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 	var flags map[string]common.ReportFunc
 	if appName == "--global" {
 		flags = map[string]common.ReportFunc{
-			"--logs-global-app-label-alias": reportGlobalAppLabelAlias,
-			"--logs-global-max-size":        reportGlobalMaxSize,
-			"--logs-global-vector-sink":     reportGlobalVectorSink,
-			"--logs-vector-global-image":    reportVectorGlobalImage,
-			"--logs-vector-global-networks": reportVectorGlobalNetworks,
+			"--logs-computed-app-label-alias": reportComputedAppLabelAlias,
+			"--logs-computed-max-size":        reportComputedMaxSize,
+			"--logs-global-app-label-alias":   reportGlobalAppLabelAlias,
+			"--logs-global-max-size":          reportGlobalMaxSize,
+			"--logs-global-vector-sink":       reportGlobalVectorSink,
+			"--logs-vector-global-image":      reportVectorGlobalImage,
+			"--logs-vector-global-networks":   reportVectorGlobalNetworks,
 		}
 	} else {
 		flags = map[string]common.ReportFunc{
@@ -57,12 +59,15 @@ func reportComputedAppLabelAlias(appName string) string {
 	if value == "" {
 		value = reportGlobalAppLabelAlias(appName)
 	}
+	if value == "" {
+		value = AppLabelAlias
+	}
 
 	return value
 }
 
 func reportGlobalAppLabelAlias(appName string) string {
-	return common.PropertyGetDefault("logs", "--global", "app-label-alias", AppLabelAlias)
+	return common.PropertyGet("logs", "--global", "app-label-alias")
 }
 
 func reportAppLabelAlias(appName string) string {
@@ -74,12 +79,15 @@ func reportComputedMaxSize(appName string) string {
 	if value == "" {
 		value = reportGlobalMaxSize(appName)
 	}
+	if value == "" {
+		value = MaxSize
+	}
 
 	return value
 }
 
 func reportGlobalMaxSize(appName string) string {
-	return common.PropertyGetDefault("logs", "--global", "max-size", MaxSize)
+	return common.PropertyGet("logs", "--global", "max-size")
 }
 
 func reportVectorGlobalImage(appName string) string {

@@ -15,7 +15,8 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 	var flags map[string]common.ReportFunc
 	if appName == "--global" {
 		flags = map[string]common.ReportFunc{
-			"--scheduler-global-selected": reportGlobalSelected,
+			"--scheduler-computed-selected": reportComputedSelected,
+			"--scheduler-global-selected":   reportGlobalSelected,
 		}
 	} else {
 		flags = map[string]common.ReportFunc{
@@ -41,12 +42,15 @@ func reportComputedSelected(appName string) string {
 	if value == "" {
 		value = reportGlobalSelected(appName)
 	}
+	if value == "" {
+		value = "docker-local"
+	}
 
 	return value
 }
 
 func reportGlobalSelected(appName string) string {
-	return common.PropertyGetDefault("scheduler", "--global", "selected", "docker-local")
+	return common.PropertyGet("scheduler", "--global", "selected")
 }
 
 func reportSelected(appName string) string {

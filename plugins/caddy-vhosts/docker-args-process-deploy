@@ -68,7 +68,7 @@ trigger-caddy-vhosts-docker-args-process-deploy() {
     fi
   done < <(plugn trigger ports-get "$APP")
 
-  letsencrypt_email="$(fn-caddy-letsencrypt-email)"
+  letsencrypt_email="$(fn-caddy-computed-letsencrypt-email)"
   if [[ -n "$letsencrypt_email" ]] && [[ -z "$proxy_container_https_port" ]]; then
     proxy_container_https_port_candidate="$proxy_container_http_port_candidate"
     proxy_host_https_port_candidate="$proxy_host_http_port_candidate"

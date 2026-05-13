@@ -68,7 +68,7 @@ trigger-traefik-vhosts-docker-args-process-deploy() {
     fi
   done < <(plugn trigger ports-get "$APP")
 
-  letsencrypt_email="$(fn-traefik-letsencrypt-email)"
+  letsencrypt_email="$(fn-traefik-computed-letsencrypt-email)"
   if [[ -n "$letsencrypt_email" ]] && [[ -z "$proxy_container_https_port" ]]; then
     proxy_container_https_port_candidate="$proxy_container_http_port_candidate"
     proxy_host_https_port_candidate="$proxy_host_http_port_candidate"
@@ -107,7 +107,7 @@ trigger-traefik-vhosts-docker-args-process-deploy() {
       fi
 
       output="$output --label traefik.http.services.$APP-$PROC_TYPE-http.loadbalancer.server.port=$proxy_container_http_port"
-      output="$output --label traefik.http.routers.$APP-$PROC_TYPE-http.entrypoints=$(fn-traefik-http-entry-point)"
+      output="$output --label traefik.http.routers.$APP-$PROC_TYPE-http.entrypoints=$(fn-traefik-computed-http-entry-point)"
       output="$output --label traefik.http.routers.$APP-$PROC_TYPE-http.service=$APP-$PROC_TYPE-http"
       if [[ -n "$traefik_domains" ]]; then
         output="$output --label \"traefik.http.routers.$APP-$PROC_TYPE-http.rule=$traefik_domains\""
@@ -122,7 +122,7 @@ trigger-traefik-vhosts-docker-args-process-deploy() {
       fi
 
       output="$output --label traefik.http.services.$APP-$PROC_TYPE-https.loadbalancer.server.port=$proxy_container_https_port"
-      output="$output --label traefik.http.routers.$APP-$PROC_TYPE-https.entrypoints=$(fn-traefik-https-entry-point)"
+      output="$output --label traefik.http.routers.$APP-$PROC_TYPE-https.entrypoints=$(fn-traefik-computed-https-entry-point)"
       output="$output --label traefik.http.routers.$APP-$PROC_TYPE-https.service=$APP-$PROC_TYPE-https"
       output="$output --label traefik.http.routers.$APP-$PROC_TYPE-https.tls.certresolver=leresolver"
       if [[ -n "$traefik_domains" ]]; then

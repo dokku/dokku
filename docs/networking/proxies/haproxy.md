@@ -205,12 +205,19 @@ dokku haproxy:report
 
 ```
 =====> node-js-app haproxy information
-       Haproxy image:                   byjg/easy-haproxy:4.0.0
-=====> python-app haproxy information
-       Haproxy image:                   byjg/easy-haproxy:4.0.0
-=====> ruby-app haproxy information
-       Haproxy image:                   byjg/easy-haproxy:4.0.0
+       Haproxy computed image:           byjg/easy-haproxy:4.0.0
+       Haproxy computed letsencrypt email:
+       Haproxy computed letsencrypt server: https://acme-v02.api.letsencrypt.org/directory
+       Haproxy computed log level:       ERROR
+       Haproxy computed refresh conf:    10
+       Haproxy global image:
+       Haproxy global letsencrypt email:
+       Haproxy global letsencrypt server:
+       Haproxy global log level:
+       Haproxy global refresh conf:
 ```
+
+The `global-<prop>` keys hold the raw global value and are empty when nothing has been set globally. The `computed-<prop>` keys hold the effective value used at deploy time, falling back to the built-in default when the global value is empty.
 
 You can run the command for a specific app also.
 
@@ -220,11 +227,20 @@ dokku haproxy:report node-js-app
 
 ```
 =====> node-js-app haproxy information
-       Haproxy image:                   byjg/easy-haproxy:4.0.0
+       Haproxy computed image:           byjg/easy-haproxy:4.0.0
+       Haproxy computed letsencrypt email:
+       Haproxy computed letsencrypt server: https://acme-v02.api.letsencrypt.org/directory
+       Haproxy computed log level:       ERROR
+       Haproxy computed refresh conf:    10
+       Haproxy global image:
+       Haproxy global letsencrypt email:
+       Haproxy global letsencrypt server:
+       Haproxy global log level:
+       Haproxy global refresh conf:
 ```
 
 You can pass flags which will output only the value of the specific information you want. For example:
 
 ```shell
-dokku haproxy:report node-js-app --haproxy-image
+dokku haproxy:report node-js-app --haproxy-computed-image
 ```

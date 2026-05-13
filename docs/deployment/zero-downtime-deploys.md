@@ -95,21 +95,23 @@ dokku checks:report
        Checks disabled list: none
        Checks skipped list: none
        Checks computed wait to retire: 60
-       Checks global wait to retire: 60
+       Checks global wait to retire:
        Checks wait to retire:
 =====> python-app checks information
        Checks disabled list: none
        Checks skipped list: none
        Checks computed wait to retire: 60
-       Checks global wait to retire: 60
+       Checks global wait to retire:
        Checks wait to retire:
 =====> ruby-app checks information
        Checks disabled list: _all_
        Checks skipped list: none
        Checks computed wait to retire: 60
-       Checks global wait to retire: 60
+       Checks global wait to retire:
        Checks wait to retire:
 ```
+
+The `wait-to-retire` and `global-wait-to-retire` keys hold the raw per-app and global value respectively, and are empty when nothing has been set. The `computed-wait-to-retire` key holds the effective value used at deploy time, falling back to the global value (where one has been set) and then to the built-in default of `60`.
 
 You can run the command for a specific app also.
 
@@ -120,10 +122,10 @@ dokku checks:report node-js-app
 ```
 =====> node-js-app checks information
        Checks disabled list: none
-       Checks skipped list: none   
+       Checks skipped list: none
        Checks computed wait to retire: 60
-       Checks global wait to retire: 60
-       Checks wait to retire:       
+       Checks global wait to retire:
+       Checks wait to retire:
 ```
 
 You can pass flags which will output only the value of the specific information you want. For example:

@@ -220,35 +220,22 @@ dokku caddy:report
 
 ```
 =====> node-js-app caddy information
-       Caddy computed tls internal:   false
-       Caddy global tls internal:     false
-       Caddy image:                   lucaslorentz/caddy-docker-proxy:2.7
-       Caddy letsencrypt email:
-       Caddy letsencrypt server:
-       Caddy log level:               ERROR
-       Caddy polling interval:        5s
-       Caddy tls internal:
-=====> python-app caddy information
-       Caddy computed tls internal:   false
-       Caddy global tls internal:     false
-       Caddy image:                   lucaslorentz/caddy-docker-proxy:2.7
-       Caddy letsencrypt email:
-       Caddy letsencrypt server:
-       Caddy log level:               ERROR
-       Caddy polling interval:        5s
-       Caddy tls internal:
-=====> ruby-app caddy information
-       Caddy computed tls internal:   false
-       Caddy global tls internal:     false
-       Caddy image:                   lucaslorentz/caddy-docker-proxy:2.7
-       Caddy letsencrypt email:
-       Caddy letsencrypt server:
-       Caddy log level:               ERROR
-       Caddy polling interval:        5s
+       Caddy computed image:             lucaslorentz/caddy-docker-proxy:2.7
+       Caddy computed letsencrypt email:
+       Caddy computed letsencrypt server: https://acme-v02.api.letsencrypt.org/directory
+       Caddy computed log level:         ERROR
+       Caddy computed polling interval:  5s
+       Caddy computed tls internal:      false
+       Caddy global image:
+       Caddy global letsencrypt email:
+       Caddy global letsencrypt server:
+       Caddy global log level:
+       Caddy global polling interval:
+       Caddy global tls internal:
        Caddy tls internal:
 ```
 
-The `tls-internal` key holds the raw per-app value and is empty when nothing has been set on the app. The `computed-tls-internal` key holds the effective value used at deploy time, falling back to the global value and then to the built-in default of `false`. The `global-tls-internal` key holds the global value.
+The `global-<prop>` keys hold the raw global value and are empty when nothing has been set globally. The `computed-<prop>` keys hold the effective value used at deploy time, falling back to the global value (where one has been set) and then to the built-in default. The bare `tls-internal` key holds the raw per-app value.
 
 You can run the command for a specific app also.
 
@@ -258,18 +245,23 @@ dokku caddy:report node-js-app
 
 ```
 =====> node-js-app caddy information
-       Caddy computed tls internal:   false
-       Caddy global tls internal:     false
-       Caddy image:                   lucaslorentz/caddy-docker-proxy:2.7
-       Caddy letsencrypt email:
-       Caddy letsencrypt server:
-       Caddy log level:               ERROR
-       Caddy polling interval:        5s
+       Caddy computed image:             lucaslorentz/caddy-docker-proxy:2.7
+       Caddy computed letsencrypt email:
+       Caddy computed letsencrypt server: https://acme-v02.api.letsencrypt.org/directory
+       Caddy computed log level:         ERROR
+       Caddy computed polling interval:  5s
+       Caddy computed tls internal:      false
+       Caddy global image:
+       Caddy global letsencrypt email:
+       Caddy global letsencrypt server:
+       Caddy global log level:
+       Caddy global polling interval:
+       Caddy global tls internal:
        Caddy tls internal:
 ```
 
 You can pass flags which will output only the value of the specific information you want. For example:
 
 ```shell
-dokku caddy:report node-js-app --caddy-image
+dokku caddy:report node-js-app --caddy-computed-image
 ```

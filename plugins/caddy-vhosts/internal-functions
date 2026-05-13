@@ -36,35 +36,73 @@ fn-caddy-template-compose-file() {
   fi
 
   local SIGIL_PARAMS=(CADDY_DATA_DIR="${DOKKU_LIB_ROOT}/data/caddy"
-    CADDY_IMAGE="$(fn-caddy-image)"
-    CADDY_LETSENCRYPT_EMAIL="$(fn-caddy-letsencrypt-email)"
-    CADDY_LETSENCRYPT_SERVER="$(fn-caddy-letsencrypt-server)"
-    CADDY_LOG_LEVEL="$(fn-caddy-log-level)"
-    CADDY_POLLING_INTERVAL="$(fn-caddy-polling-interval)")
+    CADDY_IMAGE="$(fn-caddy-computed-image)"
+    CADDY_LETSENCRYPT_EMAIL="$(fn-caddy-computed-letsencrypt-email)"
+    CADDY_LETSENCRYPT_SERVER="$(fn-caddy-computed-letsencrypt-server)"
+    CADDY_LOG_LEVEL="$(fn-caddy-computed-log-level)"
+    CADDY_POLLING_INTERVAL="$(fn-caddy-computed-polling-interval)")
 
   sigil -f "$COMPOSE_TEMPLATE" "${SIGIL_PARAMS[@]}" | cat -s >"$OUTPUT_PATH"
 }
 
-fn-caddy-image() {
-  fn-plugin-property-get-default "caddy" "--global" "image" "$(grep "FROM" "$PLUGIN_AVAILABLE_PATH/caddy-vhosts/Dockerfile" | awk '{print $2}')"
+fn-caddy-global-image() {
+  fn-plugin-property-get-default "caddy" "--global" "image" ""
 }
 
-fn-caddy-letsencrypt-email() {
+fn-caddy-computed-image() {
+  local value
+  value="$(fn-caddy-global-image)"
+  if [[ -z "$value" ]]; then
+    value="$(grep "FROM" "$PLUGIN_AVAILABLE_PATH/caddy-vhosts/Dockerfile" | awk '{print $2}')"
+  fi
+  echo "$value"
+}
+
+fn-caddy-global-letsencrypt-email() {
   fn-plugin-property-get-default "caddy" "--global" "letsencrypt-email" ""
 }
 
-fn-caddy-letsencrypt-server() {
-  fn-plugin-property-get-default "caddy" "--global" "letsencrypt-server" "https://acme-v02.api.letsencrypt.org/directory"
+fn-caddy-computed-letsencrypt-email() {
+  fn-caddy-global-letsencrypt-email
 }
 
-fn-caddy-log-level() {
-  local log_level
-  log_level="$(fn-plugin-property-get-default "caddy" "--global" "log-level" "ERROR")"
-  echo "${log_level^^}"
+fn-caddy-global-letsencrypt-server() {
+  fn-plugin-property-get-default "caddy" "--global" "letsencrypt-server" ""
 }
 
-fn-caddy-polling-interval() {
-  fn-plugin-property-get-default "caddy" "--global" "polling-interval" "5s"
+fn-caddy-computed-letsencrypt-server() {
+  local value
+  value="$(fn-caddy-global-letsencrypt-server)"
+  if [[ -z "$value" ]]; then
+    value="https://acme-v02.api.letsencrypt.org/directory"
+  fi
+  echo "$value"
+}
+
+fn-caddy-global-log-level() {
+  fn-plugin-property-get-default "caddy" "--global" "log-level" ""
+}
+
+fn-caddy-computed-log-level() {
+  local value
+  value="$(fn-caddy-global-log-level)"
+  if [[ -z "$value" ]]; then
+    value="ERROR"
+  fi
+  echo "${value^^}"
+}
+
+fn-caddy-global-polling-interval() {
+  fn-plugin-property-get-default "caddy" "--global" "polling-interval" ""
+}
+
+fn-caddy-computed-polling-interval() {
+  local value
+  value="$(fn-caddy-global-polling-interval)"
+  if [[ -z "$value" ]]; then
+    value="5s"
+  fi
+  echo "$value"
 }
 
 fn-caddy-tls-internal() {
@@ -79,9 +117,12 @@ fn-caddy-computed-tls-internal() {
   if [[ -z "$value" ]]; then
     value="$(fn-caddy-global-tls-internal)"
   fi
+  if [[ -z "$value" ]]; then
+    value="false"
+  fi
   echo "$value"
 }
 
 fn-caddy-global-tls-internal() {
-  fn-plugin-property-get-default "caddy" "--global" "tls-internal" "false"
+  fn-plugin-property-get-default "caddy" "--global" "tls-internal" ""
 }

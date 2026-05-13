@@ -80,13 +80,15 @@ dokku scheduler:report
        Scheduler selected: herokuish
 =====> python-sample scheduler information
        Scheduler computed selected: dockerfile
-       Scheduler global selected: herokuish
+       Scheduler global selected:
        Scheduler selected: dockerfile
 =====> ruby-sample scheduler information
-       Scheduler computed selected: herokuish
-       Scheduler global selected: herokuish
+       Scheduler computed selected: docker-local
+       Scheduler global selected:
        Scheduler selected:
 ```
+
+The `selected` and `global-selected` keys hold the raw per-app and global value respectively, and are empty when nothing has been set. The `computed-selected` key holds the effective value used at deploy time, falling back to the global value (where one has been set) and then to the built-in default of `docker-local`.
 
 You can run the command for a specific app also.
 
@@ -96,6 +98,8 @@ dokku scheduler:report node-js-app
 
 ```
 =====> node-js-app scheduler information
+       Scheduler computed selected:  herokuish
+       Scheduler global selected:
        Scheduler selected: herokuish
 ```
 

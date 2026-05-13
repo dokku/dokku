@@ -13,7 +13,7 @@ trigger-caddy-vhosts-certs-force() {
     return
   fi
 
-  if [[ -n "$(fn-caddy-letsencrypt-email)" ]]; then
+  if [[ -n "$(fn-caddy-computed-letsencrypt-email)" ]]; then
     echo true
   fi
 }

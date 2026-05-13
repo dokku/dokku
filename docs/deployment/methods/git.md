@@ -281,12 +281,15 @@ dokku git:report
 
 ```
 =====> node-js-app git information
+       Git computed archive max files: 10000
+       Git computed archive max size:  1073741824
        Git computed deploy branch:    master
        Git computed keep git dir:     false
        Git deploy branch:
-       Git global archive max files:  10000
-       Git global archive max size:   1073741824
-       Git global deploy branch:      master
+       Git global archive max files:
+       Git global archive max size:
+       Git global deploy branch:
+       Git global keep git dir:
        Git keep git dir:
        Git rev env var:               GIT_REV
        Git sha:                       a1b2c3d
@@ -294,7 +297,7 @@ dokku git:report
        Git last updated at:           1700000000
 ```
 
-The `deploy-branch` and `keep-git-dir` keys hold the raw per-app value and are empty when nothing has been set on the app. The `computed-deploy-branch` and `computed-keep-git-dir` keys hold the effective value used at deploy time, falling back to the corresponding global value (where one exists) and then to the built-in default.
+The bare per-app keys (`deploy-branch`, `keep-git-dir`) and the `global-<prop>` keys hold the raw per-app or global value respectively, and are empty when nothing has been set. The `computed-<prop>` keys hold the effective value used at deploy time, falling back to the global value (where one has been set) and then to the built-in default.
 
 You can run the command for a specific app also.
 

@@ -82,17 +82,19 @@ dokku builder-dockerfile:report
 ```
 =====> node-js-app builder-dockerfile information
        Builder dockerfile computed dockerfile path: Dockerfile2
-       Builder dockerfile global dockerfile path:   Dockerfile
+       Builder dockerfile global dockerfile path:
        Builder dockerfile dockerfile path:          Dockerfile2
 =====> python-sample builder-dockerfile information
        Builder dockerfile computed dockerfile path: Dockerfile
-       Builder dockerfile global dockerfile path:   Dockerfile
+       Builder dockerfile global dockerfile path:
        Builder dockerfile dockerfile path:
 =====> ruby-sample builder-dockerfile information
        Builder dockerfile computed dockerfile path: Dockerfile
-       Builder dockerfile global dockerfile path:   Dockerfile
+       Builder dockerfile global dockerfile path:
        Builder dockerfile dockerfile path:
 ```
+
+The `dockerfile-path` and `global-dockerfile-path` keys hold the raw per-app and global value respectively, and are empty when nothing has been set. The `computed-dockerfile-path` key holds the effective value used at deploy time, falling back to the global value (where one has been set) and then to the built-in default of `Dockerfile`.
 
 You can run the command for a specific app also.
 
@@ -103,7 +105,7 @@ dokku builder-dockerfile:report node-js-app
 ```
 =====> node-js-app builder-dockerfile information
        Builder dockerfile computed dockerfile path: Dockerfile2
-       Builder dockerfile global dockerfile path:   Dockerfile
+       Builder dockerfile global dockerfile path:
        Builder dockerfile dockerfile path:          Dockerfile2
 ```
 

@@ -45,6 +45,7 @@ cmd-checks-report-single() {
   local flag_map=()
   if [[ "$APP" == "--global" ]]; then
     flag_map=(
+      "--checks-computed-wait-to-retire: $(fn-checks-computed-wait-to-retire "$APP")"
       "--checks-global-wait-to-retire: $(fn-checks-global-wait-to-retire "$APP")"
     )
   else
@@ -116,6 +117,9 @@ fn-checks-computed-wait-to-retire() {
   if [[ "$file" == "" ]]; then
     file="$(fn-checks-global-wait-to-retire "$APP")"
   fi
+  if [[ "$file" == "" ]]; then
+    file="60"
+  fi
 
   echo "$file"
 }
@@ -123,7 +127,7 @@ fn-checks-computed-wait-to-retire() {
 fn-checks-global-wait-to-retire() {
   declare APP="$1"
 
-  fn-plugin-property-get-default "checks" "--global" "wait-to-retire" "60"
+  fn-plugin-property-get-default "checks" "--global" "wait-to-retire" ""
 }
 
 fn-checks-wait-to-retire() {

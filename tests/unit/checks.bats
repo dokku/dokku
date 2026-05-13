@@ -41,27 +41,44 @@ teardown() {
 }
 
 @test "(checks:report) --global --format json" {
+  run /bin/bash -c "dokku checks:set --global wait-to-retire"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku --quiet checks:report --global --format json | jq -e ."
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku --quiet checks:report --global --format json | jq -r '.\"global-wait-to-retire\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku --quiet checks:report --global --format json | jq -r '.\"computed-wait-to-retire\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "60"
+
   run /bin/bash -c "dokku checks:set --global wait-to-retire 90"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku checks:report --global --format json | jq -e ."
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run /bin/bash -c "dokku checks:report --global --format json | jq -r '.\"global-wait-to-retire\"'"
+  run /bin/bash -c "dokku --quiet checks:report --global --format json | jq -r '.\"global-wait-to-retire\"'"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output "90"
 
-  run /bin/bash -c "dokku checks:report --global --format json | jq -r 'has(\"wait-to-retire\")'"
+  run /bin/bash -c "dokku --quiet checks:report --global --format json | jq -r '.\"computed-wait-to-retire\"'"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "false"
+  assert_output "90"
 
   run /bin/bash -c "dokku checks:report --global"
   echo "output: $output"
@@ -69,16 +86,22 @@ teardown() {
   assert_success
   assert_output_contains "global checks information"
 
-  run /bin/bash -c "dokku checks:report --global --checks-global-wait-to-retire"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  assert_output "90"
-
   run /bin/bash -c "dokku checks:set --global wait-to-retire"
   echo "output: $output"
   echo "status: $status"
   assert_success
+
+  run /bin/bash -c "dokku checks:report --global --checks-global-wait-to-retire"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku checks:report --global --checks-computed-wait-to-retire"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "60"
 }
 
 @test "(checks) checks:help" {

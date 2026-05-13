@@ -28,6 +28,54 @@ teardown() {
   assert_output "$help_output"
 }
 
+@test "(proxy:report) --global raw vs computed type" {
+  run /bin/bash -c "dokku --quiet proxy:report --global --format json | jq -r '.\"proxy-global-type\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku --quiet proxy:report --global --format json | jq -r '.\"proxy-computed-type\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "nginx"
+
+  run /bin/bash -c "dokku proxy:set --global type caddy"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku --quiet proxy:report --global --format json | jq -r '.\"proxy-global-type\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "caddy"
+
+  run /bin/bash -c "dokku --quiet proxy:report --global --format json | jq -r '.\"proxy-computed-type\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "caddy"
+
+  run /bin/bash -c "dokku proxy:set --global type"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku --quiet proxy:report --global --format json | jq -r '.\"proxy-global-type\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku --quiet proxy:report --global --format json | jq -r '.\"proxy-computed-type\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "nginx"
+}
+
 @test "(proxy:set) invalid port mapping set" {
   run /bin/bash -c "dokku proxy:set $TEST_APP http:80:80"
   echo "output: $output"

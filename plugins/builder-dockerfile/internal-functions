@@ -44,6 +44,7 @@ cmd-builder-dockerfile-report-single() {
   local flag_map=()
   if [[ "$APP" == "--global" ]]; then
     flag_map=(
+      "--builder-dockerfile-computed-dockerfile-path: $(fn-builder-dockerfile-computed-dockerfile-path "$APP")"
       "--builder-dockerfile-global-dockerfile-path: $(fn-builder-dockerfile-global-dockerfile-path "$APP")"
     )
   else
@@ -97,6 +98,9 @@ fn-builder-dockerfile-computed-dockerfile-path() {
   if [[ "$file" == "" ]]; then
     file="$(fn-builder-dockerfile-global-dockerfile-path "$APP")"
   fi
+  if [[ "$file" == "" ]]; then
+    file="Dockerfile"
+  fi
 
   echo "$file"
 }
@@ -104,7 +108,7 @@ fn-builder-dockerfile-computed-dockerfile-path() {
 fn-builder-dockerfile-global-dockerfile-path() {
   declare APP="$1"
 
-  fn-plugin-property-get-default "builder-dockerfile" "--global" "dockerfile-path" "Dockerfile"
+  fn-plugin-property-get-default "builder-dockerfile" "--global" "dockerfile-path" ""
 }
 
 fn-builder-dockerfile-dockerfile-path() {

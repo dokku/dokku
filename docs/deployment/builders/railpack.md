@@ -106,17 +106,19 @@ dokku builder-railpack:report
 ```
 =====> node-js-app builder-railpack information
        Builder-railpack computed railpackjson path: railpack2.json
-       Builder-railpack global railpackjson path:   railpack.json
+       Builder-railpack global railpackjson path:
        Builder-railpack railpackjson path:          railpack2.json
 =====> python-sample builder-railpack information
        Builder-railpack computed railpackjson path: railpack.json
-       Builder-railpack global railpackjson path:   railpack.json
+       Builder-railpack global railpackjson path:
        Builder-railpack railpackjson path:
 =====> ruby-sample builder-railpack information
        Builder-railpack computed railpackjson path: railpack.json
-       Builder-railpack global railpackjson path:   railpack.json
+       Builder-railpack global railpackjson path:
        Builder-railpack railpackjson path:
 ```
+
+The `railpackjson-path` and `global-railpackjson-path` keys hold the raw per-app and global value respectively, and are empty when nothing has been set. The `computed-railpackjson-path` key holds the effective value used at build time, falling back to the global value (where one has been set) and then to the built-in default of `railpack.json`.
 
 You can run the command for a specific app also.
 
@@ -127,7 +129,7 @@ dokku builder-railpack:report node-js-app
 ```
 =====> node-js-app builder-railpack information
        Builder-railpack computed railpackjson path: railpack2.json
-       Builder-railpack global railpackjson path:   railpack.json
+       Builder-railpack global railpackjson path:
        Builder-railpack railpackjson path:          railpack2.json
 ```
 

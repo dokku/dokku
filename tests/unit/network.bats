@@ -66,6 +66,47 @@ teardown() {
   assert_success
 }
 
+@test "(network:report) tld raw vs computed" {
+  run /bin/bash -c "dokku network:set --global tld"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku --quiet network:report --global --format json | jq -r '.\"network-global-tld\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku network:set --global tld example.test"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku --quiet network:report --global --format json | jq -r '.\"network-global-tld\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "example.test"
+
+  run /bin/bash -c "dokku --quiet network:report $TEST_APP --format json | jq -r '.\"network-global-tld\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "example.test"
+
+  run /bin/bash -c "dokku --quiet network:report $TEST_APP --format json | jq -r '.\"network-computed-tld\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "example.test"
+
+  run /bin/bash -c "dokku network:set --global tld"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
 @test "(network) network:set bind-all-interfaces" {
   run deploy_app
   echo "output: $output"

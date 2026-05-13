@@ -887,7 +887,13 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "master"
+  assert_output ""
+
+  run /bin/bash -c "dokku git:report $TEST_APP --format json | jq -r '.\"computed-deploy-branch\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "main"
 
   run /bin/bash -c "dokku git:report $TEST_APP --format json | jq -e ."
   echo "output: $output"
@@ -925,6 +931,12 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku git:report --global --format json | jq -r '.\"computed-deploy-branch\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
   assert_output "master"
 
   run /bin/bash -c "dokku git:report --global --format json | jq -r 'has(\"deploy-branch\")'"
@@ -934,6 +946,12 @@ teardown() {
   assert_output "false"
 
   run /bin/bash -c "dokku git:report --global --git-global-deploy-branch"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku git:report --global --git-computed-deploy-branch"
   echo "output: $output"
   echo "status: $status"
   assert_success

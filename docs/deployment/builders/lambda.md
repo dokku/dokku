@@ -84,17 +84,19 @@ dokku builder-lambda:report
 ```
 =====> node-js-app builder-lambda information
        Builder lambda computed lambdayml path: lambda2.yml
-       Builder lambda global lambdayml path:   lambda.yml
+       Builder lambda global lambdayml path:
        Builder lambda lambdayml path:          lambda2.yml
 =====> python-sample builder-lambda information
        Builder lambda computed lambdayml path: lambda.yml
-       Builder lambda global lambdayml path:   lambda.yml
+       Builder lambda global lambdayml path:
        Builder lambda lambdayml path:
 =====> ruby-sample builder-lambda information
        Builder lambda computed lambdayml path: lambda.yml
-       Builder lambda global lambdayml path:   lambda.yml
+       Builder lambda global lambdayml path:
        Builder lambda lambdayml path:
 ```
+
+The `lambdayml-path` and `global-lambdayml-path` keys hold the raw per-app and global value respectively, and are empty when nothing has been set. The `computed-lambdayml-path` key holds the effective value used at build time, falling back to the global value (where one has been set) and then to the built-in default of `lambda.yml`.
 
 You can run the command for a specific app also.
 
@@ -105,7 +107,7 @@ dokku builder-lambda:report node-js-app
 ```
 =====> node-js-app builder-lambda information
        Builder lambda computed lambdayml path: lambda2.yml
-       Builder lambda global lambdayml path:   lambda.yml
+       Builder lambda global lambdayml path:
        Builder lambda lambdayml path:          lambda2.yml
 ```
 

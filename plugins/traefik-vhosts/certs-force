@@ -13,7 +13,7 @@ trigger-traefik-vhosts-certs-force() {
     return
   fi
 
-  if [[ -n "$(fn-traefik-letsencrypt-email)" ]]; then
+  if [[ -n "$(fn-traefik-computed-letsencrypt-email)" ]]; then
     echo true
   fi
 }

@@ -46,7 +46,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "Dockerfile"
+  assert_output ""
 
   run /bin/bash -c "dokku builder-dockerfile:report --global --format json | jq -r 'has(\"dockerfile-path\")'"
   echo "output: $output"
@@ -64,7 +64,23 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "Dockerfile"
+  assert_output ""
+
+  run /bin/bash -c "dokku builder-dockerfile:set --global dockerfile-path Dockerfile.custom"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku builder-dockerfile:report --global --builder-dockerfile-global-dockerfile-path"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "Dockerfile.custom"
+
+  run /bin/bash -c "dokku builder-dockerfile:set --global dockerfile-path"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 }
 
 @test "(builder-dockerfile:set)" {

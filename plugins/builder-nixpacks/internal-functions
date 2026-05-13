@@ -44,6 +44,7 @@ cmd-builder-nixpacks-report-single() {
   local flag_map=()
   if [[ "$APP" == "--global" ]]; then
     flag_map=(
+      "--builder-nixpacks-computed-nixpackstoml-path: $(fn-builder-nixpacks-computed-nixpackstoml-path "$APP")"
       "--builder-nixpacks-global-nixpackstoml-path: $(fn-builder-nixpacks-global-nixpackstoml-path "$APP")"
     )
   else
@@ -97,6 +98,9 @@ fn-builder-nixpacks-computed-nixpackstoml-path() {
   if [[ "$file" == "" ]]; then
     file="$(fn-builder-nixpacks-global-nixpackstoml-path "$APP")"
   fi
+  if [[ "$file" == "" ]]; then
+    file="nixpacks.toml"
+  fi
 
   echo "$file"
 }
@@ -104,7 +108,7 @@ fn-builder-nixpacks-computed-nixpackstoml-path() {
 fn-builder-nixpacks-global-nixpackstoml-path() {
   declare APP="$1"
 
-  fn-plugin-property-get "builder-nixpacks" "--global" "nixpackstoml-path" "nixpacks.toml"
+  fn-plugin-property-get "builder-nixpacks" "--global" "nixpackstoml-path" ""
 }
 
 fn-builder-nixpacks-nixpackstoml-path() {

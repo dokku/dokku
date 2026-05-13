@@ -57,7 +57,13 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku haproxy:report --global --haproxy-refresh-conf"
+  run /bin/bash -c "dokku haproxy:report --global --haproxy-global-refresh-conf"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "5"
+
+  run /bin/bash -c "dokku haproxy:report --global --haproxy-computed-refresh-conf"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -74,7 +80,42 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku haproxy:report --global --haproxy-refresh-conf"
+  run /bin/bash -c "dokku haproxy:report --global --haproxy-global-refresh-conf"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku haproxy:report --global --haproxy-computed-refresh-conf"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "10"
+}
+
+@test "(haproxy:report) --global raw and computed keys in --format json" {
+  run /bin/bash -c "dokku haproxy:set --global refresh-conf"
+  assert_success
+
+  run /bin/bash -c "dokku --quiet haproxy:report --global --format json | jq -r '.\"global-image\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku --quiet haproxy:report --global --format json | jq -r '.\"computed-image\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  refute_output ""
+
+  run /bin/bash -c "dokku --quiet haproxy:report --global --format json | jq -r '.\"global-refresh-conf\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku --quiet haproxy:report --global --format json | jq -r '.\"computed-refresh-conf\"'"
   echo "output: $output"
   echo "status: $status"
   assert_success

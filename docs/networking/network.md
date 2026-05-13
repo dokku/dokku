@@ -428,7 +428,7 @@ dokku network:report
 =====> node-js-app network information
        Network attach post create:
        Network attach post deploy:
-       Network bind all interfaces:   false
+       Network bind all interfaces:
        Network computed attach post create:
        Network computed attach post deploy:
        Network computed bind all interfaces:false
@@ -436,7 +436,7 @@ dokku network:report
        Network computed tld:
        Network global attach post create:
        Network global attach post deploy:
-       Network global bind all interfaces:false
+       Network global bind all interfaces:
        Network global initial network:
        Network global tld:
        Network initial network:
@@ -445,7 +445,7 @@ dokku network:report
 =====> python-sample network information
        Network attach post create:
        Network attach post deploy:
-       Network bind all interfaces:   false
+       Network bind all interfaces:
        Network computed attach post create:
        Network computed attach post deploy:
        Network computed bind all interfaces:false
@@ -453,7 +453,7 @@ dokku network:report
        Network computed tld:
        Network global attach post create:
        Network global attach post deploy:
-       Network global bind all interfaces:false
+       Network global bind all interfaces:
        Network global initial network:
        Network global tld:
        Network initial network:
@@ -462,7 +462,7 @@ dokku network:report
 =====> ruby-sample network information
        Network attach post create:
        Network attach post deploy:
-       Network bind all interfaces:   false
+       Network bind all interfaces:
        Network computed attach post create:
        Network computed attach post deploy:
        Network computed bind all interfaces:false
@@ -470,13 +470,15 @@ dokku network:report
        Network computed tld:
        Network global attach post create:
        Network global attach post deploy:
-       Network global bind all interfaces:false
+       Network global bind all interfaces:
        Network global initial network:
        Network global tld:
        Network initial network:
        Network tld:
        Network web listeners:
 ```
+
+The per-app and `global-` keys for each property hold the raw values and are empty when nothing has been set. The `computed-` keys hold the effective value, falling back to the global value (where one has been set) and then to the built-in default (`false` for `bind-all-interfaces`, empty otherwise).
 
 You can run the command for a specific app also.
 
@@ -488,7 +490,7 @@ dokku network:report node-js-app
 =====> node-js-app network information
        Network attach post create:
        Network attach post deploy:
-       Network bind all interfaces:   false
+       Network bind all interfaces:
        Network computed attach post create:
        Network computed attach post deploy:
        Network computed bind all interfaces:false
@@ -496,7 +498,7 @@ dokku network:report node-js-app
        Network computed tld:
        Network global attach post create:
        Network global attach post deploy:
-       Network global bind all interfaces:false
+       Network global bind all interfaces:
        Network global initial network:
        Network global tld:
        Network initial network:

@@ -98,17 +98,19 @@ dokku builder-pack:report
 ```
 =====> node-js-app builder-pack information
        Builder pack computed projecttoml path: project2.toml
-       Builder pack global projecttoml path:   project.toml
+       Builder pack global projecttoml path:
        Builder pack projecttoml path:          project2.toml
 =====> python-sample builder-pack information
        Builder pack computed projecttoml path: project.toml
-       Builder pack global projecttoml path:   project.toml
+       Builder pack global projecttoml path:
        Builder pack projecttoml path:
 =====> ruby-sample builder-pack information
        Builder pack computed projecttoml path: project.toml
-       Builder pack global projecttoml path:   project.json
+       Builder pack global projecttoml path:
        Builder pack projecttoml path:
 ```
+
+The `projecttoml-path` and `global-projecttoml-path` keys hold the raw per-app and global value respectively, and are empty when nothing has been set. The `computed-projecttoml-path` key holds the effective value used at build time, falling back to the global value (where one has been set) and then to the built-in default of `project.toml`.
 
 You can run the command for a specific app also.
 
@@ -119,7 +121,7 @@ dokku builder-pack:report node-js-app
 ```
 =====> node-js-app builder-pack information
        Builder pack computed projecttoml path: project2.toml
-       Builder pack global projecttoml path:   project.toml
+       Builder pack global projecttoml path:
        Builder pack projecttoml path:          project2.toml
 ```
 
