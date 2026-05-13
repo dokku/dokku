@@ -9,6 +9,9 @@ setup() {
 
 teardown() {
   destroy_app
+  dokku logs:set --global vector-networks >/dev/null 2>/dev/null || true
+  docker network rm test-vector-net-a >/dev/null || true
+  docker network rm test-vector-net-b >/dev/null || true
   global_teardown
 }
 
@@ -54,7 +57,7 @@ teardown() {
   echo "status: $status"
   assert_failure
   assert_output_contains "$TEST_APP logs information" 0
-  assert_output_contains "Invalid flag passed, valid flags: --logs-app-label-alias, --logs-computed-app-label-alias, --logs-computed-max-size, --logs-global-app-label-alias, --logs-global-max-size, --logs-global-vector-sink, --logs-max-size, --logs-vector-global-image, --logs-vector-sink"
+  assert_output_contains "Invalid flag passed, valid flags: --logs-app-label-alias, --logs-computed-app-label-alias, --logs-computed-max-size, --logs-global-app-label-alias, --logs-global-max-size, --logs-global-vector-sink, --logs-max-size, --logs-vector-global-image, --logs-vector-global-networks, --logs-vector-sink"
 
   run /bin/bash -c "dokku logs:report $TEST_APP --logs-vector-sink 2>&1"
   echo "output: $output"
@@ -99,13 +102,19 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_failure
-  assert_output_contains "Invalid property specified, valid properties include: app-label-alias, max-size, vector-image, vector-sink"
+  assert_output_contains "Invalid property specified, valid properties include: app-label-alias, max-size, vector-image, vector-networks, vector-sink"
 
   run /bin/bash -c "dokku logs:set $TEST_APP invalid value" 2>&1
   echo "output: $output"
   echo "status: $status"
   assert_failure
-  assert_output_contains "Invalid property specified, valid properties include: app-label-alias, max-size, vector-image, vector-sink"
+  assert_output_contains "Invalid property specified, valid properties include: app-label-alias, max-size, vector-image, vector-networks, vector-sink"
+
+  run /bin/bash -c "dokku logs:set $TEST_APP vector-image timberio/vector:latest-debian 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "vector-image may only be set globally with --global"
 }
 
 @test "(logs) logs:set app" {
@@ -456,6 +465,145 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output "10m"
+}
+
+@test "(logs) logs:set --global vector-networks" {
+  docker network create test-vector-net-a >/dev/null
+  docker network create test-vector-net-b >/dev/null
+
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku logs:set $TEST_APP vector-networks test-vector-net-a 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "vector-networks may only be set globally with --global"
+
+  run /bin/bash -c "dokku logs:set --global vector-networks does-not-exist 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Network \"does-not-exist\" does not exist"
+
+  run /bin/bash -c "dokku logs:set --global vector-networks bridge 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "\"bridge\" is not a valid entry for vector-networks"
+
+  run /bin/bash -c "dokku logs:set --global vector-networks 'test-vector-net-a,'  2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "empty entry in comma-separated list"
+
+  run /bin/bash -c "dokku logs:set --global vector-networks test-vector-net-a 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Setting vector-networks"
+
+  run /bin/bash -c "dokku logs:report --global --logs-vector-global-networks 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "test-vector-net-a"
+
+  run /bin/bash -c "dokku logs:set --global vector-networks test-vector-net-a,test-vector-net-b 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Setting vector-networks"
+
+  run /bin/bash -c "dokku logs:report --global --logs-vector-global-networks 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "test-vector-net-a,test-vector-net-b"
+
+  run /bin/bash -c "dokku logs:set --global vector-networks 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Unsetting vector-networks"
+
+  run /bin/bash -c "dokku logs:report --global --logs-vector-global-networks 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_exists
+}
+
+@test "(logs) logs:vector-start attaches configured networks" {
+  docker network create test-vector-net-a >/dev/null
+  docker network create test-vector-net-b >/dev/null
+
+  run /bin/bash -c "dokku logs:set --global vector-networks test-vector-net-a,test-vector-net-b 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku logs:vector-start 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Vector container is running"
+
+  run /bin/bash -c "sudo docker inspect --format='{{range \$k, \$v := .NetworkSettings.Networks}}{{\$k}} {{end}}' vector-vector-1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "test-vector-net-a"
+  assert_output_contains "test-vector-net-b"
+  assert_output_contains "bridge" 0
+
+  run /bin/bash -c "dokku logs:vector-stop 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku logs:vector-start 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Vector container is running"
+
+  run /bin/bash -c "sudo docker inspect --format='{{range \$k, \$v := .NetworkSettings.Networks}}{{\$k}} {{end}}' vector-vector-1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "test-vector-net-a"
+  assert_output_contains "test-vector-net-b"
+  assert_output_contains "bridge" 0
+
+  run /bin/bash -c "dokku logs:set --global vector-networks 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku logs:vector-stop 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku logs:vector-start 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "sudo docker inspect --format='{{range \$k, \$v := .NetworkSettings.Networks}}{{\$k}} {{end}}' vector-vector-1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "bridge"
+
+  run /bin/bash -c "dokku logs:vector-stop 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 }
 
 @test "(logs) logs:set app-label-alias" {

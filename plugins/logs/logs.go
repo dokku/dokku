@@ -35,6 +35,7 @@ var (
 		"app-label-alias": true,
 		"max-size":        true,
 		"vector-image":    true,
+		"vector-networks": true,
 		"vector-sink":     true,
 	}
 )

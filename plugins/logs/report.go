@@ -24,6 +24,7 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 			"--logs-global-max-size":        reportGlobalMaxSize,
 			"--logs-global-vector-sink":     reportGlobalVectorSink,
 			"--logs-vector-global-image":    reportVectorGlobalImage,
+			"--logs-vector-global-networks": reportVectorGlobalNetworks,
 		}
 	} else {
 		flags = map[string]common.ReportFunc{
@@ -35,6 +36,7 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 			"--logs-app-label-alias":          reportAppLabelAlias,
 			"--logs-max-size":                 reportMaxSize,
 			"--logs-vector-global-image":      reportVectorGlobalImage,
+			"--logs-vector-global-networks":   reportVectorGlobalNetworks,
 			"--logs-vector-sink":              reportVectorSink,
 		}
 	}
@@ -82,6 +84,10 @@ func reportGlobalMaxSize(appName string) string {
 
 func reportVectorGlobalImage(appName string) string {
 	return getComputedVectorImage()
+}
+
+func reportVectorGlobalNetworks(appName string) string {
+	return common.PropertyGet("logs", "--global", "vector-networks")
 }
 
 func reportGlobalVectorSink(appName string) string {

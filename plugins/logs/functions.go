@@ -24,9 +24,10 @@ type vectorSource struct {
 }
 
 type vectorTemplateData struct {
-	DokkuLibRoot string
-	DokkuLogsDir string
-	VectorImage  string
+	DokkuLibRoot   string
+	DokkuLogsDir   string
+	VectorImage    string
+	VectorNetworks []string
 }
 
 const vectorContainerName = "vector-vector-1"
@@ -89,9 +90,10 @@ func startVectorContainer(vectorImage string) error {
 	}
 
 	data := vectorTemplateData{
-		DokkuLibRoot: dokkuLibRoot,
-		DokkuLogsDir: dokkuLogsDir,
-		VectorImage:  vectorImage,
+		DokkuLibRoot:   dokkuLibRoot,
+		DokkuLogsDir:   dokkuLogsDir,
+		VectorImage:    vectorImage,
+		VectorNetworks: getVectorNetworks(),
 	}
 
 	if err := tmpl.Execute(tmpFile, data); err != nil {
@@ -102,6 +104,24 @@ func startVectorContainer(vectorImage string) error {
 		ProjectName: "vector",
 		ComposeFile: tmpFile.Name(),
 	})
+}
+
+func getVectorNetworks() []string {
+	value := common.PropertyGet("logs", "--global", "vector-networks")
+	if value == "" {
+		return nil
+	}
+
+	networks := []string{}
+	for _, name := range strings.Split(value, ",") {
+		name = strings.TrimSpace(name)
+		if name == "" {
+			continue
+		}
+		networks = append(networks, name)
+	}
+
+	return networks
 }
 
 func getComputedVectorImage() string {
@@ -151,9 +171,10 @@ func stopVectorContainer() error {
 	}
 
 	data := vectorTemplateData{
-		DokkuLibRoot: dokkuLibRoot,
-		DokkuLogsDir: dokkuLogsDir,
-		VectorImage:  getComputedVectorImage(),
+		DokkuLibRoot:   dokkuLibRoot,
+		DokkuLogsDir:   dokkuLogsDir,
+		VectorImage:    getComputedVectorImage(),
+		VectorNetworks: getVectorNetworks(),
 	}
 
 	if err := tmpl.Execute(tmpFile, data); err != nil {
