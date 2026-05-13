@@ -143,6 +143,8 @@ Certain versions of nginx have bugs that prevent [HTTP/2](https://nginx.org/en/d
 
 When your app is served from port `80` then the `/home/dokku/APP/nginx.conf` file will automatically be updated to instruct nginx to respond to ssl on port 443 as a new cert is added. If your app uses a non-standard port (perhaps you have a dockerfile deploy exposing port `99999`) you may need to manually expose an ssl port via `dokku ports:add <APP> https:443:99999`.
 
+If an `https:443:*` port mapping already exists when a certificate is installed or renewed, Dokku will preserve it rather than rewriting it from the `http:80:*` mappings. This allows apps that terminate TLS inside the container (for example, with a configuration like `http:80:80 https:443:443`) to keep their explicit mapping across `dokku certs:add` and unattended renewals.
+
 ## Other
 
 ### Running behind a proxy (`X-Forwarded-Ssl`, etc.)

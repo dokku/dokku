@@ -176,6 +176,12 @@ func TriggerPostCertsUpdate(appName string) error {
 		common.PropertyDelete("proxy", appName, "proxy-ssl-port")
 	}
 
+	for _, portMap := range portMaps {
+		if portMap.Scheme == "https" && portMap.HostPort == 443 {
+			return nil
+		}
+	}
+
 	var http80Ports []PortMap
 	for _, portMap := range portMaps {
 		if portMap.Scheme == "http" && portMap.HostPort == 80 {
@@ -186,17 +192,6 @@ func TriggerPostCertsUpdate(appName string) error {
 	http80Ports = uniquePortMaps(http80Ports)
 
 	if len(http80Ports) > 0 {
-		var https443Ports []PortMap
-		for _, portMap := range portMaps {
-			if portMap.Scheme == "https" && portMap.HostPort == 443 {
-				https443Ports = append(https443Ports, portMap)
-			}
-		}
-
-		if err := removePortMaps(appName, https443Ports); err != nil {
-			return err
-		}
-
 		var toAdd []PortMap
 		for _, portMap := range http80Ports {
 			toAdd = append(toAdd, PortMap{
