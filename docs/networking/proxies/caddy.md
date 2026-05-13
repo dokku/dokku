@@ -6,12 +6,12 @@
 Dokku provides integration with the [Caddy](https://caddyserver.com/) proxy service by utilizing the Docker label-based integration implemented by [Caddy Docker Proxy](https://github.com/lucaslorentz/caddy-docker-proxy).
 
 ```
-caddy:report [<app>] [<flag>]            # Displays a caddy report for one or more apps
-caddy:logs [--num num] [--tail]          # Display caddy log output
-caddy:set <app> <property> (<value>)     # Set or clear an caddy property for an app
-caddy:show-config <app>                  # Display caddy compose config
-caddy:start                              # Starts the caddy server
-caddy:stop                               # Stops the caddy server
+caddy:report [<app>] [<flag>]                            # Displays a caddy report for one or more apps
+caddy:logs [--num num] [--tail]                          # Display caddy log output
+caddy:set [<app>|--global] <property> (<value>)          # Set or clear an caddy property for an app or globally
+caddy:show-config <app>                                  # Display caddy compose config
+caddy:start                                              # Starts the caddy server
+caddy:stop                                               # Stops the caddy server
 ```
 
 ## Requirements
@@ -191,10 +191,23 @@ After enabling, the Caddy container will need to be restarted and apps will need
 
 ### Using Caddy's Internal TLS server
 
-To switch to Caddy's internal TLS server for certificate provisioning, set the `tls-internal` property. This can only be set on a per-app basis.
+To switch to Caddy's internal TLS server for certificate provisioning, set the `tls-internal` property.
 
 ```shell
 dokku caddy:set node-js-app tls-internal true
+```
+
+The default value may also be configured globally with the `--global` flag. Per-app values take precedence over the global value when set.
+
+```shell
+dokku caddy:set --global tls-internal true
+```
+
+Both the per-app and the global value may be unset by setting a blank value.
+
+```shell
+dokku caddy:set node-js-app tls-internal
+dokku caddy:set --global tls-internal
 ```
 
 ## Displaying Caddy reports for an app
@@ -207,27 +220,35 @@ dokku caddy:report
 
 ```
 =====> node-js-app caddy information
+       Caddy computed tls internal:   false
+       Caddy global tls internal:     false
        Caddy image:                   lucaslorentz/caddy-docker-proxy:2.7
        Caddy letsencrypt email:
        Caddy letsencrypt server:
        Caddy log level:               ERROR
        Caddy polling interval:        5s
-       Caddy tls internal:            false
+       Caddy tls internal:
 =====> python-app caddy information
+       Caddy computed tls internal:   false
+       Caddy global tls internal:     false
        Caddy image:                   lucaslorentz/caddy-docker-proxy:2.7
        Caddy letsencrypt email:
        Caddy letsencrypt server:
        Caddy log level:               ERROR
        Caddy polling interval:        5s
-       Caddy tls internal:            false
+       Caddy tls internal:
 =====> ruby-app caddy information
+       Caddy computed tls internal:   false
+       Caddy global tls internal:     false
        Caddy image:                   lucaslorentz/caddy-docker-proxy:2.7
        Caddy letsencrypt email:
        Caddy letsencrypt server:
        Caddy log level:               ERROR
        Caddy polling interval:        5s
-       Caddy tls internal:            false
+       Caddy tls internal:
 ```
+
+The `tls-internal` key holds the raw per-app value and is empty when nothing has been set on the app. The `computed-tls-internal` key holds the effective value used at deploy time, falling back to the global value and then to the built-in default of `false`. The `global-tls-internal` key holds the global value.
 
 You can run the command for a specific app also.
 
@@ -237,12 +258,14 @@ dokku caddy:report node-js-app
 
 ```
 =====> node-js-app caddy information
+       Caddy computed tls internal:   false
+       Caddy global tls internal:     false
        Caddy image:                   lucaslorentz/caddy-docker-proxy:2.7
        Caddy letsencrypt email:
        Caddy letsencrypt server:
        Caddy log level:               ERROR
        Caddy polling interval:        5s
-       Caddy tls internal:            false
+       Caddy tls internal:
 ```
 
 You can pass flags which will output only the value of the specific information you want. For example:

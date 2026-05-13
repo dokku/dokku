@@ -63,6 +63,118 @@ teardown() {
   assert_success
 }
 
+@test "(caddy:report) tls-internal raw vs computed vs global" {
+  run /bin/bash -c "dokku caddy:report $TEST_APP --caddy-tls-internal"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku caddy:report $TEST_APP --caddy-computed-tls-internal"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku caddy:report $TEST_APP --caddy-global-tls-internal"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku caddy:set $TEST_APP tls-internal true"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku caddy:report $TEST_APP --caddy-tls-internal"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku caddy:report $TEST_APP --caddy-computed-tls-internal"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku caddy:set $TEST_APP tls-internal"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku caddy:report $TEST_APP --caddy-tls-internal"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku caddy:report $TEST_APP --caddy-computed-tls-internal"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
+}
+
+@test "(caddy:set) --global tls-internal" {
+  run /bin/bash -c "dokku caddy:set --global tls-internal true"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku caddy:report --global --caddy-global-tls-internal"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku caddy:report $TEST_APP --caddy-tls-internal"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku caddy:report $TEST_APP --caddy-computed-tls-internal"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku caddy:report $TEST_APP --caddy-global-tls-internal"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku caddy:set $TEST_APP tls-internal false"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku caddy:report $TEST_APP --caddy-tls-internal"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku caddy:report $TEST_APP --caddy-computed-tls-internal"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku caddy:set $TEST_APP tls-internal"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku caddy:set --global tls-internal"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
 @test "(caddy) caddy:help" {
   run /bin/bash -c "dokku caddy"
   echo "output: $output"

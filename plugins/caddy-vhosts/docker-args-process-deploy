@@ -88,7 +88,7 @@ trigger-caddy-vhosts-docker-args-process-deploy() {
   # prefer the https:443 mapping to http:80 mapping
   if [[ -n "$is_app_listening" ]] && [[ -n "$caddy_domains" ]]; then
     has_443_mapping=false
-    tls_internal="$(fn-caddy-tls-internal)"
+    tls_internal="$(fn-caddy-computed-tls-internal "$APP")"
     if [[ -n "$proxy_container_https_port" ]] || [[ -n "$proxy_container_https_port_candidate" ]]; then
       has_443_mapping=true
     fi

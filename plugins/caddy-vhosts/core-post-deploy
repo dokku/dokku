@@ -14,7 +14,7 @@ trigger-caddy-vhosts-core-post-deploy() {
     return
   fi
 
-  tls_internal="$(fn-caddy-tls-internal)"
+  tls_internal="$(fn-caddy-computed-tls-internal "$APP")"
   dokku_log_info1 "Routing app via caddy"
   if [[ "$tls_internal" == "true" ]]; then
     dokku_log_warn "Warning: using caddy's internal, locally-trusted CA to produce certificates for this site"

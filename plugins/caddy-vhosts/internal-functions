@@ -69,5 +69,19 @@ fn-caddy-polling-interval() {
 
 fn-caddy-tls-internal() {
   declare APP="$1"
-  fn-plugin-property-get-default "caddy" "$APP" "tls-internal" "false"
+  fn-plugin-property-get-default "caddy" "$APP" "tls-internal" ""
+}
+
+fn-caddy-computed-tls-internal() {
+  declare APP="$1"
+  local value
+  value="$(fn-caddy-tls-internal "$APP")"
+  if [[ -z "$value" ]]; then
+    value="$(fn-caddy-global-tls-internal)"
+  fi
+  echo "$value"
+}
+
+fn-caddy-global-tls-internal() {
+  fn-plugin-property-get-default "caddy" "--global" "tls-internal" "false"
 }

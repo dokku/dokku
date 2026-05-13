@@ -70,6 +70,7 @@ cmd-caddy-report-single() {
   local flag_map=()
   if [[ "$APP" == "--global" ]]; then
     flag_map=(
+      "--caddy-global-tls-internal: $(fn-caddy-global-tls-internal)"
       "--caddy-image: $(fn-caddy-image)"
       "--caddy-letsencrypt-email: $(fn-caddy-letsencrypt-email)"
       "--caddy-letsencrypt-server: $(fn-caddy-letsencrypt-server)"
@@ -79,6 +80,8 @@ cmd-caddy-report-single() {
   else
     verify_app_name "$APP"
     flag_map=(
+      "--caddy-computed-tls-internal: $(fn-caddy-computed-tls-internal "$APP")"
+      "--caddy-global-tls-internal: $(fn-caddy-global-tls-internal)"
       "--caddy-image: $(fn-caddy-image)"
       "--caddy-letsencrypt-email: $(fn-caddy-letsencrypt-email)"
       "--caddy-letsencrypt-server: $(fn-caddy-letsencrypt-server)"
