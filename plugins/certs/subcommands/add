@@ -3,6 +3,7 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/certs/functions"
+source "$PLUGIN_AVAILABLE_PATH/certs/internal-functions"
 
 is_tar_import() {
   declare desc="determines if we have STDIN open in an attempt to detect a streamed tar import"
@@ -35,7 +36,6 @@ cmd-certs-set() {
   declare APP="$1" CRT_FILE="$2" KEY_FILE="$3"
 
   verify_app_name "$APP"
-  local APP_SSL_PATH="$DOKKU_ROOT/$APP/tls"
 
   if is_file_import "$CRT_FILE" "$KEY_FILE"; then
     # importing from file
@@ -53,7 +53,7 @@ cmd-certs-set() {
     elif [[ $CRT_FILE_COUNT -gt 1 ]]; then
       dokku_log_fail "Tar archive contains more than one .crt file"
     else
-      local CRT_FILE=$CRT_FILE_SEARCH
+      CRT_FILE=$CRT_FILE_SEARCH
     fi
 
     local KEY_FILE_SEARCH=$(find . -not -path '*/\.*' -type f | grep ".key$")
@@ -63,20 +63,13 @@ cmd-certs-set() {
     elif [[ $KEY_FILE_COUNT -gt 1 ]]; then
       dokku_log_fail "Tar archive contains more than one .key file"
     else
-      local KEY_FILE=$KEY_FILE_SEARCH
+      KEY_FILE=$KEY_FILE_SEARCH
     fi
   else
     dokku_log_fail "Tar archive containing server.crt and server.key expected on stdin"
   fi
 
-  mkdir -p "$APP_SSL_PATH"
-  rm -f "$APP_SSL_PATH/server.crt" "$APP_SSL_PATH/server.key"
-  cp "$CRT_FILE" "$APP_SSL_PATH/server.crt"
-  cp "$KEY_FILE" "$APP_SSL_PATH/server.key"
-  chmod 750 "$APP_SSL_PATH"
-  chmod 640 "$APP_SSL_PATH/server.crt" "$APP_SSL_PATH/server.key"
-  plugn trigger post-certs-update "$APP"
-  plugn trigger post-domains-update "$APP"
+  fn-certs-set "$APP" "$CRT_FILE" "$KEY_FILE"
 }
 
 cmd-certs-set "$@"

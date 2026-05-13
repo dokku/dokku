@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/certs/internal-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-certs-certs-set() {
+  declare desc="installs an SSL cert/key pair onto an app"
+  declare trigger="certs-set"
+  declare APP="$1" CRT_FILE="$2" KEY_FILE="$3"
+
+  verify_app_name "$APP"
+  fn-certs-set "$APP" "$CRT_FILE" "$KEY_FILE"
+}
+
+trigger-certs-certs-set "$@"
