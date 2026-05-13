@@ -1,5 +1,33 @@
 # History
 
+## 0.38.5
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.38.5/bootstrap.sh
+sudo DOKKU_TAG=v0.38.5 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #8627: @josegonzalez Preserve explicit https:443 port mappings on cert update
+
+### New Features
+
+- #8629: @josegonzalez Attach vector container to additional docker networks
+- #8624: @josegonzalez Expose certs-set and certs-remove plugin triggers
+- #8626: @josegonzalez Split caddy report tls-internal into raw, computed, and global
+
+### Tests
+
+- #8620: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 287 to 288 in /tests/apps/php
+- #8621: @dependabot[bot] chore(deps): bump ruby from 4.0.3 to 4.0.4 in /tests/apps/dockerfile-entrypoint
+
+### Dependencies
+
+- #8622: @dependabot[bot] chore(deps): bump k8s.io/kubernetes from 1.36.0 to 1.36.1 in /plugins/scheduler-k3s
+
 ## 0.38.4
 
 Install/update via the bootstrap script:
