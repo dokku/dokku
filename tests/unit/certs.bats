@@ -132,7 +132,7 @@ teardown() {
 }
 
 @test "(certs) certs-set plugin trigger" {
-  run /bin/bash -c "plugn trigger certs-set $TEST_APP $BATS_TMPDIR/tls/server.crt $BATS_TMPDIR/tls/server.key"
+  run_plugn_trigger certs-set "$TEST_APP" "$BATS_TMPDIR/tls/server.crt" "$BATS_TMPDIR/tls/server.key"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -141,7 +141,7 @@ teardown() {
 }
 
 @test "(certs) certs-set plugin trigger missing key file" {
-  run /bin/bash -c "plugn trigger certs-set $TEST_APP $BATS_TMPDIR/tls/server.crt /nonexistent/server.key"
+  run_plugn_trigger certs-set "$TEST_APP" "$BATS_TMPDIR/tls/server.crt" "/nonexistent/server.key"
   echo "output: $output"
   echo "status: $status"
   assert_failure
@@ -154,7 +154,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "plugn trigger certs-remove $TEST_APP"
+  run_plugn_trigger certs-remove "$TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -162,7 +162,7 @@ teardown() {
 }
 
 @test "(certs) certs-remove plugin trigger without endpoint" {
-  run /bin/bash -c "plugn trigger certs-remove $TEST_APP"
+  run_plugn_trigger certs-remove "$TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_failure
