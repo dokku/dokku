@@ -178,6 +178,37 @@ Setting this to an empty string will reset the version to the version currently 
 dokku logs:set --global vector-image
 ```
 
+#### Attaching Vector to additional Docker networks
+
+By default, the Vector container runs with `network_mode: bridge` and can only reach app containers that are also on the default bridge network. Apps deployed onto a per-app network or a custom network - typically via `dokku network:set <app> initial-network <name>` - are not reachable from Vector over Docker's internal DNS, so sinks that need to talk to those apps directly (for example, an in-host log search service such as [Logpond](https://github.com/dokku/logpond)) would have to route traffic out through the external proxy.
+
+The global `vector-networks` property accepts a comma-separated list of Docker networks that Vector should additionally join.
+
+```shell
+dokku logs:set --global vector-networks dokku-logs
+```
+
+Multiple networks may be specified by separating them with a comma.
+
+```shell
+dokku logs:set --global vector-networks dokku-logs,observability
+```
+
+Each network must already exist; setting a non-existent network or the reserved `bridge` value will fail. The list can be cleared by setting an empty value, which restores the default `network_mode: bridge` configuration.
+
+```shell
+dokku logs:set --global vector-networks
+```
+
+Network attachments are reconciled by `docker compose` on every `logs:vector-start`, so after changing the value the Vector container must be cycled.
+
+```shell
+dokku logs:vector-stop
+dokku logs:vector-start
+```
+
+Once attached, an app on `dokku-logs` (for example via `dokku network:set node-js-app initial-network dokku-logs`) is reachable from Vector at `<app>.<process>:<port>` over the shared network without round-tripping through the external proxy.
+
 #### Configuring a log sink
 
 Vector uses the concept of log "sinks" to send logs to a given endpoint. Log sinks may be configured globally or on a per-app basis by specifying a `vector-sink` in DSN form with the `logs:set` command. Specifying a sink value will reload any running vector container.

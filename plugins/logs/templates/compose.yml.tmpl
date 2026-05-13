@@ -13,7 +13,15 @@ services:
       org.label-schema.schema-version: "1.0"
       org.label-schema.vendor: dokku
 
+    {{- if $.VectorNetworks }}
+    networks:
+      bridge: {}
+      {{- range $name := $.VectorNetworks }}
+      {{ $name }}: {}
+      {{- end }}
+    {{- else }}
     network_mode: bridge
+    {{- end }}
 
     restart: unless-stopped
 
@@ -21,3 +29,15 @@ services:
       - "{{ $.DokkuLibRoot }}/data/logs:/etc/vector"
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - "{{ $.DokkuLogsDir }}/apps:/var/log/dokku/apps"
+{{- if $.VectorNetworks }}
+
+networks:
+  bridge:
+    name: bridge
+    external: true
+  {{- range $name := $.VectorNetworks }}
+  {{ $name }}:
+    name: {{ $name }}
+    external: true
+  {{- end }}
+{{- end }}
