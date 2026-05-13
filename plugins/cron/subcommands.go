@@ -192,9 +192,13 @@ func CommandSet(appName string, property string, value string) error {
 
 	common.CommandPropertySet("cron", appName, property, value, validProperties, globalProperties)
 	scheduler := common.GetAppScheduler(appName)
+	triggerArgs := []string{scheduler, appName}
+	if appName == "--global" {
+		triggerArgs = []string{scheduler}
+	}
 	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
 		Trigger:     "scheduler-cron-write",
-		Args:        []string{scheduler, appName},
+		Args:        triggerArgs,
 		StreamStdio: true,
 	})
 	return err
