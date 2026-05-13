@@ -120,6 +120,80 @@ teardown() {
   assert_success
 }
 
+@test "(cron:set) --global mailto" {
+  run /bin/bash -c "dokku cron:set --global mailto admin@example.com"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_contains "unknown flag"
+
+  run /bin/bash -c "dokku cron:report --global --format json | jq -r '.\"cron-mailto\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "admin@example.com"
+
+  run /bin/bash -c "dokku cron:set --global mailto"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_contains "unknown flag"
+
+  run /bin/bash -c "dokku cron:report --global --format json | jq -r '.\"cron-mailto\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+}
+
+@test "(cron:set) --global mailfrom" {
+  run /bin/bash -c "dokku cron:set --global mailfrom dokku@example.com"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_contains "unknown flag"
+
+  run /bin/bash -c "dokku cron:report --global --format json | jq -r '.\"cron-mailfrom\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "dokku@example.com"
+
+  run /bin/bash -c "dokku cron:set --global mailfrom"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_contains "unknown flag"
+}
+
+@test "(cron:set) --global maintenance" {
+  run /bin/bash -c "dokku cron:set --global maintenance true"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_contains "unknown flag"
+
+  run /bin/bash -c "dokku cron:report --global --format json | jq -r '.\"cron-global-maintenance\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku cron:set --global maintenance"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_contains "unknown flag"
+}
+
+@test "(cron:set) --global rejects task maintenance properties" {
+  run /bin/bash -c "dokku cron:set --global maintenance.fakeid true"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Task maintenance properties cannot be set globally"
+}
+
 @test "(cron) create [multiple]" {
   run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP template_cron_file_valid_multiple
   echo "output: $output"

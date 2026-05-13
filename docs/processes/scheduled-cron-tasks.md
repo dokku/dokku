@@ -68,7 +68,7 @@ The `cron` plugin provides a number of settings that can be used to managed depl
 | Name                  | Description                                                    | Level       | Global Default |
 |-----------------------|----------------------------------------------------------------|-------------|----------------|
 | `mailfrom`            | Sets the `MAILFROM` variable in a cron file for cron reporting | Global-only | empty string   |
-| `maintenance`         | Whether to have cron running for the app or not.               | App-only    | `false`        |
+| `maintenance`         | Whether to have cron running for the app or not.               | App and Global | `false`     |
 | `mailto`              | Sets the `MAILTO` variable in a cron file for cron reporting   | Global-only | empty string   |
 
 All settings can be set via the `cron:set` command. Using `maintenance` as an example:

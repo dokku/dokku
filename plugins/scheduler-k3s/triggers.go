@@ -255,6 +255,10 @@ func TriggerSchedulerCronWrite(scheduler string, appName string) error {
 		return nil
 	}
 
+	if appName == "" {
+		return nil
+	}
+
 	cronTasks, err := cron.FetchCronTasks(cron.FetchCronTasksInput{AppName: appName})
 	if err != nil {
 		return fmt.Errorf("Error fetching cron tasks: %w", err)
