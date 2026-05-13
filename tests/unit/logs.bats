@@ -9,6 +9,7 @@ setup() {
 
 teardown() {
   destroy_app
+  dokku logs:set --global vector-networks >/dev/null 2>/dev/null || true
   docker network rm test-vector-net-a >/dev/null || true
   docker network rm test-vector-net-b >/dev/null || true
   global_teardown
@@ -101,13 +102,19 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_failure
-  assert_output_contains "Invalid property specified, valid properties include: app-label-alias, max-size, vector-image, vector-sink"
+  assert_output_contains "Invalid property specified, valid properties include: app-label-alias, max-size, vector-image, vector-networks, vector-sink"
 
   run /bin/bash -c "dokku logs:set $TEST_APP invalid value" 2>&1
   echo "output: $output"
   echo "status: $status"
   assert_failure
-  assert_output_contains "Invalid property specified, valid properties include: app-label-alias, max-size, vector-image, vector-sink"
+  assert_output_contains "Invalid property specified, valid properties include: app-label-alias, max-size, vector-image, vector-networks, vector-sink"
+
+  run /bin/bash -c "dokku logs:set $TEST_APP vector-image timberio/vector:latest-debian 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "vector-image may only be set globally with --global"
 }
 
 @test "(logs) logs:set app" {
@@ -473,6 +480,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_failure
+  assert_output_contains "vector-networks may only be set globally with --global"
 
   run /bin/bash -c "dokku logs:set --global vector-networks does-not-exist 2>&1"
   echo "output: $output"
@@ -484,7 +492,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_failure
-  assert_output_contains "\"bridge\" is attached by default and must not be listed"
+  assert_output_contains "\"bridge\" is not a valid entry for vector-networks"
 
   run /bin/bash -c "dokku logs:set --global vector-networks 'test-vector-net-a,'  2>&1"
   echo "output: $output"
@@ -548,9 +556,9 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "bridge"
   assert_output_contains "test-vector-net-a"
   assert_output_contains "test-vector-net-b"
+  assert_output_contains "bridge" 0
 
   run /bin/bash -c "dokku logs:vector-stop 2>&1"
   echo "output: $output"
@@ -569,6 +577,7 @@ teardown() {
   assert_success
   assert_output_contains "test-vector-net-a"
   assert_output_contains "test-vector-net-b"
+  assert_output_contains "bridge" 0
 
   run /bin/bash -c "dokku logs:set --global vector-networks 2>&1"
   echo "output: $output"

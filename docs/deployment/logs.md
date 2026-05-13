@@ -182,7 +182,7 @@ dokku logs:set --global vector-image
 
 By default, the Vector container runs with `network_mode: bridge` and can only reach app containers that are also on the default bridge network. Apps deployed onto a per-app network or a custom network - typically via `dokku network:set <app> initial-network <name>` - are not reachable from Vector over Docker's internal DNS, so sinks that need to talk to those apps directly (for example, an in-host log search service such as [Logpond](https://github.com/dokku/logpond)) would have to route traffic out through the external proxy.
 
-The global `vector-networks` property accepts a comma-separated list of Docker networks that Vector should additionally join.
+The global `vector-networks` property accepts a comma-separated list of Docker networks for Vector to join.
 
 ```shell
 dokku logs:set --global vector-networks dokku-logs
@@ -193,6 +193,8 @@ Multiple networks may be specified by separating them with a comma.
 ```shell
 dokku logs:set --global vector-networks dokku-logs,observability
 ```
+
+Setting this property **replaces** the default bridge attachment: the Vector container will be on the configured user-defined networks only, not the default Docker `bridge` network. Outbound traffic continues to work through the user-defined networks' NAT, so external sinks such as Datadog or hosted HTTP endpoints remain reachable.
 
 Each network must already exist; setting a non-existent network or the reserved `bridge` value will fail. The list can be cleared by setting an empty value, which restores the default `network_mode: bridge` configuration.
 

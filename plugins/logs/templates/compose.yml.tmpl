@@ -15,7 +15,6 @@ services:
 
     {{- if $.VectorNetworks }}
     networks:
-      bridge: {}
       {{- range $name := $.VectorNetworks }}
       {{ $name }}: {}
       {{- end }}
@@ -32,9 +31,6 @@ services:
 {{- if $.VectorNetworks }}
 
 networks:
-  bridge:
-    name: bridge
-    external: true
   {{- range $name := $.VectorNetworks }}
   {{ $name }}:
     name: {{ $name }}
