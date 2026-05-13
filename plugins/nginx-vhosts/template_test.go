@@ -39,6 +39,7 @@ func defaultVars() map[string]interface{} {
 		"NGINX_BIND_ADDRESS_IP4":       "",
 		"NGINX_BIND_ADDRESS_IP6":       "::",
 		"NGINX_DNS_RESOLVER":           "127.0.0.1:1053",
+		"NGINX_DNS_RESOLVER_TIMEOUT":   "5s",
 		"NGINX_DNS_ZONE":               "docker",
 		"NGINX_ACCESS_LOG_PATH":        "/var/log/nginx/app-access.log",
 		"NGINX_ACCESS_LOG_FORMAT":      "",
@@ -96,6 +97,7 @@ func TestTemplate_HTTPOnlyBasicProxy(t *testing.T) {
 	out := renderTemplate(t, defaultVars())
 	mustContain(t, out, "listen      [::]:80;")
 	mustContain(t, out, "resolver 127.0.0.1:1053 valid=10s ipv6=off;")
+	mustContain(t, out, "resolver_timeout 5s;")
 	mustContain(t, out, `set $dokku_upstream "app.web.docker:5000";`)
 	mustContain(t, out, "proxy_pass http://$dokku_upstream;")
 	mustNotContain(t, out, "upstream app-5000 {")
@@ -104,6 +106,14 @@ func TestTemplate_HTTPOnlyBasicProxy(t *testing.T) {
 	mustNotContain(t, out, "ssl_certificate")
 	mustNotContain(t, out, "return 301 https")
 	mustNotContain(t, out, "http2_push_preload")
+}
+
+func TestTemplate_ResolverTimeoutOverride(t *testing.T) {
+	v := defaultVars()
+	v["NGINX_DNS_RESOLVER_TIMEOUT"] = "2s"
+	out := renderTemplate(t, v)
+	mustContain(t, out, "resolver_timeout 2s;")
+	mustNotContain(t, out, "resolver_timeout 5s;")
 }
 
 func TestTemplate_HTTPOnlyBasicProxyWithResolverOff(t *testing.T) {

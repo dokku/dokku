@@ -58,6 +58,7 @@ server {
 
 {{ if ne $.NGINX_DNS_RESOLVER "off" }}
     resolver {{ $.NGINX_DNS_RESOLVER }} valid=10s ipv6=off;
+    resolver_timeout {{ $.NGINX_DNS_RESOLVER_TIMEOUT }};
     set $dokku_upstream "{{ $.DOKKU_APP_WEB_LISTENER_HOST }}:{{ $upstream_port }}";
     proxy_pass http://$dokku_upstream;
 {{ else }}
@@ -146,6 +147,7 @@ server {
   location    / {
 {{ if ne $.NGINX_DNS_RESOLVER "off" }}
     resolver {{ $.NGINX_DNS_RESOLVER }} valid=10s ipv6=off;
+    resolver_timeout {{ $.NGINX_DNS_RESOLVER_TIMEOUT }};
     set $dokku_upstream "{{ $.DOKKU_APP_WEB_LISTENER_HOST }}:{{ $upstream_port }}";
     grpc_pass grpc://$dokku_upstream;
 {{ else }}

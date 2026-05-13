@@ -54,13 +54,14 @@ This path renders the IP that Dokku saw when the config was last built. After a 
 
 ### DNS-based upstream (resolver path)
 
-The new variables (`DOKKU_APP_<PROC>_LISTENER_HOST` + `NGINX_DNS_RESOLVER` + `NGINX_DNS_ZONE`) describe a single hostname per process type of the form `<app>.<proctype>.<dns-zone>` (for example, `myapp.web.docker`). The hostname is served by [coredns-docker](https://github.com/dokku/coredns-docker) (>= `0.6.0`), which watches Docker events and collapses every running instance of the process type onto one multi-A record set. Combined with an nginx `resolver` directive and a variable-based `proxy_pass`, the upstream re-resolves at request time honoring DNS TTL - which gives runtime IP refresh on container restarts and DNS round-robin across scaled instances.
+The new variables (`DOKKU_APP_<PROC>_LISTENER_HOST` + `NGINX_DNS_RESOLVER` + `NGINX_DNS_RESOLVER_TIMEOUT` + `NGINX_DNS_ZONE`) describe a single hostname per process type of the form `<app>.<proctype>.<dns-zone>` (for example, `myapp.web.docker`). The hostname is served by [coredns-docker](https://github.com/dokku/coredns-docker) (>= `0.6.0`), which watches Docker events and collapses every running instance of the process type onto one multi-A record set. Combined with an nginx `resolver` directive and a variable-based `proxy_pass`, the upstream re-resolves at request time honoring DNS TTL - which gives runtime IP refresh on container restarts and DNS round-robin across scaled instances.
 
 The bundled template emits this snippet:
 
 ```nginx
 {{ if ne $.NGINX_DNS_RESOLVER "off" }}
 resolver {{ $.NGINX_DNS_RESOLVER }} valid=10s ipv6=off;
+resolver_timeout {{ $.NGINX_DNS_RESOLVER_TIMEOUT }};
 set $dokku_upstream "{{ $.DOKKU_APP_WEB_LISTENER_HOST }}:{{ $upstream_port }}";
 proxy_pass http://$dokku_upstream;
 {{ else }}
@@ -70,7 +71,7 @@ proxy_pass http://{{ $.APP }}-{{ $upstream_port }};
 
 The `$dokku_upstream` variable name is intentionally namespaced (rather than `$upstream`) so vendored templates that already define `$upstream` will not collide if they adopt the resolver branch.
 
-`NGINX_DNS_RESOLVER` defaults to `127.0.0.1:1053` and `NGINX_DNS_ZONE` defaults to `docker`; both are configurable via `dokku nginx:set --global dns-resolver ...` and `dokku nginx:set --global dns-zone ...`. The literal string `off` is the sentinel for disabling the resolver branch in the bundled template - empty strings are treated as "use the default" because the property is stored on disk and an empty value deletes the property file.
+`NGINX_DNS_RESOLVER` defaults to `127.0.0.1:1053`, `NGINX_DNS_RESOLVER_TIMEOUT` defaults to `5s`, and `NGINX_DNS_ZONE` defaults to `docker`; all three are configurable via `dokku nginx:set --global dns-resolver ...`, `dokku nginx:set --global dns-resolver-timeout ...`, and `dokku nginx:set --global dns-zone ...`. The literal string `off` is the sentinel for disabling the resolver branch in the bundled template - empty strings are treated as "use the default" because the property is stored on disk and an empty value deletes the property file. The short default `dns-resolver-timeout` keeps clients from waiting on nginx's built-in 30s timeout when coredns-docker is unreachable; nginx returns 502 after the configured interval instead.
 
 ### Choosing between the two
 

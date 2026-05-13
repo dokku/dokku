@@ -53,6 +53,8 @@ func appValue(appName string, property string) string {
 		value = nginx_vhosts.AppDisableCustomConfig(appName)
 	case "dns-resolver":
 		value = nginx_vhosts.AppDnsResolver(appName)
+	case "dns-resolver-timeout":
+		value = nginx_vhosts.AppDnsResolverTimeout(appName)
 	case "dns-zone":
 		value = nginx_vhosts.AppDnsZone(appName)
 	case "error-log-path":
@@ -127,6 +129,8 @@ func computedValue(appName string, property string) string {
 		value = nginx_vhosts.ComputedDisableCustomConfig(appName)
 	case "dns-resolver":
 		value = nginx_vhosts.ComputedDnsResolver(appName)
+	case "dns-resolver-timeout":
+		value = nginx_vhosts.ComputedDnsResolverTimeout(appName)
 	case "dns-zone":
 		value = nginx_vhosts.ComputedDnsZone(appName)
 	case "error-log-path":
@@ -201,6 +205,8 @@ func globalValue(appName string, property string) string {
 		value = nginx_vhosts.GlobalDisableCustomConfig()
 	case "dns-resolver":
 		value = nginx_vhosts.GlobalDnsResolver()
+	case "dns-resolver-timeout":
+		value = nginx_vhosts.GlobalDnsResolverTimeout()
 	case "dns-zone":
 		value = nginx_vhosts.GlobalDnsZone()
 	case "error-log-path":
