@@ -143,6 +143,70 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output "false"
+
+  run /bin/bash -c "dokku git:report $TEST_APP --format json | jq -r '.\"global-keep-git-dir\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
+}
+
+@test "(git:report) keep-git-dir global fallback" {
+  run /bin/bash -c "dokku git:set --global keep-git-dir true"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-keep-git-dir"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-computed-keep-git-dir"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-global-keep-git-dir"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku git:report $TEST_APP --format json | jq -r '.\"global-keep-git-dir\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku git:report $TEST_APP --format json | jq -r '.\"computed-keep-git-dir\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku git:set $TEST_APP keep-git-dir false"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-computed-keep-git-dir"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku git:set $TEST_APP keep-git-dir"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:set --global keep-git-dir"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 }
 
 @test "(git) git:help" {

@@ -913,6 +913,7 @@ teardown() {
   assert_success
   assert_output_contains "global git information"
   assert_output_contains "Git global deploy branch"
+  assert_output_contains "Git global keep git dir"
 }
 
 @test "(git:report) --global --format json" {
@@ -927,7 +928,19 @@ teardown() {
   assert_success
   assert_output "master"
 
+  run /bin/bash -c "dokku git:report --global --format json | jq -r '.\"global-keep-git-dir\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
+
   run /bin/bash -c "dokku git:report --global --format json | jq -r 'has(\"deploy-branch\")'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku git:report --global --format json | jq -r 'has(\"keep-git-dir\")'"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -938,4 +951,38 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output "master"
+
+  run /bin/bash -c "dokku git:report --global --git-global-keep-git-dir"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku git:set --global keep-git-dir true"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:report --global --format json | jq -r '.\"global-keep-git-dir\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku git:report --global --git-global-keep-git-dir"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku git:set --global keep-git-dir"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:report --global --format json | jq -r '.\"global-keep-git-dir\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
 }

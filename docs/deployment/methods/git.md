@@ -126,6 +126,15 @@ dokku git:set node-js-app keep-git-dir ""
 
 Please keep in mind that setting `keep-git-dir` to `true` may result in unstaged changes shown within the built container due to the build process generating application changes within the built app directory.
 
+The `keep-git-dir` property may also be set globally so that newly created apps default to keeping the `.git` directory.
+
+```shell
+# on the Dokku host
+dokku git:set --global keep-git-dir true
+```
+
+When set globally, any app that has no per-app `keep-git-dir` override will use the global value at deploy time. A per-app `keep-git-dir` value always takes precedence over the global setting.
+
 ### Initializing an app repository from a remote repository
 
 > [!IMPORTANT]
@@ -287,6 +296,7 @@ dokku git:report
        Git global archive max files:  10000
        Git global archive max size:   1073741824
        Git global deploy branch:      master
+       Git global keep git dir:       false
        Git keep git dir:
        Git rev env var:               GIT_REV
        Git sha:                       a1b2c3d
