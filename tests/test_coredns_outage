@@ -47,7 +47,7 @@ start_coredns_docker() {
 }
 
 curl_status() {
-  curl -kSso /dev/null -w "%{http_code}" -m 5 "http://$APP.$TARGET/"
+  curl -kSso /dev/null -w "%{http_code}" -m 10 "http://$APP.$TARGET/"
 }
 
 wait_for_status() {

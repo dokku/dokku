@@ -30,6 +30,7 @@ func nginxReportProps() []nginxReportProp {
 		{"client-max-body-size", AppClientMaxBodySize, ComputedClientMaxBodySize, wrapGlobal(GlobalClientMaxBodySize)},
 		{"disable-custom-config", AppDisableCustomConfig, ComputedDisableCustomConfig, wrapGlobal(GlobalDisableCustomConfig)},
 		{"dns-resolver", AppDnsResolver, ComputedDnsResolver, wrapGlobal(GlobalDnsResolver)},
+		{"dns-resolver-timeout", AppDnsResolverTimeout, ComputedDnsResolverTimeout, wrapGlobal(GlobalDnsResolverTimeout)},
 		{"dns-zone", AppDnsZone, ComputedDnsZone, wrapGlobal(GlobalDnsZone)},
 		{"error-log-path", AppErrorLogPath, ComputedErrorLogPath, wrapGlobal(GlobalErrorLogPath)},
 		{"hsts-include-subdomains", AppHSTSIncludeSubdomains, ComputedHSTSIncludeSubdomains, wrapGlobal(GlobalHSTSIncludeSubdomains)},

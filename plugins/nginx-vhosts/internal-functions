@@ -193,6 +193,27 @@ fn-nginx-global-dns-resolver() {
   fn-get-property --app "$APP" --global "dns-resolver"
 }
 
+fn-nginx-dns-resolver-timeout() {
+  declare desc="get the configured dns-resolver-timeout value"
+  declare APP="$1"
+
+  fn-get-property --app "$APP" "dns-resolver-timeout"
+}
+
+fn-nginx-computed-dns-resolver-timeout() {
+  declare desc="get the computed dns-resolver-timeout value"
+  declare APP="$1"
+
+  fn-get-property --app "$APP" --computed "dns-resolver-timeout"
+}
+
+fn-nginx-global-dns-resolver-timeout() {
+  declare desc="get the global dns-resolver-timeout value"
+  declare APP="$1"
+
+  fn-get-property --app "$APP" --global "dns-resolver-timeout"
+}
+
 fn-nginx-dns-zone() {
   declare desc="get the configured dns-zone value"
   declare APP="$1"

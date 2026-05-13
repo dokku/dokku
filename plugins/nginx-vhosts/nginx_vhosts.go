@@ -167,6 +167,23 @@ func GlobalDnsResolver() string {
 	return common.PropertyGetDefault("nginx", "--global", "dns-resolver", "127.0.0.1:1053")
 }
 
+func AppDnsResolverTimeout(appName string) string {
+	return common.PropertyGet("nginx", appName, "dns-resolver-timeout")
+}
+
+func ComputedDnsResolverTimeout(appName string) string {
+	appValue := AppDnsResolverTimeout(appName)
+	if appValue != "" {
+		return appValue
+	}
+
+	return GlobalDnsResolverTimeout()
+}
+
+func GlobalDnsResolverTimeout() string {
+	return common.PropertyGetDefault("nginx", "--global", "dns-resolver-timeout", "5s")
+}
+
 func AppDnsZone(appName string) string {
 	return common.PropertyGet("nginx", appName, "dns-zone")
 }

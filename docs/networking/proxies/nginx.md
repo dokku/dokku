@@ -39,9 +39,10 @@ Dokku resolves nginx upstreams through [coredns-docker](https://github.com/dokku
 
 No `systemd-resolved` or `/etc/resolv.conf` change is required - nginx talks to `coredns-docker` directly via the `resolver` directive in each app's `nginx.conf`.
 
-The behavior is controlled by two global nginx properties:
+The behavior is controlled by three global nginx properties:
 
 - `dns-resolver` (default: `127.0.0.1:1053`) - the resolver address nginx talks to.
+- `dns-resolver-timeout` (default: `5s`) - how long nginx waits for a DNS response before giving up and returning 502. The default is short so requests fail fast when coredns-docker is unreachable rather than hanging on the nginx built-in default (30s).
 - `dns-zone` (default: `docker`) - the suffix appended to `<app>.<process-type>` when constructing the upstream hostname.
 
 To revert to the legacy IP-based upstream block (for instance on a host where `coredns-docker` cannot be installed):

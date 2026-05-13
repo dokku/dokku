@@ -150,7 +150,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run curl --connect-to "$TEST_APP.$DOKKU_DOMAIN:80:localhost:80" -kSso /dev/null -w "%{http_code}" -m 5 "http://$TEST_APP.$DOKKU_DOMAIN/"
+  run curl --connect-to "$TEST_APP.$DOKKU_DOMAIN:80:localhost:80" -kSso /dev/null -w "%{http_code}" -m 10 "http://$TEST_APP.$DOKKU_DOMAIN/"
   echo "output: $output"
   echo "status: $status"
   assert_output "502"
