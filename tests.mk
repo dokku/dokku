@@ -239,6 +239,10 @@ deploy-test-config:
 	@echo deploying config app...
 	cd tests && ./test_deploy ./apps/config $(DOKKU_DOMAIN)
 
+deploy-test-coredns-docker-outage:
+	@echo testing nginx-vhosts behavior when coredns-docker is unavailable...
+	cd tests && ./test_coredns_outage $(DOKKU_DOMAIN) docker
+
 deploy-test-dockerfile:
 	@echo deploying dockerfile app...
 	cd tests && ./test_deploy ./apps/dockerfile $(DOKKU_DOMAIN)
@@ -342,7 +346,7 @@ deploy-test-storage-lib-host-root:
 	@echo deploy-test-storage-lib-host-root
 	cd tests/docker && bats storage.bats
 
-test-ci-docker: setup-docker-deploy-tests deploy-test-checks-root deploy-test-config deploy-test-multi deploy-test-go-fail-predeploy deploy-test-go-fail-postdeploy deploy-test-storage-lib-host-root test-ci-binaries
+test-ci-docker: setup-docker-deploy-tests deploy-test-checks-root deploy-test-config deploy-test-multi deploy-test-go-fail-predeploy deploy-test-go-fail-postdeploy deploy-test-storage-lib-host-root deploy-test-coredns-docker-outage test-ci-binaries
 
 generate-ssl-tars: generate-ssl-tar generate-ssl-sans-tar generate-ssl-wildcard-tar
 

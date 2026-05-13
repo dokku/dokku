@@ -1,0 +1,106 @@
+#!/usr/bin/env bash
+set -xeo pipefail
+
+SELF=$(command -v "$0")
+TARGET="$1"
+SCOPE="${2:-host}"
+REMOTE="dokku@$TARGET"
+APP="test-coredns-outage-$RANDOM"
+
+cleanup() {
+  local exit_code=$?
+  set +e
+  start_coredns_docker
+  ssh "$REMOTE" apps:destroy "$APP" --force >/dev/null 2>&1
+  ssh "$REMOTE" events:off >/dev/null 2>&1
+  exit $exit_code
+}
+
+stop_coredns_docker() {
+  case "$SCOPE" in
+  docker)
+    docker exec dokku sv stop coredns-docker
+    ;;
+  host)
+    sudo systemctl stop coredns-docker
+    ;;
+  *)
+    echo "Unknown scope: $SCOPE"
+    exit 1
+    ;;
+  esac
+}
+
+start_coredns_docker() {
+  case "$SCOPE" in
+  docker)
+    docker exec dokku sv start coredns-docker
+    ;;
+  host)
+    sudo systemctl start coredns-docker
+    ;;
+  *)
+    echo "Unknown scope: $SCOPE"
+    exit 1
+    ;;
+  esac
+}
+
+curl_status() {
+  curl -kSso /dev/null -w "%{http_code}" -m 5 "http://$APP.$TARGET/"
+}
+
+wait_for_status() {
+  local expected="$1" attempts="${2:-15}" actual
+  while [[ $attempts -gt 0 ]]; do
+    actual="$(curl_status || true)"
+    [[ "$actual" == "$expected" ]] && return 0
+    attempts=$((attempts - 1))
+    sleep 1
+  done
+  echo "Expected HTTP $expected, last observed $actual"
+  return 1
+}
+
+trap cleanup INT TERM EXIT
+
+ssh "$REMOTE" events:on
+
+TMP=$(mktemp -d "/tmp/$TARGET.XXXXX")
+rmdir "$TMP" && cp -r "$(dirname "$SELF")/apps/python" "$TMP"
+
+pushd "$TMP" >/dev/null
+git init -q
+git config user.email "robot@example.com"
+git config user.name "Test Robot"
+git remote add target "${REMOTE}:${APP}"
+[[ -f gitignore ]] && mv gitignore .gitignore
+git add .
+git commit -qm 'initial commit'
+git push target master
+popd >/dev/null
+rm -rf "$TMP"
+
+echo "-----> Verifying app responds before outage"
+wait_for_status 200
+
+echo "-----> Stopping coredns-docker ($SCOPE)"
+stop_coredns_docker
+
+# Wait long enough for any cached DNS entry (resolver valid=10s in the template)
+sleep 12
+
+echo "-----> Verifying nginx returns 502 with coredns-docker stopped"
+actual="$(curl_status || true)"
+if [[ "$actual" != "502" ]]; then
+  echo "Expected HTTP 502 with coredns-docker stopped, observed $actual"
+  exit 1
+fi
+
+echo "-----> Restarting coredns-docker"
+start_coredns_docker
+
+echo "-----> Verifying app recovers"
+wait_for_status 200
+
+echo "-----> coredns-docker outage test PASSED"
