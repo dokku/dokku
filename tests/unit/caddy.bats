@@ -77,7 +77,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  refute_output ""
+  assert_output_exists
 
   run /bin/bash -c "dokku --quiet caddy:report --global --format json | jq -r '.\"global-polling-interval\"'"
   echo "output: $output"

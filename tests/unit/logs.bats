@@ -412,7 +412,7 @@ teardown() {
   assert_success
   assert_output_not_exists
 
-  run /bin/bash -c "dokku logs:report $TEST_APP --logs-global-max-size 2>&1"
+  run /bin/bash -c "dokku logs:report $TEST_APP --logs-computed-max-size 2>&1"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -428,6 +428,12 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku logs:report $TEST_APP --logs-computed-max-size 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
   assert_output "10m"
 
   run /bin/bash -c "dokku logs:set --global max-size 20m" 2>&1
@@ -437,6 +443,12 @@ teardown() {
   assert_output_contains "Setting max-size"
 
   run /bin/bash -c "dokku logs:report $TEST_APP --logs-global-max-size 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "20m"
+
+  run /bin/bash -c "dokku logs:report $TEST_APP --logs-computed-max-size 2>&1"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -461,6 +473,12 @@ teardown() {
   assert_output_contains "Unsetting max-size"
 
   run /bin/bash -c "dokku logs:report $TEST_APP --logs-global-max-size 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku logs:report $TEST_APP --logs-computed-max-size 2>&1"
   echo "output: $output"
   echo "status: $status"
   assert_success

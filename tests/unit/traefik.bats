@@ -650,7 +650,7 @@ teardown() {
 }
 
 @test "(traefik) api-entry-point property" {
-  run /bin/bash -c "dokku traefik:report $TEST_APP --traefik-api-entry-point"
+  run /bin/bash -c "dokku traefik:report $TEST_APP --traefik-computed-api-entry-point"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -661,7 +661,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku traefik:report $TEST_APP --traefik-api-entry-point"
+  run /bin/bash -c "dokku traefik:report $TEST_APP --traefik-computed-api-entry-point"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -672,7 +672,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku traefik:report $TEST_APP --traefik-api-entry-point"
+  run /bin/bash -c "dokku traefik:report $TEST_APP --traefik-computed-api-entry-point"
   echo "output: $output"
   echo "status: $status"
   assert_success

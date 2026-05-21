@@ -107,7 +107,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  refute_output ""
+  assert_output_exists
 
   run /bin/bash -c "dokku --quiet haproxy:report --global --format json | jq -r '.\"global-refresh-conf\"'"
   echo "output: $output"
