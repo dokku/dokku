@@ -84,9 +84,6 @@ Please read the migration guides for each version in between your currently inst
 
 #### Upgrading using `dokku-update`
 
-> [!WARNING]
-> The `dokku-update` package currently does not support upgrading to a specific version of Dokku. If this is required by a particular migration guide, use the `apt` method for upgrading.
-
 We provide a helpful binary called `dokku-update`. This is a recommended package that:
 
 - Can be installed separately, so upgrading Dokku will not affect the running of this package.
