@@ -34,10 +34,10 @@
     },
     {
       "name": "pack",
-      "version": "0.40.5",
+      "version": "0.40.6",
       "urls": {
-        "amd64": "https://github.com/buildpacks/pack/releases/download/v0.40.5/pack-v0.40.5-linux.tgz",
-        "arm64": "https://github.com/buildpacks/pack/releases/download/v0.40.5/pack-v0.40.5-linux-arm64.tgz"
+        "amd64": "https://github.com/buildpacks/pack/releases/download/v0.40.6/pack-v0.40.6-linux.tgz",
+        "arm64": "https://github.com/buildpacks/pack/releases/download/v0.40.6/pack-v0.40.6-linux-arm64.tgz"
       }
     },
     {
