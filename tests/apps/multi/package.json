@@ -2,7 +2,7 @@
   "author": "Al Johri",
   "dependencies": {
     "bootstrap": "^5.3.8",
-    "sass": "^1.99.0"
+    "sass": "^1.100.0"
   },
   "description": "Test application for heroku multi buildpack.",
   "engines": {
