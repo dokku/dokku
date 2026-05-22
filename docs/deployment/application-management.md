@@ -312,3 +312,15 @@ You can pass flags which will output only the value of the specific information 
 ```shell
 dokku apps:report node-js-app --app-dir
 ```
+
+## Internal properties
+
+The following properties surface in `apps:report` but are not managed by `apps:set` - they are derived metadata recorded by the plugin:
+
+| Property | Kind | Description | Source |
+|---|---|---|---|
+| `--app-created-at` | read-only | UNIX timestamp of app creation | written when the app directory is created in `plugins/apps/functions.go` |
+| `--app-deploy-source` | read-only | Source kind of the last deploy (`git`, `archive`, `docker-image`, `git-sync`) | set via the `deploy-source-set` plugin trigger |
+| `--app-deploy-source-metadata` | read-only | Free-form metadata for the deploy source (commit sha, image ref, URL) | set via the `deploy-source-set` plugin trigger |
+| `--app-dir` | read-only | Absolute path of the app root on disk | derived from `DOKKU_ROOT` and the app name |
+| `--app-locked` | read-only | `true` while a deploy or rebuild holds the app lock | `plugins/apps/functions.go` lock helpers |

@@ -463,3 +463,12 @@ The default value (`true`) may be restored by passing an empty value:
 ```shell
 dokku ps:set node-js-app restore
 ```
+
+## Internal properties
+
+The following properties surface in `ps:report` but are not managed by `ps:set` - they are derived from the running process state:
+
+| Property | Kind | Description | Source |
+|---|---|---|---|
+| `--ps-can-scale` | read-only | `false` when the app's procfile or builder forbids horizontal scaling | derived from procfile parse |
+| `--deployed`, `--running`, `--processes`, `--status-<proctype>` | read-only | Live process state | `plugins/ps/report.go` inspects running containers |

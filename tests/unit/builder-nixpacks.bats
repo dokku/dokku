@@ -56,6 +56,55 @@ teardown() {
   assert_success
 }
 
+@test "(builder-nixpacks:report) nixpackstoml-path raw vs computed vs global" {
+  run /bin/bash -c "dokku builder-nixpacks:set --global nixpackstoml-path"
+  assert_success
+
+  run /bin/bash -c "dokku builder-nixpacks:report $TEST_APP --builder-nixpacks-nixpackstoml-path"
+  assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku builder-nixpacks:report $TEST_APP --builder-nixpacks-global-nixpackstoml-path"
+  assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku builder-nixpacks:report $TEST_APP --builder-nixpacks-computed-nixpackstoml-path"
+  assert_success
+  assert_output "nixpacks.toml"
+
+  run /bin/bash -c "dokku builder-nixpacks:set --global nixpackstoml-path nixpacks.global.toml"
+  assert_success
+
+  run /bin/bash -c "dokku builder-nixpacks:report $TEST_APP --builder-nixpacks-global-nixpackstoml-path"
+  assert_success
+  assert_output "nixpacks.global.toml"
+
+  run /bin/bash -c "dokku builder-nixpacks:report $TEST_APP --builder-nixpacks-computed-nixpackstoml-path"
+  assert_success
+  assert_output "nixpacks.global.toml"
+
+  run /bin/bash -c "dokku builder-nixpacks:set $TEST_APP nixpackstoml-path nixpacks.app.toml"
+  assert_success
+
+  run /bin/bash -c "dokku builder-nixpacks:report $TEST_APP --builder-nixpacks-nixpackstoml-path"
+  assert_success
+  assert_output "nixpacks.app.toml"
+
+  run /bin/bash -c "dokku builder-nixpacks:report $TEST_APP --builder-nixpacks-global-nixpackstoml-path"
+  assert_success
+  assert_output "nixpacks.global.toml"
+
+  run /bin/bash -c "dokku builder-nixpacks:report $TEST_APP --builder-nixpacks-computed-nixpackstoml-path"
+  assert_success
+  assert_output "nixpacks.app.toml"
+
+  run /bin/bash -c "dokku builder-nixpacks:set $TEST_APP nixpackstoml-path"
+  assert_success
+
+  run /bin/bash -c "dokku builder-nixpacks:set --global nixpackstoml-path"
+  assert_success
+}
+
 @test "(builder-nixpacks:set)" {
   run /bin/bash -c "dokku config:set $TEST_APP SECRET_KEY=fjdkslafjdk"
   echo "output: $output"

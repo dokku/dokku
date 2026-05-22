@@ -169,3 +169,11 @@ Available flags:
 - `--builds-computed-retention`: the resolved retention applied to this app
 
 `--build-status` returns the **display** status, so an abandoned in-flight build shows `abandoned` rather than `running`. The raw on-disk status is only visible by reading the JSON record directly.
+
+## Internal properties
+
+The following properties surface in `builds:report` but are not managed by `builds:set` - they are derived metadata recorded during the build:
+
+| Property | Kind | Description | Source |
+|---|---|---|---|
+| `--build-id`, `--build-kind`, `--build-status`, `--build-source`, `--build-pid`, `--build-started-at`, `--build-finished-at`, `--build-exit-code` | read-only | Per-build metadata for the most recent deploy | `plugins/builds/functions.go` writes during deploys |

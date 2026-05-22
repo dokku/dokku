@@ -318,3 +318,12 @@ dokku git:report node-js-app --format json
 ```
 
 The `--format` flag cannot be combined with an info flag.
+
+## Internal properties
+
+The following properties surface in `git:report` but are not managed by `git:set` - they are derived from repository state:
+
+| Property | Kind | Description | Source |
+|---|---|---|---|
+| `--git-sha` | read-only | HEAD commit SHA of the app's git repo | `git rev-parse HEAD` against `$APP_ROOT` |
+| `--git-last-updated-at` | read-only | UNIX timestamp of the last write to the deploy branch ref | `stat -c %Y` on `refs/heads/<deploy-branch>` |

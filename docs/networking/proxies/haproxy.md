@@ -244,3 +244,11 @@ You can pass flags which will output only the value of the specific information 
 ```shell
 dokku haproxy:report node-js-app --haproxy-computed-image
 ```
+
+## Internal properties
+
+The following properties are not managed by `haproxy:set` but are recorded internally by the plugin:
+
+| Property | Kind | Description | Source |
+|---|---|---|---|
+| `proxy-status` | internal | `started`/`stopped` state of the haproxy compose project | `cmd-haproxy-start`/`cmd-haproxy-stop` in `plugins/haproxy-vhosts/command-functions` |

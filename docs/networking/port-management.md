@@ -220,3 +220,11 @@ You can pass flags which will output only the value of the specific information 
 ```shell
 dokku ports:report node-js-app --ports-map
 ```
+
+## Internal properties
+
+The following properties surface in `ports:report` but are not managed by `ports:set` - they are derived from the deploy:
+
+| Property | Kind | Description | Source |
+|---|---|---|---|
+| `--ports-map-detected` | read-only | Port mapping inferred from `EXPOSE` directives or the running container | `builder-dockerfile` detection on deploy |

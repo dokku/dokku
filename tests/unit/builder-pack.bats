@@ -58,6 +58,55 @@ teardown() {
   assert_success
 }
 
+@test "(builder-pack:report) projecttoml-path raw vs computed vs global" {
+  run /bin/bash -c "dokku builder-pack:set --global projecttoml-path"
+  assert_success
+
+  run /bin/bash -c "dokku builder-pack:report $TEST_APP --builder-pack-projecttoml-path"
+  assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku builder-pack:report $TEST_APP --builder-pack-global-projecttoml-path"
+  assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku builder-pack:report $TEST_APP --builder-pack-computed-projecttoml-path"
+  assert_success
+  assert_output "project.toml"
+
+  run /bin/bash -c "dokku builder-pack:set --global projecttoml-path project.global.toml"
+  assert_success
+
+  run /bin/bash -c "dokku builder-pack:report $TEST_APP --builder-pack-global-projecttoml-path"
+  assert_success
+  assert_output "project.global.toml"
+
+  run /bin/bash -c "dokku builder-pack:report $TEST_APP --builder-pack-computed-projecttoml-path"
+  assert_success
+  assert_output "project.global.toml"
+
+  run /bin/bash -c "dokku builder-pack:set $TEST_APP projecttoml-path project.app.toml"
+  assert_success
+
+  run /bin/bash -c "dokku builder-pack:report $TEST_APP --builder-pack-projecttoml-path"
+  assert_success
+  assert_output "project.app.toml"
+
+  run /bin/bash -c "dokku builder-pack:report $TEST_APP --builder-pack-global-projecttoml-path"
+  assert_success
+  assert_output "project.global.toml"
+
+  run /bin/bash -c "dokku builder-pack:report $TEST_APP --builder-pack-computed-projecttoml-path"
+  assert_success
+  assert_output "project.app.toml"
+
+  run /bin/bash -c "dokku builder-pack:set $TEST_APP projecttoml-path"
+  assert_success
+
+  run /bin/bash -c "dokku builder-pack:set --global projecttoml-path"
+  assert_success
+}
+
 @test "(builder-pack:set)" {
   run /bin/bash -c "dokku config:set $TEST_APP SECRET_KEY=fjdkslafjdk"
   echo "output: $output"

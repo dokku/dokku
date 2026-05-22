@@ -511,3 +511,12 @@ You can pass flags which will output only the value of the specific information 
 ```shell
 dokku network:report node-js-app --network-bind-all-interfaces
 ```
+
+## Internal properties
+
+The following properties surface in `network:report` but are not managed by `network:set` - they are derived from the running app state:
+
+| Property | Kind | Description | Source |
+|---|---|---|---|
+| `--network-web-listeners` | read-only | Current `web` process listeners (host:port) for the deployed app | derived from running container inspection |
+| `--network-static-web-listener` | read-only | Static listener override used when no container is running | derived from app config |

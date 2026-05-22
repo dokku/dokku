@@ -313,6 +313,55 @@ teardown() {
   assert_output "app.json"
 }
 
+@test "(app-json:report) appjson-path raw vs computed vs global" {
+  run /bin/bash -c "dokku app-json:set --global appjson-path"
+  assert_success
+
+  run /bin/bash -c "dokku app-json:report $TEST_APP --app-json-appjson-path"
+  assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku app-json:report $TEST_APP --app-json-global-appjson-path"
+  assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku app-json:report $TEST_APP --app-json-computed-appjson-path"
+  assert_success
+  assert_output "app.json"
+
+  run /bin/bash -c "dokku app-json:set --global appjson-path app.global.json"
+  assert_success
+
+  run /bin/bash -c "dokku app-json:report $TEST_APP --app-json-global-appjson-path"
+  assert_success
+  assert_output "app.global.json"
+
+  run /bin/bash -c "dokku app-json:report $TEST_APP --app-json-computed-appjson-path"
+  assert_success
+  assert_output "app.global.json"
+
+  run /bin/bash -c "dokku app-json:set $TEST_APP appjson-path app.app.json"
+  assert_success
+
+  run /bin/bash -c "dokku app-json:report $TEST_APP --app-json-appjson-path"
+  assert_success
+  assert_output "app.app.json"
+
+  run /bin/bash -c "dokku app-json:report $TEST_APP --app-json-global-appjson-path"
+  assert_success
+  assert_output "app.global.json"
+
+  run /bin/bash -c "dokku app-json:report $TEST_APP --app-json-computed-appjson-path"
+  assert_success
+  assert_output "app.app.json"
+
+  run /bin/bash -c "dokku app-json:set $TEST_APP appjson-path"
+  assert_success
+
+  run /bin/bash -c "dokku app-json:set --global appjson-path"
+  assert_success
+}
+
 copy_app_json_to_sub_app() {
   local APP="$1"
   local APP_REPO_DIR="$2"

@@ -186,6 +186,55 @@ teardown() {
   assert_output_not_contains "unknown flag"
 }
 
+@test "(cron:report) maintenance raw vs computed vs global" {
+  run /bin/bash -c "dokku cron:set --global maintenance"
+  assert_success
+
+  run /bin/bash -c "dokku --quiet cron:report $TEST_APP --format json | jq -r '.\"cron-maintenance\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku --quiet cron:report $TEST_APP --format json | jq -r '.\"cron-global-maintenance\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku --quiet cron:report $TEST_APP --format json | jq -r '.\"cron-computed-maintenance\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku cron:set --global maintenance true"
+  assert_success
+
+  run /bin/bash -c "dokku --quiet cron:report $TEST_APP --format json | jq -r '.\"cron-global-maintenance\"'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku --quiet cron:report $TEST_APP --format json | jq -r '.\"cron-computed-maintenance\"'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku cron:set $TEST_APP maintenance false"
+  assert_success
+
+  run /bin/bash -c "dokku --quiet cron:report $TEST_APP --format json | jq -r '.\"cron-maintenance\"'"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku --quiet cron:report $TEST_APP --format json | jq -r '.\"cron-global-maintenance\"'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku --quiet cron:report $TEST_APP --format json | jq -r '.\"cron-computed-maintenance\"'"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku cron:set $TEST_APP maintenance"
+  assert_success
+
+  run /bin/bash -c "dokku cron:set --global maintenance"
+  assert_success
+}
+
 @test "(cron:set) --global rejects task maintenance properties" {
   run /bin/bash -c "dokku cron:set --global maintenance.fakeid true"
   echo "output: $output"

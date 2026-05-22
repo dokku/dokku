@@ -265,3 +265,11 @@ You can pass flags which will output only the value of the specific information 
 ```shell
 dokku caddy:report node-js-app --caddy-computed-image
 ```
+
+## Internal properties
+
+The following properties are not managed by `caddy:set` but are recorded internally by the plugin:
+
+| Property | Kind | Description | Source |
+|---|---|---|---|
+| `proxy-status` | internal | `started`/`stopped` state of the caddy compose project | `cmd-caddy-start`/`cmd-caddy-stop` in `plugins/caddy-vhosts/command-functions` |

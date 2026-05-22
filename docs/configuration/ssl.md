@@ -150,3 +150,11 @@ If an `https:443:*` port mapping already exists when a certificate is installed 
 ### Running behind a proxy (`X-Forwarded-Ssl`, etc.)
 
 See the [running behind another proxy documentation](/docs/networking/proxies/nginx.md#running-behind-another-proxy--configuring-x-forwarded--headers) for more information on how to configure your Nginx config when your server is running behind a proxy (e.g. load balancer, etc.).
+
+## Internal properties
+
+The following properties surface in `certs:report` but are not managed by `certs:set` - they are derived from the on-disk certificate:
+
+| Property | Kind | Description | Source |
+|---|---|---|---|
+| `--ssl-enabled`, `--ssl-dir`, `--ssl-hostnames`, `--ssl-issuer`, `--ssl-subject`, `--ssl-verified`, `--ssl-expires-at`, `--ssl-starts-at` | read-only | Metadata extracted from the on-disk certificate, if present | `plugins/certs/functions` openssl introspection |

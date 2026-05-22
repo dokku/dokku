@@ -236,3 +236,11 @@ Proxy implementations may decide to omit some functionality here, or use plugin 
 Individual proxy implementations _may_ trigger app rebuilds, depending on how proxy metadata is exposed for the proxy implementation.
 
 Finally, proxy implementations _may_ install extra software needed for the proxy itself in whatever manner deemed fit. Proxy software can run on the host itself or within a running Docker container with either exposed ports or host networking.
+
+## Internal properties
+
+The following properties surface in `proxy:report` but are not managed by `proxy:set`:
+
+| Property | Kind | Description | Source |
+|---|---|---|---|
+| `--proxy-enabled` | read-only | `true` when the app's `disabled` property is not `true` | `plugins/proxy/proxy.go::IsAppProxyEnabled` |

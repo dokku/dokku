@@ -390,3 +390,11 @@ You can pass flags which will output only the value of the specific information 
 ```shell
 dokku traefik:report node-js-app --traefik-computed-api-enabled
 ```
+
+## Internal properties
+
+The following properties are not managed by `traefik:set` but are recorded internally by the plugin:
+
+| Property | Kind | Description | Source |
+|---|---|---|---|
+| `proxy-status` | internal | `started`/`stopped` state of the traefik compose project | `cmd-traefik-start`/`cmd-traefik-stop` in `plugins/traefik-vhosts/command-functions` |

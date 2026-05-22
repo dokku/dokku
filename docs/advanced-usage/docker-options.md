@@ -230,3 +230,11 @@ The `docker-options:list` command prints the options stored for a single process
 dokku docker-options:list node-js-app --process web --phase deploy
 dokku docker-options:list node-js-app --phase deploy
 ```
+
+## Internal properties
+
+The following property is recorded internally by the docker-options plugin and is not exposed via `docker-options:report`:
+
+| Property | Kind | Description | Source |
+|---|---|---|---|
+| `migrated-from-files` | internal | Global migration sentinel that records that the legacy `DOCKER_OPTIONS_<PHASE>` flat-file store has been drained into plugin properties | `plugins/docker-options/functions.go` writes `"true"` once the install-time migration runs |

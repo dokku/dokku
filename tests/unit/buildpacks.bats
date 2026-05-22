@@ -191,6 +191,51 @@ teardown() {
   assert_success
 }
 
+@test "(buildpacks:report) stack raw vs computed vs global" {
+  run /bin/bash -c "dokku buildpacks:set-property --global stack"
+  assert_success
+
+  run /bin/bash -c "dokku --quiet buildpacks:report $TEST_APP --format json | jq -r '.\"buildpacks-stack\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku --quiet buildpacks:report $TEST_APP --format json | jq -r '.\"buildpacks-global-stack\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku buildpacks:set-property --global stack gliderlabs/herokuish:global"
+  assert_success
+
+  run /bin/bash -c "dokku --quiet buildpacks:report $TEST_APP --format json | jq -r '.\"buildpacks-global-stack\"'"
+  assert_success
+  assert_output "gliderlabs/herokuish:global"
+
+  run /bin/bash -c "dokku --quiet buildpacks:report $TEST_APP --format json | jq -r '.\"buildpacks-computed-stack\"'"
+  assert_success
+  assert_output "gliderlabs/herokuish:global"
+
+  run /bin/bash -c "dokku buildpacks:set-property $TEST_APP stack gliderlabs/herokuish:app"
+  assert_success
+
+  run /bin/bash -c "dokku --quiet buildpacks:report $TEST_APP --format json | jq -r '.\"buildpacks-stack\"'"
+  assert_success
+  assert_output "gliderlabs/herokuish:app"
+
+  run /bin/bash -c "dokku --quiet buildpacks:report $TEST_APP --format json | jq -r '.\"buildpacks-global-stack\"'"
+  assert_success
+  assert_output "gliderlabs/herokuish:global"
+
+  run /bin/bash -c "dokku --quiet buildpacks:report $TEST_APP --format json | jq -r '.\"buildpacks-computed-stack\"'"
+  assert_success
+  assert_output "gliderlabs/herokuish:app"
+
+  run /bin/bash -c "dokku buildpacks:set-property $TEST_APP stack"
+  assert_success
+
+  run /bin/bash -c "dokku buildpacks:set-property --global stack"
+  assert_success
+}
+
 @test "(buildpacks) buildpacks:remove" {
   run /bin/bash -c "dokku buildpacks:set $TEST_APP heroku/nodejs"
   echo "output: $output"

@@ -620,3 +620,13 @@ See the [ports documentation](/docs/networking/port-management.md) for more info
 ### Regenerating nginx config
 
 See the [proxy documentation](/docs/networking/proxy-management.md#regenerating-proxy-config) for more information on how to rebuild the nginx proxy configuration for your app.
+
+## Internal properties
+
+The following properties surface in `nginx:report` but are not managed by `nginx:set`, or are recorded internally by the plugin:
+
+| Property | Kind | Description | Source |
+|---|---|---|---|
+| `--nginx-last-visited-at` | read-only | UNIX timestamp of the last request served by nginx for the app | log-tailer writes the property on every request batch |
+| `proxy-status` | internal | `started`/`stopped` state of the nginx system service | `cmd-nginx-start`/`cmd-nginx-stop` |
+| `nginx-conf-sigil-migrated` | internal | Migration sentinel set the first time a v1 template is rewritten to the current schema | `plugins/nginx-vhosts/install` writes `"true"` once the install-time migration runs |

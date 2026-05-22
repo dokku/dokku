@@ -67,6 +67,55 @@ teardown() {
   assert_success
 }
 
+@test "(builder-railpack:report) railpackjson-path raw vs computed vs global" {
+  run /bin/bash -c "dokku builder-railpack:set --global railpackjson-path"
+  assert_success
+
+  run /bin/bash -c "dokku builder-railpack:report $TEST_APP --builder-railpack-railpackjson-path"
+  assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku builder-railpack:report $TEST_APP --builder-railpack-global-railpackjson-path"
+  assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku builder-railpack:report $TEST_APP --builder-railpack-computed-railpackjson-path"
+  assert_success
+  assert_output "railpack.json"
+
+  run /bin/bash -c "dokku builder-railpack:set --global railpackjson-path railpack.global.json"
+  assert_success
+
+  run /bin/bash -c "dokku builder-railpack:report $TEST_APP --builder-railpack-global-railpackjson-path"
+  assert_success
+  assert_output "railpack.global.json"
+
+  run /bin/bash -c "dokku builder-railpack:report $TEST_APP --builder-railpack-computed-railpackjson-path"
+  assert_success
+  assert_output "railpack.global.json"
+
+  run /bin/bash -c "dokku builder-railpack:set $TEST_APP railpackjson-path railpack.app.json"
+  assert_success
+
+  run /bin/bash -c "dokku builder-railpack:report $TEST_APP --builder-railpack-railpackjson-path"
+  assert_success
+  assert_output "railpack.app.json"
+
+  run /bin/bash -c "dokku builder-railpack:report $TEST_APP --builder-railpack-global-railpackjson-path"
+  assert_success
+  assert_output "railpack.global.json"
+
+  run /bin/bash -c "dokku builder-railpack:report $TEST_APP --builder-railpack-computed-railpackjson-path"
+  assert_success
+  assert_output "railpack.app.json"
+
+  run /bin/bash -c "dokku builder-railpack:set $TEST_APP railpackjson-path"
+  assert_success
+
+  run /bin/bash -c "dokku builder-railpack:set --global railpackjson-path"
+  assert_success
+}
+
 @test "(builder-railpack:set)" {
   run /bin/bash -c "dokku config:set $TEST_APP SECRET_KEY=fjdkslafjdk"
   echo "output: $output"

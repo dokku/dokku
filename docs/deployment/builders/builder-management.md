@@ -172,3 +172,11 @@ Custom plugins names _must_ have the prefix `builder-` or builder overriding via
 Builders can use any tools available on the system to build the docker image, and may even be used to schedule building off-server. The only current requirement is that the image must exist on the server at the end of the `builder-build` command, though this requirement may be relaxed in a future release.
 
 For a simple example of how to implement this trigger, see `builder-pack`, which utilizes a cli tool - `pack-cli` - to generate an OCI image that is compatible with Docker and can be scheduled by the official scheduling plugins.
+
+## Internal properties
+
+The following properties surface in `builder:report` but are not managed by `builder:set`:
+
+| Property | Kind | Description | Source |
+|---|---|---|---|
+| `--builder-detected` | read-only | Builder auto-selected for the app when `selected` is unset | `builder-detect` plugin trigger run on demand |

@@ -83,6 +83,59 @@ teardown() {
   assert_success
 }
 
+@test "(builder-dockerfile:report) dockerfile-path raw vs computed vs global" {
+  run /bin/bash -c "dokku builder-dockerfile:set --global dockerfile-path"
+  assert_success
+
+  run /bin/bash -c "dokku builder-dockerfile:report $TEST_APP --builder-dockerfile-dockerfile-path"
+  assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku builder-dockerfile:report $TEST_APP --builder-dockerfile-global-dockerfile-path"
+  assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku builder-dockerfile:report $TEST_APP --builder-dockerfile-computed-dockerfile-path"
+  assert_success
+  assert_output "Dockerfile"
+
+  run /bin/bash -c "dokku builder-dockerfile:set --global dockerfile-path Dockerfile.global"
+  assert_success
+
+  run /bin/bash -c "dokku builder-dockerfile:report $TEST_APP --builder-dockerfile-global-dockerfile-path"
+  assert_success
+  assert_output "Dockerfile.global"
+
+  run /bin/bash -c "dokku builder-dockerfile:report $TEST_APP --builder-dockerfile-computed-dockerfile-path"
+  assert_success
+  assert_output "Dockerfile.global"
+
+  run /bin/bash -c "dokku builder-dockerfile:set $TEST_APP dockerfile-path Dockerfile.app"
+  assert_success
+
+  run /bin/bash -c "dokku builder-dockerfile:report $TEST_APP --builder-dockerfile-dockerfile-path"
+  assert_success
+  assert_output "Dockerfile.app"
+
+  run /bin/bash -c "dokku builder-dockerfile:report $TEST_APP --builder-dockerfile-global-dockerfile-path"
+  assert_success
+  assert_output "Dockerfile.global"
+
+  run /bin/bash -c "dokku builder-dockerfile:report $TEST_APP --builder-dockerfile-computed-dockerfile-path"
+  assert_success
+  assert_output "Dockerfile.app"
+
+  run /bin/bash -c "dokku builder-dockerfile:set $TEST_APP dockerfile-path"
+  assert_success
+
+  run /bin/bash -c "dokku builder-dockerfile:set --global dockerfile-path"
+  assert_success
+
+  run /bin/bash -c "dokku builder-dockerfile:report $TEST_APP --builder-dockerfile-computed-dockerfile-path"
+  assert_success
+  assert_output "Dockerfile"
+}
+
 @test "(builder-dockerfile:set)" {
   run deploy_app dockerfile
   echo "output: $output"

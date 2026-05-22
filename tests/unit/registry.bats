@@ -133,6 +133,112 @@ teardown() {
   create_app
 }
 
+@test "(registry:report) image-repo raw vs computed vs global" {
+  run /bin/bash -c "dokku registry:set --global image-repo-template"
+  assert_success
+
+  run /bin/bash -c "dokku --quiet registry:report $TEST_APP --format json | jq -r '.\"registry-image-repo\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku --quiet registry:report $TEST_APP --format json | jq -r '.\"registry-global-image-repo-template\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku --quiet registry:report $TEST_APP --format json | jq -r '.\"registry-computed-image-repo\"'"
+  assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku registry:set --global image-repo-template 'dokku/{{ APP }}'"
+  assert_success
+
+  run /bin/bash -c "dokku --quiet registry:report $TEST_APP --format json | jq -r '.\"registry-global-image-repo-template\"'"
+  assert_success
+  assert_output 'dokku/{{ APP }}'
+
+  run /bin/bash -c "dokku --quiet registry:report $TEST_APP --format json | jq -r '.\"registry-computed-image-repo\"'"
+  assert_success
+  assert_output "dokku/$TEST_APP"
+
+  run /bin/bash -c "dokku registry:set $TEST_APP image-repo my/$TEST_APP"
+  assert_success
+
+  run /bin/bash -c "dokku --quiet registry:report $TEST_APP --format json | jq -r '.\"registry-image-repo\"'"
+  assert_success
+  assert_output "my/$TEST_APP"
+
+  run /bin/bash -c "dokku --quiet registry:report $TEST_APP --format json | jq -r '.\"registry-computed-image-repo\"'"
+  assert_success
+  assert_output "my/$TEST_APP"
+
+  run /bin/bash -c "dokku registry:set $TEST_APP image-repo"
+  assert_success
+
+  run /bin/bash -c "dokku registry:set --global image-repo-template"
+  assert_success
+}
+
+@test "(registry:report) push-on-release raw vs computed vs global" {
+  run /bin/bash -c "dokku registry:set --global push-on-release"
+  assert_success
+
+  run /bin/bash -c "dokku --quiet registry:report $TEST_APP --format json | jq -r '.\"registry-push-on-release\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku --quiet registry:report $TEST_APP --format json | jq -r '.\"registry-global-push-on-release\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku --quiet registry:report $TEST_APP --format json | jq -r '.\"registry-computed-push-on-release\"'"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku registry:set --global push-on-release true"
+  assert_success
+
+  run /bin/bash -c "dokku --quiet registry:report $TEST_APP --format json | jq -r '.\"registry-global-push-on-release\"'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku --quiet registry:report $TEST_APP --format json | jq -r '.\"registry-computed-push-on-release\"'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku registry:set $TEST_APP push-on-release false"
+  assert_success
+
+  run /bin/bash -c "dokku --quiet registry:report $TEST_APP --format json | jq -r '.\"registry-push-on-release\"'"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku --quiet registry:report $TEST_APP --format json | jq -r '.\"registry-computed-push-on-release\"'"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku registry:set $TEST_APP push-on-release"
+  assert_success
+
+  run /bin/bash -c "dokku registry:set --global push-on-release"
+  assert_success
+}
+
+@test "(registry:report) push-extra-tags raw" {
+  run /bin/bash -c "dokku --quiet registry:report $TEST_APP --format json | jq -r '.\"registry-push-extra-tags\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku registry:set $TEST_APP push-extra-tags release,stable"
+  assert_success
+
+  run /bin/bash -c "dokku --quiet registry:report $TEST_APP --format json | jq -r '.\"registry-push-extra-tags\"'"
+  assert_success
+  assert_output "release,stable"
+
+  run /bin/bash -c "dokku registry:set $TEST_APP push-extra-tags"
+  assert_success
+}
+
 @test "(registry) registry:set server" {
   run /bin/bash -c "dokku registry:set --global server ghcr.io"
   echo "output: $output"
