@@ -157,4 +157,11 @@ The following properties surface in `certs:report` but are not managed by `certs
 
 | Property | Kind | Description | Source |
 |---|---|---|---|
-| `--ssl-enabled`, `--ssl-dir`, `--ssl-hostnames`, `--ssl-issuer`, `--ssl-subject`, `--ssl-verified`, `--ssl-expires-at`, `--ssl-starts-at` | read-only | Metadata extracted from the on-disk certificate, if present | `plugins/certs/functions` openssl introspection |
+| `--ssl-enabled` | read-only | `true` when an SSL certificate is installed for the app | `plugins/certs/internal-functions` checks `$DOKKU_ROOT/$APP/tls` |
+| `--ssl-dir` | read-only | Absolute path to the per-app certificate directory | derived from `$DOKKU_ROOT/$APP/tls` |
+| `--ssl-hostnames` | read-only | Hostnames the certificate covers (CN plus Subject Alternative Names) | `openssl x509` parse of `server.crt` |
+| `--ssl-issuer` | read-only | Certificate issuer DN | `openssl x509 ... Issuer:` parse |
+| `--ssl-subject` | read-only | Certificate subject DN | `openssl x509 ... Subject:` parse |
+| `--ssl-verified` | read-only | `true` if the certificate chain verifies against the system CA bundle | `openssl verify` |
+| `--ssl-expires-at` | read-only | Certificate `notAfter` timestamp | `openssl x509 ... Not After :` parse |
+| `--ssl-starts-at` | read-only | Certificate `notBefore` timestamp | `openssl x509 ... Not Before:` parse |

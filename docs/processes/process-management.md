@@ -471,4 +471,7 @@ The following properties surface in `ps:report` but are not managed by `ps:set` 
 | Property | Kind | Description | Source |
 |---|---|---|---|
 | `--ps-can-scale` | read-only | `false` when the app's procfile or builder forbids horizontal scaling | derived from procfile parse |
-| `--deployed`, `--running`, `--processes`, `--status-<proctype>` | read-only | Live process state | `plugins/ps/report.go` inspects running containers |
+| `--deployed` | read-only | `true` after the first successful deploy | `common.IsDeployed(appName)` checks the app's deploy marker |
+| `--running` | read-only | `true` while any container for the app is running | `getRunningState(appName)` inspects running containers |
+| `--processes` | read-only | Total scaled process count across all proctypes | `getProcessCount(appName)` reads the per-proctype scale formation |
+| `--status-<proctype>` | read-only | Container status and ID for each running proctype (one entry per Procfile process type) | `plugins/ps/report.go::addStatusFlags` inspects running containers |

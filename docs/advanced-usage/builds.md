@@ -176,4 +176,11 @@ The following properties surface in `builds:report` but are not managed by `buil
 
 | Property | Kind | Description | Source |
 |---|---|---|---|
-| `--build-id`, `--build-kind`, `--build-status`, `--build-source`, `--build-pid`, `--build-started-at`, `--build-finished-at`, `--build-exit-code` | read-only | Per-build metadata for the most recent deploy | `plugins/builds/functions.go` writes during deploys |
+| `--build-id` | read-only | Unique identifier of the most recent build for the app | `plugins/builds/functions.go` writes during deploys |
+| `--build-kind` | read-only | Whether the record was a `build` or a `deploy` | `plugins/builds/functions.go` writes during deploys |
+| `--build-status` | read-only | Display status (`running`, `succeeded`, `failed`, `canceled`, `abandoned`) | `plugins/builds/functions.go` writes during deploys; status is computed at read time |
+| `--build-source` | read-only | Trigger that started the build (e.g. `git-hook`, `ps:rebuild`, `ps:restart`) | `plugins/builds/functions.go` writes during deploys |
+| `--build-pid` | read-only | PID of the build process | `plugins/builds/functions.go` writes during deploys |
+| `--build-started-at` | read-only | UNIX timestamp the build started | `plugins/builds/functions.go` writes during deploys |
+| `--build-finished-at` | read-only | UNIX timestamp the build finished | `plugins/builds/functions.go` writes during deploys |
+| `--build-exit-code` | read-only | Exit code of the build process | `plugins/builds/functions.go` writes during deploys |
