@@ -17,7 +17,11 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 	var flags map[string]common.ReportFunc
 	if appName == "--global" {
 		flags = map[string]common.ReportFunc{
+			"--network-computed-attach-post-create":  reportComputedAttachPostCreate,
+			"--network-computed-attach-post-deploy":  reportComputedAttachPostDeploy,
 			"--network-computed-bind-all-interfaces": reportComputedBindAllInterfaces,
+			"--network-computed-initial-network":     reportComputedInitialNetwork,
+			"--network-computed-tld":                 reportComputedTld,
 			"--network-global-attach-post-create":    reportGlobalAttachPostCreate,
 			"--network-global-attach-post-deploy":    reportGlobalAttachPostDeploy,
 			"--network-global-bind-all-interfaces":   reportGlobalBindAllInterfaces,

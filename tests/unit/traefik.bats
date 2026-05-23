@@ -72,25 +72,25 @@ teardown() {
 }
 
 @test "(traefik:report) --global raw and computed keys in --format json" {
-  run /bin/bash -c "dokku --quiet traefik:report --global --format json | jq -r '.\"global-api-vhost\"'"
+  run /bin/bash -c "dokku traefik:report --global --format json | jq -r '.\"global-api-vhost\"'"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output ""
 
-  run /bin/bash -c "dokku --quiet traefik:report --global --format json | jq -r '.\"computed-api-vhost\"'"
+  run /bin/bash -c "dokku traefik:report --global --format json | jq -r '.\"computed-api-vhost\"'"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output "traefik.dokku.me"
 
-  run /bin/bash -c "dokku --quiet traefik:report --global --format json | jq -r '.\"global-dashboard-enabled\"'"
+  run /bin/bash -c "dokku traefik:report --global --format json | jq -r '.\"global-dashboard-enabled\"'"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output ""
 
-  run /bin/bash -c "dokku --quiet traefik:report --global --format json | jq -r '.\"computed-dashboard-enabled\"'"
+  run /bin/bash -c "dokku traefik:report --global --format json | jq -r '.\"computed-dashboard-enabled\"'"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -300,12 +300,12 @@ teardown() {
   assert_success
   assert_output "5000"
 
-  run /bin/bash -c "dokku --quiet ports:report $TEST_APP --ports-map"
+  run /bin/bash -c "dokku ports:report $TEST_APP --ports-map"
   echo "output: $output"
   echo "status: $status"
   assert_output_not_exists
 
-  run /bin/bash -c "dokku --quiet ports:report $TEST_APP --ports-map-detected"
+  run /bin/bash -c "dokku ports:report $TEST_APP --ports-map-detected"
   echo "output: $output"
   echo "status: $status"
   assert_output "http:80:5000 https:443:5000"

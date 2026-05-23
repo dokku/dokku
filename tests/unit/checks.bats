@@ -46,18 +46,18 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku --quiet checks:report --global --format json | jq -e ."
+  run /bin/bash -c "dokku checks:report --global --format json | jq -e ."
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku --quiet checks:report --global --format json | jq -r '.\"global-wait-to-retire\"'"
+  run /bin/bash -c "dokku checks:report --global --format json | jq -r '.\"global-wait-to-retire\"'"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output ""
 
-  run /bin/bash -c "dokku --quiet checks:report --global --format json | jq -r '.\"computed-wait-to-retire\"'"
+  run /bin/bash -c "dokku checks:report --global --format json | jq -r '.\"computed-wait-to-retire\"'"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -68,13 +68,13 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku --quiet checks:report --global --format json | jq -r '.\"global-wait-to-retire\"'"
+  run /bin/bash -c "dokku checks:report --global --format json | jq -r '.\"global-wait-to-retire\"'"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output "90"
 
-  run /bin/bash -c "dokku --quiet checks:report --global --format json | jq -r '.\"computed-wait-to-retire\"'"
+  run /bin/bash -c "dokku checks:report --global --format json | jq -r '.\"computed-wait-to-retire\"'"
   echo "output: $output"
   echo "status: $status"
   assert_success

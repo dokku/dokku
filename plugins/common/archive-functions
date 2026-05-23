@@ -11,12 +11,12 @@ fi
 DOKKU_ARCHIVE_MAX_SIZE_DEFAULT="1073741824"
 DOKKU_ARCHIVE_MAX_FILES_DEFAULT="10000"
 
-fn-archive-max-size() {
+fn-archive-computed-max-size() {
   declare desc="returns the configured max archive size in bytes"
   fn-plugin-property-get "git" "--global" "archive-max-size" "$DOKKU_ARCHIVE_MAX_SIZE_DEFAULT"
 }
 
-fn-archive-max-files() {
+fn-archive-computed-max-files() {
   declare desc="returns the configured max archive entry count"
   fn-plugin-property-get "git" "--global" "archive-max-files" "$DOKKU_ARCHIVE_MAX_FILES_DEFAULT"
 }
@@ -43,8 +43,8 @@ fn-archive-check-bomb-protection() {
   declare desc="validates archive against bomb protection limits"
   declare ARCHIVE_PATH="$1" ARCHIVE_TYPE="$2"
   local MAX_SIZE MAX_FILES
-  MAX_SIZE="$(fn-archive-max-size)"
-  MAX_FILES="$(fn-archive-max-files)"
+  MAX_SIZE="$(fn-archive-computed-max-size)"
+  MAX_FILES="$(fn-archive-computed-max-files)"
 
   local ARCHIVE_SIZE
   ARCHIVE_SIZE="$(stat -c %s "$ARCHIVE_PATH" 2>/dev/null || stat -f %z "$ARCHIVE_PATH" 2>/dev/null || echo 0)"
@@ -190,8 +190,8 @@ fn-archive-extract-zip() {
   declare desc="safely extracts a zip archive with post-extraction symlink validation"
   declare ARCHIVE_PATH="$1" DEST_DIR="$2"
   local MAX_SIZE MAX_FILES
-  MAX_SIZE="$(fn-archive-max-size)"
-  MAX_FILES="$(fn-archive-max-files)"
+  MAX_SIZE="$(fn-archive-computed-max-size)"
+  MAX_FILES="$(fn-archive-computed-max-files)"
 
   local ARCHIVE_SIZE
   ARCHIVE_SIZE="$(stat -c %s "$ARCHIVE_PATH" 2>/dev/null || stat -f %z "$ARCHIVE_PATH" 2>/dev/null || echo 0)"

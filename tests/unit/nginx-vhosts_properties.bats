@@ -30,26 +30,26 @@ assert_nginx_property_set_get() {
   run /bin/bash -c "dokku nginx:set --global $prop '$global_value'"
   assert_success
 
-  run /bin/bash -c "dokku --quiet nginx:report $TEST_APP --format json | jq -r '.\"global-$prop\"'"
+  run /bin/bash -c "dokku nginx:report $TEST_APP --format json | jq -r '.\"global-$prop\"'"
   assert_success
   assert_output "$global_value"
 
-  run /bin/bash -c "dokku --quiet nginx:report $TEST_APP --format json | jq -r '.\"computed-$prop\"'"
+  run /bin/bash -c "dokku nginx:report $TEST_APP --format json | jq -r '.\"computed-$prop\"'"
   assert_success
   assert_output "$global_value"
 
   run /bin/bash -c "dokku nginx:set $TEST_APP $prop '$app_value'"
   assert_success
 
-  run /bin/bash -c "dokku --quiet nginx:report $TEST_APP --format json | jq -r '.\"$prop\"'"
+  run /bin/bash -c "dokku nginx:report $TEST_APP --format json | jq -r '.\"$prop\"'"
   assert_success
   assert_output "$app_value"
 
-  run /bin/bash -c "dokku --quiet nginx:report $TEST_APP --format json | jq -r '.\"global-$prop\"'"
+  run /bin/bash -c "dokku nginx:report $TEST_APP --format json | jq -r '.\"global-$prop\"'"
   assert_success
   assert_output "$global_value"
 
-  run /bin/bash -c "dokku --quiet nginx:report $TEST_APP --format json | jq -r '.\"computed-$prop\"'"
+  run /bin/bash -c "dokku nginx:report $TEST_APP --format json | jq -r '.\"computed-$prop\"'"
   assert_success
   assert_output "$app_value"
 

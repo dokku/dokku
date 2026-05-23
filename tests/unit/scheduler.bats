@@ -31,41 +31,41 @@ teardown() {
   run /bin/bash -c "dokku scheduler:set --global selected"
   assert_success
 
-  run /bin/bash -c "dokku --quiet scheduler:report $TEST_APP --format json | jq -r '.\"scheduler-selected\"'"
+  run /bin/bash -c "dokku scheduler:report $TEST_APP --format json | jq -r '.\"scheduler-selected\"'"
   assert_success
   assert_output ""
 
-  run /bin/bash -c "dokku --quiet scheduler:report $TEST_APP --format json | jq -r '.\"scheduler-global-selected\"'"
+  run /bin/bash -c "dokku scheduler:report $TEST_APP --format json | jq -r '.\"scheduler-global-selected\"'"
   assert_success
   assert_output ""
 
-  run /bin/bash -c "dokku --quiet scheduler:report $TEST_APP --format json | jq -r '.\"scheduler-computed-selected\"'"
+  run /bin/bash -c "dokku scheduler:report $TEST_APP --format json | jq -r '.\"scheduler-computed-selected\"'"
   assert_success
   assert_output "docker-local"
 
   run /bin/bash -c "dokku scheduler:set --global selected null"
   assert_success
 
-  run /bin/bash -c "dokku --quiet scheduler:report $TEST_APP --format json | jq -r '.\"scheduler-global-selected\"'"
+  run /bin/bash -c "dokku scheduler:report $TEST_APP --format json | jq -r '.\"scheduler-global-selected\"'"
   assert_success
   assert_output "null"
 
-  run /bin/bash -c "dokku --quiet scheduler:report $TEST_APP --format json | jq -r '.\"scheduler-computed-selected\"'"
+  run /bin/bash -c "dokku scheduler:report $TEST_APP --format json | jq -r '.\"scheduler-computed-selected\"'"
   assert_success
   assert_output "null"
 
   run /bin/bash -c "dokku scheduler:set $TEST_APP selected docker-local"
   assert_success
 
-  run /bin/bash -c "dokku --quiet scheduler:report $TEST_APP --format json | jq -r '.\"scheduler-selected\"'"
+  run /bin/bash -c "dokku scheduler:report $TEST_APP --format json | jq -r '.\"scheduler-selected\"'"
   assert_success
   assert_output "docker-local"
 
-  run /bin/bash -c "dokku --quiet scheduler:report $TEST_APP --format json | jq -r '.\"scheduler-global-selected\"'"
+  run /bin/bash -c "dokku scheduler:report $TEST_APP --format json | jq -r '.\"scheduler-global-selected\"'"
   assert_success
   assert_output "null"
 
-  run /bin/bash -c "dokku --quiet scheduler:report $TEST_APP --format json | jq -r '.\"scheduler-computed-selected\"'"
+  run /bin/bash -c "dokku scheduler:report $TEST_APP --format json | jq -r '.\"scheduler-computed-selected\"'"
   assert_success
   assert_output "docker-local"
 
@@ -80,18 +80,18 @@ teardown() {
   run /bin/bash -c "dokku scheduler:set --global selected"
   assert_success
 
-  run /bin/bash -c "dokku --quiet scheduler:report --global --format json | jq -e ."
+  run /bin/bash -c "dokku scheduler:report --global --format json | jq -e ."
   assert_success
 
-  run /bin/bash -c "dokku --quiet scheduler:report --global --format json | jq -r '.\"scheduler-global-selected\"'"
+  run /bin/bash -c "dokku scheduler:report --global --format json | jq -r '.\"scheduler-global-selected\"'"
   assert_success
   assert_output ""
 
-  run /bin/bash -c "dokku --quiet scheduler:report --global --format json | jq -r '.\"scheduler-computed-selected\"'"
+  run /bin/bash -c "dokku scheduler:report --global --format json | jq -r '.\"scheduler-computed-selected\"'"
   assert_success
   assert_output "docker-local"
 
-  run /bin/bash -c "dokku --quiet scheduler:report --global --format json | jq -r 'has(\"scheduler-selected\")'"
+  run /bin/bash -c "dokku scheduler:report --global --format json | jq -r 'has(\"scheduler-selected\")'"
   assert_success
   assert_output "false"
 }

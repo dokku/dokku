@@ -182,25 +182,25 @@ teardown() {
 }
 
 @test "(git:report) --global raw and computed keys" {
-  run /bin/bash -c "dokku --quiet git:report --global --format json | jq -r '.\"global-deploy-branch\"'"
+  run /bin/bash -c "dokku git:report --global --format json | jq -r '.\"global-deploy-branch\"'"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output ""
 
-  run /bin/bash -c "dokku --quiet git:report --global --format json | jq -r '.\"computed-deploy-branch\"'"
+  run /bin/bash -c "dokku git:report --global --format json | jq -r '.\"computed-deploy-branch\"'"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output "master"
 
-  run /bin/bash -c "dokku --quiet git:report --global --format json | jq -r '.\"global-archive-max-files\"'"
+  run /bin/bash -c "dokku git:report --global --format json | jq -r '.\"global-archive-max-files\"'"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output ""
 
-  run /bin/bash -c "dokku --quiet git:report --global --format json | jq -r '.\"computed-archive-max-files\"'"
+  run /bin/bash -c "dokku git:report --global --format json | jq -r '.\"computed-archive-max-files\"'"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -211,13 +211,13 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku --quiet git:report --global --format json | jq -r '.\"global-deploy-branch\"'"
+  run /bin/bash -c "dokku git:report --global --format json | jq -r '.\"global-deploy-branch\"'"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output "main"
 
-  run /bin/bash -c "dokku --quiet git:report --global --format json | jq -r '.\"computed-deploy-branch\"'"
+  run /bin/bash -c "dokku git:report --global --format json | jq -r '.\"computed-deploy-branch\"'"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -228,7 +228,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku --quiet git:report --global --format json | jq -r '.\"global-deploy-branch\"'"
+  run /bin/bash -c "dokku git:report --global --format json | jq -r '.\"global-deploy-branch\"'"
   echo "output: $output"
   echo "status: $status"
   assert_success

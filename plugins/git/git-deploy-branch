@@ -8,7 +8,7 @@ trigger-git-git-deploy-branch() {
   declare trigger="git-deploy-branch"
   declare APP="$1"
 
-  fn-git-deploy-branch "$APP"
+  fn-git-computed-deploy-branch "$APP"
 }
 
 trigger-git-git-deploy-branch "$@"

@@ -172,41 +172,41 @@ web                                                                             
   run /bin/bash -c "dokku ps:set --global stop-timeout-seconds"
   assert_success
 
-  run /bin/bash -c "dokku --quiet ps:report $TEST_APP --format json | jq -r '.\"stop-timeout-seconds\"'"
+  run /bin/bash -c "dokku ps:report $TEST_APP --format json | jq -r '.\"stop-timeout-seconds\"'"
   assert_success
   assert_output ""
 
-  run /bin/bash -c "dokku --quiet ps:report $TEST_APP --format json | jq -r '.\"global-stop-timeout-seconds\"'"
+  run /bin/bash -c "dokku ps:report $TEST_APP --format json | jq -r '.\"global-stop-timeout-seconds\"'"
   assert_success
   assert_output ""
 
-  run /bin/bash -c "dokku --quiet ps:report $TEST_APP --format json | jq -r '.\"computed-stop-timeout-seconds\"'"
+  run /bin/bash -c "dokku ps:report $TEST_APP --format json | jq -r '.\"computed-stop-timeout-seconds\"'"
   assert_success
   assert_output "30"
 
   run /bin/bash -c "dokku ps:set --global stop-timeout-seconds 90"
   assert_success
 
-  run /bin/bash -c "dokku --quiet ps:report $TEST_APP --format json | jq -r '.\"global-stop-timeout-seconds\"'"
+  run /bin/bash -c "dokku ps:report $TEST_APP --format json | jq -r '.\"global-stop-timeout-seconds\"'"
   assert_success
   assert_output "90"
 
-  run /bin/bash -c "dokku --quiet ps:report $TEST_APP --format json | jq -r '.\"computed-stop-timeout-seconds\"'"
+  run /bin/bash -c "dokku ps:report $TEST_APP --format json | jq -r '.\"computed-stop-timeout-seconds\"'"
   assert_success
   assert_output "90"
 
   run /bin/bash -c "dokku ps:set $TEST_APP stop-timeout-seconds 45"
   assert_success
 
-  run /bin/bash -c "dokku --quiet ps:report $TEST_APP --format json | jq -r '.\"stop-timeout-seconds\"'"
+  run /bin/bash -c "dokku ps:report $TEST_APP --format json | jq -r '.\"stop-timeout-seconds\"'"
   assert_success
   assert_output "45"
 
-  run /bin/bash -c "dokku --quiet ps:report $TEST_APP --format json | jq -r '.\"global-stop-timeout-seconds\"'"
+  run /bin/bash -c "dokku ps:report $TEST_APP --format json | jq -r '.\"global-stop-timeout-seconds\"'"
   assert_success
   assert_output "90"
 
-  run /bin/bash -c "dokku --quiet ps:report $TEST_APP --format json | jq -r '.\"computed-stop-timeout-seconds\"'"
+  run /bin/bash -c "dokku ps:report $TEST_APP --format json | jq -r '.\"computed-stop-timeout-seconds\"'"
   assert_success
   assert_output "45"
 
@@ -218,7 +218,7 @@ web                                                                             
 }
 
 @test "(ps:restart-policy) default policy" {
-  run /bin/bash -c "dokku --quiet ps:report $TEST_APP --ps-restart-policy"
+  run /bin/bash -c "dokku ps:report $TEST_APP --ps-restart-policy"
   echo "output: $output"
   echo "status: $status"
   assert_output "on-failure:10"
@@ -231,7 +231,7 @@ web                                                                             
     echo "status: $status"
     assert_success
 
-    run /bin/bash -c "dokku --quiet ps:report $TEST_APP --ps-restart-policy"
+    run /bin/bash -c "dokku ps:report $TEST_APP --ps-restart-policy"
     echo "output: $output"
     echo "status: $status"
     assert_output "$policy"
@@ -245,7 +245,7 @@ web                                                                             
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku --quiet ps:report $TEST_APP --ps-restart-policy"
+  run /bin/bash -c "dokku ps:report $TEST_APP --ps-restart-policy"
   echo "output: $output"
   echo "status: $status"
   assert_output "$test_restart_policy"

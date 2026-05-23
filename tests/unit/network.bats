@@ -72,7 +72,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku --quiet network:report --global --format json | jq -r '.\"network-global-tld\"'"
+  run /bin/bash -c "dokku network:report --global --format json | jq -r '.\"network-global-tld\"'"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -83,19 +83,19 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku --quiet network:report --global --format json | jq -r '.\"network-global-tld\"'"
+  run /bin/bash -c "dokku network:report --global --format json | jq -r '.\"network-global-tld\"'"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output "example.test"
 
-  run /bin/bash -c "dokku --quiet network:report $TEST_APP --format json | jq -r '.\"network-global-tld\"'"
+  run /bin/bash -c "dokku network:report $TEST_APP --format json | jq -r '.\"network-global-tld\"'"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output "example.test"
 
-  run /bin/bash -c "dokku --quiet network:report $TEST_APP --format json | jq -r '.\"network-computed-tld\"'"
+  run /bin/bash -c "dokku network:report $TEST_APP --format json | jq -r '.\"network-computed-tld\"'"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -112,26 +112,26 @@ teardown() {
   run /bin/bash -c "dokku network:set --global attach-post-create"
   assert_success
 
-  run /bin/bash -c "dokku --quiet network:report $TEST_APP --format json | jq -r '.\"network-attach-post-create\"'"
+  run /bin/bash -c "dokku network:report $TEST_APP --format json | jq -r '.\"network-attach-post-create\"'"
   assert_success
   assert_output ""
 
-  run /bin/bash -c "dokku --quiet network:report $TEST_APP --format json | jq -r '.\"network-global-attach-post-create\"'"
+  run /bin/bash -c "dokku network:report $TEST_APP --format json | jq -r '.\"network-global-attach-post-create\"'"
   assert_success
   assert_output ""
 
-  run /bin/bash -c "dokku --quiet network:report $TEST_APP --format json | jq -r '.\"network-computed-attach-post-create\"'"
+  run /bin/bash -c "dokku network:report $TEST_APP --format json | jq -r '.\"network-computed-attach-post-create\"'"
   assert_success
   assert_output ""
 
   run /bin/bash -c "dokku network:set --global attach-post-create create-network-x"
   assert_success
 
-  run /bin/bash -c "dokku --quiet network:report $TEST_APP --format json | jq -r '.\"network-global-attach-post-create\"'"
+  run /bin/bash -c "dokku network:report $TEST_APP --format json | jq -r '.\"network-global-attach-post-create\"'"
   assert_success
   assert_output "create-network-x"
 
-  run /bin/bash -c "dokku --quiet network:report $TEST_APP --format json | jq -r '.\"network-computed-attach-post-create\"'"
+  run /bin/bash -c "dokku network:report $TEST_APP --format json | jq -r '.\"network-computed-attach-post-create\"'"
   assert_success
   assert_output "create-network-x"
 
@@ -146,22 +146,22 @@ teardown() {
   run /bin/bash -c "dokku network:set --global attach-post-deploy"
   assert_success
 
-  run /bin/bash -c "dokku --quiet network:report $TEST_APP --format json | jq -r '.\"network-attach-post-deploy\"'"
+  run /bin/bash -c "dokku network:report $TEST_APP --format json | jq -r '.\"network-attach-post-deploy\"'"
   assert_success
   assert_output ""
 
-  run /bin/bash -c "dokku --quiet network:report $TEST_APP --format json | jq -r '.\"network-global-attach-post-deploy\"'"
+  run /bin/bash -c "dokku network:report $TEST_APP --format json | jq -r '.\"network-global-attach-post-deploy\"'"
   assert_success
   assert_output ""
 
   run /bin/bash -c "dokku network:set --global attach-post-deploy deploy-network-x"
   assert_success
 
-  run /bin/bash -c "dokku --quiet network:report $TEST_APP --format json | jq -r '.\"network-global-attach-post-deploy\"'"
+  run /bin/bash -c "dokku network:report $TEST_APP --format json | jq -r '.\"network-global-attach-post-deploy\"'"
   assert_success
   assert_output "deploy-network-x"
 
-  run /bin/bash -c "dokku --quiet network:report $TEST_APP --format json | jq -r '.\"network-computed-attach-post-deploy\"'"
+  run /bin/bash -c "dokku network:report $TEST_APP --format json | jq -r '.\"network-computed-attach-post-deploy\"'"
   assert_success
   assert_output "deploy-network-x"
 
@@ -176,22 +176,22 @@ teardown() {
   run /bin/bash -c "dokku network:set --global initial-network"
   assert_success
 
-  run /bin/bash -c "dokku --quiet network:report $TEST_APP --format json | jq -r '.\"network-initial-network\"'"
+  run /bin/bash -c "dokku network:report $TEST_APP --format json | jq -r '.\"network-initial-network\"'"
   assert_success
   assert_output ""
 
-  run /bin/bash -c "dokku --quiet network:report $TEST_APP --format json | jq -r '.\"network-global-initial-network\"'"
+  run /bin/bash -c "dokku network:report $TEST_APP --format json | jq -r '.\"network-global-initial-network\"'"
   assert_success
   assert_output ""
 
   run /bin/bash -c "dokku network:set --global initial-network initial-network-x"
   assert_success
 
-  run /bin/bash -c "dokku --quiet network:report $TEST_APP --format json | jq -r '.\"network-global-initial-network\"'"
+  run /bin/bash -c "dokku network:report $TEST_APP --format json | jq -r '.\"network-global-initial-network\"'"
   assert_success
   assert_output "initial-network-x"
 
-  run /bin/bash -c "dokku --quiet network:report $TEST_APP --format json | jq -r '.\"network-computed-initial-network\"'"
+  run /bin/bash -c "dokku network:report $TEST_APP --format json | jq -r '.\"network-computed-initial-network\"'"
   assert_success
   assert_output "initial-network-x"
 

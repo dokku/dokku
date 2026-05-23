@@ -67,25 +67,25 @@ teardown() {
 }
 
 @test "(caddy:report) --global raw and computed keys in --format json" {
-  run /bin/bash -c "dokku --quiet caddy:report --global --format json | jq -r '.\"global-image\"'"
+  run /bin/bash -c "dokku caddy:report --global --format json | jq -r '.\"global-image\"'"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output ""
 
-  run /bin/bash -c "dokku --quiet caddy:report --global --format json | jq -r '.\"computed-image\"'"
+  run /bin/bash -c "dokku caddy:report --global --format json | jq -r '.\"computed-image\"'"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output_exists
 
-  run /bin/bash -c "dokku --quiet caddy:report --global --format json | jq -r '.\"global-polling-interval\"'"
+  run /bin/bash -c "dokku caddy:report --global --format json | jq -r '.\"global-polling-interval\"'"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output ""
 
-  run /bin/bash -c "dokku --quiet caddy:report --global --format json | jq -r '.\"computed-polling-interval\"'"
+  run /bin/bash -c "dokku caddy:report --global --format json | jq -r '.\"computed-polling-interval\"'"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -350,12 +350,12 @@ teardown() {
   assert_success
   assert_output "$TEST_APP.${DOKKU_DOMAIN}"
 
-  run /bin/bash -c "dokku --quiet ports:report $TEST_APP --ports-map"
+  run /bin/bash -c "dokku ports:report $TEST_APP --ports-map"
   echo "output: $output"
   echo "status: $status"
   assert_output_not_exists
 
-  run /bin/bash -c "dokku --quiet ports:report $TEST_APP --ports-map-detected"
+  run /bin/bash -c "dokku ports:report $TEST_APP --ports-map-detected"
   echo "output: $output"
   echo "status: $status"
   assert_output "http:80:5000 https:443:5000"

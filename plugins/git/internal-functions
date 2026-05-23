@@ -274,7 +274,7 @@ cmd-git-sync() {
   fi
 
   local APP_ROOT="$DOKKU_ROOT/$APP"
-  DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
+  DOKKU_DEPLOY_BRANCH="$(fn-git-computed-deploy-branch "$APP")"
   CURRENT_REF="$(fn-git-cmd "$APP_ROOT" rev-parse "$DOKKU_DEPLOY_BRANCH" 2>/dev/null || true)"
 
   dokku_setup_build_capture "$APP" "git:sync"
@@ -370,10 +370,10 @@ cmd-git-report-single() {
   local flag_map=()
   if [[ "$APP" == "--global" ]]; then
     flag_map=(
-      "--git-computed-archive-max-files: $(fn-archive-max-files)"
-      "--git-computed-archive-max-size: $(fn-archive-max-size)"
-      "--git-computed-deploy-branch: $(fn-git-deploy-branch "$APP")"
-      "--git-computed-keep-git-dir: $(fn-git-keep-git-dir "$APP")"
+      "--git-computed-archive-max-files: $(fn-archive-computed-max-files)"
+      "--git-computed-archive-max-size: $(fn-archive-computed-max-size)"
+      "--git-computed-deploy-branch: $(fn-git-computed-deploy-branch "$APP")"
+      "--git-computed-keep-git-dir: $(fn-git-computed-keep-git-dir "$APP")"
       "--git-global-archive-max-files: $(fn-plugin-property-get "git" "--global" "archive-max-files" "")"
       "--git-global-archive-max-size: $(fn-plugin-property-get "git" "--global" "archive-max-size" "")"
       "--git-global-deploy-branch: $(fn-plugin-property-get "git" "--global" "deploy-branch" "")"
@@ -382,10 +382,10 @@ cmd-git-report-single() {
   else
     verify_app_name "$APP"
     flag_map=(
-      "--git-computed-archive-max-files: $(fn-archive-max-files)"
-      "--git-computed-archive-max-size: $(fn-archive-max-size)"
-      "--git-computed-deploy-branch: $(fn-git-deploy-branch "$APP")"
-      "--git-computed-keep-git-dir: $(fn-git-keep-git-dir "$APP")"
+      "--git-computed-archive-max-files: $(fn-archive-computed-max-files)"
+      "--git-computed-archive-max-size: $(fn-archive-computed-max-size)"
+      "--git-computed-deploy-branch: $(fn-git-computed-deploy-branch "$APP")"
+      "--git-computed-keep-git-dir: $(fn-git-computed-keep-git-dir "$APP")"
       "--git-deploy-branch: $(fn-plugin-property-get "git" "$APP" "deploy-branch" "")"
       "--git-global-archive-max-files: $(fn-plugin-property-get "git" "--global" "archive-max-files" "")"
       "--git-global-archive-max-size: $(fn-plugin-property-get "git" "--global" "archive-max-size" "")"
@@ -484,13 +484,13 @@ fn-git-clone() {
   local APP_ROOT="$DOKKU_ROOT/$APP"
   [[ -z "$APP" ]] && dokku_log_fail "Please specify an app to run the command on"
 
-  local DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
+  local DOKKU_DEPLOY_BRANCH="$(fn-git-computed-deploy-branch "$APP")"
   if fn-git-cmd "$APP_ROOT" rev-parse "$DOKKU_DEPLOY_BRANCH" &>/dev/null; then
     dokku_log_fail "The clone subcommand can only be executed for new applications"
   fi
 
   if [[ -z "$GIT_REF" ]]; then
-    GIT_REF="$(fn-git-deploy-branch "$APP")"
+    GIT_REF="$(fn-git-computed-deploy-branch "$APP")"
   fi
 
   local TMP_IS_REF_DIR=$(mktemp -d "/tmp/dokku-ref-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
@@ -520,7 +520,7 @@ fn-git-clone() {
     fi
   fi
 
-  DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
+  DOKKU_DEPLOY_BRANCH="$(fn-git-computed-deploy-branch "$APP")"
   if [[ "$GIT_REF" != "$DOKKU_DEPLOY_BRANCH" ]]; then
     if [[ "$is_ref" == "true" ]]; then
       fn-git-cmd "$TMP_CLONE_DIR" branch -qq -D "$DOKKU_DEPLOY_BRANCH" 2>/dev/null || true
@@ -551,12 +551,12 @@ fn-git-fetch() {
   local DOKKU_DEPLOY_BRANCH
   local APP_ROOT="$DOKKU_ROOT/$APP"
 
-  local DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
+  local DOKKU_DEPLOY_BRANCH="$(fn-git-computed-deploy-branch "$APP")"
   if ! fn-git-cmd "$APP_ROOT" rev-parse "$DOKKU_DEPLOY_BRANCH" &>/dev/null; then
     dokku_log_fail "The fetch subcommand can only be executed for existing applications"
   fi
 
-  DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
+  DOKKU_DEPLOY_BRANCH="$(fn-git-computed-deploy-branch "$APP")"
   if ! fn-git-cmd "$APP_ROOT" check-ref-format --branch "$DOKKU_DEPLOY_BRANCH" &>/dev/null; then
     dokku_log_warn "Invalid branch name '$DOKKU_DEPLOY_BRANCH' specified via deploy-branch setting."
     dokku_log_warn "For more details, please see the man page for 'git-check-ref-format.'"
@@ -580,7 +580,7 @@ fn-git-has-code() {
   declare APP="$1" DOKKU_DEPLOY_BRANCH="$2"
 
   if [[ -z "$DOKKU_DEPLOY_BRANCH" ]]; then
-    DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
+    DOKKU_DEPLOY_BRANCH="$(fn-git-computed-deploy-branch "$APP")"
   fi
 
   local HEAD_FILE="$DOKKU_ROOT/$APP/refs/heads/$DOKKU_DEPLOY_BRANCH"
@@ -594,7 +594,7 @@ fn-git-has-code() {
 fn-git-last-updated-at() {
   declare desc="retrieve the deploy branch for a given application"
   declare APP="$1"
-  local DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
+  local DOKKU_DEPLOY_BRANCH="$(fn-git-computed-deploy-branch "$APP")"
   local HEAD_FILE="$DOKKU_ROOT/$APP/refs/heads/$DOKKU_DEPLOY_BRANCH"
 
   if [[ -f "$HEAD_FILE" ]]; then
@@ -602,7 +602,7 @@ fn-git-last-updated-at() {
   fi
 }
 
-fn-git-deploy-branch() {
+fn-git-computed-deploy-branch() {
   declare desc="retrieve the deploy branch for a given application"
   local APP="$1"
   local DEFAULT_BRANCH="${2-master}"
@@ -618,7 +618,7 @@ fn-git-deploy-branch() {
   fi
 }
 
-fn-git-keep-git-dir() {
+fn-git-computed-keep-git-dir() {
   declare desc="retrieve the keep-git-dir value for a given application"
   local APP="$1"
   local DEFAULT_KEEP_GIT_DIR="${2-false}"
@@ -636,7 +636,7 @@ fn-git-keep-git-dir() {
 
 fn-git-setup-build-dir() {
   declare APP="$1" GIT_WORKDIR="$2" REV="$3"
-  local DOKKU_KEEP_GIT_DIR="$(fn-git-keep-git-dir "$APP")"
+  local DOKKU_KEEP_GIT_DIR="$(fn-git-computed-keep-git-dir "$APP")"
 
   if [[ "$DOKKU_KEEP_GIT_DIR" == "true" ]]; then
     fn-git-setup-build-dir-new "$APP" "$GIT_WORKDIR" "$REV"
@@ -648,7 +648,7 @@ fn-git-setup-build-dir() {
 fn-git-setup-build-dir-new() {
   declare APP="$1" GIT_WORKDIR="$2" REV="$3"
   local APP_ROOT="$DOKKU_ROOT/$APP"
-  local DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
+  local DOKKU_DEPLOY_BRANCH="$(fn-git-computed-deploy-branch "$APP")"
 
   # unset the git quarantine path to allow us to use 2.13.0+
   # See this issue for more information: https://github.com/dokku/dokku/issues/2796
@@ -683,7 +683,7 @@ fn-git-setup-build-dir-worktree() {
 
 fn-git-setup-build-dir-submodules() {
   declare APP="$1" GIT_WORKDIR="$2"
-  local DOKKU_KEEP_GIT_DIR="$(fn-git-keep-git-dir "$APP")"
+  local DOKKU_KEEP_GIT_DIR="$(fn-git-computed-keep-git-dir "$APP")"
 
   # unset the git quarantine path to allow us to use 2.13.0+
   # See this issue for more information: https://github.com/dokku/dokku/issues/2796

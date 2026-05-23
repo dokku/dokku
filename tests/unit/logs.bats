@@ -492,25 +492,25 @@ teardown() {
   run /bin/bash -c "dokku logs:set --global vector-sink"
   assert_success
 
-  run /bin/bash -c "dokku --quiet logs:report $TEST_APP --format json | jq -r '.\"logs-vector-sink\"'"
+  run /bin/bash -c "dokku logs:report $TEST_APP --format json | jq -r '.\"logs-vector-sink\"'"
   assert_success
   assert_output ""
 
-  run /bin/bash -c "dokku --quiet logs:report $TEST_APP --format json | jq -r '.\"logs-global-vector-sink\"'"
+  run /bin/bash -c "dokku logs:report $TEST_APP --format json | jq -r '.\"logs-global-vector-sink\"'"
   assert_success
   assert_output ""
 
   run /bin/bash -c "dokku logs:set --global vector-sink console://?encoding[codec]=json"
   assert_success
 
-  run /bin/bash -c "dokku --quiet logs:report $TEST_APP --format json | jq -r '.\"logs-global-vector-sink\"'"
+  run /bin/bash -c "dokku logs:report $TEST_APP --format json | jq -r '.\"logs-global-vector-sink\"'"
   assert_success
   assert_output "console://?encoding[codec]=json"
 
   run /bin/bash -c "dokku logs:set $TEST_APP vector-sink datadog_logs://?api_key=abc"
   assert_success
 
-  run /bin/bash -c "dokku --quiet logs:report $TEST_APP --format json | jq -r '.\"logs-vector-sink\"'"
+  run /bin/bash -c "dokku logs:report $TEST_APP --format json | jq -r '.\"logs-vector-sink\"'"
   assert_success
   assert_output "datadog_logs://?api_key=abc"
 
@@ -528,21 +528,21 @@ teardown() {
   run /bin/bash -c "dokku logs:set --global vector-image"
   assert_success
 
-  run /bin/bash -c "dokku --quiet logs:report --global --format json | jq -r '.\"logs-vector-global-image\"'"
+  run /bin/bash -c "dokku logs:report --global --format json | jq -r '.\"logs-vector-global-image\"'"
   assert_success
   assert_output_exists
 
   run /bin/bash -c "dokku logs:set --global vector-image timberio/vector:custom"
   assert_success
 
-  run /bin/bash -c "dokku --quiet logs:report --global --format json | jq -r '.\"logs-vector-global-image\"'"
+  run /bin/bash -c "dokku logs:report --global --format json | jq -r '.\"logs-vector-global-image\"'"
   assert_success
   assert_output "timberio/vector:custom"
 
   run /bin/bash -c "dokku logs:set --global vector-image"
   assert_success
 
-  run /bin/bash -c "dokku --quiet logs:report --global --format json | jq -r '.\"logs-vector-global-networks\"'"
+  run /bin/bash -c "dokku logs:report --global --format json | jq -r '.\"logs-vector-global-networks\"'"
   assert_success
   assert_output ""
 }
