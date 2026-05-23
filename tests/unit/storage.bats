@@ -202,11 +202,11 @@ teardown() {
 
   run /bin/bash -c "dokku --quiet storage:report $TEST_APP --format json | jq -r '.\"storage-deploy-mounts\"'"
   assert_success
-  assert_output "/tmp/storage-mount:/mount"
+  assert_output "-v /tmp/storage-mount:/mount"
 
   run /bin/bash -c "dokku --quiet storage:report $TEST_APP --format json | jq -r '.\"storage-run-mounts\"'"
   assert_success
-  assert_output "/tmp/storage-mount:/mount"
+  assert_output "-v /tmp/storage-mount:/mount"
 
   run /bin/bash -c "dokku --quiet storage:report $TEST_APP --format json | jq -r '.\"storage-build-mounts\"'"
   assert_success

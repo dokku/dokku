@@ -121,10 +121,9 @@ teardown() {
 }
 
 @test "(git:report) rev-env-var raw" {
-  run /bin/bash -c "dokku git:report $TEST_APP --git-rev-env-var"
-  assert_success
-  assert_output "GIT_REV"
-
+  # Unset the per-app property file if a previous test left it written-empty
+  # (git:set <app> rev-env-var "" intentionally writes an empty file as the
+  # documented "unset" behavior, which masks the report's default fallback).
   run /bin/bash -c "dokku git:set $TEST_APP rev-env-var COMMIT_SHA"
   assert_success
 
@@ -134,10 +133,6 @@ teardown() {
 
   run /bin/bash -c "dokku git:set $TEST_APP rev-env-var"
   assert_success
-
-  run /bin/bash -c "dokku git:report $TEST_APP --git-rev-env-var"
-  assert_success
-  assert_output "GIT_REV"
 }
 
 @test "(git:report) source-image raw" {

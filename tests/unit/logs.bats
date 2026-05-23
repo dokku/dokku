@@ -486,6 +486,9 @@ teardown() {
 }
 
 @test "(logs:report) vector-sink raw vs global" {
+  run create_app
+  assert_success
+
   run /bin/bash -c "dokku logs:set --global vector-sink"
   assert_success
 
@@ -519,6 +522,9 @@ teardown() {
 }
 
 @test "(logs:report) vector-global-image and vector-global-networks raw" {
+  run create_app
+  assert_success
+
   run /bin/bash -c "dokku logs:set --global vector-image"
   assert_success
 

@@ -145,9 +145,12 @@ teardown() {
   assert_success
   assert_output ""
 
+  # When neither per-app image-repo nor a global image-repo-template are set,
+  # reportComputedImageRepo falls back to common.GetAppImageRepo which returns
+  # the default dokku/<app> image name.
   run /bin/bash -c "dokku --quiet registry:report $TEST_APP --format json | jq -r '.\"registry-computed-image-repo\"'"
   assert_success
-  assert_output_not_exists
+  assert_output "dokku/$TEST_APP"
 
   run /bin/bash -c "dokku registry:set --global image-repo-template 'dokku/{{ APP }}'"
   assert_success

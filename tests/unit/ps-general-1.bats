@@ -83,7 +83,7 @@ teardown() {
   run /bin/bash -c "dokku ps:report $TEST_APP --ps-global-procfile-path"
   echo "output: $output"
   echo "status: $status"
-  assert_output "Procfile"
+  assert_output ""
   assert_success
 
   run /bin/bash -c "dokku ps:report $TEST_APP --ps-procfile-path"

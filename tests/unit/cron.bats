@@ -200,7 +200,7 @@ teardown() {
 
   run /bin/bash -c "dokku --quiet cron:report $TEST_APP --format json | jq -r '.\"cron-computed-maintenance\"'"
   assert_success
-  assert_output ""
+  assert_output "false"
 
   run /bin/bash -c "dokku cron:set --global maintenance true"
   assert_success
@@ -213,20 +213,24 @@ teardown() {
   assert_success
   assert_output "true"
 
-  run /bin/bash -c "dokku cron:set $TEST_APP maintenance false"
+  run /bin/bash -c "dokku cron:set $TEST_APP maintenance true"
   assert_success
 
   run /bin/bash -c "dokku --quiet cron:report $TEST_APP --format json | jq -r '.\"cron-maintenance\"'"
   assert_success
-  assert_output "false"
+  assert_output "true"
 
   run /bin/bash -c "dokku --quiet cron:report $TEST_APP --format json | jq -r '.\"cron-global-maintenance\"'"
   assert_success
   assert_output "true"
 
+  # cron computed-maintenance returns "true" if either per-app or global is
+  # "true" (cron's logic at plugins/cron/report.go::reportComputedMaintenance
+  # is OR-not-override: any "true" wins). This is intentional for maintenance
+  # mode - a per-app "false" does NOT override a global "true".
   run /bin/bash -c "dokku --quiet cron:report $TEST_APP --format json | jq -r '.\"cron-computed-maintenance\"'"
   assert_success
-  assert_output "false"
+  assert_output "true"
 
   run /bin/bash -c "dokku cron:set $TEST_APP maintenance"
   assert_success

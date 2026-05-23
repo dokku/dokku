@@ -17,13 +17,13 @@ teardown() {
   run /bin/bash -c "dokku scheduler"
   echo "output: $output"
   echo "status: $status"
-  assert_output_contains "Manage schedulers"
+  assert_output_contains "Manage scheduler settings"
   help_output="$output"
 
   run /bin/bash -c "dokku scheduler:help"
   echo "output: $output"
   echo "status: $status"
-  assert_output_contains "Manage schedulers"
+  assert_output_contains "Manage scheduler settings"
   assert_output "$help_output"
 }
 

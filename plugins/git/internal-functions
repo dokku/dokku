@@ -624,8 +624,11 @@ fn-git-keep-git-dir() {
   local DEFAULT_KEEP_GIT_DIR="${2-false}"
 
   local DOKKU_KEEP_GIT_DIR="$(fn-plugin-property-get "git" "$APP" "keep-git-dir" "")"
+  local DOKKU_GLOBAL_KEEP_GIT_DIR="$(fn-plugin-property-get "git" "--global" "keep-git-dir" "")"
   if [[ -n "$DOKKU_KEEP_GIT_DIR" ]]; then
     echo "$DOKKU_KEEP_GIT_DIR"
+  elif [[ -n "$DOKKU_GLOBAL_KEEP_GIT_DIR" ]]; then
+    echo "$DOKKU_GLOBAL_KEEP_GIT_DIR"
   else
     echo "$DEFAULT_KEEP_GIT_DIR"
   fi
