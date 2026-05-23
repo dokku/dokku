@@ -27,7 +27,7 @@ assert_nginx_property_set_get() {
   run /bin/bash -c "dokku nginx:set --global $prop"
   assert_success
 
-  run /bin/bash -c "dokku nginx:set --global $prop $global_value"
+  run /bin/bash -c "dokku nginx:set --global $prop '$global_value'"
   assert_success
 
   run /bin/bash -c "dokku --quiet nginx:report $TEST_APP --format json | jq -r '.\"global-$prop\"'"
@@ -38,7 +38,7 @@ assert_nginx_property_set_get() {
   assert_success
   assert_output "$global_value"
 
-  run /bin/bash -c "dokku nginx:set $TEST_APP $prop $app_value"
+  run /bin/bash -c "dokku nginx:set $TEST_APP $prop '$app_value'"
   assert_success
 
   run /bin/bash -c "dokku --quiet nginx:report $TEST_APP --format json | jq -r '.\"$prop\"'"
@@ -99,5 +99,5 @@ assert_nginx_property_set_get() {
 @test "(nginx:report) misc properties raw/global/computed" {
   assert_nginx_property_set_get "disable-custom-config" "false" "true"
   assert_nginx_property_set_get "underscore-in-headers" "on" "off"
-  assert_nginx_property_set_get "proxy-keepalive" "on" "off"
+  assert_nginx_property_set_get "proxy-keepalive" "8" "16"
 }
