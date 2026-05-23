@@ -539,6 +539,10 @@ teardown() {
 
   run /bin/bash -c "dokku logs:report --global --format json | jq -r '.\"logs-global-vector-image\"'"
   assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku logs:report --global --format json | jq -r '.\"logs-computed-vector-image\"'"
+  assert_success
   assert_output_exists
 
   run /bin/bash -c "dokku logs:set --global vector-image timberio/vector:custom"
