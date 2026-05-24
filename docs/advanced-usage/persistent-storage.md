@@ -227,3 +227,13 @@ By default, Dokku will execute your buildpack app processes as the `herokuishuse
 > this user must exist in your herokuish image.
 
 Additionally, the default `docker-local` scheduler that comes with Dokku will ensure your storage mounts are owned by either `herokuishuser` or the overridden value you have set in `DOKKU_APP_USER`. See the [docker-local scheduler documentation](/docs/deployment/schedulers/docker-local.md#disabling-chown-of-persistent-storage) docs for more information.
+
+## Properties
+
+### Internal properties
+
+The following property is recorded internally by the storage plugin and is not exposed via `storage:report`:
+
+| Property | Scope | Description | Source |
+|---|---|---|---|
+| `legacy-mounts-migrated` | per-app | Per-app marker recording that the app's legacy `-v` docker-options entries were drained into named storage entries plus attachments. Only set when at least one `-v` line was actually migrated; apps that have never had legacy mounts never receive this marker | `plugins/storage/migrate.go` writes `"true"` after a successful drain |

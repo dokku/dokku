@@ -37,7 +37,10 @@ func TriggerInstall() error {
 
 	// The install trigger runs as root; the directories it just made are
 	// root-owned, but the dokku user is the one that runs storage:create
-	// and writes entry / migration-flag files into them.
+	// and writes entry files into them. migrationFlagDir() stays in the
+	// list for one release cycle so the upgrade-cycle conversion in
+	// MigrateLegacyMounts can read pre-existing flag files.
+	// TODO(post-deprecation): drop migrationFlagDir() from this list.
 	for _, dir := range []string{RegistryDirectory(), EntriesDirectory(), migrationFlagDir()} {
 		if err := os.MkdirAll(dir, 0755); err != nil {
 			return fmt.Errorf("Unable to create %s: %s", dir, err.Error())

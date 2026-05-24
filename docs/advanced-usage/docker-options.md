@@ -235,8 +235,11 @@ dokku docker-options:list node-js-app --phase deploy
 
 ### Internal properties
 
-The following property is recorded internally by the docker-options plugin and is not exposed via `docker-options:report`:
+The following properties are recorded internally by the docker-options plugin and are not exposed via `docker-options:report`:
 
-| Property | Description | Source |
-|---|---|---|
-| `migrated-from-files` | Global migration sentinel that records that the legacy `DOCKER_OPTIONS_<PHASE>` flat-file store has been drained into plugin properties | `plugins/docker-options/functions.go` writes `"true"` once the install-time migration runs |
+| Property | Scope | Description | Source |
+|---|---|---|---|
+| `migrated-from-files` | global | Global migration sentinel that records that the legacy `DOCKER_OPTIONS_<PHASE>` flat-file store has been drained into plugin properties | `plugins/docker-options/functions.go` writes `"true"` once the install-time migration runs |
+| `migrated-build` | per-app | Per-app marker recording that the app's legacy `DOCKER_OPTIONS_BUILD` file was drained into the `_default_.build` property list. Only set when the legacy file contained non-empty content | `plugins/docker-options/functions.go` writes `"true"` after the per-phase drain |
+| `migrated-deploy` | per-app | Per-app marker recording that the app's legacy `DOCKER_OPTIONS_DEPLOY` file was drained into the `_default_.deploy` property list. Only set when the legacy file contained non-empty content | `plugins/docker-options/functions.go` writes `"true"` after the per-phase drain |
+| `migrated-run` | per-app | Per-app marker recording that the app's legacy `DOCKER_OPTIONS_RUN` file was drained into the `_default_.run` property list. Only set when the legacy file contained non-empty content | `plugins/docker-options/functions.go` writes `"true"` after the per-phase drain |

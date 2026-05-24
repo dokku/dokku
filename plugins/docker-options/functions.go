@@ -245,11 +245,40 @@ func CommandReport(appName string, format string, infoFlag string) error {
 	return ReportSingleApp(appName, format, infoFlag)
 }
 
-// migrateLegacyDockerOptionsFiles converts pre-properties DOCKER_OPTIONS_*
-// files into property lists. It is gated by a single global marker so it never
-// re-runs - even if a user later restores a DOCKER_OPTIONS_* file by hand.
+// migratedPropertyKey returns the per-app property name recording that
+// an app's DOCKER_OPTIONS_<PHASE> file was drained into the property
+// store. Surfaces in the property store as `docker-options/<app>/migrated-<phase>`.
+func migratedPropertyKey(phase string) string {
+	return "migrated-" + strings.ToLower(phase)
+}
+
+// convertLegacyMigratedMarker drains a leftover DOCKER_OPTIONS_<PHASE>.migrated
+// sentinel into the new per-phase property and removes the file. Runs
+// as part of the upgrade-cycle pass; no-op when the file is absent.
+// TODO(post-deprecation): remove this helper and its caller.
+func convertLegacyMigratedMarker(appName, phase string) error {
+	migratedPath := filepath.Join(common.AppRoot(appName), "DOCKER_OPTIONS_"+strings.ToUpper(phase)+".migrated")
+	if !common.FileExists(migratedPath) {
+		return nil
+	}
+	if err := common.PropertyWrite("docker-options", appName, migratedPropertyKey(phase), "true"); err != nil {
+		return err
+	}
+	return os.Remove(migratedPath)
+}
+
+// migrateLegacyDockerOptionsFiles converts pre-properties
+// DOCKER_OPTIONS_* files into property lists. Idempotency comes from
+// two layers: a per-phase per-app `migrated-<phase>` property recording
+// what was drained, and a global `migrated-from-files` short-circuit so
+// the steady-state install path returns immediately.
+//
+// The upgrade-cycle conversion of leftover `.migrated` filesystem
+// sentinels runs BEFORE the global gate so users upgrading from the
+// previous release - who have `migrated-from-files` set AND `.migrated`
+// files on disk - still get those files drained into properties.
 func migrateLegacyDockerOptionsFiles() error {
-	if common.PropertyExists("docker-options", "--global", "migrated-from-files") {
+	if common.PropertyGet("docker-options", "--global", "migrated-from-files") == "true" {
 		return nil
 	}
 
@@ -259,6 +288,17 @@ func migrateLegacyDockerOptionsFiles() error {
 			return common.PropertyWrite("docker-options", "--global", "migrated-from-files", "true")
 		}
 		return err
+	}
+
+	// Upgrade-cycle conversion: drain any `.migrated` sentinels left
+	// behind by the previous release into the new per-phase properties.
+	// Always runs; cheap when nothing to do.
+	for _, appName := range apps {
+		for _, phase := range availablePhases {
+			if err := convertLegacyMigratedMarker(appName, phase); err != nil {
+				return err
+			}
+		}
 	}
 
 	for _, appName := range apps {
@@ -273,16 +313,19 @@ func migrateLegacyDockerOptionsFiles() error {
 				return err
 			}
 
-			if err := common.PropertyListWrite("docker-options", appName, propertyKey(DefaultProcessType, phase), lines); err != nil {
-				return err
+			if len(lines) > 0 {
+				if err := common.PropertyListWrite("docker-options", appName, propertyKey(DefaultProcessType, phase), lines); err != nil {
+					return err
+				}
+				if err := common.PropertyWrite("docker-options", appName, migratedPropertyKey(phase), "true"); err != nil {
+					return err
+				}
+				common.LogInfo1(fmt.Sprintf("Migrated %s to docker-options properties", legacyPath))
 			}
 
-			migratedPath := legacyPath + ".migrated"
-			if err := os.Rename(legacyPath, migratedPath); err != nil {
-				return fmt.Errorf("Unable to rename migrated file %s: %s", legacyPath, err.Error())
+			if err := os.Remove(legacyPath); err != nil {
+				return fmt.Errorf("Unable to remove migrated file %s: %s", legacyPath, err.Error())
 			}
-
-			common.LogInfo1(fmt.Sprintf("Migrated %s to docker-options properties", legacyPath))
 		}
 	}
 
@@ -307,14 +350,4 @@ func readLegacyOptionsFile(path string) ([]string, error) {
 		lines = append(lines, trimmed)
 	}
 	return lines, nil
-}
-
-// removeMigratedLegacyFiles deletes any leftover DOCKER_OPTIONS_*.migrated
-// files for an app. Called from post-delete so we don't leak files into a
-// directory that is about to be torn down anyway.
-func removeMigratedLegacyFiles(appName string) {
-	for _, phase := range availablePhases {
-		path := filepath.Join(common.AppRoot(appName), "DOCKER_OPTIONS_"+strings.ToUpper(phase)+".migrated")
-		_ = os.Remove(path)
-	}
 }
