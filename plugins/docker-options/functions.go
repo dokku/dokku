@@ -278,13 +278,14 @@ func convertLegacyMigratedMarker(appName, phase string) error {
 // previous release - who have `migrated-from-files` set AND `.migrated`
 // files on disk - still get those files drained into properties.
 func migrateLegacyDockerOptionsFiles() error {
+	if common.PropertyGet("docker-options", "--global", "migrated-from-files") == "true" {
+		return nil
+	}
+
 	apps, err := common.DokkuApps()
 	if err != nil {
 		if errors.Is(err, common.NoAppsExist) {
-			if !common.PropertyExists("docker-options", "--global", "migrated-from-files") {
-				return common.PropertyWrite("docker-options", "--global", "migrated-from-files", "true")
-			}
-			return nil
+			return common.PropertyWrite("docker-options", "--global", "migrated-from-files", "true")
 		}
 		return err
 	}
@@ -292,17 +293,12 @@ func migrateLegacyDockerOptionsFiles() error {
 	// Upgrade-cycle conversion: drain any `.migrated` sentinels left
 	// behind by the previous release into the new per-phase properties.
 	// Always runs; cheap when nothing to do.
-	// TODO(post-deprecation): remove this loop.
 	for _, appName := range apps {
 		for _, phase := range availablePhases {
 			if err := convertLegacyMigratedMarker(appName, phase); err != nil {
 				return err
 			}
 		}
-	}
-
-	if common.PropertyExists("docker-options", "--global", "migrated-from-files") {
-		return nil
 	}
 
 	for _, appName := range apps {
@@ -354,15 +350,4 @@ func readLegacyOptionsFile(path string) ([]string, error) {
 		lines = append(lines, trimmed)
 	}
 	return lines, nil
-}
-
-// removeMigratedLegacyFiles deletes any leftover DOCKER_OPTIONS_*.migrated
-// files for an app. Called from post-delete so we don't leak files into a
-// directory that is about to be torn down anyway.
-// TODO(post-deprecation): remove this helper and the call in TriggerPostDelete.
-func removeMigratedLegacyFiles(appName string) {
-	for _, phase := range availablePhases {
-		path := filepath.Join(common.AppRoot(appName), "DOCKER_OPTIONS_"+strings.ToUpper(phase)+".migrated")
-		_ = os.Remove(path)
-	}
 }

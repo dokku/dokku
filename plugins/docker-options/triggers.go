@@ -44,7 +44,6 @@ func TriggerPostDelete(appName string) error {
 	if err := common.PropertyDestroy("docker-options", appName); err != nil {
 		return err
 	}
-	removeMigratedLegacyFiles(appName)
 	return nil
 }
 
