@@ -58,10 +58,7 @@ func renderIngressRouteTemplate(t *testing.T, values map[string]interface{}) []m
 		t.Fatalf("render: %v", err)
 	}
 
-	manifest, ok := rendered["test/templates/ingress-route.yaml"]
-	if !ok {
-		t.Fatalf("ingress-route.yaml not rendered; got: %v", rendered)
-	}
+	manifest := rendered["test/templates/ingress-route.yaml"]
 
 	var docs []map[string]interface{}
 	decoder := yaml.NewDecoder(strings.NewReader(manifest))
@@ -185,4 +182,115 @@ func TestIngressRouteTemplateWithoutTLSKeepsSingleHTTPRoute(t *testing.T) {
 	if _, ok := httpSpec["tls"]; ok {
 		t.Fatalf("expected non-TLS route to omit tls block, got %#v", httpSpec["tls"])
 	}
+}
+
+func TestIngressRouteTemplateTLSImportedCertUsesSharedSecretName(t *testing.T) {
+	values := testIngressRouteValues(true)
+	web := values["processes"].(map[string]interface{})["web"].(map[string]interface{})["web"].(map[string]interface{})
+	web["tls"].(map[string]interface{})["use_imported_cert"] = true
+
+	docs := renderIngressRouteTemplate(t, values)
+	if len(docs) != 2 {
+		t.Fatalf("expected 2 ingress routes when tls enabled, got %d", len(docs))
+	}
+
+	httpsRoute := findDocByName(t, docs, "myapp-web-http-80-5000-websecure")
+	httpsSpec := httpsRoute["spec"].(map[string]interface{})
+	tls, ok := httpsSpec["tls"].(map[string]interface{})
+	if !ok {
+		t.Fatalf("expected HTTPS route to include tls block, got %#v", httpsSpec["tls"])
+	}
+	if tls["secretName"] != "tls-myapp" {
+		t.Fatalf("expected HTTPS route secretName %q (imported cert), got %#v", "tls-myapp", tls["secretName"])
+	}
+}
+
+func TestIngressRouteTemplateMultipleDomainsRenderOneRoutePerDomain(t *testing.T) {
+	values := testIngressRouteValues(true)
+	web := values["processes"].(map[string]interface{})["web"].(map[string]interface{})["web"].(map[string]interface{})
+	web["domains"] = []interface{}{
+		map[string]interface{}{"name": "app.example.com"},
+		map[string]interface{}{"name": "www.example.com"},
+	}
+
+	docs := renderIngressRouteTemplate(t, values)
+	if len(docs) != 2 {
+		t.Fatalf("expected 2 ingress routes (one http, one websecure), got %d", len(docs))
+	}
+
+	httpRoute := findDocByName(t, docs, "myapp-web-http-80-5000")
+	httpRoutes := httpRoute["spec"].(map[string]interface{})["routes"].([]interface{})
+	if len(httpRoutes) != 2 {
+		t.Fatalf("expected HTTP route to have 2 entries (one per domain), got %d", len(httpRoutes))
+	}
+	for i, r := range httpRoutes {
+		route := r.(map[string]interface{})
+		if _, ok := route["middlewares"]; !ok {
+			t.Fatalf("expected HTTP route entry %d to contain redirect middleware, got %#v", i, route)
+		}
+	}
+	if got := httpRoutes[0].(map[string]interface{})["match"]; got != "Host(`app.example.com`)" {
+		t.Fatalf("expected HTTP route[0] match Host(`app.example.com`), got %#v", got)
+	}
+	if got := httpRoutes[1].(map[string]interface{})["match"]; got != "Host(`www.example.com`)" {
+		t.Fatalf("expected HTTP route[1] match Host(`www.example.com`), got %#v", got)
+	}
+
+	httpsRoute := findDocByName(t, docs, "myapp-web-http-80-5000-websecure")
+	httpsRoutes := httpsRoute["spec"].(map[string]interface{})["routes"].([]interface{})
+	if len(httpsRoutes) != 2 {
+		t.Fatalf("expected HTTPS route to have 2 entries (one per domain), got %d", len(httpsRoutes))
+	}
+	for i, r := range httpsRoutes {
+		route := r.(map[string]interface{})
+		if _, ok := route["middlewares"]; ok {
+			t.Fatalf("expected HTTPS route entry %d to omit redirect middleware, got %#v", i, route)
+		}
+	}
+	if got := httpsRoutes[0].(map[string]interface{})["match"]; got != "Host(`app.example.com`)" {
+		t.Fatalf("expected HTTPS route[0] match Host(`app.example.com`), got %#v", got)
+	}
+	if got := httpsRoutes[1].(map[string]interface{})["match"]; got != "Host(`www.example.com`)" {
+		t.Fatalf("expected HTTPS route[1] match Host(`www.example.com`), got %#v", got)
+	}
+}
+
+func TestIngressRouteTemplateNonTraefikIngressClassRendersNothing(t *testing.T) {
+	values := testIngressRouteValues(true)
+	values["global"].(map[string]interface{})["network"].(map[string]interface{})["ingress_class"] = "nginx"
+
+	docs := renderIngressRouteTemplate(t, values)
+	if len(docs) != 0 {
+		t.Fatalf("expected 0 ingress routes when ingress_class is not traefik, got %d: %#v", len(docs), docs)
+	}
+}
+
+func TestIngressRouteTemplateHTTPSPortMapSkippedWhenHTTPCovers(t *testing.T) {
+	values := testIngressRouteValues(true)
+	web := values["processes"].(map[string]interface{})["web"].(map[string]interface{})["web"].(map[string]interface{})
+	web["port_maps"] = []interface{}{
+		map[string]interface{}{
+			"name":           "http-80-5000",
+			"scheme":         "http",
+			"container_port": float64(5000),
+		},
+		map[string]interface{}{
+			"name":           "https-443-5000",
+			"scheme":         "https",
+			"container_port": float64(5000),
+		},
+	}
+
+	docs := renderIngressRouteTemplate(t, values)
+	if len(docs) != 2 {
+		t.Fatalf("expected 2 ingress routes (http + websecure for http-80-5000 only), got %d", len(docs))
+	}
+	for _, doc := range docs {
+		name := doc["metadata"].(map[string]interface{})["name"].(string)
+		if strings.Contains(name, "https-443-5000") {
+			t.Fatalf("expected no IngressRoute for https-443-5000 (covered by http-80-5000), got %q", name)
+		}
+	}
+	findDocByName(t, docs, "myapp-web-http-80-5000")
+	findDocByName(t, docs, "myapp-web-http-80-5000-websecure")
 }
