@@ -420,6 +420,13 @@ teardown() {
   assert_success
   assert_output "1"
 
+  # Property marker is set after a successful migration with mounts.
+  run /bin/bash -c "sudo test -f /var/lib/dokku/config/storage/$TEST_APP/legacy-mounts-migrated"
+  assert_success
+  run /bin/bash -c "sudo cat /var/lib/dokku/config/storage/$TEST_APP/legacy-mounts-migrated"
+  assert_success
+  assert_output "true"
+
   # Cleanup: unmount + destroy the synthesized legacy entry. We need
   # the entry name from list-entries since legacy-<hash> is content-derived.
   legacy_name=$(dokku storage:list-entries --format json | jq -r '.[] | select(.name | startswith("legacy-")) | .name' | head -1)
@@ -437,4 +444,45 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_contains "deprecated"
+}
+
+@test "(storage:migrate) leaves legacy-mounts-migrated unset for apps with no legacy -v lines" {
+  # Fresh app with no -v lines: storage:migrate must NOT write the
+  # legacy-mounts-migrated property. Distinguishes "never had legacy
+  # state" from "had legacy state, drained".
+  sudo rm -f "/var/lib/dokku/config/storage/$TEST_APP/legacy-mounts-migrated"
+
+  run /bin/bash -c "dokku storage:migrate $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "sudo test -f /var/lib/dokku/config/storage/$TEST_APP/legacy-mounts-migrated"
+  assert_failure
+}
+
+@test "(storage:migrate) converts legacy migration flag file into property" {
+  # Stage an upgrade-from-old-code scenario: a leftover flag file under
+  # data/storage-registry/migrations/<app>. storage:migrate (which runs
+  # convertLegacyMigrationFlag before migrateApp) must drain it into
+  # the property and remove the file.
+  flag_dir="/var/lib/dokku/data/storage-registry/migrations"
+  sudo mkdir -p "$flag_dir"
+  sudo touch "$flag_dir/$TEST_APP"
+  sudo chown dokku:dokku "$flag_dir/$TEST_APP"
+  sudo rm -f "/var/lib/dokku/config/storage/$TEST_APP/legacy-mounts-migrated"
+
+  run /bin/bash -c "dokku storage:migrate $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "sudo test -f /var/lib/dokku/config/storage/$TEST_APP/legacy-mounts-migrated"
+  assert_success
+  run /bin/bash -c "sudo cat /var/lib/dokku/config/storage/$TEST_APP/legacy-mounts-migrated"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "sudo test -e $flag_dir/$TEST_APP"
+  assert_failure
 }

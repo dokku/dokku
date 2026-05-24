@@ -4,6 +4,7 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/dokku/dokku/plugins/common"
@@ -89,21 +90,28 @@ func TestMigrateLegacyDockerOptionsFiles_MigratesAndIsIdempotent(t *testing.T) {
 		t.Errorf("migrated-from-files marker not set after first migration")
 	}
 
+	migratedPhases := map[string]map[string]bool{
+		"alpha": {"build": true, "deploy": true},
+		"beta":  {"deploy": true},
+	}
 	for _, app := range []string{"alpha", "beta"} {
 		for _, phase := range []string{"BUILD", "DEPLOY", "RUN"} {
 			legacy := filepath.Join(dokkuRoot, app, "DOCKER_OPTIONS_"+phase)
 			migrated := legacy + ".migrated"
-			if app == "alpha" && (phase == "BUILD" || phase == "DEPLOY") || app == "beta" && phase == "DEPLOY" {
-				if _, err := os.Stat(migrated); err != nil {
-					t.Errorf("expected %s to exist: %v", migrated, err)
+			if _, err := os.Stat(legacy); !os.IsNotExist(err) {
+				t.Errorf("expected %s to be gone, got err=%v", legacy, err)
+			}
+			if _, err := os.Stat(migrated); !os.IsNotExist(err) {
+				t.Errorf("expected %s to be gone (no more rename), got err=%v", migrated, err)
+			}
+			lowerPhase := strings.ToLower(phase)
+			exists := common.PropertyExists("docker-options", app, "migrated-"+lowerPhase)
+			if migratedPhases[app][lowerPhase] {
+				if !exists {
+					t.Errorf("expected migrated-%s property for %s to be set", lowerPhase, app)
 				}
-				if _, err := os.Stat(legacy); !os.IsNotExist(err) {
-					t.Errorf("expected %s to be gone, got err=%v", legacy, err)
-				}
-			} else {
-				if _, err := os.Stat(legacy); !os.IsNotExist(err) {
-					t.Errorf("did not expect %s to exist, got err=%v", legacy, err)
-				}
+			} else if exists {
+				t.Errorf("did not expect migrated-%s property for %s to be set", lowerPhase, app)
 			}
 		}
 	}
@@ -132,6 +140,89 @@ func TestMigrateLegacyDockerOptionsFiles_MigratesAndIsIdempotent(t *testing.T) {
 	}
 	if string(gotSneaky) != sneakyContents {
 		t.Errorf("sneaky legacy file modified: %q", gotSneaky)
+	}
+}
+
+// TestMigrateLegacyDockerOptionsFiles_ConvertsLegacyMigratedMarker
+// covers the upgrade-cycle path where a previous-release `.migrated`
+// sentinel exists on disk. The conversion writes the per-phase
+// property and removes the file.
+func TestMigrateLegacyDockerOptionsFiles_ConvertsLegacyMigratedMarker(t *testing.T) {
+	dokkuRoot := setupMigrationEnv(t)
+
+	if err := os.MkdirAll(filepath.Join(dokkuRoot, "alpha"), 0755); err != nil {
+		t.Fatalf("MkdirAll: %v", err)
+	}
+	sentinel := filepath.Join(dokkuRoot, "alpha", "DOCKER_OPTIONS_DEPLOY.migrated")
+	if err := os.WriteFile(sentinel, []byte{}, 0644); err != nil {
+		t.Fatalf("WriteFile sentinel: %v", err)
+	}
+
+	if err := migrateLegacyDockerOptionsFiles(); err != nil {
+		t.Fatalf("migrateLegacyDockerOptionsFiles: %v", err)
+	}
+
+	if !common.PropertyExists("docker-options", "alpha", "migrated-deploy") {
+		t.Errorf("expected migrated-deploy property to be set")
+	}
+	if _, err := os.Stat(sentinel); !os.IsNotExist(err) {
+		t.Errorf("expected sentinel file gone, got err=%v", err)
+	}
+}
+
+// TestMigrateLegacyDockerOptionsFiles_ConvertsMigratedMarkerEvenWhenGloballyMigrated
+// is the regression test for the upgrade-cycle ordering fix: users on
+// the previous release have `migrated-from-files` ALREADY set AND
+// `.migrated` sentinels on disk. The conversion pass must run before
+// the global short-circuit so these sentinels still get drained.
+func TestMigrateLegacyDockerOptionsFiles_ConvertsMigratedMarkerEvenWhenGloballyMigrated(t *testing.T) {
+	dokkuRoot := setupMigrationEnv(t)
+
+	if err := os.MkdirAll(filepath.Join(dokkuRoot, "alpha"), 0755); err != nil {
+		t.Fatalf("MkdirAll: %v", err)
+	}
+	sentinel := filepath.Join(dokkuRoot, "alpha", "DOCKER_OPTIONS_DEPLOY.migrated")
+	if err := os.WriteFile(sentinel, []byte{}, 0644); err != nil {
+		t.Fatalf("WriteFile sentinel: %v", err)
+	}
+	if err := common.PropertyWrite("docker-options", "--global", "migrated-from-files", "true"); err != nil {
+		t.Fatalf("seed global marker: %v", err)
+	}
+
+	if err := migrateLegacyDockerOptionsFiles(); err != nil {
+		t.Fatalf("migrateLegacyDockerOptionsFiles: %v", err)
+	}
+
+	if !common.PropertyExists("docker-options", "alpha", "migrated-deploy") {
+		t.Errorf("expected migrated-deploy property to be set despite global short-circuit")
+	}
+	if _, err := os.Stat(sentinel); !os.IsNotExist(err) {
+		t.Errorf("expected sentinel file gone, got err=%v", err)
+	}
+}
+
+// TestMigrateLegacyDockerOptionsFiles_SkipsEmptyContentFiles verifies
+// that a legacy file containing only comments/whitespace gets removed
+// but does NOT receive a per-phase property write - the property is
+// only set when actual content was drained.
+func TestMigrateLegacyDockerOptionsFiles_SkipsEmptyContentFiles(t *testing.T) {
+	dokkuRoot := setupMigrationEnv(t)
+
+	writeLegacyDockerOptionsFile(t, dokkuRoot, "alpha", "DEPLOY", "# only a comment\n\n   \n")
+
+	if err := migrateLegacyDockerOptionsFiles(); err != nil {
+		t.Fatalf("migrateLegacyDockerOptionsFiles: %v", err)
+	}
+
+	if common.PropertyExists("docker-options", "alpha", "migrated-deploy") {
+		t.Errorf("did not expect migrated-deploy property to be set for empty-content file")
+	}
+	legacy := filepath.Join(dokkuRoot, "alpha", "DOCKER_OPTIONS_DEPLOY")
+	if _, err := os.Stat(legacy); !os.IsNotExist(err) {
+		t.Errorf("expected empty-content legacy file removed, got err=%v", err)
+	}
+	if common.PropertyExists("docker-options", "alpha", "_default_.deploy") {
+		t.Errorf("did not expect _default_.deploy property list for empty-content file")
 	}
 }
 

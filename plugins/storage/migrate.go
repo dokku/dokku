@@ -12,11 +12,18 @@ import (
 	dockeroptions "github.com/dokku/dokku/plugins/docker-options"
 )
 
-// migrationFlagDir contains per-app flag files written after a successful
-// per-app migration; presence means the app's legacy -v lines have been
-// drained into the attachment store. Lives under the registry directory
-// so it doesn't collide with the property-store path
-// `config/storage/<appName>`.
+// MigratedProperty is the per-app marker recording that legacy
+// docker-options `-v` lines have been drained into named storage
+// entries plus attachments. Written via the property store so it is
+// visible to property-store backup/restore tooling, replacing the old
+// filesystem flag file at `data/storage-registry/migrations/<app>`.
+const MigratedProperty = "legacy-mounts-migrated"
+
+// migrationFlagDir / migrationFlagFile remain for one release cycle so
+// the upgrade-cycle helper convertLegacyMigrationFlag can drain any
+// leftover flag files into the new property.
+// TODO(post-deprecation): remove both functions and the
+// migrationFlagDir entry in triggers.go's install directory list.
 func migrationFlagDir() string {
 	return filepath.Join(RegistryDirectory(), "migrations")
 }
@@ -25,15 +32,17 @@ func migrationFlagFile(appName string) string {
 	return filepath.Join(migrationFlagDir(), appName)
 }
 
-// MigrateApp re-runs the legacy migration for a single app, ignoring
-// the per-app flag file so an operator can force-rescan an app whose
-// docker-options state changed after the bulk install-time pass.
-// Used by `dokku storage:migrate <app>`.
+// MigrateApp re-runs the legacy migration for a single app so an
+// operator can force-rescan an app whose docker-options state changed
+// after the bulk install-time pass. Used by `dokku storage:migrate
+// <app>`. The marker property is intentionally left in place; migrateApp
+// only writes it when something was actually drained, so a re-run on
+// an already-drained app with no new `-v` lines preserves the existing
+// "had legacy state, drained" signal.
 func MigrateApp(appName string) error {
-	if err := os.MkdirAll(migrationFlagDir(), 0755); err != nil {
-		return fmt.Errorf("unable to create migration flag dir: %w", err)
+	if err := convertLegacyMigrationFlag(appName); err != nil {
+		return err
 	}
-	_ = os.Remove(migrationFlagFile(appName))
 	if err := migrateApp(appName); err != nil {
 		return fmt.Errorf("storage migration failed for app %q: %w", appName, err)
 	}
@@ -42,12 +51,9 @@ func MigrateApp(appName string) error {
 
 // MigrateLegacyMounts walks every app and converts its legacy `-v`
 // docker-options entries into named storage entries plus attachments.
-// Idempotent: per-app flag files short-circuit re-runs.
+// Idempotent: the per-app legacy-mounts-migrated property short-circuits
+// re-runs.
 func MigrateLegacyMounts() error {
-	if err := os.MkdirAll(migrationFlagDir(), 0755); err != nil {
-		return fmt.Errorf("unable to create migration flag dir: %w", err)
-	}
-
 	apps, err := common.DokkuApps()
 	if err != nil {
 		if errors.Is(err, common.NoAppsExist) {
@@ -57,7 +63,10 @@ func MigrateLegacyMounts() error {
 	}
 
 	for _, app := range apps {
-		if _, err := os.Stat(migrationFlagFile(app)); err == nil {
+		if err := convertLegacyMigrationFlag(app); err != nil {
+			return err
+		}
+		if common.PropertyExists(PluginName, app, MigratedProperty) {
 			continue
 		}
 		if err := migrateApp(app); err != nil {
@@ -65,6 +74,27 @@ func MigrateLegacyMounts() error {
 		}
 	}
 	return nil
+}
+
+// convertLegacyMigrationFlag drains the legacy filesystem flag file
+// (data/storage-registry/migrations/<app>) into the new
+// legacy-mounts-migrated property and removes the file. Runs as part
+// of the per-app loop so installs upgrading from the previous release
+// surface the marker in the property store without re-running the
+// drain logic. No-op when the flag file is absent.
+// TODO(post-deprecation): remove this helper and its callers.
+func convertLegacyMigrationFlag(appName string) error {
+	path := migrationFlagFile(appName)
+	if _, err := os.Stat(path); err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		}
+		return err
+	}
+	if err := common.PropertyWrite(PluginName, appName, MigratedProperty, "true"); err != nil {
+		return err
+	}
+	return os.Remove(path)
 }
 
 // migrateApp performs the per-app migration. Order is intentional: write
@@ -99,13 +129,20 @@ func migrateApp(appName string) error {
 	}
 	sort.Strings(mounts)
 
+	if len(mounts) == 0 {
+		// No legacy `-v` lines for this app. Leave the marker unset so
+		// `storage:report` (and future tooling) distinguishes apps that
+		// never had legacy state from apps that did and were drained.
+		return nil
+	}
+
 	for _, mount := range mounts {
 		if err := migrateMount(appName, mount, phaseMap[mount]); err != nil {
 			return err
 		}
 	}
 
-	return touchMigrationFlag(appName)
+	return common.PropertyWrite(PluginName, appName, MigratedProperty, "true")
 }
 
 func migrateMount(appName string, mount string, phases []string) error {
@@ -165,10 +202,6 @@ func migrateMount(appName string, mount string, phases []string) error {
 		return err
 	}
 	return nil
-}
-
-func touchMigrationFlag(appName string) error {
-	return common.TouchFile(migrationFlagFile(appName))
 }
 
 func filterMountLines(lines []string) []string {

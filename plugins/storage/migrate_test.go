@@ -112,9 +112,9 @@ func TestMigrateAppSinglePhase(t *testing.T) {
 		t.Errorf("deploy options after migration = %v, want [--restart=on-failure:5]", deployAfter)
 	}
 
-	// Migration flag file is in place.
-	if _, err := os.Stat(migrationFlagFile("alpha")); err != nil {
-		t.Errorf("migration flag missing: %v", err)
+	// Property marker is in place.
+	if !common.PropertyExists(PluginName, "alpha", MigratedProperty) {
+		t.Errorf("legacy-mounts-migrated property missing")
 	}
 }
 
@@ -230,8 +230,8 @@ func TestMigrateLegacyMountsBulkAndFlagFastPath(t *testing.T) {
 	}
 
 	for _, app := range []string{"alpha", "beta"} {
-		if _, err := os.Stat(migrationFlagFile(app)); err != nil {
-			t.Errorf("flag file missing for %s: %v", app, err)
+		if !common.PropertyExists(PluginName, app, MigratedProperty) {
+			t.Errorf("legacy-mounts-migrated property missing for %s", app)
 		}
 		atts, err := LoadAttachments(app)
 		if err != nil {
@@ -242,9 +242,9 @@ func TestMigrateLegacyMountsBulkAndFlagFastPath(t *testing.T) {
 		}
 	}
 
-	// Re-stage a -v on alpha and rerun MigrateLegacyMounts. The flag
-	// file short-circuits per-app migration, so the new line stays in
-	// docker-options.
+	// Re-stage a -v on alpha and rerun MigrateLegacyMounts. The
+	// property marker short-circuits per-app migration, so the new
+	// line stays in docker-options.
 	if err := common.PropertyListWrite("docker-options", "alpha", "_default_.deploy", []string{"-v /sneaky:/x"}); err != nil {
 		t.Fatalf("re-stage alpha: %v", err)
 	}
@@ -321,6 +321,91 @@ func TestMigrateAppChownsLegacyEntryFiles(t *testing.T) {
 	}
 	if got := strconv.Itoa(int(stat.Uid)); got != current.Uid {
 		t.Errorf("entry file uid = %s, want %s", got, current.Uid)
+	}
+}
+
+// TestMigrateAppNoMountsDoesNotMarkMigrated confirms that an app with
+// no legacy `-v` lines leaves the legacy-mounts-migrated property
+// unset. Apps that have never had legacy state are distinguishable
+// from apps that did and were drained.
+func TestMigrateAppNoMountsDoesNotMarkMigrated(t *testing.T) {
+	_, dokkuRoot := setupMigrationEnv(t)
+	stageApp(t, dokkuRoot, "alpha", map[string][]string{
+		"deploy": {"--restart=on-failure:5"},
+	})
+
+	if err := migrateApp("alpha"); err != nil {
+		t.Fatalf("migrateApp: %v", err)
+	}
+
+	if common.PropertyExists(PluginName, "alpha", MigratedProperty) {
+		t.Errorf("legacy-mounts-migrated property should not be set for an app with no -v lines")
+	}
+
+	atts, err := LoadAttachments("alpha")
+	if err != nil {
+		t.Fatalf("LoadAttachments: %v", err)
+	}
+	if len(atts) != 0 {
+		t.Errorf("expected 0 attachments, got %d", len(atts))
+	}
+}
+
+// TestMigrateLegacyMountsConvertsLegacyFlagFile is the upgrade-cycle
+// regression: on an install upgrading from the previous release, the
+// per-app filesystem flag file under data/storage-registry/migrations/
+// must be drained into the property store and removed.
+func TestMigrateLegacyMountsConvertsLegacyFlagFile(t *testing.T) {
+	_, dokkuRoot := setupMigrationEnv(t)
+	stageApp(t, dokkuRoot, "alpha", map[string][]string{
+		"deploy": {"--restart=on-failure:5"},
+	})
+
+	flagPath := migrationFlagFile("alpha")
+	if err := common.TouchFile(flagPath); err != nil {
+		t.Fatalf("touch flag file: %v", err)
+	}
+
+	if err := MigrateLegacyMounts(); err != nil {
+		t.Fatalf("MigrateLegacyMounts: %v", err)
+	}
+
+	got := common.PropertyGetDefault(PluginName, "alpha", MigratedProperty, "")
+	if got != "true" {
+		t.Errorf("legacy-mounts-migrated = %q, want %q", got, "true")
+	}
+	if _, err := os.Stat(flagPath); !os.IsNotExist(err) {
+		t.Errorf("expected flag file gone, got err=%v", err)
+	}
+}
+
+// TestMigrateLegacyMountsRespectsExistingProperty confirms that the
+// property is the gate: an app with a `-v` line is skipped when the
+// property is already set, leaving the legacy line in docker-options.
+func TestMigrateLegacyMountsRespectsExistingProperty(t *testing.T) {
+	_, dokkuRoot := setupMigrationEnv(t)
+	stageApp(t, dokkuRoot, "alpha", map[string][]string{
+		"deploy": {"-v /var/log:/log"},
+	})
+
+	if err := common.PropertyWrite(PluginName, "alpha", MigratedProperty, "true"); err != nil {
+		t.Fatalf("seed property: %v", err)
+	}
+
+	if err := MigrateLegacyMounts(); err != nil {
+		t.Fatalf("MigrateLegacyMounts: %v", err)
+	}
+
+	got := phaseOptions(t, "alpha", "deploy")
+	if !equalSorted(got, []string{"-v /var/log:/log"}) {
+		t.Errorf("expected -v line preserved, got %v", got)
+	}
+	atts, err := LoadAttachments("alpha")
+	if err != nil {
+		t.Fatalf("LoadAttachments: %v", err)
+	}
+	if len(atts) != 0 {
+		t.Errorf("expected 0 attachments (property gated migration), got %d", len(atts))
 	}
 }
 
