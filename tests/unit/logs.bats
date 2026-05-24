@@ -530,7 +530,7 @@ teardown() {
   assert_success
 }
 
-@test "(logs:report) vector-global-image and vector-global-networks raw" {
+@test "(logs:report) global-vector-image and global-vector-networks raw" {
   run create_app
   assert_success
 
@@ -558,6 +558,15 @@ teardown() {
   run /bin/bash -c "dokku logs:report --global --format json | jq -r '.\"logs-global-vector-networks\"'"
   assert_success
   assert_output ""
+}
+
+@test "(logs:report) does not expose deprecated logs-vector-global-* keys" {
+  run /bin/bash -c "dokku logs:report --global --format json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_contains "logs-vector-global-image"
+  assert_output_not_contains "logs-vector-global-networks"
 }
 
 @test "(logs) logs:set --global vector-networks" {
