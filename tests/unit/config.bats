@@ -399,6 +399,57 @@ teardown() {
   assert_output "hello world"
 }
 
+@test "(config) config:set --encoded preserves decoded bytes" {
+  local encoded_echo encoded_printf encoded_echo_n encoded_cat tmpfile
+  encoded_echo="$(echo "myvalue" | base64 -w 0)"
+  encoded_printf="$(printf '%s' "myvalue" | base64 -w 0)"
+  encoded_echo_n="$(echo -n "myvalue" | base64 -w 0)"
+  tmpfile="$(mktemp)"
+  printf 'filecontent' > "$tmpfile"
+  encoded_cat="$(cat "$tmpfile" | base64 -w 0)"
+  rm -f "$tmpfile"
+
+  run /bin/bash -c "dokku config:set --encoded --no-restart $TEST_APP test_echo=$encoded_echo"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku config:get $TEST_APP test_echo | wc -c"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "9"
+
+  run /bin/bash -c "dokku config:set --encoded --no-restart $TEST_APP test_printf=$encoded_printf"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku config:get $TEST_APP test_printf | wc -c"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "8"
+
+  run /bin/bash -c "dokku config:set --encoded --no-restart $TEST_APP test_echo_n=$encoded_echo_n"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku config:get $TEST_APP test_echo_n | wc -c"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "8"
+
+  run /bin/bash -c "dokku config:set --encoded --no-restart $TEST_APP test_cat=$encoded_cat"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku config:get $TEST_APP test_cat | wc -c"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "12"
+}
+
 @test "(config) config:clear" {
   run ssh "dokku@$DOKKU_DOMAIN" config:set $TEST_APP test_var=true test_var2=\"hello world\" test_var3=\"with\\nnewline\"
   echo "output: $output"
