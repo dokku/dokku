@@ -102,12 +102,15 @@ func reportComputedProcfilePath(appName string) string {
 	if value == "" {
 		value = reportGlobalProcfilePath(appName)
 	}
+	if value == "" {
+		value = "Procfile"
+	}
 
 	return value
 }
 
 func reportGlobalProcfilePath(appName string) string {
-	return common.PropertyGetDefault("ps", "--global", "procfile-path", "Procfile")
+	return common.PropertyGet("ps", "--global", "procfile-path")
 }
 
 func reportProcfilePath(appName string) string {
@@ -154,14 +157,17 @@ func reportComputedStopTimeoutSeconds(appName string) string {
 	if value == "" {
 		value = reportGlobalStopTimeoutSeconds(appName)
 	}
+	if value == "" {
+		value = "30"
+	}
 
 	return value
 }
 
 func reportGlobalStopTimeoutSeconds(appName string) string {
-	return common.PropertyGetDefault("ps", "--global", "stop-timeout-seconds", "30")
+	return common.PropertyGet("ps", "--global", "stop-timeout-seconds")
 }
 
 func reportStopTimeoutSeconds(appName string) string {
-	return common.PropertyGetDefault("ps", appName, "stop-timeout-seconds", "30")
+	return common.PropertyGet("ps", appName, "stop-timeout-seconds")
 }

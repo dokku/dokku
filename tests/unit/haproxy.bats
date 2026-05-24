@@ -57,7 +57,13 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku haproxy:report --global --haproxy-refresh-conf"
+  run /bin/bash -c "dokku haproxy:report --global --haproxy-global-refresh-conf"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "5"
+
+  run /bin/bash -c "dokku haproxy:report --global --haproxy-computed-refresh-conf"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -74,7 +80,42 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku haproxy:report --global --haproxy-refresh-conf"
+  run /bin/bash -c "dokku haproxy:report --global --haproxy-global-refresh-conf"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku haproxy:report --global --haproxy-computed-refresh-conf"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "10"
+}
+
+@test "(haproxy:report) --global raw and computed keys in --format json" {
+  run /bin/bash -c "dokku haproxy:set --global refresh-conf"
+  assert_success
+
+  run /bin/bash -c "dokku haproxy:report --global --format json | jq -r '.\"global-image\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku haproxy:report --global --format json | jq -r '.\"computed-image\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_exists
+
+  run /bin/bash -c "dokku haproxy:report --global --format json | jq -r '.\"global-refresh-conf\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku haproxy:report --global --format json | jq -r '.\"computed-refresh-conf\"'"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -205,12 +246,12 @@ teardown() {
   assert_success
   assert_output "true"
 
-  run /bin/bash -c "dokku --quiet ports:report $TEST_APP --ports-map"
+  run /bin/bash -c "dokku ports:report $TEST_APP --ports-map"
   echo "output: $output"
   echo "status: $status"
   assert_output_not_exists
 
-  run /bin/bash -c "dokku --quiet ports:report $TEST_APP --ports-map-detected"
+  run /bin/bash -c "dokku ports:report $TEST_APP --ports-map-detected"
   echo "output: $output"
   echo "status: $status"
   assert_output "http:80:5000 https:443:5000"

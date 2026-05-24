@@ -169,3 +169,26 @@ Available flags:
 - `--builds-computed-retention`: the resolved retention applied to this app
 
 `--build-status` returns the **display** status, so an abandoned in-flight build shows `abandoned` rather than `running`. The raw on-disk status is only visible by reading the JSON record directly.
+
+## Properties
+
+### Settable properties
+
+| Property | Scope | Default | Report flags | Description |
+|---|---|---|---|---|
+| `retention` | app + global | `20` | `--builds-retention`, `--builds-global-retention`, `--builds-computed-retention` | Number of recent build records kept per app; older finalized records are pruned at the end of each deploy |
+
+### Read-only flags
+
+The following flags surface in `builds:report` but are not managed by `builds:set` - they are derived metadata recorded during the build:
+
+| Flag | Description |
+|---|---|
+| `--build-id` | Unique identifier of the most recent build for the app |
+| `--build-kind` | Whether the record was a `build` or a `deploy` |
+| `--build-status` | Display status (`running`, `succeeded`, `failed`, `canceled`, `abandoned`); computed at read time |
+| `--build-source` | Trigger that started the build (e.g. `git-hook`, `ps:rebuild`, `ps:restart`) |
+| `--build-pid` | PID of the build process |
+| `--build-started-at` | UNIX timestamp the build started |
+| `--build-finished-at` | UNIX timestamp the build finished |
+| `--build-exit-code` | Exit code of the build process |

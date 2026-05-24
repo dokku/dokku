@@ -13,7 +13,7 @@ trigger-haproxy-vhosts-certs-force() {
     return
   fi
 
-  if [[ -n "$(fn-haproxy-letsencrypt-email)" ]]; then
+  if [[ -n "$(fn-haproxy-computed-letsencrypt-email)" ]]; then
     echo true
   fi
 }

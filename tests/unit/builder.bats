@@ -209,6 +209,104 @@ teardown() {
   assert_success
 }
 
+@test "(builder:report) selected raw vs computed vs global" {
+  run /bin/bash -c "dokku builder:set --global selected"
+  assert_success
+
+  run /bin/bash -c "dokku builder:report $TEST_APP --builder-selected"
+  assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku builder:report $TEST_APP --builder-global-selected"
+  assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku builder:report $TEST_APP --builder-computed-selected"
+  assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku builder:set --global selected dockerfile"
+  assert_success
+
+  run /bin/bash -c "dokku builder:report $TEST_APP --builder-global-selected"
+  assert_success
+  assert_output "dockerfile"
+
+  run /bin/bash -c "dokku builder:report $TEST_APP --builder-computed-selected"
+  assert_success
+  assert_output "dockerfile"
+
+  run /bin/bash -c "dokku builder:set $TEST_APP selected herokuish"
+  assert_success
+
+  run /bin/bash -c "dokku builder:report $TEST_APP --builder-selected"
+  assert_success
+  assert_output "herokuish"
+
+  run /bin/bash -c "dokku builder:report $TEST_APP --builder-global-selected"
+  assert_success
+  assert_output "dockerfile"
+
+  run /bin/bash -c "dokku builder:report $TEST_APP --builder-computed-selected"
+  assert_success
+  assert_output "herokuish"
+
+  run /bin/bash -c "dokku builder:set $TEST_APP selected"
+  assert_success
+
+  run /bin/bash -c "dokku builder:set --global selected"
+  assert_success
+}
+
+@test "(builder:report) build-dir raw vs computed vs global" {
+  run /bin/bash -c "dokku builder:set --global build-dir"
+  assert_success
+
+  run /bin/bash -c "dokku builder:report $TEST_APP --builder-build-dir"
+  assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku builder:report $TEST_APP --builder-global-build-dir"
+  assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku builder:report $TEST_APP --builder-computed-build-dir"
+  assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku builder:set --global build-dir global/subdir"
+  assert_success
+
+  run /bin/bash -c "dokku builder:report $TEST_APP --builder-global-build-dir"
+  assert_success
+  assert_output "global/subdir"
+
+  run /bin/bash -c "dokku builder:report $TEST_APP --builder-computed-build-dir"
+  assert_success
+  assert_output "global/subdir"
+
+  run /bin/bash -c "dokku builder:set $TEST_APP build-dir app/subdir"
+  assert_success
+
+  run /bin/bash -c "dokku builder:report $TEST_APP --builder-build-dir"
+  assert_success
+  assert_output "app/subdir"
+
+  run /bin/bash -c "dokku builder:report $TEST_APP --builder-global-build-dir"
+  assert_success
+  assert_output "global/subdir"
+
+  run /bin/bash -c "dokku builder:report $TEST_APP --builder-computed-build-dir"
+  assert_success
+  assert_output "app/subdir"
+
+  run /bin/bash -c "dokku builder:set $TEST_APP build-dir"
+  assert_success
+
+  run /bin/bash -c "dokku builder:set --global build-dir"
+  assert_success
+}
+
 @test "(builder:set)" {
   run deploy_app python
   echo "output: $output"

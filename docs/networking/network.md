@@ -428,7 +428,7 @@ dokku network:report
 =====> node-js-app network information
        Network attach post create:
        Network attach post deploy:
-       Network bind all interfaces:   false
+       Network bind all interfaces:
        Network computed attach post create:
        Network computed attach post deploy:
        Network computed bind all interfaces:false
@@ -436,7 +436,7 @@ dokku network:report
        Network computed tld:
        Network global attach post create:
        Network global attach post deploy:
-       Network global bind all interfaces:false
+       Network global bind all interfaces:
        Network global initial network:
        Network global tld:
        Network initial network:
@@ -445,7 +445,7 @@ dokku network:report
 =====> python-sample network information
        Network attach post create:
        Network attach post deploy:
-       Network bind all interfaces:   false
+       Network bind all interfaces:
        Network computed attach post create:
        Network computed attach post deploy:
        Network computed bind all interfaces:false
@@ -453,7 +453,7 @@ dokku network:report
        Network computed tld:
        Network global attach post create:
        Network global attach post deploy:
-       Network global bind all interfaces:false
+       Network global bind all interfaces:
        Network global initial network:
        Network global tld:
        Network initial network:
@@ -462,7 +462,7 @@ dokku network:report
 =====> ruby-sample network information
        Network attach post create:
        Network attach post deploy:
-       Network bind all interfaces:   false
+       Network bind all interfaces:
        Network computed attach post create:
        Network computed attach post deploy:
        Network computed bind all interfaces:false
@@ -470,13 +470,15 @@ dokku network:report
        Network computed tld:
        Network global attach post create:
        Network global attach post deploy:
-       Network global bind all interfaces:false
+       Network global bind all interfaces:
        Network global initial network:
        Network global tld:
        Network initial network:
        Network tld:
        Network web listeners:
 ```
+
+The per-app and `global-` keys for each property hold the raw values and are empty when nothing has been set. The `computed-` keys hold the effective value, falling back to the global value (where one has been set) and then to the built-in default (`false` for `bind-all-interfaces`, empty otherwise).
 
 You can run the command for a specific app also.
 
@@ -488,7 +490,7 @@ dokku network:report node-js-app
 =====> node-js-app network information
        Network attach post create:
        Network attach post deploy:
-       Network bind all interfaces:   false
+       Network bind all interfaces:
        Network computed attach post create:
        Network computed attach post deploy:
        Network computed bind all interfaces:false
@@ -496,7 +498,7 @@ dokku network:report node-js-app
        Network computed tld:
        Network global attach post create:
        Network global attach post deploy:
-       Network global bind all interfaces:false
+       Network global bind all interfaces:
        Network global initial network:
        Network global tld:
        Network initial network:
@@ -509,3 +511,24 @@ You can pass flags which will output only the value of the specific information 
 ```shell
 dokku network:report node-js-app --network-bind-all-interfaces
 ```
+
+## Properties
+
+### Settable properties
+
+| Property | Scope | Default | Report flags | Description |
+|---|---|---|---|---|
+| `attach-post-create` | app + global | none | `--network-attach-post-create`, `--network-global-attach-post-create`, `--network-computed-attach-post-create` | Networks attached to a container immediately after creation, before the deploy phase |
+| `attach-post-deploy` | app + global | none | `--network-attach-post-deploy`, `--network-global-attach-post-deploy`, `--network-computed-attach-post-deploy` | Networks attached to a container after it passes healthchecks |
+| `bind-all-interfaces` | app + global | `false` | `--network-bind-all-interfaces`, `--network-global-bind-all-interfaces`, `--network-computed-bind-all-interfaces` | When `true`, binds containers to `0.0.0.0` instead of the default Docker network address |
+| `initial-network` | app + global | none | `--network-initial-network`, `--network-global-initial-network`, `--network-computed-initial-network` | Network attached at container creation time |
+| `static-web-listener` | app only | none | `--network-static-web-listener` | Static `host:port` override used in proxy templates when no container is running |
+| `tld` | app + global | none | `--network-tld`, `--network-global-tld`, `--network-computed-tld` | Top-level domain appended to auto-generated app vhosts |
+
+### Read-only flags
+
+The following flag surfaces in `network:report` but is not managed by `network:set` - it is derived from the running app state:
+
+| Flag | Description |
+|---|---|
+| `--network-web-listeners` | Current `web` process listeners (host:port) for the deployed app |

@@ -82,17 +82,19 @@ dokku builder-dockerfile:report
 ```
 =====> node-js-app builder-dockerfile information
        Builder dockerfile computed dockerfile path: Dockerfile2
-       Builder dockerfile global dockerfile path:   Dockerfile
+       Builder dockerfile global dockerfile path:
        Builder dockerfile dockerfile path:          Dockerfile2
 =====> python-sample builder-dockerfile information
        Builder dockerfile computed dockerfile path: Dockerfile
-       Builder dockerfile global dockerfile path:   Dockerfile
+       Builder dockerfile global dockerfile path:
        Builder dockerfile dockerfile path:
 =====> ruby-sample builder-dockerfile information
        Builder dockerfile computed dockerfile path: Dockerfile
-       Builder dockerfile global dockerfile path:   Dockerfile
+       Builder dockerfile global dockerfile path:
        Builder dockerfile dockerfile path:
 ```
+
+The `dockerfile-path` and `global-dockerfile-path` keys hold the raw per-app and global value respectively, and are empty when nothing has been set. The `computed-dockerfile-path` key holds the effective value used at deploy time, falling back to the global value (where one has been set) and then to the built-in default of `Dockerfile`.
 
 You can run the command for a specific app also.
 
@@ -103,7 +105,7 @@ dokku builder-dockerfile:report node-js-app
 ```
 =====> node-js-app builder-dockerfile information
        Builder dockerfile computed dockerfile path: Dockerfile2
-       Builder dockerfile global dockerfile path:   Dockerfile
+       Builder dockerfile global dockerfile path:
        Builder dockerfile dockerfile path:          Dockerfile2
 ```
 
@@ -213,3 +215,11 @@ See the [Procfile documentation](/docs/processes/process-management.md#procfile)
 ### Exposed ports
 
 See the [port management documentation](/docs/networking/port-management.md) for more information on how Dokku exposes ports for applications and how you can configure these for your app.
+
+## Properties
+
+### Settable properties
+
+| Property | Scope | Default | Report flags | Description |
+|---|---|---|---|---|
+| `dockerfile-path` | app + global | `Dockerfile` | `--builder-dockerfile-dockerfile-path`, `--builder-dockerfile-global-dockerfile-path`, `--builder-dockerfile-computed-dockerfile-path` | Path within the app to the Dockerfile used by the dockerfile builder |

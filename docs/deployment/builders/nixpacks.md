@@ -97,17 +97,19 @@ dokku builder-nixpacks:report
 ```
 =====> node-js-app builder-nixpacks information
        Builder-nixpacks computed nixpackstoml path: nixpacks2.toml
-       Builder-nixpacks global nixpackstoml path:   nixpacks.toml
+       Builder-nixpacks global nixpackstoml path:
        Builder-nixpacks nixpackstoml path:          nixpacks2.toml
 =====> python-sample builder-nixpacks information
        Builder-nixpacks computed nixpackstoml path: nixpacks.toml
-       Builder-nixpacks global nixpackstoml path:   nixpacks.toml
+       Builder-nixpacks global nixpackstoml path:
        Builder-nixpacks nixpackstoml path:
 =====> ruby-sample builder-nixpacks information
        Builder-nixpacks computed nixpackstoml path: nixpacks.toml
-       Builder-nixpacks global nixpackstoml path:   nixpacks.toml
+       Builder-nixpacks global nixpackstoml path:
        Builder-nixpacks nixpackstoml path:
 ```
+
+The `nixpackstoml-path` and `global-nixpackstoml-path` keys hold the raw per-app and global value respectively, and are empty when nothing has been set. The `computed-nixpackstoml-path` key holds the effective value used at build time, falling back to the global value (where one has been set) and then to the built-in default of `nixpacks.toml`.
 
 You can run the command for a specific app also.
 
@@ -118,7 +120,7 @@ dokku builder-nixpacks:report node-js-app
 ```
 =====> node-js-app builder-nixpacks information
        Builder-nixpacks computed nixpackstoml path: nixpacks2.toml
-       Builder-nixpacks global nixpackstoml path:   nixpacks.toml
+       Builder-nixpacks global nixpackstoml path:
        Builder-nixpacks nixpackstoml path:          nixpacks2.toml
 ```
 
@@ -131,3 +133,11 @@ dokku builder-nixpacks:report node-js-app --builder-nixpacks-nixpackstoml-path
 ```
 nixpacks2.toml
 ```
+
+## Properties
+
+### Settable properties
+
+| Property | Scope | Default | Report flags | Description |
+|---|---|---|---|---|
+| `nixpackstoml-path` | app + global | `nixpacks.toml` | `--builder-nixpacks-nixpackstoml-path`, `--builder-nixpacks-global-nixpackstoml-path`, `--builder-nixpacks-computed-nixpackstoml-path` | Path within the app to the `nixpacks.toml` manifest used by the nixpacks builder |

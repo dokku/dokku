@@ -52,6 +52,55 @@ teardown() {
   assert_success
 }
 
+@test "(builder-lambda:report) lambdayml-path raw vs computed vs global" {
+  run /bin/bash -c "dokku builder-lambda:set --global lambdayml-path"
+  assert_success
+
+  run /bin/bash -c "dokku builder-lambda:report $TEST_APP --builder-lambda-lambdayml-path"
+  assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku builder-lambda:report $TEST_APP --builder-lambda-global-lambdayml-path"
+  assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku builder-lambda:report $TEST_APP --builder-lambda-computed-lambdayml-path"
+  assert_success
+  assert_output "lambda.yml"
+
+  run /bin/bash -c "dokku builder-lambda:set --global lambdayml-path lambda.global.yml"
+  assert_success
+
+  run /bin/bash -c "dokku builder-lambda:report $TEST_APP --builder-lambda-global-lambdayml-path"
+  assert_success
+  assert_output "lambda.global.yml"
+
+  run /bin/bash -c "dokku builder-lambda:report $TEST_APP --builder-lambda-computed-lambdayml-path"
+  assert_success
+  assert_output "lambda.global.yml"
+
+  run /bin/bash -c "dokku builder-lambda:set $TEST_APP lambdayml-path lambda.app.yml"
+  assert_success
+
+  run /bin/bash -c "dokku builder-lambda:report $TEST_APP --builder-lambda-lambdayml-path"
+  assert_success
+  assert_output "lambda.app.yml"
+
+  run /bin/bash -c "dokku builder-lambda:report $TEST_APP --builder-lambda-global-lambdayml-path"
+  assert_success
+  assert_output "lambda.global.yml"
+
+  run /bin/bash -c "dokku builder-lambda:report $TEST_APP --builder-lambda-computed-lambdayml-path"
+  assert_success
+  assert_output "lambda.app.yml"
+
+  run /bin/bash -c "dokku builder-lambda:set $TEST_APP lambdayml-path"
+  assert_success
+
+  run /bin/bash -c "dokku builder-lambda:set --global lambdayml-path"
+  assert_success
+}
+
 @test "(builder-lambda:set)" {
   run /bin/bash -c "dokku config:set $TEST_APP SECRET_KEY=fjdkslafjdk"
   echo "output: $output"

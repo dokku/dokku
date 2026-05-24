@@ -71,11 +71,16 @@ cmd-haproxy-report-single() {
     verify_app_name "$APP"
   fi
   local flag_map=(
-    "--haproxy-image: $(fn-haproxy-image)"
-    "--haproxy-letsencrypt-email: $(fn-haproxy-letsencrypt-email)"
-    "--haproxy-letsencrypt-server: $(fn-haproxy-letsencrypt-server)"
-    "--haproxy-log-level: $(fn-haproxy-log-level)"
-    "--haproxy-refresh-conf: $(fn-haproxy-refresh-conf)"
+    "--haproxy-computed-image: $(fn-haproxy-computed-image)"
+    "--haproxy-computed-letsencrypt-email: $(fn-haproxy-computed-letsencrypt-email)"
+    "--haproxy-computed-letsencrypt-server: $(fn-haproxy-computed-letsencrypt-server)"
+    "--haproxy-computed-log-level: $(fn-haproxy-computed-log-level)"
+    "--haproxy-computed-refresh-conf: $(fn-haproxy-computed-refresh-conf)"
+    "--haproxy-global-image: $(fn-haproxy-global-image)"
+    "--haproxy-global-letsencrypt-email: $(fn-haproxy-global-letsencrypt-email)"
+    "--haproxy-global-letsencrypt-server: $(fn-haproxy-global-letsencrypt-server)"
+    "--haproxy-global-log-level: $(fn-haproxy-global-log-level)"
+    "--haproxy-global-refresh-conf: $(fn-haproxy-global-refresh-conf)"
   )
 
   fn-report-validate-format "$FORMAT" "$INFO_FLAG"

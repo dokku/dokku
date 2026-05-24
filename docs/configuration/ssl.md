@@ -150,3 +150,20 @@ If an `https:443:*` port mapping already exists when a certificate is installed 
 ### Running behind a proxy (`X-Forwarded-Ssl`, etc.)
 
 See the [running behind another proxy documentation](/docs/networking/proxies/nginx.md#running-behind-another-proxy--configuring-x-forwarded--headers) for more information on how to configure your Nginx config when your server is running behind a proxy (e.g. load balancer, etc.).
+
+## Properties
+
+### Read-only flags
+
+The following flags surface in `certs:report` but are not managed by `certs:set` - they are derived from the on-disk certificate:
+
+| Flag | Description |
+|---|---|
+| `--ssl-enabled` | `true` when an SSL certificate is installed for the app |
+| `--ssl-dir` | Absolute path to the per-app certificate directory |
+| `--ssl-hostnames` | Hostnames the certificate covers (CN plus Subject Alternative Names) |
+| `--ssl-issuer` | Certificate issuer DN |
+| `--ssl-subject` | Certificate subject DN |
+| `--ssl-verified` | `true` if the certificate chain verifies against the system CA bundle |
+| `--ssl-expires-at` | Certificate `notAfter` timestamp |
+| `--ssl-starts-at` | Certificate `notBefore` timestamp |

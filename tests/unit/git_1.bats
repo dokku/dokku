@@ -71,52 +71,88 @@ teardown() {
   assert_output_contains "Invalid flag passed"
 }
 
-@test "(git:report) keep-git-dir raw vs computed" {
-  run /bin/bash -c "dokku git:report $TEST_APP --git-keep-git-dir"
-  echo "output: $output"
-  echo "status: $status"
+@test "(git:report) keep-git-dir raw vs computed vs global" {
+  run /bin/bash -c "dokku git:set --global keep-git-dir"
   assert_success
-  assert_output ""
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-keep-git-dir"
+  assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-global-keep-git-dir"
+  assert_success
+  assert_output_not_exists
 
   run /bin/bash -c "dokku git:report $TEST_APP --git-computed-keep-git-dir"
-  echo "output: $output"
-  echo "status: $status"
   assert_success
   assert_output "false"
 
-  run /bin/bash -c "dokku git:set $TEST_APP keep-git-dir true"
-  echo "output: $output"
-  echo "status: $status"
+  run /bin/bash -c "dokku git:set --global keep-git-dir true"
   assert_success
 
-  run /bin/bash -c "dokku git:report $TEST_APP --git-keep-git-dir"
-  echo "output: $output"
-  echo "status: $status"
+  run /bin/bash -c "dokku git:report $TEST_APP --git-global-keep-git-dir"
   assert_success
   assert_output "true"
 
   run /bin/bash -c "dokku git:report $TEST_APP --git-computed-keep-git-dir"
-  echo "output: $output"
-  echo "status: $status"
   assert_success
   assert_output "true"
+
+  run /bin/bash -c "dokku git:set $TEST_APP keep-git-dir false"
+  assert_success
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-keep-git-dir"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-global-keep-git-dir"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-computed-keep-git-dir"
+  assert_success
+  assert_output "false"
 
   run /bin/bash -c "dokku git:set $TEST_APP keep-git-dir"
-  echo "output: $output"
-  echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku git:report $TEST_APP --git-keep-git-dir"
-  echo "output: $output"
-  echo "status: $status"
+  run /bin/bash -c "dokku git:set --global keep-git-dir"
   assert_success
-  assert_output ""
+}
 
-  run /bin/bash -c "dokku git:report $TEST_APP --git-computed-keep-git-dir"
-  echo "output: $output"
-  echo "status: $status"
+@test "(git:report) rev-env-var raw" {
+  # Unset the per-app property file if a previous test left it written-empty
+  # (git:set <app> rev-env-var "" intentionally writes an empty file as the
+  # documented "unset" behavior, which masks the report's default fallback).
+  run /bin/bash -c "dokku git:set $TEST_APP rev-env-var COMMIT_SHA"
   assert_success
-  assert_output "false"
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-rev-env-var"
+  assert_success
+  assert_output "COMMIT_SHA"
+
+  run /bin/bash -c "dokku git:set $TEST_APP rev-env-var"
+  assert_success
+}
+
+@test "(git:report) source-image raw" {
+  run /bin/bash -c "dokku git:report $TEST_APP --git-source-image"
+  assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku git:set $TEST_APP source-image alpine:3.20"
+  assert_success
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-source-image"
+  assert_success
+  assert_output "alpine:3.20"
+
+  run /bin/bash -c "dokku git:set $TEST_APP source-image"
+  assert_success
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-source-image"
+  assert_success
+  assert_output_not_exists
 }
 
 @test "(git:report) raw and computed keys in --format json" {
@@ -143,6 +179,60 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output "false"
+}
+
+@test "(git:report) --global raw and computed keys" {
+  run /bin/bash -c "dokku git:report --global --format json | jq -r '.\"global-deploy-branch\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku git:report --global --format json | jq -r '.\"computed-deploy-branch\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "master"
+
+  run /bin/bash -c "dokku git:report --global --format json | jq -r '.\"global-archive-max-files\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku git:report --global --format json | jq -r '.\"computed-archive-max-files\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "10000"
+
+  run /bin/bash -c "dokku git:set --global deploy-branch main"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:report --global --format json | jq -r '.\"global-deploy-branch\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "main"
+
+  run /bin/bash -c "dokku git:report --global --format json | jq -r '.\"computed-deploy-branch\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "main"
+
+  run /bin/bash -c "dokku git:set --global deploy-branch"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:report --global --format json | jq -r '.\"global-deploy-branch\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
 }
 
 @test "(git) git:help" {

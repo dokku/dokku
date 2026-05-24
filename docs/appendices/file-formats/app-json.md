@@ -288,3 +288,11 @@ An autoscaling trigger consists of the following properties:
     - Example use-cases
         - Setting up OAuth clients and DNS
         - Loading seed/test data into the app’s test database
+
+## Properties
+
+### Settable properties
+
+| Property | Scope | Default | Report flags | Description |
+|---|---|---|---|---|
+| `appjson-path` | app + global | `app.json` | `--app-json-appjson-path`, `--app-json-global-appjson-path`, `--app-json-computed-appjson-path` | Path within the app to the `app.json` manifest, relative to the build root |

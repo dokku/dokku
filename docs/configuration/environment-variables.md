@@ -129,3 +129,13 @@ The following config variables have special meanings and can be set in a variety
 | `DOKKU_TRACE`                  | none                            | `dokku trace:on`   <br /> `dokku trace:off` <br /> `--trace` flag                                                                                | Turn on very verbose debugging. |
 | `DOKKU_SYSTEM_GROUP`           | `dokku`                         | `/etc/environment` <br /> `~dokku/.dokkurc` <br /> `~dokku/.dokkurc/*`                                                                           | System group to chown files as. |
 | `DOKKU_SYSTEM_USER`            | `dokku`                         | `/etc/environment` <br /> `~dokku/.dokkurc` <br /> `~dokku/.dokkurc/*`                                                                           | System user to chown files as. |
+
+## Properties
+
+### Internal properties
+
+The following property is recorded internally by the config plugin and is not exposed via `config:report`:
+
+| Property | Description | Source |
+|---|---|---|
+| `env-migrated` | Migration sentinel that records the per-app or global `DOKKU_*` env-var → property migration completed for 0.38.0 | `plugins/config/triggers.go` writes `"true"` after the upgrade-time pass |

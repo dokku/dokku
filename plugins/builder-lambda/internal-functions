@@ -44,6 +44,7 @@ cmd-builder-lambda-report-single() {
   local flag_map=()
   if [[ "$APP" == "--global" ]]; then
     flag_map=(
+      "--builder-lambda-computed-lambdayml-path: $(fn-builder-lambda-computed-lambdayml-path "$APP")"
       "--builder-lambda-global-lambdayml-path: $(fn-builder-lambda-global-lambdayml-path "$APP")"
     )
   else
@@ -97,6 +98,9 @@ fn-builder-lambda-computed-lambdayml-path() {
   if [[ "$file" == "" ]]; then
     file="$(fn-builder-lambda-global-lambdayml-path "$APP")"
   fi
+  if [[ "$file" == "" ]]; then
+    file="lambda.yml"
+  fi
 
   echo "$file"
 }
@@ -104,7 +108,7 @@ fn-builder-lambda-computed-lambdayml-path() {
 fn-builder-lambda-global-lambdayml-path() {
   declare APP="$1"
 
-  fn-plugin-property-get-default "builder-lambda" "--global" "lambdayml-path" "lambda.yml"
+  fn-plugin-property-get-default "builder-lambda" "--global" "lambdayml-path" ""
 }
 
 fn-builder-lambda-lambdayml-path() {

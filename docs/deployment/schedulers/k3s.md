@@ -787,3 +787,25 @@ If unspecified for any task, the default reservation will be `.1` CPU and `128Mi
 
 > [!NOTE]
 > Cron tasks retrieve resource limits based on the computed cron task ID.
+
+## Properties
+
+### Settable properties
+
+| Property | Scope | Default | Report flags | Description |
+|---|---|---|---|---|
+| `deploy-timeout` | app + global | `300s` | `--scheduler-k3s-deploy-timeout`, `--scheduler-k3s-global-deploy-timeout`, `--scheduler-k3s-computed-deploy-timeout` | Timeout for a single helm install/upgrade cycle |
+| `image-pull-secrets` | app + global | none | `--scheduler-k3s-image-pull-secrets`, `--scheduler-k3s-global-image-pull-secrets`, `--scheduler-k3s-computed-image-pull-secrets` | Comma-separated list of Kubernetes secret names used to pull private images |
+| `ingress-class` | global only | `nginx` | `--scheduler-k3s-global-ingress-class` | IngressClass name used for app ingresses (e.g. `nginx`, `traefik`) |
+| `kube-context` | global only | none | `--scheduler-k3s-global-kube-context` | Kube context name used by helm and kubectl invocations |
+| `kubeconfig-path` | global only | `/etc/rancher/k3s/k3s.yaml` | `--scheduler-k3s-global-kubeconfig-path` | Filesystem path to the kubeconfig used to talk to the cluster |
+| `kustomize-root-path` | app + global | none | `--scheduler-k3s-kustomize-root-path`, `--scheduler-k3s-global-kustomize-root-path`, `--scheduler-k3s-computed-kustomize-root-path` | Path within the app to a kustomize root applied after the helm install |
+| `letsencrypt-email-prod` | global only | none | `--scheduler-k3s-global-letsencrypt-email-prod` | Contact email for the production cert-manager ClusterIssuer |
+| `letsencrypt-email-stag` | global only | none | `--scheduler-k3s-global-letsencrypt-email-stag` | Contact email for the staging cert-manager ClusterIssuer |
+| `letsencrypt-server` | app + global | `prod` | `--scheduler-k3s-letsencrypt-server`, `--scheduler-k3s-global-letsencrypt-server`, `--scheduler-k3s-computed-letsencrypt-server` | ACME directory (`prod` or `staging`) used for app certificates |
+| `namespace` | app + global | `default` | `--scheduler-k3s-namespace`, `--scheduler-k3s-global-namespace`, `--scheduler-k3s-computed-namespace` | Kubernetes namespace into which the app's resources are installed |
+| `network-interface` | global only | none | `--scheduler-k3s-global-network-interface` | Host network interface used by k3s |
+| `rollback-on-failure` | app + global | `false` | `--scheduler-k3s-rollback-on-failure`, `--scheduler-k3s-global-rollback-on-failure`, `--scheduler-k3s-computed-rollback-on-failure` | When `true`, helm rolls back the release if a deploy fails |
+| `shm-size` | app + global | none | `--scheduler-k3s-shm-size`, `--scheduler-k3s-global-shm-size`, `--scheduler-k3s-computed-shm-size` | `/dev/shm` size override applied to app containers |
+| `token` | global only | none | (not in report) | Cluster join token used by `scheduler-k3s:cluster-add` |
+| `chart.<chart-name>.<property>` | global only | none | `--scheduler-k3s-global-chart.<chart-name>.<property>` (dynamic per chart/property) | Override a value injected into the helm chart named `<chart-name>` (one row per chart/property pair) |

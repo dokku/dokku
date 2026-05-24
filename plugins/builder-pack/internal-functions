@@ -44,6 +44,7 @@ cmd-builder-pack-report-single() {
   local flag_map=()
   if [[ "$APP" == "--global" ]]; then
     flag_map=(
+      "--builder-pack-computed-projecttoml-path: $(fn-builder-pack-computed-projecttoml-path "$APP")"
       "--builder-pack-global-projecttoml-path: $(fn-builder-pack-global-projecttoml-path "$APP")"
     )
   else
@@ -97,6 +98,9 @@ fn-builder-pack-computed-projecttoml-path() {
   if [[ "$file" == "" ]]; then
     file="$(fn-builder-pack-global-projecttoml-path "$APP")"
   fi
+  if [[ "$file" == "" ]]; then
+    file="project.toml"
+  fi
 
   echo "$file"
 }
@@ -104,7 +108,7 @@ fn-builder-pack-computed-projecttoml-path() {
 fn-builder-pack-global-projecttoml-path() {
   declare APP="$1"
 
-  fn-plugin-property-get-default "builder-pack" "--global" "projecttoml-path" "project.toml"
+  fn-plugin-property-get-default "builder-pack" "--global" "projecttoml-path" ""
 }
 
 fn-builder-pack-projecttoml-path() {

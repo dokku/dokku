@@ -52,6 +52,58 @@ teardown() {
   assert_success
 }
 
+@test "(builder-herokuish:report) allowed raw vs computed vs global" {
+  local default_allowed="true"
+  [[ "$(dpkg --print-architecture 2>/dev/null || true)" != "amd64" ]] && default_allowed="false"
+
+  run /bin/bash -c "dokku builder-herokuish:set --global allowed"
+  assert_success
+
+  run /bin/bash -c "dokku builder-herokuish:report $TEST_APP --builder-herokuish-allowed"
+  assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku builder-herokuish:report $TEST_APP --builder-herokuish-global-allowed"
+  assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku builder-herokuish:report $TEST_APP --builder-herokuish-computed-allowed"
+  assert_success
+  assert_output "$default_allowed"
+
+  run /bin/bash -c "dokku builder-herokuish:set --global allowed false"
+  assert_success
+
+  run /bin/bash -c "dokku builder-herokuish:report $TEST_APP --builder-herokuish-global-allowed"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku builder-herokuish:report $TEST_APP --builder-herokuish-computed-allowed"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku builder-herokuish:set $TEST_APP allowed true"
+  assert_success
+
+  run /bin/bash -c "dokku builder-herokuish:report $TEST_APP --builder-herokuish-allowed"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku builder-herokuish:report $TEST_APP --builder-herokuish-global-allowed"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku builder-herokuish:report $TEST_APP --builder-herokuish-computed-allowed"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku builder-herokuish:set $TEST_APP allowed"
+  assert_success
+
+  run /bin/bash -c "dokku builder-herokuish:set --global allowed"
+  assert_success
+}
+
 @test "(builder-herouish:build .env)" {
   run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP
   echo "output: $output"

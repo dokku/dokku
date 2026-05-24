@@ -205,12 +205,19 @@ dokku haproxy:report
 
 ```
 =====> node-js-app haproxy information
-       Haproxy image:                   byjg/easy-haproxy:4.0.0
-=====> python-app haproxy information
-       Haproxy image:                   byjg/easy-haproxy:4.0.0
-=====> ruby-app haproxy information
-       Haproxy image:                   byjg/easy-haproxy:4.0.0
+       Haproxy computed image:           byjg/easy-haproxy:4.0.0
+       Haproxy computed letsencrypt email:
+       Haproxy computed letsencrypt server: https://acme-v02.api.letsencrypt.org/directory
+       Haproxy computed log level:       ERROR
+       Haproxy computed refresh conf:    10
+       Haproxy global image:
+       Haproxy global letsencrypt email:
+       Haproxy global letsencrypt server:
+       Haproxy global log level:
+       Haproxy global refresh conf:
 ```
+
+The `global-<prop>` keys hold the raw global value and are empty when nothing has been set globally. The `computed-<prop>` keys hold the effective value used at deploy time, falling back to the built-in default when the global value is empty.
 
 You can run the command for a specific app also.
 
@@ -220,11 +227,42 @@ dokku haproxy:report node-js-app
 
 ```
 =====> node-js-app haproxy information
-       Haproxy image:                   byjg/easy-haproxy:4.0.0
+       Haproxy computed image:           byjg/easy-haproxy:4.0.0
+       Haproxy computed letsencrypt email:
+       Haproxy computed letsencrypt server: https://acme-v02.api.letsencrypt.org/directory
+       Haproxy computed log level:       ERROR
+       Haproxy computed refresh conf:    10
+       Haproxy global image:
+       Haproxy global letsencrypt email:
+       Haproxy global letsencrypt server:
+       Haproxy global log level:
+       Haproxy global refresh conf:
 ```
 
 You can pass flags which will output only the value of the specific information you want. For example:
 
 ```shell
-dokku haproxy:report node-js-app --haproxy-image
+dokku haproxy:report node-js-app --haproxy-computed-image
 ```
+
+## Properties
+
+### Settable properties
+
+All haproxy properties are global only. Set with `haproxy:set --global <property> <value>`.
+
+| Property | Scope | Default | Report flags | Description |
+|---|---|---|---|---|
+| `image` | global only | _parsed from `plugins/haproxy-vhosts/Dockerfile`_ | `--haproxy-global-image`, `--haproxy-computed-image` | Docker image used to run the Haproxy container |
+| `letsencrypt-email` | global only | none | `--haproxy-global-letsencrypt-email`, `--haproxy-computed-letsencrypt-email` | Contact email enabling letsencrypt; empty disables https issuance |
+| `letsencrypt-server` | global only | `https://acme-v02.api.letsencrypt.org/directory` | `--haproxy-global-letsencrypt-server`, `--haproxy-computed-letsencrypt-server` | ACME directory used when requesting certificates |
+| `log-level` | global only | `ERROR` | `--haproxy-global-log-level`, `--haproxy-computed-log-level` | Haproxy log level |
+| `refresh-conf` | global only | `10` | `--haproxy-global-refresh-conf`, `--haproxy-computed-refresh-conf` | Seconds between Haproxy polls of the Docker API for label changes |
+
+### Internal properties
+
+The following properties are not managed by `haproxy:set` but are recorded internally by the plugin:
+
+| Property | Description | Source |
+|---|---|---|
+| `proxy-status` | `started`/`stopped` state of the haproxy compose project | `cmd-haproxy-start`/`cmd-haproxy-stop` in `plugins/haproxy-vhosts/command-functions` |

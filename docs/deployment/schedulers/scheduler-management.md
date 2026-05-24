@@ -80,13 +80,15 @@ dokku scheduler:report
        Scheduler selected: herokuish
 =====> python-sample scheduler information
        Scheduler computed selected: dockerfile
-       Scheduler global selected: herokuish
+       Scheduler global selected:
        Scheduler selected: dockerfile
 =====> ruby-sample scheduler information
-       Scheduler computed selected: herokuish
-       Scheduler global selected: herokuish
+       Scheduler computed selected: docker-local
+       Scheduler global selected:
        Scheduler selected:
 ```
+
+The `selected` and `global-selected` keys hold the raw per-app and global value respectively, and are empty when nothing has been set. The `computed-selected` key holds the effective value used at deploy time, falling back to the global value (where one has been set) and then to the built-in default of `docker-local`.
 
 You can run the command for a specific app also.
 
@@ -96,6 +98,8 @@ dokku scheduler:report node-js-app
 
 ```
 =====> node-js-app scheduler information
+       Scheduler computed selected:  herokuish
+       Scheduler global selected:
        Scheduler selected: herokuish
 ```
 
@@ -143,3 +147,12 @@ Schedulers may decide to omit some functionality here, or use plugin triggers to
 Schedulers can use any tools available on the system to build the docker image, and may even be used to interact with off-server systems. The only current requirement is that the scheduler must have access to the image built in the build phase. If this is not the case, the registry plugin can be used to push the image to a registry that the scheduler software can access.
 
 Deployment tasks are currently executed directly on the primary Dokku server.
+
+## Properties
+
+### Settable properties
+
+| Property | Scope | Default | Report flags | Description |
+|---|---|---|---|---|
+| `selected` | app + global | `docker-local` | `--scheduler-selected`, `--scheduler-global-selected`, `--scheduler-computed-selected` | Scheduler plugin used to deploy this app (`docker-local`, `k3s`, etc.) |
+| `shell` | app + global | none | (not in report) | Shell used by `enter`/`run` commands when entering a container |

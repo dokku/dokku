@@ -44,6 +44,7 @@ cmd-builder-railpack-report-single() {
   local flag_map=()
   if [[ "$APP" == "--global" ]]; then
     flag_map=(
+      "--builder-railpack-computed-railpackjson-path: $(fn-builder-railpack-computed-railpackjson-path "$APP")"
       "--builder-railpack-global-railpackjson-path: $(fn-builder-railpack-global-railpackjson-path "$APP")"
     )
   else
@@ -97,6 +98,9 @@ fn-builder-railpack-computed-railpackjson-path() {
   if [[ "$file" == "" ]]; then
     file="$(fn-builder-railpack-global-railpackjson-path "$APP")"
   fi
+  if [[ "$file" == "" ]]; then
+    file="railpack.json"
+  fi
 
   echo "$file"
 }
@@ -104,7 +108,7 @@ fn-builder-railpack-computed-railpackjson-path() {
 fn-builder-railpack-global-railpackjson-path() {
   declare APP="$1"
 
-  fn-plugin-property-get "builder-railpack" "--global" "railpackjson-path" "railpack.json"
+  fn-plugin-property-get "builder-railpack" "--global" "railpackjson-path" ""
 }
 
 fn-builder-railpack-railpackjson-path() {

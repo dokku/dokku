@@ -11,7 +11,7 @@ trigger-git-git-from-directory() {
   declare APP="$1" SOURCECODE_WORK_DIR="$2" USER_NAME="${3:-Dokku}" USER_EMAIL="${4:-automated@dokku.sh}"
 
   local APP_ROOT="$DOKKU_ROOT/$APP"
-  local DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
+  local DOKKU_DEPLOY_BRANCH="$(fn-git-computed-deploy-branch "$APP")"
   local REV
   local TMP_WORK_DIR=$(mktemp -d "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
   local TMP_WORK_DIR_2=$(mktemp -d "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
@@ -25,7 +25,7 @@ trigger-git-git-from-directory() {
   dokku_log_info1 "Updating git repository with specified build context"
   if [[ "$has_code" == "false" ]]; then
     # setup new repo
-    local DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
+    local DEPLOY_BRANCH="$(fn-git-computed-deploy-branch "$APP")"
     cp -rT "$SOURCECODE_WORK_DIR" "$TMP_WORK_DIR"
     suppress_output fn-git-cmd "$TMP_WORK_DIR" init
     suppress_output fn-git-cmd "$TMP_WORK_DIR" checkout -b "$DEPLOY_BRANCH"
@@ -64,7 +64,7 @@ trigger-git-git-from-directory() {
     return
   else
     local exit_code=$?
-    local DOKKU_DEPLOY_BRANCH="$(fn-git-deploy-branch "$APP")"
+    local DOKKU_DEPLOY_BRANCH="$(fn-git-computed-deploy-branch "$APP")"
     if [[ "$has_code" == "false" ]]; then
       fn-git-cmd "$APP_ROOT" update-ref -d HEAD
     else

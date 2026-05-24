@@ -222,7 +222,7 @@ func writeVectorConfig() error {
 
 		data.Sources["docker-global-source"] = vectorSource{
 			Type:          "docker_logs",
-			IncludeLabels: []string{reportGlobalAppLabelAlias("global")},
+			IncludeLabels: []string{reportComputedAppLabelAlias("global")},
 		}
 
 		data.Sinks["docker-global-sink"] = sink

@@ -70,23 +70,34 @@ cmd-caddy-report-single() {
   local flag_map=()
   if [[ "$APP" == "--global" ]]; then
     flag_map=(
+      "--caddy-computed-image: $(fn-caddy-computed-image)"
+      "--caddy-computed-letsencrypt-email: $(fn-caddy-computed-letsencrypt-email)"
+      "--caddy-computed-letsencrypt-server: $(fn-caddy-computed-letsencrypt-server)"
+      "--caddy-computed-log-level: $(fn-caddy-computed-log-level)"
+      "--caddy-computed-polling-interval: $(fn-caddy-computed-polling-interval)"
+      "--caddy-computed-tls-internal: $(fn-caddy-computed-tls-internal "$APP")"
+      "--caddy-global-image: $(fn-caddy-global-image)"
+      "--caddy-global-letsencrypt-email: $(fn-caddy-global-letsencrypt-email)"
+      "--caddy-global-letsencrypt-server: $(fn-caddy-global-letsencrypt-server)"
+      "--caddy-global-log-level: $(fn-caddy-global-log-level)"
+      "--caddy-global-polling-interval: $(fn-caddy-global-polling-interval)"
       "--caddy-global-tls-internal: $(fn-caddy-global-tls-internal)"
-      "--caddy-image: $(fn-caddy-image)"
-      "--caddy-letsencrypt-email: $(fn-caddy-letsencrypt-email)"
-      "--caddy-letsencrypt-server: $(fn-caddy-letsencrypt-server)"
-      "--caddy-log-level: $(fn-caddy-log-level)"
-      "--caddy-polling-interval: $(fn-caddy-polling-interval)"
     )
   else
     verify_app_name "$APP"
     flag_map=(
+      "--caddy-computed-image: $(fn-caddy-computed-image)"
+      "--caddy-computed-letsencrypt-email: $(fn-caddy-computed-letsencrypt-email)"
+      "--caddy-computed-letsencrypt-server: $(fn-caddy-computed-letsencrypt-server)"
+      "--caddy-computed-log-level: $(fn-caddy-computed-log-level)"
+      "--caddy-computed-polling-interval: $(fn-caddy-computed-polling-interval)"
       "--caddy-computed-tls-internal: $(fn-caddy-computed-tls-internal "$APP")"
+      "--caddy-global-image: $(fn-caddy-global-image)"
+      "--caddy-global-letsencrypt-email: $(fn-caddy-global-letsencrypt-email)"
+      "--caddy-global-letsencrypt-server: $(fn-caddy-global-letsencrypt-server)"
+      "--caddy-global-log-level: $(fn-caddy-global-log-level)"
+      "--caddy-global-polling-interval: $(fn-caddy-global-polling-interval)"
       "--caddy-global-tls-internal: $(fn-caddy-global-tls-internal)"
-      "--caddy-image: $(fn-caddy-image)"
-      "--caddy-letsencrypt-email: $(fn-caddy-letsencrypt-email)"
-      "--caddy-letsencrypt-server: $(fn-caddy-letsencrypt-server)"
-      "--caddy-log-level: $(fn-caddy-log-level)"
-      "--caddy-polling-interval: $(fn-caddy-polling-interval)"
       "--caddy-tls-internal: $(fn-caddy-tls-internal "$APP")"
     )
   fi

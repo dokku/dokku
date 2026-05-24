@@ -184,6 +184,38 @@ teardown() {
   assert_output "mount_volume:/mount"
 }
 
+@test "(storage:report) build/deploy/run mounts raw" {
+  run /bin/bash -c "dokku storage:report $TEST_APP --format json | jq -r '.\"storage-build-mounts\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --format json | jq -r '.\"storage-deploy-mounts\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --format json | jq -r '.\"storage-run-mounts\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku storage:mount $TEST_APP /tmp/storage-mount:/mount"
+  assert_success
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --format json | jq -r '.\"storage-deploy-mounts\"'"
+  assert_success
+  assert_output "-v /tmp/storage-mount:/mount"
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --format json | jq -r '.\"storage-run-mounts\"'"
+  assert_success
+  assert_output "-v /tmp/storage-mount:/mount"
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --format json | jq -r '.\"storage-build-mounts\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku storage:unmount $TEST_APP /tmp/storage-mount:/mount"
+  assert_success
+}
+
 @test "(storage) storage:create / storage:list-entries / storage:destroy" {
   run /bin/bash -c "dokku storage:create rdmtest-entry"
   echo "output: $output"

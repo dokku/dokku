@@ -117,17 +117,19 @@ dokku builder-herokuish:report
 ```
 =====> node-js-app builder-herokuish information
        Builder herokuish computed allowed: false
-       Builder herokuish global allowed:   true
+       Builder herokuish global allowed:
        Builder herokuish allowed:          false
 =====> python-sample builder-herokuish information
        Builder herokuish computed allowed: true
-       Builder herokuish global allowed:   true
+       Builder herokuish global allowed:
        Builder herokuish allowed:
 =====> ruby-sample builder-herokuish information
        Builder herokuish computed allowed: true
-       Builder herokuish global allowed:   true
+       Builder herokuish global allowed:
        Builder herokuish allowed:
 ```
+
+The `allowed` and `global-allowed` keys hold the raw per-app and global value respectively, and are empty when nothing has been set. The `computed-allowed` key holds the effective value used at build time, falling back to the global value (where one has been set) and then to the built-in default (`true` on amd64, `false` otherwise).
 
 You can run the command for a specific app also.
 
@@ -138,7 +140,7 @@ dokku builder-herokuish:report node-js-app
 ```
 =====> node-js-app builder-herokuish information
        Builder herokuish computed allowed: false
-       Builder herokuish global allowed:   true
+       Builder herokuish global allowed:
        Builder herokuish allowed:          false
 ```
 
@@ -209,3 +211,11 @@ See the [buildpack management documentation](/docs/processes/process-management.
 ### Displaying buildpack reports for an app
 
 See the [buildpack management documentation](/docs/processes/process-management.md#displaying-buildpack-reports-for-an-app) for more information on how to display buildpack reports for an app.
+
+## Properties
+
+### Settable properties
+
+| Property | Scope | Default | Report flags | Description |
+|---|---|---|---|---|
+| `allowed` | app + global | `true` | `--builder-herokuish-allowed`, `--builder-herokuish-global-allowed`, `--builder-herokuish-computed-allowed` | When `false`, the herokuish builder is skipped during builder detection for this app |

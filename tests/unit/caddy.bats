@@ -18,13 +18,31 @@ teardown() {
   dokku nginx:start
 }
 
-@test "(caddy:report) --global --caddy-log-level" {
+@test "(caddy:report) --global global vs computed log-level" {
+  run /bin/bash -c "dokku caddy:report --global --caddy-global-log-level"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku caddy:report --global --caddy-computed-log-level"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "ERROR"
+
   run /bin/bash -c "dokku caddy:set --global log-level DEBUG"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku caddy:report --global --caddy-log-level"
+  run /bin/bash -c "dokku caddy:report --global --caddy-global-log-level"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "DEBUG"
+
+  run /bin/bash -c "dokku caddy:report --global --caddy-computed-log-level"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -34,6 +52,44 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
+
+  run /bin/bash -c "dokku caddy:report --global --caddy-global-log-level"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku caddy:report --global --caddy-computed-log-level"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "ERROR"
+}
+
+@test "(caddy:report) --global raw and computed keys in --format json" {
+  run /bin/bash -c "dokku caddy:report --global --format json | jq -r '.\"global-image\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku caddy:report --global --format json | jq -r '.\"computed-image\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_exists
+
+  run /bin/bash -c "dokku caddy:report --global --format json | jq -r '.\"global-polling-interval\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku caddy:report --global --format json | jq -r '.\"computed-polling-interval\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "5s"
 }
 
 @test "(caddy) global-only keys" {
@@ -80,7 +136,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "false"
+  assert_output ""
 
   run /bin/bash -c "dokku caddy:set $TEST_APP tls-internal true"
   echo "output: $output"
@@ -294,12 +350,12 @@ teardown() {
   assert_success
   assert_output "$TEST_APP.${DOKKU_DOMAIN}"
 
-  run /bin/bash -c "dokku --quiet ports:report $TEST_APP --ports-map"
+  run /bin/bash -c "dokku ports:report $TEST_APP --ports-map"
   echo "output: $output"
   echo "status: $status"
   assert_output_not_exists
 
-  run /bin/bash -c "dokku --quiet ports:report $TEST_APP --ports-map-detected"
+  run /bin/bash -c "dokku ports:report $TEST_APP --ports-map-detected"
   echo "output: $output"
   echo "status: $status"
   assert_output "http:80:5000 https:443:5000"

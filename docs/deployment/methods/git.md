@@ -281,12 +281,15 @@ dokku git:report
 
 ```
 =====> node-js-app git information
+       Git computed archive max files: 10000
+       Git computed archive max size:  1073741824
        Git computed deploy branch:    master
        Git computed keep git dir:     false
        Git deploy branch:
-       Git global archive max files:  10000
-       Git global archive max size:   1073741824
-       Git global deploy branch:      master
+       Git global archive max files:
+       Git global archive max size:
+       Git global deploy branch:
+       Git global keep git dir:
        Git keep git dir:
        Git rev env var:               GIT_REV
        Git sha:                       a1b2c3d
@@ -294,7 +297,7 @@ dokku git:report
        Git last updated at:           1700000000
 ```
 
-The `deploy-branch` and `keep-git-dir` keys hold the raw per-app value and are empty when nothing has been set on the app. The `computed-deploy-branch` and `computed-keep-git-dir` keys hold the effective value used at deploy time, falling back to the corresponding global value (where one exists) and then to the built-in default.
+The bare per-app keys (`deploy-branch`, `keep-git-dir`) and the `global-<prop>` keys hold the raw per-app or global value respectively, and are empty when nothing has been set. The `computed-<prop>` keys hold the effective value used at deploy time, falling back to the global value (where one has been set) and then to the built-in default.
 
 You can run the command for a specific app also.
 
@@ -315,3 +318,25 @@ dokku git:report node-js-app --format json
 ```
 
 The `--format` flag cannot be combined with an info flag.
+
+## Properties
+
+### Settable properties
+
+| Property | Scope | Default | Report flags | Description |
+|---|---|---|---|---|
+| `archive-max-files` | app + global | none | `--git-global-archive-max-files`, `--git-computed-archive-max-files` | Maximum number of files allowed in an uploaded archive deploy |
+| `archive-max-size` | app + global | none | `--git-global-archive-max-size`, `--git-computed-archive-max-size` | Maximum total size of an uploaded archive deploy |
+| `deploy-branch` | app + global | `master` | `--git-deploy-branch`, `--git-global-deploy-branch`, `--git-computed-deploy-branch` | Branch name pushed by the git remote that triggers a deploy |
+| `keep-git-dir` | app + global | `false` | `--git-keep-git-dir`, `--git-global-keep-git-dir`, `--git-computed-keep-git-dir` | When `true`, retains the `.git` directory inside the build context |
+| `rev-env-var` | app + global | `GIT_REV` | `--git-rev-env-var` | Environment variable name receiving the deployed commit SHA; empty disables injection |
+| `source-image` | app + global | none | `--git-source-image` | Docker image to clone application source from when deploying from an image |
+
+### Read-only flags
+
+The following flags surface in `git:report` but are not managed by `git:set` - they are derived from repository state:
+
+| Flag | Description |
+|---|---|
+| `--git-sha` | HEAD commit SHA of the app's git repo |
+| `--git-last-updated-at` | UNIX timestamp of the last write to the deploy branch ref |

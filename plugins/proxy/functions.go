@@ -13,10 +13,13 @@ func getComputedProxyType(appName string) string {
 	if proxyType == "" {
 		proxyType = getGlobalProxyType()
 	}
+	if proxyType == "" {
+		proxyType = "nginx"
+	}
 
 	return proxyType
 }
 
 func getGlobalProxyType() string {
-	return common.PropertyGetDefault("proxy", "--global", "type", "nginx")
+	return common.PropertyGet("proxy", "--global", "type")
 }

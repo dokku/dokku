@@ -66,6 +66,141 @@ teardown() {
   assert_success
 }
 
+@test "(network:report) tld raw vs computed" {
+  run /bin/bash -c "dokku network:set --global tld"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku network:report --global --format json | jq -r '.\"network-global-tld\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku network:set --global tld example.test"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku network:report --global --format json | jq -r '.\"network-global-tld\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "example.test"
+
+  run /bin/bash -c "dokku network:report $TEST_APP --format json | jq -r '.\"network-global-tld\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "example.test"
+
+  run /bin/bash -c "dokku network:report $TEST_APP --format json | jq -r '.\"network-computed-tld\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "example.test"
+
+  run /bin/bash -c "dokku network:set --global tld"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
+@test "(network:report) attach-post-create raw vs computed vs global" {
+  docker network create create-network-x >/dev/null
+  run /bin/bash -c "dokku network:set --global attach-post-create"
+  assert_success
+
+  run /bin/bash -c "dokku network:report $TEST_APP --format json | jq -r '.\"network-attach-post-create\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku network:report $TEST_APP --format json | jq -r '.\"network-global-attach-post-create\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku network:report $TEST_APP --format json | jq -r '.\"network-computed-attach-post-create\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku network:set --global attach-post-create create-network-x"
+  assert_success
+
+  run /bin/bash -c "dokku network:report $TEST_APP --format json | jq -r '.\"network-global-attach-post-create\"'"
+  assert_success
+  assert_output "create-network-x"
+
+  run /bin/bash -c "dokku network:report $TEST_APP --format json | jq -r '.\"network-computed-attach-post-create\"'"
+  assert_success
+  assert_output "create-network-x"
+
+  run /bin/bash -c "dokku network:set --global attach-post-create"
+  assert_success
+
+  docker network rm create-network-x >/dev/null
+}
+
+@test "(network:report) attach-post-deploy raw vs computed vs global" {
+  docker network create deploy-network-x >/dev/null
+  run /bin/bash -c "dokku network:set --global attach-post-deploy"
+  assert_success
+
+  run /bin/bash -c "dokku network:report $TEST_APP --format json | jq -r '.\"network-attach-post-deploy\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku network:report $TEST_APP --format json | jq -r '.\"network-global-attach-post-deploy\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku network:set --global attach-post-deploy deploy-network-x"
+  assert_success
+
+  run /bin/bash -c "dokku network:report $TEST_APP --format json | jq -r '.\"network-global-attach-post-deploy\"'"
+  assert_success
+  assert_output "deploy-network-x"
+
+  run /bin/bash -c "dokku network:report $TEST_APP --format json | jq -r '.\"network-computed-attach-post-deploy\"'"
+  assert_success
+  assert_output "deploy-network-x"
+
+  run /bin/bash -c "dokku network:set --global attach-post-deploy"
+  assert_success
+
+  docker network rm deploy-network-x >/dev/null
+}
+
+@test "(network:report) initial-network raw vs computed vs global" {
+  docker network create initial-network-x >/dev/null
+  run /bin/bash -c "dokku network:set --global initial-network"
+  assert_success
+
+  run /bin/bash -c "dokku network:report $TEST_APP --format json | jq -r '.\"network-initial-network\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku network:report $TEST_APP --format json | jq -r '.\"network-global-initial-network\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku network:set --global initial-network initial-network-x"
+  assert_success
+
+  run /bin/bash -c "dokku network:report $TEST_APP --format json | jq -r '.\"network-global-initial-network\"'"
+  assert_success
+  assert_output "initial-network-x"
+
+  run /bin/bash -c "dokku network:report $TEST_APP --format json | jq -r '.\"network-computed-initial-network\"'"
+  assert_success
+  assert_output "initial-network-x"
+
+  run /bin/bash -c "dokku network:set --global initial-network"
+  assert_success
+
+  docker network rm initial-network-x >/dev/null
+}
+
 @test "(network) network:set bind-all-interfaces" {
   run deploy_app
   echo "output: $output"

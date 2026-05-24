@@ -9,6 +9,7 @@ setup() {
 
 teardown() {
   destroy_app
+  dokku logs:set --global vector-image >/dev/null 2>/dev/null || true
   dokku logs:set --global vector-networks >/dev/null 2>/dev/null || true
   docker network rm test-vector-net-a >/dev/null || true
   docker network rm test-vector-net-b >/dev/null || true
@@ -57,7 +58,7 @@ teardown() {
   echo "status: $status"
   assert_failure
   assert_output_contains "$TEST_APP logs information" 0
-  assert_output_contains "Invalid flag passed, valid flags: --logs-app-label-alias, --logs-computed-app-label-alias, --logs-computed-max-size, --logs-global-app-label-alias, --logs-global-max-size, --logs-global-vector-sink, --logs-max-size, --logs-vector-global-image, --logs-vector-global-networks, --logs-vector-sink"
+  assert_output_contains "Invalid flag passed, valid flags: --logs-app-label-alias, --logs-computed-app-label-alias, --logs-computed-max-size, --logs-computed-vector-image, --logs-computed-vector-networks, --logs-computed-vector-sink, --logs-global-app-label-alias, --logs-global-max-size, --logs-global-vector-image, --logs-global-vector-networks, --logs-global-vector-sink, --logs-max-size, --logs-vector-sink"
 
   run /bin/bash -c "dokku logs:report $TEST_APP --logs-vector-sink 2>&1"
   echo "output: $output"
@@ -72,6 +73,14 @@ teardown() {
   assert_success
   assert_output_contains "$TEST_APP logs information" 0
   assert_output_contains "Invalid flag passed" 0
+}
+
+@test "(logs) logs:report --global invalid flag" {
+  run /bin/bash -c "dokku logs:report --global --invalid-flag 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Invalid flag passed, valid flags: --logs-computed-app-label-alias, --logs-computed-max-size, --logs-computed-vector-image, --logs-computed-vector-networks, --logs-computed-vector-sink, --logs-global-app-label-alias, --logs-global-max-size, --logs-global-vector-image, --logs-global-vector-networks, --logs-global-vector-sink"
 }
 
 @test "(logs) logs:set [error]" {
@@ -412,7 +421,7 @@ teardown() {
   assert_success
   assert_output_not_exists
 
-  run /bin/bash -c "dokku logs:report $TEST_APP --logs-global-max-size 2>&1"
+  run /bin/bash -c "dokku logs:report $TEST_APP --logs-computed-max-size 2>&1"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -428,6 +437,12 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku logs:report $TEST_APP --logs-computed-max-size 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
   assert_output "10m"
 
   run /bin/bash -c "dokku logs:set --global max-size 20m" 2>&1
@@ -437,6 +452,12 @@ teardown() {
   assert_output_contains "Setting max-size"
 
   run /bin/bash -c "dokku logs:report $TEST_APP --logs-global-max-size 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "20m"
+
+  run /bin/bash -c "dokku logs:report $TEST_APP --logs-computed-max-size 2>&1"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -464,7 +485,79 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku logs:report $TEST_APP --logs-computed-max-size 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
   assert_output "10m"
+}
+
+@test "(logs:report) vector-sink raw vs global" {
+  run create_app
+  assert_success
+
+  run /bin/bash -c "dokku logs:set --global vector-sink"
+  assert_success
+
+  run /bin/bash -c "dokku logs:report $TEST_APP --format json | jq -r '.\"logs-vector-sink\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku logs:report $TEST_APP --format json | jq -r '.\"logs-global-vector-sink\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku logs:set --global vector-sink console://?encoding[codec]=json"
+  assert_success
+
+  run /bin/bash -c "dokku logs:report $TEST_APP --format json | jq -r '.\"logs-global-vector-sink\"'"
+  assert_success
+  assert_output "console://?encoding[codec]=json"
+
+  run /bin/bash -c "dokku logs:set $TEST_APP vector-sink datadog_logs://?api_key=abc"
+  assert_success
+
+  run /bin/bash -c "dokku logs:report $TEST_APP --format json | jq -r '.\"logs-vector-sink\"'"
+  assert_success
+  assert_output "datadog_logs://?api_key=abc"
+
+  run /bin/bash -c "dokku logs:set $TEST_APP vector-sink"
+  assert_success
+
+  run /bin/bash -c "dokku logs:set --global vector-sink"
+  assert_success
+}
+
+@test "(logs:report) vector-global-image and vector-global-networks raw" {
+  run create_app
+  assert_success
+
+  run /bin/bash -c "dokku logs:set --global vector-image"
+  assert_success
+
+  run /bin/bash -c "dokku logs:report --global --format json | jq -r '.\"logs-global-vector-image\"'"
+  assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku logs:report --global --format json | jq -r '.\"logs-computed-vector-image\"'"
+  assert_success
+  assert_output_exists
+
+  run /bin/bash -c "dokku logs:set --global vector-image timberio/vector:custom"
+  assert_success
+
+  run /bin/bash -c "dokku logs:report --global --format json | jq -r '.\"logs-global-vector-image\"'"
+  assert_success
+  assert_output "timberio/vector:custom"
+
+  run /bin/bash -c "dokku logs:set --global vector-image"
+  assert_success
+
+  run /bin/bash -c "dokku logs:report --global --format json | jq -r '.\"logs-global-vector-networks\"'"
+  assert_success
+  assert_output ""
 }
 
 @test "(logs) logs:set --global vector-networks" {
@@ -506,7 +599,7 @@ teardown() {
   assert_success
   assert_output_contains "Setting vector-networks"
 
-  run /bin/bash -c "dokku logs:report --global --logs-vector-global-networks 2>&1"
+  run /bin/bash -c "dokku logs:report --global --logs-global-vector-networks 2>&1"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -518,7 +611,7 @@ teardown() {
   assert_success
   assert_output_contains "Setting vector-networks"
 
-  run /bin/bash -c "dokku logs:report --global --logs-vector-global-networks 2>&1"
+  run /bin/bash -c "dokku logs:report --global --logs-global-vector-networks 2>&1"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -530,7 +623,7 @@ teardown() {
   assert_success
   assert_output_contains "Unsetting vector-networks"
 
-  run /bin/bash -c "dokku logs:report --global --logs-vector-global-networks 2>&1"
+  run /bin/bash -c "dokku logs:report --global --logs-global-vector-networks 2>&1"
   echo "output: $output"
   echo "status: $status"
   assert_success

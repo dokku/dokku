@@ -184,9 +184,9 @@ func globalValue(appName string, property string) string {
 	case "bind-address-ipv6":
 		value = nginx_vhosts.GlobalBindAddressIPv6()
 	case "client-body-timeout":
-		value = nginx_vhosts.ComputedClientBodyTimeout(appName)
+		value = nginx_vhosts.GlobalClientBodyTimeout()
 	case "client-header-timeout":
-		value = nginx_vhosts.ComputedClientHeaderTimeout(appName)
+		value = nginx_vhosts.GlobalClientHeaderTimeout()
 	case "client-max-body-size":
 		value = nginx_vhosts.GlobalClientMaxBodySize()
 	case "disable-custom-config":
@@ -202,9 +202,9 @@ func globalValue(appName string, property string) string {
 	case "hsts":
 		value = nginx_vhosts.GlobalHSTS()
 	case "keepalive-timeout":
-		value = nginx_vhosts.ComputedKeepaliveTimeout(appName)
+		value = nginx_vhosts.GlobalKeepaliveTimeout()
 	case "lingering-timeout":
-		value = nginx_vhosts.ComputedLingeringTimeout(appName)
+		value = nginx_vhosts.GlobalLingeringTimeout()
 	case "nginx-conf-sigil-path":
 		value = nginx_vhosts.GlobalNginxConfSigilPath()
 	case "nginx-service-command":

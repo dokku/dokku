@@ -312,3 +312,17 @@ You can pass flags which will output only the value of the specific information 
 ```shell
 dokku apps:report node-js-app --app-dir
 ```
+
+## Properties
+
+### Read-only flags
+
+The following flags surface in `apps:report` but are not managed by `apps:set`:
+
+| Flag | Description |
+|---|---|
+| `--app-created-at` | UNIX timestamp of app creation |
+| `--app-deploy-source` | Source kind of the last deploy (`git`, `archive`, `docker-image`, `git-sync`) |
+| `--app-deploy-source-metadata` | Free-form metadata for the deploy source (commit sha, image ref, URL) |
+| `--app-dir` | Absolute path of the app root on disk |
+| `--app-locked` | `true` while a deploy or rebuild holds the app lock |

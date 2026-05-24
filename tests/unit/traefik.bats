@@ -23,13 +23,31 @@ teardown() {
   dokku nginx:start
 }
 
-@test "(traefik:report) --global --traefik-log-level" {
+@test "(traefik:report) --global global vs computed log-level" {
+  run /bin/bash -c "dokku traefik:report --global --traefik-global-log-level"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku traefik:report --global --traefik-computed-log-level"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "ERROR"
+
   run /bin/bash -c "dokku traefik:set --global log-level DEBUG"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku traefik:report --global --traefik-log-level"
+  run /bin/bash -c "dokku traefik:report --global --traefik-global-log-level"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "DEBUG"
+
+  run /bin/bash -c "dokku traefik:report --global --traefik-computed-log-level"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -39,6 +57,44 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
+
+  run /bin/bash -c "dokku traefik:report --global --traefik-global-log-level"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku traefik:report --global --traefik-computed-log-level"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "ERROR"
+}
+
+@test "(traefik:report) --global raw and computed keys in --format json" {
+  run /bin/bash -c "dokku traefik:report --global --format json | jq -r '.\"global-api-vhost\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku traefik:report --global --format json | jq -r '.\"computed-api-vhost\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "traefik.dokku.me"
+
+  run /bin/bash -c "dokku traefik:report --global --format json | jq -r '.\"global-dashboard-enabled\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku traefik:report --global --format json | jq -r '.\"computed-dashboard-enabled\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
 }
 
 @test "(traefik) global-only keys" {
@@ -244,12 +300,12 @@ teardown() {
   assert_success
   assert_output "5000"
 
-  run /bin/bash -c "dokku --quiet ports:report $TEST_APP --ports-map"
+  run /bin/bash -c "dokku ports:report $TEST_APP --ports-map"
   echo "output: $output"
   echo "status: $status"
   assert_output_not_exists
 
-  run /bin/bash -c "dokku --quiet ports:report $TEST_APP --ports-map-detected"
+  run /bin/bash -c "dokku ports:report $TEST_APP --ports-map-detected"
   echo "output: $output"
   echo "status: $status"
   assert_output "http:80:5000 https:443:5000"
@@ -409,7 +465,7 @@ teardown() {
 }
 
 @test "(traefik) [dns-01] challenge-mode property" {
-  run /bin/bash -c "dokku traefik:report $TEST_APP --traefik-challenge-mode"
+  run /bin/bash -c "dokku traefik:report $TEST_APP --traefik-computed-challenge-mode"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -420,7 +476,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku traefik:report $TEST_APP --traefik-challenge-mode"
+  run /bin/bash -c "dokku traefik:report $TEST_APP --traefik-computed-challenge-mode"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -431,7 +487,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku traefik:report $TEST_APP --traefik-challenge-mode"
+  run /bin/bash -c "dokku traefik:report $TEST_APP --traefik-computed-challenge-mode"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -439,7 +495,7 @@ teardown() {
 }
 
 @test "(traefik) [dns-01] dns-provider property" {
-  run /bin/bash -c "dokku traefik:report $TEST_APP --traefik-dns-provider"
+  run /bin/bash -c "dokku traefik:report $TEST_APP --traefik-computed-dns-provider"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -450,7 +506,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku traefik:report $TEST_APP --traefik-dns-provider"
+  run /bin/bash -c "dokku traefik:report $TEST_APP --traefik-computed-dns-provider"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -461,7 +517,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku traefik:report $TEST_APP --traefik-dns-provider"
+  run /bin/bash -c "dokku traefik:report $TEST_APP --traefik-computed-dns-provider"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -594,7 +650,7 @@ teardown() {
 }
 
 @test "(traefik) api-entry-point property" {
-  run /bin/bash -c "dokku traefik:report $TEST_APP --traefik-api-entry-point"
+  run /bin/bash -c "dokku traefik:report $TEST_APP --traefik-computed-api-entry-point"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -605,7 +661,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku traefik:report $TEST_APP --traefik-api-entry-point"
+  run /bin/bash -c "dokku traefik:report $TEST_APP --traefik-computed-api-entry-point"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -616,7 +672,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku traefik:report $TEST_APP --traefik-api-entry-point"
+  run /bin/bash -c "dokku traefik:report $TEST_APP --traefik-computed-api-entry-point"
   echo "output: $output"
   echo "status: $status"
   assert_success

@@ -35,33 +35,71 @@ fn-haproxy-template-compose-file() {
     COMPOSE_TEMPLATE="$CUSTOM_COMPOSE_TEMPLATE"
   fi
 
-  local SIGIL_PARAMS=(HAPROXY_IMAGE="$(fn-haproxy-image)"
-  HAPROXY_LOG_LEVEL="$(fn-haproxy-log-level)"
-  HAPROXY_LETSENCRYPT_EMAIL="$(fn-haproxy-letsencrypt-email)"
-  HAPROXY_LETSENCRYPT_SERVER="$(fn-haproxy-letsencrypt-server)"
-  HAPROXY_REFRESH_CONF="$(fn-haproxy-refresh-conf)")
+  local SIGIL_PARAMS=(HAPROXY_IMAGE="$(fn-haproxy-computed-image)"
+  HAPROXY_LOG_LEVEL="$(fn-haproxy-computed-log-level)"
+  HAPROXY_LETSENCRYPT_EMAIL="$(fn-haproxy-computed-letsencrypt-email)"
+  HAPROXY_LETSENCRYPT_SERVER="$(fn-haproxy-computed-letsencrypt-server)"
+  HAPROXY_REFRESH_CONF="$(fn-haproxy-computed-refresh-conf)")
 
   sigil -f "$COMPOSE_TEMPLATE" "${SIGIL_PARAMS[@]}" | cat -s >"$OUTPUT_PATH"
 }
 
-fn-haproxy-image() {
-  fn-plugin-property-get-default "haproxy" "--global" "image" "$(grep "FROM" "$PLUGIN_AVAILABLE_PATH/haproxy-vhosts/Dockerfile" | awk '{print $2}')"
+fn-haproxy-global-image() {
+  fn-plugin-property-get-default "haproxy" "--global" "image" ""
 }
 
-fn-haproxy-log-level() {
-  local log_level
-  log_level="$(fn-plugin-property-get-default "haproxy" "--global" "log-level" "ERROR")"
-  echo "${log_level^^}"
+fn-haproxy-computed-image() {
+  local value
+  value="$(fn-haproxy-global-image)"
+  if [[ -z "$value" ]]; then
+    value="$(grep "FROM" "$PLUGIN_AVAILABLE_PATH/haproxy-vhosts/Dockerfile" | awk '{print $2}')"
+  fi
+  echo "$value"
 }
 
-fn-haproxy-letsencrypt-email() {
+fn-haproxy-global-log-level() {
+  fn-plugin-property-get-default "haproxy" "--global" "log-level" ""
+}
+
+fn-haproxy-computed-log-level() {
+  local value
+  value="$(fn-haproxy-global-log-level)"
+  if [[ -z "$value" ]]; then
+    value="ERROR"
+  fi
+  echo "${value^^}"
+}
+
+fn-haproxy-global-letsencrypt-email() {
   fn-plugin-property-get-default "haproxy" "--global" "letsencrypt-email" ""
 }
 
-fn-haproxy-letsencrypt-server() {
-  fn-plugin-property-get-default "haproxy" "--global" "letsencrypt-server" "https://acme-v02.api.letsencrypt.org/directory"
+fn-haproxy-computed-letsencrypt-email() {
+  fn-haproxy-global-letsencrypt-email
 }
 
-fn-haproxy-refresh-conf() {
-  fn-plugin-property-get-default "haproxy" "--global" "refresh-conf" "10"
+fn-haproxy-global-letsencrypt-server() {
+  fn-plugin-property-get-default "haproxy" "--global" "letsencrypt-server" ""
+}
+
+fn-haproxy-computed-letsencrypt-server() {
+  local value
+  value="$(fn-haproxy-global-letsencrypt-server)"
+  if [[ -z "$value" ]]; then
+    value="https://acme-v02.api.letsencrypt.org/directory"
+  fi
+  echo "$value"
+}
+
+fn-haproxy-global-refresh-conf() {
+  fn-plugin-property-get-default "haproxy" "--global" "refresh-conf" ""
+}
+
+fn-haproxy-computed-refresh-conf() {
+  local value
+  value="$(fn-haproxy-global-refresh-conf)"
+  if [[ -z "$value" ]]; then
+    value="10"
+  fi
+  echo "$value"
 }

@@ -228,9 +228,21 @@ PY
   echo "output: $output"
   echo "status: $status"
   assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku git:report --global --git-computed-archive-max-size"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
   assert_output "1073741824"
 
   run /bin/bash -c "dokku git:report --global --git-global-archive-max-files"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku git:report --global --git-computed-archive-max-files"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -239,6 +251,12 @@ PY
   run /bin/bash -c "dokku git:set --global archive-max-size 2147483648"
   assert_success
   run /bin/bash -c "dokku git:report --global --git-global-archive-max-size"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "2147483648"
+
+  run /bin/bash -c "dokku git:report --global --git-computed-archive-max-size"
   echo "output: $output"
   echo "status: $status"
   assert_success

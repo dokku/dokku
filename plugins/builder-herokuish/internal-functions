@@ -44,6 +44,7 @@ cmd-builder-herokuish-report-single() {
   local flag_map=()
   if [[ "$APP" == "--global" ]]; then
     flag_map=(
+      "--builder-herokuish-computed-allowed: $(fn-builder-herokuish-computed-allowed "$APP")"
       "--builder-herokuish-global-allowed: $(fn-builder-herokuish-global-allowed)"
     )
   else
@@ -97,16 +98,16 @@ fn-builder-herokuish-computed-allowed() {
   if [[ -z "$allowed" ]]; then
     allowed="$(fn-builder-herokuish-global-allowed)"
   fi
+  if [[ -z "$allowed" ]]; then
+    allowed="true"
+    [[ "$(dpkg --print-architecture 2>/dev/null || true)" != "amd64" ]] && allowed="false"
+  fi
 
   echo "$allowed"
 }
 
 fn-builder-herokuish-global-allowed() {
-  local default_value="true"
-
-  [[ "$(dpkg --print-architecture 2>/dev/null || true)" != "amd64" ]] && default_value="false"
-
-  fn-plugin-property-get-default "builder-herokuish" "--global" "allowed" "$default_value"
+  fn-plugin-property-get-default "builder-herokuish" "--global" "allowed" ""
 }
 
 fn-builder-herokuish-allowed() {

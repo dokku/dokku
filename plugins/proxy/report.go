@@ -15,7 +15,8 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 	var flags map[string]common.ReportFunc
 	if appName == "--global" {
 		flags = map[string]common.ReportFunc{
-			"--proxy-global-type": reportGlobalType,
+			"--proxy-computed-type": reportComputedType,
+			"--proxy-global-type":   reportGlobalType,
 		}
 	} else {
 		flags = map[string]common.ReportFunc{
@@ -47,12 +48,7 @@ func reportEnabled(appName string) string {
 }
 
 func reportComputedType(appName string) string {
-	proxyType := getGlobalProxyType()
-	if proxyType == "" {
-		proxyType = getAppProxyType(appName)
-	}
-
-	return proxyType
+	return getComputedProxyType(appName)
 }
 
 func reportGlobalType(appName string) string {

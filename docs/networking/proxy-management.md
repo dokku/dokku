@@ -142,15 +142,23 @@ dokku proxy:report
 
 ```
 =====> node-js-app proxy information
+       Proxy computed type: nginx
        Proxy enabled:       true
-       Proxy type:          nginx
+       Proxy global type:
+       Proxy type:
 =====> python-sample proxy information
+       Proxy computed type: nginx
        Proxy enabled:       true
-       Proxy type:          nginx
+       Proxy global type:
+       Proxy type:
 =====> ruby-sample proxy information
+       Proxy computed type: nginx
        Proxy enabled:       true
-       Proxy type:          nginx
+       Proxy global type:
+       Proxy type:
 ```
+
+The `type` and `global-type` keys hold the raw per-app and global value respectively, and are empty when nothing has been set. The `computed-type` key holds the effective value used at deploy time, falling back to the global value (where one has been set) and then to the built-in default of `nginx`.
 
 You can run the command for a specific app also.
 
@@ -160,14 +168,16 @@ dokku proxy:report node-js-app
 
 ```
 =====> node-js-app proxy information
+       Proxy computed type: nginx
        Proxy enabled:       true
-       Proxy type:          nginx
+       Proxy global type:
+       Proxy type:
 ```
 
 You can pass flags which will output only the value of the specific information you want. For example:
 
 ```shell
-dokku proxy:report node-js-app --proxy-type
+dokku proxy:report node-js-app --proxy-computed-type
 ```
 
 #### Proxy Port Scheme
@@ -226,3 +236,22 @@ Proxy implementations may decide to omit some functionality here, or use plugin 
 Individual proxy implementations _may_ trigger app rebuilds, depending on how proxy metadata is exposed for the proxy implementation.
 
 Finally, proxy implementations _may_ install extra software needed for the proxy itself in whatever manner deemed fit. Proxy software can run on the host itself or within a running Docker container with either exposed ports or host networking.
+
+## Properties
+
+### Settable properties
+
+| Property | Scope | Default | Report flags | Description |
+|---|---|---|---|---|
+| `disabled` | app only | `false` | (exposed inverted as `--proxy-enabled`) | When `true`, disables proxy integration for this app (`proxy:enable`/`proxy:disable` write this) |
+| `proxy-port` | app + global | none | (not in report) | Override port used for the HTTP listener in the generated proxy config |
+| `proxy-ssl-port` | app + global | none | (not in report) | Override port used for the HTTPS listener in the generated proxy config |
+| `type` | app + global | `nginx` | `--proxy-type`, `--proxy-global-type`, `--proxy-computed-type` | Proxy implementation handling traffic for the app (`nginx`, `caddy`, `haproxy`, `traefik`, `openresty`, or a custom plugin) |
+
+### Read-only flags
+
+The following flags surface in `proxy:report` but are not managed by `proxy:set`:
+
+| Flag | Description |
+|---|---|
+| `--proxy-enabled` | `true` when the app's `disabled` property is not `true` |
