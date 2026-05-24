@@ -237,10 +237,21 @@ Individual proxy implementations _may_ trigger app rebuilds, depending on how pr
 
 Finally, proxy implementations _may_ install extra software needed for the proxy itself in whatever manner deemed fit. Proxy software can run on the host itself or within a running Docker container with either exposed ports or host networking.
 
-## Internal properties
+## Properties
 
-The following properties surface in `proxy:report` but are not managed by `proxy:set`:
+### Settable properties
 
-| Property | Kind | Description | Source |
-|---|---|---|---|
-| `--proxy-enabled` | read-only | `true` when the app's `disabled` property is not `true` | `plugins/proxy/proxy.go::IsAppProxyEnabled` |
+| Property | Scope | Default | Report flags | Description |
+|---|---|---|---|---|
+| `disabled` | app only | `false` | (exposed inverted as `--proxy-enabled`) | When `true`, disables proxy integration for this app (`proxy:enable`/`proxy:disable` write this) |
+| `proxy-port` | app + global | none | (not in report) | Override port used for the HTTP listener in the generated proxy config |
+| `proxy-ssl-port` | app + global | none | (not in report) | Override port used for the HTTPS listener in the generated proxy config |
+| `type` | app + global | `nginx` | `--proxy-type`, `--proxy-global-type`, `--proxy-computed-type` | Proxy implementation handling traffic for the app (`nginx`, `caddy`, `haproxy`, `traefik`, `openresty`, or a custom plugin) |
+
+### Read-only flags
+
+The following flags surface in `proxy:report` but are not managed by `proxy:set`:
+
+| Flag | Description |
+|---|---|
+| `--proxy-enabled` | `true` when the app's `disabled` property is not `true` |

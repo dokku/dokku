@@ -512,11 +512,23 @@ You can pass flags which will output only the value of the specific information 
 dokku network:report node-js-app --network-bind-all-interfaces
 ```
 
-## Internal properties
+## Properties
 
-The following properties surface in `network:report` but are not managed by `network:set` - they are derived from the running app state:
+### Settable properties
 
-| Property | Kind | Description | Source |
-|---|---|---|---|
-| `--network-web-listeners` | read-only | Current `web` process listeners (host:port) for the deployed app | derived from running container inspection |
-| `--network-static-web-listener` | read-only | Static listener override used when no container is running | derived from app config |
+| Property | Scope | Default | Report flags | Description |
+|---|---|---|---|---|
+| `attach-post-create` | app + global | none | `--network-attach-post-create`, `--network-global-attach-post-create`, `--network-computed-attach-post-create` | Networks attached to a container immediately after creation, before the deploy phase |
+| `attach-post-deploy` | app + global | none | `--network-attach-post-deploy`, `--network-global-attach-post-deploy`, `--network-computed-attach-post-deploy` | Networks attached to a container after it passes healthchecks |
+| `bind-all-interfaces` | app + global | `false` | `--network-bind-all-interfaces`, `--network-global-bind-all-interfaces`, `--network-computed-bind-all-interfaces` | When `true`, binds containers to `0.0.0.0` instead of the default Docker network address |
+| `initial-network` | app + global | none | `--network-initial-network`, `--network-global-initial-network`, `--network-computed-initial-network` | Network attached at container creation time |
+| `static-web-listener` | app only | none | `--network-static-web-listener` | Static `host:port` override used in proxy templates when no container is running |
+| `tld` | app + global | none | `--network-tld`, `--network-global-tld`, `--network-computed-tld` | Top-level domain appended to auto-generated app vhosts |
+
+### Read-only flags
+
+The following flag surfaces in `network:report` but is not managed by `network:set` - it is derived from the running app state:
+
+| Flag | Description |
+|---|---|
+| `--network-web-listeners` | Current `web` process listeners (host:port) for the deployed app |

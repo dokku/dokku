@@ -211,3 +211,11 @@ See the [buildpack management documentation](/docs/processes/process-management.
 ### Displaying buildpack reports for an app
 
 See the [buildpack management documentation](/docs/processes/process-management.md#displaying-buildpack-reports-for-an-app) for more information on how to display buildpack reports for an app.
+
+## Properties
+
+### Settable properties
+
+| Property | Scope | Default | Report flags | Description |
+|---|---|---|---|---|
+| `allowed` | app + global | `true` | `--builder-herokuish-allowed`, `--builder-herokuish-global-allowed`, `--builder-herokuish-computed-allowed` | When `false`, the herokuish builder is skipped during builder detection for this app |

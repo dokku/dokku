@@ -311,3 +311,15 @@ As with app-specific label alias settings, the global value may also be cleared 
 ```shell
 dokku logs:set --global app-label-alias
 ```
+
+## Properties
+
+### Settable properties
+
+| Property | Scope | Default | Report flags | Description |
+|---|---|---|---|---|
+| `app-label-alias` | app + global | `com.dokku.app-name` | `--logs-app-label-alias`, `--logs-global-app-label-alias`, `--logs-computed-app-label-alias` | Docker label key whose value is used to identify the app when shipping logs |
+| `max-size` | app + global | `10m` | `--logs-max-size`, `--logs-global-max-size`, `--logs-computed-max-size` | Maximum size of an individual log file before rotation |
+| `vector-image` | global only | _parsed from `plugins/logs/Dockerfile`_ | `--logs-global-vector-image`, `--logs-computed-vector-image` | Docker image used to run the vector log-shipper container |
+| `vector-networks` | global only | none | `--logs-global-vector-networks`, `--logs-computed-vector-networks` | Comma-separated list of docker networks the vector container is attached to |
+| `vector-sink` | app + global | none | `--logs-vector-sink`, `--logs-global-vector-sink`, `--logs-computed-vector-sink` | DSN-style sink configuration for vector (e.g. `console://` or `loki://...`) |

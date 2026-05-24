@@ -208,3 +208,15 @@ dokku registry:set node-js-app push-extra-tags
 # globally
 dokku registry:set --global push-extra-tags
 ```
+
+## Properties
+
+### Settable properties
+
+| Property | Scope | Default | Report flags | Description |
+|---|---|---|---|---|
+| `image-repo` | app only | `dokku/<app>` | `--registry-image-repo`, `--registry-computed-image-repo` | Repository name used when pushing the app's image (overrides the global template) |
+| `image-repo-template` | global only | `dokku/{{ .AppName }}` | `--registry-global-image-repo-template` | Go template used to compute the per-app image repository when `image-repo` is unset |
+| `push-extra-tags` | app + global | none | `--registry-push-extra-tags` | Comma-separated list of additional tags pushed alongside the deploy tag |
+| `push-on-release` | app + global | `false` | `--registry-push-on-release`, `--registry-global-push-on-release`, `--registry-computed-push-on-release` | When `true`, pushes the image to the registry on every successful build |
+| `server` | app + global | none | `--registry-server`, `--registry-global-server`, `--registry-computed-server` | Registry server host (e.g. `ghcr.io`) used when pushing images |

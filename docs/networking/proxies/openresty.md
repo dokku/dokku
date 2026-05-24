@@ -279,3 +279,46 @@ You can pass flags which will output only the value of the specific information 
 ```shell
 dokku openresty:report node-js-app --openresty-letsencrypt-email
 ```
+
+## Properties
+
+### Settable properties
+
+Five properties (`image`, `log-level`, `letsencrypt-email`, `letsencrypt-server`, `allowed-letsencrypt-domains-func-base64`) are global only. The rest are app only - they cannot be set with `--global`.
+
+`openresty:report` currently exposes a single raw flag per property (no `--global-` / `--computed-` split) except for `hsts`, which has all three flag shapes.
+
+| Property | Scope | Default | Report flags | Description |
+|---|---|---|---|---|
+| `access-log-format` | app only | none | `--openresty-access-log-format` | Custom nginx `log_format` directive used for the access log |
+| `access-log-path` | app only | _`/var/log/nginx/{app}-access.log`_ | `--openresty-access-log-path` | Path inside the openresty container where access logs are written |
+| `allowed-letsencrypt-domains-func-base64` | global only | _allow-all stub_ | `--openresty-allowed-letsencrypt-domains-func-base64` | Base64-encoded Lua function deciding which domains may request a letsencrypt certificate |
+| `bind-address-ipv4` | app only | none | `--openresty-bind-address-ipv4` | IPv4 address the openresty server block binds to |
+| `bind-address-ipv6` | app only | `::` | `--openresty-bind-address-ipv6` | IPv6 address the openresty server block binds to |
+| `client-body-timeout` | app only | `60s` | `--openresty-client-body-timeout` | Time allowed to read the request body from the client |
+| `client-header-timeout` | app only | `60s` | `--openresty-client-header-timeout` | Time allowed to read the request header from the client |
+| `client-max-body-size` | app only | `1m` | `--openresty-client-max-body-size` | Maximum allowed request body size |
+| `error-log-path` | app only | _`/var/log/nginx/{app}-error.log`_ | `--openresty-error-log-path` | Path inside the openresty container where error logs are written |
+| `hsts` | app only | `true` | `--openresty-hsts`, `--openresty-global-hsts`, `--openresty-computed-hsts` | When `true`, emits a `Strict-Transport-Security` header on HTTPS responses |
+| `hsts-include-subdomains` | app only | `true` | `--openresty-hsts-include-subdomains` | Adds the `includeSubDomains` directive to the HSTS header |
+| `hsts-max-age` | app only | `15724800` | `--openresty-hsts-max-age` | `max-age` value (seconds) in the HSTS header |
+| `hsts-preload` | app only | `false` | `--openresty-hsts-preload` | Adds the `preload` directive to the HSTS header |
+| `image` | global only | _parsed from `plugins/openresty-vhosts/Dockerfile`_ | `--openresty-image` | Docker image used to run the openresty container |
+| `keepalive-timeout` | app only | `75s` | `--openresty-keepalive-timeout` | Time an idle keep-alive connection stays open |
+| `letsencrypt-email` | global only | none | `--openresty-letsencrypt-email` | Contact email enabling letsencrypt; empty disables https issuance |
+| `letsencrypt-server` | global only | `https://acme-v02.api.letsencrypt.org/directory` | `--openresty-letsencrypt-server` | ACME directory used when requesting certificates |
+| `lingering-timeout` | app only | `5s` | `--openresty-lingering-timeout` | Time openresty waits for more client data when closing a connection |
+| `log-level` | global only | `ERROR` | (not in report) | Openresty log level |
+| `proxy-buffer-size` | app only | _system pagesize_ | `--openresty-proxy-buffer-size` | Buffer size for reading the first part of the upstream response |
+| `proxy-buffering` | app only | `on` | `--openresty-proxy-buffering` | Whether openresty buffers upstream responses (`on` or `off`) |
+| `proxy-buffers` | app only | _`8 {pagesize}`_ | `--openresty-proxy-buffers` | Number and size of buffers used for an upstream response |
+| `proxy-busy-buffers-size` | app only | _`2 * pagesize`_ | `--openresty-proxy-busy-buffers-size` | Maximum buffer size that can be busy sending a response to the client |
+| `proxy-connect-timeout` | app only | `60s` | `--openresty-proxy-connect-timeout` | Time to establish a connection to the upstream |
+| `proxy-read-timeout` | app only | `60s` | `--openresty-proxy-read-timeout` | Time to read a response from the upstream |
+| `proxy-send-timeout` | app only | `60s` | `--openresty-proxy-send-timeout` | Time to transmit a request to the upstream |
+| `send-timeout` | app only | `60s` | `--openresty-send-timeout` | Time between two successive write operations to the client |
+| `underscore-in-headers` | app only | `off` | `--openresty-underscore-in-headers` | Whether to allow underscores in client request header field names |
+| `x-forwarded-for-value` | app only | `$remote_addr` | `--openresty-x-forwarded-for-value` | Value used for the `X-Forwarded-For` header |
+| `x-forwarded-port-value` | app only | `$server_port` | `--openresty-x-forwarded-port-value` | Value used for the `X-Forwarded-Port` header |
+| `x-forwarded-proto-value` | app only | `$scheme` | `--openresty-x-forwarded-proto-value` | Value used for the `X-Forwarded-Proto` header |
+| `x-forwarded-ssl` | app only | none | `--openresty-x-forwarded-ssl` | Value used for the `X-Forwarded-Ssl` header (e.g. `on`/`off`) |

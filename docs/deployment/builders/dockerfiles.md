@@ -215,3 +215,11 @@ See the [Procfile documentation](/docs/processes/process-management.md#procfile)
 ### Exposed ports
 
 See the [port management documentation](/docs/networking/port-management.md) for more information on how Dokku exposes ports for applications and how you can configure these for your app.
+
+## Properties
+
+### Settable properties
+
+| Property | Scope | Default | Report flags | Description |
+|---|---|---|---|---|
+| `dockerfile-path` | app + global | `Dockerfile` | `--builder-dockerfile-dockerfile-path`, `--builder-dockerfile-global-dockerfile-path`, `--builder-dockerfile-computed-dockerfile-path` | Path within the app to the Dockerfile used by the dockerfile builder |

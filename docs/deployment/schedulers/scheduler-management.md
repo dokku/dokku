@@ -147,3 +147,12 @@ Schedulers may decide to omit some functionality here, or use plugin triggers to
 Schedulers can use any tools available on the system to build the docker image, and may even be used to interact with off-server systems. The only current requirement is that the scheduler must have access to the image built in the build phase. If this is not the case, the registry plugin can be used to push the image to a registry that the scheduler software can access.
 
 Deployment tasks are currently executed directly on the primary Dokku server.
+
+## Properties
+
+### Settable properties
+
+| Property | Scope | Default | Report flags | Description |
+|---|---|---|---|---|
+| `selected` | app + global | `docker-local` | `--scheduler-selected`, `--scheduler-global-selected`, `--scheduler-computed-selected` | Scheduler plugin used to deploy this app (`docker-local`, `k3s`, etc.) |
+| `shell` | app + global | none | (not in report) | Shell used by `enter`/`run` commands when entering a container |

@@ -266,10 +266,23 @@ You can pass flags which will output only the value of the specific information 
 dokku caddy:report node-js-app --caddy-computed-image
 ```
 
-## Internal properties
+## Properties
+
+### Settable properties
+
+| Property | Scope | Default | Report flags | Description |
+|---|---|---|---|---|
+| `image` | global only | _parsed from `plugins/caddy-vhosts/Dockerfile`_ | `--caddy-global-image`, `--caddy-computed-image` | Docker image used to run the Caddy container |
+| `letsencrypt-email` | global only | none | `--caddy-global-letsencrypt-email`, `--caddy-computed-letsencrypt-email` | Contact email enabling letsencrypt; empty disables https issuance |
+| `letsencrypt-server` | global only | `https://acme-v02.api.letsencrypt.org/directory` | `--caddy-global-letsencrypt-server`, `--caddy-computed-letsencrypt-server` | ACME directory used when requesting certificates |
+| `log-level` | global only | `ERROR` | `--caddy-global-log-level`, `--caddy-computed-log-level` | Caddy log level |
+| `polling-interval` | global only | `5s` | `--caddy-global-polling-interval`, `--caddy-computed-polling-interval` | Frequency at which Caddy polls the Docker API for label changes |
+| `tls-internal` | app + global | `false` | `--caddy-tls-internal`, `--caddy-global-tls-internal`, `--caddy-computed-tls-internal` | When `true`, uses Caddy's built-in self-signed TLS instead of letsencrypt |
+
+### Internal properties
 
 The following properties are not managed by `caddy:set` but are recorded internally by the plugin:
 
-| Property | Kind | Description | Source |
-|---|---|---|---|
-| `proxy-status` | internal | `started`/`stopped` state of the caddy compose project | `cmd-caddy-start`/`cmd-caddy-stop` in `plugins/caddy-vhosts/command-functions` |
+| Property | Description | Source |
+|---|---|---|
+| `proxy-status` | `started`/`stopped` state of the caddy compose project | `cmd-caddy-start`/`cmd-caddy-stop` in `plugins/caddy-vhosts/command-functions` |

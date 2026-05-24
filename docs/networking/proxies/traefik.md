@@ -391,10 +391,35 @@ You can pass flags which will output only the value of the specific information 
 dokku traefik:report node-js-app --traefik-computed-api-enabled
 ```
 
-## Internal properties
+## Properties
+
+### Settable properties
+
+All traefik properties are global only. Set with `traefik:set --global <property> <value>`.
+
+| Property | Scope | Default | Report flags | Description |
+|---|---|---|---|---|
+| `api-enabled` | global only | `false` | `--traefik-global-api-enabled`, `--traefik-computed-api-enabled` | When `true`, enables the Traefik HTTP API |
+| `api-entry-point` | global only | none | `--traefik-global-api-entry-point`, `--traefik-computed-api-entry-point` | Name of the entry point used by the Traefik API |
+| `api-entry-point-address` | global only | none | `--traefik-global-api-entry-point-address`, `--traefik-computed-api-entry-point-address` | Address (`host:port`) the Traefik API listens on |
+| `api-vhost` | global only | `traefik.dokku.me` | `--traefik-global-api-vhost`, `--traefik-computed-api-vhost` | Virtual host that routes to the Traefik API |
+| `basic-auth-password` | global only | none | `--traefik-global-basic-auth-password`, `--traefik-computed-basic-auth-password` | Password for basic auth in front of the API/dashboard |
+| `basic-auth-username` | global only | none | `--traefik-global-basic-auth-username`, `--traefik-computed-basic-auth-username` | Username for basic auth in front of the API/dashboard |
+| `challenge-mode` | global only | `tls` | `--traefik-global-challenge-mode`, `--traefik-computed-challenge-mode` | ACME challenge method used by Traefik (`tls`, `http`, or `dns`) |
+| `dashboard-enabled` | global only | `false` | `--traefik-global-dashboard-enabled`, `--traefik-computed-dashboard-enabled` | When `true`, enables the Traefik dashboard |
+| `dns-provider` | global only | none | `--traefik-global-dns-provider`, `--traefik-computed-dns-provider` | Lego DNS provider name used when `challenge-mode` is `dns` |
+| `dns-provider-<ENV_VAR>` | global only | none | (no report flag) | Per-provider environment variables passed to the Traefik container; `<ENV_VAR>` is the upstream variable name (e.g. `dns-provider-cloudflare-api-token`) |
+| `http-entry-point` | global only | `http` | `--traefik-global-http-entry-point`, `--traefik-computed-http-entry-point` | Entry point name handling plaintext HTTP traffic |
+| `https-entry-point` | global only | `https` | `--traefik-global-https-entry-point`, `--traefik-computed-https-entry-point` | Entry point name handling TLS-terminated HTTPS traffic |
+| `image` | global only | _parsed from `plugins/traefik-vhosts/Dockerfile`_ | `--traefik-global-image`, `--traefik-computed-image` | Docker image used to run the Traefik container |
+| `letsencrypt-email` | global only | none | `--traefik-global-letsencrypt-email`, `--traefik-computed-letsencrypt-email` | Contact email enabling letsencrypt; empty disables https issuance |
+| `letsencrypt-server` | global only | `https://acme-v02.api.letsencrypt.org/directory` | `--traefik-global-letsencrypt-server`, `--traefik-computed-letsencrypt-server` | ACME directory used when requesting certificates |
+| `log-level` | global only | `ERROR` | `--traefik-global-log-level`, `--traefik-computed-log-level` | Traefik log level |
+
+### Internal properties
 
 The following properties are not managed by `traefik:set` but are recorded internally by the plugin:
 
-| Property | Kind | Description | Source |
-|---|---|---|---|
-| `proxy-status` | internal | `started`/`stopped` state of the traefik compose project | `cmd-traefik-start`/`cmd-traefik-stop` in `plugins/traefik-vhosts/command-functions` |
+| Property | Description | Source |
+|---|---|---|
+| `proxy-status` | `started`/`stopped` state of the traefik compose project | `cmd-traefik-start`/`cmd-traefik-stop` in `plugins/traefik-vhosts/command-functions` |

@@ -170,17 +170,25 @@ Available flags:
 
 `--build-status` returns the **display** status, so an abandoned in-flight build shows `abandoned` rather than `running`. The raw on-disk status is only visible by reading the JSON record directly.
 
-## Internal properties
+## Properties
 
-The following properties surface in `builds:report` but are not managed by `builds:set` - they are derived metadata recorded during the build:
+### Settable properties
 
-| Property | Kind | Description | Source |
-|---|---|---|---|
-| `--build-id` | read-only | Unique identifier of the most recent build for the app | `plugins/builds/functions.go` writes during deploys |
-| `--build-kind` | read-only | Whether the record was a `build` or a `deploy` | `plugins/builds/functions.go` writes during deploys |
-| `--build-status` | read-only | Display status (`running`, `succeeded`, `failed`, `canceled`, `abandoned`) | `plugins/builds/functions.go` writes during deploys; status is computed at read time |
-| `--build-source` | read-only | Trigger that started the build (e.g. `git-hook`, `ps:rebuild`, `ps:restart`) | `plugins/builds/functions.go` writes during deploys |
-| `--build-pid` | read-only | PID of the build process | `plugins/builds/functions.go` writes during deploys |
-| `--build-started-at` | read-only | UNIX timestamp the build started | `plugins/builds/functions.go` writes during deploys |
-| `--build-finished-at` | read-only | UNIX timestamp the build finished | `plugins/builds/functions.go` writes during deploys |
-| `--build-exit-code` | read-only | Exit code of the build process | `plugins/builds/functions.go` writes during deploys |
+| Property | Scope | Default | Report flags | Description |
+|---|---|---|---|---|
+| `retention` | app + global | `20` | `--builds-retention`, `--builds-global-retention`, `--builds-computed-retention` | Number of recent build records kept per app; older finalized records are pruned at the end of each deploy |
+
+### Read-only flags
+
+The following flags surface in `builds:report` but are not managed by `builds:set` - they are derived metadata recorded during the build:
+
+| Flag | Description |
+|---|---|
+| `--build-id` | Unique identifier of the most recent build for the app |
+| `--build-kind` | Whether the record was a `build` or a `deploy` |
+| `--build-status` | Display status (`running`, `succeeded`, `failed`, `canceled`, `abandoned`); computed at read time |
+| `--build-source` | Trigger that started the build (e.g. `git-hook`, `ps:rebuild`, `ps:restart`) |
+| `--build-pid` | PID of the build process |
+| `--build-started-at` | UNIX timestamp the build started |
+| `--build-finished-at` | UNIX timestamp the build finished |
+| `--build-exit-code` | Exit code of the build process |

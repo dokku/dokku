@@ -265,3 +265,11 @@ dokku checks:run node-js-app web.3
 -----> Running pre-flight checks
 Invalid container id specified (APP.web.3)
 ```
+
+## Properties
+
+### Settable properties
+
+| Property | Scope | Default | Report flags | Description |
+|---|---|---|---|---|
+| `wait-to-retire` | app + global | `60` | `--checks-wait-to-retire`, `--checks-global-wait-to-retire`, `--checks-computed-wait-to-retire` | Seconds to wait between deploying the new container and stopping the old one |

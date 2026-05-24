@@ -245,10 +245,24 @@ You can pass flags which will output only the value of the specific information 
 dokku haproxy:report node-js-app --haproxy-computed-image
 ```
 
-## Internal properties
+## Properties
+
+### Settable properties
+
+All haproxy properties are global only. Set with `haproxy:set --global <property> <value>`.
+
+| Property | Scope | Default | Report flags | Description |
+|---|---|---|---|---|
+| `image` | global only | _parsed from `plugins/haproxy-vhosts/Dockerfile`_ | `--haproxy-global-image`, `--haproxy-computed-image` | Docker image used to run the Haproxy container |
+| `letsencrypt-email` | global only | none | `--haproxy-global-letsencrypt-email`, `--haproxy-computed-letsencrypt-email` | Contact email enabling letsencrypt; empty disables https issuance |
+| `letsencrypt-server` | global only | `https://acme-v02.api.letsencrypt.org/directory` | `--haproxy-global-letsencrypt-server`, `--haproxy-computed-letsencrypt-server` | ACME directory used when requesting certificates |
+| `log-level` | global only | `ERROR` | `--haproxy-global-log-level`, `--haproxy-computed-log-level` | Haproxy log level |
+| `refresh-conf` | global only | `10` | `--haproxy-global-refresh-conf`, `--haproxy-computed-refresh-conf` | Seconds between Haproxy polls of the Docker API for label changes |
+
+### Internal properties
 
 The following properties are not managed by `haproxy:set` but are recorded internally by the plugin:
 
-| Property | Kind | Description | Source |
-|---|---|---|---|
-| `proxy-status` | internal | `started`/`stopped` state of the haproxy compose project | `cmd-haproxy-start`/`cmd-haproxy-stop` in `plugins/haproxy-vhosts/command-functions` |
+| Property | Description | Source |
+|---|---|---|
+| `proxy-status` | `started`/`stopped` state of the haproxy compose project | `cmd-haproxy-start`/`cmd-haproxy-stop` in `plugins/haproxy-vhosts/command-functions` |

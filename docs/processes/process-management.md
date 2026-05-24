@@ -464,14 +464,28 @@ The default value (`true`) may be restored by passing an empty value:
 dokku ps:set node-js-app restore
 ```
 
-## Internal properties
+## Properties
 
-The following properties surface in `ps:report` but are not managed by `ps:set` - they are derived from the running process state:
+### Settable properties
 
-| Property | Kind | Description | Source |
-|---|---|---|---|
-| `--ps-can-scale` | read-only | `false` when the app's procfile or builder forbids horizontal scaling | derived from procfile parse |
-| `--deployed` | read-only | `true` after the first successful deploy | `common.IsDeployed(appName)` checks the app's deploy marker |
-| `--running` | read-only | `true` while any container for the app is running | `getRunningState(appName)` inspects running containers |
-| `--processes` | read-only | Total scaled process count across all proctypes | `getProcessCount(appName)` reads the per-proctype scale formation |
-| `--status-<proctype>` | read-only | Container status and ID for each running proctype (one entry per Procfile process type) | `plugins/ps/report.go::addStatusFlags` inspects running containers |
+| Property | Scope | Default | Report flags | Description |
+|---|---|---|---|---|
+| `dockerfile-start-cmd` | app only | none | (not in report) | Override `CMD` for Dockerfile-based apps |
+| `procfile-path` | app + global | `Procfile` | `--ps-procfile-path`, `--ps-global-procfile-path`, `--ps-computed-procfile-path` | Path to the app's Procfile, relative to the build root |
+| `restart-policy` | app only | `on-failure:10` | `--ps-restart-policy` | Docker restart policy applied to deployed containers (`no`, `always`, `unless-stopped`, `on-failure[:max-retries]`) |
+| `restore` | app only | `true` | `--restore` | When `true`, the app is restarted automatically by `ps:retire` after a host reboot |
+| `skip-deploy` | app + global | `false` | (not in report) | When `true`, skips the deploy phase after a successful build |
+| `start-cmd` | app only | none | (not in report) | Override start command for buildpack apps |
+| `stop-timeout-seconds` | app + global | `30` | `--stop-timeout-seconds`, `--global-stop-timeout-seconds`, `--computed-stop-timeout-seconds` | Seconds Docker waits before SIGKILLing a container on stop |
+
+### Read-only flags
+
+The following flags surface in `ps:report` but are not managed by `ps:set` - they are derived from the running process state:
+
+| Flag | Description |
+|---|---|
+| `--ps-can-scale` | `false` when the app's procfile or builder forbids horizontal scaling |
+| `--deployed` | `true` after the first successful deploy |
+| `--running` | `true` while any container for the app is running |
+| `--processes` | Total scaled process count across all proctypes |
+| `--status-<proctype>` | Container status and ID for each running proctype (one entry per Procfile process type) |

@@ -133,3 +133,11 @@ dokku builder-nixpacks:report node-js-app --builder-nixpacks-nixpackstoml-path
 ```
 nixpacks2.toml
 ```
+
+## Properties
+
+### Settable properties
+
+| Property | Scope | Default | Report flags | Description |
+|---|---|---|---|---|
+| `nixpackstoml-path` | app + global | `nixpacks.toml` | `--builder-nixpacks-nixpackstoml-path`, `--builder-nixpacks-global-nixpackstoml-path`, `--builder-nixpacks-computed-nixpackstoml-path` | Path within the app to the `nixpacks.toml` manifest used by the nixpacks builder |

@@ -319,11 +319,24 @@ dokku git:report node-js-app --format json
 
 The `--format` flag cannot be combined with an info flag.
 
-## Internal properties
+## Properties
 
-The following properties surface in `git:report` but are not managed by `git:set` - they are derived from repository state:
+### Settable properties
 
-| Property | Kind | Description | Source |
-|---|---|---|---|
-| `--git-sha` | read-only | HEAD commit SHA of the app's git repo | `git rev-parse HEAD` against `$APP_ROOT` |
-| `--git-last-updated-at` | read-only | UNIX timestamp of the last write to the deploy branch ref | `stat -c %Y` on `refs/heads/<deploy-branch>` |
+| Property | Scope | Default | Report flags | Description |
+|---|---|---|---|---|
+| `archive-max-files` | app + global | none | `--git-global-archive-max-files`, `--git-computed-archive-max-files` | Maximum number of files allowed in an uploaded archive deploy |
+| `archive-max-size` | app + global | none | `--git-global-archive-max-size`, `--git-computed-archive-max-size` | Maximum total size of an uploaded archive deploy |
+| `deploy-branch` | app + global | `master` | `--git-deploy-branch`, `--git-global-deploy-branch`, `--git-computed-deploy-branch` | Branch name pushed by the git remote that triggers a deploy |
+| `keep-git-dir` | app + global | `false` | `--git-keep-git-dir`, `--git-global-keep-git-dir`, `--git-computed-keep-git-dir` | When `true`, retains the `.git` directory inside the build context |
+| `rev-env-var` | app + global | `GIT_REV` | `--git-rev-env-var` | Environment variable name receiving the deployed commit SHA; empty disables injection |
+| `source-image` | app + global | none | `--git-source-image` | Docker image to clone application source from when deploying from an image |
+
+### Read-only flags
+
+The following flags surface in `git:report` but are not managed by `git:set` - they are derived from repository state:
+
+| Flag | Description |
+|---|---|
+| `--git-sha` | HEAD commit SHA of the app's git repo |
+| `--git-last-updated-at` | UNIX timestamp of the last write to the deploy branch ref |

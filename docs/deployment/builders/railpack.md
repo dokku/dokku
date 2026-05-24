@@ -142,3 +142,11 @@ dokku builder-railpack:report node-js-app --builder-railpack-railpackjson-path
 ```
 railpack2.json
 ```
+
+## Properties
+
+### Settable properties
+
+| Property | Scope | Default | Report flags | Description |
+|---|---|---|---|---|
+| `railpackjson-path` | app + global | `railpack.json` | `--builder-railpack-railpackjson-path`, `--builder-railpack-global-railpackjson-path`, `--builder-railpack-computed-railpackjson-path` | Path within the app to the `railpack.json` manifest used by the railpack builder |

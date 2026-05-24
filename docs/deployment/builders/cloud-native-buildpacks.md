@@ -167,3 +167,11 @@ dokku buildpacks:set-property --global stack
 ### Specifying commands via Procfile
 
 See the [Procfile documentation](/docs/processes/process-management.md#procfile) for more information on how to specify different processes for your app.
+
+## Properties
+
+### Settable properties
+
+| Property | Scope | Default | Report flags | Description |
+|---|---|---|---|---|
+| `projecttoml-path` | app + global | `project.toml` | `--builder-pack-projecttoml-path`, `--builder-pack-global-projecttoml-path`, `--builder-pack-computed-projecttoml-path` | Path within the app to the CNB `project.toml` manifest, relative to the build root |

@@ -190,3 +190,13 @@ You can pass flags which will output only the value of the specific information 
 ```shell
 dokku buildpacks:report node-js-app --buildpacks-list
 ```
+
+## Properties
+
+### Settable properties
+
+These properties are managed via `buildpacks:set-property` (the legacy command name for this plugin).
+
+| Property | Scope | Default | Report flags | Description |
+|---|---|---|---|---|
+| `stack` | app + global | none | `--buildpacks-stack`, `--buildpacks-global-stack`, `--buildpacks-computed-stack` | Herokuish stack image used to compile the app (e.g. `heroku/heroku:24`) |

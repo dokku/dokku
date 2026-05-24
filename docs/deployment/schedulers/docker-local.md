@@ -216,3 +216,12 @@ The `docker-local` scheduler supports a minimal list of resource _limits_ and _r
 
 - memory: (docker option: `--memory-reservation`) should be specified with a suffix of `b` (bytes), `k` (kilobytes), `m` (megabytes), `g` (gigabytes). Default unit is `m` (megabytes).
     - See the ["Memory" section](https://docs.docker.com/config/containers/resource_constraints/#memory) of the Docker Runtime Options documentation for more information.
+
+## Properties
+
+### Settable properties
+
+| Property | Scope | Default | Report flags | Description |
+|---|---|---|---|---|
+| `init-process` | app + global | `true` | `--scheduler-docker-local-init-process`, `--scheduler-docker-local-global-init-process`, `--scheduler-docker-local-computed-init-process` | When `true`, runs containers with Docker's `--init` flag (reaping zombie processes) |
+| `parallel-schedule-count` | app + global | `1` | `--scheduler-docker-local-parallel-schedule-count`, `--scheduler-docker-local-global-parallel-schedule-count`, `--scheduler-docker-local-computed-parallel-schedule-count` | Maximum number of containers scheduled in parallel during a deploy |

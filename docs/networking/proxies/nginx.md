@@ -621,12 +621,59 @@ See the [ports documentation](/docs/networking/port-management.md) for more info
 
 See the [proxy documentation](/docs/networking/proxy-management.md#regenerating-proxy-config) for more information on how to rebuild the nginx proxy configuration for your app.
 
-## Internal properties
+## Properties
 
-The following properties surface in `nginx:report` but are not managed by `nginx:set`, or are recorded internally by the plugin:
+### Settable properties
 
-| Property | Kind | Description | Source |
-|---|---|---|---|
-| `--nginx-last-visited-at` | read-only | UNIX timestamp of the last request served by nginx for the app | log-tailer writes the property on every request batch |
-| `proxy-status` | internal | `started`/`stopped` state of the nginx system service | `cmd-nginx-start`/`cmd-nginx-stop` |
-| `nginx-conf-sigil-migrated` | internal | Migration sentinel set the first time a v1 template is rewritten to the current schema | `plugins/nginx-vhosts/install` writes `"true"` once the install-time migration runs |
+All nginx-vhosts properties are settable at both the app and global scope.
+
+| Property | Scope | Default | Report flags | Description |
+|---|---|---|---|---|
+| `access-log-format` | app + global | none | `--nginx-access-log-format`, `--nginx-global-access-log-format`, `--nginx-computed-access-log-format` | Custom nginx `log_format` directive used for the access log |
+| `access-log-path` | app + global | _`{nginx-log-root}/{app}-access.log`_ | `--nginx-access-log-path`, `--nginx-global-access-log-path`, `--nginx-computed-access-log-path` | Path inside the nginx container where access logs are written |
+| `bind-address-ipv4` | app + global | none | `--nginx-bind-address-ipv4`, `--nginx-global-bind-address-ipv4`, `--nginx-computed-bind-address-ipv4` | IPv4 address the nginx server block binds to |
+| `bind-address-ipv6` | app + global | `::` | `--nginx-bind-address-ipv6`, `--nginx-global-bind-address-ipv6`, `--nginx-computed-bind-address-ipv6` | IPv6 address the nginx server block binds to |
+| `client-body-timeout` | app + global | `60s` | `--nginx-client-body-timeout`, `--nginx-global-client-body-timeout`, `--nginx-computed-client-body-timeout` | Time allowed to read the request body from the client |
+| `client-header-timeout` | app + global | `60s` | `--nginx-client-header-timeout`, `--nginx-global-client-header-timeout`, `--nginx-computed-client-header-timeout` | Time allowed to read the request header from the client |
+| `client-max-body-size` | app + global | `1m` | `--nginx-client-max-body-size`, `--nginx-global-client-max-body-size`, `--nginx-computed-client-max-body-size` | Maximum allowed request body size |
+| `disable-custom-config` | app + global | `false` | `--nginx-disable-custom-config`, `--nginx-global-disable-custom-config`, `--nginx-computed-disable-custom-config` | When `true`, ignores app-supplied `nginx.conf.d/*.conf` snippets |
+| `error-log-path` | app + global | _`{nginx-log-root}/{app}-error.log`_ | `--nginx-error-log-path`, `--nginx-global-error-log-path`, `--nginx-computed-error-log-path` | Path inside the nginx container where error logs are written |
+| `hsts` | app + global | `true` | `--nginx-hsts`, `--nginx-global-hsts`, `--nginx-computed-hsts` | When `true`, emits a `Strict-Transport-Security` header on HTTPS responses |
+| `hsts-include-subdomains` | app + global | `true` | `--nginx-hsts-include-subdomains`, `--nginx-global-hsts-include-subdomains`, `--nginx-computed-hsts-include-subdomains` | Adds the `includeSubDomains` directive to the HSTS header |
+| `hsts-max-age` | app + global | `15724800` | `--nginx-hsts-max-age`, `--nginx-global-hsts-max-age`, `--nginx-computed-hsts-max-age` | `max-age` value (seconds) in the HSTS header |
+| `hsts-preload` | app + global | `false` | `--nginx-hsts-preload`, `--nginx-global-hsts-preload`, `--nginx-computed-hsts-preload` | Adds the `preload` directive to the HSTS header |
+| `keepalive-timeout` | app + global | `75s` | `--nginx-keepalive-timeout`, `--nginx-global-keepalive-timeout`, `--nginx-computed-keepalive-timeout` | Time an idle keep-alive connection stays open |
+| `lingering-timeout` | app + global | `5s` | `--nginx-lingering-timeout`, `--nginx-global-lingering-timeout`, `--nginx-computed-lingering-timeout` | Time nginx waits for more client data when closing a connection |
+| `nginx-conf-sigil-path` | app + global | `nginx.conf.sigil` | `--nginx-nginx-conf-sigil-path`, `--nginx-global-nginx-conf-sigil-path`, `--nginx-computed-nginx-conf-sigil-path` | Path within the app to a custom `nginx.conf.sigil` template |
+| `nginx-service-command` | app + global | none | (not in report) | Override command used by `nginx:start`/`nginx:stop`/`nginx:reload` |
+| `proxy-buffer-size` | app + global | _system pagesize_ | `--nginx-proxy-buffer-size`, `--nginx-global-proxy-buffer-size`, `--nginx-computed-proxy-buffer-size` | Buffer size for reading the first part of the upstream response |
+| `proxy-buffering` | app + global | `on` | `--nginx-proxy-buffering`, `--nginx-global-proxy-buffering`, `--nginx-computed-proxy-buffering` | Whether nginx buffers upstream responses (`on` or `off`) |
+| `proxy-buffers` | app + global | _`8 {pagesize}`_ | `--nginx-proxy-buffers`, `--nginx-global-proxy-buffers`, `--nginx-computed-proxy-buffers` | Number and size of buffers used for an upstream response |
+| `proxy-busy-buffers-size` | app + global | _`2 * pagesize`_ | `--nginx-proxy-busy-buffers-size`, `--nginx-global-proxy-busy-buffers-size`, `--nginx-computed-proxy-busy-buffers-size` | Maximum buffer size that can be busy sending a response to the client |
+| `proxy-connect-timeout` | app + global | `60s` | `--nginx-proxy-connect-timeout`, `--nginx-global-proxy-connect-timeout`, `--nginx-computed-proxy-connect-timeout` | Time to establish a connection to the upstream |
+| `proxy-keepalive` | app + global | none | `--nginx-proxy-keepalive`, `--nginx-global-proxy-keepalive`, `--nginx-computed-proxy-keepalive` | Number of idle keep-alive connections to upstream servers held open per worker |
+| `proxy-read-timeout` | app + global | `60s` | `--nginx-proxy-read-timeout`, `--nginx-global-proxy-read-timeout`, `--nginx-computed-proxy-read-timeout` | Time to read a response from the upstream |
+| `proxy-send-timeout` | app + global | `60s` | `--nginx-proxy-send-timeout`, `--nginx-global-proxy-send-timeout`, `--nginx-computed-proxy-send-timeout` | Time to transmit a request to the upstream |
+| `send-timeout` | app + global | `60s` | `--nginx-send-timeout`, `--nginx-global-send-timeout`, `--nginx-computed-send-timeout` | Time between two successive write operations to the client |
+| `underscore-in-headers` | app + global | `off` | `--nginx-underscore-in-headers`, `--nginx-global-underscore-in-headers`, `--nginx-computed-underscore-in-headers` | Whether to allow underscores in client request header field names |
+| `x-forwarded-for-value` | app + global | `$remote_addr` | `--nginx-x-forwarded-for-value`, `--nginx-global-x-forwarded-for-value`, `--nginx-computed-x-forwarded-for-value` | Value used for the `X-Forwarded-For` header |
+| `x-forwarded-port-value` | app + global | `$server_port` | `--nginx-x-forwarded-port-value`, `--nginx-global-x-forwarded-port-value`, `--nginx-computed-x-forwarded-port-value` | Value used for the `X-Forwarded-Port` header |
+| `x-forwarded-proto-value` | app + global | `$scheme` | `--nginx-x-forwarded-proto-value`, `--nginx-global-x-forwarded-proto-value`, `--nginx-computed-x-forwarded-proto-value` | Value used for the `X-Forwarded-Proto` header |
+| `x-forwarded-ssl` | app + global | none | `--nginx-x-forwarded-ssl`, `--nginx-global-x-forwarded-ssl`, `--nginx-computed-x-forwarded-ssl` | Value used for the `X-Forwarded-Ssl` header (e.g. `on`/`off`) |
+
+### Read-only flags
+
+The following flag surfaces in `nginx:report` but is not managed by `nginx:set`:
+
+| Flag | Description |
+|---|---|
+| `--nginx-last-visited-at` | UNIX timestamp of the last request served by nginx for the app |
+
+### Internal properties
+
+The following properties are recorded internally by the plugin and are not exposed via `nginx:report`:
+
+| Property | Description | Source |
+|---|---|---|
+| `proxy-status` | `started`/`stopped` state of the nginx system service | `cmd-nginx-start`/`cmd-nginx-stop` |
+| `nginx-conf-sigil-migrated` | Migration sentinel set the first time a v1 template is rewritten to the current schema | `plugins/nginx-vhosts/install` writes `"true"` once the install-time migration runs |

@@ -120,3 +120,11 @@ dokku builder-lambda:report node-js-app --builder-lambda-lambdayml-path
 ```
 lambda2.yml
 ```
+
+## Properties
+
+### Settable properties
+
+| Property | Scope | Default | Report flags | Description |
+|---|---|---|---|---|
+| `lambdayml-path` | app + global | `lambda.yml` | `--builder-lambda-lambdayml-path`, `--builder-lambda-global-lambdayml-path`, `--builder-lambda-computed-lambdayml-path` | Path within the app to the `lambda.yml` manifest used by the lambda builder |
