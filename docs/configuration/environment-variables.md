@@ -42,6 +42,19 @@ Dokku can also read base64 encoded values. That's the easiest way to set a value
 dokku config:set --encoded node-js-app KEY="$(base64 -w 0 ~/.ssh/id_rsa)"
 ```
 
+Decoded values are stored byte-for-byte exactly as they were encoded. Be aware that `echo "value" | base64` appends a trailing `\n` before encoding because `echo` always adds a newline, and that newline becomes part of the stored value. This is rarely what you want for short inline values - use `printf '%s'` or `echo -n` instead:
+
+```shell
+dokku config:set --encoded node-js-app KEY="$(printf '%s' "myvalue" | base64 -w 0)"
+dokku config:set --encoded node-js-app KEY="$(echo -n "myvalue" | base64 -w 0)"
+```
+
+For multi-line values from a file (such as an SSH private key), `cat` and `base64 -w 0` preserve the file contents exactly:
+
+```shell
+dokku config:set --encoded node-js-app KEY="$(cat ~/.ssh/id_rsa | base64 -w 0)"
+```
+
 When setting or unsetting environment variables, you may wish to avoid an application restart. This is useful when developing plugins or when setting multiple environment variables in a scripted manner. To do so, use the `--no-restart` flag:
 
 ```shell
