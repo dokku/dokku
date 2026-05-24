@@ -405,7 +405,7 @@ teardown() {
   encoded_printf="$(printf '%s' "myvalue" | base64 -w 0)"
   encoded_echo_n="$(echo -n "myvalue" | base64 -w 0)"
   tmpfile="$(mktemp)"
-  printf 'filecontent' > "$tmpfile"
+  printf 'filecontent' >"$tmpfile"
   encoded_cat="$(cat "$tmpfile" | base64 -w 0)"
   rm -f "$tmpfile"
 
