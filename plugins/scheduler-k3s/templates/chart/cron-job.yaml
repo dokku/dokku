@@ -10,6 +10,7 @@ metadata:
   annotations:
     app.kubernetes.io/version: {{ $.Values.global.deployment_id | quote }}
     dokku.com/builder-type: {{ $.Values.global.image.type | quote }}
+    dokku.com/cron-hash: {{ $config.cron.hash | quote }}
     dokku.com/cron-id: {{ $config.cron.id | quote }}
     dokku.com/job-suffix: {{ $config.cron.suffix | quote }}
     dokku.com/managed: "true"
@@ -33,6 +34,7 @@ spec:
       annotations:
         app.kubernetes.io/version: {{ $.Values.global.deployment_id | quote }}
         dokku.com/builder-type: {{ $.Values.global.image.type | quote }}
+        dokku.com/cron-hash: {{ $config.cron.hash | quote }}
         dokku.com/cron-id: {{ $config.cron.id | quote }}
         dokku.com/job-suffix: {{ $config.cron.suffix | quote }}
         dokku.com/managed: "true"
@@ -56,6 +58,7 @@ spec:
           annotations:
             app.kubernetes.io/version: {{ $.Values.global.deployment_id | quote }}
             dokku.com/builder-type: {{ $.Values.global.image.type | quote }}
+            dokku.com/cron-hash: {{ $config.cron.hash | quote }}
             dokku.com/cron-id: {{ $config.cron.id | quote }}
             dokku.com/job-suffix: {{ $config.cron.suffix | quote }}
             dokku.com/managed: "true"

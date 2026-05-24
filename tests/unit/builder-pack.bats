@@ -265,7 +265,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "['task.py']"
+  assert_output "['task.py', 'some', 'cron', 'task']"
 }
 
 @test "(builder-pack) cron:run with Procfile reference" {

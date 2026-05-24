@@ -356,6 +356,7 @@ type ClusterIssuer struct {
 }
 
 type Job struct {
+	Annotations           map[string]string
 	AppName               string
 	Command               []string
 	DeploymentID          int64
@@ -429,6 +430,7 @@ func templateKubernetesJob(input Job) (batchv1.Job, error) {
 		"dokku.com/builder-type":    input.ImageSourceType,
 		"dokku.com/managed":         "true",
 	}
+	maps.Copy(annotations, input.Annotations)
 
 	maps.Copy(labels, input.Labels)
 	secretName := GetConfigSecretName(input.AppName)

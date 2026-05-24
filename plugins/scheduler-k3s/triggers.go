@@ -795,10 +795,8 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 		suffix := ""
 		for _, cronJob := range cronJobs {
 			if cronJob.Annotations["dokku.com/cron-id"] == cronTask.ID {
-				var ok bool
-				suffix, ok = cronJob.Annotations["dokku.com/job-suffix"]
-				if !ok {
-					suffix = ""
+				if value, ok := cronJob.Annotations["dokku.com/job-suffix"]; ok {
+					suffix = value
 				}
 			}
 		}
@@ -1355,6 +1353,7 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 	labels := map[string]string{
 		"app.kubernetes.io/part-of": appName,
 	}
+	annotations := map[string]string{}
 
 	if os.Getenv("DOKKU_TRACE") == "1" {
 		extraEnv["TRACE"] = "true"
@@ -1373,8 +1372,11 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 	processType := "run"
 	if os.Getenv("DOKKU_CRON_ID") != "" {
 		processType = "cron"
-		cronHash := cronIDLabelValue(os.Getenv("DOKKU_CRON_ID"))
+		cronID := os.Getenv("DOKKU_CRON_ID")
+		cronHash := cronIDLabelValue(cronID)
 		labels["dokku.com/cron-hash"] = cronHash
+		annotations["dokku.com/cron-hash"] = cronHash
+		annotations["dokku.com/cron-id"] = cronID
 		concurrencyPolicy := strings.ToUpper(os.Getenv("DOKKU_CONCURRENCY_POLICY"))
 		switch concurrencyPolicy {
 		case "forbid":
@@ -1498,6 +1500,8 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 
 	workingDir := common.GetWorkingDir(appName, image)
 	job, err := templateKubernetesJob(Job{
+		ActiveDeadlineSeconds: activeDeadlineSeconds,
+		Annotations:           annotations,
 		AppName:               appName,
 		Command:               command,
 		DeploymentID:          deploymentID,
@@ -1513,7 +1517,6 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 		RemoveContainer:       rmContainer,
 		SecurityContext:       securityContext,
 		WorkingDir:            workingDir,
-		ActiveDeadlineSeconds: activeDeadlineSeconds,
 	})
 	if err != nil {
 		return fmt.Errorf("Error templating job: %w", err)
@@ -1754,7 +1757,7 @@ func TriggerSchedulerRunList(scheduler string, appName string, format string) er
 
 		cronID, ok := cronJob.Annotations["dokku.com/cron-id"]
 		if !ok {
-			common.LogWarn(fmt.Sprintf("Cron job %s does not have a cron ID annotation", cronJob.Name))
+			common.LogWarn(fmt.Sprintf("Cron job %s does not have a dokku.com/cron-id annotation", cronJob.Name))
 			continue
 		}
 
