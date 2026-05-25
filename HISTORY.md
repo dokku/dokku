@@ -1,5 +1,60 @@
 # History
 
+## 0.38.6
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.38.6/bootstrap.sh
+sudo DOKKU_TAG=v0.38.6 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #8633: @Mordred Correctly redirect http traffic to https when using scheduler-k3s
+- #8665: @josegonzalez Clarify byte-preserving behavior of config:set --encoded
+- #8666: @josegonzalez Depend on cron | cron-daemon to allow alternatives
+- #8638: @josegonzalez Support --global on cron:set
+
+### Refactors
+
+- #8668: @josegonzalez Hash scheduler-k3s cron-id label to fit Kubernetes' 63-byte cap
+- #8664: @josegonzalez Convert filesystem migration markers to plugin properties
+
+### Documentation
+
+- #8645: @zenspider Removed outdated warning about dokku-update not being able to upgrade to specific versions.
+
+### Tests
+
+- #8667: @josegonzalez Rename logs:report vector key test and guard old keys
+- #8662: @dependabot[bot] chore(deps): bump qs from 6.15.0 to 6.15.2 in /tests/apps/checks-root
+- #8661: @dependabot[bot] chore(deps): bump sass from 1.99.0 to 1.100.0 in /tests/apps/multi
+- #8658: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 288 to 290 in /tests/apps/php
+- #8657: @dependabot[bot] chore(deps): bump slim/slim from 4.15.1 to 4.15.2 in /tests/apps/php
+- #8654: @dependabot[bot] chore(deps): bump ruby from 4.0.4 to 4.0.5 in /tests/apps/dockerfile-entrypoint
+- #8642: @dependabot[bot] chore(deps): bump google.golang.org/grpc from 1.81.0 to 1.81.1 in /tests/apps/gogrpc
+
+### Dependencies
+
+- #8652: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.40.0 to 1.41.0 in /plugins/common
+- #8663: @dokku-bot chore: bump herokuish to 0.11.13
+- #8646: @dokku-bot chore: bump pack to 0.40.6
+- #8659: @dependabot[bot] chore(deps): bump golang.org/x/crypto from 0.51.0 to 0.52.0 in /plugins/common
+- #8660: @dependabot[bot] chore(deps): bump click from 8.4.0 to 8.4.1 in /docs/_build
+- #8655: @dependabot[bot] chore(deps): bump github.com/containerd/containerd from 1.7.30 to 1.7.32 in /plugins/scheduler-k3s
+- #8651: @dependabot[bot] chore(deps): bump click from 8.3.3 to 8.4.0 in /docs/_build
+- #8649: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.40.0 to 1.41.0 in /plugins/buildpacks
+- #8650: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.40.0 to 1.41.0 in /plugins/config
+- #8648: @dependabot[bot] chore(deps): bump zipp from 3.23.1 to 4.1.0 in /docs/_build
+- #8644: @dokku-bot chore: bump pack to 0.40.5
+- #8641: @dependabot[bot] chore(deps): bump traefik from v3.7.0 to v3.7.1 in /plugins/traefik-vhosts
+- #8634: @dependabot[bot] chore(deps): bump pymdown-extensions from 10.21.2 to 10.21.3 in /docs/_build
+
+### Other
+
+- #8640: @josegonzalez Split report global keys into raw and computed
+
 ## 0.38.5
 
 Install/update via the bootstrap script:
