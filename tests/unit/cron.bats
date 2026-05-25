@@ -82,11 +82,14 @@ teardown() {
   echo "status: $status"
   assert_success
 
+  cron_id="$(dokku cron:list $TEST_APP --format json | jq -r '.[0].id')"
+
   run /bin/bash -c "cat /var/spool/cron/crontabs/dokku"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "python3 task.py schedule"
+  assert_output_contains "dokku cron:run $TEST_APP $cron_id"
+  assert_output_contains "python3 task.py schedule" 0
 }
 
 @test "(cron) create [single-short]" {
@@ -95,11 +98,14 @@ teardown() {
   echo "status: $status"
   assert_success
 
+  cron_id="$(dokku cron:list $TEST_APP --format json | jq -r '.[0].id')"
+
   run /bin/bash -c "cat /var/spool/cron/crontabs/dokku"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "python3 task.py daily"
+  assert_output_contains "dokku cron:run $TEST_APP $cron_id"
+  assert_output_contains "python3 task.py daily" 0
 }
 
 @test "(cron:report) --global --format json" {
@@ -253,12 +259,17 @@ teardown() {
   echo "status: $status"
   assert_success
 
+  first_id="$(dokku cron:list $TEST_APP --format json | jq -r '.[0].id')"
+  second_id="$(dokku cron:list $TEST_APP --format json | jq -r '.[1].id')"
+
   run /bin/bash -c "cat /var/spool/cron/crontabs/dokku"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "python3 task.py first"
-  assert_output_contains "python3 task.py second"
+  assert_output_contains "dokku cron:run $TEST_APP $first_id"
+  assert_output_contains "dokku cron:run $TEST_APP $second_id"
+  assert_output_contains "python3 task.py first" 0
+  assert_output_contains "python3 task.py second" 0
 }
 
 @test "(cron) injected entries" {
@@ -417,38 +428,27 @@ teardown() {
   echo "status: $status"
   assert_success
 
+  first_id="$(dokku cron:list $TEST_APP --format json | jq -r '.[0].id')"
+  second_id="$(dokku cron:list $TEST_APP --format json | jq -r '.[1].id')"
+
   run /bin/bash -c "cat /var/spool/cron/crontabs/dokku"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "python3 task.py first"
-  assert_output_contains "python3 task.py second"
+  assert_output_contains "dokku cron:run $TEST_APP $first_id"
+  assert_output_contains "dokku cron:run $TEST_APP $second_id"
 
-  cron_id="$(dokku cron:list $TEST_APP --format json | jq -r '.[0].id')"
-  run /bin/bash -c "echo $cron_id"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  assert_output_exists
-
-  first_command="$(dokku cron:list $TEST_APP --format json | jq -r '.[0].command')"
-  run /bin/bash -c "echo $first_command"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  assert_output_exists
-
-  run /bin/bash -c "dokku cron:report $TEST_APP --cron-maintenance-$cron_id"
+  run /bin/bash -c "dokku cron:report $TEST_APP --cron-maintenance-$first_id"
   echo "output: $output"
   echo "status: $status"
   assert_failure
 
-  run /bin/bash -c "dokku cron:suspend $TEST_APP $cron_id"
+  run /bin/bash -c "dokku cron:suspend $TEST_APP $first_id"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku cron:report $TEST_APP --cron-maintenance-$cron_id"
+  run /bin/bash -c "dokku cron:report $TEST_APP --cron-maintenance-$first_id"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -458,15 +458,15 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "python3 task.py first" 0
-  assert_output_contains "python3 task.py second"
+  assert_output_contains "dokku cron:run $TEST_APP $first_id" 0
+  assert_output_contains "dokku cron:run $TEST_APP $second_id"
 
-  run /bin/bash -c "dokku cron:resume $TEST_APP $cron_id"
+  run /bin/bash -c "dokku cron:resume $TEST_APP $first_id"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku cron:report $TEST_APP --cron-maintenance-$cron_id"
+  run /bin/bash -c "dokku cron:report $TEST_APP --cron-maintenance-$first_id"
   echo "output: $output"
   echo "status: $status"
   assert_failure
@@ -475,8 +475,112 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "python3 task.py first"
-  assert_output_contains "python3 task.py second"
+  assert_output_contains "dokku cron:run $TEST_APP $first_id"
+  assert_output_contains "dokku cron:run $TEST_APP $second_id"
+}
+
+@test "(cron) invalid [command]" {
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP template_cron_file_injection
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+}
+
+@test "(cron) crontab format [no raw command leakage]" {
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP template_cron_file_valid_single
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  cron_id="$(dokku cron:list $TEST_APP --format json | jq -r '.[0].id')"
+
+  run /bin/bash -c "cat /var/spool/cron/crontabs/dokku"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "dokku cron:run $TEST_APP $cron_id"
+  # User command must never appear verbatim in the crontab - the crontab
+  # only references the cron ID, and cron:run resolves the command at run
+  # time and exec's it inside the container.
+  assert_output_contains "python3 task.py schedule" 0
+}
+
+@test "(cron) container labels regression" {
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP template_cron_file_long_running
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  cron_id="$(dokku cron:list $TEST_APP --format json | jq -r '.[0].id')"
+
+  run /bin/bash -c "dokku cron:run $TEST_APP $cron_id --detach"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker ps --filter \"label=com.dokku.cron-id=$cron_id\" -q | xargs docker inspect -f '{{ index .Config.Labels \"com.dokku.cron-id\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "$cron_id"
+
+  run /bin/bash -c "docker ps --filter \"label=com.dokku.cron-id=$cron_id\" -q | xargs docker inspect -f '{{ index .Config.Labels \"com.dokku.concurrency-policy\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "allow"
+
+  run /bin/bash -c "docker ps --filter \"label=com.dokku.cron-id=$cron_id\" -q | xargs docker inspect -f '{{ index .Config.Labels \"com.dokku.container-type\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "cron"
+
+  run /bin/bash -c "docker ps --filter \"label=com.dokku.cron-id=$cron_id\" -q | xargs docker inspect -f '{{ index .Config.Labels \"com.dokku.app-name\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "$TEST_APP"
+
+  run /bin/bash -c "docker ps --filter \"label=com.dokku.cron-id=$cron_id\" -q | xargs docker inspect -f '{{ index .Config.Labels \"com.dokku.active-deadline-seconds\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "86400"
+}
+
+template_cron_file_long_running() {
+  local APP="$1"
+  local APP_REPO_DIR="$2"
+  [[ -z "$APP" ]] && local APP="$TEST_APP"
+  echo "injecting long-running cron app.json -> $APP_REPO_DIR/app.json"
+  cat <<EOF >"$APP_REPO_DIR/app.json"
+{
+  "cron": [
+    {
+      "command": "sleep 30",
+      "schedule": "0 0 * * *"
+    }
+  ]
+}
+EOF
+}
+
+template_cron_file_injection() {
+  local APP="$1"
+  local APP_REPO_DIR="$2"
+  [[ -z "$APP" ]] && local APP="$TEST_APP"
+  echo "injecting injection-attempt cron app.json -> $APP_REPO_DIR/app.json"
+  cat <<EOF >"$APP_REPO_DIR/app.json"
+{
+  "cron": [
+    {
+      "command": "echo CRON_OK; echo hi > /tmp/appjson-injection-test.txt",
+      "schedule": "* * * * *"
+    }
+  ]
+}
+EOF
 }
 
 template_cron_file_invalid() {
