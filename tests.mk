@@ -25,7 +25,7 @@ endif
 
 shfmt:
 ifneq ($(shell shfmt --version >/dev/null 2>&1; echo $$?),0)
-ifeq ($(shfmt),Darwin)
+ifeq ($(SYSTEM),Darwin)
 	brew install shfmt
 else
 	wget -qO /tmp/shfmt https://github.com/mvdan/sh/releases/download/v3.5.1/shfmt_v3.5.1_linux_${TARGETARCH}
