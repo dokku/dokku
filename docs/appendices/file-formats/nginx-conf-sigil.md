@@ -7,3 +7,22 @@ The `nginx.conf.sigil` file is used to configure the nginx server for an applica
 A custom `nginx.conf.sigil` is pre-validated at the start of every deploy, immediately after it is extracted from the source tree and before the build phase runs. Pre-validation renders the template via sigil with the same parameters used at deploy time, wraps the rendered config in a minimal `events`/`http` scaffold, and runs `nginx -t` against the result. The deploy is aborted if either the sigil render or the `nginx -t` check fails, so build work is not wasted on a syntactically invalid template. When no app listeners exist yet (typical for first deploys), pre-validation injects a placeholder `127.0.0.1:5000` listener for `DOKKU_APP_WEB_LISTENERS` so that the rendered upstream block has a static server entry and `nginx -t` does not bail out on "host not found in upstream".
 
 Pre-validation is skipped when the proxy type is not `nginx` or when `disable-custom-config` is set to `true` for the app.
+
+## HTTP/2
+
+nginx 1.25.1 deprecated the `http2` parameter on the `listen` directive in favor of a standalone `http2 on;` directive. Custom `nginx.conf.sigil` templates that hardcode `listen ... ssl http2;` will produce `nginx: [warn] the "listen ... http2" directive is deprecated` warnings when run against nginx 1.25.1 or newer.
+
+Dokku exposes the `HTTP2_DIRECTIVE_SUPPORTED` template variable, set to `"true"` when the host nginx is 1.25.1 or newer, so a single template can render the correct syntax against either version. The default template uses this pattern:
+
+```
+{{ if eq $.HTTP2_DIRECTIVE_SUPPORTED "true" }}
+listen      [{{ $.NGINX_BIND_ADDRESS_IP6 }}]:{{ $listen_port }} ssl;
+listen      {{ if $.NGINX_BIND_ADDRESS_IP4 }}{{ $.NGINX_BIND_ADDRESS_IP4 }}:{{end}}{{ $listen_port }} ssl;
+http2 on;
+{{ else }}
+listen      [{{ $.NGINX_BIND_ADDRESS_IP6 }}]:{{ $listen_port }} ssl http2;
+listen      {{ if $.NGINX_BIND_ADDRESS_IP4 }}{{ $.NGINX_BIND_ADDRESS_IP4 }}:{{end}}{{ $listen_port }} ssl http2;
+{{ end }}
+```
+
+Dokku logs a deprecation warning during deploys when a custom template still uses the `listen ... http2` form, so the offending template can be located via the deploy output.
