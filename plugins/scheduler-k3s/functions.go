@@ -307,14 +307,14 @@ func applyClusterIssuers(ctx context.Context) error {
 			"letsencrypt-stag": {
 				Email:        letsencryptEmailStag,
 				Enabled:      letsencryptEmailStag != "",
-				IngressClass: getGlobalIngressClass(),
+				IngressClass: getComputedIngressClass(),
 				Name:         "letsencrypt-stag",
 				Server:       "https://acme-staging-v02.api.letsencrypt.org/directory",
 			},
 			"letsencrypt-prod": {
 				Email:        letsencryptEmailProd,
 				Enabled:      letsencryptEmailProd != "",
-				IngressClass: getGlobalIngressClass(),
+				IngressClass: getComputedIngressClass(),
 				Name:         "letsencrypt-prod",
 				Server:       "https://acme-v02.api.letsencrypt.org/directory",
 			},
@@ -794,11 +794,11 @@ func getAnnotation(appName string, processType string, resourceType string) (map
 }
 
 func getDeployTimeout(appName string) string {
-	return common.PropertyGetDefault("scheduler-k3s", appName, "deploy-timeout", "")
+	return common.PropertyGet("scheduler-k3s", appName, "deploy-timeout")
 }
 
 func getGlobalDeployTimeout() string {
-	return common.PropertyGetDefault("scheduler-k3s", "--global", "deploy-timeout", "300s")
+	return common.PropertyGet("scheduler-k3s", "--global", "deploy-timeout")
 }
 
 func getComputedDeployTimeout(appName string) string {
@@ -806,16 +806,19 @@ func getComputedDeployTimeout(appName string) string {
 	if deployTimeout == "" {
 		deployTimeout = getGlobalDeployTimeout()
 	}
+	if deployTimeout == "" {
+		deployTimeout = "300s"
+	}
 
 	return deployTimeout
 }
 
 func getImagePullSecrets(appName string) string {
-	return common.PropertyGetDefault("scheduler-k3s", appName, "image-pull-secrets", "")
+	return common.PropertyGet("scheduler-k3s", appName, "image-pull-secrets")
 }
 
 func getGlobalImagePullSecrets() string {
-	return common.PropertyGetDefault("scheduler-k3s", "--global", "image-pull-secrets", "")
+	return common.PropertyGet("scheduler-k3s", "--global", "image-pull-secrets")
 }
 
 func getComputedImagePullSecrets(appName string) string {
@@ -885,7 +888,16 @@ func needsImagePullSecretsPrune(live []corev1.LocalObjectReference, keepSet map[
 }
 
 func getGlobalIngressClass() string {
-	return common.PropertyGetDefault("scheduler-k3s", "--global", "ingress-class", DefaultIngressClass)
+	return common.PropertyGet("scheduler-k3s", "--global", "ingress-class")
+}
+
+func getComputedIngressClass() string {
+	ingressClass := getGlobalIngressClass()
+	if ingressClass == "" {
+		ingressClass = DefaultIngressClass
+	}
+
+	return ingressClass
 }
 
 func getIngressAnnotations(appName string, processType string) (map[string]string, error) {
@@ -1225,11 +1237,11 @@ func getLabel(appName string, processType string, resourceType string) (map[stri
 }
 
 func getLetsencryptServer(appName string) string {
-	return common.PropertyGetDefault("scheduler-k3s", appName, "letsencrypt-server", "")
+	return common.PropertyGet("scheduler-k3s", appName, "letsencrypt-server")
 }
 
 func getGlobalLetsencryptServer() string {
-	return common.PropertyGetDefault("scheduler-k3s", "--global", "letsencrypt-server", "prod")
+	return common.PropertyGet("scheduler-k3s", "--global", "letsencrypt-server")
 }
 
 func getComputedLetsencryptServer(appName string) string {
@@ -1237,16 +1249,27 @@ func getComputedLetsencryptServer(appName string) string {
 	if letsencryptServer == "" {
 		letsencryptServer = getGlobalLetsencryptServer()
 	}
+	if letsencryptServer == "" {
+		letsencryptServer = "prod"
+	}
 
 	return letsencryptServer
 }
 
 func getGlobalLetsencryptEmailProd() string {
-	return common.PropertyGetDefault("scheduler-k3s", "--global", "letsencrypt-email-prod", "")
+	return common.PropertyGet("scheduler-k3s", "--global", "letsencrypt-email-prod")
+}
+
+func getComputedLetsencryptEmailProd() string {
+	return getGlobalLetsencryptEmailProd()
 }
 
 func getGlobalLetsencryptEmailStag() string {
-	return common.PropertyGetDefault("scheduler-k3s", "--global", "letsencrypt-email-stag", "")
+	return common.PropertyGet("scheduler-k3s", "--global", "letsencrypt-email-stag")
+}
+
+func getComputedLetsencryptEmailStag() string {
+	return getGlobalLetsencryptEmailStag()
 }
 
 func getKustomizeDirectory(appName string) string {
@@ -1255,11 +1278,11 @@ func getKustomizeDirectory(appName string) string {
 }
 
 func getKustomizeRootPath(appName string) string {
-	return common.PropertyGetDefault("scheduler-k3s", appName, "kustomize-root-path", "")
+	return common.PropertyGet("scheduler-k3s", appName, "kustomize-root-path")
 }
 
 func getGlobalKustomizeRootPath() string {
-	return common.PropertyGetDefault("scheduler-k3s", "--global", "kustomize-root-path", "config/kustomize")
+	return common.PropertyGet("scheduler-k3s", "--global", "kustomize-root-path")
 }
 
 func getComputedKustomizeRootPath(appName string) string {
@@ -1267,16 +1290,19 @@ func getComputedKustomizeRootPath(appName string) string {
 	if kustomizeRootPath == "" {
 		kustomizeRootPath = getGlobalKustomizeRootPath()
 	}
+	if kustomizeRootPath == "" {
+		kustomizeRootPath = "config/kustomize"
+	}
 
 	return kustomizeRootPath
 }
 
 func getNamespace(appName string) string {
-	return common.PropertyGetDefault("scheduler-k3s", appName, "namespace", "")
+	return common.PropertyGet("scheduler-k3s", appName, "namespace")
 }
 
 func getGlobalNamespace() string {
-	return common.PropertyGetDefault("scheduler-k3s", "--global", "namespace", "default")
+	return common.PropertyGet("scheduler-k3s", "--global", "namespace")
 }
 
 func getComputedNamespace(appName string) string {
@@ -1284,20 +1310,32 @@ func getComputedNamespace(appName string) string {
 	if namespace == "" {
 		namespace = getGlobalNamespace()
 	}
+	if namespace == "" {
+		namespace = "default"
+	}
 
 	return namespace
 }
 
 func getGlobalNetworkInterface() string {
-	return common.PropertyGetDefault("scheduler-k3s", "--global", "network-interface", "eth0")
+	return common.PropertyGet("scheduler-k3s", "--global", "network-interface")
+}
+
+func getComputedNetworkInterface() string {
+	networkInterface := getGlobalNetworkInterface()
+	if networkInterface == "" {
+		networkInterface = "eth0"
+	}
+
+	return networkInterface
 }
 
 func getRollbackOnFailure(appName string) string {
-	return common.PropertyGetDefault("scheduler-k3s", appName, "rollback-on-failure", "")
+	return common.PropertyGet("scheduler-k3s", appName, "rollback-on-failure")
 }
 
 func getGlobalRollbackOnFailure() string {
-	return common.PropertyGetDefault("scheduler-k3s", "--global", "rollback-on-failure", "false")
+	return common.PropertyGet("scheduler-k3s", "--global", "rollback-on-failure")
 }
 
 func getComputedRollbackOnFailure(appName string) string {
@@ -1305,16 +1343,19 @@ func getComputedRollbackOnFailure(appName string) string {
 	if rollbackOnFailure == "" {
 		rollbackOnFailure = getGlobalRollbackOnFailure()
 	}
+	if rollbackOnFailure == "" {
+		rollbackOnFailure = "false"
+	}
 
 	return rollbackOnFailure
 }
 
 func getShmSize(appName string) string {
-	return common.PropertyGetDefault("scheduler-k3s", appName, "shm-size", "")
+	return common.PropertyGet("scheduler-k3s", appName, "shm-size")
 }
 
 func getGlobalShmSize() string {
-	return common.PropertyGetDefault("scheduler-k3s", "--global", "shm-size", "")
+	return common.PropertyGet("scheduler-k3s", "--global", "shm-size")
 }
 
 func getComputedShmSize(appName string) string {
@@ -1573,7 +1614,7 @@ func getProcessResources(appName string, processType string) (ProcessResourcesMa
 
 func getServerIP() (string, error) {
 	serverIP := ""
-	networkInterface := getGlobalNetworkInterface()
+	networkInterface := getComputedNetworkInterface()
 	ifaces, err := net.Interfaces()
 	if err != nil {
 		return "", fmt.Errorf("Unable to get network interfaces: %w", err)
@@ -1968,7 +2009,7 @@ func isK3sInstalled() error {
 		return fmt.Errorf("k3s binary is not available")
 	}
 
-	if !common.FileExists(getKubeconfigPath()) {
+	if !common.FileExists(getComputedKubeconfigPath()) {
 		return fmt.Errorf("k3s kubeconfig is not available")
 	}
 
@@ -1977,7 +2018,7 @@ func isK3sInstalled() error {
 
 // isK3sKubernetes returns true if the current kubernetes cluster is configured to be k3s
 func isK3sKubernetes() bool {
-	return getKubeconfigPath() == KubeConfigPath
+	return getComputedKubeconfigPath() == KubeConfigPath
 }
 
 func isPodReady(ctx context.Context, clientset KubernetesClient, podName, namespace string) wait.ConditionWithContextFunc {

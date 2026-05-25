@@ -178,7 +178,7 @@ func globalValue(appName string, property string) string {
 	case "access-log-format":
 		value = nginx_vhosts.GlobalAccessLogFormat()
 	case "access-log-path":
-		value = nginx_vhosts.GlobalAccessLogPath(appName)
+		value = nginx_vhosts.GlobalAccessLogPath()
 	case "bind-address-ipv4":
 		value = nginx_vhosts.GlobalBindAddressIPv4()
 	case "bind-address-ipv6":
@@ -192,7 +192,7 @@ func globalValue(appName string, property string) string {
 	case "disable-custom-config":
 		value = nginx_vhosts.GlobalDisableCustomConfig()
 	case "error-log-path":
-		value = nginx_vhosts.GlobalErrorLogPath(appName)
+		value = nginx_vhosts.GlobalErrorLogPath()
 	case "hsts-include-subdomains":
 		value = nginx_vhosts.GlobalHSTSIncludeSubdomains()
 	case "hsts-max-age":

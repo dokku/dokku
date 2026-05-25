@@ -17,23 +17,27 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 	var flags map[string]common.ReportFunc
 	if appName == "--global" {
 		flags = map[string]common.ReportFunc{
-			"--registry-global-push-on-release":     reportGlobalPushOnRelease,
-			"--registry-global-server":              reportGlobalServer,
-			"--registry-global-image-repo-template": reportGlobalImageRepoTemplate,
+			"--registry-computed-push-on-release":     reportComputedPushOnRelease,
+			"--registry-global-push-on-release":       reportGlobalPushOnRelease,
+			"--registry-computed-server":              reportComputedServer,
+			"--registry-global-server":                reportGlobalServer,
+			"--registry-computed-image-repo-template": reportComputedImageRepoTemplate,
+			"--registry-global-image-repo-template":   reportGlobalImageRepoTemplate,
 		}
 	} else {
 		flags = map[string]common.ReportFunc{
-			"--registry-computed-image-repo":        reportComputedImageRepo,
-			"--registry-image-repo":                 reportImageRepo,
-			"--registry-computed-push-on-release":   reportComputedPushOnRelease,
-			"--registry-global-push-on-release":     reportGlobalPushOnRelease,
-			"--registry-push-on-release":            reportPushOnRelease,
-			"--registry-computed-server":            reportComputedServer,
-			"--registry-global-server":              reportGlobalServer,
-			"--registry-global-image-repo-template": reportGlobalImageRepoTemplate,
-			"--registry-server":                     reportServer,
-			"--registry-tag-version":                reportTagVersion,
-			"--registry-push-extra-tags":            reportPushExtraTags,
+			"--registry-computed-image-repo":          reportComputedImageRepo,
+			"--registry-image-repo":                   reportImageRepo,
+			"--registry-computed-push-on-release":     reportComputedPushOnRelease,
+			"--registry-global-push-on-release":       reportGlobalPushOnRelease,
+			"--registry-push-on-release":              reportPushOnRelease,
+			"--registry-computed-server":              reportComputedServer,
+			"--registry-global-server":                reportGlobalServer,
+			"--registry-computed-image-repo-template": reportComputedImageRepoTemplate,
+			"--registry-global-image-repo-template":   reportGlobalImageRepoTemplate,
+			"--registry-server":                       reportServer,
+			"--registry-tag-version":                  reportTagVersion,
+			"--registry-push-extra-tags":              reportPushExtraTags,
 		}
 	}
 
@@ -94,6 +98,10 @@ func reportComputedServer(appName string) string {
 
 func reportGlobalImageRepoTemplate(appName string) string {
 	return common.PropertyGet("registry", "--global", "image-repo-template")
+}
+
+func reportComputedImageRepoTemplate(appName string) string {
+	return reportGlobalImageRepoTemplate(appName)
 }
 
 func reportGlobalServer(appName string) string {

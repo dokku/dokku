@@ -34,12 +34,15 @@ func ComputedAccessLogPath(appName string) string {
 		return appValue
 	}
 
-	return GlobalAccessLogPath(appName)
+	value := GlobalAccessLogPath()
+	if value == "" {
+		value = fmt.Sprintf("%s/%s-access.log", getLogRoot(), appName)
+	}
+	return value
 }
 
-func GlobalAccessLogPath(appName string) string {
-	defaultLogPath := fmt.Sprintf("%s/%s-access.log", getLogRoot(), appName)
-	return common.PropertyGetDefault("nginx", "--global", "access-log-path", defaultLogPath)
+func GlobalAccessLogPath() string {
+	return common.PropertyGet("nginx", "--global", "access-log-path")
 }
 
 func AppBindAddressIPv4(appName string) string {
@@ -69,11 +72,15 @@ func ComputedBindAddressIPv6(appName string) string {
 		return appValue
 	}
 
-	return GlobalBindAddressIPv6()
+	value := GlobalBindAddressIPv6()
+	if value == "" {
+		value = "::"
+	}
+	return value
 }
 
 func GlobalBindAddressIPv6() string {
-	return common.PropertyGetDefault("nginx", "--global", "bind-address-ipv6", "::")
+	return common.PropertyGet("nginx", "--global", "bind-address-ipv6")
 }
 
 func AppClientBodyTimeout(appName string) string {
@@ -86,11 +93,15 @@ func ComputedClientBodyTimeout(appName string) string {
 		return appValue
 	}
 
-	return GlobalClientBodyTimeout()
+	value := GlobalClientBodyTimeout()
+	if value == "" {
+		value = "60s"
+	}
+	return value
 }
 
 func GlobalClientBodyTimeout() string {
-	return common.PropertyGetDefault("nginx", "--global", "client-body-timeout", "60s")
+	return common.PropertyGet("nginx", "--global", "client-body-timeout")
 }
 
 func AppClientHeaderTimeout(appName string) string {
@@ -103,11 +114,15 @@ func ComputedClientHeaderTimeout(appName string) string {
 		return appValue
 	}
 
-	return GlobalClientHeaderTimeout()
+	value := GlobalClientHeaderTimeout()
+	if value == "" {
+		value = "60s"
+	}
+	return value
 }
 
 func GlobalClientHeaderTimeout() string {
-	return common.PropertyGetDefault("nginx", "--global", "client-header-timeout", "60s")
+	return common.PropertyGet("nginx", "--global", "client-header-timeout")
 }
 
 func AppClientMaxBodySize(appName string) string {
@@ -120,11 +135,15 @@ func ComputedClientMaxBodySize(appName string) string {
 		return appValue
 	}
 
-	return GlobalClientMaxBodySize()
+	value := GlobalClientMaxBodySize()
+	if value == "" {
+		value = "1m"
+	}
+	return value
 }
 
 func GlobalClientMaxBodySize() string {
-	return common.PropertyGetDefault("nginx", "--global", "client-max-body-size", "1m")
+	return common.PropertyGet("nginx", "--global", "client-max-body-size")
 }
 
 func AppDisableCustomConfig(appName string) string {
@@ -137,11 +156,15 @@ func ComputedDisableCustomConfig(appName string) string {
 		return appValue
 	}
 
-	return GlobalDisableCustomConfig()
+	value := GlobalDisableCustomConfig()
+	if value == "" {
+		value = "false"
+	}
+	return value
 }
 
 func GlobalDisableCustomConfig() string {
-	return common.PropertyGetDefault("nginx", "--global", "disable-custom-config", "false")
+	return common.PropertyGet("nginx", "--global", "disable-custom-config")
 }
 
 func AppErrorLogPath(appName string) string {
@@ -154,12 +177,15 @@ func ComputedErrorLogPath(appName string) string {
 		return appValue
 	}
 
-	return GlobalErrorLogPath(appName)
+	value := GlobalErrorLogPath()
+	if value == "" {
+		value = fmt.Sprintf("%s/%s-error.log", getLogRoot(), appName)
+	}
+	return value
 }
 
-func GlobalErrorLogPath(appName string) string {
-	defaultLogPath := fmt.Sprintf("%s/%s-error.log", getLogRoot(), appName)
-	return common.PropertyGetDefault("nginx", "--global", "error-log-path", defaultLogPath)
+func GlobalErrorLogPath() string {
+	return common.PropertyGet("nginx", "--global", "error-log-path")
 }
 
 func AppHSTSIncludeSubdomains(appName string) string {
@@ -172,11 +198,15 @@ func ComputedHSTSIncludeSubdomains(appName string) string {
 		return appValue
 	}
 
-	return GlobalHSTSIncludeSubdomains()
+	value := GlobalHSTSIncludeSubdomains()
+	if value == "" {
+		value = "true"
+	}
+	return value
 }
 
 func GlobalHSTSIncludeSubdomains() string {
-	return common.PropertyGetDefault("nginx", "--global", "hsts-include-subdomains", "true")
+	return common.PropertyGet("nginx", "--global", "hsts-include-subdomains")
 }
 
 func AppHSTSMaxAge(appName string) string {
@@ -189,11 +219,15 @@ func ComputedHSTSMaxAge(appName string) string {
 		return appValue
 	}
 
-	return GlobalHSTSMaxAge()
+	value := GlobalHSTSMaxAge()
+	if value == "" {
+		value = "15724800"
+	}
+	return value
 }
 
 func GlobalHSTSMaxAge() string {
-	return common.PropertyGetDefault("nginx", "--global", "hsts-max-age", "15724800")
+	return common.PropertyGet("nginx", "--global", "hsts-max-age")
 }
 
 func AppHSTSPreload(appName string) string {
@@ -206,11 +240,15 @@ func ComputedHSTSPreload(appName string) string {
 		return appValue
 	}
 
-	return GlobalHSTSPreload()
+	value := GlobalHSTSPreload()
+	if value == "" {
+		value = "false"
+	}
+	return value
 }
 
 func GlobalHSTSPreload() string {
-	return common.PropertyGetDefault("nginx", "--global", "hsts-preload", "false")
+	return common.PropertyGet("nginx", "--global", "hsts-preload")
 }
 
 func AppHSTS(appName string) string {
@@ -223,11 +261,15 @@ func ComputedHSTS(appName string) string {
 		return appValue
 	}
 
-	return GlobalHSTS()
+	value := GlobalHSTS()
+	if value == "" {
+		value = "true"
+	}
+	return value
 }
 
 func GlobalHSTS() string {
-	return common.PropertyGetDefault("nginx", "--global", "hsts", "true")
+	return common.PropertyGet("nginx", "--global", "hsts")
 }
 
 func AppNginxConfSigilPath(appName string) string {
@@ -240,11 +282,15 @@ func ComputedNginxConfSigilPath(appName string) string {
 		return appValue
 	}
 
-	return GlobalNginxConfSigilPath()
+	value := GlobalNginxConfSigilPath()
+	if value == "" {
+		value = "nginx.conf.sigil"
+	}
+	return value
 }
 
 func GlobalNginxConfSigilPath() string {
-	return common.PropertyGetDefault("nginx", "--global", "nginx-conf-sigil-path", "nginx.conf.sigil")
+	return common.PropertyGet("nginx", "--global", "nginx-conf-sigil-path")
 }
 
 func AppNginxServiceCommand(appName string) string {
@@ -261,7 +307,7 @@ func ComputedNginxServiceCommand(appName string) string {
 }
 
 func GlobalNginxServiceCommand() string {
-	return common.PropertyGetDefault("nginx", "--global", "nginx-service-command", "")
+	return common.PropertyGet("nginx", "--global", "nginx-service-command")
 }
 
 func AppKeepaliveTimeout(appName string) string {
@@ -274,11 +320,15 @@ func ComputedKeepaliveTimeout(appName string) string {
 		return appValue
 	}
 
-	return GlobalKeepaliveTimeout()
+	value := GlobalKeepaliveTimeout()
+	if value == "" {
+		value = "75s"
+	}
+	return value
 }
 
 func GlobalKeepaliveTimeout() string {
-	return common.PropertyGetDefault("nginx", "--global", "keepalive-timeout", "75s")
+	return common.PropertyGet("nginx", "--global", "keepalive-timeout")
 }
 
 func AppLingeringTimeout(appName string) string {
@@ -291,11 +341,15 @@ func ComputedLingeringTimeout(appName string) string {
 		return appValue
 	}
 
-	return GlobalLingeringTimeout()
+	value := GlobalLingeringTimeout()
+	if value == "" {
+		value = "5s"
+	}
+	return value
 }
 
 func GlobalLingeringTimeout() string {
-	return common.PropertyGetDefault("nginx", "--global", "lingering-timeout", "5s")
+	return common.PropertyGet("nginx", "--global", "lingering-timeout")
 }
 
 func AppProxyBufferSize(appName string) string {
@@ -308,11 +362,15 @@ func ComputedProxyBufferSize(appName string) string {
 		return appValue
 	}
 
-	return GlobalProxyBufferSize()
+	value := GlobalProxyBufferSize()
+	if value == "" {
+		value = fmt.Sprintf("%dk", os.Getpagesize()/1024)
+	}
+	return value
 }
 
 func GlobalProxyBufferSize() string {
-	return common.PropertyGetDefault("nginx", "--global", "proxy-buffer-size", fmt.Sprintf("%dk", os.Getpagesize()/1024))
+	return common.PropertyGet("nginx", "--global", "proxy-buffer-size")
 }
 
 func AppProxyBuffering(appName string) string {
@@ -325,11 +383,15 @@ func ComputedProxyBuffering(appName string) string {
 		return appValue
 	}
 
-	return GlobalProxyBuffering()
+	value := GlobalProxyBuffering()
+	if value == "" {
+		value = "on"
+	}
+	return value
 }
 
 func GlobalProxyBuffering() string {
-	return common.PropertyGetDefault("nginx", "--global", "proxy-buffering", "on")
+	return common.PropertyGet("nginx", "--global", "proxy-buffering")
 }
 
 func AppProxyBuffers(appName string) string {
@@ -342,11 +404,15 @@ func ComputedProxyBuffers(appName string) string {
 		return appValue
 	}
 
-	return GlobalProxyBuffers()
+	value := GlobalProxyBuffers()
+	if value == "" {
+		value = fmt.Sprintf("8 %dk", os.Getpagesize()/1024)
+	}
+	return value
 }
 
 func GlobalProxyBuffers() string {
-	return common.PropertyGetDefault("nginx", "--global", "proxy-buffers", fmt.Sprintf("8 %dk", os.Getpagesize()/1024))
+	return common.PropertyGet("nginx", "--global", "proxy-buffers")
 }
 
 func AppProxyBusyBuffersSize(appName string) string {
@@ -359,11 +425,15 @@ func ComputedProxyBusyBuffersSize(appName string) string {
 		return appValue
 	}
 
-	return GlobalProxyBusyBuffersSize()
+	value := GlobalProxyBusyBuffersSize()
+	if value == "" {
+		value = fmt.Sprintf("%dk", (os.Getpagesize()/1024)*2)
+	}
+	return value
 }
 
 func GlobalProxyBusyBuffersSize() string {
-	return common.PropertyGetDefault("nginx", "--global", "proxy-busy-buffers-size", fmt.Sprintf("%dk", (os.Getpagesize()/1024)*2))
+	return common.PropertyGet("nginx", "--global", "proxy-busy-buffers-size")
 }
 
 func AppProxyConnectTimeout(appName string) string {
@@ -376,11 +446,15 @@ func ComputedProxyConnectTimeout(appName string) string {
 		return appValue
 	}
 
-	return GlobalProxyConnectTimeout()
+	value := GlobalProxyConnectTimeout()
+	if value == "" {
+		value = "60s"
+	}
+	return value
 }
 
 func GlobalProxyConnectTimeout() string {
-	return common.PropertyGetDefault("nginx", "--global", "proxy-connect-timeout", "60s")
+	return common.PropertyGet("nginx", "--global", "proxy-connect-timeout")
 }
 
 func AppProxyReadTimeout(appName string) string {
@@ -393,11 +467,15 @@ func ComputedProxyReadTimeout(appName string) string {
 		return appValue
 	}
 
-	return GlobalProxyReadTimeout()
+	value := GlobalProxyReadTimeout()
+	if value == "" {
+		value = "60s"
+	}
+	return value
 }
 
 func GlobalProxyReadTimeout() string {
-	return common.PropertyGetDefault("nginx", "--global", "proxy-read-timeout", "60s")
+	return common.PropertyGet("nginx", "--global", "proxy-read-timeout")
 }
 
 func AppProxySendTimeout(appName string) string {
@@ -410,11 +488,15 @@ func ComputedProxySendTimeout(appName string) string {
 		return appValue
 	}
 
-	return GlobalProxySendTimeout()
+	value := GlobalProxySendTimeout()
+	if value == "" {
+		value = "60s"
+	}
+	return value
 }
 
 func GlobalProxySendTimeout() string {
-	return common.PropertyGetDefault("nginx", "--global", "proxy-send-timeout", "60s")
+	return common.PropertyGet("nginx", "--global", "proxy-send-timeout")
 }
 
 func AppSendTimeout(appName string) string {
@@ -427,11 +509,15 @@ func ComputedSendTimeout(appName string) string {
 		return appValue
 	}
 
-	return GlobalSendTimeout()
+	value := GlobalSendTimeout()
+	if value == "" {
+		value = "60s"
+	}
+	return value
 }
 
 func GlobalSendTimeout() string {
-	return common.PropertyGetDefault("nginx", "--global", "send-timeout", "60s")
+	return common.PropertyGet("nginx", "--global", "send-timeout")
 }
 
 func AppUnderscoreInHeaders(appName string) string {
@@ -444,11 +530,15 @@ func ComputedUnderscoreInHeaders(appName string) string {
 		return appValue
 	}
 
-	return GlobalUnderscoreInHeaders()
+	value := GlobalUnderscoreInHeaders()
+	if value == "" {
+		value = "off"
+	}
+	return value
 }
 
 func GlobalUnderscoreInHeaders() string {
-	return common.PropertyGetDefault("nginx", "--global", "underscore-in-headers", "off")
+	return common.PropertyGet("nginx", "--global", "underscore-in-headers")
 }
 
 func AppXForwardedForValue(appName string) string {
@@ -461,11 +551,15 @@ func ComputedXForwardedForValue(appName string) string {
 		return appValue
 	}
 
-	return GlobalXForwardedForValue()
+	value := GlobalXForwardedForValue()
+	if value == "" {
+		value = "$remote_addr"
+	}
+	return value
 }
 
 func GlobalXForwardedForValue() string {
-	return common.PropertyGetDefault("nginx", "--global", "x-forwarded-for-value", "$remote_addr")
+	return common.PropertyGet("nginx", "--global", "x-forwarded-for-value")
 }
 
 func AppXForwardedPortValue(appName string) string {
@@ -478,11 +572,15 @@ func ComputedXForwardedPortValue(appName string) string {
 		return appValue
 	}
 
-	return GlobalXForwardedPortValue()
+	value := GlobalXForwardedPortValue()
+	if value == "" {
+		value = "$server_port"
+	}
+	return value
 }
 
 func GlobalXForwardedPortValue() string {
-	return common.PropertyGetDefault("nginx", "--global", "x-forwarded-port-value", "$server_port")
+	return common.PropertyGet("nginx", "--global", "x-forwarded-port-value")
 }
 
 func AppXForwardedProtoValue(appName string) string {
@@ -495,11 +593,15 @@ func ComputedXForwardedProtoValue(appName string) string {
 		return appValue
 	}
 
-	return GlobalXForwardedProtoValue()
+	value := GlobalXForwardedProtoValue()
+	if value == "" {
+		value = "$scheme"
+	}
+	return value
 }
 
 func GlobalXForwardedProtoValue() string {
-	return common.PropertyGetDefault("nginx", "--global", "x-forwarded-proto-value", "$scheme")
+	return common.PropertyGet("nginx", "--global", "x-forwarded-proto-value")
 }
 
 func AppXForwardedSSL(appName string) string {
@@ -516,7 +618,7 @@ func ComputedXForwardedSSL(appName string) string {
 }
 
 func GlobalXForwardedSSL() string {
-	return common.PropertyGetDefault("nginx", "--global", "x-forwarded-ssl", "")
+	return common.PropertyGet("nginx", "--global", "x-forwarded-ssl")
 }
 
 func AppProxyKeepalive(appName string) string {
@@ -533,5 +635,5 @@ func ComputedProxyKeepalive(appName string) string {
 }
 
 func GlobalProxyKeepalive() string {
-	return common.PropertyGetDefault("nginx", "--global", "proxy-keepalive", "")
+	return common.PropertyGet("nginx", "--global", "proxy-keepalive")
 }

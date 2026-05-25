@@ -908,7 +908,7 @@ func CommandEnsureCharts(forceInstall bool, forceChartNames []string) error {
 		return fmt.Errorf("Unable to create kubernetes client: %w", err)
 	}
 
-	ingressClass := getGlobalIngressClass()
+	ingressClass := getComputedIngressClass()
 
 	namespacedHelmAgents := map[string]*HelmAgent{}
 	for _, chart := range HelmCharts {
@@ -1209,7 +1209,7 @@ func CommandSet(appName string, property string, value string) error {
 
 // CommandShowKubeconfig displays the kubeconfig file contents
 func CommandShowKubeconfig() error {
-	kubeconfigPath := getKubeconfigPath()
+	kubeconfigPath := getComputedKubeconfigPath()
 	if !common.FileExists(kubeconfigPath) {
 		return fmt.Errorf("Kubeconfig file does not exist: %s", kubeconfigPath)
 	}

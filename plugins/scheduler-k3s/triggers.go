@@ -569,7 +569,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 			Labels:    globalLabels,
 			Namespace: namespace,
 			Network: GlobalNetwork{
-				IngressClass:       getGlobalIngressClass(),
+				IngressClass:       getComputedIngressClass(),
 				PrimaryPort:        primaryPort,
 				PrimaryServicePort: primaryServicePort,
 			},
