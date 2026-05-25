@@ -277,7 +277,7 @@ dokku openresty:report node-js-app
 You can pass flags which will output only the value of the specific information you want. For example:
 
 ```shell
-dokku openresty:report node-js-app --openresty-letsencrypt-email
+dokku openresty:report node-js-app --openresty-computed-letsencrypt-email
 ```
 
 ## Properties
@@ -286,13 +286,13 @@ dokku openresty:report node-js-app --openresty-letsencrypt-email
 
 Five properties (`image`, `log-level`, `letsencrypt-email`, `letsencrypt-server`, `allowed-letsencrypt-domains-func-base64`) are global only. The rest are app only - they cannot be set with `--global`.
 
-`openresty:report` currently exposes a single raw flag per property (no `--global-` / `--computed-` split) except for `hsts`, which has all three flag shapes.
+Global-only properties expose two report flags: `--openresty-global-<property>` returns the raw stored value (empty when the property has never been set), while `--openresty-computed-<property>` returns the effective value (the global value if set, otherwise the built-in default). The per-app `hsts` property additionally has a bare `--openresty-hsts` flag for the raw per-app value.
 
 | Property | Scope | Default | Report flags | Description |
 |---|---|---|---|---|
 | `access-log-format` | app only | none | `--openresty-access-log-format` | Custom nginx `log_format` directive used for the access log |
 | `access-log-path` | app only | _`/var/log/nginx/{app}-access.log`_ | `--openresty-access-log-path` | Path inside the openresty container where access logs are written |
-| `allowed-letsencrypt-domains-func-base64` | global only | _allow-all stub_ | `--openresty-allowed-letsencrypt-domains-func-base64` | Base64-encoded Lua function deciding which domains may request a letsencrypt certificate |
+| `allowed-letsencrypt-domains-func-base64` | global only | _allow-all stub_ | `--openresty-global-allowed-letsencrypt-domains-func-base64`, `--openresty-computed-allowed-letsencrypt-domains-func-base64` | Base64-encoded Lua function deciding which domains may request a letsencrypt certificate |
 | `bind-address-ipv4` | app only | none | `--openresty-bind-address-ipv4` | IPv4 address the openresty server block binds to |
 | `bind-address-ipv6` | app only | `::` | `--openresty-bind-address-ipv6` | IPv6 address the openresty server block binds to |
 | `client-body-timeout` | app only | `60s` | `--openresty-client-body-timeout` | Time allowed to read the request body from the client |
@@ -303,10 +303,10 @@ Five properties (`image`, `log-level`, `letsencrypt-email`, `letsencrypt-server`
 | `hsts-include-subdomains` | app only | `true` | `--openresty-hsts-include-subdomains` | Adds the `includeSubDomains` directive to the HSTS header |
 | `hsts-max-age` | app only | `15724800` | `--openresty-hsts-max-age` | `max-age` value (seconds) in the HSTS header |
 | `hsts-preload` | app only | `false` | `--openresty-hsts-preload` | Adds the `preload` directive to the HSTS header |
-| `image` | global only | _parsed from `plugins/openresty-vhosts/Dockerfile`_ | `--openresty-image` | Docker image used to run the openresty container |
+| `image` | global only | _parsed from `plugins/openresty-vhosts/Dockerfile`_ | `--openresty-global-image`, `--openresty-computed-image` | Docker image used to run the openresty container |
 | `keepalive-timeout` | app only | `75s` | `--openresty-keepalive-timeout` | Time an idle keep-alive connection stays open |
-| `letsencrypt-email` | global only | none | `--openresty-letsencrypt-email` | Contact email enabling letsencrypt; empty disables https issuance |
-| `letsencrypt-server` | global only | `https://acme-v02.api.letsencrypt.org/directory` | `--openresty-letsencrypt-server` | ACME directory used when requesting certificates |
+| `letsencrypt-email` | global only | none | `--openresty-global-letsencrypt-email`, `--openresty-computed-letsencrypt-email` | Contact email enabling letsencrypt; empty disables https issuance |
+| `letsencrypt-server` | global only | `https://acme-v02.api.letsencrypt.org/directory` | `--openresty-global-letsencrypt-server`, `--openresty-computed-letsencrypt-server` | ACME directory used when requesting certificates |
 | `lingering-timeout` | app only | `5s` | `--openresty-lingering-timeout` | Time openresty waits for more client data when closing a connection |
 | `log-level` | global only | `ERROR` | (not in report) | Openresty log level |
 | `proxy-buffer-size` | app only | _system pagesize_ | `--openresty-proxy-buffer-size` | Buffer size for reading the first part of the upstream response |

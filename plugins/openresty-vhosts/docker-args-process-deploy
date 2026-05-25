@@ -133,7 +133,7 @@ trigger-openresty-vhosts-docker-args-process-deploy() {
   fi
 
   letsencrypt_value="false"
-  if [[ -n "$(fn-openresty-letsencrypt-email)" ]]; then
+  if [[ -n "$(fn-openresty-computed-letsencrypt-email)" ]]; then
     if [[ -n "$proxy_container_https_port" ]] || [[ -n "$proxy_container_https_port_candidate" ]]; then
       letsencrypt_value="true"
     fi

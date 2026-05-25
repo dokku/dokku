@@ -18,12 +18,137 @@ teardown() {
   dokku nginx:start
 }
 
-@test "(openresty:report) --global --openresty-letsencrypt-server" {
-  run /bin/bash -c "dokku openresty:report --global --openresty-letsencrypt-server"
+@test "(openresty:report) --global --openresty-computed-letsencrypt-server" {
+  run /bin/bash -c "dokku openresty:report --global --openresty-computed-letsencrypt-server"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output "https://acme-staging-v02.api.letsencrypt.org/directory"
+
+  run /bin/bash -c "dokku openresty:report --global --openresty-global-letsencrypt-server"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "https://acme-staging-v02.api.letsencrypt.org/directory"
+}
+
+@test "(openresty:report) --global raw and computed keys in --format json" {
+  run /bin/bash -c "dokku openresty:report --global --format json | jq -r '.\"global-letsencrypt-server\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "https://acme-staging-v02.api.letsencrypt.org/directory"
+
+  run /bin/bash -c "dokku openresty:report --global --format json | jq -r '.\"computed-letsencrypt-server\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "https://acme-staging-v02.api.letsencrypt.org/directory"
+
+  run /bin/bash -c "dokku openresty:report --global --format json | jq -r '.\"global-letsencrypt-email\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku openresty:report --global --format json | jq -r '.\"computed-letsencrypt-email\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku openresty:report --global --format json | jq -r '.\"global-image\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku openresty:report --global --format json | jq -r '.\"computed-image\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_exists
+
+  run /bin/bash -c "dokku openresty:report --global --format json | jq -r '.\"global-allowed-letsencrypt-domains-func-base64\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku openresty:report --global --format json | jq -r '.\"computed-allowed-letsencrypt-domains-func-base64\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_exists
+
+  run /bin/bash -c "dokku openresty:report --global --format json | jq -r '.\"global-hsts\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku openresty:report --global --format json | jq -r '.\"computed-hsts\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  for key in image letsencrypt-email letsencrypt-server allowed-letsencrypt-domains-func-base64; do
+    run /bin/bash -c "dokku openresty:report --global --format json | jq -e \"has(\\\"$key\\\")\""
+    echo "key: $key"
+    echo "output: $output"
+    echo "status: $status"
+    assert_failure
+    assert_output "false"
+  done
+}
+
+@test "(openresty:report) --global global vs computed image" {
+  run /bin/bash -c "dokku openresty:report --global --openresty-global-image"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku openresty:report --global --openresty-computed-image"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_exists
+
+  run /bin/bash -c "dokku openresty:set --global image dokku/openresty-docker-proxy:0.5.6"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku openresty:report --global --openresty-global-image"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "dokku/openresty-docker-proxy:0.5.6"
+
+  run /bin/bash -c "dokku openresty:report --global --openresty-computed-image"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "dokku/openresty-docker-proxy:0.5.6"
+
+  run /bin/bash -c "dokku openresty:set --global image"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku openresty:report --global --openresty-global-image"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku openresty:report --global --openresty-computed-image"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_exists
 }
 
 @test "(openresty) global-only keys" {

@@ -13,7 +13,7 @@ trigger-openresty-vhosts-certs-force() {
     return
   fi
 
-  if [[ -n "$(fn-openresty-letsencrypt-email)" ]]; then
+  if [[ -n "$(fn-openresty-computed-letsencrypt-email)" ]]; then
     echo true
   fi
 }
