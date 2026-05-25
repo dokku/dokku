@@ -311,16 +311,18 @@ fn-verify-app-image() {
   DOCKER_CONFIG="$(fn-registry-docker-config-dir "$APP")"
   [[ -n "$DOCKER_CONFIG" ]] && export DOCKER_CONFIG
 
-  local REMOTE_REPO
+  local REMOTE_REPO DEPLOYED_REPO TAG
   REMOTE_REPO="$(plugn trigger deployed-app-repository "$APP")"
+  DEPLOYED_REPO="$(plugn trigger deployed-app-image-repo "$APP")"
+  TAG="${IMAGE##*:}"
 
   dokku_log_info1 "Image $IMAGE not found locally, pulling from registry" 1>&2
-  if [[ "$IMAGE" == "${REMOTE_REPO}"* ]]; then
+  if [[ -n "$DEPLOYED_REPO" ]] && [[ "$IMAGE" == "${REMOTE_REPO}${DEPLOYED_REPO}:"* ]]; then
     "$DOCKER_BIN" image pull "$IMAGE" 1>&2 && return 0
     return 1
   fi
 
-  local REMOTE_IMAGE="${REMOTE_REPO}${IMAGE}"
+  local REMOTE_IMAGE="${REMOTE_REPO}${DEPLOYED_REPO:-${IMAGE%:*}}:${TAG}"
   if "$DOCKER_BIN" image pull "$REMOTE_IMAGE" 1>&2; then
     "$DOCKER_BIN" image tag "$REMOTE_IMAGE" "$IMAGE" 1>&2 && return 0
   fi

@@ -105,8 +105,16 @@ setup_push_on_release_app() {
   run /bin/bash -c "dokku config:set $TEST_APP RECOVERY_KEY=value"
   echo "output: $output"
   echo "status: $status"
+  assert_success
   # triggerRestart forwards the deployed numeric tag (not "latest") to
   # release-and-deploy, so the wrapper attempts recovery against ":1" rather
   # than skipping recovery for ":latest" which is never pushed.
   assert_output_contains "dokku/$TEST_APP:1 not found locally, pulling from registry"
+
+  # The wrapper retags the registry image back to the bare local name so
+  # subsequent get_app_image_name inspects resolve.
+  run /bin/bash -c "docker image inspect dokku/$TEST_APP:1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 }

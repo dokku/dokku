@@ -443,7 +443,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "deprecated"
+  assert_output_contains "Deprecated:"
 }
 
 @test "(storage:migrate) leaves legacy-mounts-migrated unset for apps with no legacy -v lines" {
