@@ -63,19 +63,19 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "kubectl get ingressroute ${TEST_APP}-web-http-80-5000 -n default -o jsonpath='{.spec.routes[0].middlewares[0].name}'"
+  run /bin/bash -c "kubectl get ingressroutes.traefik.io ${TEST_APP}-web-http-80-5000 -n default -o jsonpath='{.spec.routes[0].middlewares[0].name}'"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output "${TEST_APP}-web-redirect-to-https"
 
-  run /bin/bash -c "kubectl get ingressroute ${TEST_APP}-web-http-80-5000 -n default -o jsonpath='{.spec.tls.secretName}'"
+  run /bin/bash -c "kubectl get ingressroutes.traefik.io ${TEST_APP}-web-http-80-5000 -n default -o jsonpath='{.spec.tls.secretName}'"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output ""
 
-  run /bin/bash -c "kubectl get ingressroute ${TEST_APP}-web-http-80-5000-websecure -n default -o jsonpath='{.spec.tls.secretName}'"
+  run /bin/bash -c "kubectl get ingressroutes.traefik.io ${TEST_APP}-web-http-80-5000-websecure -n default -o jsonpath='{.spec.tls.secretName}'"
   echo "output: $output"
   echo "status: $status"
   assert_success
