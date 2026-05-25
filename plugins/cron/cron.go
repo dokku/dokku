@@ -10,7 +10,19 @@ import (
 
 	"github.com/multiformats/go-base36"
 	cronparser "github.com/robfig/cron/v3"
+	"mvdan.cc/sh/v3/shell"
 )
+
+// ValidateCronCommand returns an error if the command cannot be tokenised
+// as a sequence of shell words. cron:run dispatches with the same parser,
+// so a command that fails here will also fail to execute - validating at
+// deploy time surfaces the error before the schedule fires.
+func ValidateCronCommand(command string) error {
+	_, err := shell.Fields(command, func(name string) string {
+		return ""
+	})
+	return err
+}
 
 var (
 	// DefaultProperties is a map of all valid cron properties with corresponding default property values
@@ -75,7 +87,7 @@ func (t CronTask) DokkuRunCommand() string {
 		return t.AltCommand
 	}
 
-	return fmt.Sprintf("dokku run --concurrency-policy %s --cron-id %s %s %s", t.ConcurrencyPolicy, t.ID, t.App, t.Command)
+	return fmt.Sprintf("dokku cron:run %s %s", t.App, t.ID)
 }
 
 // FetchCronTasksInput is the input for the FetchCronTasks function
@@ -136,6 +148,10 @@ func FetchCronTasks(input FetchCronTasksInput) ([]CronTask, error) {
 		_, err := parser.Parse(c.Schedule)
 		if err != nil {
 			return tasks, fmt.Errorf("Invalid cron schedule for app %s (schedule %s): %s", appName, c.Schedule, err.Error())
+		}
+
+		if err := ValidateCronCommand(c.Command); err != nil {
+			return tasks, fmt.Errorf("Invalid cron command for app %s (command %q): %s", appName, c.Command, err.Error())
 		}
 
 		cronID := GenerateCommandID(appName, c)

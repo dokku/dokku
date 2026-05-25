@@ -59,6 +59,7 @@ When running scheduled cron tasks, there are a few items to be aware of:
 - Each scheduled task is executed within a one-off `run` container, and thus inherit any docker-options specified for `run` containers. Resources are never shared between scheduled tasks.
 - Scheduled cron tasks are supported on a per-scheduler basis, and are currently only implemented by the `docker-local` scheduler.
 - Tasks for _all_ apps managed by the `docker-local` scheduler are written to a single crontab file owned by the `dokku` user. The `dokku` user's crontab should be considered reserved for this purpose.
+- The `command` is tokenized and exec'd directly inside the container. Shell features such as `;`, `&&`, `|`, and `>` are _not_ interpreted. Commands that contain a bare shell operator are rejected when `app.json` is validated at deploy time, so a malformed cron command will fail the deploy rather than silently fail to run. If shell semantics are required, wrap the command explicitly, for example `"sh -c 'do-thing > /var/log/x.log'"`.
 
 
 ### Changing cron management settings

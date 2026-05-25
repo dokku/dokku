@@ -52,7 +52,7 @@ func CommandList(appName string, format string) error {
 					maintenance = "true (app)"
 				}
 			}
-			output = append(output, fmt.Sprintf("%s | %s | %s | %t | %s", task.ID, task.Schedule, task.ConcurrencyPolicy, maintenance, task.Command))
+			output = append(output, fmt.Sprintf("%s | %s | %s | %s | %s", task.ID, task.Schedule, task.ConcurrencyPolicy, maintenance, task.Command))
 		}
 
 		result := columnize.SimpleFormat(output)
@@ -139,6 +139,7 @@ func CommandRun(appName string, cronID string, detached bool) error {
 	os.Setenv("DOKKU_CONCURRENCY_POLICY", concurrencyPolicy)
 	os.Setenv("DOKKU_CRON_ID", cronID)
 	os.Setenv("DOKKU_RM_CONTAINER", "1")
+	os.Setenv("DOKKU_RUN_TTL_SECONDS", "86400")
 	scheduler := common.GetAppScheduler(appName)
 	args := append([]string{scheduler, appName, "0", "--"}, fields...)
 	_, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
