@@ -26,8 +26,14 @@ fn-openresty-access-log-path() {
   fn-plugin-property-get-default "openresty" "$APP" "access-log-path" "${OPENRESTY_LOG_ROOT}/${APP}-access.log"
 }
 
-fn-openresty-allowed-letsencrypt-domains-func-base64() {
-  declare desc="get the configured allowed domains func base64"
+fn-openresty-global-allowed-letsencrypt-domains-func-base64() {
+  declare desc="get the raw configured allowed domains func base64"
+
+  fn-plugin-property-get-default "openresty" "--global" "allowed-letsencrypt-domains-func-base64" ""
+}
+
+fn-openresty-computed-allowed-letsencrypt-domains-func-base64() {
+  declare desc="get the effective allowed domains func base64, falling back to the default stub"
 
   fn-plugin-property-get-default "openresty" "--global" "allowed-letsencrypt-domains-func-base64" "return true" | base64 -w 0
 }
@@ -131,8 +137,21 @@ fn-openresty-hsts-is-enabled() {
   echo "$hsts_is_enabled"
 }
 
-fn-openresty-image() {
-  fn-plugin-property-get-default "openresty" "--global" "image" "$(grep "FROM" "$PLUGIN_AVAILABLE_PATH/openresty-vhosts/Dockerfile" | awk '{print $2}')"
+fn-openresty-global-image() {
+  declare desc="get the raw configured image"
+
+  fn-plugin-property-get-default "openresty" "--global" "image" ""
+}
+
+fn-openresty-computed-image() {
+  declare desc="get the effective image, falling back to the Dockerfile FROM line"
+  local value
+
+  value="$(fn-openresty-global-image)"
+  if [[ -z "$value" ]]; then
+    value="$(grep "FROM" "$PLUGIN_AVAILABLE_PATH/openresty-vhosts/Dockerfile" | awk '{print $2}')"
+  fi
+  echo "$value"
 }
 
 fn-openresty-keepalive-timeout() {
@@ -142,12 +161,33 @@ fn-openresty-keepalive-timeout() {
   fn-plugin-property-get-default "openresty" "$APP" "keepalive-timeout" "75s"
 }
 
-fn-openresty-letsencrypt-email() {
+fn-openresty-global-letsencrypt-email() {
+  declare desc="get the raw configured letsencrypt email"
+
   fn-plugin-property-get-default "openresty" "--global" "letsencrypt-email" ""
 }
 
-fn-openresty-letsencrypt-server() {
-  fn-plugin-property-get-default "openresty" "--global" "letsencrypt-server" "https://acme-v02.api.letsencrypt.org/directory"
+fn-openresty-computed-letsencrypt-email() {
+  declare desc="get the effective letsencrypt email"
+
+  fn-openresty-global-letsencrypt-email
+}
+
+fn-openresty-global-letsencrypt-server() {
+  declare desc="get the raw configured letsencrypt server"
+
+  fn-plugin-property-get-default "openresty" "--global" "letsencrypt-server" ""
+}
+
+fn-openresty-computed-letsencrypt-server() {
+  declare desc="get the effective letsencrypt server, falling back to the production directory"
+  local value
+
+  value="$(fn-openresty-global-letsencrypt-server)"
+  if [[ -z "$value" ]]; then
+    value="https://acme-v02.api.letsencrypt.org/directory"
+  fi
+  echo "$value"
 }
 
 fn-openresty-log-root() {
@@ -251,11 +291,11 @@ fn-openresty-template-compose-file() {
   fi
 
   local SIGIL_PARAMS=(OPENRESTY_DATA_DIR="${DOKKU_LIB_ROOT}/data/openresty-vhosts/.docker-letsencrypt"
-    OPENRESTY_IMAGE="$(fn-openresty-image)"
-    OPENRESTY_LETSENCRYPT_EMAIL="$(fn-openresty-letsencrypt-email)"
-    OPENRESTY_LETSENCRYPT_SERVER="$(fn-openresty-letsencrypt-server)")
+    OPENRESTY_IMAGE="$(fn-openresty-computed-image)"
+    OPENRESTY_LETSENCRYPT_EMAIL="$(fn-openresty-computed-letsencrypt-email)"
+    OPENRESTY_LETSENCRYPT_SERVER="$(fn-openresty-computed-letsencrypt-server)")
 
-  local ALLOWED_DOMAINS_FUNC_BASE64="$(fn-openresty-allowed-letsencrypt-domains-func-base64)"
+  local ALLOWED_DOMAINS_FUNC_BASE64="$(fn-openresty-computed-allowed-letsencrypt-domains-func-base64)"
   if [[ -n "$ALLOWED_DOMAINS_FUNC_BASE64" ]]; then
     SIGIL_PARAMS+=(ALLOWED_DOMAINS_FUNC_BASE64="$ALLOWED_DOMAINS_FUNC_BASE64")
   fi
