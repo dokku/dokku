@@ -99,6 +99,26 @@ teardown() {
   assert_success
   assert_output_exists
 
+  cron_hash="$(printf '%s' "$cron_id" | sha1sum | awk '{print $1}')"
+
+  run /bin/bash -c "kubectl get cronjob -o json | jq -r '.items[0].metadata.annotations.\"dokku.com/cron-id\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "$cron_id"
+
+  run /bin/bash -c "kubectl get cronjob -o json | jq -r '.items[0].metadata.labels.\"dokku.com/cron-hash\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "$cron_hash"
+
+  run /bin/bash -c "kubectl get cronjob -o json | jq -r '.items[0].metadata.annotations.\"dokku.com/cron-hash\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "$cron_hash"
+
   run /bin/bash -c "dokku --quiet cron:run $TEST_APP $cron_id"
   echo "output: $output"
   echo "status: $status"

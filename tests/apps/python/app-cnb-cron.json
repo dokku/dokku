@@ -1,7 +1,7 @@
 {
   "cron": [
     {
-      "command": "python3 task.py",
+      "command": "python3 task.py some cron task",
       "schedule": "5 5 5 5 5"
     }
   ],
