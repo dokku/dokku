@@ -98,4 +98,3 @@ setup_push_on_release_app() {
   echo "status: $status"
   assert_success
 }
-
