@@ -540,6 +540,10 @@ nginx_build_config() {
         if grep NGINX_PORT "$NGINX_TEMPLATE"; then
           dokku_log_warn "Deprecated: Usage of NGINX_PORT within nginx.conf.sigil templates is deprecated in favor of PROXY_PORT"
         fi
+
+        if [[ "$NGINX_TEMPLATE_SOURCE" != "built-in" ]] && grep -E 'listen[[:space:]]+.*[[:space:]]http2[;[:space:]]' "$NGINX_TEMPLATE"; then
+          dokku_log_warn "Deprecated: Usage of 'listen ... http2' within nginx.conf.sigil templates is deprecated since nginx 1.25.1 in favor of the standalone 'http2 on;' directive. Use the {{ if eq \$.HTTP2_DIRECTIVE_SUPPORTED \"true\" }} conditional from the default template to support both old and new nginx versions."
+        fi
       fi
 
       xargs -i echo "-----> Configuring {}...(using $NGINX_TEMPLATE_SOURCE template)" <<<"$(echo "${SSL_VHOSTS}" "${NONSSL_VHOSTS}" | tr ' ' '\n' | sort -u)"
