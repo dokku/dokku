@@ -180,7 +180,7 @@ func detectDistro() string {
 // should use storage.ListAppMountEntries directly. A deprecation warning
 // is emitted on every invocation.
 func TriggerStorageList(appName string, phase string, format string) error {
-	common.LogWarn("the storage-list plugn trigger is deprecated; use the storage-app-mounts trigger or the storage Go package directly")
+	common.LogWarn("Deprecated: please use the 'storage-app-mounts' plugn trigger or the storage Go package directly instead of 'storage-list'")
 
 	rows, err := ListAppMountEntries(appName, phase)
 	if err != nil {
