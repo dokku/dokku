@@ -303,7 +303,7 @@ SHELL=/bin/bash
 
 | Property | Scope | Default | Report flags | Description |
 |---|---|---|---|---|
-| `mailfrom` | app + global | none | `--cron-mailfrom` | `From:` address used in cron failure emails |
-| `mailto` | app + global | none | `--cron-mailto` | Recipient address for cron failure emails; empty disables email |
+| `mailfrom` | global only | none | `--cron-global-mailfrom`, `--cron-computed-mailfrom` | `From:` address used in cron failure emails |
+| `mailto` | global only | none | `--cron-global-mailto`, `--cron-computed-mailto` | Recipient address for cron failure emails; empty disables email |
 | `maintenance` | app + global | `false` | `--cron-maintenance`, `--cron-global-maintenance`, `--cron-computed-maintenance` | When `true`, suspends all cron tasks for the app (or globally) |
 | `maintenance.<cron-id>` | app only | `false` | `--cron-maintenance-<cron-id>` (dynamic per task) | Suspends an individual cron task by its computed ID (one row per task); written by `cron:suspend`/`cron:resume` |

@@ -19,18 +19,23 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 	var flags map[string]common.ReportFunc
 	if appName == "--global" {
 		flags = map[string]common.ReportFunc{
-			"--cron-mailfrom":           reportMailfrom,
-			"--cron-mailto":             reportMailto,
-			"--cron-global-maintenance": reportGlobalMaintenance,
+			"--cron-computed-mailfrom":    reportComputedMailfrom,
+			"--cron-computed-mailto":      reportComputedMailto,
+			"--cron-computed-maintenance": reportComputedMaintenance,
+			"--cron-global-mailfrom":      reportGlobalMailfrom,
+			"--cron-global-mailto":        reportGlobalMailto,
+			"--cron-global-maintenance":   reportGlobalMaintenance,
 		}
 	} else {
 		flags = map[string]common.ReportFunc{
-			"--cron-mailfrom":             reportMailfrom,
-			"--cron-mailto":               reportMailto,
-			"--cron-task-count":           reportTasks,
-			"--cron-global-maintenance":   reportGlobalMaintenance,
+			"--cron-computed-mailfrom":    reportComputedMailfrom,
+			"--cron-computed-mailto":      reportComputedMailto,
 			"--cron-computed-maintenance": reportComputedMaintenance,
+			"--cron-global-mailfrom":      reportGlobalMailfrom,
+			"--cron-global-mailto":        reportGlobalMailto,
+			"--cron-global-maintenance":   reportGlobalMaintenance,
 			"--cron-maintenance":          reportMaintenance,
+			"--cron-task-count":           reportTasks,
 		}
 
 		extraFlags := addCronMaintenanceFlags(appName, infoFlag)
@@ -68,12 +73,20 @@ func addCronMaintenanceFlags(appName string, infoFlag string) map[string]common.
 	return flags
 }
 
-func reportMailfrom(_ string) string {
+func reportGlobalMailfrom(_ string) string {
 	return common.PropertyGet("cron", "--global", "mailfrom")
 }
 
-func reportMailto(_ string) string {
+func reportGlobalMailto(_ string) string {
 	return common.PropertyGet("cron", "--global", "mailto")
+}
+
+func reportComputedMailfrom(_ string) string {
+	return common.PropertyGetDefault("cron", "--global", "mailfrom", DefaultProperties["mailfrom"])
+}
+
+func reportComputedMailto(_ string) string {
+	return common.PropertyGetDefault("cron", "--global", "mailto", DefaultProperties["mailto"])
 }
 
 func reportTasks(appName string) string {

@@ -476,7 +476,7 @@ dokku ps:set node-js-app restore
 | `restore` | app only | `true` | `--restore` | When `true`, the app is restarted automatically by `ps:retire` after a host reboot |
 | `skip-deploy` | app + global | `false` | (not in report) | When `true`, skips the deploy phase after a successful build |
 | `start-cmd` | app only | none | (not in report) | Override start command for buildpack apps |
-| `stop-timeout-seconds` | app + global | `30` | `--stop-timeout-seconds`, `--global-stop-timeout-seconds`, `--computed-stop-timeout-seconds` | Seconds Docker waits before SIGKILLing a container on stop |
+| `stop-timeout-seconds` | app + global | `30` | `--ps-stop-timeout-seconds`, `--ps-global-stop-timeout-seconds`, `--ps-computed-stop-timeout-seconds` | Seconds Docker waits before SIGKILLing a container on stop |
 
 ### Read-only flags
 

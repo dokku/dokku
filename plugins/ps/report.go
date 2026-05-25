@@ -19,23 +19,25 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 	var flags map[string]common.ReportFunc
 	if appName == "--global" {
 		flags = map[string]common.ReportFunc{
-			"--ps-global-procfile-path":     reportGlobalProcfilePath,
-			"--global-stop-timeout-seconds": reportGlobalStopTimeoutSeconds,
+			"--ps-computed-procfile-path":        reportComputedProcfilePath,
+			"--ps-computed-stop-timeout-seconds": reportComputedStopTimeoutSeconds,
+			"--ps-global-procfile-path":          reportGlobalProcfilePath,
+			"--ps-global-stop-timeout-seconds":   reportGlobalStopTimeoutSeconds,
 		}
 	} else {
 		flags = map[string]common.ReportFunc{
-			"--deployed":                      reportDeployed,
-			"--processes":                     reportProcesses,
-			"--ps-can-scale":                  reportCanScale,
-			"--ps-restart-policy":             reportRestartPolicy,
-			"--ps-computed-procfile-path":     reportComputedProcfilePath,
-			"--ps-global-procfile-path":       reportGlobalProcfilePath,
-			"--ps-procfile-path":              reportProcfilePath,
-			"--restore":                       reportRestore,
-			"--running":                       reportRunningState,
-			"--global-stop-timeout-seconds":   reportGlobalStopTimeoutSeconds,
-			"--computed-stop-timeout-seconds": reportComputedStopTimeoutSeconds,
-			"--stop-timeout-seconds":          reportStopTimeoutSeconds,
+			"--deployed":                         reportDeployed,
+			"--processes":                        reportProcesses,
+			"--ps-can-scale":                     reportCanScale,
+			"--ps-restart-policy":                reportRestartPolicy,
+			"--ps-computed-procfile-path":        reportComputedProcfilePath,
+			"--ps-global-procfile-path":          reportGlobalProcfilePath,
+			"--ps-procfile-path":                 reportProcfilePath,
+			"--restore":                          reportRestore,
+			"--running":                          reportRunningState,
+			"--ps-global-stop-timeout-seconds":   reportGlobalStopTimeoutSeconds,
+			"--ps-computed-stop-timeout-seconds": reportComputedStopTimeoutSeconds,
+			"--ps-stop-timeout-seconds":          reportStopTimeoutSeconds,
 		}
 
 		extraFlags := addStatusFlags(appName, infoFlag)
