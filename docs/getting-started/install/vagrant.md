@@ -21,10 +21,10 @@
     # - `DOKKU_IP`
     # - `FORWARDED_PORT`.
     cd path/to/dokku
-    
+
     # for most users
     vagrant up
-    
+
     # windows users must instead use the following in an elevated command prompt
     vagrant up dokku-windows
     ```
@@ -42,7 +42,7 @@
 
     ```shell
     # usually your key is already available under the current user's `~/.ssh/authorized_keys` file
-    cat ~/.ssh/authorized_keys | dokku ssh-keys:add admin
+    cat ~/.ssh/authorized_keys | sudo dokku ssh-keys:add admin
 
     # you can use any domain you already have access to
     dokku domains:set-global dokku.me

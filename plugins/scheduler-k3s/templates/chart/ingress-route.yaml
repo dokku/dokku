@@ -40,11 +40,13 @@ spec:
     {{- range $ddx, $domain := $config.web.domains }}
     - kind: Rule
       match: Host(`{{ $domain.name }}`)
-      {{- if and (eq $entryPoint "web") $config.web.tls.enabled }}
       middlewares:
+        - name: {{ $.Values.global.app_name}}-{{ $processName }}-compression
+          namespace: {{ $.Values.global.namespace }}
+        {{- if and (eq $entryPoint "web") $config.web.tls.enabled }}
         - name: {{ $.Values.global.app_name}}-{{ $processName }}-redirect-to-https
           namespace: {{ $.Values.global.namespace }}
-      {{- end }}
+        {{- end }}
       services:
       - name: {{ $.Values.global.app_name }}-{{ $processName }}
         namespace: {{ $.Values.global.namespace }}
