@@ -1,5 +1,29 @@
 # History
 
+## 0.38.8
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.38.8/bootstrap.sh
+sudo DOKKU_TAG=v0.38.8 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #8690: @josegonzalez Unset bind-all-interfaces on empty value
+- #8689: @josegonzalez Expose remaining settable properties via :report
+
+### New Features
+
+- #8692: @Mordred Enable compression middleware for traefik when using scheduler-k3s
+- #8691: @josegonzalez Align Go-plugin :report JSON keys with bash-strip convention
+- #8688: @josegonzalez Promote registry image-repo-template to app + global
+
+### Dependencies
+
+- #8693: @dependabot[bot] chore(deps): bump helm.sh/helm/v3 from 3.20.2 to 3.21.0 in /plugins/scheduler-k3s
+
 ## 0.38.7
 
 Install/update via the bootstrap script:
