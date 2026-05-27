@@ -762,7 +762,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 
 		templateFiles := []string{"deployment", "keda-scaled-object"}
 		if processType == "web" {
-			templateFiles = append(templateFiles, "service", "certificate", "ingress", "ingress-route", "https-redirect-middleware", "keda-http-scaled-object", "keda-interceptor-proxy-service")
+			templateFiles = append(templateFiles, "service", "certificate", "ingress", "ingress-route", "compression-middleware", "https-redirect-middleware", "keda-http-scaled-object", "keda-interceptor-proxy-service")
 		}
 		for _, templateName := range templateFiles {
 			b, err := templates.ReadFile(fmt.Sprintf("templates/chart/%s.yaml", templateName))

@@ -31,7 +31,25 @@ teardown() {
   teardown_local_tls
 }
 
-@test "(scheduler-k3s) [ingress] traefik redirects http to https when tls is enabled" {
+assert_http_localhost_header() {
+  local scheme="$1" domain="$2" port="${3:-80}" path="${4:-/}" accept_encoding="$5" expected_header="$6"
+  local retries="${HTTP_ASSERT_RETRIES:-30}" attempt=1
+
+  while [[ "$attempt" -lt "$retries" ]]; do
+    run /bin/bash -c "curl --connect-to '$domain:$port:localhost:$port' -kSsD - -o /dev/null -H 'Accept-Encoding: $accept_encoding' '$scheme://$domain:$port$path' | tr -d '\r' | grep -i '^$expected_header$'"
+    [[ "$status" -eq 0 ]] && break
+    sleep 1
+    attempt=$((attempt + 1))
+  done
+
+  echo "output: $output"
+  echo "status: $status"
+  echo "attempts: $attempt"
+  assert_success
+  assert_output_contains "$expected_header"
+}
+
+@test "(scheduler-k3s) [ingress] traefik compression middleware adds gzip response header" {
   if [[ -z "$DOCKERHUB_USERNAME" ]] || [[ -z "$DOCKERHUB_TOKEN" ]]; then
     skip "skipping due to missing docker.io credentials DOCKERHUB_USERNAME:DOCKERHUB_TOKEN"
   fi
@@ -63,24 +81,12 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "kubectl get ingressroutes.traefik.io ${TEST_APP}-web-http-80-5000 -n default -o jsonpath='{.spec.routes[0].middlewares[1].name}'"
+  run /bin/bash -c "kubectl get ingressroutes.traefik.io ${TEST_APP}-web-http-80-5000 -n default -o jsonpath='{.spec.routes[0].middlewares[0].name}'"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "${TEST_APP}-web-redirect-to-https"
+  assert_output "${TEST_APP}-web-compression"
 
-  run /bin/bash -c "kubectl get ingressroutes.traefik.io ${TEST_APP}-web-http-80-5000 -n default -o jsonpath='{.spec.tls.secretName}'"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  assert_output ""
-
-  run /bin/bash -c "kubectl get ingressroutes.traefik.io ${TEST_APP}-web-http-80-5000-websecure -n default -o jsonpath='{.spec.tls.secretName}'"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  assert_output "tls-${TEST_APP}"
-
-  assert_http_redirect "http://$TEST_APP.dokku.me" "https://$TEST_APP.dokku.me/"
   assert_http_localhost_response "https" "$TEST_APP.dokku.me" "443" "" "python/http.server"
+  assert_http_localhost_header "https" "$TEST_APP.dokku.me" "443" "/" "gzip" "content-encoding: gzip"
 }

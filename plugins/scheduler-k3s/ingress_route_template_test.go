@@ -124,6 +124,32 @@ func findDocByName(t *testing.T, docs []map[string]interface{}, name string) map
 	return nil
 }
 
+func middlewareNames(t *testing.T, route map[string]interface{}) []string {
+	t.Helper()
+
+	middlewares, ok := route["middlewares"].([]interface{})
+	if !ok {
+		t.Fatalf("expected route to contain middlewares, got %#v", route["middlewares"])
+	}
+
+	names := make([]string, 0, len(middlewares))
+	for i, middleware := range middlewares {
+		middlewareMap, ok := middleware.(map[string]interface{})
+		if !ok {
+			t.Fatalf("expected middleware %d to be an object, got %#v", i, middleware)
+		}
+
+		name, ok := middlewareMap["name"].(string)
+		if !ok {
+			t.Fatalf("expected middleware %d to contain string name, got %#v", i, middlewareMap["name"])
+		}
+
+		names = append(names, name)
+	}
+
+	return names
+}
+
 func TestIngressRouteTemplateTLSCreatesSeparateHTTPAndHTTPSRoutes(t *testing.T) {
 	docs := renderIngressRouteTemplate(t, testIngressRouteValues(true))
 	if len(docs) != 2 {
@@ -137,8 +163,8 @@ func TestIngressRouteTemplateTLSCreatesSeparateHTTPAndHTTPSRoutes(t *testing.T) 
 	}
 	httpRoutes := httpSpec["routes"].([]interface{})
 	httpRoute0 := httpRoutes[0].(map[string]interface{})
-	if _, ok := httpRoute0["middlewares"]; !ok {
-		t.Fatalf("expected HTTP route to contain redirect middleware, got %#v", httpRoute0)
+	if got := middlewareNames(t, httpRoute0); strings.Join(got, ",") != "myapp-web-compression,myapp-web-redirect-to-https" {
+		t.Fatalf("expected HTTP route middlewares [myapp-web-compression myapp-web-redirect-to-https], got %#v", got)
 	}
 	if _, ok := httpSpec["tls"]; ok {
 		t.Fatalf("expected HTTP route to omit tls block, got %#v", httpSpec["tls"])
@@ -151,8 +177,8 @@ func TestIngressRouteTemplateTLSCreatesSeparateHTTPAndHTTPSRoutes(t *testing.T) 
 	}
 	httpsRoutes := httpsSpec["routes"].([]interface{})
 	httpsRoute0 := httpsRoutes[0].(map[string]interface{})
-	if _, ok := httpsRoute0["middlewares"]; ok {
-		t.Fatalf("expected HTTPS route to omit redirect middleware, got %#v", httpsRoute0["middlewares"])
+	if got := middlewareNames(t, httpsRoute0); strings.Join(got, ",") != "myapp-web-compression" {
+		t.Fatalf("expected HTTPS route middlewares [myapp-web-compression], got %#v", got)
 	}
 	tls, ok := httpsSpec["tls"].(map[string]interface{})
 	if !ok {
@@ -176,8 +202,8 @@ func TestIngressRouteTemplateWithoutTLSKeepsSingleHTTPRoute(t *testing.T) {
 	}
 	httpRoutes := httpSpec["routes"].([]interface{})
 	httpRoute0 := httpRoutes[0].(map[string]interface{})
-	if _, ok := httpRoute0["middlewares"]; ok {
-		t.Fatalf("expected non-TLS route to omit redirect middleware, got %#v", httpRoute0["middlewares"])
+	if got := middlewareNames(t, httpRoute0); strings.Join(got, ",") != "myapp-web-compression" {
+		t.Fatalf("expected non-TLS route middlewares [myapp-web-compression], got %#v", got)
 	}
 	if _, ok := httpSpec["tls"]; ok {
 		t.Fatalf("expected non-TLS route to omit tls block, got %#v", httpSpec["tls"])
@@ -225,8 +251,8 @@ func TestIngressRouteTemplateMultipleDomainsRenderOneRoutePerDomain(t *testing.T
 	}
 	for i, r := range httpRoutes {
 		route := r.(map[string]interface{})
-		if _, ok := route["middlewares"]; !ok {
-			t.Fatalf("expected HTTP route entry %d to contain redirect middleware, got %#v", i, route)
+		if got := middlewareNames(t, route); strings.Join(got, ",") != "myapp-web-compression,myapp-web-redirect-to-https" {
+			t.Fatalf("expected HTTP route entry %d middlewares [myapp-web-compression myapp-web-redirect-to-https], got %#v", i, got)
 		}
 	}
 	if got := httpRoutes[0].(map[string]interface{})["match"]; got != "Host(`app.example.com`)" {
@@ -243,8 +269,8 @@ func TestIngressRouteTemplateMultipleDomainsRenderOneRoutePerDomain(t *testing.T
 	}
 	for i, r := range httpsRoutes {
 		route := r.(map[string]interface{})
-		if _, ok := route["middlewares"]; ok {
-			t.Fatalf("expected HTTPS route entry %d to omit redirect middleware, got %#v", i, route)
+		if got := middlewareNames(t, route); strings.Join(got, ",") != "myapp-web-compression" {
+			t.Fatalf("expected HTTPS route entry %d middlewares [myapp-web-compression], got %#v", i, got)
 		}
 	}
 	if got := httpsRoutes[0].(map[string]interface{})["match"]; got != "Host(`app.example.com`)" {
