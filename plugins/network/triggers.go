@@ -222,16 +222,6 @@ func TriggerPostContainerCreate(containerType string, containerID string, appNam
 	return nil
 }
 
-// TriggerPostCreate sets bind-all-interfaces to false by default
-func TriggerPostCreate(appName string) error {
-	err := common.PropertyWrite("network", appName, "bind-all-interfaces", "false")
-	if err != nil {
-		common.LogWarn(err.Error())
-	}
-
-	return nil
-}
-
 // TriggerPostDelete destroys the network property for a given app container
 func TriggerPostDelete(appName string) error {
 	return common.PropertyDestroy("network", appName)
