@@ -63,7 +63,10 @@ func GetDockerConfigArgs(appName string) []string {
 }
 
 func getImageRepoFromTemplate(appName string) (string, error) {
-	imageRepoTemplate := common.PropertyGet("registry", "--global", "image-repo-template")
+	imageRepoTemplate := strings.TrimSpace(reportImageRepoTemplate(appName))
+	if imageRepoTemplate == "" {
+		imageRepoTemplate = reportGlobalImageRepoTemplate(appName)
+	}
 	if imageRepoTemplate == "" {
 		return "", nil
 	}
@@ -131,11 +134,7 @@ func incrementTagVersion(appName string) (int, error) {
 }
 
 func getRegistryPushExtraTagsForApp(appName string) string {
-	value := common.PropertyGet("registry", appName, "push-extra-tags")
-	if value == "" {
-		value = common.PropertyGet("registry", "--global", "push-extra-tags")
-	}
-	return value
+	return reportComputedPushExtraTags(appName)
 }
 
 func pushToRegistry(appName string, tag int, imageID string, imageRepo string) error {

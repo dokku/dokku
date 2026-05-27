@@ -146,13 +146,27 @@ dokku registry:set node-js-app image-repo
 
 ### Templating the image repository name
 
-Instead of setting the image repository name on a per-app basis, it can be set via a template globally with the `image-repo-template` property:
+Instead of setting the image repository name on a per-app basis, it can be set via a template with the `image-repo-template` property. The property can be set globally or for a specific app, with the per-app value overriding the global value when both are present:
 
 ```shell
+# globally
 dokku registry:set --global image-repo-template "my-awesome-prefix/{{ .AppName }}"
+
+# per-app
+dokku registry:set node-js-app image-repo-template "my-awesome-prefix/{{ .AppName }}-prod"
 ```
 
-Dokku uses a Golang template and has access to the `AppName` variable as shown above.
+Dokku uses a Golang template and has access to the `AppName` variable as shown above. The per-app `image-repo` property always takes precedence over the rendered template when both are set.
+
+Setting the property value to an empty string will reset the value to the system default. Resetting the value can be done per app or globally.
+
+```shell
+# per-app
+dokku registry:set node-js-app image-repo-template
+
+# globally
+dokku registry:set --global image-repo-template
+```
 
 ### Pushing images on build
 
@@ -220,7 +234,7 @@ dokku registry:set --global push-extra-tags
 | Property | Scope | Default | Report flags | Description |
 |---|---|---|---|---|
 | `image-repo` | app only | `dokku/<app>` | `--registry-image-repo`, `--registry-computed-image-repo` | Repository name used when pushing the app's image (overrides the global template) |
-| `image-repo-template` | global only | none | `--registry-global-image-repo-template`, `--registry-computed-image-repo-template` | Go template used to compute the per-app image repository when `image-repo` is unset |
-| `push-extra-tags` | app + global | none | `--registry-push-extra-tags` | Comma-separated list of additional tags pushed alongside the deploy tag |
+| `image-repo-template` | app + global | none | `--registry-image-repo-template`, `--registry-global-image-repo-template`, `--registry-computed-image-repo-template` | Go template used to compute the per-app image repository when `image-repo` is unset |
+| `push-extra-tags` | app + global | none | `--registry-push-extra-tags`, `--registry-global-push-extra-tags`, `--registry-computed-push-extra-tags` | Comma-separated list of additional tags pushed alongside the deploy tag |
 | `push-on-release` | app + global | `false` | `--registry-push-on-release`, `--registry-global-push-on-release`, `--registry-computed-push-on-release` | When `true`, pushes the image to the registry on every successful build |
 | `server` | app + global | none | `--registry-server`, `--registry-global-server`, `--registry-computed-server` | Registry server host (e.g. `ghcr.io`) used when pushing images |

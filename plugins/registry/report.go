@@ -23,6 +23,8 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 			"--registry-global-server":                reportGlobalServer,
 			"--registry-computed-image-repo-template": reportComputedImageRepoTemplate,
 			"--registry-global-image-repo-template":   reportGlobalImageRepoTemplate,
+			"--registry-computed-push-extra-tags":     reportComputedPushExtraTags,
+			"--registry-global-push-extra-tags":       reportGlobalPushExtraTags,
 		}
 	} else {
 		flags = map[string]common.ReportFunc{
@@ -35,9 +37,12 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 			"--registry-global-server":                reportGlobalServer,
 			"--registry-computed-image-repo-template": reportComputedImageRepoTemplate,
 			"--registry-global-image-repo-template":   reportGlobalImageRepoTemplate,
+			"--registry-image-repo-template":          reportImageRepoTemplate,
 			"--registry-server":                       reportServer,
 			"--registry-tag-version":                  reportTagVersion,
 			"--registry-push-extra-tags":              reportPushExtraTags,
+			"--registry-global-push-extra-tags":       reportGlobalPushExtraTags,
+			"--registry-computed-push-extra-tags":     reportComputedPushExtraTags,
 		}
 	}
 
@@ -96,12 +101,20 @@ func reportComputedServer(appName string) string {
 	return strings.TrimSpace(server)
 }
 
+func reportImageRepoTemplate(appName string) string {
+	return common.PropertyGet("registry", appName, "image-repo-template")
+}
+
 func reportGlobalImageRepoTemplate(appName string) string {
 	return common.PropertyGet("registry", "--global", "image-repo-template")
 }
 
 func reportComputedImageRepoTemplate(appName string) string {
-	return reportGlobalImageRepoTemplate(appName)
+	value := strings.TrimSpace(reportImageRepoTemplate(appName))
+	if value == "" {
+		value = reportGlobalImageRepoTemplate(appName)
+	}
+	return value
 }
 
 func reportGlobalServer(appName string) string {
@@ -119,4 +132,19 @@ func reportTagVersion(appName string) string {
 
 func reportPushExtraTags(appName string) string {
 	return common.PropertyGet("registry", appName, "push-extra-tags")
+}
+
+func reportGlobalPushExtraTags(appName string) string {
+	return common.PropertyGet("registry", "--global", "push-extra-tags")
+}
+
+func reportComputedPushExtraTags(appName string) string {
+	value := strings.TrimSpace(reportPushExtraTags(appName))
+	if value == "" {
+		value = reportGlobalPushExtraTags(appName)
+	}
+	if value == "" {
+		value = DefaultProperties["push-extra-tags"]
+	}
+	return value
 }
