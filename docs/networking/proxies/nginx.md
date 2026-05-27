@@ -645,7 +645,7 @@ All nginx-vhosts properties are settable at both the app and global scope.
 | `keepalive-timeout` | app + global | `75s` | `--nginx-keepalive-timeout`, `--nginx-global-keepalive-timeout`, `--nginx-computed-keepalive-timeout` | Time an idle keep-alive connection stays open |
 | `lingering-timeout` | app + global | `5s` | `--nginx-lingering-timeout`, `--nginx-global-lingering-timeout`, `--nginx-computed-lingering-timeout` | Time nginx waits for more client data when closing a connection |
 | `nginx-conf-sigil-path` | app + global | `nginx.conf.sigil` | `--nginx-nginx-conf-sigil-path`, `--nginx-global-nginx-conf-sigil-path`, `--nginx-computed-nginx-conf-sigil-path` | Path within the app to a custom `nginx.conf.sigil` template |
-| `nginx-service-command` | app + global | none | (not in report) | Override command used by `nginx:start`/`nginx:stop`/`nginx:reload` |
+| `nginx-service-command` | app + global | none | `--nginx-nginx-service-command`, `--nginx-global-nginx-service-command`, `--nginx-computed-nginx-service-command` | Override command used by `nginx:start`/`nginx:stop`/`nginx:reload` |
 | `proxy-buffer-size` | app + global | _system pagesize_ | `--nginx-proxy-buffer-size`, `--nginx-global-proxy-buffer-size`, `--nginx-computed-proxy-buffer-size` | Buffer size for reading the first part of the upstream response |
 | `proxy-buffering` | app + global | `on` | `--nginx-proxy-buffering`, `--nginx-global-proxy-buffering`, `--nginx-computed-proxy-buffering` | Whether nginx buffers upstream responses (`on` or `off`) |
 | `proxy-buffers` | app + global | _`8 {pagesize}`_ | `--nginx-proxy-buffers`, `--nginx-global-proxy-buffers`, `--nginx-computed-proxy-buffers` | Number and size of buffers used for an upstream response |

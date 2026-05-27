@@ -7,7 +7,7 @@ setup() {
 }
 
 teardown() {
-  for prop in deploy-timeout image-pull-secrets ingress-class kubeconfig-path kube-context kustomize-root-path namespace network-interface rollback-on-failure shm-size; do
+  for prop in deploy-timeout image-pull-secrets ingress-class kubeconfig-path kube-context kustomize-root-path namespace network-interface rollback-on-failure shm-size token; do
     dokku scheduler-k3s:set --global "$prop" >/dev/null 2>/dev/null || true
   done
   global_teardown
@@ -121,4 +121,40 @@ assert_k3s_global_unset_set() {
   run /bin/bash -c "dokku scheduler-k3s:report --global --format json | jq -r '.\"scheduler-k3s-computed-letsencrypt-email-stag\"'"
   assert_success
   assert_output ""
+}
+
+@test "(scheduler-k3s:report --global) token masked in stdout but exposed via json or explicit flag" {
+  run /bin/bash -c "dokku scheduler-k3s:set --global token"
+  assert_success
+
+  run /bin/bash -c "dokku scheduler-k3s:report --global --format json | jq -e 'has(\"scheduler-k3s-global-token\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku scheduler-k3s:report --global --format json | jq -r '.\"scheduler-k3s-global-token\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku scheduler-k3s:report --global --scheduler-k3s-global-token"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku scheduler-k3s:set --global token sometoken"
+  assert_success
+
+  run /bin/bash -c "dokku scheduler-k3s:report --global"
+  assert_success
+  assert_output_contains "*******"
+  assert_output_not_contains "sometoken"
+
+  run /bin/bash -c "dokku scheduler-k3s:report --global --format json | jq -r '.\"scheduler-k3s-global-token\"'"
+  assert_success
+  assert_output "sometoken"
+
+  run /bin/bash -c "dokku scheduler-k3s:report --global --scheduler-k3s-global-token"
+  assert_success
+  assert_output "sometoken"
+
+  run /bin/bash -c "dokku scheduler-k3s:set --global token"
+  assert_success
 }

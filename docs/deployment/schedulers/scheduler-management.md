@@ -155,4 +155,4 @@ Deployment tasks are currently executed directly on the primary Dokku server.
 | Property | Scope | Default | Report flags | Description |
 |---|---|---|---|---|
 | `selected` | app + global | `docker-local` | `--scheduler-selected`, `--scheduler-global-selected`, `--scheduler-computed-selected` | Scheduler plugin used to deploy this app (`docker-local`, `k3s`, etc.) |
-| `shell` | app + global | none | (not in report) | Shell used by `enter`/`run` commands when entering a container |
+| `shell` | app + global | none | `--scheduler-shell`, `--scheduler-global-shell`, `--scheduler-computed-shell` | Shell used by `enter`/`run` commands when entering a container |

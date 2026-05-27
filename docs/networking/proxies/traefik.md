@@ -408,7 +408,7 @@ All traefik properties are global only. Set with `traefik:set --global <property
 | `challenge-mode` | global only | `tls` | `--traefik-global-challenge-mode`, `--traefik-computed-challenge-mode` | ACME challenge method used by Traefik (`tls`, `http`, or `dns`) |
 | `dashboard-enabled` | global only | `false` | `--traefik-global-dashboard-enabled`, `--traefik-computed-dashboard-enabled` | When `true`, enables the Traefik dashboard |
 | `dns-provider` | global only | none | `--traefik-global-dns-provider`, `--traefik-computed-dns-provider` | Lego DNS provider name used when `challenge-mode` is `dns` |
-| `dns-provider-<ENV_VAR>` | global only | none | (no report flag) | Per-provider environment variables passed to the Traefik container; `<ENV_VAR>` is the upstream variable name (e.g. `dns-provider-cloudflare-api-token`) |
+| `dns-provider-<ENV_VAR>` | global only | none | `--traefik-dns-provider-<env_var>` (masked as `*******` in the default stdout report; the raw value is returned when queried via `--format json` or when this flag is requested explicitly) | Per-provider environment variables passed to the Traefik container; `<ENV_VAR>` is the upstream variable name (e.g. `dns-provider-cloudflare-api-token`) |
 | `http-entry-point` | global only | `http` | `--traefik-global-http-entry-point`, `--traefik-computed-http-entry-point` | Entry point name handling plaintext HTTP traffic |
 | `https-entry-point` | global only | `https` | `--traefik-global-https-entry-point`, `--traefik-computed-https-entry-point` | Entry point name handling TLS-terminated HTTPS traffic |
 | `image` | global only | _parsed from `plugins/traefik-vhosts/Dockerfile`_ | `--traefik-global-image`, `--traefik-computed-image` | Docker image used to run the Traefik container |

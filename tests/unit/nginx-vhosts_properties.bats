@@ -105,4 +105,5 @@ assert_nginx_property_set_get() {
   assert_nginx_property_set_get "underscore-in-headers" "on" "off"
   assert_nginx_property_set_get "proxy-keepalive" "8" "16"
   assert_nginx_property_set_get "nginx-conf-sigil-path" "custom.sigil" "global.sigil"
+  assert_nginx_property_set_get "nginx-service-command" "/usr/sbin/nginx-app" "/usr/sbin/nginx-global"
 }

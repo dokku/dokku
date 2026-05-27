@@ -549,7 +549,13 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "*******"
+  assert_output "test@example.com"
+
+  run /bin/bash -c "dokku traefik:report $TEST_APP --traefik-dns-provider-cf_api_key"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "secret-key"
 
   run /bin/bash -c "dokku traefik:set --global dns-provider-cf_api_email"
   echo "output: $output"

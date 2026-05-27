@@ -111,7 +111,7 @@ cmd-traefik-report-single() {
       key="$(echo "$line" | cut -d' ' -f1)"
       value="$(echo "$line" | cut -d' ' -f2-)"
       if [[ -n "$key" ]]; then
-        if [[ "$FORMAT" == "json" ]]; then
+        if [[ "$FORMAT" == "json" ]] || [[ "$INFO_FLAG" == "--traefik-${key}" ]]; then
           flag_map+=("--traefik-${key}: ${value}")
         else
           flag_map+=("--traefik-${key}: *******")
