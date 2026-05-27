@@ -120,6 +120,30 @@ teardown() {
   assert_success
   assert_output "false"
 
+  run /bin/bash -c "dokku cron:report --global --format json | jq -r 'has(\"cron-global-maintenance\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku cron:report --global --format json | jq -r 'has(\"cron-computed-maintenance\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku cron:report --global --format json | jq -r 'has(\"cron-global-mailfrom\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku cron:report --global --format json | jq -r 'has(\"cron-computed-mailfrom\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku cron:report --global --format json | jq -r 'has(\"cron-global-mailto\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku cron:report --global --format json | jq -r 'has(\"cron-computed-mailto\")'"
+  assert_success
+  assert_output "true"
+
   run /bin/bash -c "dokku cron:report --global"
   echo "output: $output"
   echo "status: $status"
@@ -133,9 +157,13 @@ teardown() {
   assert_success
   assert_output_not_contains "unknown flag"
 
-  run /bin/bash -c "dokku cron:report --global --format json | jq -r '.\"cron-mailto\"'"
+  run /bin/bash -c "dokku cron:report --global --format json | jq -r '.\"cron-global-mailto\"'"
   echo "output: $output"
   echo "status: $status"
+  assert_success
+  assert_output "admin@example.com"
+
+  run /bin/bash -c "dokku cron:report --global --format json | jq -r '.\"cron-computed-mailto\"'"
   assert_success
   assert_output "admin@example.com"
 
@@ -145,9 +173,13 @@ teardown() {
   assert_success
   assert_output_not_contains "unknown flag"
 
-  run /bin/bash -c "dokku cron:report --global --format json | jq -r '.\"cron-mailto\"'"
+  run /bin/bash -c "dokku cron:report --global --format json | jq -r '.\"cron-global-mailto\"'"
   echo "output: $output"
   echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku cron:report --global --format json | jq -r '.\"cron-computed-mailto\"'"
   assert_success
   assert_output ""
 }
@@ -159,9 +191,13 @@ teardown() {
   assert_success
   assert_output_not_contains "unknown flag"
 
-  run /bin/bash -c "dokku cron:report --global --format json | jq -r '.\"cron-mailfrom\"'"
+  run /bin/bash -c "dokku cron:report --global --format json | jq -r '.\"cron-global-mailfrom\"'"
   echo "output: $output"
   echo "status: $status"
+  assert_success
+  assert_output "dokku@example.com"
+
+  run /bin/bash -c "dokku cron:report --global --format json | jq -r '.\"cron-computed-mailfrom\"'"
   assert_success
   assert_output "dokku@example.com"
 
@@ -170,6 +206,14 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_not_contains "unknown flag"
+
+  run /bin/bash -c "dokku cron:report --global --format json | jq -r '.\"cron-global-mailfrom\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku cron:report --global --format json | jq -r '.\"cron-computed-mailfrom\"'"
+  assert_success
+  assert_output ""
 }
 
 @test "(cron:set) --global maintenance" {
