@@ -287,6 +287,9 @@ teardown() {
   assert_output_contains '"app-json-appjson-path":"app2.json"'
   assert_output_contains '"app-json-computed-appjson-path":"app2.json"'
   assert_output_contains '"app-json-global-appjson-path":""'
+  assert_output_contains '"appjson-path":"app2.json"'
+  assert_output_contains '"computed-appjson-path":"app2.json"'
+  assert_output_contains '"global-appjson-path":""'
   assert_output_contains "app-json-selected" 0
 
   run /bin/bash -c "dokku app-json:report $TEST_APP --app-json-selected"

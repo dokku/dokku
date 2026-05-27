@@ -316,6 +316,9 @@ dokku logs:set --global app-label-alias
 
 ### Settable properties
 
+> [!NOTE]
+> The `Report flags` column lists the CLI argument names accepted by `logs:report`. The JSON keys emitted by `logs:report --format json` are the same names with the leading `--logs-` stripped (e.g. `max-size`, `global-max-size`, `computed-max-size`). Legacy keys with the `logs-` prefix are also emitted during the 0.38.x deprecation window and will be removed in a future major release.
+
 | Property | Scope | Default | Report flags | Description |
 |---|---|---|---|---|
 | `app-label-alias` | app + global | `com.dokku.app-name` | `--logs-app-label-alias`, `--logs-global-app-label-alias`, `--logs-computed-app-label-alias` | Docker label key whose value is used to identify the app when shipping logs |

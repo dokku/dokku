@@ -174,6 +174,9 @@ Available flags:
 
 ### Settable properties
 
+> [!NOTE]
+> The `Report flags` column lists the CLI argument names accepted by `builds:report`. The JSON keys emitted by `builds:report --format json` are the same names with the leading `--builds-` stripped (e.g. `retention`, `global-retention`, `computed-retention`). Legacy keys with the `builds-` prefix (e.g. `builds-retention`) are also emitted during the 0.38.x deprecation window and will be removed in a future major release. Status keys (`build-id`, `build-status`, etc.) have no plugin prefix and are unaffected.
+
 | Property | Scope | Default | Report flags | Description |
 |---|---|---|---|---|
 | `retention` | app + global | `20` | `--builds-retention`, `--builds-global-retention`, `--builds-computed-retention` | Number of recent build records kept per app; older finalized records are pruned at the end of each deploy |

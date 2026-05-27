@@ -284,11 +284,23 @@ web                                                                             
   assert_success
   assert_output ""
 
+  run /bin/bash -c "dokku ps:report $TEST_APP --format json | jq -r '.\"stop-timeout-seconds\"'"
+  assert_success
+  assert_output ""
+
   run /bin/bash -c "dokku ps:report $TEST_APP --format json | jq -r '.\"ps-global-stop-timeout-seconds\"'"
   assert_success
   assert_output ""
 
+  run /bin/bash -c "dokku ps:report $TEST_APP --format json | jq -r '.\"global-stop-timeout-seconds\"'"
+  assert_success
+  assert_output ""
+
   run /bin/bash -c "dokku ps:report $TEST_APP --format json | jq -r '.\"ps-computed-stop-timeout-seconds\"'"
+  assert_success
+  assert_output "30"
+
+  run /bin/bash -c "dokku ps:report $TEST_APP --format json | jq -r '.\"computed-stop-timeout-seconds\"'"
   assert_success
   assert_output "30"
 
@@ -299,7 +311,15 @@ web                                                                             
   assert_success
   assert_output "90"
 
+  run /bin/bash -c "dokku ps:report $TEST_APP --format json | jq -r '.\"global-stop-timeout-seconds\"'"
+  assert_success
+  assert_output "90"
+
   run /bin/bash -c "dokku ps:report $TEST_APP --format json | jq -r '.\"ps-computed-stop-timeout-seconds\"'"
+  assert_success
+  assert_output "90"
+
+  run /bin/bash -c "dokku ps:report $TEST_APP --format json | jq -r '.\"computed-stop-timeout-seconds\"'"
   assert_success
   assert_output "90"
 
@@ -310,11 +330,19 @@ web                                                                             
   assert_success
   assert_output "45"
 
+  run /bin/bash -c "dokku ps:report $TEST_APP --format json | jq -r '.\"stop-timeout-seconds\"'"
+  assert_success
+  assert_output "45"
+
   run /bin/bash -c "dokku ps:report $TEST_APP --format json | jq -r '.\"ps-global-stop-timeout-seconds\"'"
   assert_success
   assert_output "90"
 
   run /bin/bash -c "dokku ps:report $TEST_APP --format json | jq -r '.\"ps-computed-stop-timeout-seconds\"'"
+  assert_success
+  assert_output "45"
+
+  run /bin/bash -c "dokku ps:report $TEST_APP --format json | jq -r '.\"computed-stop-timeout-seconds\"'"
   assert_success
   assert_output "45"
 
@@ -335,7 +363,15 @@ web                                                                             
   assert_success
   assert_output "true"
 
+  run /bin/bash -c "dokku ps:report --global --format json | jq -r 'has(\"global-procfile-path\")'"
+  assert_success
+  assert_output "true"
+
   run /bin/bash -c "dokku ps:report --global --format json | jq -r 'has(\"ps-computed-procfile-path\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku ps:report --global --format json | jq -r 'has(\"computed-procfile-path\")'"
   assert_success
   assert_output "true"
 
@@ -343,7 +379,15 @@ web                                                                             
   assert_success
   assert_output "true"
 
+  run /bin/bash -c "dokku ps:report --global --format json | jq -r 'has(\"global-stop-timeout-seconds\")'"
+  assert_success
+  assert_output "true"
+
   run /bin/bash -c "dokku ps:report --global --format json | jq -r 'has(\"ps-computed-stop-timeout-seconds\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku ps:report --global --format json | jq -r 'has(\"computed-stop-timeout-seconds\")'"
   assert_success
   assert_output "true"
 
@@ -354,7 +398,15 @@ web                                                                             
   assert_success
   assert_output "75"
 
+  run /bin/bash -c "dokku ps:report --global --format json | jq -r '.\"global-stop-timeout-seconds\"'"
+  assert_success
+  assert_output "75"
+
   run /bin/bash -c "dokku ps:report --global --format json | jq -r '.\"ps-computed-stop-timeout-seconds\"'"
+  assert_success
+  assert_output "75"
+
+  run /bin/bash -c "dokku ps:report --global --format json | jq -r '.\"computed-stop-timeout-seconds\"'"
   assert_success
   assert_output "75"
 
@@ -365,7 +417,15 @@ web                                                                             
   assert_success
   assert_output ""
 
+  run /bin/bash -c "dokku ps:report --global --format json | jq -r '.\"global-stop-timeout-seconds\"'"
+  assert_success
+  assert_output ""
+
   run /bin/bash -c "dokku ps:report --global --format json | jq -r '.\"ps-computed-stop-timeout-seconds\"'"
+  assert_success
+  assert_output "30"
+
+  run /bin/bash -c "dokku ps:report --global --format json | jq -r '.\"computed-stop-timeout-seconds\"'"
   assert_success
   assert_output "30"
 }

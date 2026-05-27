@@ -193,11 +193,29 @@ teardown() {
   assert_success
   assert_output "dockerfile"
 
+  run /bin/bash -c "dokku builder:report --global --format json | jq -r '.\"global-selected\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "dockerfile"
+
   run /bin/bash -c "dokku builder:report --global --format json | jq -r 'has(\"builder-selected\")'"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output "false"
+
+  run /bin/bash -c "dokku builder:report --global --format json | jq -r 'has(\"selected\") and has(\"builder-global-selected\")'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku builder:report --global --format json | jq -r 'has(\"computed-skip-cleanup\") and has(\"builder-computed-skip-cleanup\")'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
 
   run /bin/bash -c "dokku builder:report --global"
   echo "output: $output"

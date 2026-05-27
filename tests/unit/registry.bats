@@ -717,3 +717,29 @@ teardown() {
   assert_success
   assert_output_contains "dokku/test-app:foo"
 }
+
+@test "(registry:report) emits new stripped JSON keys alongside legacy" {
+  run /bin/bash -c "dokku registry:report $TEST_APP --format json | jq -r 'has(\"image-repo\") and has(\"registry-image-repo\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku registry:report $TEST_APP --format json | jq -r 'has(\"computed-image-repo\") and has(\"registry-computed-image-repo\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku registry:report $TEST_APP --format json | jq -r 'has(\"push-on-release\") and has(\"registry-push-on-release\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku registry:report $TEST_APP --format json | jq -r 'has(\"global-push-on-release\") and has(\"registry-global-push-on-release\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku registry:report $TEST_APP --format json | jq -r 'has(\"computed-server\") and has(\"registry-computed-server\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku registry:report --global --format json | jq -r 'has(\"global-image-repo-template\") and has(\"registry-global-image-repo-template\")'"
+  assert_success
+  assert_output "true"
+}

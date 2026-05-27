@@ -776,22 +776,99 @@ func ParseScaleOutput(b []byte) (map[string]int32, error) {
 	return scale, nil
 }
 
-// ReportSingleApp is an internal function that displays a report for an app
-func ReportSingleApp(reportType string, appName string, infoFlag string, infoFlags map[string]string, infoFlagKeys []string, format string, trimPrefix bool, uppercaseFirstCharacter bool) error {
-	if format != "stdout" && infoFlag != "" {
+// ReportSingleAppInput configures a call to ReportSingleApp.
+type ReportSingleAppInput struct {
+	// ReportType is the plugin name used as the JSON key prefix (e.g. "ps", "registry").
+	// Must be non-empty, contain no whitespace, and not begin with "--".
+	ReportType string
+
+	// AppName is the app being reported on, or "--global" for the global report.
+	AppName string
+
+	// InfoFlag is an optional single flag to extract (e.g. "--ps-stop-timeout-seconds").
+	// Only valid when Format is "stdout" (or empty, which defaults to "stdout").
+	InfoFlag string
+
+	// InfoFlags maps flag-name to value (e.g. "--ps-stop-timeout-seconds" -> "30").
+	InfoFlags map[string]string
+
+	// InfoFlagKeys is the list of valid flag names surfaced in InfoFlag lookup errors.
+	InfoFlagKeys []string
+
+	// Format is "stdout" or "json". Empty defaults to "stdout".
+	Format string
+
+	// TrimPrefix, when true, strips the "--<ReportType>-" prefix from JSON keys so
+	// each report's JSON shape is independent of which plugin emitted it. Stdout
+	// output is not affected by this flag.
+	TrimPrefix bool
+
+	// UppercaseFirstCharacter capitalizes the first character of each stdout key.
+	UppercaseFirstCharacter bool
+
+	// EmitLegacyPrefix, when true alongside TrimPrefix, also emits the legacy
+	// "<ReportType>-<property>" keys in JSON output for backwards compatibility
+	// during the deprecation window. Has no effect when TrimPrefix is false.
+	EmitLegacyPrefix bool
+}
+
+// Validate returns an error when the input is malformed.
+func (i ReportSingleAppInput) Validate() error {
+	if i.ReportType == "" {
+		return errors.New("ReportType is required")
+	}
+	if strings.ContainsAny(i.ReportType, " \t\n") {
+		return fmt.Errorf("ReportType must not contain whitespace: %q", i.ReportType)
+	}
+	if strings.HasPrefix(i.ReportType, "--") {
+		return fmt.Errorf("ReportType must not begin with --: %q", i.ReportType)
+	}
+	if i.AppName == "" {
+		return errors.New("AppName is required (use --global for the global report)")
+	}
+	if i.InfoFlags == nil {
+		return errors.New("InfoFlags is required")
+	}
+	format := i.Format
+	if format == "" {
+		format = "stdout"
+	}
+	if format != "stdout" && format != "json" {
+		return fmt.Errorf("Format must be \"stdout\" or \"json\": %q", i.Format)
+	}
+	if format != "stdout" && i.InfoFlag != "" {
 		return errors.New("--format flag cannot be specified when specifying an info flag")
+	}
+	if i.EmitLegacyPrefix && !i.TrimPrefix {
+		return errors.New("EmitLegacyPrefix has no effect when TrimPrefix is false")
+	}
+	return nil
+}
+
+// ReportSingleApp is an internal function that displays a report for an app.
+func ReportSingleApp(input ReportSingleAppInput) error {
+	if err := input.Validate(); err != nil {
+		return err
+	}
+
+	format := input.Format
+	if format == "" {
+		format = "stdout"
 	}
 
 	if format == "json" {
 		data := map[string]string{}
-		for key, value := range infoFlags {
-			prefix := "--"
-			if trimPrefix {
-				prefix = fmt.Sprintf("--%v-", reportType)
+		pluginPrefix := fmt.Sprintf("--%v-", input.ReportType)
+		for key, value := range input.InfoFlags {
+			legacyKey := strings.TrimPrefix(key, "--")
+			if input.TrimPrefix && strings.HasPrefix(key, pluginPrefix) {
+				data[strings.TrimPrefix(key, pluginPrefix)] = value
+				if input.EmitLegacyPrefix {
+					data[legacyKey] = value
+				}
+			} else {
+				data[legacyKey] = value
 			}
-
-			// key = strings.Replace(strings.Replace(strings.TrimPrefix(key, prefix), "-", " ", -1), ".", " ", -1)
-			data[strings.TrimPrefix(key, prefix)] = value
 		}
 		out, err := json.Marshal(data)
 		if err != nil {
@@ -803,7 +880,7 @@ func ReportSingleApp(reportType string, appName string, infoFlag string, infoFla
 
 	length := 0
 	flags := []string{}
-	for key := range infoFlags {
+	for key := range input.InfoFlags {
 		if len(key) > length {
 			length = len(key)
 		}
@@ -814,22 +891,17 @@ func ReportSingleApp(reportType string, appName string, infoFlag string, infoFla
 		length = 31
 	}
 
-	if len(infoFlag) == 0 {
-		LogInfo2Quiet(fmt.Sprintf("%s %v information", appName, reportType))
+	if len(input.InfoFlag) == 0 {
+		LogInfo2Quiet(fmt.Sprintf("%s %v information", input.AppName, input.ReportType))
 		for _, k := range flags {
-			v, ok := infoFlags[k]
+			v, ok := input.InfoFlags[k]
 			if !ok {
 				continue
 			}
 
-			prefix := "--"
-			if trimPrefix {
-				prefix = fmt.Sprintf("--%v-", reportType)
-			}
+			key := strings.Replace(strings.Replace(strings.TrimPrefix(k, "--"), "-", " ", -1), ".", " ", -1)
 
-			key := strings.Replace(strings.Replace(strings.TrimPrefix(k, prefix), "-", " ", -1), ".", " ", -1)
-
-			if uppercaseFirstCharacter {
+			if input.UppercaseFirstCharacter {
 				key = UcFirst(key)
 			}
 
@@ -839,8 +911,8 @@ func ReportSingleApp(reportType string, appName string, infoFlag string, infoFla
 	}
 
 	for _, k := range flags {
-		if infoFlag == k {
-			v, ok := infoFlags[k]
+		if input.InfoFlag == k {
+			v, ok := input.InfoFlags[k]
 			if !ok {
 				continue
 			}
@@ -849,6 +921,7 @@ func ReportSingleApp(reportType string, appName string, infoFlag string, infoFla
 		}
 	}
 
+	infoFlagKeys := append([]string(nil), input.InfoFlagKeys...)
 	sort.Strings(infoFlagKeys)
 	return fmt.Errorf("Invalid flag passed, valid flags: %s", strings.Join(infoFlagKeys, ", "))
 }

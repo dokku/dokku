@@ -293,6 +293,9 @@ An autoscaling trigger consists of the following properties:
 
 ### Settable properties
 
+> [!NOTE]
+> The `Report flags` column lists the CLI argument names accepted by `app-json:report`. The JSON keys emitted by `app-json:report --format json` are the same names with the leading `--app-json-` stripped (e.g. `appjson-path`, `global-appjson-path`, `computed-appjson-path`). Legacy keys with the `app-json-` prefix are also emitted during the 0.38.x deprecation window and will be removed in a future major release.
+
 | Property | Scope | Default | Report flags | Description |
 |---|---|---|---|---|
 | `appjson-path` | app + global | `app.json` | `--app-json-appjson-path`, `--app-json-global-appjson-path`, `--app-json-computed-appjson-path` | Path within the app to the `app.json` manifest, relative to the build root |

@@ -197,6 +197,9 @@ dokku buildpacks:report node-js-app --buildpacks-list
 
 These properties are managed via `buildpacks:set-property` (the legacy command name for this plugin).
 
+> [!NOTE]
+> The `Report flags` column lists the CLI argument names accepted by `buildpacks:report`. The JSON keys emitted by `buildpacks:report --format json` are the same names with the leading `--buildpacks-` stripped (e.g. `stack`, `global-stack`, `computed-stack`). Legacy keys with the `buildpacks-` prefix are also emitted during the 0.38.x deprecation window and will be removed in a future major release.
+
 | Property | Scope | Default | Report flags | Description |
 |---|---|---|---|---|
 | `stack` | app + global | none | `--buildpacks-stack`, `--buildpacks-global-stack`, `--buildpacks-computed-stack` | Herokuish stack image used to compile the app (e.g. `heroku/heroku:24`) |

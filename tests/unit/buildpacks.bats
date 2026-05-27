@@ -236,6 +236,24 @@ teardown() {
   assert_success
 }
 
+@test "(buildpacks:report) emits new stripped JSON keys alongside legacy" {
+  run /bin/bash -c "dokku buildpacks:report $TEST_APP --format json | jq -r 'has(\"stack\") and has(\"buildpacks-stack\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku buildpacks:report $TEST_APP --format json | jq -r 'has(\"global-stack\") and has(\"buildpacks-global-stack\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku buildpacks:report $TEST_APP --format json | jq -r 'has(\"computed-stack\") and has(\"buildpacks-computed-stack\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku buildpacks:report $TEST_APP --format json | jq -r 'has(\"list\") and has(\"buildpacks-list\")'"
+  assert_success
+  assert_output "true"
+}
+
 @test "(buildpacks) buildpacks:remove" {
   run /bin/bash -c "dokku buildpacks:set $TEST_APP heroku/nodejs"
   echo "output: $output"

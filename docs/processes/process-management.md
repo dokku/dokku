@@ -468,6 +468,9 @@ dokku ps:set node-js-app restore
 
 ### Settable properties
 
+> [!NOTE]
+> The `Report flags` column lists the CLI argument names accepted by `ps:report`. The JSON keys emitted by `ps:report --format json` are the same names with the leading `--ps-` stripped (e.g. `procfile-path`, `global-procfile-path`, `computed-procfile-path`). Legacy keys with the `ps-` prefix (e.g. `ps-procfile-path`) are also emitted during the 0.38.x deprecation window and will be removed in a future major release.
+
 | Property | Scope | Default | Report flags | Description |
 |---|---|---|---|---|
 | `dockerfile-start-cmd` | app only | none | `--ps-dockerfile-start-cmd`, `--ps-computed-dockerfile-start-cmd` | Override `CMD` for Dockerfile-based apps |

@@ -48,7 +48,19 @@ teardown() {
   assert_success
   assert_output "dokku.test"
 
+  run /bin/bash -c "dokku network:report --global --format json | jq -r '.\"global-tld\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "dokku.test"
+
   run /bin/bash -c "dokku network:report --global --format json | jq -r 'has(\"network-tld\")'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku network:report --global --format json | jq -r 'has(\"tld\")'"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -64,6 +76,24 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
+}
+
+@test "(network:report) emits new stripped JSON keys alongside legacy" {
+  run /bin/bash -c "dokku network:report --global --format json | jq -r 'has(\"global-tld\") and has(\"network-global-tld\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku network:report --global --format json | jq -r 'has(\"computed-tld\") and has(\"network-computed-tld\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku network:report $TEST_APP --format json | jq -r 'has(\"tld\") and has(\"network-tld\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku network:report $TEST_APP --format json | jq -r 'has(\"web-listeners\") and has(\"network-web-listeners\")'"
+  assert_success
+  assert_output "true"
 }
 
 @test "(network:report) tld raw vs computed" {

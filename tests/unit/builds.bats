@@ -331,3 +331,22 @@ EOF
   # Recreate so teardown can run cleanly.
   create_app
 }
+
+@test "(builds:report) emits new stripped JSON keys alongside legacy" {
+  run /bin/bash -c "dokku builds:report $TEST_APP --format json | jq -r 'has(\"retention\") and has(\"builds-retention\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku builds:report $TEST_APP --format json | jq -r 'has(\"global-retention\") and has(\"builds-global-retention\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku builds:report $TEST_APP --format json | jq -r 'has(\"computed-retention\") and has(\"builds-computed-retention\")'"
+  assert_success
+  assert_output "true"
+
+  # build-* status keys have no plugin-prefix collision, so they pass through unchanged
+  run /bin/bash -c "dokku builds:report $TEST_APP --format json | jq -r 'has(\"build-id\")'"
+  assert_success
+  assert_output "true"
+}

@@ -152,6 +152,9 @@ Deployment tasks are currently executed directly on the primary Dokku server.
 
 ### Settable properties
 
+> [!NOTE]
+> The `Report flags` column lists the CLI argument names accepted by `scheduler:report`. The JSON keys emitted by `scheduler:report --format json` are the same names with the leading `--scheduler-` stripped (e.g. `selected`, `global-selected`, `computed-selected`). Legacy keys with the `scheduler-` prefix are also emitted during the 0.38.x deprecation window and will be removed in a future major release.
+
 | Property | Scope | Default | Report flags | Description |
 |---|---|---|---|---|
 | `selected` | app + global | `docker-local` | `--scheduler-selected`, `--scheduler-global-selected`, `--scheduler-computed-selected` | Scheduler plugin used to deploy this app (`docker-local`, `k3s`, etc.) |
