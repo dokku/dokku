@@ -201,6 +201,99 @@ teardown() {
   docker network rm initial-network-x >/dev/null
 }
 
+@test "(network:report) bind-all-interfaces raw vs computed vs global" {
+  run /bin/bash -c "dokku network:set --global bind-all-interfaces"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku network:report --global --format json | jq -r '.\"network-global-bind-all-interfaces\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku network:report --global --format json | jq -r '.\"network-computed-bind-all-interfaces\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku network:set --global bind-all-interfaces true"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku network:report --global --format json | jq -r '.\"network-global-bind-all-interfaces\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku network:report --global --format json | jq -r '.\"network-computed-bind-all-interfaces\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku network:report $TEST_APP --format json | jq -r '.\"network-bind-all-interfaces\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku network:report $TEST_APP --format json | jq -r '.\"network-computed-bind-all-interfaces\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku network:set --global bind-all-interfaces"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku network:report --global --format json | jq -r '.\"network-global-bind-all-interfaces\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku network:report --global --format json | jq -r '.\"network-computed-bind-all-interfaces\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku network:set $TEST_APP bind-all-interfaces true"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku network:report $TEST_APP --format json | jq -r '.\"network-bind-all-interfaces\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku network:set $TEST_APP bind-all-interfaces"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku network:report $TEST_APP --format json | jq -r '.\"network-bind-all-interfaces\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku network:report $TEST_APP --format json | jq -r '.\"network-computed-bind-all-interfaces\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
+}
+
 @test "(network) network:set bind-all-interfaces" {
   run deploy_app
   echo "output: $output"

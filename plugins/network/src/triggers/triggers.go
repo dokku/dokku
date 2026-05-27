@@ -82,9 +82,6 @@ func main() {
 		phase := flag.Arg(3)
 		processType := flag.Arg(4)
 		err = network.TriggerPostContainerCreate(containerType, containerID, appName, phase, processType)
-	case "post-create":
-		appName := flag.Arg(0)
-		err = network.TriggerPostCreate(appName)
 	case "post-delete":
 		appName := flag.Arg(0)
 		err = network.TriggerPostDelete(appName)

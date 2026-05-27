@@ -192,10 +192,6 @@ func CommandSet(appName string, property string, value string, values []string) 
 		}
 	}
 
-	if property == "bind-all-interfaces" && value == "" {
-		value = "false"
-	}
-
 	attachProperties := map[string]bool{
 		"attach-post-create": true,
 		"attach-post-deploy": true,
