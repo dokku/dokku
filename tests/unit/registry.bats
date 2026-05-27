@@ -181,6 +181,83 @@ teardown() {
   assert_success
 }
 
+@test "(registry:report) image-repo-template raw vs computed vs global" {
+  run /bin/bash -c "dokku registry:set --global image-repo-template"
+  assert_success
+
+  run /bin/bash -c "dokku registry:report $TEST_APP --format json | jq -r '.\"registry-image-repo-template\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku registry:report $TEST_APP --format json | jq -r '.\"registry-global-image-repo-template\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku registry:report $TEST_APP --format json | jq -r '.\"registry-computed-image-repo-template\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku registry:set --global image-repo-template 'global-prefix/{{ .AppName }}'"
+  assert_success
+
+  run /bin/bash -c "dokku registry:report $TEST_APP --format json | jq -r '.\"registry-image-repo-template\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku registry:report $TEST_APP --format json | jq -r '.\"registry-global-image-repo-template\"'"
+  assert_success
+  assert_output 'global-prefix/{{ .AppName }}'
+
+  run /bin/bash -c "dokku registry:report $TEST_APP --format json | jq -r '.\"registry-computed-image-repo-template\"'"
+  assert_success
+  assert_output 'global-prefix/{{ .AppName }}'
+
+  # The global template renders into the computed image-repo.
+  run /bin/bash -c "dokku registry:report $TEST_APP --format json | jq -r '.\"registry-computed-image-repo\"'"
+  assert_success
+  assert_output "global-prefix/$TEST_APP"
+
+  # Per-app template overrides the global template.
+  run /bin/bash -c "dokku registry:set $TEST_APP image-repo-template 'app-prefix/{{ .AppName }}-prod'"
+  assert_success
+
+  run /bin/bash -c "dokku registry:report $TEST_APP --format json | jq -r '.\"registry-image-repo-template\"'"
+  assert_success
+  assert_output 'app-prefix/{{ .AppName }}-prod'
+
+  run /bin/bash -c "dokku registry:report $TEST_APP --format json | jq -r '.\"registry-global-image-repo-template\"'"
+  assert_success
+  assert_output 'global-prefix/{{ .AppName }}'
+
+  run /bin/bash -c "dokku registry:report $TEST_APP --format json | jq -r '.\"registry-computed-image-repo-template\"'"
+  assert_success
+  assert_output 'app-prefix/{{ .AppName }}-prod'
+
+  # The per-app template flows through to the computed image-repo.
+  run /bin/bash -c "dokku registry:report $TEST_APP --format json | jq -r '.\"registry-computed-image-repo\"'"
+  assert_success
+  assert_output "app-prefix/$TEST_APP-prod"
+
+  # Unsetting the per-app template restores the global template behavior.
+  run /bin/bash -c "dokku registry:set $TEST_APP image-repo-template"
+  assert_success
+
+  run /bin/bash -c "dokku registry:report $TEST_APP --format json | jq -r '.\"registry-image-repo-template\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku registry:report $TEST_APP --format json | jq -r '.\"registry-computed-image-repo-template\"'"
+  assert_success
+  assert_output 'global-prefix/{{ .AppName }}'
+
+  run /bin/bash -c "dokku registry:report $TEST_APP --format json | jq -r '.\"registry-computed-image-repo\"'"
+  assert_success
+  assert_output "global-prefix/$TEST_APP"
+
+  run /bin/bash -c "dokku registry:set --global image-repo-template"
+  assert_success
+}
+
 @test "(registry:report) push-on-release raw vs computed vs global" {
   run /bin/bash -c "dokku registry:set --global push-on-release"
   assert_success
@@ -233,6 +310,8 @@ teardown() {
   assert_success
   run /bin/bash -c "dokku registry:set --global image-repo-template"
   assert_success
+  run /bin/bash -c "dokku registry:set --global push-extra-tags"
+  assert_success
 
   run /bin/bash -c "dokku registry:report --global --format json | jq -r '.\"registry-global-push-on-release\"'"
   assert_success
@@ -258,11 +337,21 @@ teardown() {
   assert_success
   assert_output ""
 
+  run /bin/bash -c "dokku registry:report --global --format json | jq -r '.\"registry-global-push-extra-tags\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku registry:report --global --format json | jq -r '.\"registry-computed-push-extra-tags\"'"
+  assert_success
+  assert_output ""
+
   run /bin/bash -c "dokku registry:set --global push-on-release true"
   assert_success
   run /bin/bash -c "dokku registry:set --global server ghcr.io"
   assert_success
   run /bin/bash -c "dokku registry:set --global image-repo-template 'dokku/{{ APP }}'"
+  assert_success
+  run /bin/bash -c "dokku registry:set --global push-extra-tags latest,stable"
   assert_success
 
   run /bin/bash -c "dokku registry:report --global --format json | jq -r '.\"registry-global-push-on-release\"'"
@@ -289,18 +378,50 @@ teardown() {
   assert_success
   assert_output 'dokku/{{ APP }}'
 
+  run /bin/bash -c "dokku registry:report --global --format json | jq -r '.\"registry-global-push-extra-tags\"'"
+  assert_success
+  assert_output "latest,stable"
+
+  run /bin/bash -c "dokku registry:report --global --format json | jq -r '.\"registry-computed-push-extra-tags\"'"
+  assert_success
+  assert_output "latest,stable"
+
   run /bin/bash -c "dokku registry:set --global push-on-release"
   assert_success
   run /bin/bash -c "dokku registry:set --global server"
   assert_success
   run /bin/bash -c "dokku registry:set --global image-repo-template"
   assert_success
+  run /bin/bash -c "dokku registry:set --global push-extra-tags"
+  assert_success
 }
 
-@test "(registry:report) push-extra-tags raw" {
+@test "(registry:report) push-extra-tags raw vs computed vs global" {
+  run /bin/bash -c "dokku registry:set --global push-extra-tags"
+  assert_success
+
   run /bin/bash -c "dokku registry:report $TEST_APP --format json | jq -r '.\"registry-push-extra-tags\"'"
   assert_success
   assert_output ""
+
+  run /bin/bash -c "dokku registry:report $TEST_APP --format json | jq -r '.\"registry-global-push-extra-tags\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku registry:report $TEST_APP --format json | jq -r '.\"registry-computed-push-extra-tags\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku registry:set --global push-extra-tags global-tag"
+  assert_success
+
+  run /bin/bash -c "dokku registry:report $TEST_APP --format json | jq -r '.\"registry-global-push-extra-tags\"'"
+  assert_success
+  assert_output "global-tag"
+
+  run /bin/bash -c "dokku registry:report $TEST_APP --format json | jq -r '.\"registry-computed-push-extra-tags\"'"
+  assert_success
+  assert_output "global-tag"
 
   run /bin/bash -c "dokku registry:set $TEST_APP push-extra-tags release,stable"
   assert_success
@@ -309,7 +430,14 @@ teardown() {
   assert_success
   assert_output "release,stable"
 
+  run /bin/bash -c "dokku registry:report $TEST_APP --format json | jq -r '.\"registry-computed-push-extra-tags\"'"
+  assert_success
+  assert_output "release,stable"
+
   run /bin/bash -c "dokku registry:set $TEST_APP push-extra-tags"
+  assert_success
+
+  run /bin/bash -c "dokku registry:set --global push-extra-tags"
   assert_success
 }
 
