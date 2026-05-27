@@ -12,6 +12,7 @@ setup() {
 }
 
 teardown() {
+  dokku openresty:set --global log-level >/dev/null 2>&1 || true
   global_teardown
   destroy_app
   dokku openresty:stop
@@ -149,6 +150,66 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_exists
+}
+
+@test "(openresty:report) --global log-level raw vs computed" {
+  run /bin/bash -c "dokku openresty:report --global --openresty-global-log-level"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku openresty:report --global --openresty-computed-log-level"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "ERROR"
+
+  run /bin/bash -c "dokku openresty:set --global log-level DEBUG"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku openresty:report --global --openresty-global-log-level"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "DEBUG"
+
+  run /bin/bash -c "dokku openresty:report --global --openresty-computed-log-level"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "DEBUG"
+
+  run /bin/bash -c "dokku openresty:report --global --format json | jq -r '.\"global-log-level\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "DEBUG"
+
+  run /bin/bash -c "dokku openresty:report --global --format json | jq -r '.\"computed-log-level\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "DEBUG"
+
+  run /bin/bash -c "dokku openresty:set --global log-level"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku openresty:report --global --openresty-global-log-level"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku openresty:report --global --openresty-computed-log-level"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "ERROR"
 }
 
 @test "(openresty) global-only keys" {

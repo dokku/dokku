@@ -7,6 +7,7 @@ setup() {
 }
 
 teardown() {
+  dokku builder:set --global skip-cleanup >/dev/null 2>/dev/null || true
   destroy_app
 }
 
@@ -304,6 +305,55 @@ teardown() {
   assert_success
 
   run /bin/bash -c "dokku builder:set --global build-dir"
+  assert_success
+}
+
+@test "(builder:report) skip-cleanup raw vs computed vs global" {
+  run /bin/bash -c "dokku builder:set --global skip-cleanup"
+  assert_success
+
+  run /bin/bash -c "dokku builder:report $TEST_APP --builder-skip-cleanup"
+  assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku builder:report $TEST_APP --builder-global-skip-cleanup"
+  assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku builder:report $TEST_APP --builder-computed-skip-cleanup"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku builder:set --global skip-cleanup true"
+  assert_success
+
+  run /bin/bash -c "dokku builder:report $TEST_APP --builder-global-skip-cleanup"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku builder:report $TEST_APP --builder-computed-skip-cleanup"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku builder:set $TEST_APP skip-cleanup false"
+  assert_success
+
+  run /bin/bash -c "dokku builder:report $TEST_APP --builder-skip-cleanup"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku builder:report $TEST_APP --builder-global-skip-cleanup"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku builder:report $TEST_APP --builder-computed-skip-cleanup"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku builder:set $TEST_APP skip-cleanup"
+  assert_success
+
+  run /bin/bash -c "dokku builder:set --global skip-cleanup"
   assert_success
 }
 

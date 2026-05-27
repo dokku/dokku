@@ -308,7 +308,7 @@ Global-only properties expose two report flags: `--openresty-global-<property>` 
 | `letsencrypt-email` | global only | none | `--openresty-global-letsencrypt-email`, `--openresty-computed-letsencrypt-email` | Contact email enabling letsencrypt; empty disables https issuance |
 | `letsencrypt-server` | global only | `https://acme-v02.api.letsencrypt.org/directory` | `--openresty-global-letsencrypt-server`, `--openresty-computed-letsencrypt-server` | ACME directory used when requesting certificates |
 | `lingering-timeout` | app only | `5s` | `--openresty-lingering-timeout` | Time openresty waits for more client data when closing a connection |
-| `log-level` | global only | `ERROR` | (not in report) | Openresty log level |
+| `log-level` | global only | `ERROR` | `--openresty-global-log-level`, `--openresty-computed-log-level` | Openresty log level |
 | `proxy-buffer-size` | app only | _system pagesize_ | `--openresty-proxy-buffer-size` | Buffer size for reading the first part of the upstream response |
 | `proxy-buffering` | app only | `on` | `--openresty-proxy-buffering` | Whether openresty buffers upstream responses (`on` or `off`) |
 | `proxy-buffers` | app only | _`8 {pagesize}`_ | `--openresty-proxy-buffers` | Number and size of buffers used for an upstream response |

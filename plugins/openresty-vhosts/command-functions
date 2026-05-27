@@ -80,6 +80,8 @@ cmd-openresty-report-single() {
       "--openresty-computed-letsencrypt-email: $(fn-openresty-computed-letsencrypt-email)"
       "--openresty-global-letsencrypt-server: $(fn-openresty-global-letsencrypt-server)"
       "--openresty-computed-letsencrypt-server: $(fn-openresty-computed-letsencrypt-server)"
+      "--openresty-global-log-level: $(fn-openresty-global-log-level)"
+      "--openresty-computed-log-level: $(fn-openresty-computed-log-level)"
     )
   else
     verify_app_name "$APP"
@@ -107,6 +109,8 @@ cmd-openresty-report-single() {
       "--openresty-computed-letsencrypt-email: $(fn-openresty-computed-letsencrypt-email)"
       "--openresty-global-letsencrypt-server: $(fn-openresty-global-letsencrypt-server)"
       "--openresty-computed-letsencrypt-server: $(fn-openresty-computed-letsencrypt-server)"
+      "--openresty-global-log-level: $(fn-openresty-global-log-level)"
+      "--openresty-computed-log-level: $(fn-openresty-computed-log-level)"
       "--openresty-lingering-timeout: $(fn-openresty-lingering-timeout "$APP")"
       "--openresty-proxy-buffer-size: $(fn-openresty-proxy-buffer-size "$APP")"
       "--openresty-proxy-buffering: $(fn-openresty-proxy-buffering "$APP")"

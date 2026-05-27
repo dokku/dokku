@@ -93,6 +93,114 @@ teardown() {
   assert_success
 }
 
+@test "(ps:set) skip-deploy raw/global/computed" {
+  run /bin/bash -c "dokku ps:report $TEST_APP --format json | jq -r '.\"ps-computed-skip-deploy\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "false"
+  assert_success
+
+  run /bin/bash -c "dokku ps:set --global skip-deploy true"
+  assert_success
+
+  run /bin/bash -c "dokku ps:report $TEST_APP --format json | jq -r '.\"ps-global-skip-deploy\"'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku ps:report $TEST_APP --format json | jq -r '.\"ps-computed-skip-deploy\"'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku ps:report $TEST_APP --format json | jq -r '.\"ps-skip-deploy\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku ps:set $TEST_APP skip-deploy false"
+  assert_success
+
+  run /bin/bash -c "dokku ps:report $TEST_APP --format json | jq -r '.\"ps-skip-deploy\"'"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku ps:report $TEST_APP --format json | jq -r '.\"ps-global-skip-deploy\"'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku ps:report $TEST_APP --format json | jq -r '.\"ps-computed-skip-deploy\"'"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku ps:set $TEST_APP skip-deploy"
+  assert_success
+
+  run /bin/bash -c "dokku ps:set --global skip-deploy"
+  assert_success
+
+  run /bin/bash -c "dokku ps:report $TEST_APP --format json | jq -r '.\"ps-global-skip-deploy\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku ps:report $TEST_APP --format json | jq -r '.\"ps-computed-skip-deploy\"'"
+  assert_success
+  assert_output "false"
+}
+
+@test "(ps:set) dockerfile-start-cmd raw and computed" {
+  run /bin/bash -c "dokku ps:report $TEST_APP --format json | jq -r '.\"ps-dockerfile-start-cmd\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku ps:report $TEST_APP --format json | jq -r '.\"ps-computed-dockerfile-start-cmd\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku ps:set $TEST_APP dockerfile-start-cmd 'node app.js'"
+  assert_success
+
+  run /bin/bash -c "dokku ps:report $TEST_APP --format json | jq -r '.\"ps-dockerfile-start-cmd\"'"
+  assert_success
+  assert_output "node app.js"
+
+  run /bin/bash -c "dokku ps:report $TEST_APP --format json | jq -r '.\"ps-computed-dockerfile-start-cmd\"'"
+  assert_success
+  assert_output "node app.js"
+
+  run /bin/bash -c "dokku ps:set $TEST_APP dockerfile-start-cmd"
+  assert_success
+
+  run /bin/bash -c "dokku ps:report $TEST_APP --format json | jq -r '.\"ps-dockerfile-start-cmd\"'"
+  assert_success
+  assert_output ""
+}
+
+@test "(ps:set) start-cmd raw and computed" {
+  run /bin/bash -c "dokku ps:report $TEST_APP --format json | jq -r '.\"ps-start-cmd\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku ps:report $TEST_APP --format json | jq -r '.\"ps-computed-start-cmd\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku ps:set $TEST_APP start-cmd 'bundle exec rails server'"
+  assert_success
+
+  run /bin/bash -c "dokku ps:report $TEST_APP --format json | jq -r '.\"ps-start-cmd\"'"
+  assert_success
+  assert_output "bundle exec rails server"
+
+  run /bin/bash -c "dokku ps:report $TEST_APP --format json | jq -r '.\"ps-computed-start-cmd\"'"
+  assert_success
+  assert_output "bundle exec rails server"
+
+  run /bin/bash -c "dokku ps:set $TEST_APP start-cmd"
+  assert_success
+
+  run /bin/bash -c "dokku ps:report $TEST_APP --format json | jq -r '.\"ps-start-cmd\"'"
+  assert_success
+  assert_output ""
+}
+
 @test "(ps:scale) procfile commands extraction" {
   source "$PLUGIN_CORE_AVAILABLE_PATH/ps/functions"
   cat <<EOF >"$DOKKU_LIB_ROOT/data/ps/$TEST_APP/Procfile"

@@ -7,6 +7,9 @@ import (
 	"github.com/dokku/dokku/plugins/common"
 )
 
+// tokenMask is shown in place of the raw token value in default stdout output.
+const tokenMask = "*******"
+
 // ReportSingleApp is an internal function that displays the scheduler-k3s report for one or more apps
 func ReportSingleApp(appName string, format string, infoFlag string) error {
 	if appName != "--global" {
@@ -17,6 +20,12 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 
 	var flags map[string]common.ReportFunc
 	if appName == "--global" {
+		tokenFlag := "--scheduler-k3s-global-token"
+		tokenReportFunc := reportMaskedGlobalToken
+		if format == "json" || infoFlag == tokenFlag {
+			tokenReportFunc = reportGlobalToken
+		}
+
 		flags = map[string]common.ReportFunc{
 			"--scheduler-k3s-computed-deploy-timeout":         reportComputedDeployTimeout,
 			"--scheduler-k3s-global-deploy-timeout":           reportGlobalDeployTimeout,
@@ -44,6 +53,7 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 			"--scheduler-k3s-global-rollback-on-failure":      reportGlobalRollbackOnFailure,
 			"--scheduler-k3s-computed-shm-size":               reportComputedShmSize,
 			"--scheduler-k3s-global-shm-size":                 reportGlobalShmSize,
+			tokenFlag:                                         tokenReportFunc,
 		}
 	} else {
 		flags = map[string]common.ReportFunc{
@@ -266,4 +276,16 @@ func reportGlobalShmSize(appName string) string {
 
 func reportShmSize(appName string) string {
 	return getShmSize(appName)
+}
+
+func reportGlobalToken(appName string) string {
+	return getGlobalGlobalToken()
+}
+
+func reportMaskedGlobalToken(appName string) string {
+	value := getGlobalGlobalToken()
+	if value == "" {
+		return ""
+	}
+	return tokenMask
 }

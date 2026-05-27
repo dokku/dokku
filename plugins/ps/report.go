@@ -20,24 +20,33 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 	if appName == "--global" {
 		flags = map[string]common.ReportFunc{
 			"--ps-computed-procfile-path":        reportComputedProcfilePath,
+			"--ps-computed-skip-deploy":          reportComputedSkipDeploy,
 			"--ps-computed-stop-timeout-seconds": reportComputedStopTimeoutSeconds,
 			"--ps-global-procfile-path":          reportGlobalProcfilePath,
+			"--ps-global-skip-deploy":            reportGlobalSkipDeploy,
 			"--ps-global-stop-timeout-seconds":   reportGlobalStopTimeoutSeconds,
 		}
 	} else {
 		flags = map[string]common.ReportFunc{
-			"--deployed":                         reportDeployed,
-			"--processes":                        reportProcesses,
-			"--ps-can-scale":                     reportCanScale,
-			"--ps-restart-policy":                reportRestartPolicy,
-			"--ps-computed-procfile-path":        reportComputedProcfilePath,
-			"--ps-global-procfile-path":          reportGlobalProcfilePath,
-			"--ps-procfile-path":                 reportProcfilePath,
-			"--restore":                          reportRestore,
-			"--running":                          reportRunningState,
-			"--ps-global-stop-timeout-seconds":   reportGlobalStopTimeoutSeconds,
-			"--ps-computed-stop-timeout-seconds": reportComputedStopTimeoutSeconds,
-			"--ps-stop-timeout-seconds":          reportStopTimeoutSeconds,
+			"--deployed":                           reportDeployed,
+			"--processes":                          reportProcesses,
+			"--ps-can-scale":                       reportCanScale,
+			"--ps-computed-dockerfile-start-cmd":   reportComputedDockerfileStartCmd,
+			"--ps-computed-procfile-path":          reportComputedProcfilePath,
+			"--ps-computed-skip-deploy":            reportComputedSkipDeploy,
+			"--ps-computed-start-cmd":              reportComputedStartCmd,
+			"--ps-computed-stop-timeout-seconds":   reportComputedStopTimeoutSeconds,
+			"--ps-dockerfile-start-cmd":            reportDockerfileStartCmd,
+			"--ps-global-procfile-path":            reportGlobalProcfilePath,
+			"--ps-global-skip-deploy":              reportGlobalSkipDeploy,
+			"--ps-global-stop-timeout-seconds":     reportGlobalStopTimeoutSeconds,
+			"--ps-procfile-path":                   reportProcfilePath,
+			"--ps-restart-policy":                  reportRestartPolicy,
+			"--ps-skip-deploy":                     reportSkipDeploy,
+			"--ps-start-cmd":                       reportStartCmd,
+			"--ps-stop-timeout-seconds":            reportStopTimeoutSeconds,
+			"--restore":                            reportRestore,
+			"--running":                            reportRunningState,
 		}
 
 		extraFlags := addStatusFlags(appName, infoFlag)
@@ -99,6 +108,14 @@ func reportCanScale(appName string) string {
 	return canScale
 }
 
+func reportComputedDockerfileStartCmd(appName string) string {
+	return reportDockerfileStartCmd(appName)
+}
+
+func reportDockerfileStartCmd(appName string) string {
+	return common.PropertyGet("ps", appName, "dockerfile-start-cmd")
+}
+
 func reportComputedProcfilePath(appName string) string {
 	value := reportProcfilePath(appName)
 	if value == "" {
@@ -148,6 +165,34 @@ func reportRestartPolicy(appName string) string {
 
 func reportRestore(appName string) string {
 	return common.PropertyGetDefault("ps", appName, "restore", "true")
+}
+
+func reportComputedSkipDeploy(appName string) string {
+	value := reportSkipDeploy(appName)
+	if value == "" {
+		value = reportGlobalSkipDeploy(appName)
+	}
+	if value == "" {
+		value = "false"
+	}
+
+	return value
+}
+
+func reportGlobalSkipDeploy(appName string) string {
+	return common.PropertyGet("ps", "--global", "skip-deploy")
+}
+
+func reportSkipDeploy(appName string) string {
+	return common.PropertyGet("ps", appName, "skip-deploy")
+}
+
+func reportComputedStartCmd(appName string) string {
+	return reportStartCmd(appName)
+}
+
+func reportStartCmd(appName string) string {
+	return common.PropertyGet("ps", appName, "start-cmd")
 }
 
 func reportRunningState(appName string) string {

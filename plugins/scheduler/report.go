@@ -17,12 +17,17 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 		flags = map[string]common.ReportFunc{
 			"--scheduler-computed-selected": reportComputedSelected,
 			"--scheduler-global-selected":   reportGlobalSelected,
+			"--scheduler-computed-shell":    reportComputedShell,
+			"--scheduler-global-shell":      reportGlobalShell,
 		}
 	} else {
 		flags = map[string]common.ReportFunc{
 			"--scheduler-computed-selected": reportComputedSelected,
 			"--scheduler-global-selected":   reportGlobalSelected,
 			"--scheduler-selected":          reportSelected,
+			"--scheduler-computed-shell":    reportComputedShell,
+			"--scheduler-global-shell":      reportGlobalShell,
+			"--scheduler-shell":             reportShell,
 		}
 	}
 
@@ -55,4 +60,21 @@ func reportGlobalSelected(appName string) string {
 
 func reportSelected(appName string) string {
 	return common.PropertyGet("scheduler", appName, "selected")
+}
+
+func reportComputedShell(appName string) string {
+	value := reportShell(appName)
+	if value == "" {
+		value = reportGlobalShell(appName)
+	}
+
+	return value
+}
+
+func reportGlobalShell(appName string) string {
+	return common.PropertyGet("scheduler", "--global", "shell")
+}
+
+func reportShell(appName string) string {
+	return common.PropertyGet("scheduler", appName, "shell")
 }

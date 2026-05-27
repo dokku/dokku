@@ -9,6 +9,8 @@ setup() {
 }
 
 teardown() {
+  dokku proxy:set --global proxy-port >/dev/null 2>&1 || true
+  dokku proxy:set --global proxy-ssl-port >/dev/null 2>&1 || true
   destroy_app
   [[ -f "$DOKKU_ROOT/VHOST.bak" ]] && mv "$DOKKU_ROOT/VHOST.bak" "$DOKKU_ROOT/VHOST" && chown dokku:dokku "$DOKKU_ROOT/VHOST"
   global_teardown
@@ -123,6 +125,154 @@ teardown() {
 
   run /bin/bash -c "dokku proxy:set --global type"
   assert_success
+}
+
+@test "(proxy:report) proxy-port raw vs computed vs global" {
+  run /bin/bash -c "dokku proxy:set --global proxy-port"
+  assert_success
+
+  run /bin/bash -c "dokku proxy:set $TEST_APP proxy-port"
+  assert_success
+
+  run /bin/bash -c "dokku proxy:report $TEST_APP --format json | jq -r '.\"proxy-proxy-port\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku proxy:report $TEST_APP --format json | jq -r '.\"proxy-global-proxy-port\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku proxy:report $TEST_APP --format json | jq -r '.\"proxy-computed-proxy-port\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku proxy:set --global proxy-port 5000"
+  assert_success
+
+  run /bin/bash -c "dokku proxy:report $TEST_APP --format json | jq -r '.\"proxy-global-proxy-port\"'"
+  assert_success
+  assert_output "5000"
+
+  run /bin/bash -c "dokku proxy:report $TEST_APP --format json | jq -r '.\"proxy-computed-proxy-port\"'"
+  assert_success
+  assert_output "5000"
+
+  run /bin/bash -c "dokku proxy:set $TEST_APP proxy-port 6000"
+  assert_success
+
+  run /bin/bash -c "dokku proxy:report $TEST_APP --format json | jq -r '.\"proxy-proxy-port\"'"
+  assert_success
+  assert_output "6000"
+
+  run /bin/bash -c "dokku proxy:report $TEST_APP --format json | jq -r '.\"proxy-global-proxy-port\"'"
+  assert_success
+  assert_output "5000"
+
+  run /bin/bash -c "dokku proxy:report $TEST_APP --format json | jq -r '.\"proxy-computed-proxy-port\"'"
+  assert_success
+  assert_output "6000"
+
+  run /bin/bash -c "dokku proxy:set $TEST_APP proxy-port"
+  assert_success
+
+  run /bin/bash -c "dokku proxy:set --global proxy-port"
+  assert_success
+}
+
+@test "(proxy:report) proxy-ssl-port raw vs computed vs global" {
+  run /bin/bash -c "dokku proxy:set --global proxy-ssl-port"
+  assert_success
+
+  run /bin/bash -c "dokku proxy:set $TEST_APP proxy-ssl-port"
+  assert_success
+
+  run /bin/bash -c "dokku proxy:report $TEST_APP --format json | jq -r '.\"proxy-proxy-ssl-port\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku proxy:report $TEST_APP --format json | jq -r '.\"proxy-global-proxy-ssl-port\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku proxy:report $TEST_APP --format json | jq -r '.\"proxy-computed-proxy-ssl-port\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku proxy:set --global proxy-ssl-port 5443"
+  assert_success
+
+  run /bin/bash -c "dokku proxy:report $TEST_APP --format json | jq -r '.\"proxy-global-proxy-ssl-port\"'"
+  assert_success
+  assert_output "5443"
+
+  run /bin/bash -c "dokku proxy:report $TEST_APP --format json | jq -r '.\"proxy-computed-proxy-ssl-port\"'"
+  assert_success
+  assert_output "5443"
+
+  run /bin/bash -c "dokku proxy:set $TEST_APP proxy-ssl-port 6443"
+  assert_success
+
+  run /bin/bash -c "dokku proxy:report $TEST_APP --format json | jq -r '.\"proxy-proxy-ssl-port\"'"
+  assert_success
+  assert_output "6443"
+
+  run /bin/bash -c "dokku proxy:report $TEST_APP --format json | jq -r '.\"proxy-global-proxy-ssl-port\"'"
+  assert_success
+  assert_output "5443"
+
+  run /bin/bash -c "dokku proxy:report $TEST_APP --format json | jq -r '.\"proxy-computed-proxy-ssl-port\"'"
+  assert_success
+  assert_output "6443"
+
+  run /bin/bash -c "dokku proxy:set $TEST_APP proxy-ssl-port"
+  assert_success
+
+  run /bin/bash -c "dokku proxy:set --global proxy-ssl-port"
+  assert_success
+}
+
+@test "(proxy:report) disabled raw and computed match disabled state" {
+  run /bin/bash -c "dokku proxy:report $TEST_APP --format json | jq -r '.\"proxy-disabled\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku proxy:report $TEST_APP --format json | jq -r '.\"proxy-computed-disabled\"'"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku proxy:report $TEST_APP --format json | jq -r '.\"proxy-enabled\"'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku proxy:disable $TEST_APP"
+  assert_success
+
+  run /bin/bash -c "dokku proxy:report $TEST_APP --format json | jq -r '.\"proxy-disabled\"'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku proxy:report $TEST_APP --format json | jq -r '.\"proxy-computed-disabled\"'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku proxy:report $TEST_APP --format json | jq -r '.\"proxy-enabled\"'"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku proxy:enable $TEST_APP"
+  assert_success
+
+  run /bin/bash -c "dokku proxy:report $TEST_APP --format json | jq -r '.\"proxy-disabled\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku proxy:report $TEST_APP --format json | jq -r '.\"proxy-computed-disabled\"'"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku proxy:report $TEST_APP --format json | jq -r '.\"proxy-enabled\"'"
+  assert_success
+  assert_output "true"
 }
 
 @test "(proxy:set) invalid port mapping set" {

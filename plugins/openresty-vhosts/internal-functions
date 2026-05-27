@@ -190,6 +190,23 @@ fn-openresty-computed-letsencrypt-server() {
   echo "$value"
 }
 
+fn-openresty-global-log-level() {
+  declare desc="get the raw configured log level"
+
+  fn-plugin-property-get-default "openresty" "--global" "log-level" ""
+}
+
+fn-openresty-computed-log-level() {
+  declare desc="get the effective log level, falling back to ERROR"
+  local value
+
+  value="$(fn-openresty-global-log-level)"
+  if [[ -z "$value" ]]; then
+    value="ERROR"
+  fi
+  echo "$value"
+}
+
 fn-openresty-log-root() {
   declare desc="get the openresty log root"
   local OPENRESTY_LOG_ROOT="/var/log/nginx"

@@ -15,18 +15,23 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 	var flags map[string]common.ReportFunc
 	if appName == "--global" {
 		flags = map[string]common.ReportFunc{
-			"--builder-global-selected":  reportGlobalSelected,
-			"--builder-global-build-dir": reportGlobalBuildDir,
+			"--builder-global-selected":        reportGlobalSelected,
+			"--builder-global-build-dir":       reportGlobalBuildDir,
+			"--builder-global-skip-cleanup":    reportGlobalSkipCleanup,
+			"--builder-computed-skip-cleanup":  reportComputedSkipCleanup,
 		}
 	} else {
 		flags = map[string]common.ReportFunc{
-			"--builder-computed-selected":  reportComputedSelected,
-			"--builder-global-selected":    reportGlobalSelected,
-			"--builder-selected":           reportSelected,
-			"--builder-detected":           reportDetected,
-			"--builder-computed-build-dir": reportComputedBuildDir,
-			"--builder-global-build-dir":   reportGlobalBuildDir,
-			"--builder-build-dir":          reportBuildDir,
+			"--builder-computed-selected":     reportComputedSelected,
+			"--builder-global-selected":       reportGlobalSelected,
+			"--builder-selected":              reportSelected,
+			"--builder-detected":              reportDetected,
+			"--builder-computed-build-dir":    reportComputedBuildDir,
+			"--builder-global-build-dir":      reportGlobalBuildDir,
+			"--builder-build-dir":             reportBuildDir,
+			"--builder-computed-skip-cleanup": reportComputedSkipCleanup,
+			"--builder-global-skip-cleanup":   reportGlobalSkipCleanup,
+			"--builder-skip-cleanup":          reportSkipCleanup,
 		}
 	}
 
@@ -76,4 +81,24 @@ func reportGlobalBuildDir(appName string) string {
 
 func reportBuildDir(appName string) string {
 	return common.PropertyGet("builder", appName, "build-dir")
+}
+
+func reportComputedSkipCleanup(appName string) string {
+	value := reportSkipCleanup(appName)
+	if value == "" {
+		value = reportGlobalSkipCleanup(appName)
+	}
+	if value == "" {
+		value = "false"
+	}
+
+	return value
+}
+
+func reportGlobalSkipCleanup(appName string) string {
+	return common.PropertyGet("builder", "--global", "skip-cleanup")
+}
+
+func reportSkipCleanup(appName string) string {
+	return common.PropertyGet("builder", appName, "skip-cleanup")
 }

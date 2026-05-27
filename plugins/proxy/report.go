@@ -15,15 +15,27 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 	var flags map[string]common.ReportFunc
 	if appName == "--global" {
 		flags = map[string]common.ReportFunc{
-			"--proxy-computed-type": reportComputedType,
-			"--proxy-global-type":   reportGlobalType,
+			"--proxy-computed-proxy-port":     reportComputedProxyPort,
+			"--proxy-computed-proxy-ssl-port": reportComputedProxySSLPort,
+			"--proxy-computed-type":           reportComputedType,
+			"--proxy-global-proxy-port":       reportGlobalProxyPort,
+			"--proxy-global-proxy-ssl-port":   reportGlobalProxySSLPort,
+			"--proxy-global-type":             reportGlobalType,
 		}
 	} else {
 		flags = map[string]common.ReportFunc{
-			"--proxy-enabled":       reportEnabled,
-			"--proxy-computed-type": reportComputedType,
-			"--proxy-global-type":   reportGlobalType,
-			"--proxy-type":          reportType,
+			"--proxy-computed-disabled":       reportComputedDisabled,
+			"--proxy-computed-proxy-port":     reportComputedProxyPort,
+			"--proxy-computed-proxy-ssl-port": reportComputedProxySSLPort,
+			"--proxy-computed-type":           reportComputedType,
+			"--proxy-disabled":                reportDisabled,
+			"--proxy-enabled":                 reportEnabled,
+			"--proxy-global-proxy-port":       reportGlobalProxyPort,
+			"--proxy-global-proxy-ssl-port":   reportGlobalProxySSLPort,
+			"--proxy-global-type":             reportGlobalType,
+			"--proxy-proxy-port":              reportProxyPort,
+			"--proxy-proxy-ssl-port":          reportProxySSLPort,
+			"--proxy-type":                    reportType,
 		}
 	}
 
@@ -57,4 +69,36 @@ func reportGlobalType(appName string) string {
 
 func reportType(appName string) string {
 	return getAppProxyType(appName)
+}
+
+func reportDisabled(appName string) string {
+	return getAppDisabled(appName)
+}
+
+func reportComputedDisabled(appName string) string {
+	return getComputedDisabled(appName)
+}
+
+func reportProxyPort(appName string) string {
+	return getAppProxyPort(appName)
+}
+
+func reportGlobalProxyPort(appName string) string {
+	return getGlobalProxyPort()
+}
+
+func reportComputedProxyPort(appName string) string {
+	return getComputedProxyPort(appName)
+}
+
+func reportProxySSLPort(appName string) string {
+	return getAppProxySSLPort(appName)
+}
+
+func reportGlobalProxySSLPort(appName string) string {
+	return getGlobalProxySSLPort()
+}
+
+func reportComputedProxySSLPort(appName string) string {
+	return getComputedProxySSLPort(appName)
 }

@@ -332,11 +332,3 @@ func TriggerPsGetProperty(appName string, property string) error {
 	fmt.Println(fn(appName))
 	return nil
 }
-
-func reportComputedSkipDeploy(appName string) string {
-	value := common.PropertyGet("ps", appName, "skip-deploy")
-	if value == "" {
-		value = common.PropertyGet("ps", "--global", "skip-deploy")
-	}
-	return value
-}

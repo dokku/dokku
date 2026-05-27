@@ -181,7 +181,7 @@ For a simple example of how to implement this trigger, see `builder-pack`, which
 |---|---|---|---|---|
 | `build-dir` | app + global | none | `--builder-build-dir`, `--builder-global-build-dir`, `--builder-computed-build-dir` | Subdirectory within the repository to use as the build context |
 | `selected` | app + global | none | `--builder-selected`, `--builder-global-selected`, `--builder-computed-selected` | Builder plugin to use; overrides automatic detection |
-| `skip-cleanup` | app + global | none | (not in report) | When `true`, leaves intermediate build artifacts in place after the build |
+| `skip-cleanup` | app + global | `false` | `--builder-skip-cleanup`, `--builder-global-skip-cleanup`, `--builder-computed-skip-cleanup` | When `true`, leaves intermediate build artifacts in place after the build |
 
 ### Read-only flags
 

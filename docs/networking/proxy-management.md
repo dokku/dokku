@@ -243,9 +243,9 @@ Finally, proxy implementations _may_ install extra software needed for the proxy
 
 | Property | Scope | Default | Report flags | Description |
 |---|---|---|---|---|
-| `disabled` | app only | `false` | (exposed inverted as `--proxy-enabled`) | When `true`, disables proxy integration for this app (`proxy:enable`/`proxy:disable` write this) |
-| `proxy-port` | app + global | none | (not in report) | Override port used for the HTTP listener in the generated proxy config |
-| `proxy-ssl-port` | app + global | none | (not in report) | Override port used for the HTTPS listener in the generated proxy config |
+| `disabled` | app only | `false` | `--proxy-disabled`, `--proxy-computed-disabled` (also exposed inverted as `--proxy-enabled`) | When `true`, disables proxy integration for this app (`proxy:enable`/`proxy:disable` write this) |
+| `proxy-port` | app + global | none | `--proxy-proxy-port`, `--proxy-global-proxy-port`, `--proxy-computed-proxy-port` | Override port used for the HTTP listener in the generated proxy config |
+| `proxy-ssl-port` | app + global | none | `--proxy-proxy-ssl-port`, `--proxy-global-proxy-ssl-port`, `--proxy-computed-proxy-ssl-port` | Override port used for the HTTPS listener in the generated proxy config |
 | `type` | app + global | `nginx` | `--proxy-type`, `--proxy-global-type`, `--proxy-computed-type` | Proxy implementation handling traffic for the app (`nginx`, `caddy`, `haproxy`, `traefik`, `openresty`, or a custom plugin) |
 
 ### Read-only flags

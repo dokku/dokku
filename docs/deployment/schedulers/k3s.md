@@ -807,5 +807,5 @@ If unspecified for any task, the default reservation will be `.1` CPU and `128Mi
 | `network-interface` | global only | `eth0` | `--scheduler-k3s-global-network-interface`, `--scheduler-k3s-computed-network-interface` | Host network interface used by k3s |
 | `rollback-on-failure` | app + global | `false` | `--scheduler-k3s-rollback-on-failure`, `--scheduler-k3s-global-rollback-on-failure`, `--scheduler-k3s-computed-rollback-on-failure` | When `true`, helm rolls back the release if a deploy fails |
 | `shm-size` | app + global | none | `--scheduler-k3s-shm-size`, `--scheduler-k3s-global-shm-size`, `--scheduler-k3s-computed-shm-size` | `/dev/shm` size override applied to app containers |
-| `token` | global only | none | (not in report) | Cluster join token used by `scheduler-k3s:cluster-add` |
+| `token` | global only | none | `--scheduler-k3s-global-token` (masked as `*******` in default stdout output; the raw value is returned when queried via `--format json` or when this flag is requested explicitly) | Cluster join token used by `scheduler-k3s:cluster-add` |
 | `chart.<chart-name>.<property>` | global only | none | `--scheduler-k3s-global-chart.<chart-name>.<property>` (dynamic per chart/property) | Override a value injected into the helm chart named `<chart-name>` (one row per chart/property pair) |
