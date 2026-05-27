@@ -124,7 +124,15 @@ teardown() {
   assert_success
   assert_output "true"
 
+  run /bin/bash -c "dokku cron:report --global --format json | jq -r 'has(\"global-maintenance\")'"
+  assert_success
+  assert_output "true"
+
   run /bin/bash -c "dokku cron:report --global --format json | jq -r 'has(\"cron-computed-maintenance\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku cron:report --global --format json | jq -r 'has(\"computed-maintenance\")'"
   assert_success
   assert_output "true"
 
@@ -132,7 +140,15 @@ teardown() {
   assert_success
   assert_output "true"
 
+  run /bin/bash -c "dokku cron:report --global --format json | jq -r 'has(\"global-mailfrom\")'"
+  assert_success
+  assert_output "true"
+
   run /bin/bash -c "dokku cron:report --global --format json | jq -r 'has(\"cron-computed-mailfrom\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku cron:report --global --format json | jq -r 'has(\"computed-mailfrom\")'"
   assert_success
   assert_output "true"
 
@@ -140,7 +156,15 @@ teardown() {
   assert_success
   assert_output "true"
 
+  run /bin/bash -c "dokku cron:report --global --format json | jq -r 'has(\"global-mailto\")'"
+  assert_success
+  assert_output "true"
+
   run /bin/bash -c "dokku cron:report --global --format json | jq -r 'has(\"cron-computed-mailto\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku cron:report --global --format json | jq -r 'has(\"computed-mailto\")'"
   assert_success
   assert_output "true"
 

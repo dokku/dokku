@@ -41,9 +41,17 @@ func ReportSingleApp(appName, format, infoFlag string) error {
 		flagKeys = append(flagKeys, flagKey)
 	}
 
-	trimPrefix := true
-	uppercaseFirstCharacter := false
-	return common.ReportSingleApp("resource", appName, infoFlag, flags, flagKeys, format, trimPrefix, uppercaseFirstCharacter)
+	return common.ReportSingleApp(common.ReportSingleAppInput{
+		ReportType:              "resource",
+		AppName:                 appName,
+		InfoFlag:                infoFlag,
+		InfoFlags:               flags,
+		InfoFlagKeys:            flagKeys,
+		Format:                  format,
+		TrimPrefix:              true,
+		UppercaseFirstCharacter: false,
+		EmitLegacyPrefix:        true,
+	})
 }
 
 // GetResourceValue fetches a single value for a given app/process/request/key combination

@@ -370,3 +370,13 @@ teardown() {
   assert_success
   assert_output "http:3001:3001"
 }
+
+@test "(ports:report) emits new stripped JSON keys alongside legacy" {
+  run /bin/bash -c "dokku ports:report $TEST_APP --format json | jq -r 'has(\"map\") and has(\"ports-map\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku ports:report $TEST_APP --format json | jq -r 'has(\"map-detected\") and has(\"ports-map-detected\")'"
+  assert_success
+  assert_output "true"
+}

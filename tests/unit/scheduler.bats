@@ -145,3 +145,21 @@ teardown() {
   assert_success
   assert_output "false"
 }
+
+@test "(scheduler:report) emits new stripped JSON keys alongside legacy" {
+  run /bin/bash -c "dokku scheduler:report $TEST_APP --format json | jq -r 'has(\"selected\") and has(\"scheduler-selected\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku scheduler:report $TEST_APP --format json | jq -r 'has(\"global-selected\") and has(\"scheduler-global-selected\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku scheduler:report $TEST_APP --format json | jq -r 'has(\"computed-selected\") and has(\"scheduler-computed-selected\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku scheduler:report --global --format json | jq -r 'has(\"global-selected\") and has(\"scheduler-global-selected\")'"
+  assert_success
+  assert_output "true"
+}

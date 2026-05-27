@@ -486,3 +486,17 @@ teardown() {
   run /bin/bash -c "sudo test -e $flag_dir/$TEST_APP"
   assert_failure
 }
+
+@test "(storage:report) emits new stripped JSON keys alongside legacy" {
+  run /bin/bash -c "dokku storage:report $TEST_APP --format json | jq -r 'has(\"build-mounts\") and has(\"storage-build-mounts\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --format json | jq -r 'has(\"deploy-mounts\") and has(\"storage-deploy-mounts\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --format json | jq -r 'has(\"run-mounts\") and has(\"storage-run-mounts\")'"
+  assert_success
+  assert_output "true"
+}

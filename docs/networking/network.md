@@ -516,6 +516,9 @@ dokku network:report node-js-app --network-bind-all-interfaces
 
 ### Settable properties
 
+> [!NOTE]
+> The `Report flags` column lists the CLI argument names accepted by `network:report`. The JSON keys emitted by `network:report --format json` are the same names with the leading `--network-` stripped (e.g. `attach-post-create`, `global-attach-post-create`, `computed-attach-post-create`). Legacy keys with the `network-` prefix (e.g. `network-attach-post-create`) are also emitted during the 0.38.x deprecation window and will be removed in a future major release.
+
 | Property | Scope | Default | Report flags | Description |
 |---|---|---|---|---|
 | `attach-post-create` | app + global | none | `--network-attach-post-create`, `--network-global-attach-post-create`, `--network-computed-attach-post-create` | Networks attached to a container immediately after creation, before the deploy phase |

@@ -231,6 +231,9 @@ dokku registry:set --global push-extra-tags
 
 ### Settable properties
 
+> [!NOTE]
+> The `Report flags` column lists the CLI argument names accepted by `registry:report`. The JSON keys emitted by `registry:report --format json` are the same names with the leading `--registry-` stripped (e.g. `image-repo`, `global-server`, `computed-push-on-release`). Legacy keys with the `registry-` prefix (e.g. `registry-image-repo`) are also emitted during the 0.38.x deprecation window and will be removed in a future major release.
+
 | Property | Scope | Default | Report flags | Description |
 |---|---|---|---|---|
 | `image-repo` | app only | `dokku/<app>` | `--registry-image-repo`, `--registry-computed-image-repo` | Repository name used when pushing the app's image (overrides the global template) |

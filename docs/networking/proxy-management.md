@@ -241,6 +241,9 @@ Finally, proxy implementations _may_ install extra software needed for the proxy
 
 ### Settable properties
 
+> [!NOTE]
+> The `Report flags` column lists the CLI argument names accepted by `proxy:report`. The JSON keys emitted by `proxy:report --format json` are the same names with the leading `--proxy-` stripped (e.g. `type`, `global-type`, `computed-type`). Legacy keys with the `proxy-` prefix (e.g. `proxy-type`) are also emitted during the 0.38.x deprecation window and will be removed in a future major release.
+
 | Property | Scope | Default | Report flags | Description |
 |---|---|---|---|---|
 | `disabled` | app only | `false` | `--proxy-disabled`, `--proxy-computed-disabled` (also exposed inverted as `--proxy-enabled`) | When `true`, disables proxy integration for this app (`proxy:enable`/`proxy:disable` write this) |

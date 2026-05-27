@@ -792,6 +792,9 @@ If unspecified for any task, the default reservation will be `.1` CPU and `128Mi
 
 ### Settable properties
 
+> [!NOTE]
+> The `Report flags` column lists the CLI argument names accepted by `scheduler-k3s:report`. The JSON keys emitted by `scheduler-k3s:report --format json` are the same names with the leading `--scheduler-k3s-` stripped (e.g. `deploy-timeout`, `global-deploy-timeout`, `computed-deploy-timeout`). Legacy keys with the `scheduler-k3s-` prefix are also emitted during the 0.38.x deprecation window and will be removed in a future major release.
+
 | Property | Scope | Default | Report flags | Description |
 |---|---|---|---|---|
 | `deploy-timeout` | app + global | `300s` | `--scheduler-k3s-deploy-timeout`, `--scheduler-k3s-global-deploy-timeout`, `--scheduler-k3s-computed-deploy-timeout` | Timeout for a single helm install/upgrade cycle |

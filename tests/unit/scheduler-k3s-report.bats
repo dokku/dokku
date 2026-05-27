@@ -158,3 +158,21 @@ assert_k3s_global_unset_set() {
   run /bin/bash -c "dokku scheduler-k3s:set --global token"
   assert_success
 }
+
+@test "(scheduler-k3s:report) emits new stripped JSON keys alongside legacy" {
+  run /bin/bash -c "dokku scheduler-k3s:report --global --format json | jq -r 'has(\"global-deploy-timeout\") and has(\"scheduler-k3s-global-deploy-timeout\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku scheduler-k3s:report --global --format json | jq -r 'has(\"computed-deploy-timeout\") and has(\"scheduler-k3s-computed-deploy-timeout\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku scheduler-k3s:report --global --format json | jq -r 'has(\"global-namespace\") and has(\"scheduler-k3s-global-namespace\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku scheduler-k3s:report --global --format json | jq -r 'has(\"computed-namespace\") and has(\"scheduler-k3s-computed-namespace\")'"
+  assert_success
+  assert_output "true"
+}

@@ -184,9 +184,11 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_contains '"docker-options-deploy.web"'
-  assert_output_contains "-p 8080:5000"
+  assert_output_contains '"deploy.web"'
+  assert_output_contains "-p 8080:5000" 2
   assert_output_contains '"docker-options-deploy"'
-  assert_output_contains "-v /logs:/logs"
+  assert_output_contains '"deploy"'
+  assert_output_contains "-v /logs:/logs" 2
 }
 
 @test "(docker-options) clone copies default and per-process options" {

@@ -42,7 +42,17 @@ func ReportSingleApp(appName, format, infoFlag string) error {
 	}
 
 	infoFlags := common.CollectReport(appName, infoFlag, flags)
-	return common.ReportSingleApp("builds", appName, infoFlag, infoFlags, flagKeys, format, false, true)
+	return common.ReportSingleApp(common.ReportSingleAppInput{
+		ReportType:              "builds",
+		AppName:                 appName,
+		InfoFlag:                infoFlag,
+		InfoFlags:               infoFlags,
+		InfoFlagKeys:            flagKeys,
+		Format:                  format,
+		TrimPrefix:              true,
+		UppercaseFirstCharacter: true,
+		EmitLegacyPrefix:        true,
+	})
 }
 
 func mostRecentBuild(appName string) (Build, bool) {

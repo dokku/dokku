@@ -367,3 +367,21 @@ teardown() {
 
   destroy_app
 }
+
+@test "(apps:report) emits new stripped JSON keys alongside legacy" {
+  create_app
+
+  run /bin/bash -c "dokku apps:report $TEST_APP --format json | jq -r 'has(\"dir\") and has(\"app-dir\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku apps:report $TEST_APP --format json | jq -r 'has(\"locked\") and has(\"app-locked\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku apps:report $TEST_APP --format json | jq -r 'has(\"deploy-source\") and has(\"app-deploy-source\")'"
+  assert_success
+  assert_output "true"
+
+  destroy_app
+}

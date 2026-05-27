@@ -372,3 +372,21 @@ teardown() {
     assert_not_external_port $(<$CID_FILE)
   done
 }
+
+@test "(proxy:report) emits new stripped JSON keys alongside legacy" {
+  run /bin/bash -c "dokku proxy:report $TEST_APP --format json | jq -r 'has(\"type\") and has(\"proxy-type\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku proxy:report $TEST_APP --format json | jq -r 'has(\"global-type\") and has(\"proxy-global-type\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku proxy:report $TEST_APP --format json | jq -r 'has(\"computed-type\") and has(\"proxy-computed-type\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku proxy:report $TEST_APP --format json | jq -r 'has(\"enabled\") and has(\"proxy-enabled\")'"
+  assert_success
+  assert_output "true"
+}

@@ -301,6 +301,9 @@ SHELL=/bin/bash
 
 ### Settable properties
 
+> [!NOTE]
+> The `Report flags` column lists the CLI argument names accepted by `cron:report`. The JSON keys emitted by `cron:report --format json` are the same names with the leading `--cron-` stripped (e.g. `global-mailto`, `computed-mailto`, `maintenance`). Legacy keys with the `cron-` prefix (e.g. `cron-global-mailto`) are also emitted during the 0.38.x deprecation window and will be removed in a future major release.
+
 | Property | Scope | Default | Report flags | Description |
 |---|---|---|---|---|
 | `mailfrom` | global only | none | `--cron-global-mailfrom`, `--cron-computed-mailfrom` | `From:` address used in cron failure emails |

@@ -965,3 +965,28 @@ teardown() {
   assert_success
   assert_output_contains "Stopping and removing vector container"
 }
+
+@test "(logs:report) emits new stripped JSON keys alongside legacy" {
+  run create_app
+  assert_success
+
+  run /bin/bash -c "dokku logs:report $TEST_APP --format json | jq -r 'has(\"vector-sink\") and has(\"logs-vector-sink\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku logs:report $TEST_APP --format json | jq -r 'has(\"global-vector-sink\") and has(\"logs-global-vector-sink\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku logs:report $TEST_APP --format json | jq -r 'has(\"computed-vector-sink\") and has(\"logs-computed-vector-sink\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku logs:report $TEST_APP --format json | jq -r 'has(\"max-size\") and has(\"logs-max-size\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku logs:report --global --format json | jq -r 'has(\"global-vector-image\") and has(\"logs-global-vector-image\")'"
+  assert_success
+  assert_output "true"
+}
