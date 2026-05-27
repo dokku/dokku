@@ -107,8 +107,8 @@ func NewHelmAgent(namespace string, logger action.DebugLog) (*HelmAgent, error) 
 		helmDriver = "secrets"
 	}
 
-	kubeconfigPath := getKubeconfigPath()
-	kubeContext := getKubeContext()
+	kubeconfigPath := getComputedKubeconfigPath()
+	kubeContext := getComputedKubeContext()
 	kubeConfig := kube.GetConfig(kubeconfigPath, kubeContext, namespace)
 	if err := actionConfig.Init(kubeConfig, namespace, helmDriver, logger); err != nil {
 		return nil, err

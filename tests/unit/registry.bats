@@ -226,6 +226,77 @@ teardown() {
   assert_success
 }
 
+@test "(registry:report --global) computed and global keys" {
+  run /bin/bash -c "dokku registry:set --global push-on-release"
+  assert_success
+  run /bin/bash -c "dokku registry:set --global server"
+  assert_success
+  run /bin/bash -c "dokku registry:set --global image-repo-template"
+  assert_success
+
+  run /bin/bash -c "dokku registry:report --global --format json | jq -r '.\"registry-global-push-on-release\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku registry:report --global --format json | jq -r '.\"registry-computed-push-on-release\"'"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku registry:report --global --format json | jq -r '.\"registry-global-server\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku registry:report --global --format json | jq -r '.\"registry-computed-server\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku registry:report --global --format json | jq -r '.\"registry-global-image-repo-template\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku registry:report --global --format json | jq -r '.\"registry-computed-image-repo-template\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku registry:set --global push-on-release true"
+  assert_success
+  run /bin/bash -c "dokku registry:set --global server ghcr.io"
+  assert_success
+  run /bin/bash -c "dokku registry:set --global image-repo-template 'dokku/{{ APP }}'"
+  assert_success
+
+  run /bin/bash -c "dokku registry:report --global --format json | jq -r '.\"registry-global-push-on-release\"'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku registry:report --global --format json | jq -r '.\"registry-computed-push-on-release\"'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku registry:report --global --format json | jq -r '.\"registry-global-server\"'"
+  assert_success
+  assert_output "ghcr.io"
+
+  run /bin/bash -c "dokku registry:report --global --format json | jq -r '.\"registry-computed-server\"'"
+  assert_success
+  assert_output "ghcr.io/"
+
+  run /bin/bash -c "dokku registry:report --global --format json | jq -r '.\"registry-global-image-repo-template\"'"
+  assert_success
+  assert_output 'dokku/{{ APP }}'
+
+  run /bin/bash -c "dokku registry:report --global --format json | jq -r '.\"registry-computed-image-repo-template\"'"
+  assert_success
+  assert_output 'dokku/{{ APP }}'
+
+  run /bin/bash -c "dokku registry:set --global push-on-release"
+  assert_success
+  run /bin/bash -c "dokku registry:set --global server"
+  assert_success
+  run /bin/bash -c "dokku registry:set --global image-repo-template"
+  assert_success
+}
+
 @test "(registry:report) push-extra-tags raw" {
   run /bin/bash -c "dokku registry:report $TEST_APP --format json | jq -r '.\"registry-push-extra-tags\"'"
   assert_success

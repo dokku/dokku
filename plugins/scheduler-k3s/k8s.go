@@ -40,12 +40,30 @@ import (
 	"k8s.io/utils/ptr"
 )
 
-func getKubeconfigPath() string {
-	return common.PropertyGetDefault("scheduler-k3s", "--global", "kubeconfig-path", KubeConfigPath)
+func getGlobalKubeconfigPath() string {
+	return common.PropertyGet("scheduler-k3s", "--global", "kubeconfig-path")
 }
 
-func getKubeContext() string {
-	return common.PropertyGetDefault("scheduler-k3s", "--global", "kube-context", DefaultKubeContext)
+func getComputedKubeconfigPath() string {
+	kubeconfigPath := getGlobalKubeconfigPath()
+	if kubeconfigPath == "" {
+		kubeconfigPath = KubeConfigPath
+	}
+
+	return kubeconfigPath
+}
+
+func getGlobalKubeContext() string {
+	return common.PropertyGet("scheduler-k3s", "--global", "kube-context")
+}
+
+func getComputedKubeContext() string {
+	kubeContext := getGlobalKubeContext()
+	if kubeContext == "" {
+		kubeContext = DefaultKubeContext
+	}
+
+	return kubeContext
 }
 
 type NotFoundError struct {
@@ -84,8 +102,8 @@ type KubernetesClient struct {
 
 // NewKubernetesClient creates a new Kubernetes client
 func NewKubernetesClient() (KubernetesClient, error) {
-	kubeconfigPath := getKubeconfigPath()
-	kubeContext := getKubeContext()
+	kubeconfigPath := getComputedKubeconfigPath()
+	kubeContext := getComputedKubeContext()
 	clientConfig := KubernetesClientConfig(kubeconfigPath, kubeContext)
 	restConf, err := clientConfig.ClientConfig()
 	if err != nil {
@@ -220,11 +238,11 @@ func (k KubernetesClient) ApplyKubernetesManifest(ctx context.Context, input App
 		input.Manifest,
 	}
 
-	if kubeContext := getKubeContext(); kubeContext != "" {
+	if kubeContext := getComputedKubeContext(); kubeContext != "" {
 		args = append([]string{"--context", kubeContext}, args...)
 	}
 
-	if kubeconfigPath := getKubeconfigPath(); kubeconfigPath != "" {
+	if kubeconfigPath := getComputedKubeconfigPath(); kubeconfigPath != "" {
 		args = append([]string{"--kubeconfig", kubeconfigPath}, args...)
 	}
 
