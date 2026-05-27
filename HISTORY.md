@@ -1,5 +1,43 @@
 # History
 
+## 0.38.7
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.38.7/bootstrap.sh
+sudo DOKKU_TAG=v0.38.7 bash bootstrap.sh
+```
+
+### Security
+
+- #8672: @josegonzalez Prevent host shell injection from app.json cron commands
+
+### Bug Fixes
+
+- #8669: @josegonzalez Recover deployed image from registry on local miss
+- #8679: @josegonzalez Align ps/cron :report --global keys with plugin convention
+- #8678: @josegonzalez Split openresty report keys into global and computed pairs
+- #8676: @immanuwell Use SYSTEM for shfmt Darwin detection
+
+### New Features
+
+- #8677: @josegonzalez Warn on deprecated listen http2 in custom nginx templates
+
+### Tests
+
+- #8683: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 290 to 291 in /tests/apps/php
+- #8671: @josegonzalez Qualify scheduler-k3s ingressroute kubectl lookups
+
+### Dependencies
+
+- #8682: @dependabot[bot] chore(deps): bump k8s.io/apimachinery from 0.36.0 to 0.36.1 in /plugins/scheduler-k3s
+- #8681: @dependabot[bot] chore(deps): bump soupsieve from 2.8.3 to 2.8.4 in /docs/_build
+
+### Other
+
+- #8680: @josegonzalez Split more report global keys into raw and computed
+
 ## 0.38.6
 
 Install/update via the bootstrap script:
