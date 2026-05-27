@@ -176,7 +176,7 @@ cmd-git-load-image() {
   dokku_setup_build_capture "$APP" "git:load-image"
   cat | docker load
 
-  if ! verify_image "$DOCKER_IMAGE"; then
+  if ! fn-verify-app-image "$APP" "$DOCKER_IMAGE"; then
     dokku_log_fail "Loaded image tarball but the specified docker image was not found: $DOCKER_IMAGE"
   fi
 

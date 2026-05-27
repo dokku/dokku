@@ -279,13 +279,54 @@ verify_app_name() {
 }
 
 verify_image() {
-  declare desc="verify image existence"
+  declare desc="[deprecated] verify image existence. Use 'fn-verify-app-image' instead."
   local IMAGE="$1"
+  dokku_log_warn "Deprecated: please use 'fn-verify-app-image' instead of 'verify_image'"
   if "$DOCKER_BIN" image inspect "$IMAGE" &>/dev/null; then
     return 0
   else
     return 1
   fi
+}
+
+fn-verify-app-image() {
+  declare desc="verify image existence, pulling from the registry when push-on-release is enabled"
+  declare APP="$1" IMAGE="$2"
+
+  if "$DOCKER_BIN" image inspect "$IMAGE" &>/dev/null; then
+    return 0
+  fi
+
+  if [[ "$IMAGE" == *:latest ]]; then
+    return 1
+  fi
+
+  local DEPLOYED_TAG
+  DEPLOYED_TAG="$(plugn trigger deployed-app-image-tag "$APP")"
+  if [[ -z "$DEPLOYED_TAG" ]]; then
+    return 1
+  fi
+
+  local DOCKER_CONFIG
+  DOCKER_CONFIG="$(fn-registry-docker-config-dir "$APP")"
+  [[ -n "$DOCKER_CONFIG" ]] && export DOCKER_CONFIG
+
+  local REMOTE_REPO DEPLOYED_REPO TAG
+  REMOTE_REPO="$(plugn trigger deployed-app-repository "$APP")"
+  DEPLOYED_REPO="$(plugn trigger deployed-app-image-repo "$APP")"
+  TAG="${IMAGE##*:}"
+
+  dokku_log_info1 "Image $IMAGE not found locally, pulling from registry" 1>&2
+  if [[ -n "$DEPLOYED_REPO" ]] && [[ "$IMAGE" == "${REMOTE_REPO}${DEPLOYED_REPO}:"* ]]; then
+    "$DOCKER_BIN" image pull "$IMAGE" 1>&2 && return 0
+    return 1
+  fi
+
+  local REMOTE_IMAGE="${REMOTE_REPO}${DEPLOYED_REPO:-${IMAGE%:*}}:${TAG}"
+  if "$DOCKER_BIN" image pull "$REMOTE_IMAGE" 1>&2; then
+    "$DOCKER_BIN" image tag "$REMOTE_IMAGE" "$IMAGE" 1>&2 && return 0
+  fi
+  return 1
 }
 
 get_app_image_repo() {
@@ -309,7 +350,7 @@ get_deploying_app_image_name() {
   [[ -z "$IMAGE_REPO" ]] && IMAGE_REPO=$(get_app_image_repo "$APP")
 
   local IMAGE="${IMAGE_REMOTE_REPOSITORY}${IMAGE_REPO}:${IMAGE_TAG}"
-  verify_image "$IMAGE" || dokku_log_fail "App image ($IMAGE) not found"
+  fn-verify-app-image "$APP" "$IMAGE" || dokku_log_fail "App image ($IMAGE) not found"
   echo "$IMAGE"
 }
 
@@ -325,7 +366,7 @@ get_app_image_name() {
 
   if [[ -n "$IMAGE_TAG" ]]; then
     local IMAGE="$IMAGE_REPO:$IMAGE_TAG"
-    verify_image "$IMAGE" || dokku_log_fail "App image ($IMAGE) not found"
+    fn-verify-app-image "$APP" "$IMAGE" || dokku_log_fail "App image ($IMAGE) not found"
   else
     local IMAGE="$IMAGE_REPO:latest"
   fi
@@ -627,7 +668,7 @@ release_and_deploy() {
   local IMAGE=$(get_app_image_name "$APP" "$IMAGE_TAG")
   local exit_code=0
 
-  if verify_image "$IMAGE"; then
+  if fn-verify-app-image "$APP" "$IMAGE"; then
     if ! declare -f -F fn-plugin-property-get-default >/dev/null; then
       source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
     fi
@@ -750,23 +791,6 @@ get_ipv6_regex() {
   # Ensure the ip address continues to the end of the line
   # Fixes using a wildcard dns service such as sslip.io which allows for *.<ip address>.sslip.io
   echo "${RE_IPV6}\$"
-}
-
-get_entrypoint_from_image() {
-  declare desc="return .Config.Entrypoint from passed image name"
-  local IMAGE="$1"
-  verify_image "$IMAGE"
-  local DOCKER_IMAGE_ENTRYPOINT="$("$DOCKER_BIN" image inspect --format '{{range .Config.Entrypoint}}{{.}} {{end}}' "$IMAGE")"
-  echo "ENTRYPOINT $DOCKER_IMAGE_ENTRYPOINT"
-}
-
-get_cmd_from_image() {
-  declare desc="return .Config.Cmd from passed image name"
-  local IMAGE="$1"
-  verify_image "$IMAGE"
-  local DOCKER_IMAGE_CMD="$("$DOCKER_BIN" image inspect --format '{{range .Config.Cmd}}{{.}} {{end}}' "$IMAGE")"
-  DOCKER_IMAGE_CMD="${DOCKER_IMAGE_CMD/\/bin\/sh -c/}"
-  echo "CMD $DOCKER_IMAGE_CMD"
 }
 
 extract_directive_from_dockerfile() {

@@ -65,7 +65,7 @@ func main() {
 		chown := args.String("chown", "herokuish", "--chown: chown option (herokuish, heroku, paketo, root, false)")
 		args.Parse(os.Args[2:])
 		directory := args.Arg(0)
-		common.LogWarn("storage:ensure-directory is deprecated; use storage:create instead.")
+		common.LogWarn("Deprecated: please use 'storage:create' instead of 'storage:ensure-directory'")
 		err = storage.CommandEnsureDirectory(directory, *chown)
 	case "info":
 		args := flag.NewFlagSet("storage:info", flag.ExitOnError)
