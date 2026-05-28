@@ -10,7 +10,7 @@ cmd-openresty-set() {
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1" KEY="$2" VALUE="$3"
   local VALID_KEYS=("access-log-format" "access-log-path" "allowed-letsencrypt-domains-func-base64" "bind-address-ipv4" "bind-address-ipv6" "client-body-timeout" "client-header-timeout" "client-max-body-size" "error-log-path" "hsts" "hsts-include-subdomains" "hsts-preload" "hsts-max-age" "image" "keepalive-timeout" "log-level" "letsencrypt-email" "letsencrypt-server" "lingering-timeout" "proxy-buffer-size" "proxy-buffering" "proxy-buffers" "proxy-busy-buffers-size" "proxy-connect-timeout" "proxy-read-timeout" "send-timeout" "proxy-send-timeout" "underscore-in-headers" "x-forwarded-for-value" "x-forwarded-port-value" "x-forwarded-proto-value" "x-forwarded-ssl")
-  local GLOBAL_KEYS=("allowed-letsencrypt-domains-func-base64" "image" "log-level" "letsencrypt-email" "letsencrypt-server")
+  local GLOBAL_KEYS=("${VALID_KEYS[@]}")
   local GLOBAL_ONLY_KEYS=("allowed-letsencrypt-domains-func-base64" "image" "log-level" "letsencrypt-email" "letsencrypt-server")
 
   [[ -z "$KEY" ]] && dokku_log_fail "No key specified"
