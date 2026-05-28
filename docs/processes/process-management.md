@@ -367,6 +367,20 @@ dokku ps:set node-js-app restart-policy on-failure
 dokku ps:set node-js-app restart-policy on-failure:20
 ```
 
+The default policy (`on-failure:10`) may be restored by passing an empty value:
+
+```shell
+dokku ps:set node-js-app restart-policy
+```
+
+A global default may also be set, and is used by any app that does not have an app-specific restart policy:
+
+```shell
+dokku ps:set --global restart-policy always
+```
+
+The effective policy applied to an app's containers is resolved as the app-specific value, then the global value, then the built-in `on-failure:10` default. This computed value can be inspected via the `--ps-computed-restart-policy` report flag.
+
 Restart policies have no bearing on server reboot, and Dokku will always attempt to restart your apps at that point unless they were manually stopped.
 
 Dokku also runs `dokku-event-listener` in the background via the system's init service. This monitors container state, performing the following actions:
@@ -391,8 +405,10 @@ dokku ps:report
        Processes:                     0
        Ps can scale:                  true
        Ps computed procfile path:     Procfile2
+       Ps computed restart policy:    on-failure:10
        Ps global procfile path:       Procfile
-       Ps restart policy:             on-failure:10
+       Ps global restart policy:
+       Ps restart policy:
        Ps procfile path:              Procfile2
        Restore:                       true
        Running:                       false
@@ -401,8 +417,10 @@ dokku ps:report
        Processes:                     0
        Ps can scale:                  true
        Ps computed procfile path:     Procfile
+       Ps computed restart policy:    on-failure:10
        Ps global procfile path:       Procfile
-       Ps restart policy:             on-failure:10
+       Ps global restart policy:
+       Ps restart policy:
        Ps procfile path:
        Restore:                       true
        Running:                       false
@@ -411,8 +429,10 @@ dokku ps:report
        Processes:                     0
        Ps can scale:                  true
        Ps computed procfile path:     Procfile
+       Ps computed restart policy:    on-failure:10
        Ps global procfile path:       Procfile
-       Ps restart policy:             on-failure:10
+       Ps global restart policy:
+       Ps restart policy:
        Ps procfile path:
        Restore:                       true
        Running:                       false
@@ -429,7 +449,9 @@ dokku ps:report node-js-app
        Deployed:                      false
        Processes:                     0
        Ps can scale:                  true
-       Ps restart policy:             on-failure:10
+       Ps computed restart policy:    on-failure:10
+       Ps global restart policy:
+       Ps restart policy:
        Restore:                       true
        Running:                       false
 ```
@@ -475,7 +497,7 @@ dokku ps:set node-js-app restore
 |---|---|---|---|---|
 | `dockerfile-start-cmd` | app only | none | `--ps-dockerfile-start-cmd`, `--ps-computed-dockerfile-start-cmd` | Override `CMD` for Dockerfile-based apps |
 | `procfile-path` | app + global | `Procfile` | `--ps-procfile-path`, `--ps-global-procfile-path`, `--ps-computed-procfile-path` | Path to the app's Procfile, relative to the build root |
-| `restart-policy` | app only | `on-failure:10` | `--ps-restart-policy` | Docker restart policy applied to deployed containers (`no`, `always`, `unless-stopped`, `on-failure[:max-retries]`) |
+| `restart-policy` | app + global | `on-failure:10` | `--ps-restart-policy`, `--ps-global-restart-policy`, `--ps-computed-restart-policy` | Docker restart policy applied to deployed containers (`no`, `always`, `unless-stopped`, `on-failure[:max-retries]`) |
 | `restore` | app only | `true` | `--restore` | When `true`, the app is restarted automatically by `ps:retire` after a host reboot |
 | `skip-deploy` | app + global | `false` | `--ps-skip-deploy`, `--ps-global-skip-deploy`, `--ps-computed-skip-deploy` | When `true`, skips the deploy phase after a successful build |
 | `start-cmd` | app only | none | `--ps-start-cmd`, `--ps-computed-start-cmd` | Override start command for buildpack apps |

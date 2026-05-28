@@ -434,6 +434,11 @@ web                                                                             
   run /bin/bash -c "dokku ps:report $TEST_APP --ps-restart-policy"
   echo "output: $output"
   echo "status: $status"
+  assert_output ""
+
+  run /bin/bash -c "dokku ps:report $TEST_APP --ps-computed-restart-policy"
+  echo "output: $output"
+  echo "status: $status"
   assert_output "on-failure:10"
 }
 
@@ -448,7 +453,84 @@ web                                                                             
     echo "output: $output"
     echo "status: $status"
     assert_output "$policy"
+
+    run /bin/bash -c "dokku ps:report $TEST_APP --ps-computed-restart-policy"
+    echo "output: $output"
+    echo "status: $status"
+    assert_output "$policy"
   done
+}
+
+@test "(ps:restart-policy) ps:set restart-policy unset" {
+  run /bin/bash -c "dokku ps:set $TEST_APP restart-policy on-failure:5"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:report $TEST_APP --ps-restart-policy"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "on-failure:5"
+
+  run /bin/bash -c "dokku ps:set $TEST_APP restart-policy"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:report $TEST_APP --ps-restart-policy"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output ""
+
+  run /bin/bash -c "dokku ps:report $TEST_APP --ps-computed-restart-policy"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "on-failure:10"
+}
+
+@test "(ps:restart-policy) invalid policy" {
+  run /bin/bash -c "dokku ps:set $TEST_APP restart-policy bogus"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Invalid restart-policy specified"
+}
+
+@test "(ps:restart-policy) global policy" {
+  run /bin/bash -c "dokku ps:set --global restart-policy always"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:report $TEST_APP --ps-global-restart-policy"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "always"
+
+  run /bin/bash -c "dokku ps:report $TEST_APP --ps-restart-policy"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output ""
+
+  run /bin/bash -c "dokku ps:report $TEST_APP --ps-computed-restart-policy"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "always"
+
+  run /bin/bash -c "dokku ps:set $TEST_APP restart-policy no"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:report $TEST_APP --ps-computed-restart-policy"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "no"
+
+  run /bin/bash -c "dokku ps:set --global restart-policy"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 }
 
 @test "(ps:restart-policy) deployed policy" {
@@ -478,6 +560,22 @@ web                                                                             
   echo "output: $output"
   echo "status: $status"
   assert_output "$test_restart_policy"
+
+  run /bin/bash -c "dokku ps:set $TEST_APP restart-policy"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  CID=$(<$DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
+  run /bin/bash -c "docker inspect -f '{{ .HostConfig.RestartPolicy.Name }}:{{ .HostConfig.RestartPolicy.MaximumRetryCount }}' $CID"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "on-failure:10"
 }
 
 procfile_line_endings_to_windows() {

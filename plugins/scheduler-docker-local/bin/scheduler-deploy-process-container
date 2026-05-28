@@ -24,7 +24,7 @@ main() {
     DOCKER_ARGS+=" --init"
   fi
   DOCKER_ARGS+=" $DOCKER_RUN_LABEL_ARGS $DOKKU_GLOBAL_RUN_ARGS "
-  DOCKER_ARGS+=$(: | plugn trigger docker-args-process-deploy "$APP" "$IMAGE_SOURCE_TYPE" "$IMAGE_TAG" "$PROC_TYPE" "$CONTAINER_INDEX")
+  DOCKER_ARGS+=" $(: | plugn trigger docker-args-process-deploy "$APP" "$IMAGE_SOURCE_TYPE" "$IMAGE_TAG" "$PROC_TYPE" "$CONTAINER_INDEX")"
   [[ "$DOKKU_TRACE" ]] && DOCKER_ARGS+=" --env=TRACE=true"
 
   local START_CMD

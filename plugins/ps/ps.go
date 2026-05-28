@@ -25,6 +25,7 @@ var (
 	// GlobalProperties is a map of all valid global ps properties
 	GlobalProperties = map[string]bool{
 		"procfile-path":        true,
+		"restart-policy":       true,
 		"skip-deploy":          true,
 		"stop-timeout-seconds": true,
 	}

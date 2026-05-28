@@ -69,7 +69,7 @@ trigger-builder-herokuish-builder-build() {
     DOCKER_ARGS+=" --env=TRACE=true "
     DOCKER_ARGS+=" --env=BUILDPACK_XTRACE=1 "
   fi
-  DOCKER_ARGS+=$(: | plugn trigger docker-args-process-build "$APP" "$BUILDER_TYPE")
+  DOCKER_ARGS+=" $(: | plugn trigger docker-args-process-build "$APP" "$BUILDER_TYPE")"
 
   declare -a ARG_ARRAY
   eval "ARG_ARRAY=($DOCKER_ARGS)"
