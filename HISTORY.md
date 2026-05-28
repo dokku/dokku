@@ -1,5 +1,22 @@
 # History
 
+## 0.38.9
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.38.9/bootstrap.sh
+sudo DOKKU_TAG=v0.38.9 bash bootstrap.sh
+```
+
+### New Features
+
+- #8697: @josegonzalez Split openresty report into raw/computed/global
+
+### Refactors
+
+- #8696: @josegonzalez Treat empty ps restart-policy as an unset
+
 ## 0.38.8
 
 Install/update via the bootstrap script:
