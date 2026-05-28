@@ -193,7 +193,6 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_contains "-v /tmp" 0
-  assert_output_contains "Docker options deploy:         --restart=on-failure:10"
 }
 
 @test "(docker-options) docker-options:remove (build phase)" {

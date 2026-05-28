@@ -20,9 +20,11 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 	if appName == "--global" {
 		flags = map[string]common.ReportFunc{
 			"--ps-computed-procfile-path":        reportComputedProcfilePath,
+			"--ps-computed-restart-policy":       reportComputedRestartPolicy,
 			"--ps-computed-skip-deploy":          reportComputedSkipDeploy,
 			"--ps-computed-stop-timeout-seconds": reportComputedStopTimeoutSeconds,
 			"--ps-global-procfile-path":          reportGlobalProcfilePath,
+			"--ps-global-restart-policy":         reportGlobalRestartPolicy,
 			"--ps-global-skip-deploy":            reportGlobalSkipDeploy,
 			"--ps-global-stop-timeout-seconds":   reportGlobalStopTimeoutSeconds,
 		}
@@ -33,11 +35,13 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 			"--ps-can-scale":                       reportCanScale,
 			"--ps-computed-dockerfile-start-cmd":   reportComputedDockerfileStartCmd,
 			"--ps-computed-procfile-path":          reportComputedProcfilePath,
+			"--ps-computed-restart-policy":         reportComputedRestartPolicy,
 			"--ps-computed-skip-deploy":            reportComputedSkipDeploy,
 			"--ps-computed-start-cmd":              reportComputedStartCmd,
 			"--ps-computed-stop-timeout-seconds":   reportComputedStopTimeoutSeconds,
 			"--ps-dockerfile-start-cmd":            reportDockerfileStartCmd,
 			"--ps-global-procfile-path":            reportGlobalProcfilePath,
+			"--ps-global-restart-policy":           reportGlobalRestartPolicy,
 			"--ps-global-skip-deploy":              reportGlobalSkipDeploy,
 			"--ps-global-stop-timeout-seconds":     reportGlobalStopTimeoutSeconds,
 			"--ps-procfile-path":                   reportProcfilePath,
@@ -162,13 +166,24 @@ func reportProcesses(appName string) string {
 	return strconv.Itoa(count)
 }
 
-func reportRestartPolicy(appName string) string {
-	policy, _ := getRestartPolicy(appName)
-	if policy == "" {
-		policy = DefaultProperties["restart-policy"]
+func reportComputedRestartPolicy(appName string) string {
+	value := reportRestartPolicy(appName)
+	if value == "" {
+		value = reportGlobalRestartPolicy(appName)
+	}
+	if value == "" {
+		value = DefaultProperties["restart-policy"]
 	}
 
-	return policy
+	return value
+}
+
+func reportGlobalRestartPolicy(appName string) string {
+	return common.PropertyGet("ps", "--global", "restart-policy")
+}
+
+func reportRestartPolicy(appName string) string {
+	return common.PropertyGet("ps", appName, "restart-policy")
 }
 
 func reportRestore(appName string) string {

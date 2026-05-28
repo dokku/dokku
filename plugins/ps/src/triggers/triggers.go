@@ -28,6 +28,9 @@ func main() {
 		appName := flag.Arg(0)
 		sourceWorkDir := flag.Arg(1)
 		err = ps.TriggerCorePostExtract(appName, sourceWorkDir)
+	case "docker-args-process-deploy":
+		appName := flag.Arg(0)
+		err = ps.TriggerDockerArgsProcessDeploy(appName)
 	case "install":
 		err = ps.TriggerInstall()
 	case "post-app-clone":

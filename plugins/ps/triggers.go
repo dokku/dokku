@@ -3,6 +3,7 @@ package ps
 import (
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -37,6 +38,24 @@ func TriggerCorePostDeploy(appName string) error {
 	}
 
 	return common.PropertyWrite("ps", appName, "restore", "true")
+}
+
+// TriggerDockerArgsProcessDeploy injects the computed restart policy as a
+// `--restart=` docker option at deploy time. The value is no longer persisted
+// in the docker-options store; it is derived from the app/global restart-policy
+// property on every deploy.
+func TriggerDockerArgsProcessDeploy(appName string) error {
+	stdin, err := io.ReadAll(os.Stdin)
+	if err != nil {
+		return err
+	}
+
+	if _, err := os.Stdout.Write(stdin); err != nil {
+		return err
+	}
+
+	fmt.Printf(" --restart=%s", reportComputedRestartPolicy(appName))
+	return nil
 }
 
 // TriggerCorePostExtract ensures that the main Procfile is the one specified by procfile-path
@@ -104,16 +123,22 @@ func TriggerInstall() error {
 	}
 
 	for _, appName := range apps {
-		policies, err := getRestartPolicy(appName)
+		policy, err := getRestartPolicy(appName)
 		if err != nil {
 			return err
 		}
 
-		if len(policies) != 0 {
+		if policy == "" {
 			continue
 		}
 
-		if err := dockeroptions.AddDockerOptionToPhases(appName, []string{"deploy"}, "--restart=on-failure:10"); err != nil {
+		if policy != DefaultProperties["restart-policy"] {
+			if err := common.PropertyWrite("ps", appName, "restart-policy", policy); err != nil {
+				common.LogWarn(err.Error())
+			}
+		}
+
+		if err := dockeroptions.RemoveDockerOptionFromPhases(appName, []string{"deploy"}, fmt.Sprintf("--restart=%s", policy)); err != nil {
 			common.LogWarn(err.Error())
 		}
 	}
@@ -210,13 +235,8 @@ func TriggerPostAppRenameSetup(oldAppName string, newAppName string) error {
 	return common.CloneAppData("ps", oldAppName, newAppName)
 }
 
-// TriggerPostCreate ensures apps have a default restart policy
-// and scale value for web
+// TriggerPostCreate ensures apps have a default scale value for web
 func TriggerPostCreate(appName string) error {
-	if err := dockeroptions.AddDockerOptionToPhases(appName, []string{"deploy"}, "--restart=on-failure:10"); err != nil {
-		return err
-	}
-
 	if err := common.CreateAppDataDirectory("ps", appName); err != nil {
 		return err
 	}
@@ -319,6 +339,7 @@ func TriggerPsSetScale(appName string, skipDeploy bool, clearExisting bool, proc
 
 func TriggerPsGetProperty(appName string, property string) error {
 	computedValueMap := map[string]common.ReportFunc{
+		"restart-policy":       reportComputedRestartPolicy,
 		"restore":              reportRestore,
 		"skip-deploy":          reportComputedSkipDeploy,
 		"stop-timeout-seconds": reportComputedStopTimeoutSeconds,

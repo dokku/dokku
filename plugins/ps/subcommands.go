@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
-	dockeroptions "github.com/dokku/dokku/plugins/docker-options"
 	"github.com/gofrs/flock"
 )
 
@@ -184,13 +183,8 @@ func CommandScale(appName string, skipDeploy bool, processTuples []string) error
 
 // CommandSet sets or clears a ps property for an app
 func CommandSet(appName string, property string, value string) error {
-	if property == "restart-policy" {
-		if !isValidRestartPolicy(value) {
-			return errors.New("Invalid restart-policy specified")
-		}
-
-		common.LogInfo2Quiet(fmt.Sprintf("Setting %s to %s", property, value))
-		return dockeroptions.SetDockerOptionForPhases(appName, []string{"deploy"}, "restart", value)
+	if property == "restart-policy" && value != "" && !isValidRestartPolicy(value) {
+		return errors.New("Invalid restart-policy specified")
 	}
 
 	common.CommandPropertySet("ps", appName, property, value, DefaultProperties, GlobalProperties)
