@@ -13,6 +13,9 @@ setup() {
 
 teardown() {
   dokku openresty:set --global log-level >/dev/null 2>&1 || true
+  for key in bind-address-ipv6 keepalive-timeout client-body-timeout client-header-timeout client-max-body-size; do
+    dokku openresty:set --global "$key" >/dev/null || true
+  done
   global_teardown
   destroy_app
   dokku openresty:stop
@@ -210,6 +213,210 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output "ERROR"
+}
+
+@test "(openresty:report) per-app raw vs global vs computed for bind-address-ipv6" {
+  run /bin/bash -c "dokku openresty:report $TEST_APP --openresty-bind-address-ipv6"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku openresty:report $TEST_APP --openresty-global-bind-address-ipv6"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku openresty:report $TEST_APP --openresty-computed-bind-address-ipv6"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "::"
+
+  run /bin/bash -c "dokku openresty:set $TEST_APP bind-address-ipv6 ::1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku openresty:report $TEST_APP --openresty-bind-address-ipv6"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "::1"
+
+  run /bin/bash -c "dokku openresty:report $TEST_APP --openresty-computed-bind-address-ipv6"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "::1"
+
+  run /bin/bash -c "dokku openresty:report $TEST_APP --openresty-global-bind-address-ipv6"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku openresty:set $TEST_APP bind-address-ipv6"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku openresty:report $TEST_APP --openresty-computed-bind-address-ipv6"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "::"
+}
+
+@test "(openresty:report) per-app inherits global value, per-app overrides global" {
+  run /bin/bash -c "dokku openresty:set --global keepalive-timeout 90s"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku openresty:report $TEST_APP --openresty-keepalive-timeout"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku openresty:report $TEST_APP --openresty-global-keepalive-timeout"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "90s"
+
+  run /bin/bash -c "dokku openresty:report $TEST_APP --openresty-computed-keepalive-timeout"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "90s"
+
+  run /bin/bash -c "dokku openresty:set $TEST_APP keepalive-timeout 30s"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku openresty:report $TEST_APP --openresty-keepalive-timeout"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "30s"
+
+  run /bin/bash -c "dokku openresty:report $TEST_APP --openresty-computed-keepalive-timeout"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "30s"
+
+  run /bin/bash -c "dokku openresty:report $TEST_APP --format json | jq -r '.\"keepalive-timeout\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "30s"
+
+  run /bin/bash -c "dokku openresty:report $TEST_APP --format json | jq -r '.\"global-keepalive-timeout\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "90s"
+
+  run /bin/bash -c "dokku openresty:report $TEST_APP --format json | jq -r '.\"computed-keepalive-timeout\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "30s"
+
+  run /bin/bash -c "dokku openresty:set $TEST_APP keepalive-timeout"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku openresty:set --global keepalive-timeout"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku openresty:report $TEST_APP --openresty-computed-keepalive-timeout"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "75s"
+}
+
+@test "(openresty:report) client-header-timeout reads its own property key" {
+  run /bin/bash -c "dokku openresty:set $TEST_APP client-body-timeout 99s"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku openresty:report $TEST_APP --openresty-computed-client-header-timeout"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "60s"
+
+  run /bin/bash -c "dokku openresty:set $TEST_APP client-header-timeout 30s"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku openresty:report $TEST_APP --openresty-client-header-timeout"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "30s"
+
+  run /bin/bash -c "dokku openresty:report $TEST_APP --openresty-computed-client-header-timeout"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "30s"
+
+  run /bin/bash -c "dokku openresty:report $TEST_APP --openresty-computed-client-body-timeout"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "99s"
+}
+
+@test "(openresty:report) client-max-body-size computed default is 1m" {
+  run /bin/bash -c "dokku openresty:report $TEST_APP --openresty-client-max-body-size"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku openresty:report $TEST_APP --openresty-computed-client-max-body-size"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "1m"
+}
+
+@test "(openresty) per-app properties are settable globally" {
+  run /bin/bash -c "dokku openresty:set --global keepalive-timeout 90s"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku openresty:report --global --openresty-global-keepalive-timeout"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "90s"
+
+  run /bin/bash -c "dokku openresty:report --global --openresty-computed-keepalive-timeout"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "90s"
+
+  run /bin/bash -c "dokku openresty:set --global keepalive-timeout"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 }
 
 @test "(openresty) global-only keys" {
