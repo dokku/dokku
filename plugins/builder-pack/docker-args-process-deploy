@@ -23,7 +23,7 @@ trigger-builder-pack-docker-args-process-deploy() {
     output=" --entrypoint launcher"
   fi
 
-  echo -n "$STDIN$output"
+  echo -n "$STDIN $output"
 }
 
 trigger-builder-pack-docker-args-process-deploy "$@"

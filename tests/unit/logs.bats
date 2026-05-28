@@ -803,7 +803,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "--log-opt=max-size=20m"
+  assert_output "--log-opt=max-size=20m --restart=on-failure:10"
 
   DRIVER="journald" jq '."log-driver" = env.DRIVER' <"/etc/docker/daemon.json" >"$TMP_FILE"
   mv "$TMP_FILE" /etc/docker/daemon.json
@@ -820,7 +820,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_not_exists
+  assert_output "--restart=on-failure:10"
 
   if [[ "$driver" = "null" ]]; then
     DRIVER="$driver" jq 'del(."log-driver")' <"/etc/docker/daemon.json" >"$TMP_FILE"
@@ -841,7 +841,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "--log-opt=max-size=20m"
+  assert_output "--log-opt=max-size=20m --restart=on-failure:10"
 }
 
 @test "(logs) logs:set max-size with alternate log-driver" {
@@ -860,7 +860,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "--log-opt=max-size=20m"
+  assert_output "--log-opt=max-size=20m --restart=on-failure:10"
 
   run /bin/bash -c "dokku docker-options:add $TEST_APP deploy --log-driver=local" 2>&1
   echo "output: $output"
@@ -871,7 +871,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "--log-opt=max-size=20m"
+  assert_output "--log-opt=max-size=20m --restart=on-failure:10"
 
   run /bin/bash -c "dokku docker-options:add $TEST_APP deploy --log-driver=json-file" 2>&1
   echo "output: $output"
@@ -882,18 +882,18 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "--log-opt=max-size=20m"
+  assert_output "--log-opt=max-size=20m --restart=on-failure:10"
 
   run /bin/bash -c "dokku docker-options:add $TEST_APP deploy --log-driver=journald" 2>&1
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "echo "" | dokku plugin:trigger docker-args-process-deploy $TEST_APP 2>&1"
+  run /bin/bash -c "echo "" | dokku plugin:trigger docker-args-process-deploy $TEST_APP 2>&1 | xargs"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_not_exists
+  assert_output "--restart=on-failure:10"
 }
 
 @test "(logs) logs:vector" {

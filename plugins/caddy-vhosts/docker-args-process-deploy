@@ -137,7 +137,7 @@ trigger-caddy-vhosts-docker-args-process-deploy() {
     done <"$proxy_labels_file_path"
   fi
 
-  echo -n "$STDIN$output"
+  echo -n "$STDIN $output"
 }
 
 trigger-caddy-vhosts-docker-args-process-deploy "$@"

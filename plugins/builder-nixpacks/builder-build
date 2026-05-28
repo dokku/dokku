@@ -34,7 +34,7 @@ trigger-builder-nixpacks-builder-build() {
   fi
 
   local DOCKER_ARGS=$(: | plugn trigger docker-args-build "$APP" "$BUILDER_TYPE")
-  DOCKER_ARGS+=$(: | plugn trigger docker-args-process-build "$APP" "$BUILDER_TYPE")
+  DOCKER_ARGS+=" $(: | plugn trigger docker-args-process-build "$APP" "$BUILDER_TYPE")"
   DOCKER_ARGS+=" $DOKKU_GLOBAL_BUILD_ARGS"
 
   DOCKER_ARGS=" $DOCKER_ARGS "

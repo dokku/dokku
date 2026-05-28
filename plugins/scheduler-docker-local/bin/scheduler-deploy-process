@@ -53,7 +53,7 @@ fn-scheduler-deploy-process() {
 
   local DOCKER_ARGS
   DOCKER_ARGS=$(: | plugn trigger docker-args-deploy "$APP" "$IMAGE_TAG" "$PROC_TYPE")
-  DOCKER_ARGS+=$(: | plugn trigger docker-args-process-deploy "$APP" "$IMAGE_SOURCE_TYPE" "$IMAGE_TAG" "$PROC_TYPE")
+  DOCKER_ARGS+=" $(: | plugn trigger docker-args-process-deploy "$APP" "$IMAGE_SOURCE_TYPE" "$IMAGE_TAG" "$PROC_TYPE")"
   DOCKER_ARGS=" $DOCKER_ARGS "
   declare -a ARG_ARRAY
   eval "ARG_ARRAY=($DOCKER_ARGS)"
