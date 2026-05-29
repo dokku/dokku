@@ -1,5 +1,22 @@
 # History
 
+## 0.38.10
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.38.10/bootstrap.sh
+sudo DOKKU_TAG=v0.38.10 bash bootstrap.sh
+```
+
+### New Features
+
+- #8702: @josegonzalez Prompt for confirmation on storage:destroy
+
+### Tests
+
+- #8698: @dependabot[bot] chore(deps-dev): bump org.apache.maven.plugins:maven-dependency-plugin from 3.10.0 to 3.11.0 in /tests/apps/java
+
 ## 0.38.9
 
 Install/update via the bootstrap script:
