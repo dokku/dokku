@@ -2,6 +2,7 @@ package buildpacks
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -9,36 +10,44 @@ import (
 	"github.com/dokku/dokku/plugins/common"
 )
 
-// TriggerBuildpackStackName echos the stack name for the app
-func TriggerBuildpackStackName(appName string) error {
-	if stack := common.PropertyGetDefault("buildpacks", appName, "stack", ""); stack != "" {
-		fmt.Println(stack)
-		return nil
-	}
-
-	if stack := common.PropertyGetDefault("buildpacks", "--global", "stack", ""); stack != "" {
-		fmt.Println(stack)
-		return nil
-	}
-
-	results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
-		Trigger: "config-get",
-		Args:    []string{appName, "DOKKU_IMAGE"},
-	})
-	dokkuImage := results.StdoutContents()
-	if dokkuImage != "" {
-		common.LogWarn("Deprecated: use buildpacks:set-property instead of specifying DOKKU_IMAGE environment variable")
-		fmt.Println(dokkuImage)
-		return nil
-	}
-
-	return nil
-}
-
 // TriggerInstall runs the install step for the buildpacks plugin
 func TriggerInstall() error {
 	if err := common.PropertySetup("buildpacks"); err != nil {
 		return fmt.Errorf("Unable to install the buildpacks plugin: %s", err.Error())
+	}
+
+	return migrateStackProperty()
+}
+
+// migrateStackProperty moves any legacy buildpacks stack values to the
+// appropriate builder plugin, detecting herokuish vs pack stacks. It is
+// idempotent: once a value is migrated the buildpacks stack key is removed.
+func migrateStackProperty() error {
+	appNames := []string{"--global"}
+	apps, err := common.DokkuApps()
+	if err != nil && !errors.Is(err, common.NoAppsExist) {
+		return err
+	}
+	appNames = append(appNames, apps...)
+
+	for _, appName := range appNames {
+		if !common.PropertyExists("buildpacks", appName, "stack") {
+			continue
+		}
+
+		value := common.PropertyGet("buildpacks", appName, "stack")
+		if value != "" {
+			builder := builderForStack(value)
+			if !common.PropertyExists(builder, appName, "stack") {
+				if err := common.PropertyWrite(builder, appName, "stack", value); err != nil {
+					return err
+				}
+			}
+		}
+
+		if err := common.PropertyDelete("buildpacks", appName, "stack"); err != nil {
+			return err
+		}
 	}
 
 	return nil
