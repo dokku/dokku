@@ -58,8 +58,9 @@ func main() {
 		})
 	case "destroy":
 		args := flag.NewFlagSet("storage:destroy", flag.ExitOnError)
+		force := args.Bool("force", false, "--force: force destroy without confirmation")
 		args.Parse(os.Args[2:])
-		err = storage.CommandDestroy(args.Arg(0))
+		err = storage.CommandDestroy(args.Arg(0), *force)
 	case "ensure-directory":
 		args := flag.NewFlagSet("storage:ensure-directory", flag.ExitOnError)
 		chown := args.String("chown", "herokuish", "--chown: chown option (herokuish, heroku, paketo, root, false)")

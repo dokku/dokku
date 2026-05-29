@@ -7,7 +7,7 @@ The preferred method to attach persistent storage to a Dokku-managed container i
 
 ```
 storage:create <name> [<path>] [flags]                 # Register a named storage entry
-storage:destroy <name>                                 # Remove a named storage entry (must be unmounted from every app first)
+storage:destroy <name> [--force]                       # Remove a named storage entry (must be unmounted from every app first)
 storage:ensure-directory [--chown option] <directory>  # [DEPRECATED] use storage:create instead
 storage:exec <name> [-- <cmd>...]                      # Run a command (or shell) in a temporary container that mounts the entry
 storage:info <name> [--format text|json]               # Show details for one storage entry
@@ -138,6 +138,36 @@ Once persistent storage is unmounted, the app requires a restart. See the [proce
 
 ```shell
 dokku ps:restart app-name
+```
+
+### Destroying storage entries
+
+A named storage entry can be removed with the `storage:destroy` command. The entry must first be unmounted from every app that mounts it.
+
+```shell
+dokku storage:destroy rdmtest-entry
+```
+
+As the command is destructive - removing the registry entry and, depending on the scheduler and reclaim policy, the underlying volume - it will default to asking for confirmation before executing the removal.
+
+```
+ !     WARNING: Potentially Destructive Action
+ !     This command will destroy storage entry rdmtest-entry.
+ !     To proceed, type "rdmtest-entry"
+> rdmtest-entry
+-----> Storage entry rdmtest-entry destroyed
+```
+
+The confirmation may be avoided by providing the `--force` flag, which is useful for non-interactive or automated callers:
+
+```shell
+dokku storage:destroy rdmtest-entry --force
+```
+
+The global `--force` flag is also supported:
+
+```shell
+dokku --force storage:destroy rdmtest-entry
 ```
 
 ### Displaying storage reports for an app

@@ -19,7 +19,7 @@ Additional commands:`
 
 	helpContent = `
     storage:create <name> [<path>] [flags], Register a named storage entry
-    storage:destroy <name>, Remove a named storage entry (must be unmounted from every app first)
+    storage:destroy <name> [--force], Remove a named storage entry (must be unmounted from every app first)
     storage:ensure-directory [--chown option] <directory>, [DEPRECATED] use storage:create instead
     storage:exec <name> [-- <cmd>...], Run a command (or shell) in a temporary container that mounts the entry
     storage:info <name> [--format text|json], Show details for one storage entry

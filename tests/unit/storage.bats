@@ -234,7 +234,7 @@ teardown() {
   assert_success
   assert_output "docker-local"
 
-  run /bin/bash -c "dokku storage:destroy rdmtest-entry"
+  run /bin/bash -c "dokku storage:destroy rdmtest-entry --force"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -307,9 +307,9 @@ teardown() {
   assert_success
   assert_output "0"
 
-  run /bin/bash -c "dokku storage:destroy rdmtest-data"
+  run /bin/bash -c "dokku storage:destroy rdmtest-data --force"
   assert_success
-  run /bin/bash -c "dokku storage:destroy rdmtest-cache"
+  run /bin/bash -c "dokku storage:destroy rdmtest-cache --force"
   assert_success
 }
 
@@ -327,8 +327,62 @@ teardown() {
 
   run /bin/bash -c "dokku storage:unmount $TEST_APP rdmtest-busy"
   assert_success
-  run /bin/bash -c "dokku storage:destroy rdmtest-busy"
+  run /bin/bash -c "dokku storage:destroy rdmtest-busy --force"
   assert_success
+}
+
+@test "(storage:destroy) requires confirmation without --force" {
+  run /bin/bash -c "dokku storage:create rdmtest-confirm"
+  assert_success
+
+  # No --force and no matching stdin: aborts, entry remains.
+  run /bin/bash -c "dokku storage:destroy rdmtest-confirm < /dev/null"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku storage:list-entries --format json | jq -r '.[].name' | grep '^rdmtest-confirm$'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "rdmtest-confirm"
+
+  # Matching confirmation via stdin: succeeds and removes the entry.
+  run /bin/bash -c "echo rdmtest-confirm | dokku storage:destroy rdmtest-confirm"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku storage:list-entries --format json | jq -r '.[].name' | grep '^rdmtest-confirm$' || true"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output ""
+}
+
+@test "(storage:destroy) --force skips confirmation" {
+  run /bin/bash -c "dokku storage:create rdmtest-force"
+  assert_success
+
+  run /bin/bash -c "dokku storage:destroy rdmtest-force --force < /dev/null"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku storage:list-entries --format json | jq -r '.[].name' | grep '^rdmtest-force$' || true"
+  assert_output ""
+}
+
+@test "(storage:destroy) global --force skips confirmation" {
+  run /bin/bash -c "dokku storage:create rdmtest-gforce"
+  assert_success
+
+  run /bin/bash -c "dokku --force storage:destroy rdmtest-gforce < /dev/null"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku storage:list-entries --format json | jq -r '.[].name' | grep '^rdmtest-gforce$' || true"
+  assert_output ""
 }
 
 @test "(storage) storage:exec runs a non-interactive command and propagates exit code" {
@@ -350,7 +404,7 @@ teardown() {
   echo "status: $status"
   assert_equal "$status" 42
 
-  run /bin/bash -c "dokku storage:destroy rdmtest-exec"
+  run /bin/bash -c "dokku storage:destroy rdmtest-exec --force"
   assert_success
 }
 
@@ -433,7 +487,7 @@ teardown() {
   if [[ -n "$legacy_name" ]]; then
     run /bin/bash -c "dokku storage:unmount $TEST_APP $legacy_name --container-dir /legacy"
     assert_success
-    run /bin/bash -c "dokku storage:destroy $legacy_name"
+    run /bin/bash -c "dokku storage:destroy $legacy_name --force"
     assert_success
   fi
 }
