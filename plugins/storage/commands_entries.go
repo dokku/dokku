@@ -95,8 +95,10 @@ func CommandCreate(input CommandCreateInput) error {
 }
 
 // CommandDestroy removes a registered storage entry. Refuses to remove
-// an entry that any app still has attached.
-func CommandDestroy(name string) error {
+// an entry that any app still has attached. Prompts for confirmation
+// unless force is set (or the global --force flag exported
+// DOKKU_APPS_FORCE_DELETE).
+func CommandDestroy(name string, force bool) error {
 	if name == "" {
 		return errors.New("storage entry name is required")
 	}
@@ -110,6 +112,15 @@ func CommandDestroy(name string) error {
 	}
 	if len(using) > 0 {
 		return fmt.Errorf("storage entry %q is still mounted by app(s): %s", name, strings.Join(using, ", "))
+	}
+
+	if os.Getenv("DOKKU_APPS_FORCE_DELETE") == "1" {
+		force = true
+	}
+	if !force {
+		if err := common.AskForDestructiveConfirmation(name, "storage entry"); err != nil {
+			return err
+		}
 	}
 
 	entry, err := LoadEntry(name)
