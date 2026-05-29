@@ -107,6 +107,55 @@ teardown() {
   assert_success
 }
 
+@test "(builder-pack:report) stack raw vs computed vs global" {
+  run /bin/bash -c "dokku builder-pack:set --global stack"
+  assert_success
+
+  run /bin/bash -c "dokku builder-pack:report $TEST_APP --builder-pack-stack"
+  assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku builder-pack:report $TEST_APP --builder-pack-global-stack"
+  assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku builder-pack:report $TEST_APP --builder-pack-computed-stack"
+  assert_success
+  assert_output "heroku/builder:24"
+
+  run /bin/bash -c "dokku builder-pack:set --global stack paketobuildpacks/builder:global"
+  assert_success
+
+  run /bin/bash -c "dokku builder-pack:report $TEST_APP --builder-pack-global-stack"
+  assert_success
+  assert_output "paketobuildpacks/builder:global"
+
+  run /bin/bash -c "dokku builder-pack:report $TEST_APP --builder-pack-computed-stack"
+  assert_success
+  assert_output "paketobuildpacks/builder:global"
+
+  run /bin/bash -c "dokku builder-pack:set $TEST_APP stack paketobuildpacks/builder:app"
+  assert_success
+
+  run /bin/bash -c "dokku builder-pack:report $TEST_APP --builder-pack-stack"
+  assert_success
+  assert_output "paketobuildpacks/builder:app"
+
+  run /bin/bash -c "dokku builder-pack:report $TEST_APP --builder-pack-computed-stack"
+  assert_success
+  assert_output "paketobuildpacks/builder:app"
+
+  run /bin/bash -c "cat $DOKKU_LIB_ROOT/config/builder-pack/$TEST_APP/clear-cache"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku builder-pack:set $TEST_APP stack"
+  assert_success
+
+  run /bin/bash -c "dokku builder-pack:set --global stack"
+  assert_success
+}
+
 @test "(builder-pack:set)" {
   run /bin/bash -c "dokku config:set $TEST_APP SECRET_KEY=fjdkslafjdk"
   echo "output: $output"
@@ -118,10 +167,16 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku buildpacks:set-property $TEST_APP stack heroku/builder:24"
+  run /bin/bash -c "dokku builder-pack:set $TEST_APP stack heroku/builder:24"
   echo "output: $output"
   echo "status: $status"
   assert_success
+
+  run /bin/bash -c "cat $DOKKU_LIB_ROOT/config/builder-pack/$TEST_APP/clear-cache"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
 
   run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP add_requirements_txt_cnb
   echo "output: $output"
@@ -129,6 +184,11 @@ teardown() {
   assert_success
   assert_output_contains 'Building with buildpack 1' 0
   assert_output_contains 'Installing dependencies using pip'
+
+  run /bin/bash -c "test -f $DOKKU_LIB_ROOT/config/builder-pack/$TEST_APP/clear-cache"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
 
   run /bin/bash -c "dokku builder-pack:set $TEST_APP projecttoml-path nonexistent.toml"
   echo "output: $output"
