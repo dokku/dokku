@@ -82,11 +82,17 @@ func GetBindMountsForDisplay(appName string, phase string) string {
 }
 
 // StorageListEntry represents a storage mount entry for JSON output.
+// Readonly and VolumeOptions mirror the underlying Attachment fields one
+// for one so external drift-detection tooling can compare against them
+// directly; the combined "ro,<opts>" colon-form string used by the text
+// view is derived at format time by formatStorageListEntry rather than
+// cached on the struct.
 type StorageListEntry struct {
 	EntryName     string `json:"entry_name,omitempty"`
 	HostPath      string `json:"host_path"`
 	ContainerPath string `json:"container_path"`
-	VolumeOptions string `json:"volume_options"`
+	Readonly      bool   `json:"readonly,omitempty"`
+	VolumeOptions string `json:"volume_options,omitempty"`
 }
 
 // ListAppMountEntries returns one StorageListEntry per attachment on
@@ -117,36 +123,41 @@ func ListAppMountEntries(appName string, phase string) ([]StorageListEntry, erro
 			host = entry.Name
 		}
 
-		options := ""
-		switch {
-		case attachment.Readonly && attachment.VolumeOptions != "":
-			options = "ro," + attachment.VolumeOptions
-		case attachment.Readonly:
-			options = "ro"
-		case attachment.VolumeOptions != "":
-			options = attachment.VolumeOptions
-		}
-
 		rows = append(rows, StorageListEntry{
 			EntryName:     entry.Name,
 			HostPath:      host,
 			ContainerPath: attachment.ContainerPath,
-			VolumeOptions: options,
+			Readonly:      attachment.Readonly,
+			VolumeOptions: attachment.VolumeOptions,
 		})
 	}
 	return rows, nil
 }
 
 // formatStorageListEntry renders a StorageListEntry into the legacy
-// host:container[:options] colon form for textual output.
+// host:container[:options] colon form for textual output. Combines
+// Readonly and VolumeOptions into a single "ro,<opts>" token to match
+// the historical shape consumers expect.
 func formatStorageListEntry(entry StorageListEntry) string {
-	if entry.VolumeOptions == "" {
+	options := ""
+	switch {
+	case entry.Readonly && entry.VolumeOptions != "":
+		options = "ro," + entry.VolumeOptions
+	case entry.Readonly:
+		options = "ro"
+	case entry.VolumeOptions != "":
+		options = entry.VolumeOptions
+	}
+	if options == "" {
 		return fmt.Sprintf("%s:%s", entry.HostPath, entry.ContainerPath)
 	}
-	return fmt.Sprintf("%s:%s:%s", entry.HostPath, entry.ContainerPath, entry.VolumeOptions)
+	return fmt.Sprintf("%s:%s:%s", entry.HostPath, entry.ContainerPath, options)
 }
 
-// ParseMountPath parses a mount path into its components
+// ParseMountPath parses a mount path into its components. The optional
+// third colon-separated section is a comma-separated mount-options list;
+// any "ro" token is hoisted into the Readonly field and the remaining
+// tokens (preserving order) are rejoined into VolumeOptions.
 func ParseMountPath(mountPath string) StorageListEntry {
 	parts := strings.SplitN(mountPath, ":", 3)
 	entry := StorageListEntry{}
@@ -157,8 +168,16 @@ func ParseMountPath(mountPath string) StorageListEntry {
 	if len(parts) >= 2 {
 		entry.ContainerPath = parts[1]
 	}
-	if len(parts) >= 3 {
-		entry.VolumeOptions = parts[2]
+	if len(parts) >= 3 && parts[2] != "" {
+		remaining := []string{}
+		for _, token := range strings.Split(parts[2], ",") {
+			if token == "ro" {
+				entry.Readonly = true
+				continue
+			}
+			remaining = append(remaining, token)
+		}
+		entry.VolumeOptions = strings.Join(remaining, ",")
 	}
 
 	return entry

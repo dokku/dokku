@@ -137,11 +137,11 @@ teardown() {
   assert_success
   assert_output "/mount"
 
-  run /bin/bash -c "dokku storage:list $TEST_APP --format json | jq -r '.[].volume_options'"
+  run /bin/bash -c "dokku storage:list $TEST_APP --format json | jq -r 'map(has(\"volume_options\") or has(\"readonly\")) | any'"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_not_exists
+  assert_output "false"
 
   run /bin/bash -c "dokku storage:mount $TEST_APP /tmp/mount:/mount"
   echo "output: $output"
@@ -385,6 +385,28 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_contains ":ro,noexec,nosuid"
+
+  # The JSON output of storage:list exposes readonly and volume_options
+  # as separate keys so external drift-detection tooling can compare
+  # them against the underlying attachment fields one for one.
+  run /bin/bash -c "dokku storage:list $TEST_APP --format json | jq -r '.[] | select(.container_path == \"/ro\") | .readonly'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku storage:list $TEST_APP --format json | jq -r '.[] | select(.container_path == \"/ro\") | .volume_options'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "noexec,nosuid"
+
+  # The /data mount has no readonly flag, so the key is absent.
+  run /bin/bash -c "dokku storage:list $TEST_APP --format json | jq -r '.[] | select(.container_path == \"/data\") | has(\"readonly\")'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
 
   # cleanup
   run /bin/bash -c "dokku storage:unmount $TEST_APP rdmtest-opts --container-dir /data"

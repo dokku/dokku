@@ -69,16 +69,35 @@ func TestParseMountPath(t *testing.T) {
 	entry := ParseMountPath("/host/path:/container/path")
 	Expect(entry.HostPath).To(Equal("/host/path"))
 	Expect(entry.ContainerPath).To(Equal("/container/path"))
+	Expect(entry.Readonly).To(BeFalse())
 	Expect(entry.VolumeOptions).To(BeEmpty())
 
 	entry = ParseMountPath("/host/path:/container/path:ro")
 	Expect(entry.HostPath).To(Equal("/host/path"))
 	Expect(entry.ContainerPath).To(Equal("/container/path"))
-	Expect(entry.VolumeOptions).To(Equal("ro"))
+	Expect(entry.Readonly).To(BeTrue())
+	Expect(entry.VolumeOptions).To(BeEmpty())
+
+	entry = ParseMountPath("/host/path:/container/path:Z")
+	Expect(entry.HostPath).To(Equal("/host/path"))
+	Expect(entry.ContainerPath).To(Equal("/container/path"))
+	Expect(entry.Readonly).To(BeFalse())
+	Expect(entry.VolumeOptions).To(Equal("Z"))
+
+	entry = ParseMountPath("/host/path:/container/path:ro,Z")
+	Expect(entry.HostPath).To(Equal("/host/path"))
+	Expect(entry.ContainerPath).To(Equal("/container/path"))
+	Expect(entry.Readonly).To(BeTrue())
+	Expect(entry.VolumeOptions).To(Equal("Z"))
+
+	entry = ParseMountPath("/host/path:/container/path:noexec,nosuid,ro")
+	Expect(entry.Readonly).To(BeTrue())
+	Expect(entry.VolumeOptions).To(Equal("noexec,nosuid"))
 
 	entry = ParseMountPath("volume_name:/container/path")
 	Expect(entry.HostPath).To(Equal("volume_name"))
 	Expect(entry.ContainerPath).To(Equal("/container/path"))
+	Expect(entry.Readonly).To(BeFalse())
 	Expect(entry.VolumeOptions).To(BeEmpty())
 }
 
