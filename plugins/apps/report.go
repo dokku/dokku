@@ -17,14 +17,17 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 
 	var flags map[string]common.ReportFunc
 	if appName == "--global" {
-		flags = map[string]common.ReportFunc{}
+		flags = map[string]common.ReportFunc{
+			"--app-global-disable-autocreation": reportGlobalDisableAutocreation,
+		}
 	} else {
 		flags = map[string]common.ReportFunc{
-			"--app-created-at":             reportCreatedAt,
-			"--app-deploy-source":          reportDeploySource,
-			"--app-deploy-source-metadata": reportDeploySourceMetadata,
-			"--app-dir":                    reportDir,
-			"--app-locked":                 reportLocked,
+			"--app-created-at":                  reportCreatedAt,
+			"--app-deploy-source":               reportDeploySource,
+			"--app-deploy-source-metadata":      reportDeploySourceMetadata,
+			"--app-dir":                         reportDir,
+			"--app-global-disable-autocreation": reportGlobalDisableAutocreation,
+			"--app-locked":                      reportLocked,
 		}
 	}
 
@@ -65,6 +68,10 @@ func reportDeploySourceMetadata(appName string) string {
 
 func reportDir(appName string) string {
 	return common.AppRoot(appName)
+}
+
+func reportGlobalDisableAutocreation(appName string) string {
+	return common.PropertyGet("apps", "--global", "disable-autocreation")
 }
 
 func reportLocked(appName string) string {
