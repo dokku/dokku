@@ -1,5 +1,18 @@
 # History
 
+## 0.38.11
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.38.11/bootstrap.sh
+sudo DOKKU_TAG=v0.38.11 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #8704: @josegonzalez Pass storage entry basename to chown-storage-dir
+
 ## 0.38.10
 
 Install/update via the bootstrap script:
