@@ -217,3 +217,129 @@ func TestListAppMountEntriesPhaseFilter(t *testing.T) {
 	Expect(runRows).To(HaveLen(1))
 	Expect(runRows[0].EntryName).To(Equal("demo-run-only"))
 }
+
+func TestUpsertAttachmentInsert(t *testing.T) {
+	RegisterTestingT(t)
+	withTempLibRoot(t)
+
+	created, err := UpsertAttachment("demo", &Attachment{
+		EntryName:     "demo-data",
+		ContainerPath: "/data",
+		Phases:        []string{PhaseDeploy, PhaseRun},
+		ProcessType:   DefaultProcessType,
+		VolumeOptions: "Z",
+	})
+	Expect(err).NotTo(HaveOccurred())
+	Expect(created).To(BeTrue())
+
+	attachments, err := LoadAttachments("demo")
+	Expect(err).NotTo(HaveOccurred())
+	Expect(attachments).To(HaveLen(1))
+	Expect(attachments[0].VolumeOptions).To(Equal("Z"))
+}
+
+func TestUpsertAttachmentUpdatesInPlace(t *testing.T) {
+	RegisterTestingT(t)
+	withTempLibRoot(t)
+
+	base := &Attachment{
+		EntryName:     "demo-data",
+		ContainerPath: "/data",
+		Phases:        []string{PhaseDeploy, PhaseRun},
+		ProcessType:   DefaultProcessType,
+		VolumeOptions: "Z",
+		Subpath:       "uploads",
+		Readonly:      false,
+		VolumeChown:   "herokuish",
+	}
+	created, err := UpsertAttachment("demo", base)
+	Expect(err).NotTo(HaveOccurred())
+	Expect(created).To(BeTrue())
+
+	// Same identity, new mount-time fields - update in place.
+	created, err = UpsertAttachment("demo", &Attachment{
+		EntryName:     "demo-data",
+		ContainerPath: "/data",
+		Phases:        []string{PhaseDeploy, PhaseRun},
+		ProcessType:   DefaultProcessType,
+		VolumeOptions: "noexec,nosuid",
+		Readonly:      true,
+	})
+	Expect(err).NotTo(HaveOccurred())
+	Expect(created).To(BeFalse())
+
+	attachments, err := LoadAttachments("demo")
+	Expect(err).NotTo(HaveOccurred())
+	Expect(attachments).To(HaveLen(1))
+	Expect(attachments[0].VolumeOptions).To(Equal("noexec,nosuid"))
+	Expect(attachments[0].Readonly).To(BeTrue())
+	// Wholesale rewrite: Subpath and VolumeChown cleared since the second
+	// call didn't supply them.
+	Expect(attachments[0].Subpath).To(BeEmpty())
+	Expect(attachments[0].VolumeChown).To(BeEmpty())
+}
+
+func TestUpsertAttachmentDistinctIdentity(t *testing.T) {
+	RegisterTestingT(t)
+	withTempLibRoot(t)
+
+	created, err := UpsertAttachment("demo", &Attachment{
+		EntryName:     "demo-data",
+		ContainerPath: "/data",
+		Phases:        []string{PhaseDeploy},
+		ProcessType:   DefaultProcessType,
+	})
+	Expect(err).NotTo(HaveOccurred())
+	Expect(created).To(BeTrue())
+
+	// Different container path on the same entry is a distinct attachment.
+	created, err = UpsertAttachment("demo", &Attachment{
+		EntryName:     "demo-data",
+		ContainerPath: "/other",
+		Phases:        []string{PhaseDeploy},
+		ProcessType:   DefaultProcessType,
+	})
+	Expect(err).NotTo(HaveOccurred())
+	Expect(created).To(BeTrue())
+
+	// Different process type on the same (entry, container_path) is also distinct.
+	created, err = UpsertAttachment("demo", &Attachment{
+		EntryName:     "demo-data",
+		ContainerPath: "/data",
+		Phases:        []string{PhaseDeploy},
+		ProcessType:   "web",
+	})
+	Expect(err).NotTo(HaveOccurred())
+	Expect(created).To(BeTrue())
+
+	attachments, err := LoadAttachments("demo")
+	Expect(err).NotTo(HaveOccurred())
+	Expect(attachments).To(HaveLen(3))
+}
+
+func TestUpsertAttachmentValidationFailureLeavesStoreUntouched(t *testing.T) {
+	RegisterTestingT(t)
+	withTempLibRoot(t)
+
+	created, err := UpsertAttachment("demo", &Attachment{
+		EntryName:     "demo-data",
+		ContainerPath: "/data",
+		Phases:        []string{PhaseDeploy},
+		ProcessType:   DefaultProcessType,
+	})
+	Expect(err).NotTo(HaveOccurred())
+	Expect(created).To(BeTrue())
+
+	// Invalid attachment (empty ContainerPath) fails validation and the
+	// existing list stays exactly as it was.
+	_, err = UpsertAttachment("demo", &Attachment{
+		EntryName: "demo-data",
+		Phases:    []string{PhaseDeploy},
+	})
+	Expect(err).To(HaveOccurred())
+
+	attachments, err := LoadAttachments("demo")
+	Expect(err).NotTo(HaveOccurred())
+	Expect(attachments).To(HaveLen(1))
+	Expect(attachments[0].ContainerPath).To(Equal("/data"))
+}

@@ -141,6 +141,8 @@ dokku storage:mount node-js-app node-js-data --container-dir /app/storage --volu
 
 When combined with `--volume-readonly`, the rendered options become `ro,<volume-options>` - for example, `--volume-options noexec,nosuid --volume-readonly` renders as `:ro,noexec,nosuid`.
 
+Re-running `storage:mount` against a named entry with the same `--container-dir` and `--process-type` updates the existing attachment's mount-time attributes (`--phase`, `--volume-subpath`, `--volume-readonly`, `--volume-chown`, `--volume-options`) in place rather than appending a duplicate. This is the idempotent equivalent of `storage:set` for entries, and lets declarative tooling change a mount-time attribute without an unmount-then-remount dance that would briefly drop the volume from `storage:report`. Mount-time fields are rewritten wholesale, not merged - omitting a flag on a re-mount clears any previously-set value. The legacy `host:container[:opts]` form still rejects duplicates with `Mount path already exists.`.
+
 Once persistent storage is mounted, the app requires a restart. See the [process scaling documentation](/docs/processes/process-management.md) for more information.
 
 ```shell

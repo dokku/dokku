@@ -193,7 +193,21 @@ func CommandMount(input CommandMountInput) error {
 		VolumeChown:   input.VolumeChown,
 	}
 
-	return AddAttachment(input.AppName, attachment)
+	// Idempotent contract: same (entry, container_dir, process_type)
+	// tuple updates the mount-time fields in place rather than appending
+	// a duplicate attachment. Lets declarative tooling change
+	// --volume-options / --volume-chown / --phase / etc. without an
+	// unmount-then-remount dance that briefly drops the volume.
+	created, err := UpsertAttachment(input.AppName, attachment)
+	if err != nil {
+		return err
+	}
+	if created {
+		common.LogInfo1(fmt.Sprintf("Storage entry %s mounted at %s on %s", entry.Name, input.ContainerDir, input.AppName))
+	} else {
+		common.LogInfo1(fmt.Sprintf("Storage entry %s mount at %s on %s updated", entry.Name, input.ContainerDir, input.AppName))
+	}
+	return nil
 }
 
 // CommandUnmountInput captures the flags accepted by storage:unmount when

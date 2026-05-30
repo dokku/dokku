@@ -417,6 +417,83 @@ teardown() {
   assert_success
 }
 
+@test "(storage:mount) re-running against an existing (entry, container-dir) updates in place" {
+  run /bin/bash -c "dokku storage:create rdmtest-upsert"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku storage:mount $TEST_APP rdmtest-upsert --container-dir /data --volume-options Z"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  # Re-mount the same (entry, container-dir) with a different --volume-options.
+  run /bin/bash -c "dokku storage:mount $TEST_APP rdmtest-upsert --container-dir /data --volume-options noexec,nosuid"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  # Single attachment, not two.
+  run /bin/bash -c "dokku storage:list $TEST_APP --format json | jq -r '. | length'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "1"
+
+  # Latest --volume-options wins.
+  run /bin/bash -c "dokku storage:list $TEST_APP --format json | jq -r '.[].volume_options'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "noexec,nosuid"
+
+  # Re-mount with --volume-readonly added; readonly toggles on.
+  run /bin/bash -c "dokku storage:mount $TEST_APP rdmtest-upsert --container-dir /data --volume-options noexec,nosuid --volume-readonly"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku storage:list $TEST_APP --format json | jq -r '.[].readonly'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  # Re-mount without --volume-readonly: mount-time fields are rewritten,
+  # not merged, so the readonly key disappears from the JSON output.
+  run /bin/bash -c "dokku storage:mount $TEST_APP rdmtest-upsert --container-dir /data --volume-options noexec,nosuid"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku storage:list $TEST_APP --format json | jq -r '.[] | has(\"readonly\")'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
+
+  # A different --container-dir on the same entry is still a distinct attachment.
+  run /bin/bash -c "dokku storage:mount $TEST_APP rdmtest-upsert --container-dir /other"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku storage:list $TEST_APP --format json | jq -r '. | length'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "2"
+
+  # cleanup
+  run /bin/bash -c "dokku storage:unmount $TEST_APP rdmtest-upsert --container-dir /data"
+  assert_success
+  run /bin/bash -c "dokku storage:unmount $TEST_APP rdmtest-upsert --container-dir /other"
+  assert_success
+  run /bin/bash -c "dokku storage:destroy rdmtest-upsert --force"
+  assert_success
+}
+
 @test "(storage) storage:destroy refuses to remove a still-mounted entry" {
   run /bin/bash -c "dokku storage:create rdmtest-busy"
   assert_success
