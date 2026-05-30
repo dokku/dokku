@@ -383,5 +383,79 @@ teardown() {
   assert_success
   assert_output "true"
 
+  run /bin/bash -c "dokku apps:report $TEST_APP --format json | jq -r 'has(\"global-disable-autocreation\") and has(\"app-global-disable-autocreation\")'"
+  assert_success
+  assert_output "true"
+
+  destroy_app
+}
+
+@test "(apps:report --global) emits global-disable-autocreation" {
+  run /bin/bash -c "dokku apps:report --global --app-global-disable-autocreation"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku apps:set --global disable-autocreation true"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku apps:report --global --app-global-disable-autocreation"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku apps:report --global --format json | jq -r '.\"global-disable-autocreation\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku apps:report --global --format json | jq -r '.\"app-global-disable-autocreation\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  create_app
+
+  run /bin/bash -c "dokku apps:report $TEST_APP --format json | jq -r '.\"global-disable-autocreation\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  destroy_app
+
+  run /bin/bash -c "dokku apps:set --global disable-autocreation"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
+@test "(apps:set) rejects dead writes" {
+  run /bin/bash -c "dokku apps:set --global deploy-source git"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Property cannot be specified globally"
+
+  run /bin/bash -c "dokku apps:set --global deploy-source-metadata foo"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Property cannot be specified globally"
+
+  create_app
+
+  run /bin/bash -c "dokku apps:set $TEST_APP disable-autocreation true"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Property can only be specified globally"
+
   destroy_app
 }

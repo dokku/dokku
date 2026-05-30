@@ -228,6 +228,9 @@ func CommandReport(appName string, format string, infoFlag string) error {
 
 // CommandSet set or clear an apps property for an app
 func CommandSet(appName string, property string, value string) error {
+	if appName != "--global" && property == "disable-autocreation" {
+		common.LogFail("Property can only be specified globally")
+	}
 	common.CommandPropertySet("apps", appName, property, value, DefaultProperties, GlobalProperties)
 	return nil
 }

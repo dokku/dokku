@@ -315,6 +315,15 @@ dokku apps:report node-js-app --app-dir
 
 ## Properties
 
+### Settable properties
+
+> [!NOTE]
+> The `Report flags` column lists the CLI argument names accepted by `apps:report`. The JSON keys emitted by `apps:report --format json` are the same names with the leading `--app-` stripped (e.g. `global-disable-autocreation`). Legacy keys with the `app-` prefix (e.g. `app-global-disable-autocreation`) are also emitted during the 0.38.x deprecation window and will be removed in a future major release.
+
+| Property | Scope | Default | Report flags | Description |
+|---|---|---|---|---|
+| `disable-autocreation` | global only | `false` | `--app-global-disable-autocreation` | When `true`, pushes to a remote for an app that does not yet exist are rejected instead of auto-creating the app |
+
 ### Read-only flags
 
 The following flags surface in `apps:report` but are not managed by `apps:set`:
