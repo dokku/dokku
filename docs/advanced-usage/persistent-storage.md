@@ -57,9 +57,23 @@ dokku storage:list node-js-app --format json
 ```
 [
   {
+    "entry_name": "node-js-app",
     "host_path": "/var/lib/dokku/data/storage/node-js-app",
+    "container_path": "/app/storage"
+  }
+]
+```
+
+Each entry mirrors the underlying attachment. `readonly` (boolean) and `volume_options` (string) reflect `Attachment.Readonly` and `Attachment.VolumeOptions` directly and are only present when set, so external tooling can drift-detect attachments against the raw attachment fields. For example, a mount created with `--volume-options noexec,nosuid --volume-readonly` renders as:
+
+```
+[
+  {
+    "entry_name": "node-js-data",
+    "host_path": "/var/lib/dokku/data/storage/node-js-data",
     "container_path": "/app/storage",
-    "volume_options": ""
+    "readonly": true,
+    "volume_options": "noexec,nosuid"
   }
 ]
 ```

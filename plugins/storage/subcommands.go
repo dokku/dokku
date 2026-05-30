@@ -242,13 +242,8 @@ func mountLegacyColon(appName string, mountPath string) error {
 		ContainerPath: parsed.ContainerPath,
 		Phases:        []string{PhaseDeploy, PhaseRun},
 		ProcessType:   DefaultProcessType,
-	}
-	switch parsed.VolumeOptions {
-	case "":
-	case "ro":
-		attachment.Readonly = true
-	default:
-		attachment.VolumeOptions = parsed.VolumeOptions
+		Readonly:      parsed.Readonly,
+		VolumeOptions: parsed.VolumeOptions,
 	}
 
 	if err := AddAttachment(appName, attachment); err != nil {

@@ -85,7 +85,8 @@ func TestListAppMountEntriesDockerLocal(t *testing.T) {
 	Expect(rows[0].EntryName).To(Equal("demo-data"))
 	Expect(rows[0].HostPath).To(Equal("/var/lib/dokku/data/storage/demo-data"))
 	Expect(rows[0].ContainerPath).To(Equal("/data"))
-	Expect(rows[0].VolumeOptions).To(Equal("ro"))
+	Expect(rows[0].Readonly).To(BeTrue())
+	Expect(rows[0].VolumeOptions).To(BeEmpty())
 
 	// Run phase shows it too because the attachment includes both phases.
 	runRows, err := ListAppMountEntries("demo", PhaseRun)
@@ -164,11 +165,26 @@ func TestListAppMountEntriesVolumeOptions(t *testing.T) {
 		byPath[row.ContainerPath] = row
 	}
 
+	Expect(byPath["/data"].Readonly).To(BeFalse())
 	Expect(byPath["/data"].VolumeOptions).To(Equal("Z"))
 	Expect(formatStorageListEntry(byPath["/data"])).To(Equal("/var/lib/dokku/data/storage/demo-data:/data:Z"))
 
-	Expect(byPath["/ro"].VolumeOptions).To(Equal("ro,noexec,nosuid"))
+	Expect(byPath["/ro"].Readonly).To(BeTrue())
+	Expect(byPath["/ro"].VolumeOptions).To(Equal("noexec,nosuid"))
 	Expect(formatStorageListEntry(byPath["/ro"])).To(Equal("/var/lib/dokku/data/storage/demo-data:/ro:ro,noexec,nosuid"))
+
+	// The wire shape exposes Readonly and VolumeOptions as separate
+	// keys so external drift-detection tooling can compare them
+	// against the underlying Attachment fields one for one.
+	dataJSON, err := json.Marshal(byPath["/data"])
+	Expect(err).NotTo(HaveOccurred())
+	Expect(string(dataJSON)).To(ContainSubstring(`"volume_options":"Z"`))
+	Expect(string(dataJSON)).NotTo(ContainSubstring(`"readonly"`))
+
+	roJSON, err := json.Marshal(byPath["/ro"])
+	Expect(err).NotTo(HaveOccurred())
+	Expect(string(roJSON)).To(ContainSubstring(`"readonly":true`))
+	Expect(string(roJSON)).To(ContainSubstring(`"volume_options":"noexec,nosuid"`))
 }
 
 func TestListAppMountEntriesPhaseFilter(t *testing.T) {

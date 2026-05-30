@@ -174,13 +174,8 @@ func migrateMount(appName string, mount string, phases []string) error {
 		ContainerPath: containerPath,
 		Phases:        phases,
 		ProcessType:   DefaultProcessType,
-	}
-	if parsed.VolumeOptions != "" {
-		if parsed.VolumeOptions == "ro" {
-			attachment.Readonly = true
-		} else {
-			attachment.VolumeOptions = parsed.VolumeOptions
-		}
+		Readonly:      parsed.Readonly,
+		VolumeOptions: parsed.VolumeOptions,
 	}
 
 	existing, err := LoadAttachments(appName)
