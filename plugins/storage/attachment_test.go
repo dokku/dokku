@@ -129,6 +129,48 @@ func TestListAppMountEntriesK3sUsesEntryName(t *testing.T) {
 	Expect(formatStorageListEntry(rows[0])).To(Equal("demo-pvc:/data"))
 }
 
+func TestListAppMountEntriesVolumeOptions(t *testing.T) {
+	RegisterTestingT(t)
+	root := withTempLibRoot(t)
+
+	Expect(SaveEntry(&Entry{
+		Name:      "demo-data",
+		Scheduler: SchedulerDockerLocal,
+		HostPath:  "/var/lib/dokku/data/storage/demo-data",
+	})).To(Succeed())
+
+	writeAttachmentsFile(t, root, "demo", []*Attachment{
+		{
+			EntryName:     "demo-data",
+			ContainerPath: "/data",
+			Phases:        []string{PhaseDeploy, PhaseRun},
+			VolumeOptions: "Z",
+		},
+		{
+			EntryName:     "demo-data",
+			ContainerPath: "/ro",
+			Phases:        []string{PhaseDeploy, PhaseRun},
+			Readonly:      true,
+			VolumeOptions: "noexec,nosuid",
+		},
+	})
+
+	rows, err := ListAppMountEntries("demo", PhaseDeploy)
+	Expect(err).NotTo(HaveOccurred())
+	Expect(rows).To(HaveLen(2))
+
+	byPath := map[string]StorageListEntry{}
+	for _, row := range rows {
+		byPath[row.ContainerPath] = row
+	}
+
+	Expect(byPath["/data"].VolumeOptions).To(Equal("Z"))
+	Expect(formatStorageListEntry(byPath["/data"])).To(Equal("/var/lib/dokku/data/storage/demo-data:/data:Z"))
+
+	Expect(byPath["/ro"].VolumeOptions).To(Equal("ro,noexec,nosuid"))
+	Expect(formatStorageListEntry(byPath["/ro"])).To(Equal("/var/lib/dokku/data/storage/demo-data:/ro:ro,noexec,nosuid"))
+}
+
 func TestListAppMountEntriesPhaseFilter(t *testing.T) {
 	RegisterTestingT(t)
 	root := withTempLibRoot(t)

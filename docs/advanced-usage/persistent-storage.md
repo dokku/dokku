@@ -118,6 +118,15 @@ In the first example, Dokku will then mount the shared contents of `/var/lib/dok
 
 > If the `/storage` path within the container had pre-existing content, the container files will be over-written. This may be an issue for users that create assets at build time but then mount a directory at the same place during runtime. Files are not merged.
 
+For named storage entries, additional Docker mount options can be passed via `--volume-options`. The value is a comma-separated mount-options string stored verbatim on the attachment and rendered into the `-v` flag at deploy time. This is useful for SELinux labels (`Z`, `z`) or hardening flags (`noexec,nosuid`):
+
+```shell
+dokku storage:create node-js-data
+dokku storage:mount node-js-app node-js-data --container-dir /app/storage --volume-options Z
+```
+
+When combined with `--volume-readonly`, the rendered options become `ro,<volume-options>` - for example, `--volume-options noexec,nosuid --volume-readonly` renders as `:ro,noexec,nosuid`.
+
 Once persistent storage is mounted, the app requires a restart. See the [process scaling documentation](/docs/processes/process-management.md) for more information.
 
 ```shell
