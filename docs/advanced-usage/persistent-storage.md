@@ -242,6 +242,60 @@ You can pass flags which will output only the value of the specific information 
 dokku storage:report node-js-app --storage-deploy-mounts
 ```
 
+In addition to the aggregated `Storage build/deploy/run mounts:` lines, the report emits one flat dotted key per attachment field, indexed from `1`. The key shape is `--storage-attachment.<index>.<field>` for each of `entry-name`, `host-path`, `container-path`, `phases`, `process-type`, `subpath`, `readonly`, `volume-options`, and `volume-chown`. Fields render as empty strings when unset, and attachments are ordered by lex-sort of the index (so `10` sorts before `2`):
+
+```shell
+dokku storage:create node-js-data
+dokku storage:mount node-js-app node-js-data --container-dir /app/storage --volume-options Z --volume-chown herokuish --volume-subpath uploads
+dokku storage:report node-js-app
+```
+
+```
+=====> node-js-app storage information
+       Storage attachment 1 container path:  /app/storage
+       Storage attachment 1 entry name:      node-js-data
+       Storage attachment 1 host path:       /var/lib/dokku/data/storage/node-js-data
+       Storage attachment 1 phases:          deploy,run
+       Storage attachment 1 process type:    _default_
+       Storage attachment 1 readonly:        false
+       Storage attachment 1 subpath:         uploads
+       Storage attachment 1 volume chown:    herokuish
+       Storage attachment 1 volume options:  Z
+       Storage build mounts:
+       Storage deploy mounts: -v /var/lib/dokku/data/storage/node-js-data:/app/storage:Z
+       Storage run mounts:  -v /var/lib/dokku/data/storage/node-js-data:/app/storage:Z
+```
+
+The same keys are exposed in JSON output, both in the stripped (`attachment.1.volume-options`) and legacy (`storage-attachment.1.volume-options`) forms:
+
+```shell
+dokku storage:report node-js-app --format json | jq '. | with_entries(select(.key | startswith("attachment.")))'
+```
+
+```json
+{
+  "attachment.1.container-path": "/app/storage",
+  "attachment.1.entry-name": "node-js-data",
+  "attachment.1.host-path": "/var/lib/dokku/data/storage/node-js-data",
+  "attachment.1.phases": "deploy,run",
+  "attachment.1.process-type": "_default_",
+  "attachment.1.readonly": "false",
+  "attachment.1.subpath": "uploads",
+  "attachment.1.volume-chown": "herokuish",
+  "attachment.1.volume-options": "Z"
+}
+```
+
+A single attachment field can be fetched directly via the info-flag form:
+
+```shell
+dokku storage:report node-js-app --storage-attachment.1.volume-options
+```
+
+```
+Z
+```
+
 ## Use Cases
 
 ### Sharing storage across deploys

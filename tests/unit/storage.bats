@@ -197,6 +197,10 @@ teardown() {
   assert_success
   assert_output ""
 
+  run /bin/bash -c "dokku storage:report $TEST_APP --format json | jq -r '[keys[] | select(startswith(\"attachment.\"))] | length'"
+  assert_success
+  assert_output "0"
+
   run /bin/bash -c "dokku storage:mount $TEST_APP /tmp/storage-mount:/mount"
   assert_success
 
@@ -212,7 +216,141 @@ teardown() {
   assert_success
   assert_output ""
 
+  run /bin/bash -c "dokku storage:report $TEST_APP --format json | jq -r '[keys[] | select(startswith(\"attachment.\"))] | length'"
+  assert_success
+  assert_output "9"
+
   run /bin/bash -c "dokku storage:unmount $TEST_APP /tmp/storage-mount:/mount"
+  assert_success
+}
+
+@test "(storage:report) emits per-attachment dotted keys" {
+  run /bin/bash -c "dokku storage:create rdmtest-rpt"
+  assert_success
+
+  run /bin/bash -c "dokku storage:mount $TEST_APP rdmtest-rpt --container-dir /data --phase deploy --phase run --volume-options Z --volume-chown herokuish --volume-subpath uploads"
+  assert_success
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --format json | jq -r '.\"attachment.1.entry-name\"'"
+  assert_success
+  assert_output "rdmtest-rpt"
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --format json | jq -r '.\"attachment.1.host-path\"'"
+  assert_success
+  assert_output "$DOKKU_LIB_ROOT/data/storage/rdmtest-rpt"
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --format json | jq -r '.\"attachment.1.container-path\"'"
+  assert_success
+  assert_output "/data"
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --format json | jq -r '.\"attachment.1.phases\"'"
+  assert_success
+  assert_output "deploy,run"
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --format json | jq -r '.\"attachment.1.process-type\"'"
+  assert_success
+  assert_output "_default_"
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --format json | jq -r '.\"attachment.1.subpath\"'"
+  assert_success
+  assert_output "uploads"
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --format json | jq -r '.\"attachment.1.readonly\"'"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --format json | jq -r '.\"attachment.1.volume-options\"'"
+  assert_success
+  assert_output "Z"
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --format json | jq -r '.\"attachment.1.volume-chown\"'"
+  assert_success
+  assert_output "herokuish"
+
+  # stdout output gains one line per field; verify a representative subset
+  run /bin/bash -c "dokku storage:report $TEST_APP"
+  assert_success
+  assert_output_contains "Storage attachment 1 entry name"
+  assert_output_contains "rdmtest-rpt" -1
+  assert_output_contains "Storage attachment 1 volume options"
+  assert_output_contains "Storage attachment 1 volume chown"
+  assert_output_contains "herokuish"
+
+  # info-flag lookup returns just the value
+  run /bin/bash -c "dokku storage:report $TEST_APP --storage-attachment.1.volume-options"
+  assert_success
+  assert_output "Z"
+
+  run /bin/bash -c "dokku storage:unmount $TEST_APP rdmtest-rpt --container-dir /data"
+  assert_success
+  run /bin/bash -c "dokku storage:destroy rdmtest-rpt --force"
+  assert_success
+}
+
+@test "(storage:report) multiple attachments cluster by index" {
+  run /bin/bash -c "dokku storage:create rdmtest-rpt-a"
+  assert_success
+  run /bin/bash -c "dokku storage:create rdmtest-rpt-b"
+  assert_success
+
+  run /bin/bash -c "dokku storage:mount $TEST_APP rdmtest-rpt-a --container-dir /data --volume-options Z"
+  assert_success
+  run /bin/bash -c "dokku storage:mount $TEST_APP rdmtest-rpt-b --container-dir /cache --volume-options noexec,nosuid"
+  assert_success
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --format json | jq -r '[.\"attachment.1.entry-name\", .\"attachment.2.entry-name\"] | sort | join(\"|\")'"
+  assert_success
+  assert_output "rdmtest-rpt-a|rdmtest-rpt-b"
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --format json | jq -r '[.\"attachment.1.volume-options\", .\"attachment.2.volume-options\"] | sort | join(\"|\")'"
+  assert_success
+  assert_output "Z|noexec,nosuid"
+
+  # info-flag lookup against the second attachment
+  run /bin/bash -c "dokku storage:report $TEST_APP --storage-attachment.2.entry-name"
+  assert_success
+  assert_output_contains "rdmtest-rpt"
+
+  run /bin/bash -c "dokku storage:unmount $TEST_APP rdmtest-rpt-a --container-dir /data"
+  assert_success
+  run /bin/bash -c "dokku storage:unmount $TEST_APP rdmtest-rpt-b --container-dir /cache"
+  assert_success
+  run /bin/bash -c "dokku storage:destroy rdmtest-rpt-a --force"
+  assert_success
+  run /bin/bash -c "dokku storage:destroy rdmtest-rpt-b --force"
+  assert_success
+}
+
+@test "(storage:report) degrades gracefully when an attachment entry is missing" {
+  run /bin/bash -c "dokku storage:create rdmtest-rpt-missing"
+  assert_success
+
+  run /bin/bash -c "dokku storage:mount $TEST_APP rdmtest-rpt-missing --container-dir /data --volume-options Z"
+  assert_success
+
+  # delete the entry on disk so LoadEntry fails for the existing attachment
+  run /bin/bash -c "sudo rm -f $DOKKU_LIB_ROOT/data/storage-registry/entries/rdmtest-rpt-missing.json"
+  assert_success
+
+  # discard dokku's stderr so the LogWarn line doesn't pollute the jq output capture
+  run /bin/bash -c "dokku storage:report $TEST_APP --format json 2>/dev/null | jq -r '[keys[] | select(startswith(\"attachment.\"))] | length'"
+  assert_success
+  assert_output "0"
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --format json 2>/dev/null | jq -r 'has(\"storage-build-mounts\") and has(\"storage-deploy-mounts\") and has(\"storage-run-mounts\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku storage:report $TEST_APP"
+  assert_success
+  assert_output_contains "Skipping attachment"
+  assert_output_contains "rdmtest-rpt-missing" -1
+  assert_output_contains "Storage build mounts"
+  assert_output_contains "Storage deploy mounts"
+  assert_output_contains "Storage run mounts"
+
+  # clean up the leftover attachment record so subsequent tests don't trip
+  run /bin/bash -c "sudo rm -f $DOKKU_LIB_ROOT/config/storage/$TEST_APP/attachments"
   assert_success
 }
 
@@ -734,4 +872,19 @@ teardown() {
   run /bin/bash -c "dokku storage:report $TEST_APP --format json | jq -r 'has(\"run-mounts\") and has(\"storage-run-mounts\")'"
   assert_success
   assert_output "true"
+
+  # per-attachment dotted keys are emitted in both stripped and legacy forms too
+  run /bin/bash -c "dokku storage:create rdmtest-rpt-keys"
+  assert_success
+  run /bin/bash -c "dokku storage:mount $TEST_APP rdmtest-rpt-keys --container-dir /data"
+  assert_success
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --format json | jq -r 'has(\"attachment.1.entry-name\") and has(\"storage-attachment.1.entry-name\")'"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku storage:unmount $TEST_APP rdmtest-rpt-keys --container-dir /data"
+  assert_success
+  run /bin/bash -c "dokku storage:destroy rdmtest-rpt-keys --force"
+  assert_success
 }
