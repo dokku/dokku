@@ -1,5 +1,24 @@
 # History
 
+## 0.38.13
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.38.13/bootstrap.sh
+sudo DOKKU_TAG=v0.38.13 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #8713: @josegonzalez Make storage:mount upsert the existing attachment
+
+### New Features
+
+- #8714: @josegonzalez Expose per-attachment fields in storage:report
+- #8712: @josegonzalez Expose attachment readonly and volume_options in storage:list json
+- #8711: @josegonzalez Add --volume-options flag to storage:mount
+
 ## 0.38.12
 
 Install/update via the bootstrap script:
