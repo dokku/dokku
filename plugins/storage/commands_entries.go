@@ -495,6 +495,13 @@ func CommandListEntries(scheduler string, format string) error {
 // docker-local entry if it doesn't already exist. Idempotent: a
 // pre-existing directory is left in place.
 func ensureDockerLocalPath(entry *Entry) error {
+	if entry.Chown != "" && entry.Chown != "false" {
+		defaultHostPath := filepath.Join(GetStorageDirectory(), entry.Name)
+		if entry.HostPath != defaultHostPath {
+			return fmt.Errorf("--chown is only supported when the storage entry uses the default host path (%s); use --chown false and chown %s manually", defaultHostPath, entry.HostPath)
+		}
+	}
+
 	info, err := os.Stat(entry.HostPath)
 	if err != nil && !os.IsNotExist(err) {
 		return fmt.Errorf("unable to stat %s: %w", entry.HostPath, err)
@@ -519,7 +526,7 @@ func ensureDockerLocalPath(entry *Entry) error {
 			chownScript := filepath.Join(pluginPath, "storage", "bin", "chown-storage-dir")
 			result, err := common.CallExecCommand(common.ExecCommandInput{
 				Command: "sudo",
-				Args:    []string{chownScript, entry.HostPath, chownID},
+				Args:    []string{chownScript, entry.Name, chownID},
 			})
 			if err != nil {
 				return fmt.Errorf("unable to chown %s: %w", entry.HostPath, err)
