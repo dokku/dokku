@@ -1,5 +1,18 @@
 # History
 
+## 0.38.12
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.38.12/bootstrap.sh
+sudo DOKKU_TAG=v0.38.12 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #8706: @josegonzalez Align apps:set/apps:report with what dokku actually reads
+
 ## 0.38.11
 
 Install/update via the bootstrap script:
