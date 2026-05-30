@@ -155,16 +155,18 @@ func main() {
 		subpath := args.String("volume-subpath", "", "--volume-subpath: subpath within the entry")
 		readonly := args.Bool("volume-readonly", false, "--volume-readonly: mount the volume read-only")
 		volumeChown := args.String("volume-chown", "", "--volume-chown: chown option applied at mount time")
+		volumeOptions := args.String("volume-options", "", "--volume-options: comma-separated mount options (e.g. Z, noexec,nosuid)")
 		args.Parse(os.Args[2:])
 		err = storage.CommandMount(storage.CommandMountInput{
-			AppName:      args.Arg(0),
-			NameOrPath:   args.Arg(1),
-			ContainerDir: *containerDir,
-			Phases:       *phases,
-			ProcessType:  *processType,
-			Subpath:      *subpath,
-			Readonly:     *readonly,
-			VolumeChown:  *volumeChown,
+			AppName:       args.Arg(0),
+			NameOrPath:    args.Arg(1),
+			ContainerDir:  *containerDir,
+			Phases:        *phases,
+			ProcessType:   *processType,
+			Subpath:       *subpath,
+			Readonly:      *readonly,
+			VolumeChown:   *volumeChown,
+			VolumeOptions: *volumeOptions,
 		})
 	case "report":
 		args := flag.NewFlagSet("storage:report", flag.ExitOnError)

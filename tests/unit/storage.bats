@@ -345,6 +345,56 @@ teardown() {
   assert_success
 }
 
+@test "(storage:mount) --volume-options sets option on named-entry attachment" {
+  run /bin/bash -c "dokku storage:create rdmtest-opts"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku storage:mount $TEST_APP rdmtest-opts --container-dir /data --volume-options Z"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku storage:list $TEST_APP --format json | jq -r '.[].volume_options'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "Z"
+
+  run /bin/bash -c "dokku storage:list $TEST_APP --format json | jq -r '.[].container_path'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "/data"
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --format json | jq -r '.\"storage-deploy-mounts\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains ":Z"
+
+  # combine with --volume-readonly: rendered as ro,<options>
+  run /bin/bash -c "dokku storage:mount $TEST_APP rdmtest-opts --container-dir /ro --volume-options noexec,nosuid --volume-readonly"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --format json | jq -r '.\"storage-deploy-mounts\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains ":ro,noexec,nosuid"
+
+  # cleanup
+  run /bin/bash -c "dokku storage:unmount $TEST_APP rdmtest-opts --container-dir /data"
+  assert_success
+  run /bin/bash -c "dokku storage:unmount $TEST_APP rdmtest-opts --container-dir /ro"
+  assert_success
+  run /bin/bash -c "dokku storage:destroy rdmtest-opts --force"
+  assert_success
+}
+
 @test "(storage) storage:destroy refuses to remove a still-mounted entry" {
   run /bin/bash -c "dokku storage:create rdmtest-busy"
   assert_success
