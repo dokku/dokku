@@ -7,6 +7,8 @@
 scheduler-k3s:annotations:set <app|--global> <property> (<value>) [--process-type PROCESS_TYPE] <--resource-type RESOURCE_TYPE>, Set or clear an annotation for a given app/process-type/resource-type combination
 scheduler-k3s:autoscaling-auth:set <app|--global> <trigger> [<--metadata key=value>...], Set or clear a scheduler-k3s autoscaling keda trigger authentication resource for an app
 scheduler-k3s:autoscaling-auth:report <app|--global> [--format stdout|json] [--include-metadata] # Displays a scheduler-k3s autoscaling auth report for an app
+scheduler-k3s:charts:report [<chart>] [--format stdout|json] # Displays a scheduler-k3s chart override report
+scheduler-k3s:charts:set <chart-name.property> (<value>) # Set or clear a chart-specific helm value
 scheduler-k3s:cluster:add [ssh://user@host:port]    # Adds a server node to a Dokku-managed cluster
 scheduler-k3s:cluster:list                          # Lists all nodes in a Dokku-managed cluster
 scheduler-k3s:cluster:remove [node-id]              # Removes client node to a Dokku-managed cluster
@@ -658,20 +660,31 @@ The default value for the `kube-context` is an empty string, and will result in 
 
 ### Customizing Helm Chart Properties
 
-Dokku includes a number of helm charts by default with settings that are optimized for Dokku. That said, it may be useful to further customize the charts for a given environment. Users can customize which charts are installed by setting properties prefixed with `chart.$CHART_NAME.` with the `--global` flag.
+Dokku includes a number of helm charts by default with settings that are optimized for Dokku. That said, it may be useful to further customize the charts for a given environment. Chart overrides are managed via the `scheduler-k3s:charts:set` command, which takes a `<chart-name>.<property>` argument and a value. Chart overrides are always global because helm charts are not managed on a per-app basis.
 
 ```shell
-dokku scheduler-k3s:set --global chart.cert-manager.version 1.13.3
+dokku scheduler-k3s:charts:set cert-manager.version 1.13.3
 ```
 
 > [!NOTE]
 > Properties follow dot-notation, and are expanded according to Helm's internal logic. See the [Helm documentation](https://helm.sh/docs/helm/helm_install/#helm-install) for `helm install` for further details.
 
-To unset a chart property, omit the value from the `scheduler-k3s:set` call:
+To unset a chart property, omit the value from the `scheduler-k3s:charts:set` call:
 
 ```shell
-dokku scheduler-k3s:set --global chart.cert-manager.version
+dokku scheduler-k3s:charts:set cert-manager.version
 ```
+
+Configured chart overrides can be inspected with the `scheduler-k3s:charts:report` command. Without an argument, it lists every chart known to Dokku along with any configured overrides; passing a chart name scopes the report to that chart:
+
+```shell
+dokku scheduler-k3s:charts:report
+dokku scheduler-k3s:charts:report cert-manager
+dokku scheduler-k3s:charts:report --format json
+```
+
+> [!NOTE]
+> The legacy form `dokku scheduler-k3s:set --global chart.<chart>.<property> <value>` continues to work but is deprecated and will be removed in a future major release. Migrate to `scheduler-k3s:charts:set` instead.
 
 A `scheduler-k3s:ensure-charts` command with the `--force` flag is required after changing any chart properties in order to have them apply. This will install all charts, not just the ones that have changed.
 
@@ -811,4 +824,4 @@ If unspecified for any task, the default reservation will be `.1` CPU and `128Mi
 | `rollback-on-failure` | app + global | `false` | `--scheduler-k3s-rollback-on-failure`, `--scheduler-k3s-global-rollback-on-failure`, `--scheduler-k3s-computed-rollback-on-failure` | When `true`, helm rolls back the release if a deploy fails |
 | `shm-size` | app + global | none | `--scheduler-k3s-shm-size`, `--scheduler-k3s-global-shm-size`, `--scheduler-k3s-computed-shm-size` | `/dev/shm` size override applied to app containers |
 | `token` | global only | none | `--scheduler-k3s-global-token` (masked as `*******` in default stdout output; the raw value is returned when queried via `--format json` or when this flag is requested explicitly) | Cluster join token used by `scheduler-k3s:cluster-add` |
-| `chart.<chart-name>.<property>` | global only | none | `--scheduler-k3s-global-chart.<chart-name>.<property>` (dynamic per chart/property) | Override a value injected into the helm chart named `<chart-name>` (one row per chart/property pair) |
+| `chart.<chart-name>.<property>` | global only | none | `--scheduler-k3s-global-chart.<chart-name>.<property>` (dynamic per chart/property) | Override a value injected into the helm chart named `<chart-name>` (one row per chart/property pair). Manage these via the dedicated `scheduler-k3s:charts:set` / `scheduler-k3s:charts:report` commands; the `scheduler-k3s:set`/`scheduler-k3s:report` form is deprecated. |

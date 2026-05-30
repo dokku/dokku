@@ -19,6 +19,8 @@ Additional commands:`
 	helpContent = `
     scheduler-k3s:autoscaling-auth:set <app|--global> <trigger> [<--metadata key=value>...], Set or clear a scheduler-k3s autoscaling keda trigger authentication resource for an app
     scheduler-k3s:annotations:set <app|--global> <property> (<value>) [--process-type PROCESS_TYPE] <--resource-type RESOURCE_TYPE>, Set or clear an annotation for a given app/process-type/resource-type combination
+    scheduler-k3s:charts:report [<chart>] [--format stdout|json], Displays a scheduler-k3s chart override report
+    scheduler-k3s:charts:set <chart-name.property> (<value>), Set or clear a chart-specific helm value
     scheduler-k3s:cluster:add [--profile PROFILE] [--role ROLE] [--insecure-allow-unknown-hosts] [--server-ip SERVER_IP] [--taint-scheduling] [--kubelet-args KUBELET_ARGS] <ssh://user@host:port>, Adds a server node to a Dokku-managed cluster
     scheduler-k3s:cluster:list [--format json|stdout], Lists all nodes in a Dokku-managed cluster
     scheduler-k3s:cluster:remove [node-id], Removes client node to a Dokku-managed cluster

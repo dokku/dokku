@@ -400,6 +400,153 @@ func CommandInitialize(ingressClass string, serverIP string, taintScheduling boo
 	return nil
 }
 
+// CommandChartsSet sets or clears a chart-specific helm value for the scheduler
+func CommandChartsSet(propertyArg string, value string) error {
+	if propertyArg == "" {
+		return fmt.Errorf("Invalid property, expected format: <chart-name>.<property>")
+	}
+
+	dotIndex := strings.Index(propertyArg, ".")
+	if dotIndex <= 0 || dotIndex == len(propertyArg)-1 {
+		return fmt.Errorf("Invalid property, expected format: <chart-name>.<property>")
+	}
+
+	chartName := propertyArg[:dotIndex]
+	chartProperty := propertyArg[dotIndex+1:]
+
+	knownCharts := []string{}
+	chartFound := false
+	for _, chart := range HelmCharts {
+		knownCharts = append(knownCharts, chart.ReleaseName)
+		if chart.ReleaseName == chartName {
+			chartFound = true
+		}
+	}
+	if !chartFound {
+		sort.Strings(knownCharts)
+		return fmt.Errorf("Invalid chart name %q, valid charts: %s", chartName, strings.Join(knownCharts, ", "))
+	}
+
+	key := fmt.Sprintf("chart.%s.%s", chartName, chartProperty)
+	if value != "" {
+		common.LogInfo2Quiet(fmt.Sprintf("Setting %s to %s", key, value))
+		if err := common.PropertyWrite("scheduler-k3s", "--global", key, value); err != nil {
+			return fmt.Errorf("Unable to write property: %w", err)
+		}
+		return nil
+	}
+
+	common.LogInfo2Quiet(fmt.Sprintf("Unsetting %s", key))
+	if err := common.PropertyDelete("scheduler-k3s", "--global", key); err != nil {
+		return fmt.Errorf("Unable to delete property: %w", err)
+	}
+	return nil
+}
+
+// CommandChartsReport displays a scheduler-k3s chart override report
+func CommandChartsReport(chartName string, format string, infoFlag string) error {
+	if format != "stdout" && format != "json" {
+		return fmt.Errorf("Invalid format: %s", format)
+	}
+
+	if format == "json" && infoFlag != "" {
+		return fmt.Errorf("--format flag cannot be specified when specifying an info flag")
+	}
+
+	charts := []HelmChart{}
+	if chartName != "" {
+		found := false
+		for _, chart := range HelmCharts {
+			if chart.ReleaseName == chartName {
+				charts = append(charts, chart)
+				found = true
+				break
+			}
+		}
+		if !found {
+			knownCharts := []string{}
+			for _, chart := range HelmCharts {
+				knownCharts = append(knownCharts, chart.ReleaseName)
+			}
+			sort.Strings(knownCharts)
+			return fmt.Errorf("Invalid chart name %q, valid charts: %s", chartName, strings.Join(knownCharts, ", "))
+		}
+	} else {
+		charts = append(charts, HelmCharts...)
+	}
+
+	overridesByChart := map[string]map[string]string{}
+	flatOverrides := map[string]string{}
+	flagToValue := map[string]string{}
+	for _, chart := range charts {
+		properties, err := common.PropertyGetAllByPrefix("scheduler-k3s", "--global", "chart."+chart.ReleaseName+".")
+		if err != nil {
+			return fmt.Errorf("Unable to get chart properties: %w", err)
+		}
+
+		chartOverrides := map[string]string{}
+		prefix := "chart." + chart.ReleaseName + "."
+		for key, value := range properties {
+			overrideKey := strings.TrimPrefix(key, prefix)
+			chartOverrides[overrideKey] = value
+			flatKey := chart.ReleaseName + "." + overrideKey
+			flatOverrides[flatKey] = value
+			flagToValue["--scheduler-k3s-charts-"+flatKey] = value
+		}
+		overridesByChart[chart.ReleaseName] = chartOverrides
+	}
+
+	if infoFlag != "" {
+		value, ok := flagToValue[infoFlag]
+		if !ok {
+			validFlags := []string{}
+			for flag := range flagToValue {
+				validFlags = append(validFlags, flag)
+			}
+			sort.Strings(validFlags)
+			return fmt.Errorf("Invalid flag passed, valid flags: %s", strings.Join(validFlags, ", "))
+		}
+		fmt.Println(value)
+		return nil
+	}
+
+	if format == "json" {
+		b, err := json.Marshal(flatOverrides)
+		if err != nil {
+			return fmt.Errorf("Unable to marshal json: %w", err)
+		}
+		fmt.Println(string(b))
+		return nil
+	}
+
+	length := 31
+	for _, overrides := range overridesByChart {
+		for key := range overrides {
+			label := fmt.Sprintf("Chart property %s:", key)
+			if len(label) > length {
+				length = len(label)
+			}
+		}
+	}
+
+	for _, chart := range charts {
+		common.LogInfo2Quiet(fmt.Sprintf("%s chart information", chart.ReleaseName))
+
+		overrideKeys := []string{}
+		for key := range overridesByChart[chart.ReleaseName] {
+			overrideKeys = append(overrideKeys, key)
+		}
+		sort.Strings(overrideKeys)
+
+		for _, key := range overrideKeys {
+			label := fmt.Sprintf("Chart property %s:", key)
+			common.LogVerbose(fmt.Sprintf("%s%s", common.RightPad(label, length, " "), overridesByChart[chart.ReleaseName][key]))
+		}
+	}
+
+	return nil
+}
+
 // CommandClusterAdd adds a server to the k3s cluster
 func CommandClusterAdd(profileName string, role string, remoteHost string, serverIP string, allowUknownHosts bool, taintScheduling bool, kubeletArgs []string) error {
 	if err := isK3sInstalled(); err != nil {
@@ -1166,6 +1313,8 @@ func CommandSet(appName string, property string, value string) error {
 	validProperties := DefaultProperties
 	globalProperties := GlobalProperties
 	if strings.HasPrefix(property, "chart.") {
+		common.LogWarn("scheduler-k3s:set chart.* properties are deprecated; use scheduler-k3s:charts:set <chart>.<property> instead")
+
 		if appName != "--global" {
 			return fmt.Errorf("Chart properties can only be set globally")
 		}
