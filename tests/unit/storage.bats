@@ -240,6 +240,38 @@ teardown() {
   assert_success
 }
 
+@test "(storage:create) --chown sets directory ownership" {
+  run /bin/bash -c "dokku storage:create --chown herokuish rdmtest-chown"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "stat -c '%u:%g' $DOKKU_LIB_ROOT/data/storage/rdmtest-chown"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "32767:32767"
+
+  run /bin/bash -c "dokku storage:destroy rdmtest-chown --force"
+  assert_success
+}
+
+@test "(storage:create) --chown rejects a non-default host path" {
+  custom_path="/tmp/rdmtest-chown-custom"
+  rm -rf "$custom_path"
+
+  run /bin/bash -c "dokku storage:create --chown herokuish rdmtest-chown-custom $custom_path"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "--chown is only supported when the storage entry uses the default host path"
+
+  run /bin/bash -c "dokku storage:list-entries --format json | jq -r '.[].name' | grep '^rdmtest-chown-custom$' || true"
+  assert_output ""
+
+  rm -rf "$custom_path"
+}
+
 @test "(storage) storage:create rejects invalid names" {
   # underscore: rejected
   run /bin/bash -c "dokku storage:create rdmtest_invalid"

@@ -95,6 +95,8 @@ By default, permissions are set for usage with Herokuish buildpacks. These permi
 
 Users deploying via Dockerfile will want to specify `--chown false` and manually `chown` the created directory if the user and/or group id  of the runnning process in the deployed container do not correspond to any of the above options.
 
+The `--chown` flag - whether on `storage:create` or `storage:ensure-directory` - only manages the default `/var/lib/dokku/data/storage/<name>` location. If a custom `<path>` is passed to `storage:create`, the chown call is refused and the operator must chown the path themselves.
+
 > [!WARNING]
 > Failing to set the correct directory ownership may result in issues in persisting files written to the mounted storage directory.
 
