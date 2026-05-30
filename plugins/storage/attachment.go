@@ -126,6 +126,43 @@ func AddAttachment(appName string, attachment *Attachment) error {
 	return SaveAttachments(appName, attachments)
 }
 
+// UpsertAttachment inserts an attachment, or updates the mount-time fields
+// on an existing one matching the same (entry_name, container_path,
+// process_type) tuple. Returns created=true when a new attachment was
+// appended, created=false when an existing one was rewritten.
+//
+// Mount-time fields (Phases, Subpath, Readonly, VolumeOptions, VolumeChown)
+// are overwritten wholesale, not merged: passing an empty Subpath or a
+// false Readonly clears any previously-set value, mirroring the operator's
+// "set the flags as I just typed them" intent and the same idempotent
+// contract storage:create offers for entries.
+func UpsertAttachment(appName string, attachment *Attachment) (bool, error) {
+	if err := attachment.Validate(); err != nil {
+		return false, err
+	}
+
+	attachments, err := LoadAttachments(appName)
+	if err != nil {
+		return false, err
+	}
+
+	for _, existing := range attachments {
+		if existing.EntryName == attachment.EntryName &&
+			existing.ContainerPath == attachment.ContainerPath &&
+			existing.ProcessType == attachment.ProcessType {
+			existing.Phases = attachment.Phases
+			existing.Subpath = attachment.Subpath
+			existing.Readonly = attachment.Readonly
+			existing.VolumeOptions = attachment.VolumeOptions
+			existing.VolumeChown = attachment.VolumeChown
+			return false, SaveAttachments(appName, attachments)
+		}
+	}
+
+	attachments = append(attachments, attachment)
+	return true, SaveAttachments(appName, attachments)
+}
+
 // RemoveAttachment removes the attachment matching the given entry and
 // optional container path. If containerPath is empty and there is more
 // than one match, returns an error.
