@@ -172,6 +172,69 @@ fn-nginx-global-disable-custom-config() {
   fn-get-property --app "$APP" --global "disable-custom-config"
 }
 
+fn-nginx-dns-resolver() {
+  declare desc="get the configured dns-resolver value"
+  declare APP="$1"
+
+  fn-get-property --app "$APP" "dns-resolver"
+}
+
+fn-nginx-computed-dns-resolver() {
+  declare desc="get the computed dns-resolver value"
+  declare APP="$1"
+
+  fn-get-property --app "$APP" --computed "dns-resolver"
+}
+
+fn-nginx-global-dns-resolver() {
+  declare desc="get the global dns-resolver value"
+  declare APP="$1"
+
+  fn-get-property --app "$APP" --global "dns-resolver"
+}
+
+fn-nginx-dns-resolver-timeout() {
+  declare desc="get the configured dns-resolver-timeout value"
+  declare APP="$1"
+
+  fn-get-property --app "$APP" "dns-resolver-timeout"
+}
+
+fn-nginx-computed-dns-resolver-timeout() {
+  declare desc="get the computed dns-resolver-timeout value"
+  declare APP="$1"
+
+  fn-get-property --app "$APP" --computed "dns-resolver-timeout"
+}
+
+fn-nginx-global-dns-resolver-timeout() {
+  declare desc="get the global dns-resolver-timeout value"
+  declare APP="$1"
+
+  fn-get-property --app "$APP" --global "dns-resolver-timeout"
+}
+
+fn-nginx-dns-zone() {
+  declare desc="get the configured dns-zone value"
+  declare APP="$1"
+
+  fn-get-property --app "$APP" "dns-zone"
+}
+
+fn-nginx-computed-dns-zone() {
+  declare desc="get the computed dns-zone value"
+  declare APP="$1"
+
+  fn-get-property --app "$APP" --computed "dns-zone"
+}
+
+fn-nginx-global-dns-zone() {
+  declare desc="get the global dns-zone value"
+  declare APP="$1"
+
+  fn-get-property --app "$APP" --global "dns-zone"
+}
+
 fn-nginx-error-log-path() {
   declare desc="get the configured error log path"
   declare APP="$1"

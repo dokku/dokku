@@ -87,6 +87,7 @@ Dokku is run in the following configuration:
 - Data within the container is stored on the host within the `/var/lib/dokku` directory.
 - Image build cache is set to the data dir + `/home/dokku`.
 - The docker socket is mounted into container.
+- `coredns-docker` (a CoreDNS plugin that serves DNS records for sibling Docker containers) is installed transitively via the dokku deb's `Depends:`, runs under runit on `127.0.0.1:1053` inside the container, and is what the `nginx-vhosts` `dns-resolver` default points at. This is what makes the `<app>.<process-type>.docker` upstream resolution work out of the box - see the [nginx proxy doc](/docs/networking/proxies/nginx.md#upstream-resolution-via-coredns-docker) for the operator-facing behavior.
 
 Application repositories, plugin config, as well as plugin data are persisted to disk within the specified host directory for `/var/lib/dokku`.
 
