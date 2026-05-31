@@ -85,7 +85,7 @@ func (e *NilResponseError) Error() string {
 // KubernetesClient is a wrapper around the Kubernetes client
 type KubernetesClient struct {
 	// Client is the Kubernetes client
-	Client kubernetes.Clientset
+	Client kubernetes.Interface
 
 	// DynamicClient is the Kubernetes dynamic client
 	DynamicClient dynamic.Interface
@@ -133,7 +133,7 @@ func NewKubernetesClient() (KubernetesClient, error) {
 	}
 
 	return KubernetesClient{
-		Client:         *client,
+		Client:         client,
 		DynamicClient:  dynamicClient,
 		KubeConfigPath: kubeconfigPath,
 		RestConfig:     *restConf,

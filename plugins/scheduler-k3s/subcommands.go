@@ -755,7 +755,7 @@ func CommandClusterAdd(profileName string, role string, remoteHost string, serve
 
 	common.LogInfo2Quiet("Ensuring compatible k3s version for node")
 	lowestNodeVersion, err := clientset.GetLowestNodeVersion(ctx, ListNodesInput{
-		LabelSelector: "node-role.kubernetes.io/master=true",
+		LabelSelector: "node-role.kubernetes.io/control-plane=true",
 	})
 	if err != nil {
 		return fmt.Errorf("Unable to get lowest node version: %w", err)
