@@ -1,5 +1,19 @@
 # History
 
+## 0.38.16
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.38.16/bootstrap.sh
+sudo DOKKU_TAG=v0.38.16 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #8723: @josegonzalez Match control-plane nodes by their modern label
+- #8724: @josegonzalez Stop truncating existing files in common.TouchFile
+
 ## 0.38.15
 
 Install/update via the bootstrap script:
