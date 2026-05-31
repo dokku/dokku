@@ -54,6 +54,23 @@ func main() {
 		args.Parse(os.Args[2:])
 		appName := args.Arg(0)
 		err = scheduler_k3s.CommandAutoscalingAuthReport(appName, *format, *global, *includeMetadata)
+	case "charts:set":
+		args := flag.NewFlagSet("scheduler-k3s:charts:set", flag.ExitOnError)
+		args.Parse(os.Args[2:])
+		property := args.Arg(0)
+		value := args.Arg(1)
+		err = scheduler_k3s.CommandChartsSet(property, value)
+	case "charts:report":
+		args := flag.NewFlagSet("scheduler-k3s:charts:report", flag.ExitOnError)
+		format := args.String("format", "stdout", "format: [ stdout | json ]")
+		reportArgs, flagErr := common.ParseReportArgs("scheduler-k3s-charts", os.Args[2:])
+		if flagErr == nil {
+			args.Parse(reportArgs.OSArgs)
+			chartName := args.Arg(0)
+			err = scheduler_k3s.CommandChartsReport(chartName, *format, reportArgs.InfoFlag)
+		} else {
+			err = flagErr
+		}
 	case "cluster:add":
 		args := flag.NewFlagSet("scheduler-k3s:cluster:add", flag.ExitOnError)
 		allowUknownHosts := args.Bool("insecure-allow-unknown-hosts", false, "insecure-allow-unknown-hosts: allow unknown hosts")
