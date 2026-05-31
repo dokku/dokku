@@ -25,7 +25,11 @@ func setupTests() (err error) {
 		return err
 	}
 
-	return os.Setenv("PLUGIN_ENABLED_PATH", "/var/lib/dokku/plugins/enabled")
+	if err := os.Setenv("PLUGIN_ENABLED_PATH", "/var/lib/dokku/plugins/enabled"); err != nil {
+		return err
+	}
+
+	return os.Setenv("PLUGIN_CORE_AVAILABLE_PATH", "/var/lib/dokku/core-plugins/available")
 }
 
 func setupTestApp() (err error) {

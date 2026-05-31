@@ -19,6 +19,8 @@ func setupPropertyMapTest(t *testing.T) {
 	RegisterTestingT(t)
 	Expect(setupTests()).To(Succeed())
 	t.Setenv("DOKKU_LIB_ROOT", t.TempDir())
+	t.Setenv("DOKKU_SYSTEM_USER", "root")
+	t.Setenv("DOKKU_SYSTEM_GROUP", "root")
 	Expect(PropertySetup(propertyTestPlugin)).To(Succeed())
 }
 

@@ -13,6 +13,8 @@ func setupChartMigrationTest(t *testing.T) {
 	t.Setenv("PLUGIN_PATH", "/var/lib/dokku/plugins")
 	t.Setenv("PLUGIN_ENABLED_PATH", "/var/lib/dokku/plugins/enabled")
 	t.Setenv("DOKKU_LIB_ROOT", t.TempDir())
+	t.Setenv("DOKKU_SYSTEM_USER", "root")
+	t.Setenv("DOKKU_SYSTEM_GROUP", "root")
 	Expect(common.PropertySetup("scheduler-k3s")).To(Succeed())
 }
 
