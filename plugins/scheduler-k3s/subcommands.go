@@ -124,26 +124,69 @@ func CommandAutoscalingAuthSet(appName string, trigger string, metadata map[stri
 }
 
 // CommandAutoscalingAuthReport displays a scheduler-k3s autoscaling keda trigger authentication report for one or more apps
-func CommandAutoscalingAuthReport(appName string, format string, global bool, includeMetadata bool) error {
-	if len(appName) == 0 && !global {
-		return fmt.Errorf("Missing required app name or --global flag")
-	}
-
-	if len(appName) > 0 && global {
-		return fmt.Errorf("Cannot specify both app name and --global flag")
-	}
-
-	if !global {
-		if err := common.VerifyAppName(appName); err != nil {
+func CommandAutoscalingAuthReport(appName string, format string, includeMetadata bool) error {
+	if len(appName) == 0 {
+		apps, err := common.DokkuApps()
+		if err != nil {
+			if errors.Is(err, common.NoAppsExist) {
+				common.LogWarn(err.Error())
+				return nil
+			}
 			return err
 		}
+		for _, app := range apps {
+			if err := ReportAutoscalingAuthSingleApp(app, format, includeMetadata); err != nil {
+				return err
+			}
+		}
+		return nil
 	}
 
-	if len(appName) > 0 {
-		return ReportAutoscalingAuthSingleApp(appName, format, includeMetadata)
+	return ReportAutoscalingAuthSingleApp(appName, format, includeMetadata)
+}
+
+// CommandAnnotationsReport displays a scheduler-k3s annotations report for one or more apps
+func CommandAnnotationsReport(appName string, format string, processType string, resourceType string, infoFlag string) error {
+	if len(appName) == 0 {
+		apps, err := common.DokkuApps()
+		if err != nil {
+			if errors.Is(err, common.NoAppsExist) {
+				common.LogWarn(err.Error())
+				return nil
+			}
+			return err
+		}
+		for _, app := range apps {
+			if err := ReportAnnotationsSingleApp(app, format, processType, resourceType, infoFlag); err != nil {
+				return err
+			}
+		}
+		return nil
 	}
 
-	return ReportAutoscalingAuthSingleApp("--global", format, includeMetadata)
+	return ReportAnnotationsSingleApp(appName, format, processType, resourceType, infoFlag)
+}
+
+// CommandLabelsReport displays a scheduler-k3s labels report for one or more apps
+func CommandLabelsReport(appName string, format string, processType string, resourceType string, infoFlag string) error {
+	if len(appName) == 0 {
+		apps, err := common.DokkuApps()
+		if err != nil {
+			if errors.Is(err, common.NoAppsExist) {
+				common.LogWarn(err.Error())
+				return nil
+			}
+			return err
+		}
+		for _, app := range apps {
+			if err := ReportLabelsSingleApp(app, format, processType, resourceType, infoFlag); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+
+	return ReportLabelsSingleApp(appName, format, processType, resourceType, infoFlag)
 }
 
 // CommandInitialize initializes a k3s cluster on the local server

@@ -52,6 +52,54 @@ const KubeConfigPath = "/etc/rancher/k3s/k3s.yaml"
 const DefaultKubeContext = ""
 const TriggerAuthPropertyPrefix = "trigger-auth."
 
+// AnnotationResourceTypes lists the kubernetes resource types that scheduler-k3s
+// supports user-provided annotations for. The order here is also the iteration order
+// used when rendering reports.
+var AnnotationResourceTypes = []string{
+	"certificate",
+	"cronjob",
+	"deployment",
+	"ingress",
+	"job",
+	"keda_scaled_object",
+	"keda_secret",
+	"keda_trigger_authentication",
+	"pod",
+	"secret",
+	"service",
+	"serviceaccount",
+	"traefik_ingressroute",
+	"traefik_middleware",
+}
+
+// LabelResourceTypes lists the kubernetes resource types that scheduler-k3s
+// supports user-provided labels for. Differs from AnnotationResourceTypes because
+// keda resources do not currently flow user labels through.
+var LabelResourceTypes = []string{
+	"certificate",
+	"cronjob",
+	"deployment",
+	"ingress",
+	"job",
+	"pod",
+	"secret",
+	"service",
+	"serviceaccount",
+	"traefik_ingressroute",
+	"traefik_middleware",
+}
+
+// reservedAnnotationPrefixes lists property name prefixes that are not annotations
+// even though their trailing segment may collide with an AnnotationResourceTypes value
+// (e.g. "chart.cert-manager.deployment"). The annotations report uses this list to
+// exclude such properties when scanning the property store.
+var reservedAnnotationPrefixes = []string{
+	"chart.",
+	"labels.",
+	"node-profile-",
+	TriggerAuthPropertyPrefix,
+}
+
 var (
 	runtimeScheme  = runtime.NewScheme()
 	codecs         = serializer.NewCodecFactory(runtimeScheme)

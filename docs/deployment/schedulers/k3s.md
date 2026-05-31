@@ -5,8 +5,9 @@
 
 ```
 scheduler-k3s:annotations:set <app|--global> <property> (<value>) [--process-type PROCESS_TYPE] <--resource-type RESOURCE_TYPE>, Set or clear an annotation for a given app/process-type/resource-type combination
+scheduler-k3s:annotations:report [<app>|--global] [--format stdout|json] [--process-type PROCESS_TYPE] [--resource-type RESOURCE_TYPE] # Displays a scheduler-k3s annotations report for one or more apps
 scheduler-k3s:autoscaling-auth:set <app|--global> <trigger> [<--metadata key=value>...], Set or clear a scheduler-k3s autoscaling keda trigger authentication resource for an app
-scheduler-k3s:autoscaling-auth:report <app|--global> [--format stdout|json] [--include-metadata] # Displays a scheduler-k3s autoscaling auth report for an app
+scheduler-k3s:autoscaling-auth:report [<app>|--global] [--format stdout|json] [--include-metadata] # Displays a scheduler-k3s autoscaling auth report for one or more apps
 scheduler-k3s:charts:report [<chart>] [--format stdout|json] # Displays a scheduler-k3s chart override report
 scheduler-k3s:charts:set <chart-name.property> (<value>) # Set or clear a chart-specific helm value
 scheduler-k3s:cluster:add [ssh://user@host:port]    # Adds a server node to a Dokku-managed cluster
@@ -15,6 +16,7 @@ scheduler-k3s:cluster:remove [node-id]              # Removes client node to a D
 scheduler-k3s:ensure-charts                         # Ensures the k3s charts are installed
 scheduler-k3s:initialize                            # Initializes a cluster
 scheduler-k3s:labels:set <app|--global> <property> (<value>) [--process-type PROCESS_TYPE] <--resource-type RESOURCE_TYPE> # Set or clear a label for a given app/process-type/resource-type combination
+scheduler-k3s:labels:report [<app>|--global] [--format stdout|json] [--process-type PROCESS_TYPE] [--resource-type RESOURCE_TYPE] # Displays a scheduler-k3s labels report for one or more apps
 scheduler-k3s:profiles:add <profile> [--role ROLE] [--insecure-allow-unknown-hosts] [--taint-scheduling] [--kubelet-args KUBELET_ARGS] Adds a node profile to the k3s cluster
 scheduler-k3s:profiles:list [--format json|stdout]  # Lists all node profiles in the k3s cluster
 scheduler-k3s:profiles:remove <profile>             # Removes a node profile from the k3s cluster
@@ -387,6 +389,35 @@ dokku scheduler-k3s:annotations:set node-js-app annotation.key --resource-type d
 
 A `ps:restart` is required after removing annotations in order to remove them from running resources.
 
+#### Displaying annotations
+
+Configured annotations can be inspected with the `scheduler-k3s:annotations:report` command. Without arguments, it iterates every app and prints all annotations. Passing an app name (or `--global`) scopes the report:
+
+```shell
+dokku scheduler-k3s:annotations:report
+dokku scheduler-k3s:annotations:report node-js-app
+dokku scheduler-k3s:annotations:report --global
+```
+
+`--process-type` and `--resource-type` flags narrow the output to a specific scope, matching the flags accepted by `scheduler-k3s:annotations:set`:
+
+```shell
+dokku scheduler-k3s:annotations:report node-js-app --resource-type deployment
+dokku scheduler-k3s:annotations:report node-js-app --process-type web --resource-type deployment
+```
+
+JSON output emits flat keys of the form `{process_type}.{resource_type}.{annotation_key}`. The literal `--global` process type is rendered as `global` to keep keys free of leading dashes:
+
+```shell
+dokku scheduler-k3s:annotations:report node-js-app --format json
+```
+
+A single value can also be read directly with a flag of the form `--scheduler-k3s-annotations.{process_type}.{resource_type}.{annotation_key}`:
+
+```shell
+dokku scheduler-k3s:annotations:report node-js-app --scheduler-k3s-annotations.global.deployment.annotation.key
+```
+
 #### Setting Labels
 
 Dokku injects certain labels into each created resource by default, but it may be necessary to inject others for tighter integration with third-party tools. The `scheduler-k3s:labels:set` command can be used to perform this task. The command takes an app name and a required `--resource-type` flag.
@@ -427,6 +458,20 @@ dokku scheduler-k3s:labels:set node-js-app label.key --resource-type deployment 
 ```
 
 A `ps:restart` is required after removing labels in order to remove them from running resources.
+
+#### Displaying labels
+
+Configured labels can be inspected with the `scheduler-k3s:labels:report` command. The surface mirrors `scheduler-k3s:annotations:report`:
+
+```shell
+dokku scheduler-k3s:labels:report
+dokku scheduler-k3s:labels:report node-js-app
+dokku scheduler-k3s:labels:report --global
+dokku scheduler-k3s:labels:report node-js-app --resource-type deployment
+dokku scheduler-k3s:labels:report node-js-app --process-type web --resource-type deployment
+dokku scheduler-k3s:labels:report node-js-app --format json
+dokku scheduler-k3s:labels:report node-js-app --scheduler-k3s-labels.global.deployment.label.key
+```
 
 ### Autoscaling
 
@@ -566,10 +611,12 @@ dokku scheduler-k3s:autoscaling-auth:set $APP $TRIGGER_TYPE
 
 ##### Displaying an Authentication Resource report
 
-To see a list of authentication resources managed by Dokku, run the `scheduler-k3s:autoscaling-auth:report` command.
+To see a list of authentication resources managed by Dokku, run the `scheduler-k3s:autoscaling-auth:report` command. Without arguments, the report iterates every app; passing an app name (or `--global`) scopes the report:
 
 ```shell
+dokku scheduler-k3s:autoscaling-auth:report
 dokku scheduler-k3s:autoscaling-auth:report node-js-app
+dokku scheduler-k3s:autoscaling-auth:report --global
 ```
 
 ```
