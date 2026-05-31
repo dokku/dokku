@@ -86,3 +86,13 @@ teardown() {
   assert_output_contains "app1-val"
   assert_output_contains "app2-val"
 }
+
+@test "(scheduler-k3s:labels:set) preserves multi-line values and / in keys" {
+  local value=$'line one\nline two\nline three'
+  run /bin/bash -c "dokku scheduler-k3s:labels:set $TEST_APP --resource-type deployment app.kubernetes.io/part-of \"$value\""
+  assert_success
+
+  run /bin/bash -c "dokku scheduler-k3s:labels:report $TEST_APP --format json | jq -r '.\"global.deployment.app.kubernetes.io/part-of\"'"
+  assert_success
+  assert_output "$value"
+}

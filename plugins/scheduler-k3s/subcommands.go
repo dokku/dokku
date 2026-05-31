@@ -31,31 +31,15 @@ func CommandAnnotationsSet(appName string, processType string, resourceType stri
 	}
 
 	property := fmt.Sprintf("%s.%s", processType, resourceType)
-	annotationsList, err := common.PropertyListGet("scheduler-k3s", appName, property)
-	if err != nil {
-		return fmt.Errorf("Unable to get property list: %w", err)
-	}
-
-	annotations := []string{}
-	for _, annotation := range annotationsList {
-		parts := strings.SplitN(annotation, ": ", 2)
-		if len(parts) != 2 {
-			return fmt.Errorf("Invalid annotation: %s", annotation)
+	if value == "" {
+		if err := common.PropertyMapDelete("scheduler-k3s", appName, property, key); err != nil {
+			return fmt.Errorf("Unable to delete property map entry: %w", err)
 		}
-		if key == parts[0] {
-			continue
-		}
-
-		annotations = append(annotations, annotation)
+		return nil
 	}
 
-	if value != "" {
-		annotations = append(annotations, fmt.Sprintf("%s: %s", key, value))
-	}
-
-	sort.Strings(annotations)
-	if err := common.PropertyListWrite("scheduler-k3s", appName, property, annotations); err != nil {
-		return fmt.Errorf("Unable to write property list: %w", err)
+	if err := common.PropertyMapSet("scheduler-k3s", appName, property, key, value); err != nil {
+		return fmt.Errorf("Unable to set property map entry: %w", err)
 	}
 
 	return nil
@@ -1183,31 +1167,15 @@ func CommandLabelsSet(appName string, processType string, resourceType string, k
 	}
 
 	property := fmt.Sprintf("labels.%s.%s", processType, resourceType)
-	labelsList, err := common.PropertyListGet("scheduler-k3s", appName, property)
-	if err != nil {
-		return fmt.Errorf("Unable to get property list: %w", err)
-	}
-
-	labels := []string{}
-	for _, annotation := range labelsList {
-		parts := strings.SplitN(annotation, ": ", 2)
-		if len(parts) != 2 {
-			return fmt.Errorf("Invalid annotation: %s", annotation)
+	if value == "" {
+		if err := common.PropertyMapDelete("scheduler-k3s", appName, property, key); err != nil {
+			return fmt.Errorf("Unable to delete property map entry: %w", err)
 		}
-		if key == parts[0] {
-			continue
-		}
-
-		labels = append(labels, annotation)
+		return nil
 	}
 
-	if value != "" {
-		labels = append(labels, fmt.Sprintf("%s: %s", key, value))
-	}
-
-	sort.Strings(labels)
-	if err := common.PropertyListWrite("scheduler-k3s", appName, property, labels); err != nil {
-		return fmt.Errorf("Unable to write property list: %w", err)
+	if err := common.PropertyMapSet("scheduler-k3s", appName, property, key, value); err != nil {
+		return fmt.Errorf("Unable to set property map entry: %w", err)
 	}
 
 	return nil

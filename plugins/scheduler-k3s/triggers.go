@@ -79,6 +79,10 @@ func TriggerInstall() error {
 		return fmt.Errorf("Unable to migrate chart properties: %w", err)
 	}
 
+	if err := migrateAnnotationsLabelsToMapFormat(); err != nil {
+		return fmt.Errorf("Unable to migrate annotations and labels: %w", err)
+	}
+
 	if err := syncExistingCertificates(); err != nil {
 		common.LogWarn(fmt.Sprintf("Warning: failed to sync existing certificates: %v", err))
 	}
@@ -122,6 +126,105 @@ func migrateChartPropertiesToMapFormat() error {
 				return fmt.Errorf("Unable to remove legacy chart property %s: %w", fullKey, err)
 			}
 		}
+	}
+	return nil
+}
+
+// migrateAnnotationsLabelsToMapFormat converts the legacy line-formatted
+// annotation and label property files ("key: value" per line) into JSON maps
+// written via PropertyMapWrite. The property name (e.g. "web.deployment",
+// "labels.global.service") is unchanged - only the file content layout shifts.
+// Without this migration, post-upgrade reads via PropertyMapGet would fail to
+// parse the legacy line format as JSON. Idempotent: any property whose content
+// is already JSON (or empty) is skipped by probing PropertyMapGet first.
+func migrateAnnotationsLabelsToMapFormat() error {
+	annotationResources := map[string]bool{}
+	for _, rt := range AnnotationResourceTypes {
+		annotationResources[rt] = true
+	}
+	labelResources := map[string]bool{}
+	for _, rt := range LabelResourceTypes {
+		labelResources[rt] = true
+	}
+
+	scopes := []string{"--global"}
+	apps, err := common.UnfilteredDokkuApps()
+	if err != nil && !errors.Is(err, common.NoAppsExist) {
+		return fmt.Errorf("Unable to list apps for annotation/label migration: %w", err)
+	}
+	scopes = append(scopes, apps...)
+
+	for _, scope := range scopes {
+		properties, err := common.PropertyGetAllByPrefix("scheduler-k3s", scope, "")
+		if err != nil {
+			return fmt.Errorf("Unable to list properties for %s: %w", scope, err)
+		}
+
+		for propertyName := range properties {
+			isLabel := strings.HasPrefix(propertyName, "labels.")
+			checkName := propertyName
+			if isLabel {
+				checkName = strings.TrimPrefix(propertyName, "labels.")
+			} else if isReservedAnnotationProperty(propertyName) {
+				continue
+			}
+
+			dot := strings.LastIndex(checkName, ".")
+			if dot <= 0 || dot == len(checkName)-1 {
+				continue
+			}
+
+			processType := checkName[:dot]
+			resourceType := checkName[dot+1:]
+			if processType == "" {
+				continue
+			}
+
+			if isLabel {
+				if !labelResources[resourceType] {
+					continue
+				}
+			} else {
+				if !annotationResources[resourceType] {
+					continue
+				}
+			}
+
+			if err := migrateAnnotationLabelProperty(scope, propertyName); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+// migrateAnnotationLabelProperty rewrites one legacy line-formatted property
+// file as a JSON map. It is a no-op when the file is already valid JSON or
+// empty (idempotent).
+func migrateAnnotationLabelProperty(scope string, propertyName string) error {
+	if _, err := common.PropertyMapGet("scheduler-k3s", scope, propertyName); err == nil {
+		return nil
+	}
+
+	lines, err := common.PropertyListGet("scheduler-k3s", scope, propertyName)
+	if err != nil {
+		return fmt.Errorf("Unable to read legacy property %s/%s: %w", scope, propertyName, err)
+	}
+
+	m := map[string]string{}
+	for _, line := range lines {
+		if line == "" {
+			continue
+		}
+		parts := strings.SplitN(line, ": ", 2)
+		if len(parts) != 2 {
+			return fmt.Errorf("Invalid legacy entry in %s/%s: %s", scope, propertyName, line)
+		}
+		m[parts[0]] = parts[1]
+	}
+
+	if err := common.PropertyMapWrite("scheduler-k3s", scope, propertyName, m); err != nil {
+		return fmt.Errorf("Unable to write %s/%s as map: %w", scope, propertyName, err)
 	}
 	return nil
 }

@@ -86,3 +86,13 @@ teardown() {
   assert_output_contains "app1-val"
   assert_output_contains "app2-val"
 }
+
+@test "(scheduler-k3s:annotations:set) preserves multi-line values and / in keys" {
+  local value=$'line one\nline two\nline three'
+  run /bin/bash -c "dokku scheduler-k3s:annotations:set $TEST_APP --resource-type deployment prometheus.io/scrape \"$value\""
+  assert_success
+
+  run /bin/bash -c "dokku scheduler-k3s:annotations:report $TEST_APP --format json | jq -r '.\"global.deployment.prometheus.io/scrape\"'"
+  assert_success
+  assert_output "$value"
+}
