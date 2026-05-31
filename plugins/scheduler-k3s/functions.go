@@ -775,22 +775,7 @@ func getGlobalAnnotations(appName string) (ProcessAnnotations, error) {
 
 // getAnnotation retrieves an annotation for a given app, process type, and resource type
 func getAnnotation(appName string, processType string, resourceType string) (map[string]string, error) {
-	annotations := map[string]string{}
-	annotationsList, err := common.PropertyListGet("scheduler-k3s", appName, fmt.Sprintf("%s.%s", processType, resourceType))
-	if err != nil {
-		return annotations, err
-	}
-
-	for _, annotation := range annotationsList {
-		parts := strings.SplitN(annotation, ": ", 2)
-		if len(parts) != 2 {
-			return annotations, fmt.Errorf("Invalid annotation format: %s", annotation)
-		}
-
-		annotations[parts[0]] = parts[1]
-	}
-
-	return annotations, nil
+	return common.PropertyMapGet("scheduler-k3s", appName, fmt.Sprintf("%s.%s", processType, resourceType))
 }
 
 func getDeployTimeout(appName string) string {
@@ -1216,24 +1201,9 @@ func getGlobalLabel(appName string) (ProcessLabels, error) {
 	return getLabels(appName, GlobalProcessType)
 }
 
-// getLabel retrieves an label for a given app, process type, and resource type
+// getLabel retrieves a label for a given app, process type, and resource type
 func getLabel(appName string, processType string, resourceType string) (map[string]string, error) {
-	labels := map[string]string{}
-	labelsList, err := common.PropertyListGet("scheduler-k3s", appName, fmt.Sprintf("labels.%s.%s", processType, resourceType))
-	if err != nil {
-		return labels, err
-	}
-
-	for _, label := range labelsList {
-		parts := strings.SplitN(label, ": ", 2)
-		if len(parts) != 2 {
-			return labels, fmt.Errorf("Invalid label format: %s", label)
-		}
-
-		labels[parts[0]] = parts[1]
-	}
-
-	return labels, nil
+	return common.PropertyMapGet("scheduler-k3s", appName, fmt.Sprintf("labels.%s.%s", processType, resourceType))
 }
 
 func getLetsencryptServer(appName string) string {

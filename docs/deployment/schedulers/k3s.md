@@ -376,6 +376,8 @@ The following resource types are supported:
 - `traefik_ingressroute`
 - `traefik_middleware`
 
+Annotation keys may contain `/` (e.g. Kubernetes-style keys such as `prometheus.io/scrape`) and values may span multiple lines; both are preserved verbatim.
+
 A `ps:restart` is required after setting annotations in order to have them apply to running resources.
 
 #### Removing an annotation
@@ -445,6 +447,8 @@ The following resource types are supported:
 - `serviceaccount`
 - `traefik_ingressroute`
 - `traefik_middleware`
+
+Label keys may contain `/` (e.g. Kubernetes-style keys such as `app.kubernetes.io/part-of`) and values may span multiple lines; both are preserved verbatim.
 
 A `ps:restart` is required after setting labels in order to have them apply to running resources.
 
