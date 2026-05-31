@@ -1,5 +1,19 @@
 # History
 
+## 0.38.14
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.38.14/bootstrap.sh
+sudo DOKKU_TAG=v0.38.14 bash bootstrap.sh
+```
+
+### New Features
+
+- #8716: @josegonzalez Add scheduler-k3s annotations:report and labels:report
+- #8715: @josegonzalez Add scheduler-k3s:charts:set and :charts:report
+
 ## 0.38.13
 
 Install/update via the bootstrap script:
