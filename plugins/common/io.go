@@ -212,10 +212,12 @@ func TouchDir(filename string) error {
 	return os.MkdirAll(filename, mode)
 }
 
-// TouchFile creates an empty file at the specified path
+// TouchFile ensures a file exists at the specified path without truncating
+// its contents. It matches the semantics of unix touch(1): create the file if
+// it does not exist, otherwise leave the existing contents intact.
 func TouchFile(filename string) error {
 	mode := os.FileMode(0600)
-	file, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, mode)
+	file, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE, mode)
 	if err != nil {
 		return fmt.Errorf("Error opening file %v for creation: %v", filename, err)
 	}
