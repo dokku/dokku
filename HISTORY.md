@@ -1,5 +1,22 @@
 # History
 
+## 0.38.15
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.38.15/bootstrap.sh
+sudo DOKKU_TAG=v0.38.15 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #8718: @josegonzalez Persist scheduler-k3s chart overrides as JSON maps
+
+### Other
+
+- #8720: @josegonzalez Persist scheduler-k3s annotations and labels as JSON maps
+
 ## 0.38.14
 
 Install/update via the bootstrap script:
