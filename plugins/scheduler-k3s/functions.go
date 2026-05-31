@@ -1774,12 +1774,11 @@ func installHelmCharts(ctx context.Context, clientset KubernetesClient, shouldIn
 			values = updateVectorValues(values)
 		}
 
-		chartProperties, err := common.PropertyGetAllByPrefix("scheduler-k3s", "--global", "chart."+chart.ReleaseName+".")
+		chartProperties, err := common.PropertyMapGet("scheduler-k3s", "--global", "chart-overrides."+chart.ReleaseName)
 		if err != nil {
 			return fmt.Errorf("Error getting chart properties: %w", err)
 		}
 		for key, value := range chartProperties {
-			key = strings.TrimPrefix(key, "chart."+chart.ReleaseName+".")
 			strval := fmt.Sprintf("%s=%s", key, value)
 			if err := strvals.ParseInto(strval, values); err != nil {
 				return fmt.Errorf("Error parsing chart property %s: %w", strval, err)

@@ -716,6 +716,8 @@ dokku scheduler-k3s:charts:set cert-manager.version 1.13.3
 > [!NOTE]
 > Properties follow dot-notation, and are expanded according to Helm's internal logic. See the [Helm documentation](https://helm.sh/docs/helm/helm_install/#helm-install) for `helm install` for further details.
 
+Property names may contain `/` (e.g. for Kubernetes-style annotation keys such as `service.annotations.prometheus.io/scrape`) and values may span multiple lines; both are preserved verbatim.
+
 To unset a chart property, omit the value from the `scheduler-k3s:charts:set` call:
 
 ```shell

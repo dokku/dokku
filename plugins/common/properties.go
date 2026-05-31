@@ -2,6 +2,7 @@ package common
 
 import (
 	"bufio"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -512,6 +513,99 @@ func PropertyWrite(pluginName string, appName string, property string, value str
 	}
 
 	return nil
+}
+
+// PropertyMapWrite persists a string→string map for a given property as a single
+// JSON file. Unlike PropertyWrite/PropertyListWrite, map *keys* may contain any
+// bytes (including '/' or '\n') because they live inside file content rather
+// than in the on-disk filename. A nil map is persisted as "{}".
+func PropertyMapWrite(pluginName string, appName string, property string, m map[string]string) error {
+	if err := propertyTouch(pluginName, appName, property); err != nil {
+		return err
+	}
+
+	if m == nil {
+		m = map[string]string{}
+	}
+
+	b, err := json.Marshal(m)
+	if err != nil {
+		return fmt.Errorf("Unable to marshal %s map property %s.%s: %w", pluginName, appName, property, err)
+	}
+
+	propertyPath := getPropertyPath(pluginName, appName, property)
+	if err := os.WriteFile(propertyPath, b, 0600); err != nil {
+		return fmt.Errorf("Unable to write %s map property %s.%s: %w", pluginName, appName, property, err)
+	}
+
+	if err := SetPermissions(SetPermissionInput{
+		Filename: propertyPath,
+		Mode:     os.FileMode(0600),
+	}); err != nil {
+		return fmt.Errorf("Unable to set permissions for %s map property %s.%s: %w", pluginName, appName, property, err)
+	}
+
+	return nil
+}
+
+// PropertyMapGet returns the string→string map persisted for a property. A
+// missing or empty-file property is reported as an empty map without error.
+func PropertyMapGet(pluginName string, appName string, property string) (map[string]string, error) {
+	m := map[string]string{}
+	if !PropertyExists(pluginName, appName, property) {
+		return m, nil
+	}
+
+	b, err := os.ReadFile(getPropertyPath(pluginName, appName, property))
+	if err != nil {
+		return nil, fmt.Errorf("Unable to read %s map property %s.%s: %w", pluginName, appName, property, err)
+	}
+
+	if len(b) == 0 {
+		return m, nil
+	}
+
+	if err := json.Unmarshal(b, &m); err != nil {
+		return nil, fmt.Errorf("Unable to parse %s map property %s.%s as JSON: %w", pluginName, appName, property, err)
+	}
+	return m, nil
+}
+
+// PropertyMapSet reads the current map, sets one key, and writes the map back.
+func PropertyMapSet(pluginName string, appName string, property string, key string, value string) error {
+	m, err := PropertyMapGet(pluginName, appName, property)
+	if err != nil {
+		return err
+	}
+	m[key] = value
+	return PropertyMapWrite(pluginName, appName, property, m)
+}
+
+// PropertyMapDelete reads the current map, removes one key, and writes the map
+// back. Removing a key that is not present is a no-op.
+func PropertyMapDelete(pluginName string, appName string, property string, key string) error {
+	if !PropertyExists(pluginName, appName, property) {
+		return nil
+	}
+	m, err := PropertyMapGet(pluginName, appName, property)
+	if err != nil {
+		return err
+	}
+	if _, ok := m[key]; !ok {
+		return nil
+	}
+	delete(m, key)
+	return PropertyMapWrite(pluginName, appName, property, m)
+}
+
+// PropertyMapLength returns the number of entries in the map persisted for a
+// property. A missing property is reported as length 0 without error.
+func PropertyMapLength(pluginName string, appName string, property string) (int, error) {
+	m, err := PropertyMapGet(pluginName, appName, property)
+	if err != nil {
+		return 0, err
+	}
+	return len(m), nil
 }
 
 // PropertySetup creates the plugin config root

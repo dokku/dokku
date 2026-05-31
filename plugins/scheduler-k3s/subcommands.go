@@ -471,16 +471,17 @@ func CommandChartsSet(propertyArg string, value string) error {
 	}
 
 	key := fmt.Sprintf("chart.%s.%s", chartName, chartProperty)
+	mapProperty := "chart-overrides." + chartName
 	if value != "" {
 		common.LogInfo2Quiet(fmt.Sprintf("Setting %s to %s", key, value))
-		if err := common.PropertyWrite("scheduler-k3s", "--global", key, value); err != nil {
+		if err := common.PropertyMapSet("scheduler-k3s", "--global", mapProperty, chartProperty, value); err != nil {
 			return fmt.Errorf("Unable to write property: %w", err)
 		}
 		return nil
 	}
 
 	common.LogInfo2Quiet(fmt.Sprintf("Unsetting %s", key))
-	if err := common.PropertyDelete("scheduler-k3s", "--global", key); err != nil {
+	if err := common.PropertyMapDelete("scheduler-k3s", "--global", mapProperty, chartProperty); err != nil {
 		return fmt.Errorf("Unable to delete property: %w", err)
 	}
 	return nil
@@ -522,16 +523,12 @@ func CommandChartsReport(chartName string, format string, infoFlag string) error
 	flatOverrides := map[string]string{}
 	flagToValue := map[string]string{}
 	for _, chart := range charts {
-		properties, err := common.PropertyGetAllByPrefix("scheduler-k3s", "--global", "chart."+chart.ReleaseName+".")
+		chartOverrides, err := common.PropertyMapGet("scheduler-k3s", "--global", "chart-overrides."+chart.ReleaseName)
 		if err != nil {
 			return fmt.Errorf("Unable to get chart properties: %w", err)
 		}
 
-		chartOverrides := map[string]string{}
-		prefix := "chart." + chart.ReleaseName + "."
-		for key, value := range properties {
-			overrideKey := strings.TrimPrefix(key, prefix)
-			chartOverrides[overrideKey] = value
+		for overrideKey, value := range chartOverrides {
 			flatKey := chart.ReleaseName + "." + overrideKey
 			flatOverrides[flatKey] = value
 			flagToValue["--scheduler-k3s-charts-"+flatKey] = value
@@ -1372,17 +1369,32 @@ func CommandSet(appName string, property string, value string) error {
 		}
 
 		chartName := chartParts[1]
+		chartProperty := chartParts[2]
+		chartFound := false
 		for _, chart := range HelmCharts {
 			if chart.ReleaseName == chartName {
-				validProperties[property] = ""
-				globalProperties[property] = true
+				chartFound = true
 				break
 			}
 		}
-
-		if _, ok := validProperties[property]; !ok {
+		if !chartFound {
 			return fmt.Errorf("Invalid chart property, no matching chart found: %s", property)
 		}
+
+		mapProperty := "chart-overrides." + chartName
+		if value != "" {
+			common.LogInfo2Quiet(fmt.Sprintf("Setting %s to %s", property, value))
+			if err := common.PropertyMapSet("scheduler-k3s", "--global", mapProperty, chartProperty, value); err != nil {
+				return fmt.Errorf("Unable to write property: %w", err)
+			}
+			return nil
+		}
+
+		common.LogInfo2Quiet(fmt.Sprintf("Unsetting %s", property))
+		if err := common.PropertyMapDelete("scheduler-k3s", "--global", mapProperty, chartProperty); err != nil {
+			return fmt.Errorf("Unable to delete property: %w", err)
+		}
+		return nil
 	}
 
 	common.CommandPropertySet("scheduler-k3s", appName, property, value, validProperties, globalProperties)
