@@ -105,14 +105,17 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 		}
 	}
 
-	chartProperties, err := common.PropertyGetAllByPrefix("scheduler-k3s", "--global", "chart.")
-	if err != nil {
-		return fmt.Errorf("Unable to get property list: %w", err)
-	}
-	for name, value := range chartProperties {
-		flagName := "--scheduler-k3s-global-" + name
-		flags[flagName] = func(appName string) string {
-			return value
+	for _, chart := range HelmCharts {
+		chartOverrides, err := common.PropertyMapGet("scheduler-k3s", "--global", "chart-overrides."+chart.ReleaseName)
+		if err != nil {
+			return fmt.Errorf("Unable to get property list: %w", err)
+		}
+		for key, value := range chartOverrides {
+			flagName := fmt.Sprintf("--scheduler-k3s-global-chart.%s.%s", chart.ReleaseName, key)
+			value := value
+			flags[flagName] = func(appName string) string {
+				return value
+			}
 		}
 	}
 

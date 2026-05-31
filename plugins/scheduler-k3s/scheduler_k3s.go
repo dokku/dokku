@@ -95,6 +95,7 @@ var LabelResourceTypes = []string{
 // exclude such properties when scanning the property store.
 var reservedAnnotationPrefixes = []string{
 	"chart.",
+	"chart-overrides.",
 	"labels.",
 	"node-profile-",
 	TriggerAuthPropertyPrefix,

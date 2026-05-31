@@ -75,10 +75,54 @@ func TriggerInstall() error {
 		return err
 	}
 
+	if err := migrateChartPropertiesToMapFormat(); err != nil {
+		return fmt.Errorf("Unable to migrate chart properties: %w", err)
+	}
+
 	if err := syncExistingCertificates(); err != nil {
 		common.LogWarn(fmt.Sprintf("Warning: failed to sync existing certificates: %v", err))
 	}
 
+	return nil
+}
+
+// migrateChartPropertiesToMapFormat moves legacy per-key chart.<chart>.<key>
+// property files into a single chart-overrides.<chart> JSON map per chart.
+// Without this migration, a dokku upgrade would silently strand any existing
+// chart overrides because the new render path only reads chart-overrides.*.
+// Idempotent: once the legacy files are gone the helper short-circuits per
+// chart, and legacy values take precedence over any partial pre-existing
+// entries on re-runs.
+func migrateChartPropertiesToMapFormat() error {
+	for _, chart := range HelmCharts {
+		prefix := "chart." + chart.ReleaseName + "."
+		legacy, err := common.PropertyGetAllByPrefix("scheduler-k3s", "--global", prefix)
+		if err != nil {
+			return fmt.Errorf("Unable to read legacy chart properties for %s: %w", chart.ReleaseName, err)
+		}
+		if len(legacy) == 0 {
+			continue
+		}
+
+		mapProperty := "chart-overrides." + chart.ReleaseName
+		merged, err := common.PropertyMapGet("scheduler-k3s", "--global", mapProperty)
+		if err != nil {
+			return fmt.Errorf("Unable to read existing chart-overrides for %s: %w", chart.ReleaseName, err)
+		}
+		for fullKey, value := range legacy {
+			merged[strings.TrimPrefix(fullKey, prefix)] = value
+		}
+
+		if err := common.PropertyMapWrite("scheduler-k3s", "--global", mapProperty, merged); err != nil {
+			return fmt.Errorf("Unable to write chart-overrides for %s: %w", chart.ReleaseName, err)
+		}
+
+		for fullKey := range legacy {
+			if err := common.PropertyDelete("scheduler-k3s", "--global", fullKey); err != nil {
+				return fmt.Errorf("Unable to remove legacy chart property %s: %w", fullKey, err)
+			}
+		}
+	}
 	return nil
 }
 
