@@ -105,7 +105,7 @@ func CommandRouteClear(appName string) error {
 // labels are baked in at create-time).
 func warnIfRebuildRequired(appName string) {
 	switch getComputedProxyType(appName) {
-	case "traefik", "caddy":
+	case "traefik", "caddy", "openresty":
 		common.LogWarn(fmt.Sprintf(
 			"Routes are applied via container labels under the %s proxy backend; run `dokku ps:rebuild %s` to recreate containers and pick up the change",
 			getComputedProxyType(appName), appName,
