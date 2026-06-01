@@ -37,7 +37,11 @@ func GetAppRoutes(appName string) ([]GlobalRoute, error) {
 		if len(fields) < 3 {
 			return nil, fmt.Errorf("invalid route line %q for %s", line, appName)
 		}
-		port, err := strconv.Atoi(fields[1])
+		// Bound to uint16 (1-65535) so the int32 chart-values field can never
+		// overflow regardless of host integer width. The proxy plugin already
+		// enforces the same range on set, but parse defensively because the
+		// trigger output is a string boundary.
+		port, err := strconv.ParseUint(fields[1], 10, 16)
 		if err != nil {
 			return nil, fmt.Errorf("invalid port %q in route line %q for %s: %w", fields[1], line, appName, err)
 		}
