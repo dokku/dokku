@@ -9,13 +9,13 @@ cmd-builder-pack-set() {
   declare cmd="builder-pack:set"
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1" KEY="$2" VALUE="$3"
-  local VALID_KEYS=("projecttoml-path")
+  local VALID_KEYS=("projecttoml-path" "stack")
   [[ "$APP" == "--global" ]] || verify_app_name "$APP"
 
   [[ -z "$KEY" ]] && dokku_log_fail "No key specified"
 
   if ! fn-in-array "$KEY" "${VALID_KEYS[@]}"; then
-    dokku_log_fail "Invalid key specified, valid keys include: projecttoml-path"
+    dokku_log_fail "Invalid key specified, valid keys include: projecttoml-path, stack"
   fi
 
   if [[ -n "$VALUE" ]]; then
@@ -24,6 +24,14 @@ cmd-builder-pack-set() {
   else
     dokku_log_info2_quiet "Unsetting ${KEY}"
     fn-plugin-property-delete "builder-pack" "$APP" "$KEY"
+  fi
+
+  if [[ "$KEY" == "stack" ]]; then
+    if [[ "$APP" == "--global" ]]; then
+      for app in $(dokku_apps 2>/dev/null || true); do fn-plugin-property-write "builder-pack" "$app" "clear-cache" "true"; done
+    else
+      fn-plugin-property-write "builder-pack" "$APP" "clear-cache" "true"
+    fi
   fi
 }
 

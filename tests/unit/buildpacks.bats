@@ -184,71 +184,51 @@ teardown() {
   assert_output "https://github.com/heroku/heroku-buildpack-golang.git https://github.com/heroku/heroku-buildpack-python.git https://github.com/heroku/heroku-buildpack-php.git"
 }
 
-@test "(buildpacks) buildpacks:set-property" {
-  run /bin/bash -c "dokku buildpacks:set-property --global stack gliderlabs/herokuish:latest"
+@test "(buildpacks) buildpacks:set-property forwards stack to the detected builder" {
+  run /bin/bash -c "dokku buildpacks:set-property $TEST_APP stack gliderlabs/herokuish:app"
   echo "output: $output"
   echo "status: $status"
   assert_success
-}
+  assert_output_contains "Deprecated"
 
-@test "(buildpacks:report) stack raw vs computed vs global" {
-  run /bin/bash -c "dokku buildpacks:set-property --global stack"
-  assert_success
-
-  run /bin/bash -c "dokku buildpacks:report $TEST_APP --format json | jq -r '.\"buildpacks-stack\"'"
-  assert_success
-  assert_output ""
-
-  run /bin/bash -c "dokku buildpacks:report $TEST_APP --format json | jq -r '.\"buildpacks-global-stack\"'"
-  assert_success
-  assert_output ""
-
-  run /bin/bash -c "dokku buildpacks:set-property --global stack gliderlabs/herokuish:global"
-  assert_success
-
-  run /bin/bash -c "dokku buildpacks:report $TEST_APP --format json | jq -r '.\"buildpacks-global-stack\"'"
-  assert_success
-  assert_output "gliderlabs/herokuish:global"
-
-  run /bin/bash -c "dokku buildpacks:report $TEST_APP --format json | jq -r '.\"buildpacks-computed-stack\"'"
-  assert_success
-  assert_output "gliderlabs/herokuish:global"
-
-  run /bin/bash -c "dokku buildpacks:set-property $TEST_APP stack gliderlabs/herokuish:app"
-  assert_success
-
-  run /bin/bash -c "dokku buildpacks:report $TEST_APP --format json | jq -r '.\"buildpacks-stack\"'"
+  run /bin/bash -c "dokku builder-herokuish:report $TEST_APP --builder-herokuish-stack"
+  echo "output: $output"
+  echo "status: $status"
   assert_success
   assert_output "gliderlabs/herokuish:app"
 
-  run /bin/bash -c "dokku buildpacks:report $TEST_APP --format json | jq -r '.\"buildpacks-global-stack\"'"
+  run /bin/bash -c "dokku builder-pack:report $TEST_APP --builder-pack-stack"
+  echo "output: $output"
+  echo "status: $status"
   assert_success
-  assert_output "gliderlabs/herokuish:global"
+  assert_output ""
 
-  run /bin/bash -c "dokku buildpacks:report $TEST_APP --format json | jq -r '.\"buildpacks-computed-stack\"'"
+  run /bin/bash -c "dokku buildpacks:set-property $TEST_APP stack heroku/builder:24"
+  echo "output: $output"
+  echo "status: $status"
   assert_success
-  assert_output "gliderlabs/herokuish:app"
+
+  run /bin/bash -c "dokku builder-pack:report $TEST_APP --builder-pack-stack"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "heroku/builder:24"
 
   run /bin/bash -c "dokku buildpacks:set-property $TEST_APP stack"
+  echo "output: $output"
+  echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku buildpacks:set-property --global stack"
+  run /bin/bash -c "dokku builder-herokuish:report $TEST_APP --builder-herokuish-stack"
   assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku builder-pack:report $TEST_APP --builder-pack-stack"
+  assert_success
+  assert_output ""
 }
 
 @test "(buildpacks:report) emits new stripped JSON keys alongside legacy" {
-  run /bin/bash -c "dokku buildpacks:report $TEST_APP --format json | jq -r 'has(\"stack\") and has(\"buildpacks-stack\")'"
-  assert_success
-  assert_output "true"
-
-  run /bin/bash -c "dokku buildpacks:report $TEST_APP --format json | jq -r 'has(\"global-stack\") and has(\"buildpacks-global-stack\")'"
-  assert_success
-  assert_output "true"
-
-  run /bin/bash -c "dokku buildpacks:report $TEST_APP --format json | jq -r 'has(\"computed-stack\") and has(\"buildpacks-computed-stack\")'"
-  assert_success
-  assert_output "true"
-
   run /bin/bash -c "dokku buildpacks:report $TEST_APP --format json | jq -r 'has(\"list\") and has(\"buildpacks-list\")'"
   assert_success
   assert_output "true"

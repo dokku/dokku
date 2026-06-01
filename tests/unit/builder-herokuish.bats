@@ -104,6 +104,50 @@ teardown() {
   assert_success
 }
 
+@test "(builder-herokuish:report) stack raw vs computed vs global" {
+  local default_stack="gliderlabs/herokuish:latest-24"
+
+  run /bin/bash -c "dokku builder-herokuish:report $TEST_APP --builder-herokuish-stack"
+  assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku builder-herokuish:report $TEST_APP --builder-herokuish-global-stack"
+  assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "dokku builder-herokuish:report $TEST_APP --builder-herokuish-computed-stack"
+  assert_success
+  assert_output "$default_stack"
+
+  run /bin/bash -c "dokku builder-herokuish:set --global stack gliderlabs/herokuish:global"
+  assert_success
+
+  run /bin/bash -c "dokku builder-herokuish:report $TEST_APP --builder-herokuish-global-stack"
+  assert_success
+  assert_output "gliderlabs/herokuish:global"
+
+  run /bin/bash -c "dokku builder-herokuish:report $TEST_APP --builder-herokuish-computed-stack"
+  assert_success
+  assert_output "gliderlabs/herokuish:global"
+
+  run /bin/bash -c "dokku builder-herokuish:set $TEST_APP stack gliderlabs/herokuish:app"
+  assert_success
+
+  run /bin/bash -c "dokku builder-herokuish:report $TEST_APP --builder-herokuish-stack"
+  assert_success
+  assert_output "gliderlabs/herokuish:app"
+
+  run /bin/bash -c "dokku builder-herokuish:report $TEST_APP --builder-herokuish-computed-stack"
+  assert_success
+  assert_output "gliderlabs/herokuish:app"
+
+  run /bin/bash -c "dokku builder-herokuish:set $TEST_APP stack"
+  assert_success
+
+  run /bin/bash -c "dokku builder-herokuish:set --global stack"
+  assert_success
+}
+
 @test "(builder-herouish:build .env)" {
   run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP
   echo "output: $output"

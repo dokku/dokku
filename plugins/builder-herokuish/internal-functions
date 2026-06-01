@@ -46,6 +46,8 @@ cmd-builder-herokuish-report-single() {
     flag_map=(
       "--builder-herokuish-computed-allowed: $(fn-builder-herokuish-computed-allowed "$APP")"
       "--builder-herokuish-global-allowed: $(fn-builder-herokuish-global-allowed)"
+      "--builder-herokuish-computed-stack: $(fn-builder-herokuish-computed-stack "$APP")"
+      "--builder-herokuish-global-stack: $(fn-builder-herokuish-global-stack "$APP")"
     )
   else
     verify_app_name "$APP"
@@ -53,6 +55,9 @@ cmd-builder-herokuish-report-single() {
       "--builder-herokuish-computed-allowed: $(fn-builder-herokuish-computed-allowed "$APP")"
       "--builder-herokuish-global-allowed: $(fn-builder-herokuish-global-allowed)"
       "--builder-herokuish-allowed: $(fn-builder-herokuish-allowed "$APP")"
+      "--builder-herokuish-computed-stack: $(fn-builder-herokuish-computed-stack "$APP")"
+      "--builder-herokuish-global-stack: $(fn-builder-herokuish-global-stack "$APP")"
+      "--builder-herokuish-stack: $(fn-builder-herokuish-stack "$APP")"
     )
   fi
 
@@ -114,4 +119,28 @@ fn-builder-herokuish-allowed() {
   declare APP="$1"
 
   fn-plugin-property-get-default "builder-herokuish" "$APP" "allowed" ""
+}
+
+fn-builder-herokuish-computed-stack() {
+  declare APP="$1"
+
+  stack="$(fn-builder-herokuish-stack "$APP")"
+  if [[ -z "$stack" ]]; then
+    stack="$(fn-builder-herokuish-global-stack "$APP")"
+  fi
+  if [[ -z "$stack" ]]; then
+    stack="${DOKKU_IMAGE:-gliderlabs/herokuish:latest-24}"
+  fi
+
+  echo "$stack"
+}
+
+fn-builder-herokuish-global-stack() {
+  fn-plugin-property-get-default "builder-herokuish" "--global" "stack" ""
+}
+
+fn-builder-herokuish-stack() {
+  declare APP="$1"
+
+  fn-plugin-property-get-default "builder-herokuish" "$APP" "stack" ""
 }
