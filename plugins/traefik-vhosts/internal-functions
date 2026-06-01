@@ -23,7 +23,8 @@ fn-traefik-route-labels() {
     service_name="${APP}-${route_proc}-${route_slug}"
     path_len="${#route_path}"
 
-    local rule="PathPrefix(\`${route_path}\`)"
+    # Triple-backslash for the same eval-survival reason as fn-traefik-host-rule.
+    local rule="PathPrefix(\\\`${route_path}\\\`)"
     if [[ -n "$host_rule" ]]; then
       rule="(${host_rule}) && ${rule}"
     fi
@@ -75,12 +76,17 @@ fn-traefik-host-rule() {
     return
   fi
 
+  # Backticks must be double-escaped so they survive the docker-args eval
+  # path. A single backslash leaves a bare backtick in the final string,
+  # which then runs as a command substitution at eval time and breaks the
+  # docker run invocation. Triple-backslash matches the existing emission
+  # convention used by docker-args-process-deploy.
   for domain in $(echo "$app_domains" | xargs); do
     if [[ -z "$result" ]]; then
-      result="Host(\`${domain}\`)"
+      result="Host(\\\`${domain}\\\`)"
       continue
     fi
-    result="${result} || Host(\`${domain}\`)"
+    result="${result} || Host(\\\`${domain}\\\`)"
   done
   echo "$result"
 }

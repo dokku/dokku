@@ -29,7 +29,11 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  assert_http_localhost_response_contains "http" "${TEST_APP}.${DOKKU_DOMAIN}" "80" "/api/v0/Procfile" "python3 -m http.server"
+  # Without --strip-prefix, /api/v0/Procfile reaches api as /api/v0/Procfile.
+  # api (python's http.server) does not have that file on disk and returns
+  # 404. A 404 here proves the route reaches api - web's catch-all would
+  # have returned 200 instead.
+  assert_http_localhost_response_contains "http" "${TEST_APP}.${DOKKU_DOMAIN}" "80" "/api/v0/Procfile" "" "404"
 }
 
 @test "(proxy-route:nginx) --strip-prefix toggles upstream path visibility" {
@@ -65,6 +69,14 @@ teardown() {
   run /bin/bash -c "dokku ps:scale $TEST_APP web=1 api=1"
   assert_success
 
+  # First set the route without --strip-prefix so a 404 from api uniquely
+  # identifies that the route reached api (avoids racing with web's catch-all
+  # 200 during the brief window before nginx fully reloads).
+  run /bin/bash -c "dokku proxy:route:set $TEST_APP api /api/v0 --port 5001"
+  assert_success
+  assert_http_localhost_response_contains "http" "${TEST_APP}.${DOKKU_DOMAIN}" "80" "/api/v0/Procfile" "" "404"
+
+  # Now switch the route to --strip-prefix and assert api serves the Procfile.
   run /bin/bash -c "dokku proxy:route:set $TEST_APP api /api/v0 --port 5001 --strip-prefix"
   assert_success
   assert_http_localhost_response_contains "http" "${TEST_APP}.${DOKKU_DOMAIN}" "80" "/api/v0/Procfile" "python3 -m http.server"
@@ -72,8 +84,8 @@ teardown() {
   run /bin/bash -c "dokku proxy:route:remove $TEST_APP /api/v0"
   assert_success
 
-  # Web does not serve /api/v0/Procfile; we just assert it is no longer the
-  # api-served Procfile content.
+  # After removal, /api/v0/Procfile no longer reaches api - it falls through
+  # to web's catch-all. Assert the response is no longer api's Procfile body.
   run curl --connect-to "${TEST_APP}.${DOKKU_DOMAIN}:80:localhost:80" -kSso /tmp/route-removed-body "http://${TEST_APP}.${DOKKU_DOMAIN}:80/api/v0/Procfile"
   run /bin/bash -c "grep -c 'python3 -m http.server' /tmp/route-removed-body || true"
   assert_output "0"
@@ -92,9 +104,12 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_contains "location /api/v0"
-  assert_output_contains "proxy_http_version 1.1"
-  assert_output_contains "proxy_set_header Upgrade \$http_upgrade"
-  assert_output_contains "proxy_set_header Connection \$http_connection"
+  # These headers appear in both the route's location block AND the existing
+  # location / block, so allow >= 1 occurrence (count = -1) rather than the
+  # default exact-count-of-1.
+  assert_output_contains "proxy_http_version 1.1" -1
+  assert_output_contains "proxy_set_header Upgrade \$http_upgrade" -1
+  assert_output_contains "proxy_set_header Connection \$http_connection" -1
 }
 
 add_api_process_callback() {
