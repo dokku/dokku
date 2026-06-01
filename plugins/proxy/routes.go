@@ -171,21 +171,6 @@ func RoutedProcessTypes(appName string) ([]string, error) {
 	return out, nil
 }
 
-// SupportsRoutes returns true if the proxy backend selected for the app
-// supports path-based routing, as declared by the proxy-supports-routes
-// trigger. Backends that do not implement the trigger are treated as not
-// supporting routes (conservative default).
-func SupportsRoutes(appName string) (bool, error) {
-	result, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
-		Trigger: "proxy-supports-routes",
-		Args:    []string{appName},
-	})
-	if err != nil {
-		return false, err
-	}
-	return result.StdoutContents() == "true", nil
-}
-
 // AddRoute upserts a route. Returns whether the stored state changed.
 func AddRoute(appName string, route Route) (bool, error) {
 	if err := ValidatePath(route.Path); err != nil {
