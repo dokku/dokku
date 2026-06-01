@@ -2350,27 +2350,6 @@ while IFS='|' read -r proc port path strip; do
 done < <(plugn trigger proxy-routes-list "$APP")
 ```
 
-### `proxy-supports-routes`
-
-- Description: Returns `true` if the proxy backend currently selected for the app supports path-based routes (`proxy:route:set`), `false` otherwise. Implemented by each in-tree proxy plugin (nginx, traefik, caddy, and k3s return `true`; openresty and haproxy return `false`). The `proxy:route:set` command calls this trigger and refuses with a "not supported" message when the result is `false`.
-- Invoked by: `proxy:route:set` in the `proxy` plugin
-- Arguments: `$APP`
-- Example:
-
-```shell
-#!/usr/bin/env bash
-
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-
-APP="$1"
-
-if [[ "$(plugn trigger proxy-type "$APP")" != "my-proxy" ]]; then
-  return
-fi
-
-echo "true"
-```
-
 ### `proxy-type`
 
 - Description: Returns the proxy type for an app

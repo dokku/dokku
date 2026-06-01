@@ -23,15 +23,6 @@ func CommandRouteSet(appName string, processName string, path string, port int, 
 		return errors.New("Usage: dokku proxy:route:set <app> <process> <path> [--port <port>] [--strip-prefix]")
 	}
 
-	supported, err := SupportsRoutes(appName)
-	if err != nil {
-		return err
-	}
-	if !supported {
-		proxyType := getComputedProxyType(appName)
-		return fmt.Errorf("path-based routing is not yet supported with the %s proxy backend", proxyType)
-	}
-
 	if port == 0 {
 		port = DefaultRoutePort
 	}
