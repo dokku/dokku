@@ -1,0 +1,88 @@
+#!/usr/bin/env bats
+
+load test_helper
+
+setup() {
+  global_setup
+  dokku nginx:stop
+  dokku openresty:start
+  create_app
+  dokku proxy:set "$TEST_APP" openresty
+}
+
+teardown() {
+  dokku proxy:route:clear "$TEST_APP" >/dev/null 2>&1 || true
+  destroy_app
+  dokku openresty:stop
+  dokku nginx:start
+  global_teardown
+}
+
+@test "(proxy-route:openresty) basic routing - /api/v0 hits api, / hits web" {
+  run deploy_app python "dokku@$DOKKU_DOMAIN:$TEST_APP" add_api_process_callback
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:scale $TEST_APP web=1 api=1"
+  assert_success
+
+  run /bin/bash -c "dokku proxy:route:set $TEST_APP api /api/v0 --port 5001"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  assert_success
+
+  assert_http_localhost_response_contains "http" "${TEST_APP}.${DOKKU_DOMAIN}" "80" "/api/v0/Procfile" "python3 -m http.server"
+}
+
+@test "(proxy-route:openresty) --strip-prefix toggles upstream path visibility" {
+  run deploy_app python "dokku@$DOKKU_DOMAIN:$TEST_APP" add_api_process_callback
+  assert_success
+
+  run /bin/bash -c "dokku ps:scale $TEST_APP web=1 api=1"
+  assert_success
+
+  run /bin/bash -c "dokku proxy:route:set $TEST_APP api /api/v0 --port 5001"
+  assert_success
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  assert_success
+  assert_http_localhost_response_contains "http" "${TEST_APP}.${DOKKU_DOMAIN}" "80" "/api/v0/Procfile" "" "404"
+
+  run /bin/bash -c "dokku proxy:route:set $TEST_APP api /api/v0 --port 5001 --strip-prefix"
+  assert_success
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  assert_success
+  assert_http_localhost_response_contains "http" "${TEST_APP}.${DOKKU_DOMAIN}" "80" "/api/v0/Procfile" "python3 -m http.server"
+}
+
+@test "(proxy-route:openresty) removing a route falls back to web" {
+  run deploy_app python "dokku@$DOKKU_DOMAIN:$TEST_APP" add_api_process_callback
+  assert_success
+
+  run /bin/bash -c "dokku ps:scale $TEST_APP web=1 api=1"
+  assert_success
+
+  run /bin/bash -c "dokku proxy:route:set $TEST_APP api /api/v0 --port 5001 --strip-prefix"
+  assert_success
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  assert_success
+  assert_http_localhost_response_contains "http" "${TEST_APP}.${DOKKU_DOMAIN}" "80" "/api/v0/Procfile" "python3 -m http.server"
+
+  run /bin/bash -c "dokku proxy:route:remove $TEST_APP /api/v0"
+  assert_success
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  assert_success
+
+  run curl --connect-to "${TEST_APP}.${DOKKU_DOMAIN}:80:localhost:80" -kSso /tmp/route-removed-body "http://${TEST_APP}.${DOKKU_DOMAIN}:80/api/v0/Procfile"
+  run /bin/bash -c "grep -c 'python3 -m http.server' /tmp/route-removed-body || true"
+  assert_output "0"
+}
+
+add_api_process_callback() {
+  local APP="$1"
+  local APP_REPO_DIR="$2"
+  echo "api: python3 -m http.server 5001" >>"$APP_REPO_DIR/Procfile"
+}

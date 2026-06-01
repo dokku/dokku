@@ -196,7 +196,7 @@ See the [port management documentation](/docs/networking/port-management.md) for
 By default, every HTTP/HTTPS request is routed to the `web` process declared in the app's `Procfile`. Use `proxy:route:*` to route specific path prefixes to a different process within the same app - for example, sending `/api/v0/*` to an `api` process or `/ws` to a `websocket` process. The `web` process always handles every other path as an implicit catch-all.
 
 > [!NOTE]
-> Path-based routing is rendered by the `nginx`, `traefik`, `caddy`, and `k3s` proxy backends. The `openresty` and `haproxy` backends accept and store route declarations, but the routes are inert (no labels are emitted) because the sidecar images do not yet support path-prefix vocabulary. Routes stored ahead of a backend switch will activate automatically once the proxy is changed to a rendering backend. Tracked at [dokku/openresty-docker-proxy#137](https://github.com/dokku/openresty-docker-proxy/issues/137) and the `haproxy-vhosts` sidecar.
+> Path-based routing is rendered by the `nginx`, `traefik`, `caddy`, `openresty`, and `k3s` proxy backends. The `haproxy` backend accepts and stores route declarations but the routes are inert (no labels are emitted) because the `byjg/easy-haproxy` sidecar image only supports host-based routing. Routes stored ahead of a backend switch will activate automatically once the proxy is changed to a rendering backend.
 
 #### Adding a route
 
@@ -271,9 +271,9 @@ dokku proxy:route:set node-js-app api /api/v0/admin
 #### Caveats per backend
 
 - **nginx**: route changes take effect immediately on the next `proxy-build-config` reload (which `proxy:route:*` invokes automatically).
-- **traefik** and **caddy**: routes are applied via Docker labels on the target containers. Containers must be recreated for new or removed labels to take effect. The command prints a notice instructing you to run `dokku ps:rebuild <app>` to recreate containers.
+- **traefik**, **caddy**, and **openresty**: routes are applied via Docker labels on the target containers. Containers must be recreated for new or removed labels to take effect. The command prints a notice instructing you to run `dokku ps:rebuild <app>` to recreate containers.
 - **k3s**: route changes take effect on the next deploy when the chart is re-rendered.
-- **openresty** and **haproxy**: routes are stored but inert under these backends. They activate automatically if you switch to a rendering backend (`nginx`, `traefik`, `caddy`, or `k3s`).
+- **haproxy**: routes are stored but inert under this backend. They activate automatically if you switch to a rendering backend (`nginx`, `traefik`, `caddy`, `openresty`, or `k3s`).
 - **WebSocket** traffic is forwarded transparently on `nginx`, `traefik`, `caddy`, and `k3s` backends - no additional configuration is required.
 - A route to a process that is scaled to `0` will resolve to no upstream until the process is scaled up (`dokku ps:scale <app> <process>=1`). `proxy:route:set` warns when this is the case.
 

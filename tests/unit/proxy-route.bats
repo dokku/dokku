@@ -218,20 +218,6 @@ teardown() {
   assert_output "true"
 }
 
-@test "(proxy:route:set) stores routes under openresty backend even though they are inert" {
-  dokku proxy:set "$TEST_APP" openresty >/dev/null 2>&1 || skip "openresty proxy not available"
-
-  run /bin/bash -c "dokku proxy:route:set $TEST_APP api /api/v0"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run /bin/bash -c "dokku proxy:route:report $TEST_APP"
-  echo "output: $output"
-  echo "status: $status"
-  assert_output_contains "/api/v0 -> api:5000"
-}
-
 @test "(proxy:route:set) stores routes under haproxy backend even though they are inert" {
   dokku proxy:set "$TEST_APP" haproxy >/dev/null 2>&1 || skip "haproxy proxy not available"
 
