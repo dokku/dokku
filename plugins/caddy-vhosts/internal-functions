@@ -4,6 +4,70 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
+fn-caddy-route-labels() {
+  declare desc="emits per-route caddy labels for a non-web container"
+  declare APP="$1" PROC_TYPE="$2" STDIN="$3"
+  local caddy_domains app_domains output route_proc route_port route_path route_strip
+  local matcher_name route_index=0
+
+  app_domains="$(plugn trigger domains-list "$APP")"
+  if [[ -n "$app_domains" ]]; then
+    caddy_domains="$(echo "$app_domains" | xargs)"
+    caddy_domains="${caddy_domains// /, }"
+  fi
+
+  output=""
+  if [[ -n "$caddy_domains" ]]; then
+    # Joining the same site declared by the web container so this container's
+    # handler directives are merged into the existing site block by
+    # caddy-docker-proxy.
+    output="--label 'caddy=${caddy_domains}'"
+  fi
+
+  while IFS='|' read -r route_proc route_port route_path route_strip; do
+    [[ -z "$route_proc" ]] && continue
+    [[ "$route_proc" != "$PROC_TYPE" ]] && continue
+
+    local route_slug
+    route_slug="$(fn-caddy-route-slug "$route_path")"
+    matcher_name="@${route_slug}"
+    # The named matcher accepts both the bare prefix and the prefix-glob form
+    # so requests like /api/v0 and /api/v0/users/42 both match.
+    output="$output --label 'caddy.${matcher_name}.path=${route_path} ${route_path}/*'"
+    output="$output --label 'caddy.${route_index}_route=${matcher_name}'"
+    local sub_index=0
+    if [[ "$route_strip" == "1" ]]; then
+      output="$output --label 'caddy.${route_index}_route.${sub_index}_uri=strip_prefix ${route_path}'"
+      sub_index=$((sub_index + 1))
+    fi
+    output="$output --label \"caddy.${route_index}_route.${sub_index}_reverse_proxy={{upstreams ${route_port}}}\""
+    route_index=$((route_index + 1))
+  done < <(plugn trigger proxy-routes-list "$APP")
+
+  local proxy_labels_file_path=$(fn-proxy-get-labels-file-path "caddy" "$APP")
+  if [[ -f "$proxy_labels_file_path" ]]; then
+    while read -r line; do
+      [[ -z "$line" ]] && continue
+      output="$output --label '$line'"
+    done <"$proxy_labels_file_path"
+  fi
+
+  echo -n "$STDIN $output"
+}
+
+fn-caddy-route-slug() {
+  declare desc="returns a deterministic kebab-case slug for a route path"
+  declare ROUTE_PATH="$1"
+  local s="${ROUTE_PATH#/}"
+  s="${s%/}"
+  s="${s//\//-}"
+  s="${s,,}"
+  if [[ -z "$s" ]]; then
+    s="root"
+  fi
+  echo "$s"
+}
+
 fn-caddy-logs() {
   declare desc="shows the logs for the caddy container"
   declare TAIL="$1" NUM="$2"

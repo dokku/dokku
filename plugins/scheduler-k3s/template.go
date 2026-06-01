@@ -69,6 +69,31 @@ type GlobalNetwork struct {
 
 	// PrimaryServicePort is the primary service port to use
 	PrimaryServicePort int32 `yaml:"primary_service_port"`
+
+	// Routes are the path-based routes declared via proxy:route:set
+	Routes []GlobalRoute `yaml:"routes,omitempty"`
+}
+
+// GlobalRoute is one path-based route declared via proxy:route:set. The
+// chart templates iterate this slice to emit additional Ingress paths /
+// IngressRoute Rules per route.
+type GlobalRoute struct {
+	// Process is the Procfile process type the route targets.
+	Process string `yaml:"process"`
+
+	// Path is the URL path prefix to match.
+	Path string `yaml:"path"`
+
+	// Port is the upstream container port the route forwards to.
+	Port int32 `yaml:"port"`
+
+	// StripPrefix controls whether the matched prefix is stripped before
+	// forwarding the request upstream.
+	StripPrefix bool `yaml:"strip_prefix"`
+
+	// Slug is a deterministic kebab-case identifier derived from Path. It is
+	// used as a stable name fragment for generated CRDs.
+	Slug string `yaml:"slug"`
 }
 
 // GlobalKedaValues contains the global keda configuration

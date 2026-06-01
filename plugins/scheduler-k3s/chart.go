@@ -285,6 +285,12 @@ func BuildAppChart(ctx context.Context, appName, imageTag string, opts BuildOpti
 		return cleanup(fmt.Errorf("Error getting security context: %w", err))
 	}
 
+	appRoutes, err := GetAppRoutes(appName)
+	if err != nil {
+		return cleanup(fmt.Errorf("Error getting app routes: %w", err))
+	}
+	routedPorts := RoutedProcessPorts(appRoutes)
+
 	values := &AppValues{
 		Global: GlobalValues{
 			Annotations:  globalAnnotations,
@@ -303,6 +309,7 @@ func BuildAppChart(ctx context.Context, appName, imageTag string, opts BuildOpti
 				IngressClass:       getComputedIngressClass(),
 				PrimaryPort:        primaryPort,
 				PrimaryServicePort: primaryServicePort,
+				Routes:             appRoutes,
 			},
 			SecurityContext: securityContext,
 		},
@@ -483,13 +490,32 @@ func BuildAppChart(ctx context.Context, appName, imageTag string, opts BuildOpti
 				Protocol:      PortmapProtocol_TCP,
 				Scheme:        "http",
 			})
+		} else if ports := SortedRoutedPorts(routedPorts, processType); len(ports) > 0 {
+			processValues.Web = ProcessWeb{
+				Domains:  []ProcessDomains{},
+				PortMaps: []ProcessPortMap{},
+				TLS: ProcessTls{
+					Enabled: false,
+				},
+			}
+			for _, port := range ports {
+				processValues.Web.PortMaps = append(processValues.Web.PortMaps, ProcessPortMap{
+					ContainerPort: port,
+					HostPort:      port,
+					Name:          fmt.Sprintf("http-%d-%d", port, port),
+					Protocol:      PortmapProtocol_TCP,
+					Scheme:        "http",
+				})
+			}
 		}
 
 		values.Processes[processType] = processValues
 
 		templateFiles := []string{"deployment", "keda-scaled-object"}
 		if processType == "web" {
-			templateFiles = append(templateFiles, "service", "certificate", "ingress", "ingress-route", "compression-middleware", "https-redirect-middleware", "keda-http-scaled-object", "keda-interceptor-proxy-service")
+			templateFiles = append(templateFiles, "service", "certificate", "ingress", "ingress-route", "compression-middleware", "https-redirect-middleware", "strip-prefix-middleware", "keda-http-scaled-object", "keda-interceptor-proxy-service")
+		} else if _, routed := routedPorts[processType]; routed {
+			templateFiles = append(templateFiles, "service")
 		}
 		for _, templateName := range templateFiles {
 			b, err := templates.ReadFile(fmt.Sprintf("templates/chart/%s.yaml", templateName))
