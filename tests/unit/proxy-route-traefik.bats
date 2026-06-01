@@ -35,9 +35,14 @@ teardown() {
   # Routes are applied via container labels - rebuild so the api container
   # restarts with the new labels attached.
   run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
   assert_success
 
-  assert_http_localhost_response_contains "http" "${TEST_APP}.${DOKKU_DOMAIN}" "80" "/api/v0/Procfile" "python3 -m http.server"
+  # Without --strip-prefix, /api/v0/Procfile reaches api as /api/v0/Procfile
+  # which python's http.server returns 404 for. A 404 here proves the route
+  # reaches api - web's catch-all would have returned 200.
+  assert_http_localhost_response_contains "http" "${TEST_APP}.${DOKKU_DOMAIN}" "80" "/api/v0/Procfile" "" "404"
 }
 
 @test "(proxy-route:traefik) --strip-prefix toggles upstream path visibility" {
@@ -50,12 +55,16 @@ teardown() {
   run /bin/bash -c "dokku proxy:route:set $TEST_APP api /api/v0 --port 5001"
   assert_success
   run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
   assert_success
   assert_http_localhost_response_contains "http" "${TEST_APP}.${DOKKU_DOMAIN}" "80" "/api/v0/Procfile" "" "404"
 
   run /bin/bash -c "dokku proxy:route:set $TEST_APP api /api/v0 --port 5001 --strip-prefix"
   assert_success
   run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
   assert_success
   assert_http_localhost_response_contains "http" "${TEST_APP}.${DOKKU_DOMAIN}" "80" "/api/v0/Procfile" "python3 -m http.server"
 }
@@ -67,15 +76,30 @@ teardown() {
   run /bin/bash -c "dokku ps:scale $TEST_APP web=1 api=1"
   assert_success
 
+  # Set the route without --strip-prefix first; a 404 from api proves the
+  # labels attached and traefik is routing correctly.
+  run /bin/bash -c "dokku proxy:route:set $TEST_APP api /api/v0 --port 5001"
+  assert_success
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_http_localhost_response_contains "http" "${TEST_APP}.${DOKKU_DOMAIN}" "80" "/api/v0/Procfile" "" "404"
+
+  # Switch to --strip-prefix and verify api now serves the Procfile.
   run /bin/bash -c "dokku proxy:route:set $TEST_APP api /api/v0 --port 5001 --strip-prefix"
   assert_success
   run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
   assert_success
   assert_http_localhost_response_contains "http" "${TEST_APP}.${DOKKU_DOMAIN}" "80" "/api/v0/Procfile" "python3 -m http.server"
 
   run /bin/bash -c "dokku proxy:route:remove $TEST_APP /api/v0"
   assert_success
   run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
   assert_success
 
   run curl --connect-to "${TEST_APP}.${DOKKU_DOMAIN}:80:localhost:80" -kSso /tmp/route-removed-body "http://${TEST_APP}.${DOKKU_DOMAIN}:80/api/v0/Procfile"

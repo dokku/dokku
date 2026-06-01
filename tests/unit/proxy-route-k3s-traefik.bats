@@ -40,7 +40,10 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  assert_http_localhost_response_contains "http" "${TEST_APP}.${DOKKU_DOMAIN}" "80" "/api/v0/Procfile" "python3 -m http.server"
+  # Without --strip-prefix, /api/v0/Procfile reaches api as /api/v0/Procfile
+  # which python's http.server returns 404 for. 404 proves the route reaches
+  # api (web's catch-all would have returned 200).
+  assert_http_localhost_response_contains "http" "${TEST_APP}.${DOKKU_DOMAIN}" "80" "/api/v0/Procfile" "" "404"
 }
 
 @test "(proxy-route:k3s-traefik) --strip-prefix renders stripPrefix Middleware and strips upstream path" {
@@ -58,6 +61,12 @@ teardown() {
 
   run /bin/bash -c "dokku ps:scale $TEST_APP web=1 api=1"
   assert_success
+
+  # Set without strip first; the 404 proves the route reached api before we
+  # assert the strip-prefix HTTP behavior.
+  run /bin/bash -c "dokku proxy:route:set $TEST_APP api /api/v0 --port 5001"
+  assert_success
+  assert_http_localhost_response_contains "http" "${TEST_APP}.${DOKKU_DOMAIN}" "80" "/api/v0/Procfile" "" "404"
 
   run /bin/bash -c "dokku proxy:route:set $TEST_APP api /api/v0 --port 5001 --strip-prefix"
   assert_success
@@ -88,6 +97,12 @@ teardown() {
 
   run /bin/bash -c "dokku ps:scale $TEST_APP web=1 api=1"
   assert_success
+
+  # Verify the route reaches api first (404 proves routing) before checking
+  # that strip applied (200 with Procfile content).
+  run /bin/bash -c "dokku proxy:route:set $TEST_APP api /api/v0 --port 5001"
+  assert_success
+  assert_http_localhost_response_contains "http" "${TEST_APP}.${DOKKU_DOMAIN}" "80" "/api/v0/Procfile" "" "404"
 
   run /bin/bash -c "dokku proxy:route:set $TEST_APP api /api/v0 --port 5001 --strip-prefix"
   assert_success
