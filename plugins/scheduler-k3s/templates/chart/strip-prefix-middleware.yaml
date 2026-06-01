@@ -1,0 +1,35 @@
+{{- /* Emit a StripPrefix Middleware CRD per route that uses --strip-prefix
+       when the ingress class is traefik. Referenced from the IngressRoute
+       Rule rendered in ingress-route.yaml. */}}
+{{- range $processName, $config := .Values.processes }}
+{{- if not (hasKey $config "web") }}
+{{- continue }}
+{{- end }}
+
+{{- if and $config.web.domains (eq $.Values.global.network.ingress_class "traefik") }}
+{{- range $rdx, $route := $.Values.global.network.routes }}
+{{- if $route.strip_prefix }}
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  annotations:
+    dokku.com/managed: "true"
+    {{ include "print.annotations" (dict "config" $.Values.global "key" "traefik_middleware") | indent 4 }}
+    {{ include "print.annotations" (dict "config" $config "key" "traefik_middleware") | indent 4 }}
+  labels:
+    app.kubernetes.io/instance: {{ $.Values.global.app_name }}-{{ $route.process }}-{{ $route.slug }}-strip
+    app.kubernetes.io/name: {{ $route.process }}
+    app.kubernetes.io/part-of: {{ $.Values.global.app_name }}
+    {{ include "print.labels" (dict "config" $.Values.global "key" "traefik_middleware") | indent 4 }}
+    {{ include "print.labels" (dict "config" $config "key" "traefik_middleware") | indent 4 }}
+  name: {{ $.Values.global.app_name }}-{{ $route.process }}-{{ $route.slug }}-strip
+  namespace: {{ $.Values.global.namespace }}
+spec:
+  stripPrefix:
+    prefixes:
+      - {{ $route.path }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

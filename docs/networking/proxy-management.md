@@ -188,6 +188,94 @@ See the [port scheme documentation](/docs/networking/port-management.md#port-sch
 
 See the [port management documentation](/docs/networking/port-management.md) for more information on how port mappings are managed for an application.
 
+### Path-based routing to non-web processes
+
+> [!IMPORTANT]
+> New as of 0.39.0
+
+By default, every HTTP/HTTPS request is routed to the `web` process declared in the app's `Procfile`. Use `proxy:route:*` to route specific path prefixes to a different process within the same app - for example, sending `/api/v0/*` to an `api` process or `/ws` to a `websocket` process. The `web` process always handles every other path as an implicit catch-all.
+
+> [!NOTE]
+> Path-based routing is supported by the `nginx`, `traefik`, `caddy`, and `k3s` proxy backends. The `openresty` and `haproxy` backends do not currently support it; `proxy:route:set` exits with a "not supported" message under those backends. Support is tracked in [dokku/openresty-docker-proxy#137](https://github.com/dokku/openresty-docker-proxy/issues/137) and the `haproxy-vhosts` sidecar.
+
+#### Adding a route
+
+```shell
+# Route /api/v0/* to the api process on container port 5000
+dokku proxy:route:set node-js-app api /api/v0
+```
+
+The `--port` flag overrides the default upstream port of `5000`:
+
+```shell
+dokku proxy:route:set node-js-app api /api/v0 --port 5001
+```
+
+The `--strip-prefix` flag strips the matched prefix before forwarding the request upstream. Use this when the process is written assuming it is mounted at root (`/users/42` instead of `/api/v0/users/42`):
+
+```shell
+dokku proxy:route:set node-js-app api /api/v0 --port 5001 --strip-prefix
+```
+
+`proxy:route:set` uses set semantics: the resulting route is fully described by its arguments. Omitting `--port` resets the port to `5000`; omitting `--strip-prefix` resets the flag to off. This makes the command safely re-runnable from declarative config tools such as [dokku/docket](https://github.com/dokku/docket).
+
+The `web` process cannot be a route target since it serves the implicit `/` catch-all.
+
+#### Removing a route
+
+```shell
+dokku proxy:route:remove node-js-app /api/v0
+```
+
+Removing a path that is not registered is a successful no-op.
+
+#### Clearing all routes
+
+```shell
+dokku proxy:route:clear node-js-app
+```
+
+#### Listing routes
+
+```shell
+dokku proxy:route:report node-js-app
+```
+
+```
+=====> node-js-app proxy routes information
+       Route /api/v0/admin -> api:5001
+       Route /api/v0 -> api:5001
+       Route /ws -> websocket:8080
+       Route /internal -> tools:5000 (strip)
+```
+
+The report supports JSON output for scripting:
+
+```shell
+dokku proxy:route:report node-js-app --format json
+```
+
+#### Matching semantics
+
+Routes are matched longest-prefix-first. When two prefixes overlap, the longer one wins:
+
+```shell
+dokku proxy:route:set node-js-app api /api/v0
+dokku proxy:route:set node-js-app api /api/v0/admin
+```
+
+- `GET /api/v0/admin/users` -> matches `/api/v0/admin`
+- `GET /api/v0/anything-else` -> matches `/api/v0`
+- `GET /home` -> falls through to the `web` catch-all
+
+#### Caveats per backend
+
+- **nginx**: route changes take effect immediately on the next `proxy-build-config` reload (which `proxy:route:*` invokes automatically).
+- **traefik** and **caddy**: routes are applied via Docker labels on the target containers. Containers must be recreated for new or removed labels to take effect. The command prints a notice instructing you to run `dokku ps:rebuild <app>` to recreate containers.
+- **k3s**: route changes take effect on the next deploy when the chart is re-rendered.
+- **WebSocket** traffic is forwarded transparently on `nginx`, `traefik`, `caddy`, and `k3s` backends - no additional configuration is required.
+- A route to a process that is scaled to `0` will resolve to no upstream until the process is scaled up (`dokku ps:scale <app> <process>=1`). `proxy:route:set` warns when this is the case.
+
 ### Container network interface binding
 
 > Changed as of 0.11.0

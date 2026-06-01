@@ -64,6 +64,24 @@ func TriggerProxyType(appName string) error {
 	return nil
 }
 
+// TriggerProxyRoutesList prints one "process|port|path|strip" line per route,
+// sorted by descending path length. Backends use this to render path-based
+// routes in their config or labels.
+func TriggerProxyRoutesList(appName string) error {
+	routes, err := GetRoutes(appName)
+	if err != nil {
+		return err
+	}
+	for _, r := range routes {
+		strip := "0"
+		if r.StripPrefix {
+			strip = "1"
+		}
+		fmt.Printf("%s|%d|%s|%s\n", r.Process, r.Port, r.Path, strip)
+	}
+	return nil
+}
+
 // TriggerPostAppCloneSetup creates new proxy files
 func TriggerPostAppCloneSetup(oldAppName string, newAppName string) error {
 	return common.PropertyClone("proxy", oldAppName, newAppName)
