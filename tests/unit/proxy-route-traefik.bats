@@ -39,6 +39,14 @@ teardown() {
   echo "status: $status"
   assert_success
 
+  # Surface the actual labels attached to the api container so CI logs show
+  # whether docker-args-process-deploy emitted them correctly.
+  run /bin/bash -c "docker inspect ${TEST_APP}.api.1 --format '{{json .Config.Labels}}' 2>&1 | jq . 2>/dev/null || docker inspect ${TEST_APP}.api.1 --format '{{json .Config.Labels}}' 2>&1"
+  echo "api labels: $output"
+
+  # Give the daemon a moment to read the new labels.
+  sleep 5
+
   # Without --strip-prefix, /api/v0/Procfile reaches api as /api/v0/Procfile
   # which python's http.server returns 404 for. A 404 here proves the route
   # reaches api - web's catch-all would have returned 200.
@@ -58,6 +66,14 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
+
+  # Surface the actual labels attached to the api container so CI logs show
+  # whether docker-args-process-deploy emitted them correctly.
+  run /bin/bash -c "docker inspect ${TEST_APP}.api.1 --format '{{json .Config.Labels}}' 2>&1 | jq . 2>/dev/null || docker inspect ${TEST_APP}.api.1 --format '{{json .Config.Labels}}' 2>&1"
+  echo "api labels: $output"
+
+  # Give the daemon a moment to read the new labels.
+  sleep 5
   assert_http_localhost_response_contains "http" "${TEST_APP}.${DOKKU_DOMAIN}" "80" "/api/v0/Procfile" "" "404"
 
   run /bin/bash -c "dokku proxy:route:set $TEST_APP api /api/v0 --port 5001 --strip-prefix"
@@ -66,6 +82,14 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
+
+  # Surface the actual labels attached to the api container so CI logs show
+  # whether docker-args-process-deploy emitted them correctly.
+  run /bin/bash -c "docker inspect ${TEST_APP}.api.1 --format '{{json .Config.Labels}}' 2>&1 | jq . 2>/dev/null || docker inspect ${TEST_APP}.api.1 --format '{{json .Config.Labels}}' 2>&1"
+  echo "api labels: $output"
+
+  # Give the daemon a moment to read the new labels.
+  sleep 5
   assert_http_localhost_response_contains "http" "${TEST_APP}.${DOKKU_DOMAIN}" "80" "/api/v0/Procfile" "python3 -m http.server"
 }
 
@@ -84,6 +108,14 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
+
+  # Surface the actual labels attached to the api container so CI logs show
+  # whether docker-args-process-deploy emitted them correctly.
+  run /bin/bash -c "docker inspect ${TEST_APP}.api.1 --format '{{json .Config.Labels}}' 2>&1 | jq . 2>/dev/null || docker inspect ${TEST_APP}.api.1 --format '{{json .Config.Labels}}' 2>&1"
+  echo "api labels: $output"
+
+  # Give the daemon a moment to read the new labels.
+  sleep 5
   assert_http_localhost_response_contains "http" "${TEST_APP}.${DOKKU_DOMAIN}" "80" "/api/v0/Procfile" "" "404"
 
   # Switch to --strip-prefix and verify api now serves the Procfile.
@@ -93,6 +125,14 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
+
+  # Surface the actual labels attached to the api container so CI logs show
+  # whether docker-args-process-deploy emitted them correctly.
+  run /bin/bash -c "docker inspect ${TEST_APP}.api.1 --format '{{json .Config.Labels}}' 2>&1 | jq . 2>/dev/null || docker inspect ${TEST_APP}.api.1 --format '{{json .Config.Labels}}' 2>&1"
+  echo "api labels: $output"
+
+  # Give the daemon a moment to read the new labels.
+  sleep 5
   assert_http_localhost_response_contains "http" "${TEST_APP}.${DOKKU_DOMAIN}" "80" "/api/v0/Procfile" "python3 -m http.server"
 
   run /bin/bash -c "dokku proxy:route:remove $TEST_APP /api/v0"
@@ -112,20 +152,31 @@ teardown() {
   echo "status: $status"
   assert_success
 
+  # Surface the actual labels attached to the api container so CI logs show
+  # whether docker-args-process-deploy emitted them correctly.
+  run /bin/bash -c "docker inspect ${TEST_APP}.api.1 --format '{{json .Config.Labels}}' 2>&1 | jq . 2>/dev/null || docker inspect ${TEST_APP}.api.1 --format '{{json .Config.Labels}}' 2>&1"
+  echo "api labels: $output"
+
+  # Give the daemon a moment to read the new labels.
+  sleep 5
+
   # After ps:rebuild, traefik recreates the api container without the route
   # labels, but there is still a race with traefik picking up the new state.
-  # Hand-roll a retry that polls the BODY until api's marker is gone.
-  local body=""
+  # Poll the response body via file to avoid shell-quoting issues with JSON
+  # bodies that contain embedded double quotes.
+  rm -f /tmp/route-removed-body
+  local attempt=0
   for attempt in $(seq 1 30); do
-    run curl --connect-to "${TEST_APP}.${DOKKU_DOMAIN}:80:localhost:80" -kSs "http://${TEST_APP}.${DOKKU_DOMAIN}:80/api/v0/Procfile"
-    body="$output"
-    if ! grep -q 'python3 -m http.server' <<<"$body"; then
+    curl --connect-to "${TEST_APP}.${DOKKU_DOMAIN}:80:localhost:80" -kSso /tmp/route-removed-body "http://${TEST_APP}.${DOKKU_DOMAIN}:80/api/v0/Procfile" || true
+    if ! grep -q 'python3 -m http.server' /tmp/route-removed-body 2>/dev/null; then
       break
     fi
     sleep 1
   done
-  echo "final body attempt $attempt: $body"
-  run /bin/bash -c "grep -c 'python3 -m http.server' <<<\"$body\" || true"
+  echo "final body attempt $attempt:"
+  cat /tmp/route-removed-body
+  echo
+  run /bin/bash -c "grep -c 'python3 -m http.server' /tmp/route-removed-body || true"
   assert_output "0"
 }
 

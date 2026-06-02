@@ -99,18 +99,21 @@ teardown() {
   # return 200 for /api/v0/Procfile so the polling loop in
   # assert_http_localhost_response_contains exits on status alone before
   # nginx picks up the new config. Hand-roll a retry that polls the BODY
-  # until it no longer contains api's marker.
-  local body=""
+  # written to a file (avoids shell-quoting issues with JSON bodies that
+  # contain embedded double quotes).
+  rm -f /tmp/route-removed-body
+  local attempt=0
   for attempt in $(seq 1 30); do
-    run curl --connect-to "${TEST_APP}.${DOKKU_DOMAIN}:80:localhost:80" -kSs "http://${TEST_APP}.${DOKKU_DOMAIN}:80/api/v0/Procfile"
-    body="$output"
-    if ! grep -q 'python3 -m http.server' <<<"$body"; then
+    curl --connect-to "${TEST_APP}.${DOKKU_DOMAIN}:80:localhost:80" -kSso /tmp/route-removed-body "http://${TEST_APP}.${DOKKU_DOMAIN}:80/api/v0/Procfile" || true
+    if ! grep -q 'python3 -m http.server' /tmp/route-removed-body 2>/dev/null; then
       break
     fi
     sleep 1
   done
-  echo "final body attempt $attempt: $body"
-  run /bin/bash -c "grep -c 'python3 -m http.server' <<<\"$body\" || true"
+  echo "final body attempt $attempt:"
+  cat /tmp/route-removed-body
+  echo
+  run /bin/bash -c "grep -c 'python3 -m http.server' /tmp/route-removed-body || true"
   assert_output "0"
 }
 
