@@ -96,14 +96,36 @@ teardown() {
   assert_http_localhost_response_contains "http" "${TEST_APP}.${DOKKU_DOMAIN}" "80" "/api/v0/Procfile" "python3 -m http.server"
 
   run /bin/bash -c "dokku proxy:route:remove $TEST_APP /api/v0"
+  echo "output: $output"
+  echo "status: $status"
   assert_success
+
+  # Confirm storage was actually mutated before doing the slow rebuild.
+  run /bin/bash -c "dokku proxy:route:report $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "(none)"
+
   run /bin/bash -c "dokku ps:rebuild $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run curl --connect-to "${TEST_APP}.${DOKKU_DOMAIN}:80:localhost:80" -kSso /tmp/route-removed-body "http://${TEST_APP}.${DOKKU_DOMAIN}:80/api/v0/Procfile"
-  run /bin/bash -c "grep -c 'python3 -m http.server' /tmp/route-removed-body || true"
+  # After ps:rebuild, traefik recreates the api container without the route
+  # labels, but there is still a race with traefik picking up the new state.
+  # Hand-roll a retry that polls the BODY until api's marker is gone.
+  local body=""
+  for attempt in $(seq 1 30); do
+    run curl --connect-to "${TEST_APP}.${DOKKU_DOMAIN}:80:localhost:80" -kSs "http://${TEST_APP}.${DOKKU_DOMAIN}:80/api/v0/Procfile"
+    body="$output"
+    if ! grep -q 'python3 -m http.server' <<<"$body"; then
+      break
+    fi
+    sleep 1
+  done
+  echo "final body attempt $attempt: $body"
+  run /bin/bash -c "grep -c 'python3 -m http.server' <<<\"$body\" || true"
   assert_output "0"
 }
 

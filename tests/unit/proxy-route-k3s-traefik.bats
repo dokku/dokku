@@ -109,13 +109,30 @@ teardown() {
   assert_http_localhost_response_contains "http" "${TEST_APP}.${DOKKU_DOMAIN}" "80" "/api/v0/Procfile" "python3 -m http.server"
 
   run /bin/bash -c "dokku proxy:route:remove $TEST_APP /api/v0"
-  assert_success
-
-  run /bin/bash -c "kubectl get middleware.traefik.io -o json | jq -r '[.items[] | select(.spec.stripPrefix != null)] | length'"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "0"
+
+  # Confirm storage was cleared before checking cluster state.
+  run /bin/bash -c "dokku proxy:route:report $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "(none)"
+
+  # The stripPrefix Middleware should be gone after removal. Retry briefly
+  # in case the chart re-render hasn't settled.
+  local count="1"
+  for attempt in $(seq 1 30); do
+    run /bin/bash -c "kubectl get middleware.traefik.io -o json | jq -r '[.items[] | select(.spec.stripPrefix != null)] | length'"
+    count="$output"
+    if [[ "$count" == "0" ]]; then
+      break
+    fi
+    sleep 1
+  done
+  echo "final middleware count after $attempt attempts: $count"
+  assert_equal "$count" "0"
 }
 
 add_api_process_callback() {

@@ -82,12 +82,35 @@ teardown() {
   assert_http_localhost_response_contains "http" "${TEST_APP}.${DOKKU_DOMAIN}" "80" "/api/v0/Procfile" "python3 -m http.server"
 
   run /bin/bash -c "dokku proxy:route:remove $TEST_APP /api/v0"
+  echo "output: $output"
+  echo "status: $status"
   assert_success
 
-  # After removal, /api/v0/Procfile no longer reaches api - it falls through
-  # to web's catch-all. Assert the response is no longer api's Procfile body.
-  run curl --connect-to "${TEST_APP}.${DOKKU_DOMAIN}:80:localhost:80" -kSso /tmp/route-removed-body "http://${TEST_APP}.${DOKKU_DOMAIN}:80/api/v0/Procfile"
-  run /bin/bash -c "grep -c 'python3 -m http.server' /tmp/route-removed-body || true"
+  # Confirm storage was actually mutated; a CommandRouteRemove that returns
+  # changed=false silently skips BuildConfig and leaves nginx with the old
+  # route block.
+  run /bin/bash -c "dokku proxy:route:report $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "(none)"
+
+  # nginx reload races with the curl after route removal: both api and web
+  # return 200 for /api/v0/Procfile so the polling loop in
+  # assert_http_localhost_response_contains exits on status alone before
+  # nginx picks up the new config. Hand-roll a retry that polls the BODY
+  # until it no longer contains api's marker.
+  local body=""
+  for attempt in $(seq 1 30); do
+    run curl --connect-to "${TEST_APP}.${DOKKU_DOMAIN}:80:localhost:80" -kSs "http://${TEST_APP}.${DOKKU_DOMAIN}:80/api/v0/Procfile"
+    body="$output"
+    if ! grep -q 'python3 -m http.server' <<<"$body"; then
+      break
+    fi
+    sleep 1
+  done
+  echo "final body attempt $attempt: $body"
+  run /bin/bash -c "grep -c 'python3 -m http.server' <<<\"$body\" || true"
   assert_output "0"
 }
 
