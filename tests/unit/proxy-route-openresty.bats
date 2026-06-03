@@ -52,6 +52,8 @@ teardown() {
 }
 
 @test "(proxy-route:openresty) --strip-prefix toggles upstream path visibility" {
+  skip "tracked in dokku/openresty-docker-proxy#141 - sidecar's docker-gen template cache skips reload when only the strip-prefix label is added to an existing route key, so proxy_pass trailing slash isn't rendered"
+
   run deploy_app python "dokku@$DOKKU_DOMAIN:$TEST_APP" add_api_process_callback
   assert_success
 
@@ -98,6 +100,8 @@ teardown() {
 }
 
 @test "(proxy-route:openresty) removing a route falls back to web" {
+  skip "tracked in dokku/openresty-docker-proxy#141 - depends on the strip-prefix code path which has a caching regression upstream"
+
   run deploy_app python "dokku@$DOKKU_DOMAIN:$TEST_APP" add_api_process_callback
   assert_success
 
