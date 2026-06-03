@@ -17,7 +17,7 @@ scheduler-k3s:ensure-charts                         # Ensures the k3s charts are
 scheduler-k3s:initialize                            # Initializes a cluster
 scheduler-k3s:labels:set <app|--global> <property> (<value>) [--process-type PROCESS_TYPE] <--resource-type RESOURCE_TYPE> # Set or clear a label for a given app/process-type/resource-type combination
 scheduler-k3s:labels:report [<app>|--global] [--format stdout|json] [--process-type PROCESS_TYPE] [--resource-type RESOURCE_TYPE] # Displays a scheduler-k3s labels report for one or more apps
-scheduler-k3s:preview <app> [--show-secrets] [--show-secrets-decoded] # Displays a diff between the current and next deployment for an app
+scheduler-k3s:preview <app> [--context N] [--show-secrets] [--show-secrets-decoded] # Displays a diff between the current and next deployment for an app
 scheduler-k3s:profiles:add <profile> [--role ROLE] [--insecure-allow-unknown-hosts] [--taint-scheduling] [--kubelet-args KUBELET_ARGS] Adds a node profile to the k3s cluster
 scheduler-k3s:profiles:list [--format json|stdout]  # Lists all node profiles in the k3s cluster
 scheduler-k3s:profiles:remove <profile>             # Removes a node profile from the k3s cluster
@@ -246,6 +246,13 @@ dokku scheduler-k3s:preview node-js-app
 ```
 
 A clean redeploy with no property changes produces no output. After modifying a property that affects the main app chart (for example `dokku resource:limit --memory 256m node-js-app`), the command shows the unified diff for each changed resource. For an app that has never been deployed, the entire proposed manifest is rendered as added lines.
+
+By default each change is shown with 3 lines of surrounding context, git-diff style. The `--context` flag overrides this; pass `-1` to render the full resource around every change:
+
+```shell
+dokku scheduler-k3s:preview node-js-app --context 0
+dokku scheduler-k3s:preview node-js-app --context -1
+```
 
 By default any `kind: Secret` resources have their `data` values redacted so secret bytes never appear in terminal scrollback or CI logs. Two flags adjust this behavior:
 

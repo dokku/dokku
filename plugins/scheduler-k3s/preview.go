@@ -21,7 +21,10 @@ import (
 // in the live Helm release for an app and the manifests that the next deploy
 // would roll out. Only the main app helm release is compared; the auxiliary
 // config-secret, image-pull-secret, and TLS-secret releases are out of scope.
-func CommandPreview(appName string, showSecrets bool, showSecretsDecoded bool) error {
+//
+// diffContext controls the number of unchanged lines shown around each change;
+// pass -1 to print the full resource.
+func CommandPreview(appName string, diffContext int, showSecrets bool, showSecretsDecoded bool) error {
 	if err := common.VerifyAppName(appName); err != nil {
 		return err
 	}
@@ -80,7 +83,7 @@ func CommandPreview(appName string, showSecrets bool, showSecretsDecoded bool) e
 
 	options := &helmdiff.Options{
 		OutputFormat:       "diff",
-		OutputContext:      3,
+		OutputContext:      diffContext,
 		ShowSecrets:        showSecrets,
 		ShowSecretsDecoded: showSecretsDecoded,
 	}
