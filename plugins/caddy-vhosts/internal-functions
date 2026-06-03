@@ -18,10 +18,27 @@ fn-caddy-route-labels() {
 
   output=""
   if [[ -n "$caddy_domains" ]]; then
-    # Joining the same site declared by the web container so this container's
-    # handler directives are merged into the existing site block by
-    # caddy-docker-proxy.
-    output="--label 'caddy=${caddy_domains}'"
+    # Mirror web's site-declarator computation in docker-args-process-deploy so
+    # both containers join the same Caddyfile site block. caddy treats DOMAIN
+    # and DOMAIN:80 as separate sites - if web declares DOMAIN:80 and we
+    # declare DOMAIN, caddy-docker-proxy renders two unrelated site blocks
+    # and the route's handle never sees port-80 traffic.
+    local letsencrypt_email port_map scheme host_port
+    local has_443_mapping=false
+    letsencrypt_email="$(fn-caddy-computed-letsencrypt-email)"
+    while read -r port_map; do
+      scheme="$(awk -F ':' '{ print $1 }' <<<"$port_map")"
+      host_port="$(awk -F ':' '{ print $2 }' <<<"$port_map")"
+      if [[ "$scheme" == "https" ]] || [[ "$host_port" == "443" ]]; then
+        has_443_mapping=true
+      fi
+    done < <(plugn trigger ports-get "$APP")
+
+    if [[ -n "$letsencrypt_email" ]] && [[ "$has_443_mapping" == "true" ]]; then
+      output="--label 'caddy=${caddy_domains}'"
+    else
+      output="--label 'caddy=${caddy_domains//, /:80, }:80'"
+    fi
   fi
 
   while IFS='|' read -r route_proc route_port route_path route_strip; do
