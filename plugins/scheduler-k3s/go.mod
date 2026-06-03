@@ -4,6 +4,7 @@ go 1.26.2
 
 require (
 	github.com/Masterminds/semver/v3 v3.5.0
+	github.com/aryann/difflib v0.0.0-20210328193216-ff5ff6dc229b
 	github.com/cert-manager/cert-manager v1.20.2
 	github.com/dokku/dokku/plugins/app-json v0.0.0-00010101000000-000000000000
 	github.com/dokku/dokku/plugins/common v0.0.0-00010101000000-000000000000
@@ -22,10 +23,13 @@ require (
 	github.com/gosimple/slug v1.15.0
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
 	github.com/kedacore/keda/v2 v2.18.3
+	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d
+	github.com/onsi/gomega v1.41.0
 	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/spf13/pflag v1.0.10
 	github.com/traefik/traefik/v2 v2.11.46
 	golang.org/x/sync v0.20.0
+	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.1
 	helm.sh/helm/v3 v3.21.0
 	k8s.io/api v0.35.4

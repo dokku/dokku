@@ -158,6 +158,13 @@ func main() {
 			appName = "--global"
 		}
 		err = scheduler_k3s.CommandLabelsReport(appName, *format, *processType, *resourceType, infoFlag)
+	case "preview":
+		args := flag.NewFlagSet("scheduler-k3s:preview", flag.ExitOnError)
+		showSecrets := args.Bool("show-secrets", false, "--show-secrets: do not redact secret values in the output")
+		showSecretsDecoded := args.Bool("show-secrets-decoded", false, "--show-secrets-decoded: render secret values base64-decoded")
+		args.Parse(os.Args[2:])
+		appName := args.Arg(0)
+		err = scheduler_k3s.CommandPreview(appName, *showSecrets, *showSecretsDecoded)
 	case "profiles:add":
 		args := flag.NewFlagSet("scheduler-k3s:profiles:add", flag.ExitOnError)
 		role := args.String("role", "worker", "role: [ server | worker ]")
