@@ -45,14 +45,6 @@ teardown() {
   # Give the daemon a moment to read the new labels.
   sleep 5
 
-  # Surface the generated Caddyfile so we can see how caddy-docker-proxy
-  # merged the web + api containers' labels and figure out why /api/v0/*
-  # routing isn't taking effect.
-  run /bin/bash -c "docker exec caddy-caddy-1 cat /etc/caddy/Caddyfile 2>&1"
-  echo "caddy config: $output"
-  run /bin/bash -c "docker exec caddy-caddy-1 caddy adapt --config /etc/caddy/Caddyfile 2>&1 | head -200"
-  echo "caddy adapt json: $output"
-
   # Without --strip-prefix, /api/v0/Procfile reaches api as /api/v0/Procfile
   # which python's http.server returns 404 for. A 404 here proves the route
   # reaches api - web's catch-all would have returned 200.
