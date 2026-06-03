@@ -31,7 +31,9 @@ fn-traefik-route-labels() {
 
     output="$output --label \"traefik.http.routers.${router_name}.rule=${rule}\""
     output="$output --label traefik.http.routers.${router_name}.entrypoints=$(fn-traefik-computed-http-entry-point)"
-    output="$output --label traefik.http.routers.${router_name}.priority=${path_len}"
+    # No explicit priority - traefik's default (rule length) gives
+    # longest-prefix-wins because our rule includes both Host(...) and
+    # PathPrefix(...), which is always longer than web's bare Host(...) rule.
     output="$output --label traefik.http.routers.${router_name}.service=${service_name}"
     output="$output --label traefik.http.services.${service_name}.loadbalancer.server.port=${route_port}"
 

@@ -86,9 +86,15 @@ teardown() {
   run /bin/bash -c "docker inspect ${TEST_APP}.api.1 --format '{{json .Config.Labels}}' 2>&1 | jq . 2>/dev/null || docker inspect ${TEST_APP}.api.1 --format '{{json .Config.Labels}}' 2>&1"
   echo "api labels: $output"
 
-  # Give the daemon a moment to read the new labels.
-  sleep 5
-  assert_http_localhost_response_contains "http" "${TEST_APP}.${DOKKU_DOMAIN}" "80" "/api/v0/Procfile" "python3 -m http.server"
+  # openresty-docker-proxy 0.12.0 has a polling/caching delay before it
+  # re-renders the config after labels on an existing route key change.
+  # Give it a longer window than the default HTTP retry. If this still
+  # times out, dump the sidecar logs so we can file an upstream bug.
+  HTTP_ASSERT_RETRIES=60 assert_http_localhost_response_contains "http" "${TEST_APP}.${DOKKU_DOMAIN}" "80" "/api/v0/Procfile" "python3 -m http.server" || {
+    run /bin/bash -c "dokku openresty:logs --num 200 2>&1 || docker logs openresty-openresty-1 --tail 200 2>&1"
+    echo "openresty sidecar logs: $output"
+    return 1
+  }
 }
 
 @test "(proxy-route:openresty) removing a route falls back to web" {
