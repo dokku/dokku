@@ -3,7 +3,7 @@
 Pull the dokku/dokku image:
 
 ```shell
-docker pull dokku/dokku:0.38.16
+docker pull dokku/dokku:0.38.17
 ```
 
 Next, run the image.
@@ -19,7 +19,7 @@ docker container run -d \
   --publish 8443:443 \
   --volume /var/lib/dokku:/mnt/dokku \
   --volume /var/run/docker.sock:/var/run/docker.sock \
-  dokku/dokku:0.38.16
+  dokku/dokku:0.38.17
 ```
 
 Alternatively, you can use `docker-compose.yml`:
@@ -27,7 +27,7 @@ Alternatively, you can use `docker-compose.yml`:
 ```yaml
 services:
   dokku:
-    image: dokku/dokku:0.38.16
+    image: dokku/dokku:0.38.17
     container_name: dokku
     network_mode: bridge
     ports:
@@ -67,7 +67,7 @@ Compose dependents can gate on the healthcheck via `depends_on` with `condition:
 ```yaml
 services:
   dokku:
-    image: dokku/dokku:0.38.16
+    image: dokku/dokku:0.38.17
     # ...
   bootstrap:
     image: alpine:3.20
@@ -114,7 +114,7 @@ redis: https://github.com/dokku/dokku-redis.git
 The alternative is to build a custom docker image via a custom Dockerfile. This Dockerfile can run any `plugin:install` command, though the `install` trigger must be skipped via the `--skip-install-trigger`. The version installed at that time will be the one that persists. Below is an example Dockerfile showing this method.
 
 ```Dockerfile
-FROM dokku/dokku:0.38.16
+FROM dokku/dokku:0.38.17
 RUN dokku plugin:install https://github.com/dokku/dokku-postgres.git --skip-install-trigger
 RUN dokku plugin:install https://github.com/dokku/dokku-redis.git --skip-install-trigger
 ```

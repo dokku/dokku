@@ -1,5 +1,22 @@
 # History
 
+## 0.38.17
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.38.17/bootstrap.sh
+sudo DOKKU_TAG=v0.38.17 bash bootstrap.sh
+```
+
+### New Features
+
+- #8729: @josegonzalez Add scheduler-k3s:preview subcommand to allow previewing helm chart changes
+
+### Dependencies
+
+- #8728: @dependabot[bot] chore(deps): bump dokku/openresty-docker-proxy from 0.11.0 to 0.12.0 in /plugins/openresty-vhosts
+
 ## 0.38.16
 
 Install/update via the bootstrap script:
