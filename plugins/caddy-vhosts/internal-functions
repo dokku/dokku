@@ -34,13 +34,16 @@ fn-caddy-route-labels() {
     # The named matcher accepts both the bare prefix and the prefix-glob form
     # so requests like /api/v0 and /api/v0/users/42 both match.
     output="$output --label 'caddy.${matcher_name}.path=${route_path} ${route_path}/*'"
-    output="$output --label 'caddy.${route_index}_route=${matcher_name}'"
+    # Use handle (not route) so the directive terminates the matched request.
+    # Otherwise web's bare `reverse_proxy` (at default-order ~190) runs before
+    # this route block (~210) and catches everything including /api/v0/*.
+    output="$output --label 'caddy.${route_index}_handle=${matcher_name}'"
     local sub_index=0
     if [[ "$route_strip" == "1" ]]; then
-      output="$output --label 'caddy.${route_index}_route.${sub_index}_uri=strip_prefix ${route_path}'"
+      output="$output --label 'caddy.${route_index}_handle.${sub_index}_uri=strip_prefix ${route_path}'"
       sub_index=$((sub_index + 1))
     fi
-    output="$output --label \"caddy.${route_index}_route.${sub_index}_reverse_proxy={{upstreams ${route_port}}}\""
+    output="$output --label \"caddy.${route_index}_handle.${sub_index}_reverse_proxy={{upstreams ${route_port}}}\""
     route_index=$((route_index + 1))
   done < <(plugn trigger proxy-routes-list "$APP")
 

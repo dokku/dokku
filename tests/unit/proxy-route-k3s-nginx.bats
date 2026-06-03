@@ -40,6 +40,15 @@ teardown() {
   echo "status: $status"
   assert_success
 
+  # Diagnostic: dump the cluster state so CI logs show whether the api
+  # Service and the Ingress are wired correctly.
+  run /bin/bash -c "kubectl get service -o yaml 2>&1"
+  echo "services: $output"
+  run /bin/bash -c "kubectl get ingress -o yaml 2>&1"
+  echo "ingresses: $output"
+  run /bin/bash -c "kubectl get endpoints -o yaml 2>&1"
+  echo "endpoints: $output"
+
   # Without --strip-prefix, /api/v0/Procfile reaches api as /api/v0/Procfile
   # which python's http.server returns 404 for. 404 proves the route reaches
   # api (web's catch-all would have returned 200).
