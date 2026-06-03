@@ -42,6 +42,13 @@ teardown() {
   run /bin/bash -c "docker inspect ${TEST_APP}.api.1 --format '{{json .Config.Labels}}' 2>&1 | jq . 2>/dev/null || docker inspect ${TEST_APP}.api.1 --format '{{json .Config.Labels}}' 2>&1"
   echo "api labels: $output"
 
+  # Also dump the web container's labels so we can compare site declarators
+  # between web and api - caddy treats DOMAIN and DOMAIN:80 as separate
+  # sites, and a mismatch keeps caddy-docker-proxy from merging the two
+  # containers' directives into a single site block.
+  run /bin/bash -c "docker inspect ${TEST_APP}.web.1 --format '{{json .Config.Labels}}' 2>&1 | jq . 2>/dev/null || docker inspect ${TEST_APP}.web.1 --format '{{json .Config.Labels}}' 2>&1"
+  echo "web labels: $output"
+
   # Give the daemon a moment to read the new labels.
   sleep 5
 
