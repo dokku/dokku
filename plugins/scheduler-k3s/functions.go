@@ -1073,7 +1073,14 @@ func getIngressAnnotations(appName string, processType string) (map[string]strin
 	}
 
 	annotations := map[string]string{}
-	for _, newKey := range properties {
+	keys := make([]string, 0, len(properties))
+	for key := range properties {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+
+	for _, key := range keys {
+		newKey := properties[key]
 		value := newKey.getter(appName)
 		if newKey.modifier != nil {
 			value = newKey.modifier(value)
