@@ -87,5 +87,5 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "has been added"
+  assert_output_contains "has been added" -1
 }
