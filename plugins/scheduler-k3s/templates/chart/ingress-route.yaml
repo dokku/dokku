@@ -41,7 +41,9 @@ spec:
     {{- range $rdx, $route := $.Values.global.network.routes }}
     - kind: Rule
       match: Host(`{{ $domain.name }}`) && PathPrefix(`{{ $route.path }}`)
-      priority: {{ len $route.path }}
+      # No explicit priority - traefik's default (rule length) gives
+      # longest-prefix-wins because Host(...) && PathPrefix(...) is always
+      # longer than web's bare Host(...) rule below.
       middlewares:
         - name: {{ $.Values.global.app_name}}-{{ $processName }}-compression
           namespace: {{ $.Values.global.namespace }}
