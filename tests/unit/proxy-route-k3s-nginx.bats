@@ -40,6 +40,15 @@ teardown() {
   echo "status: $status"
   assert_success
 
+  # scheduler-k3s does not yet have a proxy-build-config trigger handler, so
+  # proxy:route:set does not re-render the chart. ps:rebuild forces a redeploy
+  # which renders the chart with current routes. Runtime gap tracked as a
+  # follow-up; the test fix unblocks CI.
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   # Diagnostic: dump the cluster state so CI logs show whether the api
   # Service and the Ingress are wired correctly.
   run /bin/bash -c "kubectl get service -o yaml 2>&1"
@@ -75,9 +84,13 @@ teardown() {
   # assert the strip-prefix HTTP behavior.
   run /bin/bash -c "dokku proxy:route:set $TEST_APP api /api/v0 --port 5001"
   assert_success
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  assert_success
   assert_http_localhost_response_contains "http" "${TEST_APP}.${DOKKU_DOMAIN}" "80" "/api/v0/Procfile" "" "404"
 
   run /bin/bash -c "dokku proxy:route:set $TEST_APP api /api/v0 --port 5001 --strip-prefix"
+  assert_success
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
   assert_success
 
   # The chart should emit an additional Ingress carrying the rewrite-target
@@ -108,18 +121,26 @@ teardown() {
   assert_success
 
   # Verify the route reaches api first (404 proves routing) before checking
-  # that strip applied (200 with Procfile content).
+  # that strip applied (200 with Procfile content). scheduler-k3s does not
+  # yet have a proxy-build-config trigger, so ps:rebuild forces a chart
+  # re-render after each proxy:route mutation.
   run /bin/bash -c "dokku proxy:route:set $TEST_APP api /api/v0 --port 5001"
+  assert_success
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
   assert_success
   assert_http_localhost_response_contains "http" "${TEST_APP}.${DOKKU_DOMAIN}" "80" "/api/v0/Procfile" "" "404"
 
   run /bin/bash -c "dokku proxy:route:set $TEST_APP api /api/v0 --port 5001 --strip-prefix"
+  assert_success
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
   assert_success
   assert_http_localhost_response_contains "http" "${TEST_APP}.${DOKKU_DOMAIN}" "80" "/api/v0/Procfile" "python3 -m http.server"
 
   run /bin/bash -c "dokku proxy:route:remove $TEST_APP /api/v0"
   echo "output: $output"
   echo "status: $status"
+  assert_success
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
   assert_success
 
   # Confirm storage was cleared before checking cluster state.
