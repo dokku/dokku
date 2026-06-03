@@ -64,7 +64,7 @@ func CommandPreview(appName string, diffContext int, showSecrets bool, showSecre
 		return err
 	}
 
-	buildOpts := BuildOptions{}
+	buildOpts := BuildOptions{AllowMissingImage: true}
 	if currentRelease != nil {
 		buildOpts.OverrideDeploymentID = deploymentIDFromRelease(currentRelease)
 	}

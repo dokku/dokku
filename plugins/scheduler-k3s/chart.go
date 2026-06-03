@@ -40,6 +40,12 @@ type BuildOptions struct {
 	// release's id so app.kubernetes.io/version annotation churn does not
 	// appear in the diff.
 	OverrideDeploymentID int64
+
+	// AllowMissingImage, when true, lets BuildAppChart substitute a
+	// placeholder image string when no real image is available for the app
+	// yet (e.g. a never-deployed app being previewed). The deploy path
+	// leaves this false so a missing image still errors.
+	AllowMissingImage bool
 }
 
 // BuildAppChart constructs a Helm chart on disk that reflects dokku's configured
@@ -71,7 +77,10 @@ func BuildAppChart(ctx context.Context, appName, imageTag string, opts BuildOpti
 
 	image, err := common.GetDeployingAppImageName(appName, imageTag, "")
 	if err != nil {
-		return result, fmt.Errorf("Error getting deploying app image name: %w", err)
+		if !opts.AllowMissingImage {
+			return result, fmt.Errorf("Error getting deploying app image name: %w", err)
+		}
+		image = fmt.Sprintf("dokku/%s:not-yet-deployed", appName)
 	}
 
 	deployTimeout := getComputedDeployTimeout(appName)
