@@ -33,6 +33,15 @@ type BuildResult struct {
 	KustomizeRootPath string
 }
 
+// BuildOptions configures non-default behavior for BuildAppChart.
+type BuildOptions struct {
+	// OverrideDeploymentID, when non-zero, replaces the timestamp-derived
+	// deployment id. CommandPreview uses this to reuse the currently-deployed
+	// release's id so app.kubernetes.io/version annotation churn does not
+	// appear in the diff.
+	OverrideDeploymentID int64
+}
+
 // BuildAppChart constructs a Helm chart on disk that reflects dokku's configured
 // state for the given app and image tag. It reads from the Kubernetes cluster
 // where required (for KEDA values and existing cron-job suffixes) but performs
@@ -42,7 +51,7 @@ type BuildResult struct {
 // The returned BuildResult holds the absolute chart path and the parameters a
 // subsequent Helm Install/Upgrade (dry-run or real) needs. The caller must
 // os.RemoveAll(result.ChartDir) when finished.
-func BuildAppChart(ctx context.Context, appName, imageTag string) (BuildResult, error) {
+func BuildAppChart(ctx context.Context, appName, imageTag string, opts BuildOptions) (BuildResult, error) {
 	var result BuildResult
 
 	processesRes, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
@@ -142,7 +151,10 @@ func BuildAppChart(ctx context.Context, appName, imageTag string) (BuildResult, 
 		return cleanup(fmt.Errorf("Error creating chart templates directory: %w", err))
 	}
 
-	deploymentId := time.Now().Unix()
+	deploymentId := opts.OverrideDeploymentID
+	if deploymentId == 0 {
+		deploymentId = time.Now().Unix()
+	}
 	imagePullSecrets := getComputedImagePullSecrets(appName)
 	if imagePullSecrets == "" {
 		dockerConfigPath := filepath.Join(registry.GetComputedAppRegistryConfigDir(appName), "config.json")

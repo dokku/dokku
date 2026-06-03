@@ -476,7 +476,7 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 		return fmt.Errorf("Error creating kubernetes namespace for deployment: %w", err)
 	}
 
-	chartResult, err := BuildAppChart(ctx, appName, imageTag)
+	chartResult, err := BuildAppChart(ctx, appName, imageTag, BuildOptions{})
 	if err != nil {
 		return err
 	}

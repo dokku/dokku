@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"strconv"
+	"strings"
 	"syscall"
 
 	"github.com/dokku/dokku/plugins/common"
@@ -14,6 +16,7 @@ import (
 	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/chart/loader"
 	"helm.sh/helm/v3/pkg/cli"
+	"helm.sh/helm/v3/pkg/release"
 	"helm.sh/helm/v3/pkg/storage/driver"
 )
 
@@ -50,29 +53,36 @@ func CommandPreview(appName string, diffContext int, showSecrets bool, showSecre
 		cancel()
 	}()
 
-	chartResult, err := BuildAppChart(ctx, appName, "")
+	namespace := getComputedNamespace(appName)
+	helmAgent, err := NewHelmAgent(namespace, DevNullPrinter)
+	if err != nil {
+		return fmt.Errorf("Error creating helm agent: %w", err)
+	}
+
+	currentRelease, err := fetchCurrentRelease(helmAgent, appName)
+	if err != nil {
+		return err
+	}
+
+	buildOpts := BuildOptions{}
+	if currentRelease != nil {
+		buildOpts.OverrideDeploymentID = deploymentIDFromRelease(currentRelease)
+	}
+
+	chartResult, err := BuildAppChart(ctx, appName, "", buildOpts)
 	if err != nil {
 		return err
 	}
 	defer os.RemoveAll(chartResult.ChartDir)
-
-	helmAgent, err := NewHelmAgent(chartResult.Namespace, DevNullPrinter)
-	if err != nil {
-		return fmt.Errorf("Error creating helm agent: %w", err)
-	}
 
 	chartRequested, err := loadChartForPreview(chartResult.ChartPath)
 	if err != nil {
 		return err
 	}
 
-	currentManifest, releaseExists, err := fetchCurrentManifest(helmAgent, chartResult.ReleaseName)
-	if err != nil {
-		return err
-	}
-
-	var proposedManifest string
-	if releaseExists {
+	var currentManifest, proposedManifest string
+	if currentRelease != nil {
+		currentManifest = currentRelease.Manifest
 		proposedManifest, err = renderUpgradeDryRun(ctx, helmAgent, chartResult, chartRequested)
 	} else {
 		proposedManifest, err = renderInstallDryRun(ctx, helmAgent, chartResult, chartRequested)
@@ -108,16 +118,38 @@ func loadChartForPreview(chartPath string) (*chart.Chart, error) {
 	return chartRequested, nil
 }
 
-func fetchCurrentManifest(helmAgent *HelmAgent, releaseName string) (string, bool, error) {
+func fetchCurrentRelease(helmAgent *HelmAgent, releaseName string) (*release.Release, error) {
 	getAction := action.NewGet(helmAgent.Configuration)
 	rel, err := getAction.Run(releaseName)
 	if err != nil {
 		if errors.Is(err, driver.ErrReleaseNotFound) {
-			return "", false, nil
+			return nil, nil
 		}
-		return "", false, fmt.Errorf("Error fetching current release: %w", err)
+		return nil, fmt.Errorf("Error fetching current release: %w", err)
 	}
-	return rel.Manifest, true, nil
+	return rel, nil
+}
+
+// deploymentIDFromRelease extracts the deployment id encoded in a release's
+// chart version. BuildAppChart writes the chart version as "0.0.<id>"
+// (chart.go); the parsed id lets CommandPreview pin the previewed manifests
+// to the currently-deployed value so the `app.kubernetes.io/version`
+// annotation does not churn in the diff. Returns 0 when the version does not
+// match the expected shape - the caller then falls back to the timestamp.
+func deploymentIDFromRelease(rel *release.Release) int64 {
+	if rel == nil || rel.Chart == nil || rel.Chart.Metadata == nil {
+		return 0
+	}
+	const prefix = "0.0."
+	v := rel.Chart.Metadata.Version
+	if !strings.HasPrefix(v, prefix) {
+		return 0
+	}
+	id, err := strconv.ParseInt(strings.TrimPrefix(v, prefix), 10, 64)
+	if err != nil {
+		return 0
+	}
+	return id
 }
 
 func renderUpgradeDryRun(ctx context.Context, helmAgent *HelmAgent, chartResult BuildResult, chartRequested *chart.Chart) (string, error) {
