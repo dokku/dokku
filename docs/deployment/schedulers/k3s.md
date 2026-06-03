@@ -17,6 +17,7 @@ scheduler-k3s:ensure-charts                         # Ensures the k3s charts are
 scheduler-k3s:initialize                            # Initializes a cluster
 scheduler-k3s:labels:set <app|--global> <property> (<value>) [--process-type PROCESS_TYPE] <--resource-type RESOURCE_TYPE> # Set or clear a label for a given app/process-type/resource-type combination
 scheduler-k3s:labels:report [<app>|--global] [--format stdout|json] [--process-type PROCESS_TYPE] [--resource-type RESOURCE_TYPE] # Displays a scheduler-k3s labels report for one or more apps
+scheduler-k3s:preview <app> [--context N] [--show-secrets] [--show-secrets-decoded] # Displays a diff between the current and next deployment for an app
 scheduler-k3s:profiles:add <profile> [--role ROLE] [--insecure-allow-unknown-hosts] [--taint-scheduling] [--kubelet-args KUBELET_ARGS] Adds a node profile to the k3s cluster
 scheduler-k3s:profiles:list [--format json|stdout]  # Lists all node profiles in the k3s cluster
 scheduler-k3s:profiles:remove <profile>             # Removes a node profile from the k3s cluster
@@ -235,6 +236,38 @@ The global default value may be set by passing an empty value for the option.
 ```shell
 dokku scheduler-k3s:set --global deploy-timeout
 ```
+
+### Previewing deployment changes
+
+Before triggering a deploy, the `scheduler-k3s:preview` command can be used to display a unified diff between the manifests currently stored in the live Helm release for an app and the manifests that the next deploy would roll out:
+
+```shell
+dokku scheduler-k3s:preview node-js-app
+```
+
+A clean redeploy with no property changes produces no output. After modifying a property that affects the main app chart (for example `dokku resource:limit --memory 256m node-js-app`), the command shows the unified diff for each changed resource. For an app that has never been deployed, the entire proposed manifest is rendered as added lines.
+
+By default each change is shown with 3 lines of surrounding context, git-diff style. The `--context` flag overrides this; pass `-1` to render the full resource around every change:
+
+```shell
+dokku scheduler-k3s:preview node-js-app --context 0
+dokku scheduler-k3s:preview node-js-app --context -1
+```
+
+By default any `kind: Secret` resources have their `data` values redacted so secret bytes never appear in terminal scrollback or CI logs. Two flags adjust this behavior:
+
+```shell
+dokku scheduler-k3s:preview node-js-app --show-secrets
+dokku scheduler-k3s:preview node-js-app --show-secrets-decoded
+```
+
+`--show-secrets` keeps the raw base64-encoded values, and `--show-secrets-decoded` renders them base64-decoded. In current dokku, the only Secret objects in the main app chart come from KEDA autoscaling auth resources configured via [`scheduler-k3s:autoscaling-auth:set`](#workload-autoscaling-authentication); for apps without autoscaling auth, these flags are no-ops.
+
+> [!IMPORTANT]
+> The preview only covers the main app helm release (the release named after the app). Dokku installs three auxiliary helm releases per app for config-var storage, image-pull credentials, and TLS certificates, and changes to those releases do **not** appear in this preview. In particular, a `dokku config:set` change followed by `scheduler-k3s:preview` will show no diff because the new config-var value lives in the separate `config-<app>` helm release.
+
+> [!NOTE]
+> Helm renders the proposed manifest using a client-side dry-run. The `lookup` template function returns empty values in this mode, so charts overridden via `scheduler-k3s:charts:set` that depend on `lookup` may render differently here than at actual deploy time. Dokku's bundled chart templates do not use `lookup`.
 
 ### Exposing services on the network
 
