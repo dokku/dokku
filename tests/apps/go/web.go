@@ -15,6 +15,7 @@ func main() {
     }
 }
 
+// hello handles HTTP requests to the root path and responds with "go".
 func hello(res http.ResponseWriter, req *http.Request) {
     fmt.Fprintln(res, "go")
 }
