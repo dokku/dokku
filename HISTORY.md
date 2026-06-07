@@ -1,5 +1,33 @@
 # History
 
+## 0.38.18
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.38.18/bootstrap.sh
+sudo DOKKU_TAG=v0.38.18 bash bootstrap.sh
+```
+
+### Tests
+
+- #8734: @dependabot[bot] chore(deps): bump golang from 1.26.3 to 1.26.4 in /tests/apps/gogrpc
+- #8731: @dependabot[bot] chore(deps): bump golang from 1.26.3 to 1.26.4 in /tests/apps/go-fail-predeploy
+- #8733: @dependabot[bot] chore(deps): bump golang from 1.26.3 to 1.26.4 in /tests/apps/zombies-dockerfile-tini
+- #8735: @dependabot[bot] chore(deps): bump golang from 1.26.3 to 1.26.4 in /tests/apps/go-fail-postdeploy
+- #8736: @dependabot[bot] chore(deps): bump golang from 1.26.3 to 1.26.4 in /tests/apps/zombies-dockerfile-no-tini
+- #8738: @dependabot[bot] chore(deps): bump python from 3.15.0b1-bookworm to 3.15.0b2-bookworm in /tests/apps/dockerfile-release
+- #8730: @dependabot[bot] chore(deps): bump django from 5.2.14 to 5.2.15 in /tests/apps/dockerfile-release
+
+### Dependencies
+
+- #8727: @dependabot[bot] chore(deps): bump github.com/melbahja/goph from 1.5.0 to 1.5.1 in /plugins/common
+- #8739: @dependabot[bot] chore(deps): bump github.com/traefik/traefik/v2 from 2.11.46 to 2.11.47 in /plugins/scheduler-k3s
+- #8737: @dependabot[bot] chore(deps): bump dokku/openresty-docker-proxy from 0.12.0 to 0.12.1 in /plugins/openresty-vhosts
+- #8732: @dependabot[bot] chore(deps): bump python from 3.15.0b1-alpine to 3.15.0b2-alpine in /docs/_build
+- #8740: @dependabot[bot] chore(deps): bump timberio/vector from 0.55.0-debian to 0.56.0-debian in /plugins/logs
+- #8741: @dependabot[bot] chore(deps): bump traefik from v3.7.1 to v3.7.3 in /plugins/traefik-vhosts
+
 ## 0.38.17
 
 Install/update via the bootstrap script:
