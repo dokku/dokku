@@ -6,7 +6,7 @@ require (
 	github.com/alexellis/go-execute/v2 v2.2.1
 	github.com/fatih/color v1.19.0
 	github.com/hashicorp/go-multierror v1.1.1
-	github.com/melbahja/goph v1.5.0
+	github.com/melbahja/goph v1.5.1
 	github.com/onsi/gomega v1.41.0
 	github.com/otiai10/copy v1.14.1
 	github.com/ryanuber/columnize v2.1.2+incompatible
