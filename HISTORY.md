@@ -1,5 +1,14 @@
 # History
 
+## 0.38.19
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.38.19/bootstrap.sh
+sudo DOKKU_TAG=v0.38.19 bash bootstrap.sh
+```
+
 ## 0.38.18
 
 Install/update via the bootstrap script:
