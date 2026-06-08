@@ -110,9 +110,6 @@ teardown() {
     fi
     sleep 1
   done
-  echo "final body attempt $attempt:"
-  cat /tmp/route-removed-body
-  echo
   run /bin/bash -c "grep -c 'python3 -m http.server' /tmp/route-removed-body || true"
   assert_output "0"
 }

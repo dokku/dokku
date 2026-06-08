@@ -37,18 +37,6 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  # Surface the actual labels attached to the api container so CI logs show
-  # whether docker-args-process-deploy emitted them correctly.
-  run /bin/bash -c "docker inspect ${TEST_APP}.api.1 --format '{{json .Config.Labels}}' 2>&1 | jq . 2>/dev/null || docker inspect ${TEST_APP}.api.1 --format '{{json .Config.Labels}}' 2>&1"
-  echo "api labels: $output"
-
-  # Also dump the web container's labels so we can compare site declarators
-  # between web and api - caddy treats DOMAIN and DOMAIN:80 as separate
-  # sites, and a mismatch keeps caddy-docker-proxy from merging the two
-  # containers' directives into a single site block.
-  run /bin/bash -c "docker inspect ${TEST_APP}.web.1 --format '{{json .Config.Labels}}' 2>&1 | jq . 2>/dev/null || docker inspect ${TEST_APP}.web.1 --format '{{json .Config.Labels}}' 2>&1"
-  echo "web labels: $output"
-
   # Give the daemon a moment to read the new labels.
   sleep 5
 
@@ -72,11 +60,6 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  # Surface the actual labels attached to the api container so CI logs show
-  # whether docker-args-process-deploy emitted them correctly.
-  run /bin/bash -c "docker inspect ${TEST_APP}.api.1 --format '{{json .Config.Labels}}' 2>&1 | jq . 2>/dev/null || docker inspect ${TEST_APP}.api.1 --format '{{json .Config.Labels}}' 2>&1"
-  echo "api labels: $output"
-
   # Give the daemon a moment to read the new labels.
   sleep 5
   assert_http_localhost_response_contains "http" "${TEST_APP}.${DOKKU_DOMAIN}" "80" "/api/v0/Procfile" "" "404"
@@ -87,11 +70,6 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-
-  # Surface the actual labels attached to the api container so CI logs show
-  # whether docker-args-process-deploy emitted them correctly.
-  run /bin/bash -c "docker inspect ${TEST_APP}.api.1 --format '{{json .Config.Labels}}' 2>&1 | jq . 2>/dev/null || docker inspect ${TEST_APP}.api.1 --format '{{json .Config.Labels}}' 2>&1"
-  echo "api labels: $output"
 
   # Give the daemon a moment to read the new labels.
   sleep 5
@@ -113,11 +91,6 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  # Surface the actual labels attached to the api container so CI logs show
-  # whether docker-args-process-deploy emitted them correctly.
-  run /bin/bash -c "docker inspect ${TEST_APP}.api.1 --format '{{json .Config.Labels}}' 2>&1 | jq . 2>/dev/null || docker inspect ${TEST_APP}.api.1 --format '{{json .Config.Labels}}' 2>&1"
-  echo "api labels: $output"
-
   # Give the daemon a moment to read the new labels.
   sleep 5
   assert_http_localhost_response_contains "http" "${TEST_APP}.${DOKKU_DOMAIN}" "80" "/api/v0/Procfile" "" "404"
@@ -128,11 +101,6 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-
-  # Surface the actual labels attached to the api container so CI logs show
-  # whether docker-args-process-deploy emitted them correctly.
-  run /bin/bash -c "docker inspect ${TEST_APP}.api.1 --format '{{json .Config.Labels}}' 2>&1 | jq . 2>/dev/null || docker inspect ${TEST_APP}.api.1 --format '{{json .Config.Labels}}' 2>&1"
-  echo "api labels: $output"
 
   # Give the daemon a moment to read the new labels.
   sleep 5
@@ -154,11 +122,6 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  # Surface the actual labels attached to the api container so CI logs show
-  # whether docker-args-process-deploy emitted them correctly.
-  run /bin/bash -c "docker inspect ${TEST_APP}.api.1 --format '{{json .Config.Labels}}' 2>&1 | jq . 2>/dev/null || docker inspect ${TEST_APP}.api.1 --format '{{json .Config.Labels}}' 2>&1"
-  echo "api labels: $output"
-
   # Give the daemon a moment to read the new labels.
   sleep 5
 
@@ -173,9 +136,6 @@ teardown() {
     fi
     sleep 1
   done
-  echo "final body attempt $attempt:"
-  cat /tmp/route-removed-body
-  echo
   run /bin/bash -c "grep -c 'python3 -m http.server' /tmp/route-removed-body || true"
   assert_output "0"
 }
