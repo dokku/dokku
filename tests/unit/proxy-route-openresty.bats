@@ -37,11 +37,6 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  # Surface the actual labels attached to the api container so CI logs show
-  # whether docker-args-process-deploy emitted them correctly.
-  run /bin/bash -c "docker inspect ${TEST_APP}.api.1 --format '{{json .Config.Labels}}' 2>&1 | jq . 2>/dev/null || docker inspect ${TEST_APP}.api.1 --format '{{json .Config.Labels}}' 2>&1"
-  echo "api labels: $output"
-
   # Give the daemon a moment to read the new labels.
   sleep 5
 
@@ -65,11 +60,6 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  # Surface the actual labels attached to the api container so CI logs show
-  # whether docker-args-process-deploy emitted them correctly.
-  run /bin/bash -c "docker inspect ${TEST_APP}.api.1 --format '{{json .Config.Labels}}' 2>&1 | jq . 2>/dev/null || docker inspect ${TEST_APP}.api.1 --format '{{json .Config.Labels}}' 2>&1"
-  echo "api labels: $output"
-
   # Give the daemon a moment to read the new labels.
   sleep 5
   assert_http_localhost_response_contains "http" "${TEST_APP}.${DOKKU_DOMAIN}" "80" "/api/v0/Procfile" "" "404"
@@ -81,20 +71,9 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  # Surface the actual labels attached to the api container so CI logs show
-  # whether docker-args-process-deploy emitted them correctly.
-  run /bin/bash -c "docker inspect ${TEST_APP}.api.1 --format '{{json .Config.Labels}}' 2>&1 | jq . 2>/dev/null || docker inspect ${TEST_APP}.api.1 --format '{{json .Config.Labels}}' 2>&1"
-  echo "api labels: $output"
-
-  # openresty-docker-proxy 0.12.0 has a polling/caching delay before it
-  # re-renders the config after labels on an existing route key change.
-  # Give it a longer window than the default HTTP retry. If this still
-  # times out, dump the sidecar logs so we can file an upstream bug.
-  HTTP_ASSERT_RETRIES=60 assert_http_localhost_response_contains "http" "${TEST_APP}.${DOKKU_DOMAIN}" "80" "/api/v0/Procfile" "python3 -m http.server" || {
-    run /bin/bash -c "dokku openresty:logs --num 200 2>&1 || docker logs openresty-openresty-1 --tail 200 2>&1"
-    echo "openresty sidecar logs: $output"
-    return 1
-  }
+  # Give the sidecar a longer window than the default HTTP retry to detect
+  # and re-render after a route's labels change on the api container.
+  HTTP_ASSERT_RETRIES=60 assert_http_localhost_response_contains "http" "${TEST_APP}.${DOKKU_DOMAIN}" "80" "/api/v0/Procfile" "python3 -m http.server"
 }
 
 @test "(proxy-route:openresty) removing a route falls back to web" {
@@ -112,11 +91,6 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  # Surface the actual labels attached to the api container so CI logs show
-  # whether docker-args-process-deploy emitted them correctly.
-  run /bin/bash -c "docker inspect ${TEST_APP}.api.1 --format '{{json .Config.Labels}}' 2>&1 | jq . 2>/dev/null || docker inspect ${TEST_APP}.api.1 --format '{{json .Config.Labels}}' 2>&1"
-  echo "api labels: $output"
-
   # Give the daemon a moment to read the new labels.
   sleep 5
   assert_http_localhost_response_contains "http" "${TEST_APP}.${DOKKU_DOMAIN}" "80" "/api/v0/Procfile" "" "404"
@@ -127,11 +101,6 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-
-  # Surface the actual labels attached to the api container so CI logs show
-  # whether docker-args-process-deploy emitted them correctly.
-  run /bin/bash -c "docker inspect ${TEST_APP}.api.1 --format '{{json .Config.Labels}}' 2>&1 | jq . 2>/dev/null || docker inspect ${TEST_APP}.api.1 --format '{{json .Config.Labels}}' 2>&1"
-  echo "api labels: $output"
 
   # Give the daemon a moment to read the new labels.
   sleep 5
@@ -153,11 +122,6 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  # Surface the actual labels attached to the api container so CI logs show
-  # whether docker-args-process-deploy emitted them correctly.
-  run /bin/bash -c "docker inspect ${TEST_APP}.api.1 --format '{{json .Config.Labels}}' 2>&1 | jq . 2>/dev/null || docker inspect ${TEST_APP}.api.1 --format '{{json .Config.Labels}}' 2>&1"
-  echo "api labels: $output"
-
   # Give the daemon a moment to read the new labels.
   sleep 5
 
@@ -172,9 +136,6 @@ teardown() {
     fi
     sleep 1
   done
-  echo "final body attempt $attempt:"
-  cat /tmp/route-removed-body
-  echo
   run /bin/bash -c "grep -c 'python3 -m http.server' /tmp/route-removed-body || true"
   assert_output "0"
 }
