@@ -27,7 +27,7 @@ require (
 	github.com/onsi/gomega v1.41.0
 	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/spf13/pflag v1.0.10
-	github.com/traefik/traefik/v2 v2.11.47
+	github.com/traefik/traefik/v2 v2.11.49
 	golang.org/x/sync v0.21.0
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.1
