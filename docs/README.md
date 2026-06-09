@@ -122,6 +122,7 @@ This documentation covers the installation, configuration, and usage of Dokku - 
 
 ### Migration Guides
 
+- [0.39.0](appendices/0.39.0-migration-guide.md)
 - [0.38.0](appendices/0.38.0-migration-guide.md)
 - [0.37.0](appendices/0.37.0-migration-guide.md)
 - [0.36.0](appendices/0.36.0-migration-guide.md)
