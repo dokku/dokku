@@ -4,6 +4,95 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
+fn-traefik-route-labels() {
+  declare desc="emits per-route traefik labels for a non-web container"
+  declare APP="$1" PROC_TYPE="$2" STDIN="$3"
+  local host_rule output route_proc route_port route_path route_strip
+  local router_name service_name middleware_name path_len
+
+  host_rule="$(fn-traefik-host-rule "$APP")"
+  output="--label traefik.enable=true"
+
+  while IFS='|' read -r route_proc route_port route_path route_strip; do
+    [[ -z "$route_proc" ]] && continue
+    [[ "$route_proc" != "$PROC_TYPE" ]] && continue
+
+    local route_slug
+    route_slug="$(fn-traefik-route-slug "$route_path")"
+    router_name="${APP}-${route_proc}-${route_slug}"
+    service_name="${APP}-${route_proc}-${route_slug}"
+    path_len="${#route_path}"
+
+    # Triple-backslash for the same eval-survival reason as fn-traefik-host-rule.
+    local rule="PathPrefix(\\\`${route_path}\\\`)"
+    if [[ -n "$host_rule" ]]; then
+      rule="(${host_rule}) && ${rule}"
+    fi
+
+    output="$output --label \"traefik.http.routers.${router_name}.rule=${rule}\""
+    output="$output --label traefik.http.routers.${router_name}.entrypoints=$(fn-traefik-computed-http-entry-point)"
+    # No explicit priority - traefik's default (rule length) gives
+    # longest-prefix-wins because our rule includes both Host(...) and
+    # PathPrefix(...), which is always longer than web's bare Host(...) rule.
+    output="$output --label traefik.http.routers.${router_name}.service=${service_name}"
+    output="$output --label traefik.http.services.${service_name}.loadbalancer.server.port=${route_port}"
+
+    if [[ "$route_strip" == "1" ]]; then
+      middleware_name="${router_name}-strip"
+      output="$output --label traefik.http.middlewares.${middleware_name}.stripprefix.prefixes=${route_path}"
+      output="$output --label traefik.http.routers.${router_name}.middlewares=${middleware_name}"
+    fi
+  done < <(plugn trigger proxy-routes-list "$APP")
+
+  local proxy_labels_file_path=$(fn-proxy-get-labels-file-path "traefik" "$APP")
+  if [[ -f "$proxy_labels_file_path" ]]; then
+    while read -r line; do
+      [[ -z "$line" ]] && continue
+      output="$output --label '$line'"
+    done <"$proxy_labels_file_path"
+  fi
+
+  echo -n "$STDIN $output"
+}
+
+fn-traefik-route-slug() {
+  declare desc="returns a deterministic kebab-case slug for a route path"
+  declare ROUTE_PATH="$1"
+  local s="${ROUTE_PATH#/}"
+  s="${s%/}"
+  s="${s//\//-}"
+  s="${s,,}"
+  if [[ -z "$s" ]]; then
+    s="root"
+  fi
+  echo "$s"
+}
+
+fn-traefik-host-rule() {
+  declare desc="builds a traefik Host(\`d1\`) || Host(\`d2\`) rule fragment from an app's domains"
+  declare APP="$1"
+  local app_domains domain result=""
+
+  app_domains="$(plugn trigger domains-list "$APP")"
+  if [[ -z "$app_domains" ]]; then
+    return
+  fi
+
+  # Backticks must be double-escaped so they survive the docker-args eval
+  # path. A single backslash leaves a bare backtick in the final string,
+  # which then runs as a command substitution at eval time and breaks the
+  # docker run invocation. Triple-backslash matches the existing emission
+  # convention used by docker-args-process-deploy.
+  for domain in $(echo "$app_domains" | xargs); do
+    if [[ -z "$result" ]]; then
+      result="Host(\\\`${domain}\\\`)"
+      continue
+    fi
+    result="${result} || Host(\\\`${domain}\\\`)"
+  done
+  echo "$result"
+}
+
 fn-traefik-logs() {
   declare desc="shows the logs for the traefik container"
   declare TAIL="$1" NUM="$2"

@@ -23,6 +23,10 @@ Additional commands:`
     proxy:disable <app>, Disable proxy for app
     proxy:enable <app>, Enable proxy for app
     proxy:report [<app>] [<flag>], Displays a proxy report for one or more apps
+    proxy:route:clear <app>, Removes every path-based route for an app
+    proxy:route:remove <app> <path>, Removes a path-based route from an app
+    proxy:route:report [<app>] [--format json], Displays the path-based routes for an app
+    proxy:route:set <app> <process> <path> [--port port] [--strip-prefix], Adds or updates a path-based route to a non-web process
     proxy:set <app> <proxy-type>, Set proxy type for app`
 )
 

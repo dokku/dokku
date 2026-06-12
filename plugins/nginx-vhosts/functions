@@ -236,6 +236,33 @@ fn-nginx-vhosts-render-template() {
   PROXY_PORT_MAP="$(echo "$proxy_port_map" | xargs)" # trailing spaces mess up default template
   PROXY_UPSTREAM_PORTS="$(echo "$PROXY_UPSTREAM_PORTS" | xargs)"
 
+  # Path-based routes (proxy:route:set). Format the storage representation
+  # into space-separated sigil variables: PROXY_ROUTES holds the route triples
+  # (process|port|path|strip), PROXY_ROUTE_LISTENERS holds one
+  # (process|port|listener-ip,listener-ip,...) entry per unique process+port
+  # pair so the template can render per-route upstream blocks.
+  local PROXY_ROUTES="" PROXY_ROUTE_LISTENERS=""
+  local route_pair_seen=" "
+  while IFS='|' read -r route_proc route_port route_path route_strip; do
+    [[ -z "$route_proc" ]] && continue
+    PROXY_ROUTES="${PROXY_ROUTES} ${route_proc}|${route_port}|${route_path}|${route_strip}"
+    local route_pair="${route_proc}|${route_port}"
+    if [[ "$route_pair_seen" != *" ${route_pair} "* ]]; then
+      route_pair_seen="${route_pair_seen}${route_pair} "
+      local route_listeners="$(plugn trigger network-get-listeners "$APP" "$route_proc" | xargs)"
+      if [[ -z "$route_listeners" ]]; then
+        # No live containers for this process yet; emit a stub so nginx -t
+        # still passes during pre-validate and the upstream block renders
+        # without a host-not-found error at reload time.
+        route_listeners="127.0.0.1:${route_port}"
+      fi
+      local route_listener_csv="${route_listeners// /,}"
+      PROXY_ROUTE_LISTENERS="${PROXY_ROUTE_LISTENERS} ${route_proc}|${route_port}|${route_listener_csv}"
+    fi
+  done < <(plugn trigger proxy-routes-list "$APP")
+  PROXY_ROUTES="$(echo "$PROXY_ROUTES" | xargs)"
+  PROXY_ROUTE_LISTENERS="$(echo "$PROXY_ROUTE_LISTENERS" | xargs)"
+
   local SSL_INUSE=
   local NONSSL_VHOSTS=$(plugn trigger domains-list "$APP")
   local NOSSL_SERVER_NAME=$(echo "$NONSSL_VHOSTS" | xargs)
@@ -348,6 +375,7 @@ fn-nginx-vhosts-render-template() {
     NGINX_PORT="$PROXY_PORT" NGINX_SSL_PORT="$PROXY_SSL_PORT"
     PROXY_PORT="$PROXY_PORT" PROXY_SSL_PORT="$PROXY_SSL_PORT"
     PROXY_PORT_MAP="$PROXY_PORT_MAP" PROXY_UPSTREAM_PORTS="$PROXY_UPSTREAM_PORTS"
+    PROXY_ROUTES="$PROXY_ROUTES" PROXY_ROUTE_LISTENERS="$PROXY_ROUTE_LISTENERS"
     PROXY_X_FORWARDED_FOR="$PROXY_X_FORWARDED_FOR"
     PROXY_X_FORWARDED_PORT="$PROXY_X_FORWARDED_PORT"
     PROXY_X_FORWARDED_PROTO="$PROXY_X_FORWARDED_PROTO"
