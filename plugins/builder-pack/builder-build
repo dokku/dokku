@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/builder-pack/internal-functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
@@ -13,7 +14,8 @@ trigger-builder-pack-builder-build() {
     return
   fi
 
-  local stack="$(plugn trigger buildpack-stack-name "$APP")"
+  local stack="$(fn-builder-pack-stack "$APP")"
+  [[ -z "$stack" ]] && stack="$(fn-builder-pack-global-stack "$APP")"
   if [[ -n "$stack" ]]; then
     DOKKU_CNB_BUILDER="$stack"
   fi
@@ -296,6 +298,10 @@ trigger-builder-pack-builder-build() {
   local DOCKER_CONFIG
   DOCKER_CONFIG="$(fn-registry-docker-config-dir "$APP")"
   [[ -n "$DOCKER_CONFIG" ]] && export DOCKER_CONFIG
+  if [[ "$(fn-plugin-property-get-default "builder-pack" "$APP" "clear-cache" "false")" == "true" ]]; then
+    PACK_ARGS+=("--clear-cache")
+    fn-plugin-property-delete "builder-pack" "$APP" "clear-cache"
+  fi
   pack build "$IMAGE" --builder "$DOKKU_CNB_BUILDER" --path "$SOURCECODE_WORK_DIR" --default-process web "${PACK_ARGS[@]}" "${ENV_ARGS[@]}"
   docker-image-labeler relabel --label=dokku --label=org.label-schema.schema-version=1.0 --label=org.label-schema.vendor=dokku --label=com.dokku.image-stage=build --label=com.dokku.builder-type=pack --label=com.dokku.app-name=$APP "$IMAGE"
 

@@ -18,9 +18,6 @@ func main() {
 
 	var err error
 	switch trigger {
-	case "buildpack-stack-name":
-		appName := flag.Arg(0)
-		err = buildpacks.TriggerBuildpackStackName(appName)
 	case "install":
 		err = buildpacks.TriggerInstall()
 	case "post-app-clone-setup":

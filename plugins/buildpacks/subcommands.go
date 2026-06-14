@@ -181,35 +181,64 @@ func CommandSet(appName string, buildpack string, index int) error {
 
 // CommandSetProperty implements buildpacks:set-property
 func CommandSetProperty(appName string, property string, value string) error {
-	oldStack := ""
-	if property == "stack" {
-		oldStack = common.PropertyGet("buildpacks", appName, "stack")
+	if property != "stack" {
+		common.CommandPropertySet("buildpacks", appName, property, value, DefaultProperties, GlobalProperties)
+		return nil
 	}
 
-	common.CommandPropertySet("buildpacks", appName, property, value, DefaultProperties, GlobalProperties)
-	if property == "stack" && oldStack != value {
-		if appName != "--global" {
-			_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
-				Trigger:     "post-stack-set",
-				Args:        []string{appName, value},
-				StreamStdio: true,
-			})
+	if value != "" {
+		builder := builderForStack(value)
+		common.LogWarn(fmt.Sprintf("Deprecated: buildpacks:set-property stack is deprecated, use %s:set stack instead", builder))
+		if err := common.PropertyWrite(builder, appName, "stack", value); err != nil {
 			return err
 		}
+		return clearBuilderCache(builder, appName)
+	}
 
-		apps, err := common.DokkuApps()
-		if err != nil && !errors.Is(err, common.NoAppsExist) {
+	common.LogWarn("Deprecated: buildpacks:set-property stack is deprecated, use builder-herokuish:set stack or builder-pack:set stack instead")
+	for _, builder := range []string{"builder-herokuish", "builder-pack"} {
+		if err := common.PropertyDelete(builder, appName, "stack"); err != nil {
 			return err
 		}
-		for _, app := range apps {
-			_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		if err := clearBuilderCache(builder, appName); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// clearBuilderCache clears the build cache for the given builder after a stack
+// change. The herokuish cache is the cache-$APP volume removed by repo via the
+// post-stack-set trigger, while the pack cache lives in pack-managed volumes and
+// is cleared by flagging the next build to run with --clear-cache.
+func clearBuilderCache(builder string, appName string) error {
+	apps := []string{appName}
+	if appName == "--global" {
+		dokkuApps, err := common.DokkuApps()
+		if err != nil {
+			if errors.Is(err, common.NoAppsExist) {
+				return nil
+			}
+			return err
+		}
+		apps = dokkuApps
+	}
+
+	for _, app := range apps {
+		if builder == "builder-herokuish" {
+			if _, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
 				Trigger:     "post-stack-set",
-				Args:        []string{app, value},
+				Args:        []string{app, ""},
 				StreamStdio: true,
-			})
-			if err != nil {
+			}); err != nil {
 				return err
 			}
+			continue
+		}
+
+		if err := common.PropertyWrite("builder-pack", app, "clear-cache", "true"); err != nil {
+			return err
 		}
 	}
 
