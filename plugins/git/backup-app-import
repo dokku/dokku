@@ -11,6 +11,8 @@ trigger-git-backup-app-import() {
   local APP_ROOT="$DOKKU_ROOT/$APP"
   local BUNDLE="$SCOPE_DIR/data/repo.bundle"
 
+  "$PLUGIN_AVAILABLE_PATH/backup/backup-property" import "git" "$APP" "$SCOPE_DIR"
+
   [[ -f "$BUNDLE" ]] || return 0
 
   fn-git-create-hook "$APP"
