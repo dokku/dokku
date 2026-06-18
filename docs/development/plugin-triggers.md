@@ -326,8 +326,8 @@ echo "$PLUGIN_COMMAND_PREFIX"
 
 ### `backup-plugins-install`
 
-- Description: Reinstalls third-party plugins recorded in a backup, by name and remote, before any other restore step. Dispatched by `dokku backup:import --install-plugins` and implemented by the core `plugin` plugin; the plugin list is read from the global scope's `data/plugin/plugins.txt`.
-- Invoked by: `dokku backup:import --install-plugins`
+- Description: Reinstalls third-party plugins recorded in a backup, by name and remote, before any other restore step. Dispatched by `dokku backup:import` (unless `--skip-install-plugins` is passed) and implemented by the core `plugin` plugin; the plugin list is read from the global scope's `data/plugin/plugins.txt`.
+- Invoked by: `dokku backup:import`
 - Arguments: `$SCOPE_DIR`
 - Example:
 
