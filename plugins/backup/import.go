@@ -15,7 +15,7 @@ import (
 // global scope, services, and apps in order. Restore is best-effort per item:
 // a failed or access-denied item is skipped and reported in the closing
 // summary; the rest of the import proceeds.
-func CommandImport(backupFile string, appNames []string, serviceSpecs []string, force bool) error {
+func CommandImport(backupFile string, appNames []string, serviceSpecs []string, force bool, installPlugins bool) error {
 	if !common.FileExists(backupFile) {
 		return fmt.Errorf("backup file does not exist: %s", backupFile)
 	}
@@ -64,6 +64,17 @@ func CommandImport(backupFile string, appNames []string, serviceSpecs []string, 
 	}
 
 	var failures []string
+
+	// Reinstall third-party plugins first, before any other restore step, so
+	// that datastore and other plugins exist before their state is restored.
+	if installPlugins {
+		os.Setenv("DOKKU_BACKUP_INSTALL_PLUGINS", "1")
+		common.LogStderr("Reinstalling plugins recorded in the backup")
+		if err := dispatchTrigger("backup-plugins-install", globalScopeDir(workDir)); err != nil {
+			common.LogWarn(fmt.Sprintf("plugin reinstall failed: %v", err))
+			failures = append(failures, "plugins")
+		}
+	}
 
 	if err := dispatchTrigger("pre-backup-import", workDir, backupFile); err != nil {
 		return err

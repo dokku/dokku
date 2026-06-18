@@ -48,6 +48,12 @@ Importing is destructive. If an app or service already exists, the import aborts
 dokku backup:import --force "$BACKUP_FILE"
 ```
 
+A backup records the third-party plugins that were installed (by name and git remote). By default they are only reported during an import; pass `--install-plugins` to reinstall them from their remotes first, before any other restore step, so that datastore and other plugins exist before their state is restored:
+
+```shell
+dokku backup:import --install-plugins "$BACKUP_FILE"
+```
+
 ### Notes and caveats
 
 - **Secrets are stored unencrypted.** The archive contains environment variables and TLS material in plaintext. Store and transfer it securely.
