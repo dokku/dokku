@@ -18,6 +18,14 @@ func main() {
 
 	var err error
 	switch trigger {
+	case "backup-app-export":
+		err = appjson.TriggerBackupAppExport(flag.Arg(0), flag.Arg(1))
+	case "backup-app-import":
+		err = appjson.TriggerBackupAppImport(flag.Arg(0), flag.Arg(1))
+	case "backup-global-export":
+		err = appjson.TriggerBackupGlobalExport(flag.Arg(0))
+	case "backup-global-import":
+		err = appjson.TriggerBackupGlobalImport(flag.Arg(0))
 	case "app-json-process-deploy-parallelism":
 		appName := flag.Arg(0)
 		processType := flag.Arg(1)
