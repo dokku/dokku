@@ -188,6 +188,142 @@ case "$URL_TYPE" in
 esac
 ```
 
+### `backup-app-export`
+
+- Description: Exports a plugin's per-app state into an app's backup scope directory. Declarative config should be written as a docket recipe slice at `$SCOPE_DIR/config/<plugin>.yml`; bulk data (tarballs, bundles) under `$SCOPE_DIR/data/`.
+- Invoked by: `dokku backup:export`
+- Arguments: `$APP $SCOPE_DIR`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+APP="$1"; SCOPE_DIR="$2"
+
+# write this plugin's app state into "$SCOPE_DIR/config" and "$SCOPE_DIR/data"
+```
+
+### `backup-app-import`
+
+- Description: Restores a plugin's per-app state from an app's backup scope directory. Reapply natively (property writes, internal functions); do not restart or rebuild here.
+- Invoked by: `dokku backup:import`
+- Arguments: `$APP $SCOPE_DIR`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+APP="$1"; SCOPE_DIR="$2"
+
+# reapply this plugin's app state from "$SCOPE_DIR"
+```
+
+### `backup-global-export`
+
+- Description: Exports a plugin's global state into the global backup scope directory.
+- Invoked by: `dokku backup:export`
+- Arguments: `$SCOPE_DIR`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+SCOPE_DIR="$1"
+
+# write this plugin's global state into "$SCOPE_DIR/config" and "$SCOPE_DIR/data"
+```
+
+### `backup-global-import`
+
+- Description: Restores a plugin's global state from the global backup scope directory.
+- Invoked by: `dokku backup:import`
+- Arguments: `$SCOPE_DIR`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+SCOPE_DIR="$1"
+
+# reapply this plugin's global state from "$SCOPE_DIR"
+```
+
+### `backup-service-export`
+
+- Description: Exports a datastore service's state into the service backup scope directory. Implemented by datastore plugins; core ships no service implementation.
+- Invoked by: `dokku backup:export`
+- Arguments: `$SERVICE_TYPE $SERVICE_NAME $SCOPE_DIR`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+SERVICE_TYPE="$1"; SERVICE_NAME="$2"; SCOPE_DIR="$3"
+
+[[ "$SERVICE_TYPE" == "$PLUGIN_COMMAND_PREFIX" ]] || exit 0
+# dump the datastore into "$SCOPE_DIR/data" and config into "$SCOPE_DIR/config"
+```
+
+### `backup-service-import`
+
+- Description: Restores a datastore service from the service backup scope directory. Implemented by datastore plugins.
+- Invoked by: `dokku backup:import`
+- Arguments: `$SERVICE_TYPE $SERVICE_NAME $SCOPE_DIR`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+SERVICE_TYPE="$1"; SERVICE_NAME="$2"; SCOPE_DIR="$3"
+
+[[ "$SERVICE_TYPE" == "$PLUGIN_COMMAND_PREFIX" ]] || exit 0
+# recreate the service and restore its data from "$SCOPE_DIR"
+```
+
+### `backup-pre-and-post-hooks`
+
+- Description: Optional hooks dispatched around each export and import phase, for plugins that need to prepare or finalize work (for example shipping a finished archive off-host). The `pre-backup-export`, `post-backup-export`, `pre-backup-import`, and `post-backup-import` hooks receive the staging directory and the backup file path; the per-app and per-service variants receive the same arguments as their `backup-*-export` / `backup-*-import` counterparts.
+- Invoked by: `dokku backup:export`, `dokku backup:import`
+- Hooks: `pre-backup-export $STAGING_DIR $BACKUP_FILE`, `post-backup-export $STAGING_DIR $BACKUP_FILE`, `pre-backup-app-export $APP $SCOPE_DIR`, `post-backup-app-export $APP $SCOPE_DIR`, `pre-backup-service-export $TYPE $NAME $SCOPE_DIR`, `post-backup-service-export $TYPE $NAME $SCOPE_DIR`, and the matching `pre-backup-import` / `post-backup-import` / `pre-backup-app-import` / `post-backup-app-import` / `pre-backup-service-import` / `post-backup-service-import` variants.
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+STAGING_DIR="$1"; BACKUP_FILE="$2"
+
+# post-backup-export: e.g. upload "$BACKUP_FILE" to remote storage
+```
+
+### `datastore-list`
+
+- Description: Reports a datastore plugin's own service type so other plugins can enumerate installed datastores. Used by `dokku backup:export` to discover services to back up. Each datastore plugin echoes its own type (its `$PLUGIN_COMMAND_PREFIX`).
+- Invoked by: `dokku backup:export`
+- Arguments: none
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+echo "$PLUGIN_COMMAND_PREFIX"
+```
+
 ### `builder-build`
 
 - Description: Triggers the artifact build process

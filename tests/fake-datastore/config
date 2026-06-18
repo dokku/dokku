@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+export PLUGIN_COMMAND_PREFIX="fake"
+export FAKE_SERVICE_ROOT="${DOKKU_LIB_ROOT:-/var/lib/dokku}/services/fake"

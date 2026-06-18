@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/config"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-fake-backup-service-export() {
+  declare desc="exports a fake service's config slice and data into the backup scope dir"
+  declare SERVICE_TYPE="$1" SERVICE_NAME="$2" SCOPE_DIR="$3"
+
+  [[ "$SERVICE_TYPE" == "$PLUGIN_COMMAND_PREFIX" ]] || return 0
+
+  mkdir -p "$SCOPE_DIR/config" "$SCOPE_DIR/data"
+
+  cat >"$SCOPE_DIR/config/fake.yml" <<EOF
+- name: fake service $SERVICE_NAME
+  tasks:
+    - dokku_service_create:
+        type: $PLUGIN_COMMAND_PREFIX
+        service: $SERVICE_NAME
+EOF
+
+  if [[ -f "$FAKE_SERVICE_ROOT/$SERVICE_NAME/data" ]]; then
+    cp "$FAKE_SERVICE_ROOT/$SERVICE_NAME/data" "$SCOPE_DIR/data/data"
+  fi
+}
+
+trigger-fake-backup-service-export "$@"

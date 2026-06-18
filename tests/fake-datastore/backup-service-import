@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/config"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-fake-backup-service-import() {
+  declare desc="recreates a fake service and restores its data from the backup scope dir"
+  declare SERVICE_TYPE="$1" SERVICE_NAME="$2" SCOPE_DIR="$3"
+
+  [[ "$SERVICE_TYPE" == "$PLUGIN_COMMAND_PREFIX" ]] || return 0
+
+  mkdir -p "$FAKE_SERVICE_ROOT/$SERVICE_NAME"
+  if [[ -f "$SCOPE_DIR/data/data" ]]; then
+    cp "$SCOPE_DIR/data/data" "$FAKE_SERVICE_ROOT/$SERVICE_NAME/data"
+  fi
+}
+
+trigger-fake-backup-service-import "$@"

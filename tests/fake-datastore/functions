@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/config"
+
+fn-fake-services-list() {
+  declare desc="lists fake service instances by name"
+  [[ -d "$FAKE_SERVICE_ROOT" ]] || return 0
+  find "$FAKE_SERVICE_ROOT" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' 2>/dev/null | sort
+}
+
+fn-fake-service-exists() {
+  declare desc="returns success when a fake service exists"
+  declare SERVICE="$1"
+  [[ -d "$FAKE_SERVICE_ROOT/$SERVICE" ]]
+}

@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+source "$PLUGIN_AVAILABLE_PATH/common/functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-domains-backup-app-import() {
+  declare desc="restores an app's domains from the backup scope dir"
+  declare trigger="backup-app-import"
+  declare APP="$1" SCOPE_DIR="$2"
+  local VHOST_BACKUP="$SCOPE_DIR/data/domains/VHOST"
+  local VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
+
+  [[ -f "$VHOST_BACKUP" ]] || return 0
+
+  cp "$VHOST_BACKUP" "$VHOST_PATH"
+  chown dokku:dokku "$VHOST_PATH"
+}
+
+trigger-domains-backup-app-import "$@"

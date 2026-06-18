@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+source "$PLUGIN_AVAILABLE_PATH/common/functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-domains-backup-app-export() {
+  declare desc="exports an app's domains as a docket dokku_domains slice"
+  declare trigger="backup-app-export"
+  declare APP="$1" SCOPE_DIR="$2"
+  local VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
+
+  [[ -f "$VHOST_PATH" ]] || return 0
+  [[ -s "$VHOST_PATH" ]] || return 0
+
+  mkdir -p "$SCOPE_DIR/config" "$SCOPE_DIR/data/domains"
+  cp "$VHOST_PATH" "$SCOPE_DIR/data/domains/VHOST"
+  {
+    echo "- name: domains"
+    echo "  tasks:"
+    echo "    - dokku_domains:"
+    echo "        app: $APP"
+    echo "        state: set"
+    echo "        domains:"
+    while IFS= read -r domain; do
+      [[ -n "$domain" ]] && echo "          - $domain"
+    done <"$VHOST_PATH"
+  } >"$SCOPE_DIR/config/domains.yml"
+}
+
+trigger-domains-backup-app-export "$@"
