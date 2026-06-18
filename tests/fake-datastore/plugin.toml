@@ -1,0 +1,4 @@
+[plugin]
+description = "fake datastore plugin used to exercise backup service discovery and round-trip in tests"
+version = "0.1.0"
+[plugin.config]

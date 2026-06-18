@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+source "$PLUGIN_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/git/internal-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-git-backup-app-import() {
+  declare desc="restores an app's git repository from the backup scope dir"
+  declare trigger="backup-app-import"
+  declare APP="$1" SCOPE_DIR="$2"
+  local APP_ROOT="$DOKKU_ROOT/$APP"
+  local BUNDLE="$SCOPE_DIR/data/repo.bundle"
+
+  [[ -f "$BUNDLE" ]] || return 0
+
+  fn-git-create-hook "$APP"
+  fn-git-cmd "$APP_ROOT" fetch "$BUNDLE" "+refs/heads/*:refs/heads/*"
+  fn-git-cmd "$APP_ROOT" fetch "$BUNDLE" "+refs/tags/*:refs/tags/*" 2>/dev/null || true
+  chown -R dokku:dokku "$APP_ROOT"
+}
+
+trigger-git-backup-app-import "$@"

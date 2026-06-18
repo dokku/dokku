@@ -20,6 +20,20 @@ func main() {
 
 	var err error
 	switch trigger {
+	case "backup-app-export":
+		appName := flag.Arg(0)
+		scopeDir := flag.Arg(1)
+		err = config.TriggerBackupAppExport(appName, scopeDir)
+	case "backup-app-import":
+		appName := flag.Arg(0)
+		scopeDir := flag.Arg(1)
+		err = config.TriggerBackupAppImport(appName, scopeDir)
+	case "backup-global-export":
+		scopeDir := flag.Arg(0)
+		err = config.TriggerBackupGlobalExport(scopeDir)
+	case "backup-global-import":
+		scopeDir := flag.Arg(0)
+		err = config.TriggerBackupGlobalImport(scopeDir)
 	case "config-export":
 		appName := flag.Arg(0)
 		global := flag.Arg(1)
