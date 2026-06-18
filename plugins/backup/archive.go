@@ -34,19 +34,19 @@ func TarGzCreate(srcDir string, destPath string) error {
 			return nil
 		}
 
+		// Symlinks are not archived: backups contain only regular files and
+		// directories, and restoring a symlink from archive data is a path-
+		// traversal risk, so they are skipped entirely.
+		if info.Mode()&os.ModeSymlink != 0 {
+			return nil
+		}
+
 		relPath, err := filepath.Rel(srcDir, path)
 		if err != nil {
 			return err
 		}
 
-		link := ""
-		if info.Mode()&os.ModeSymlink != 0 {
-			if link, err = os.Readlink(path); err != nil {
-				return err
-			}
-		}
-
-		header, err := tar.FileInfoHeader(info, link)
+		header, err := tar.FileInfoHeader(info, "")
 		if err != nil {
 			return err
 		}
@@ -127,14 +127,10 @@ func TarGzExtract(srcPath string, destDir string) error {
 			if err := writeFileFromTar(tr, target, os.FileMode(header.Mode)&os.ModePerm); err != nil {
 				return err
 			}
-		case tar.TypeSymlink:
-			if err := os.MkdirAll(filepath.Dir(target), 0755); err != nil {
-				return err
-			}
-			if err := os.Symlink(header.Linkname, target); err != nil {
-				return err
-			}
 		}
+		// Other entry types (symlinks, hardlinks, devices) are intentionally
+		// skipped: a backup contains only regular files and directories, and
+		// recreating links from archive data would be a path-traversal risk.
 	}
 
 	return nil
