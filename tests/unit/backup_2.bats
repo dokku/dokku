@@ -183,6 +183,9 @@ create_fake_service() {
   local name="$1" payload="$2"
   mkdir -p "/var/lib/dokku/services/fake/$name"
   echo "$payload" >"/var/lib/dokku/services/fake/$name/data"
+  # The service import trigger runs as the dokku user, so the service directory
+  # must be writable by dokku for the round-trip to recreate it.
+  chown -R dokku:dokku /var/lib/dokku/services/fake
 }
 
 install_user_auth_stub() {

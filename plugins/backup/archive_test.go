@@ -69,6 +69,35 @@ func TestTarGzExtractContainsAbsolutePath(t *testing.T) {
 	}
 }
 
+func TestTarGzExtractSkipsSymlinks(t *testing.T) {
+	archive := filepath.Join(t.TempDir(), "link.tar.gz")
+	writeSymlinkArchive(t, archive, "evil", "/etc/passwd")
+
+	dest := t.TempDir()
+	if err := TarGzExtract(archive, dest); err != nil {
+		t.Fatalf("TarGzExtract: %v", err)
+	}
+	if _, err := os.Lstat(filepath.Join(dest, "evil")); err == nil {
+		t.Errorf("symlink entry was extracted; symlinks must be skipped")
+	}
+}
+
+func writeSymlinkArchive(t *testing.T, path string, name string, linkname string) {
+	t.Helper()
+	out, err := os.Create(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer out.Close()
+	gzw := gzip.NewWriter(out)
+	tw := tar.NewWriter(gzw)
+	if err := tw.WriteHeader(&tar.Header{Name: name, Linkname: linkname, Mode: 0777, Typeflag: tar.TypeSymlink}); err != nil {
+		t.Fatal(err)
+	}
+	tw.Close()
+	gzw.Close()
+}
+
 func mustWrite(t *testing.T, path string, content string) {
 	t.Helper()
 	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
