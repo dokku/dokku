@@ -11,6 +11,9 @@ setup() {
 teardown() {
   remove_fake_datastore
   remove_user_auth_stub
+  remove_fake_plugin fakeplug
+  rm -rf /tmp/fakeplug-src /tmp/fakeplug.git 2>/dev/null || true
+  git config --system --unset-all safe.directory 2>/dev/null || true
   destroy_app
   rm -rf "/var/lib/dokku/data/storage/$TEST_APP-data" 2>/dev/null || true
   rm -f /tmp/dokku-backup-*.tar.gz 2>/dev/null || true
@@ -113,6 +116,34 @@ teardown() {
   assert_output_contains "/app/storage"
 }
 
+@test "(backup) records plugin remotes and --install-plugins reinstalls them by name" {
+  git config --system --add safe.directory '*' || true
+  install_fake_plugin fakeplug
+
+  run /bin/bash -c "dokku backup:export --backup-dir /tmp 2>/dev/null"
+  echo "output: $output"
+  assert_success
+  local backup_file="$output"
+
+  run /bin/bash -c "tar xzf '$backup_file' -O global/data/plugin/plugins.txt | grep fakeplug"
+  echo "output: $output"
+  assert_output_contains "/tmp/fakeplug.git"
+
+  remove_fake_plugin fakeplug
+
+  # Without --install-plugins the plugin is only reported, never reinstalled.
+  run /bin/bash -c "dokku backup:import --force '$backup_file' 2>&1"
+  echo "output: $output"
+  assert_output_contains "--install-plugins"
+  [[ ! -d /var/lib/dokku/plugins/available/fakeplug ]]
+
+  # With --install-plugins the recorded plugin is reinstalled by name from its remote.
+  run /bin/bash -c "dokku backup:import --force --install-plugins '$backup_file' 2>&1"
+  echo "output: $output"
+  assert_output_contains "Reinstalling plugins recorded in the backup"
+  [[ -d /var/lib/dokku/plugins/available/fakeplug ]]
+}
+
 @test "(backup:export) denies an app the caller cannot access" {
   install_user_auth_stub "$TEST_APP"
 
@@ -183,4 +214,23 @@ EOF
 
 remove_user_auth_stub() {
   rm -rf /var/lib/dokku/plugins/available/user-auth-stub /var/lib/dokku/plugins/enabled/user-auth-stub
+}
+
+install_fake_plugin() {
+  local name="$1"
+  rm -rf "/tmp/$name-src" "/tmp/$name.git"
+  mkdir -p "/tmp/$name-src"
+  printf '[plugin]\ndescription = "fake test plugin"\nversion = "0.1.0"\n[plugin.config]\n' >"/tmp/$name-src/plugin.toml"
+  (cd "/tmp/$name-src" && git init -q && git config user.email t@t.co && git config user.name t && git add . && git commit -qm init)
+  git clone -q --bare "/tmp/$name-src" "/tmp/$name.git"
+  chmod -R a+rX "/tmp/$name.git"
+  rm -rf "/var/lib/dokku/plugins/available/$name" "/var/lib/dokku/plugins/enabled/$name"
+  git clone -q "/tmp/$name.git" "/var/lib/dokku/plugins/available/$name"
+  ln -s "/var/lib/dokku/plugins/available/$name" "/var/lib/dokku/plugins/enabled/$name"
+}
+
+remove_fake_plugin() {
+  local name="$1"
+  plugn disable "$name" 2>/dev/null || true
+  rm -rf "/var/lib/dokku/plugins/available/$name" "/var/lib/dokku/plugins/enabled/$name"
 }

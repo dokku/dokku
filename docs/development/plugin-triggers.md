@@ -324,6 +324,23 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 echo "$PLUGIN_COMMAND_PREFIX"
 ```
 
+### `backup-plugins-install`
+
+- Description: Reinstalls third-party plugins recorded in a backup, by name and remote, before any other restore step. Dispatched by `dokku backup:import --install-plugins` and implemented by the core `plugin` plugin; the plugin list is read from the global scope's `data/plugin/plugins.txt`.
+- Invoked by: `dokku backup:import --install-plugins`
+- Arguments: `$SCOPE_DIR`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+SCOPE_DIR="$1"
+
+# read "$SCOPE_DIR/data/plugin/plugins.txt" and reinstall the recorded plugins
+```
+
 ### `builder-build`
 
 - Description: Triggers the artifact build process

@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/plugin/functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-plugin-backup-plugins-install() {
+  declare desc="reinstalls third-party plugins recorded in a backup, by name and remote"
+  declare trigger="backup-plugins-install"
+  declare SCOPE_DIR="$1"
+  local SRC="$SCOPE_DIR/data/plugin/plugins.txt"
+
+  [[ -f "$SRC" ]] || return 0
+  [[ -s "$SRC" ]] || return 0
+
+  # Ensure the plugn paths are exported so the nested `plugn install` (run from
+  # download_and_enable_plugin) can locate the plugin directories.
+  export PLUGIN_PATH="${PLUGIN_PATH:-${DOKKU_LIB_ROOT:-/var/lib/dokku}/plugins}"
+  export PLUGIN_AVAILABLE_PATH="${PLUGIN_AVAILABLE_PATH:-$PLUGIN_PATH/available}"
+  export PLUGIN_ENABLED_PATH="${PLUGIN_ENABLED_PATH:-$PLUGIN_PATH/enabled}"
+
+  local installed_any=false
+  local name url committish
+  while IFS=$'\t' read -r name url committish; do
+    [[ -z "$name" ]] && continue
+    if [[ -e "$PLUGIN_AVAILABLE_PATH/$name" ]]; then
+      continue
+    fi
+    if [[ -z "$url" ]]; then
+      dokku_log_warn "Cannot reinstall plugin $name: no remote recorded in backup"
+      continue
+    fi
+
+    dokku_log_info1 "Reinstalling plugin $name from $url"
+    if [[ -n "$committish" ]]; then
+      download_and_enable_plugin "$url" --name "$name" --committish "$committish" --skip-install-trigger
+    else
+      download_and_enable_plugin "$url" --name "$name" --skip-install-trigger
+    fi
+    installed_any=true
+  done <"$SRC"
+
+  if [[ "$installed_any" == "true" ]]; then
+    plugn trigger install
+  fi
+}
+
+trigger-plugin-backup-plugins-install "$@"
