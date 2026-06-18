@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+source "$PLUGIN_AVAILABLE_PATH/common/functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-nginx-backup-app-export() {
+  declare desc="exports the app's nginx properties into the backup scope dir"
+  declare trigger="backup-app-export"
+  declare APP="$1" SCOPE_DIR="$2"
+  "$PLUGIN_AVAILABLE_PATH/backup/backup-property" export "nginx" "$APP" "$SCOPE_DIR"
+}
+
+trigger-nginx-backup-app-export "$@"

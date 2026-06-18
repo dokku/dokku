@@ -26,6 +26,14 @@ func main() {
 
 	var err error
 	switch trigger {
+	case "backup-app-export":
+		err = scheduler_k3s.TriggerBackupAppExport(flag.Arg(0), flag.Arg(1))
+	case "backup-app-import":
+		err = scheduler_k3s.TriggerBackupAppImport(flag.Arg(0), flag.Arg(1))
+	case "backup-global-export":
+		err = scheduler_k3s.TriggerBackupGlobalExport(flag.Arg(0))
+	case "backup-global-import":
+		err = scheduler_k3s.TriggerBackupGlobalImport(flag.Arg(0))
 	case "core-post-deploy":
 		appName := flag.Arg(0)
 		err = scheduler_k3s.TriggerCorePostDeploy(appName)

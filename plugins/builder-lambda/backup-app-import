@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+source "$PLUGIN_AVAILABLE_PATH/common/functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-builder-lambda-backup-app-import() {
+  declare desc="restores the app's builder-lambda properties from the backup scope dir"
+  declare trigger="backup-app-import"
+  declare APP="$1" SCOPE_DIR="$2"
+  "$PLUGIN_AVAILABLE_PATH/backup/backup-property" import "builder-lambda" "$APP" "$SCOPE_DIR"
+}
+
+trigger-builder-lambda-backup-app-import "$@"

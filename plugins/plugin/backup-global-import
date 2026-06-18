@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-plugin-backup-global-import() {
+  declare desc="reports third-party plugins recorded in a backup (does not install them)"
+  declare trigger="backup-global-import"
+  declare SCOPE_DIR="$1"
+  local SRC="$SCOPE_DIR/data/plugin/plugins.txt"
+
+  [[ -f "$SRC" ]] || return 0
+  [[ -s "$SRC" ]] || return 0
+
+  dokku_log_warn "The backup was created with the following third-party plugins installed." 1>&2
+  dokku_log_warn "Install them manually before restoring apps or services that depend on them:" 1>&2
+  local name
+  while IFS= read -r name; do
+    [[ -n "$name" ]] && dokku_log_warn "  - $name" 1>&2
+  done <"$SRC"
+}
+
+trigger-plugin-backup-global-import "$@"

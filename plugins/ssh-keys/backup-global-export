@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+source "$PLUGIN_AVAILABLE_PATH/common/functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-ssh-keys-backup-global-export() {
+  declare desc="exports the dokku authorized_keys file into the backup scope dir"
+  declare trigger="backup-global-export"
+  declare SCOPE_DIR="$1"
+  local AUTHORIZED_KEYS="$DOKKU_ROOT/.ssh/authorized_keys"
+
+  [[ -f "$AUTHORIZED_KEYS" ]] || return 0
+
+  mkdir -p "$SCOPE_DIR/data/ssh-keys"
+  cp "$AUTHORIZED_KEYS" "$SCOPE_DIR/data/ssh-keys/authorized_keys"
+}
+
+trigger-ssh-keys-backup-global-export "$@"

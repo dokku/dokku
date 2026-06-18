@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-plugin-backup-global-export() {
+  declare desc="records installed third-party plugins into the backup scope dir"
+  declare trigger="backup-global-export"
+  declare SCOPE_DIR="$1"
+  local ENABLED_PATH="${PLUGIN_PATH:-/var/lib/dokku/plugins}/enabled"
+
+  [[ -d "$ENABLED_PATH" ]] || return 0
+
+  local listing=""
+  local plugin name target
+  for plugin in "$ENABLED_PATH"/*; do
+    [[ -e "$plugin" ]] || continue
+    name="$(basename "$plugin")"
+    target="$(readlink -f "$plugin")"
+    [[ "$target" == "$PLUGIN_CORE_AVAILABLE_PATH"/* ]] && continue
+    listing+="$name"$'\n'
+  done
+
+  [[ -n "$listing" ]] || return 0
+  mkdir -p "$SCOPE_DIR/data/plugin"
+  printf '%s' "$listing" >"$SCOPE_DIR/data/plugin/plugins.txt"
+}
+
+trigger-plugin-backup-global-export "$@"

@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+source "$PLUGIN_AVAILABLE_PATH/common/functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-caddy-backup-global-import() {
+  declare desc="restores the global caddy properties from the backup scope dir"
+  declare trigger="backup-global-import"
+  declare SCOPE_DIR="$1"
+  "$PLUGIN_AVAILABLE_PATH/backup/backup-property" import "caddy" "--global" "$SCOPE_DIR"
+}
+
+trigger-caddy-backup-global-import "$@"

@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+source "$PLUGIN_AVAILABLE_PATH/common/functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-builder-herokuish-backup-app-export() {
+  declare desc="exports the app's builder-herokuish properties into the backup scope dir"
+  declare trigger="backup-app-export"
+  declare APP="$1" SCOPE_DIR="$2"
+  "$PLUGIN_AVAILABLE_PATH/backup/backup-property" export "builder-herokuish" "$APP" "$SCOPE_DIR"
+}
+
+trigger-builder-herokuish-backup-app-export "$@"

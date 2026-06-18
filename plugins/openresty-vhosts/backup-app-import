@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+source "$PLUGIN_AVAILABLE_PATH/common/functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-openresty-backup-app-import() {
+  declare desc="restores the app's openresty properties from the backup scope dir"
+  declare trigger="backup-app-import"
+  declare APP="$1" SCOPE_DIR="$2"
+  "$PLUGIN_AVAILABLE_PATH/backup/backup-property" import "openresty" "$APP" "$SCOPE_DIR"
+}
+
+trigger-openresty-backup-app-import "$@"

@@ -1,4 +1,4 @@
-TRIGGERS = triggers/report triggers/scheduler-storage-exec
+TRIGGERS = triggers/backup-app-export triggers/backup-app-import triggers/backup-global-export triggers/backup-global-import triggers/report triggers/scheduler-storage-exec
 BUILD = report-subcommand triggers
 PLUGIN_NAME = scheduler-docker-local
 

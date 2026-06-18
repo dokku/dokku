@@ -12,6 +12,7 @@ teardown() {
   remove_fake_datastore
   remove_user_auth_stub
   destroy_app
+  rm -rf "/var/lib/dokku/data/storage/$TEST_APP-data" 2>/dev/null || true
   rm -f /tmp/dokku-backup-*.tar.gz 2>/dev/null || true
   global_teardown
 }
@@ -81,6 +82,35 @@ teardown() {
   echo "status: $status"
   assert_success
   [[ "$(cat /var/lib/dokku/services/fake/mydb/data)" == "service-payload" ]]
+}
+
+@test "(backup) --include-storage round-trips managed volume data and entries" {
+  dokku storage:ensure-directory $TEST_APP-data
+  echo "vol-payload" >"/var/lib/dokku/data/storage/$TEST_APP-data/sentinel.txt"
+  dokku storage:mount $TEST_APP "/var/lib/dokku/data/storage/$TEST_APP-data:/app/storage"
+
+  run /bin/bash -c "dokku backup:export --app $TEST_APP --include-storage --backup-dir /tmp 2>/dev/null"
+  echo "output: $output"
+  assert_success
+  local backup_file="$output"
+
+  run /bin/bash -c "tar tzf '$backup_file'"
+  echo "output: $output"
+  assert_output_contains "data/storage-data/" -1
+  assert_output_contains "data/storage-entries/" -1
+
+  rm -rf "/var/lib/dokku/data/storage/$TEST_APP-data"
+  dokku --force apps:destroy $TEST_APP
+
+  run /bin/bash -c "dokku backup:import '$backup_file'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  [[ "$(cat /var/lib/dokku/data/storage/$TEST_APP-data/sentinel.txt)" == "vol-payload" ]]
+
+  run /bin/bash -c "dokku storage:list $TEST_APP"
+  echo "output: $output"
+  assert_output_contains "/app/storage"
 }
 
 @test "(backup:export) denies an app the caller cannot access" {
