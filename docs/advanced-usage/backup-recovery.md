@@ -63,6 +63,7 @@ dokku backup:import --skip-install-plugins "$BACKUP_FILE"
 - **Access control.** Callers can only export and import apps and services they have access to via the [user-auth](/docs/development/plugin-triggers.md#user-auth) plugin trigger.
 - **Generated config** (nginx vhost files, proxy config) and **log history** are not backed up; they are regenerated when the app is redeployed.
 - **Portability.** The declarative `config/*.yml` slices are [docket](https://github.com/dokku/docket) (>= 0.6.0) recipes; a backup also contains aggregate `tasks.yml` recipes that `docket apply` can consume for out-of-band restores.
+- **Restore order.** An import reinstalls recorded plugins first, then restores global state, then services, then each app. Each app is created, has its config restored (`backup-app-import`, then `post-backup-app-import` for config that depends on another plugin's restored config such as `domains`), and is finally redeployed. Because the redeploy is last, all config is restored before the app is built, and plugins that need the running app (for example issuing TLS certificates) act during the normal deploy. See the [import-ordering note in the plugin triggers docs](/docs/development/plugin-triggers.md#backup-pre-and-post-hooks).
 
 ## TLDR
 
