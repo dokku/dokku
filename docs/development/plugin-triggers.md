@@ -207,7 +207,7 @@ APP="$1"; SCOPE_DIR="$2"
 
 ### `backup-app-import`
 
-- Description: Restores a plugin's per-app state from an app's backup scope directory. Reapply natively (property writes, internal functions); do not restart or rebuild here.
+- Description: Restores a plugin's per-app state from an app's backup scope directory. Reapply natively (property writes, internal functions); do not restart or rebuild here. Restore your own independent config here. Config that depends on **another** plugin's restored config (for example a plugin that reads the app's restored `domains`) should instead be restored in `post-backup-app-import`, which always runs after every `backup-app-import` handler. See the import-ordering note under [`backup-pre-and-post-hooks`](#backup-pre-and-post-hooks).
 - Invoked by: `dokku backup:import`
 - Arguments: `$APP $SCOPE_DIR`
 - Example:
@@ -308,6 +308,23 @@ STAGING_DIR="$1"; BACKUP_FILE="$2"
 
 # post-backup-export: e.g. upload "$BACKUP_FILE" to remote storage
 ```
+
+#### Import ordering
+
+Each phase is dispatched as a separate broadcast that blocks until every plugin finishes, so the phases run in order. For a single app the restore sequence is:
+
+```
+app-create
+pre-backup-app-import
+backup-app-import        # restore independent config (config, domains, ports, certs, storage, scale, ...)
+post-backup-app-import   # restore config that depends on another plugin's restored config (runs after all backup-app-import)
+receive-app              # the deploy: build, run, regenerate the proxy, and fire the normal post-deploy hooks
+```
+
+Two consequences are useful when writing a plugin that participates in restore:
+
+- `post-backup-app-import` always runs after every `backup-app-import` handler, so it is where you restore config that depends on another plugin's restored config (for example after `domains`).
+- The deploy (`receive-app`) is the last step and runs the full deploy lifecycle, so all config (including `domains`) is restored before it. Work that needs the **running app** — for example issuing a TLS certificate via ACME — should hang off the normal deploy lifecycle (the plugin's own post-deploy hook fires inside the redeploy), not off an import phase. The top-level `post-backup-import` runs once after every app has redeployed, for any cross-app finalization.
 
 ### `datastore-list`
 

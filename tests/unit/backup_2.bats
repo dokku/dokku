@@ -12,6 +12,7 @@ teardown() {
   remove_fake_datastore
   remove_user_auth_stub
   remove_fake_plugin fakeplug
+  remove_order_check_plugin
   rm -rf /tmp/fakeplug-src /tmp/fakeplug.git 2>/dev/null || true
   git config --system --unset-all safe.directory 2>/dev/null || true
   destroy_app
@@ -144,6 +145,29 @@ teardown() {
   [[ -d /var/lib/dokku/plugins/available/fakeplug ]]
 }
 
+@test "(backup) post-backup-app-import runs after domains are restored" {
+  dokku domains:add $TEST_APP order-check.example.com
+  install_order_check_plugin
+
+  run /bin/bash -c "dokku backup:export --app $TEST_APP --backup-dir /tmp 2>/dev/null"
+  echo "output: $output"
+  assert_success
+  local backup_file="$output"
+
+  rm -f "/tmp/ordercheck-$TEST_APP.txt"
+  run /bin/bash -c "dokku backup:import --force '$backup_file'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  # The order-check plugin recorded the app's domains during post-backup-app-import.
+  # The domain being present proves post-backup-app-import ran after the domains
+  # plugin restored the VHOST in backup-app-import.
+  run cat "/tmp/ordercheck-$TEST_APP.txt"
+  echo "captured: $output"
+  assert_output_contains "order-check.example.com"
+}
+
 @test "(backup:export) denies an app the caller cannot access" {
   install_user_auth_stub "$TEST_APP"
 
@@ -236,4 +260,33 @@ remove_fake_plugin() {
   local name="$1"
   plugn disable "$name" 2>/dev/null || true
   rm -rf "/var/lib/dokku/plugins/available/$name" "/var/lib/dokku/plugins/enabled/$name"
+}
+
+install_order_check_plugin() {
+  local dir=/var/lib/dokku/plugins/available/order-check
+  mkdir -p "$dir"
+  cat >"$dir/plugin.toml" <<EOF
+[plugin]
+description = "records app domains during post-backup-app-import for an ordering test"
+version = "0.1.0"
+[plugin.config]
+EOF
+  cat >"$dir/post-backup-app-import" <<'EOF'
+#!/usr/bin/env bash
+set -eo pipefail
+APP="$1"
+if [[ -f "$DOKKU_ROOT/$APP/VHOST" ]]; then
+  cp "$DOKKU_ROOT/$APP/VHOST" "/tmp/ordercheck-$APP.txt"
+else
+  echo "NO-DOMAINS" >"/tmp/ordercheck-$APP.txt"
+fi
+EOF
+  chmod +x "$dir/post-backup-app-import"
+  ln -sf "$dir" /var/lib/dokku/plugins/enabled/order-check
+}
+
+remove_order_check_plugin() {
+  plugn disable order-check 2>/dev/null || true
+  rm -rf /var/lib/dokku/plugins/available/order-check /var/lib/dokku/plugins/enabled/order-check
+  rm -f /tmp/ordercheck-*.txt
 }
