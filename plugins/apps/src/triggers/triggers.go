@@ -18,6 +18,14 @@ func main() {
 
 	var err error
 	switch trigger {
+	case "backup-app-export":
+		err = apps.TriggerBackupAppExport(flag.Arg(0), flag.Arg(1))
+	case "backup-app-import":
+		err = apps.TriggerBackupAppImport(flag.Arg(0), flag.Arg(1))
+	case "backup-global-export":
+		err = apps.TriggerBackupGlobalExport(flag.Arg(0))
+	case "backup-global-import":
+		err = apps.TriggerBackupGlobalImport(flag.Arg(0))
 	case "app-create":
 		appName := flag.Arg(0)
 		err = apps.TriggerAppCreate(appName)
