@@ -19,7 +19,7 @@ Additional commands:`
 
 	helpContent = `
     backup:export [--app APP...] [--service TYPE[:NAME]...] [--backup-dir DIR] [--include-storage], Export a backup archive
-    backup:import [--app APP...] [--service TYPE[:NAME]...] [--force] [--install-plugins] <backup-file>, Import a backup archive`
+    backup:import [--app APP...] [--service TYPE[:NAME]...] [--force] [--skip-install-plugins] <backup-file>, Import a backup archive`
 )
 
 func main() {

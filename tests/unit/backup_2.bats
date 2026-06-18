@@ -116,7 +116,7 @@ teardown() {
   assert_output_contains "/app/storage"
 }
 
-@test "(backup) records plugin remotes and --install-plugins reinstalls them by name" {
+@test "(backup) records plugin remotes and reinstalls them by name by default" {
   git config --system --add safe.directory '*' || true
   install_fake_plugin fakeplug
 
@@ -131,14 +131,14 @@ teardown() {
 
   remove_fake_plugin fakeplug
 
-  # Without --install-plugins the plugin is only reported, never reinstalled.
-  run /bin/bash -c "dokku backup:import --force '$backup_file' 2>&1"
+  # With --skip-install-plugins the plugin is only reported, never reinstalled.
+  run /bin/bash -c "dokku backup:import --force --skip-install-plugins '$backup_file' 2>&1"
   echo "output: $output"
-  assert_output_contains "--install-plugins"
+  assert_output_contains "--skip-install-plugins"
   [[ ! -d /var/lib/dokku/plugins/available/fakeplug ]]
 
-  # With --install-plugins the recorded plugin is reinstalled by name from its remote.
-  run /bin/bash -c "dokku backup:import --force --install-plugins '$backup_file' 2>&1"
+  # By default the recorded plugin is reinstalled by name from its remote.
+  run /bin/bash -c "dokku backup:import --force '$backup_file' 2>&1"
   echo "output: $output"
   assert_output_contains "Reinstalling plugins recorded in the backup"
   [[ -d /var/lib/dokku/plugins/available/fakeplug ]]

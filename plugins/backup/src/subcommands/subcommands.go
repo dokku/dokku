@@ -30,13 +30,13 @@ func main() {
 		appNames := args.StringArray("app", []string{}, "--app: an app to restore; repeatable")
 		serviceSpecs := args.StringArray("service", []string{}, "--service: a service to restore as TYPE[:NAME]; repeatable")
 		force := args.Bool("force", false, "--force: replace existing apps/services without confirmation")
-		installPlugins := args.Bool("install-plugins", false, "--install-plugins: reinstall third-party plugins recorded in the backup before restoring")
+		skipInstallPlugins := args.Bool("skip-install-plugins", false, "--skip-install-plugins: do not reinstall third-party plugins recorded in the backup; only report them")
 		args.Parse(os.Args[2:])
 		backupFile := args.Arg(0)
 		if backupFile == "" {
 			common.LogFail("Please specify a backup file to import")
 		}
-		err = backup.CommandImport(backupFile, *appNames, *serviceSpecs, *force, *installPlugins)
+		err = backup.CommandImport(backupFile, *appNames, *serviceSpecs, *force, !*skipInstallPlugins)
 	default:
 		err = fmt.Errorf("Invalid plugin subcommand call: %s", subcommand)
 	}
