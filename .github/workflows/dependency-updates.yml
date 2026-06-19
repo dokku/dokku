@@ -19,7 +19,7 @@ jobs:
       matrix: ${{ steps.matrix.outputs.matrix }}
     steps:
       - name: Clone
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Build dependency matrix
         id: matrix
@@ -48,7 +48,7 @@ jobs:
       cancel-in-progress: false
     steps:
       - name: Clone
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Resolve latest release
         id: latest
