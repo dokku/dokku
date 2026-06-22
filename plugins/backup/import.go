@@ -218,6 +218,13 @@ func importApp(workDir string, appName string, meta ManifestApp, force bool) err
 	}
 
 	if meta.Deployed && meta.HasCode {
+		// Give plugins a chance to act right before the restore redeploy (for
+		// example refreshing a TLS certificate). Best-effort: a failure here must
+		// not block the redeploy.
+		if err := dispatchTrigger("pre-backup-app-deploy", appName, scope); err != nil {
+			common.LogWarn(fmt.Sprintf("pre-backup-app-deploy failed for %s: %v", appName, err))
+		}
+
 		common.LogStderr(fmt.Sprintf("Redeploying %s", appName))
 		if _, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
 			Trigger:      "receive-app",
