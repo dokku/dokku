@@ -222,6 +222,23 @@ APP="$1"; SCOPE_DIR="$2"
 # reapply this plugin's app state from "$SCOPE_DIR"
 ```
 
+### `pre-backup-app-deploy`
+
+- Description: Lets a plugin act immediately before an app is redeployed during a `backup:import`, after all config has been restored and right before the deploy. Use it for pre-deploy preparation that must run before the build — for example writing/symlinking or refreshing a restored TLS certificate. It is dispatched only when the app is actually being redeployed (it was deployed with code at backup time), and it is best-effort: a failure is logged and does not block the redeploy. Anything that needs the already-running app should instead use the normal post-deploy lifecycle.
+- Invoked by: `dokku backup:import`
+- Arguments: `$APP $SCOPE_DIR`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+APP="$1"; SCOPE_DIR="$2"
+
+# e.g. refresh or symlink this app's restored TLS certificate before it redeploys
+```
+
 ### `backup-global-export`
 
 - Description: Exports a plugin's global state into the global backup scope directory.
@@ -318,13 +335,15 @@ app-create
 pre-backup-app-import
 backup-app-import        # restore independent config (config, domains, ports, certs, storage, scale, ...)
 post-backup-app-import   # restore config that depends on another plugin's restored config (runs after all backup-app-import)
+pre-backup-app-deploy    # only when the app is redeployed: act right before the deploy (best-effort)
 receive-app              # the deploy: build, run, regenerate the proxy, and fire the normal post-deploy hooks
 ```
 
-Two consequences are useful when writing a plugin that participates in restore:
+These points are useful when writing a plugin that participates in restore:
 
 - `post-backup-app-import` always runs after every `backup-app-import` handler, so it is where you restore config that depends on another plugin's restored config (for example after `domains`).
-- The deploy (`receive-app`) is the last step and runs the full deploy lifecycle, so all config (including `domains`) is restored before it. Work that needs the **running app** — for example issuing a TLS certificate via ACME — should hang off the normal deploy lifecycle (the plugin's own post-deploy hook fires inside the redeploy), not off an import phase. The top-level `post-backup-import` runs once after every app has redeployed, for any cross-app finalization.
+- `pre-backup-app-deploy` runs after all config is restored and right before the deploy, but only when the app is actually being redeployed. It is the place for pre-deploy preparation that must run before the build — for example refreshing or symlinking a restored TLS certificate (an ACME re-issue using a standalone challenge can run here, since `domains` is already restored). It is best-effort and does not block the redeploy.
+- The deploy (`receive-app`) is the last step and runs the full deploy lifecycle. Work that needs the **already-running** app should hang off the normal post-deploy lifecycle (the plugin's own post-deploy hook fires inside the redeploy), not off an import phase. The top-level `post-backup-import` runs once after every app has redeployed, for any cross-app finalization.
 
 ### `datastore-list`
 
