@@ -70,6 +70,32 @@ func main() {
 			value = args.Arg(1)
 		}
 		err = proxy.CommandSet(appName, property, value)
+	case "route:set":
+		args := flag.NewFlagSet("proxy:route:set", flag.ExitOnError)
+		port := args.Int("port", proxy.DefaultRoutePort, "--port: container port of the target process")
+		stripPrefix := args.Bool("strip-prefix", false, "--strip-prefix: strip the matched prefix before forwarding")
+		args.Parse(os.Args[2:])
+		appName := args.Arg(0)
+		processName := args.Arg(1)
+		path := args.Arg(2)
+		err = proxy.CommandRouteSet(appName, processName, path, *port, *stripPrefix)
+	case "route:remove":
+		args := flag.NewFlagSet("proxy:route:remove", flag.ExitOnError)
+		args.Parse(os.Args[2:])
+		appName := args.Arg(0)
+		path := args.Arg(1)
+		err = proxy.CommandRouteRemove(appName, path)
+	case "route:clear":
+		args := flag.NewFlagSet("proxy:route:clear", flag.ExitOnError)
+		args.Parse(os.Args[2:])
+		appName := args.Arg(0)
+		err = proxy.CommandRouteClear(appName)
+	case "route:report":
+		args := flag.NewFlagSet("proxy:route:report", flag.ExitOnError)
+		format := args.String("format", "stdout", "format: [ stdout | json ]")
+		args.Parse(os.Args[2:])
+		appName := args.Arg(0)
+		err = proxy.CommandRouteReport(appName, *format)
 	default:
 		err = fmt.Errorf("Invalid plugin subcommand call: %s", subcommand)
 	}

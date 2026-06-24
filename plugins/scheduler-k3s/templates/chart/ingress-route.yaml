@@ -38,6 +38,30 @@ spec:
   - {{ $entryPoint }}
   routes:
     {{- range $ddx, $domain := $config.web.domains }}
+    {{- range $rdx, $route := $.Values.global.network.routes }}
+    - kind: Rule
+      match: Host(`{{ $domain.name }}`) && PathPrefix(`{{ $route.path }}`)
+      # No explicit priority - traefik's default (rule length) gives
+      # longest-prefix-wins because Host(...) && PathPrefix(...) is always
+      # longer than web's bare Host(...) rule below.
+      middlewares:
+        - name: {{ $.Values.global.app_name}}-{{ $processName }}-compression
+          namespace: {{ $.Values.global.namespace }}
+        {{- if and (eq $entryPoint "web") $config.web.tls.enabled }}
+        - name: {{ $.Values.global.app_name}}-{{ $processName }}-redirect-to-https
+          namespace: {{ $.Values.global.namespace }}
+        {{- end }}
+        {{- if $route.strip_prefix }}
+        - name: {{ $.Values.global.app_name }}-{{ $route.process }}-{{ $route.slug }}-strip
+          namespace: {{ $.Values.global.namespace }}
+        {{- end }}
+      services:
+      - name: {{ $.Values.global.app_name }}-{{ $route.process }}
+        namespace: {{ $.Values.global.namespace }}
+        passHostHeader: true
+        port: {{ $route.port }}
+        scheme: http
+    {{- end }}
     - kind: Rule
       match: Host(`{{ $domain.name }}`)
       middlewares:

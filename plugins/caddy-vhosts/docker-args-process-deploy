@@ -14,11 +14,27 @@ trigger-caddy-vhosts-docker-args-process-deploy() {
   local proxy_container_https_port proxy_container_https_port_candidate proxy_host_https_port_candidate
   local STDIN=$(cat)
 
-  if [[ "$PROC_TYPE" != "web" ]]; then
+  if [[ "$(plugn trigger proxy-type "$APP")" != "caddy" ]]; then
     return
   fi
 
-  if [[ "$(plugn trigger proxy-type "$APP")" != "caddy" ]]; then
+  if [[ "$PROC_TYPE" != "web" ]]; then
+    # Non-web processes are only labeled when at least one path-based route
+    # targets the process. Otherwise caddy-docker-proxy should ignore the
+    # container entirely.
+    local route_proc
+    local has_route=false
+    while IFS='|' read -r route_proc _ _ _; do
+      if [[ "$route_proc" == "$PROC_TYPE" ]]; then
+        has_route=true
+        break
+      fi
+    done < <(plugn trigger proxy-routes-list "$APP")
+    if [[ "$has_route" != "true" ]]; then
+      echo -n "$STDIN"
+      return
+    fi
+    fn-caddy-route-labels "$APP" "$PROC_TYPE" "$STDIN"
     return
   fi
 
@@ -84,6 +100,21 @@ trigger-caddy-vhosts-docker-args-process-deploy() {
     caddy_domains="${caddy_domains// /, }"
   fi
 
+  # If any path-based route exists for this app, the route emission on the
+  # non-web container puts a `handle @<slug>` block in the site. For caddy to
+  # honor that, web's `reverse_proxy` must also be wrapped in a `handle`
+  # block (both at directive order ~210) so caddy's mutually-exclusive
+  # handle logic picks the route handle for matched paths and falls through
+  # to the catch-all handle for everything else. Without this, web's bare
+  # reverse_proxy (~190) catches every request before any handle runs.
+  local has_routes=false
+  while IFS='|' read -r route_proc _ _ _; do
+    if [[ -n "$route_proc" ]]; then
+      has_routes=true
+      break
+    fi
+  done < <(plugn trigger proxy-routes-list "$APP")
+
   # add the labels for caddy here
   # prefer the https:443 mapping to http:80 mapping
   if [[ -n "$is_app_listening" ]] && [[ -n "$caddy_domains" ]]; then
@@ -115,7 +146,14 @@ trigger-caddy-vhosts-docker-args-process-deploy() {
         proxy_container_https_port="$proxy_container_https_port_candidate"
       fi
 
-      output="$output --label \"caddy.reverse_proxy={{ upstreams $proxy_container_https_port }}\""
+      if [[ "$has_routes" == "true" ]]; then
+        # The "9_" prefix orders web's catch-all handle after the route
+        # handles (which the non-web container emits with "0_") in the
+        # docker-proxy generated Caddyfile.
+        output="$output --label \"caddy.9_handle.0_reverse_proxy={{ upstreams $proxy_container_https_port }}\""
+      else
+        output="$output --label \"caddy.reverse_proxy={{ upstreams $proxy_container_https_port }}\""
+      fi
     elif [[ -n "$proxy_container_http_port" ]] || [[ -n "$proxy_container_http_port_candidate" ]]; then
       caddy_domains="${caddy_domains//, /:80, }"
       output="--label 'caddy=${caddy_domains}:80'"
@@ -125,7 +163,11 @@ trigger-caddy-vhosts-docker-args-process-deploy() {
         proxy_container_http_port="$proxy_container_http_port_candidate"
       fi
 
-      output="$output --label \"caddy.reverse_proxy={{ upstreams $proxy_container_http_port }}\""
+      if [[ "$has_routes" == "true" ]]; then
+        output="$output --label \"caddy.9_handle.0_reverse_proxy={{ upstreams $proxy_container_http_port }}\""
+      else
+        output="$output --label \"caddy.reverse_proxy={{ upstreams $proxy_container_http_port }}\""
+      fi
     fi
   fi
 

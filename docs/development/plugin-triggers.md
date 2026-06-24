@@ -2332,6 +2332,24 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `proxy-routes-list`
+
+- Description: Emits one `process|port|path|strip` line per path-based route declared via `proxy:route:set`, sorted by descending path length. Backends use this to render path-based routes in their config or container labels.
+- Invoked by: `nginx-vhosts`, `traefik-vhosts`, `caddy-vhosts`, `scheduler-k3s`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+APP="$1"
+while IFS='|' read -r proc port path strip; do
+  echo "Route ${path} -> ${proc}:${port} (strip=${strip})"
+done < <(plugn trigger proxy-routes-list "$APP")
+```
+
 ### `proxy-type`
 
 - Description: Returns the proxy type for an app

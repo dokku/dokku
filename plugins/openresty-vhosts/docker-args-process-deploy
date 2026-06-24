@@ -12,11 +12,26 @@ trigger-openresty-vhosts-docker-args-process-deploy() {
   local include_dir output value DATA
   local STDIN=$(cat)
 
-  if [[ "$PROC_TYPE" != "web" ]]; then
+  if [[ "$(plugn trigger proxy-type "$APP")" != "openresty" ]] && [[ "$(plugn trigger proxy-type "$APP")" != "nginx" ]]; then
     return
   fi
 
-  if [[ "$(plugn trigger proxy-type "$APP")" != "openresty" ]] && [[ "$(plugn trigger proxy-type "$APP")" != "nginx" ]]; then
+  if [[ "$PROC_TYPE" != "web" ]]; then
+    # Non-web processes are only labeled when at least one path-based route
+    # targets the process. Otherwise openresty should ignore the container.
+    local route_proc
+    local has_route=false
+    while IFS='|' read -r route_proc _ _ _; do
+      if [[ "$route_proc" == "$PROC_TYPE" ]]; then
+        has_route=true
+        break
+      fi
+    done < <(plugn trigger proxy-routes-list "$APP")
+    if [[ "$has_route" != "true" ]]; then
+      echo -n "$STDIN"
+      return
+    fi
+    fn-openresty-route-labels "$APP" "$PROC_TYPE" "$STDIN"
     return
   fi
 

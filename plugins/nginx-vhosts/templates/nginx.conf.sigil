@@ -46,6 +46,34 @@ server {
     return 301 https://$host:{{ $.PROXY_SSL_PORT }}$request_uri;
   }
 {{ else }}
+{{ range $route := $.PROXY_ROUTES | split " " }}
+{{ if $route }}
+{{ $r := $route | split "|" }}
+{{ $route_proc := index $r 0 }}
+{{ $route_port := index $r 1 }}
+{{ $route_path := index $r 2 }}
+{{ $route_strip := index $r 3 }}
+  location {{ $route_path }} {
+    proxy_pass http://{{ $.APP }}-{{ $route_proc }}-{{ $route_port }}{{ if eq $route_strip "1" }}/{{ end }};
+    proxy_http_version 1.1;
+    proxy_connect_timeout {{ $.PROXY_CONNECT_TIMEOUT }};
+    proxy_read_timeout {{ $.PROXY_READ_TIMEOUT }};
+    proxy_send_timeout {{ $.PROXY_SEND_TIMEOUT }};
+    proxy_buffer_size {{ $.PROXY_BUFFER_SIZE }};
+    proxy_buffering {{ $.PROXY_BUFFERING }};
+    proxy_buffers {{ $.PROXY_BUFFERS }};
+    proxy_busy_buffers_size {{ $.PROXY_BUSY_BUFFERS_SIZE }};
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection $http_connection;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Forwarded-For {{ $.PROXY_X_FORWARDED_FOR }};
+    proxy_set_header X-Forwarded-Port {{ $.PROXY_X_FORWARDED_PORT }};
+    proxy_set_header X-Forwarded-Proto {{ $.PROXY_X_FORWARDED_PROTO }};
+    proxy_set_header X-Request-Start $msec;
+    {{ if $.PROXY_X_FORWARDED_SSL }}proxy_set_header X-Forwarded-Ssl {{ $.PROXY_X_FORWARDED_SSL }};{{ end }}
+  }
+{{ end }}
+{{ end }}
   location    / {
 {{ if $.DOKKU_APP_WEB_LISTENERS }}
 
@@ -158,3 +186,19 @@ upstream {{ $.APP }}-{{ $upstream_port }} {
   server {{ $listener_ip }}:{{ $upstream_port }};{{ end }}
 }
 {{ end }}{{ end }}
+
+{{ range $entry := $.PROXY_ROUTE_LISTENERS | split " " }}
+{{ if $entry }}
+{{ $e := $entry | split "|" }}
+{{ $route_proc := index $e 0 }}
+{{ $route_port := index $e 1 }}
+{{ $route_csv := index $e 2 }}
+upstream {{ $.APP }}-{{ $route_proc }}-{{ $route_port }} {
+{{ if $.PROXY_KEEPALIVE }}  keepalive {{ $.PROXY_KEEPALIVE }};{{ end }}
+{{ range $listener := $route_csv | split "," }}
+{{ $listener_list := $listener | split ":" }}
+{{ $listener_ip := index $listener_list 0 }}
+  server {{ $listener_ip }}:{{ $route_port }};{{ end }}
+}
+{{ end }}
+{{ end }}
