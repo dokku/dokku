@@ -5,7 +5,7 @@ go 1.26.2
 require (
 	github.com/dokku/dokku/plugins/app-json v0.0.0-00010101000000-000000000000
 	github.com/dokku/dokku/plugins/common v0.0.0-00010101000000-000000000000
-	github.com/onsi/gomega v1.42.0
+	github.com/onsi/gomega v1.42.1
 	github.com/spf13/pflag v1.0.10
 )
 
@@ -27,11 +27,11 @@ require (
 	github.com/ryanuber/columnize v2.1.2+incompatible // indirect
 	github.com/tailscale/hujson v0.0.0-20250605163823-992244df8c5a // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
-	golang.org/x/crypto v0.52.0 // indirect
-	golang.org/x/net v0.54.0 // indirect
-	golang.org/x/sync v0.20.0 // indirect
-	golang.org/x/sys v0.45.0 // indirect
-	golang.org/x/text v0.37.0 // indirect
+	golang.org/x/crypto v0.53.0 // indirect
+	golang.org/x/net v0.56.0 // indirect
+	golang.org/x/sync v0.21.0 // indirect
+	golang.org/x/sys v0.46.0 // indirect
+	golang.org/x/text v0.38.0 // indirect
 	k8s.io/utils v0.0.0-20240102154912-e7106e64919e // indirect
 )
 
