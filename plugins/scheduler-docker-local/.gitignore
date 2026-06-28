@@ -2,3 +2,4 @@
 /triggers
 /cron-*
 /scheduler-cron-write
+/scheduler-storage-exec
