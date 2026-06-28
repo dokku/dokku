@@ -2,6 +2,7 @@
 /commands
 /core-post-deploy
 /core-post-extract
+/docker-args-process-deploy
 /install
 /post-*
 /pre-*
