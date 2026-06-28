@@ -1,4 +1,4 @@
 [plugin]
 description = "dokku core logs plugin"
-version = "0.38.19"
+version = "0.38.20"
 [plugin.config]

@@ -1,5 +1,48 @@
 # History
 
+## 0.38.20
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.38.20/bootstrap.sh
+sudo DOKKU_TAG=v0.38.20 bash bootstrap.sh
+```
+
+### Tests
+
+- #8773: @dependabot[bot] chore(deps): bump python from 3.15.0b2-bookworm to 3.15.0b3-bookworm in /tests/apps/dockerfile-release
+- #8756: @dependabot[bot] chore(deps): bump sass from 1.100.0 to 1.101.0 in /tests/apps/multi
+- #8753: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 291 to 292 in /tests/apps/php
+
+### Dependencies
+
+- #8766: @dependabot[bot] chore(deps): bump helm.sh/helm/v3 from 3.21.1 to 3.21.2 in /plugins/scheduler-k3s
+- #8777: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.41.0 to 1.42.1 in /plugins/common
+- #8778: @dependabot[bot] chore(deps): bump byjg/easy-haproxy from 6.1.0 to 6.1.1 in /plugins/haproxy-vhosts
+- #8748: @dependabot[bot] chore(deps): bump golang.org/x/crypto from 0.52.0 to 0.53.0 in /plugins/common
+- #8745: @dependabot[bot] chore(deps): bump golang.org/x/sync from 0.20.0 to 0.21.0 in /plugins/common
+- #8774: @dependabot[bot] chore(deps): bump python from 3.15.0b2-alpine to 3.15.0b3-alpine in /docs/_build
+- #8769: @dependabot[bot] chore(deps): bump pymdown-extensions from 10.21.3 to 11.0 in /docs/_build
+- #8775: @dependabot[bot] chore(deps): bump click from 8.4.1 to 8.4.2 in /docs/_build
+- #8776: @dependabot[bot] chore(deps): bump byjg/easy-haproxy from 6.0.1 to 6.1.0 in /plugins/haproxy-vhosts
+- #8772: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.42.0 to 1.42.1 in /plugins/buildpacks
+- #8770: @dokku-bot chore: bump pack to 0.40.7
+- #8767: @dependabot[bot] chore(deps): bump github.com/containerd/containerd from 1.7.32 to 1.7.33 in /plugins/scheduler-k3s
+- #8765: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.41.0 to 1.42.0 in /plugins/scheduler-k3s
+- #8764: @dependabot[bot] chore(deps): bump actions/checkout from 6 to 7
+- #8762: @dependabot[bot] chore(deps): bump k8s.io/kubernetes from 1.36.1 to 1.36.2 in /plugins/scheduler-k3s
+- #8758: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.41.0 to 1.42.0 in /plugins/buildpacks
+- #8760: @dependabot[bot] chore(deps): bump k8s.io/apimachinery from 0.36.1 to 0.36.2 in /plugins/scheduler-k3s
+- #8757: @dependabot[bot] chore(deps): bump helm.sh/helm/v3 from 3.21.0 to 3.21.1 in /plugins/scheduler-k3s
+- #8755: @dependabot[bot] chore(deps): bump traefik from v3.7.4 to v3.7.5 in /plugins/traefik-vhosts
+- #8754: @dependabot[bot] chore(deps): bump github.com/traefik/traefik/v2 from 2.11.49 to 2.11.50 in /plugins/scheduler-k3s
+- #8749: @dependabot[bot] chore(deps): bump github.com/traefik/traefik/v2 from 2.11.47 to 2.11.49 in /plugins/scheduler-k3s
+- #8743: @dependabot[bot] chore(deps): bump beautifulsoup4 from 4.14.3 to 4.15.0 in /docs/_build
+- #8744: @dependabot[bot] chore(deps): bump traefik from v3.7.3 to v3.7.4 in /plugins/traefik-vhosts
+- #8747: @dependabot[bot] chore(deps): bump golang.org/x/sync from 0.20.0 to 0.21.0 in /plugins/scheduler-k3s
+- #8746: @dependabot[bot] chore(deps): bump golang.org/x/sync from 0.20.0 to 0.21.0 in /plugins/scheduler-docker-local
+
 ## 0.38.19
 
 Install/update via the bootstrap script:

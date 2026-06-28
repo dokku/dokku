@@ -31,8 +31,8 @@ To install the latest stable version of Dokku, you can run the following shell c
 
 ```shell
 # for debian systems, installs Dokku via apt-get
-wget -NP . https://dokku.com/install/v0.38.19/bootstrap.sh
-sudo DOKKU_TAG=v0.38.19 bash bootstrap.sh
+wget -NP . https://dokku.com/install/v0.38.20/bootstrap.sh
+sudo DOKKU_TAG=v0.38.20 bash bootstrap.sh
 ```
 
 The installation process takes about 5-10 minutes, depending upon internet connection speed.
