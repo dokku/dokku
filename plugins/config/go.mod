@@ -5,7 +5,7 @@ go 1.26.2
 require (
 	github.com/dokku/dokku/plugins/common v0.0.0-00010101000000-000000000000
 	github.com/joho/godotenv v1.5.1
-	github.com/onsi/gomega v1.41.0
+	github.com/onsi/gomega v1.42.1
 	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/spf13/pflag v1.0.10
 )
@@ -26,7 +26,7 @@ require (
 	github.com/pkg/sftp v1.13.10 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/crypto v0.53.0 // indirect
-	golang.org/x/net v0.55.0 // indirect
+	golang.org/x/net v0.56.0 // indirect
 	golang.org/x/sync v0.21.0 // indirect
 	golang.org/x/sys v0.46.0 // indirect
 	golang.org/x/text v0.38.0 // indirect
