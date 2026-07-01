@@ -46,31 +46,34 @@ dokku builder:set node-js-app selected herokuish
 ### Customizing the Buildpack stack builder
 
 > [!IMPORTANT]
-> New as of 0.23.0
+> New as of 0.23.0. The `stack` property moved from the `buildpacks` plugin to the `builder-herokuish` plugin in 0.39.0.
 
-The default stack builder in use by Herokuish buildpacks in Dokku is based on `gliderlabs/herokuish:latest`. Typically, this is installed via an OS package which pulls the requisite Docker image. Users may desire to switch the stack builder to a custom version, either to update the operating system or to customize packages included with the stack builder. This can be performed via the `buildpacks:set-property` command.
-
-```shell
-dokku buildpacks:set-property node-js-app stack gliderlabs/herokuish:latest
-```
-
-The specified stack builder can also be unset by omitting the name of the stack builder when calling `buildpacks:set-property`.
+The default stack builder in use by Herokuish buildpacks in Dokku is based on `gliderlabs/herokuish:latest`. Typically, this is installed via an OS package which pulls the requisite Docker image. Users may desire to switch the stack builder to a custom version, either to update the operating system or to customize packages included with the stack builder. This can be performed via the `builder-herokuish:set` command.
 
 ```shell
-dokku buildpacks:set-property node-js-app stack
+dokku builder-herokuish:set node-js-app stack gliderlabs/herokuish:latest
 ```
 
-A change in the stack builder value will execute the `post-stack-set` trigger.
+The specified stack builder can also be unset by omitting the name of the stack builder when calling `builder-herokuish:set`.
+
+```shell
+dokku builder-herokuish:set node-js-app stack
+```
+
+A change in the stack builder value clears the herokuish build cache so the next deploy starts fresh.
 
 Finally, stack builders can be set or unset globally as a fallback. This will take precedence over a globally set `DOKKU_IMAGE` environment variable (`gliderlabs/herokuish:latest-24` by default).
 
 ```shell
 # set globally
-dokku buildpacks:set-property --global stack gliderlabs/herokuish:latest
+dokku builder-herokuish:set --global stack gliderlabs/herokuish:latest
 
 # unset globally
-dokku buildpacks:set-property --global stack
+dokku builder-herokuish:set --global stack
 ```
+
+> [!WARNING]
+> The `buildpacks:set-property stack` command is deprecated. It still works but emits a deprecation warning and forwards the value to `builder-herokuish` (when the value references a herokuish image) or `builder-pack` (otherwise).
 
 ### Allowing herokuish for non-amd64 platforms
 
@@ -119,14 +122,23 @@ dokku builder-herokuish:report
        Builder herokuish computed allowed: false
        Builder herokuish global allowed:
        Builder herokuish allowed:          false
+       Builder herokuish computed stack:   gliderlabs/herokuish:latest-24
+       Builder herokuish global stack:
+       Builder herokuish stack:
 =====> python-sample builder-herokuish information
        Builder herokuish computed allowed: true
        Builder herokuish global allowed:
        Builder herokuish allowed:
+       Builder herokuish computed stack:   gliderlabs/herokuish:latest-24
+       Builder herokuish global stack:
+       Builder herokuish stack:
 =====> ruby-sample builder-herokuish information
        Builder herokuish computed allowed: true
        Builder herokuish global allowed:
        Builder herokuish allowed:
+       Builder herokuish computed stack:   gliderlabs/herokuish:latest-24
+       Builder herokuish global stack:
+       Builder herokuish stack:
 ```
 
 The `allowed` and `global-allowed` keys hold the raw per-app and global value respectively, and are empty when nothing has been set. The `computed-allowed` key holds the effective value used at build time, falling back to the global value (where one has been set) and then to the built-in default (`true` on amd64, `false` otherwise).
@@ -219,3 +231,4 @@ See the [buildpack management documentation](/docs/processes/process-management.
 | Property | Scope | Default | Report flags | Description |
 |---|---|---|---|---|
 | `allowed` | app + global | `true` | `--builder-herokuish-allowed`, `--builder-herokuish-global-allowed`, `--builder-herokuish-computed-allowed` | When `false`, the herokuish builder is skipped during builder detection for this app |
+| `stack` | app + global | `gliderlabs/herokuish:latest-24` | `--builder-herokuish-stack`, `--builder-herokuish-global-stack`, `--builder-herokuish-computed-stack` | Herokuish stack image used to compile the app (e.g. `gliderlabs/herokuish:latest`) |

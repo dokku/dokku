@@ -158,20 +158,11 @@ dokku buildpacks:report
 
 ```
 =====> node-js-app buildpacks information
-       Buildpacks computed stack:  gliderlabs/herokuish:v0.7.0-22
-       Buildpacks global stack:    gliderlabs/herokuish:latest-24
        Buildpacks list:            https://github.com/heroku/heroku-buildpack-nodejs.git
-       Buildpacks stack:           gliderlabs/herokuish:v0.7.0-20
 =====> python-sample buildpacks information
-       Buildpacks computed stack:  gliderlabs/herokuish:latest-24
-       Buildpacks global stack:    gliderlabs/herokuish:latest-24
        Buildpacks list:            https://github.com/heroku/heroku-buildpack-nodejs.git,https://github.com/heroku/heroku-buildpack-python.git
-       Buildpacks stack:
 =====> ruby-sample buildpacks information
-       Buildpacks computed stack:  gliderlabs/herokuish:latest-24
-       Buildpacks global stack:    gliderlabs/herokuish:latest-24
        Buildpacks list:
-       Buildpacks stack:
 ```
 
 You can run the command for a specific app also.
@@ -195,11 +186,7 @@ dokku buildpacks:report node-js-app --buildpacks-list
 
 ### Settable properties
 
-These properties are managed via `buildpacks:set-property` (the legacy command name for this plugin).
+The `buildpacks` plugin has no settable properties of its own. The list of buildpack URLs is managed via the `buildpacks:add`, `buildpacks:set`, `buildpacks:remove`, and `buildpacks:clear` commands.
 
-> [!NOTE]
-> The `Report flags` column lists the CLI argument names accepted by `buildpacks:report`. The JSON keys emitted by `buildpacks:report --format json` are the same names with the leading `--buildpacks-` stripped (e.g. `stack`, `global-stack`, `computed-stack`). Legacy keys with the `buildpacks-` prefix are also emitted during the 0.38.x deprecation window and will be removed in a future major release.
-
-| Property | Scope | Default | Report flags | Description |
-|---|---|---|---|---|
-| `stack` | app + global | none | `--buildpacks-stack`, `--buildpacks-global-stack`, `--buildpacks-computed-stack` | Herokuish stack image used to compile the app (e.g. `heroku/heroku:24`) |
+> [!WARNING]
+> The `buildpacks:set-property stack` command is deprecated as of 0.39.0. The `stack` property moved to the `builder-herokuish` and `builder-pack` plugins. Set it via `builder-herokuish:set <app> stack <value>` (herokuish) or `builder-pack:set <app> stack <value>` (CNB). The deprecated command still works but emits a warning and forwards the value to the appropriate builder based on whether the value references a herokuish image.
