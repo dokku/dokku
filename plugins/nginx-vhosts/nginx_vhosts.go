@@ -150,6 +150,57 @@ func AppDisableCustomConfig(appName string) string {
 	return common.PropertyGet("nginx", appName, "disable-custom-config")
 }
 
+func AppDnsResolver(appName string) string {
+	return common.PropertyGet("nginx", appName, "dns-resolver")
+}
+
+func ComputedDnsResolver(appName string) string {
+	appValue := AppDnsResolver(appName)
+	if appValue != "" {
+		return appValue
+	}
+
+	return GlobalDnsResolver()
+}
+
+func GlobalDnsResolver() string {
+	return common.PropertyGetDefault("nginx", "--global", "dns-resolver", "127.0.0.1:1053")
+}
+
+func AppDnsResolverTimeout(appName string) string {
+	return common.PropertyGet("nginx", appName, "dns-resolver-timeout")
+}
+
+func ComputedDnsResolverTimeout(appName string) string {
+	appValue := AppDnsResolverTimeout(appName)
+	if appValue != "" {
+		return appValue
+	}
+
+	return GlobalDnsResolverTimeout()
+}
+
+func GlobalDnsResolverTimeout() string {
+	return common.PropertyGetDefault("nginx", "--global", "dns-resolver-timeout", "5s")
+}
+
+func AppDnsZone(appName string) string {
+	return common.PropertyGet("nginx", appName, "dns-zone")
+}
+
+func ComputedDnsZone(appName string) string {
+	appValue := AppDnsZone(appName)
+	if appValue != "" {
+		return appValue
+	}
+
+	return GlobalDnsZone()
+}
+
+func GlobalDnsZone() string {
+	return common.PropertyGetDefault("nginx", "--global", "dns-zone", "docker")
+}
+
 func ComputedDisableCustomConfig(appName string) string {
 	appValue := AppDisableCustomConfig(appName)
 	if appValue != "" {
