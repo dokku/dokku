@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+source "$PLUGIN_AVAILABLE_PATH/common/functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-certs-backup-app-export() {
+  declare desc="exports an app's TLS certificate and key into the backup scope dir"
+  declare trigger="backup-app-export"
+  declare APP="$1" SCOPE_DIR="$2"
+  local TLS_DIR="$DOKKU_ROOT/$APP/tls"
+
+  [[ -d "$TLS_DIR" ]] || return 0
+  [[ -n "$(ls -A "$TLS_DIR" 2>/dev/null)" ]] || return 0
+
+  mkdir -p "$SCOPE_DIR/data/certs"
+  cp -a "$TLS_DIR/." "$SCOPE_DIR/data/certs/"
+}
+
+trigger-certs-backup-app-export "$@"

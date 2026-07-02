@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+source "$PLUGIN_AVAILABLE_PATH/common/functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-builder-lambda-backup-global-export() {
+  declare desc="exports the global builder-lambda properties into the backup scope dir"
+  declare trigger="backup-global-export"
+  declare SCOPE_DIR="$1"
+  "$PLUGIN_AVAILABLE_PATH/backup/backup-property" export "builder-lambda" "--global" "$SCOPE_DIR"
+}
+
+trigger-builder-lambda-backup-global-export "$@"

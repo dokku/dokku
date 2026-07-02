@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+source "$PLUGIN_AVAILABLE_PATH/common/functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-caddy-backup-global-export() {
+  declare desc="exports the global caddy properties into the backup scope dir"
+  declare trigger="backup-global-export"
+  declare SCOPE_DIR="$1"
+  "$PLUGIN_AVAILABLE_PATH/backup/backup-property" export "caddy" "--global" "$SCOPE_DIR"
+}
+
+trigger-caddy-backup-global-export "$@"

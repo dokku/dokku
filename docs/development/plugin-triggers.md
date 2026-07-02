@@ -188,6 +188,195 @@ case "$URL_TYPE" in
 esac
 ```
 
+### `backup-app-export`
+
+- Description: Exports a plugin's per-app state into an app's backup scope directory. Declarative config should be written as a docket recipe slice at `$SCOPE_DIR/config/<plugin>.yml`; bulk data (tarballs, bundles) under `$SCOPE_DIR/data/`.
+- Invoked by: `dokku backup:export`
+- Arguments: `$APP $SCOPE_DIR`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+APP="$1"; SCOPE_DIR="$2"
+
+# write this plugin's app state into "$SCOPE_DIR/config" and "$SCOPE_DIR/data"
+```
+
+### `backup-app-import`
+
+- Description: Restores a plugin's per-app state from an app's backup scope directory. Reapply natively (property writes, internal functions); do not restart or rebuild here. Restore your own independent config here. Config that depends on **another** plugin's restored config (for example a plugin that reads the app's restored `domains`) should instead be restored in `post-backup-app-import`, which always runs after every `backup-app-import` handler. See the import-ordering note under [`backup-pre-and-post-hooks`](#backup-pre-and-post-hooks).
+- Invoked by: `dokku backup:import`
+- Arguments: `$APP $SCOPE_DIR`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+APP="$1"; SCOPE_DIR="$2"
+
+# reapply this plugin's app state from "$SCOPE_DIR"
+```
+
+### `pre-backup-app-deploy`
+
+- Description: Lets a plugin act immediately before an app is redeployed during a `backup:import`, after all config has been restored and right before the deploy. Use it for pre-deploy preparation that must run before the build — for example writing/symlinking or refreshing a restored TLS certificate. It is dispatched only when the app is actually being redeployed (it was deployed with code at backup time), and it is best-effort: a failure is logged and does not block the redeploy. Anything that needs the already-running app should instead use the normal post-deploy lifecycle.
+- Invoked by: `dokku backup:import`
+- Arguments: `$APP $SCOPE_DIR`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+APP="$1"; SCOPE_DIR="$2"
+
+# e.g. refresh or symlink this app's restored TLS certificate before it redeploys
+```
+
+### `backup-global-export`
+
+- Description: Exports a plugin's global state into the global backup scope directory.
+- Invoked by: `dokku backup:export`
+- Arguments: `$SCOPE_DIR`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+SCOPE_DIR="$1"
+
+# write this plugin's global state into "$SCOPE_DIR/config" and "$SCOPE_DIR/data"
+```
+
+### `backup-global-import`
+
+- Description: Restores a plugin's global state from the global backup scope directory.
+- Invoked by: `dokku backup:import`
+- Arguments: `$SCOPE_DIR`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+SCOPE_DIR="$1"
+
+# reapply this plugin's global state from "$SCOPE_DIR"
+```
+
+### `backup-service-export`
+
+- Description: Exports a datastore service's state into the service backup scope directory. Implemented by datastore plugins; core ships no service implementation.
+- Invoked by: `dokku backup:export`
+- Arguments: `$SERVICE_TYPE $SERVICE_NAME $SCOPE_DIR`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+SERVICE_TYPE="$1"; SERVICE_NAME="$2"; SCOPE_DIR="$3"
+
+[[ "$SERVICE_TYPE" == "$PLUGIN_COMMAND_PREFIX" ]] || exit 0
+# dump the datastore into "$SCOPE_DIR/data" and config into "$SCOPE_DIR/config"
+```
+
+### `backup-service-import`
+
+- Description: Restores a datastore service from the service backup scope directory. Implemented by datastore plugins.
+- Invoked by: `dokku backup:import`
+- Arguments: `$SERVICE_TYPE $SERVICE_NAME $SCOPE_DIR`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+SERVICE_TYPE="$1"; SERVICE_NAME="$2"; SCOPE_DIR="$3"
+
+[[ "$SERVICE_TYPE" == "$PLUGIN_COMMAND_PREFIX" ]] || exit 0
+# recreate the service and restore its data from "$SCOPE_DIR"
+```
+
+### `backup-pre-and-post-hooks`
+
+- Description: Optional hooks dispatched around each export and import phase, for plugins that need to prepare or finalize work (for example shipping a finished archive off-host). The `pre-backup-export`, `post-backup-export`, `pre-backup-import`, and `post-backup-import` hooks receive the staging directory and the backup file path; the per-app and per-service variants receive the same arguments as their `backup-*-export` / `backup-*-import` counterparts.
+- Invoked by: `dokku backup:export`, `dokku backup:import`
+- Hooks: `pre-backup-export $STAGING_DIR $BACKUP_FILE`, `post-backup-export $STAGING_DIR $BACKUP_FILE`, `pre-backup-app-export $APP $SCOPE_DIR`, `post-backup-app-export $APP $SCOPE_DIR`, `pre-backup-service-export $TYPE $NAME $SCOPE_DIR`, `post-backup-service-export $TYPE $NAME $SCOPE_DIR`, and the matching `pre-backup-import` / `post-backup-import` / `pre-backup-app-import` / `post-backup-app-import` / `pre-backup-service-import` / `post-backup-service-import` variants.
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+STAGING_DIR="$1"; BACKUP_FILE="$2"
+
+# post-backup-export: e.g. upload "$BACKUP_FILE" to remote storage
+```
+
+#### Import ordering
+
+Each phase is dispatched as a separate broadcast that blocks until every plugin finishes, so the phases run in order. For a single app the restore sequence is:
+
+```
+app-create
+pre-backup-app-import
+backup-app-import        # restore independent config (config, domains, ports, certs, storage, scale, ...)
+post-backup-app-import   # restore config that depends on another plugin's restored config (runs after all backup-app-import)
+pre-backup-app-deploy    # only when the app is redeployed: act right before the deploy (best-effort)
+receive-app              # the deploy: build, run, regenerate the proxy, and fire the normal post-deploy hooks
+```
+
+These points are useful when writing a plugin that participates in restore:
+
+- `post-backup-app-import` always runs after every `backup-app-import` handler, so it is where you restore config that depends on another plugin's restored config (for example after `domains`).
+- `pre-backup-app-deploy` runs after all config is restored and right before the deploy, but only when the app is actually being redeployed. It is the place for pre-deploy preparation that must run before the build — for example refreshing or symlinking a restored TLS certificate (an ACME re-issue using a standalone challenge can run here, since `domains` is already restored). It is best-effort and does not block the redeploy.
+- The deploy (`receive-app`) is the last step and runs the full deploy lifecycle. Work that needs the **already-running** app should hang off the normal post-deploy lifecycle (the plugin's own post-deploy hook fires inside the redeploy), not off an import phase. The top-level `post-backup-import` runs once after every app has redeployed, for any cross-app finalization.
+
+### `datastore-list`
+
+- Description: Reports a datastore plugin's own service type so other plugins can enumerate installed datastores. Used by `dokku backup:export` to discover services to back up. Each datastore plugin echoes its own type (its `$PLUGIN_COMMAND_PREFIX`).
+- Invoked by: `dokku backup:export`
+- Arguments: none
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+echo "$PLUGIN_COMMAND_PREFIX"
+```
+
+### `backup-plugins-install`
+
+- Description: Reinstalls third-party plugins recorded in a backup, by name and remote, before any other restore step. Dispatched by `dokku backup:import` (unless `--skip-install-plugins` is passed) and implemented by the core `plugin` plugin; the plugin list is read from the global scope's `data/plugin/plugins.txt`.
+- Invoked by: `dokku backup:import`
+- Arguments: `$SCOPE_DIR`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+SCOPE_DIR="$1"
+
+# read "$SCOPE_DIR/data/plugin/plugins.txt" and reinstall the recorded plugins
+```
+
 ### `builder-build`
 
 - Description: Triggers the artifact build process

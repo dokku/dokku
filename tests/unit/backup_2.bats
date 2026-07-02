@@ -1,0 +1,292 @@
+#!/usr/bin/env bats
+
+load test_helper
+
+setup() {
+  global_setup
+  create_app
+  install_fake_datastore
+}
+
+teardown() {
+  remove_fake_datastore
+  remove_user_auth_stub
+  remove_fake_plugin fakeplug
+  remove_order_check_plugin
+  rm -rf /tmp/fakeplug-src /tmp/fakeplug.git 2>/dev/null || true
+  git config --system --unset-all safe.directory 2>/dev/null || true
+  destroy_app
+  rm -rf "/var/lib/dokku/data/storage/$TEST_APP-data" 2>/dev/null || true
+  rm -f /tmp/dokku-backup-*.tar.gz 2>/dev/null || true
+  global_teardown
+}
+
+@test "(backup:export) writes a tarball path to stdout and logs to stderr" {
+  run /bin/bash -c "dokku backup:export --app $TEST_APP --backup-dir /tmp 2>/dev/null"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "dokku-backup-$TEST_APP-"
+  assert_output_contains "Exporting backup" 0
+  [[ -f "$output" ]]
+}
+
+@test "(backup) global config round-trip" {
+  dokku config:set --global --no-restart BACKUP_GLOBAL_KEY=global_value
+
+  run /bin/bash -c "dokku backup:export --backup-dir /tmp 2>/dev/null"
+  echo "output: $output"
+  assert_success
+  local backup_file="$output"
+
+  dokku config:unset --global --no-restart BACKUP_GLOBAL_KEY
+
+  run /bin/bash -c "dokku backup:import --force '$backup_file'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku config:get --global BACKUP_GLOBAL_KEY"
+  echo "output: $output"
+  assert_output "global_value"
+
+  dokku config:unset --global --no-restart BACKUP_GLOBAL_KEY 2>/dev/null || true
+}
+
+@test "(backup:import) refuses to overwrite an existing app without --force" {
+  dokku config:set --no-restart $TEST_APP KEEP=me
+
+  run /bin/bash -c "dokku backup:export --app $TEST_APP --backup-dir /tmp 2>/dev/null"
+  assert_success
+  local backup_file="$output"
+
+  run /bin/bash -c "dokku backup:import '$backup_file'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "re-run with --force"
+}
+
+@test "(backup) service discovery and round-trip via datastore-list and service-list" {
+  create_fake_service "mydb" "service-payload"
+
+  run /bin/bash -c "dokku backup:export --backup-dir /tmp 2>/dev/null"
+  echo "output: $output"
+  assert_success
+  local backup_file="$output"
+
+  run /bin/bash -c "tar tzf '$backup_file'"
+  echo "output: $output"
+  assert_output_contains "services/fake/mydb/data/data"
+
+  rm -rf "/var/lib/dokku/services/fake/mydb"
+
+  run /bin/bash -c "dokku backup:import --service fake:mydb '$backup_file'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  [[ "$(cat /var/lib/dokku/services/fake/mydb/data)" == "service-payload" ]]
+}
+
+@test "(backup) --include-storage round-trips managed volume data and entries" {
+  dokku storage:ensure-directory $TEST_APP-data
+  echo "vol-payload" >"/var/lib/dokku/data/storage/$TEST_APP-data/sentinel.txt"
+  dokku storage:mount $TEST_APP "/var/lib/dokku/data/storage/$TEST_APP-data:/app/storage"
+
+  run /bin/bash -c "dokku backup:export --app $TEST_APP --include-storage --backup-dir /tmp 2>/dev/null"
+  echo "output: $output"
+  assert_success
+  local backup_file="$output"
+
+  run /bin/bash -c "tar tzf '$backup_file'"
+  echo "output: $output"
+  assert_output_contains "data/storage-data/" -1
+  assert_output_contains "data/storage-entries/" -1
+
+  rm -rf "/var/lib/dokku/data/storage/$TEST_APP-data"
+  dokku --force apps:destroy $TEST_APP
+
+  run /bin/bash -c "dokku backup:import '$backup_file'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  [[ "$(cat /var/lib/dokku/data/storage/$TEST_APP-data/sentinel.txt)" == "vol-payload" ]]
+
+  run /bin/bash -c "dokku storage:list $TEST_APP"
+  echo "output: $output"
+  assert_output_contains "/app/storage"
+}
+
+@test "(backup) records plugin remotes and reinstalls them by name by default" {
+  git config --system --add safe.directory '*' || true
+  install_fake_plugin fakeplug
+
+  run /bin/bash -c "dokku backup:export --backup-dir /tmp 2>/dev/null"
+  echo "output: $output"
+  assert_success
+  local backup_file="$output"
+
+  run /bin/bash -c "tar xzf '$backup_file' -O global/data/plugin/plugins.txt | grep fakeplug"
+  echo "output: $output"
+  assert_output_contains "/tmp/fakeplug.git"
+
+  remove_fake_plugin fakeplug
+
+  # With --skip-install-plugins the plugin is only reported, never reinstalled.
+  run /bin/bash -c "dokku backup:import --force --skip-install-plugins '$backup_file' 2>&1"
+  echo "output: $output"
+  assert_output_contains "--skip-install-plugins"
+  [[ ! -d /var/lib/dokku/plugins/available/fakeplug ]]
+
+  # By default the recorded plugin is reinstalled by name from its remote.
+  run /bin/bash -c "dokku backup:import --force '$backup_file' 2>&1"
+  echo "output: $output"
+  assert_output_contains "Reinstalling plugins recorded in the backup"
+  [[ -d /var/lib/dokku/plugins/available/fakeplug ]]
+}
+
+@test "(backup) post-backup-app-import runs after domains are restored" {
+  dokku domains:add $TEST_APP order-check.example.com
+  install_order_check_plugin
+
+  run /bin/bash -c "dokku backup:export --app $TEST_APP --backup-dir /tmp 2>/dev/null"
+  echo "output: $output"
+  assert_success
+  local backup_file="$output"
+
+  rm -f "/tmp/ordercheck-$TEST_APP.txt"
+  run /bin/bash -c "dokku backup:import --force '$backup_file'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  # The order-check plugin recorded the app's domains during post-backup-app-import.
+  # The domain being present proves post-backup-app-import ran after the domains
+  # plugin restored the VHOST in backup-app-import.
+  run cat "/tmp/ordercheck-$TEST_APP.txt"
+  echo "captured: $output"
+  assert_output_contains "order-check.example.com"
+}
+
+@test "(backup:export) denies an app the caller cannot access" {
+  install_user_auth_stub "$TEST_APP"
+
+  run /bin/bash -c "dokku backup:export --app $TEST_APP --backup-dir /tmp"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+}
+
+@test "(backup:import) denies restoring an inaccessible existing app with a generic message" {
+  run /bin/bash -c "dokku backup:export --app $TEST_APP --backup-dir /tmp 2>/dev/null"
+  assert_success
+  local backup_file="$output"
+
+  install_user_auth_stub "$TEST_APP"
+
+  run /bin/bash -c "dokku backup:import --force '$backup_file'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Unable to restore $TEST_APP"
+}
+
+install_fake_datastore() {
+  cp -r "${BATS_TEST_DIRNAME}/../fake-datastore" /var/lib/dokku/plugins/available/fake-datastore
+  mkdir -p /var/lib/dokku/plugins/enabled/fake-datastore
+  cp -r /var/lib/dokku/plugins/available/fake-datastore/* /var/lib/dokku/plugins/enabled/fake-datastore/
+  chmod +x /var/lib/dokku/plugins/available/fake-datastore/* /var/lib/dokku/plugins/enabled/fake-datastore/* 2>/dev/null || true
+}
+
+remove_fake_datastore() {
+  rm -rf /var/lib/dokku/plugins/available/fake-datastore /var/lib/dokku/plugins/enabled/fake-datastore
+  rm -rf /var/lib/dokku/services/fake
+}
+
+create_fake_service() {
+  local name="$1" payload="$2"
+  mkdir -p "/var/lib/dokku/services/fake/$name"
+  echo "$payload" >"/var/lib/dokku/services/fake/$name/data"
+  # The service import trigger runs as the dokku user, so the service directory
+  # must be writable by dokku for the round-trip to recreate it.
+  chown -R dokku:dokku /var/lib/dokku/services/fake
+}
+
+install_user_auth_stub() {
+  local forbidden="$1"
+  mkdir -p /var/lib/dokku/plugins/available/user-auth-stub /var/lib/dokku/plugins/enabled/user-auth-stub
+  cat >"/var/lib/dokku/plugins/available/user-auth-stub/plugin.toml" <<EOF
+[plugin]
+description = "user-auth stub for backup tests"
+version = "0.1.0"
+[plugin.config]
+EOF
+  cat >"/var/lib/dokku/plugins/available/user-auth-stub/user-auth-app" <<EOF
+#!/usr/bin/env bash
+set -eo pipefail
+shift 2
+for app in "\$@"; do
+  [[ "\$app" == "$forbidden" ]] && continue
+  echo "\$app"
+done
+EOF
+  cat >"/var/lib/dokku/plugins/available/user-auth-stub/user-auth" <<EOF
+#!/usr/bin/env bash
+set -eo pipefail
+exit 0
+EOF
+  chmod +x /var/lib/dokku/plugins/available/user-auth-stub/user-auth-app /var/lib/dokku/plugins/available/user-auth-stub/user-auth
+  cp -r /var/lib/dokku/plugins/available/user-auth-stub/* /var/lib/dokku/plugins/enabled/user-auth-stub/
+}
+
+remove_user_auth_stub() {
+  rm -rf /var/lib/dokku/plugins/available/user-auth-stub /var/lib/dokku/plugins/enabled/user-auth-stub
+}
+
+install_fake_plugin() {
+  local name="$1"
+  rm -rf "/tmp/$name-src" "/tmp/$name.git"
+  mkdir -p "/tmp/$name-src"
+  printf '[plugin]\ndescription = "fake test plugin"\nversion = "0.1.0"\n[plugin.config]\n' >"/tmp/$name-src/plugin.toml"
+  (cd "/tmp/$name-src" && git init -q && git config user.email t@t.co && git config user.name t && git add . && git commit -qm init)
+  git clone -q --bare "/tmp/$name-src" "/tmp/$name.git"
+  chmod -R a+rX "/tmp/$name.git"
+  rm -rf "/var/lib/dokku/plugins/available/$name" "/var/lib/dokku/plugins/enabled/$name"
+  git clone -q "/tmp/$name.git" "/var/lib/dokku/plugins/available/$name"
+  ln -s "/var/lib/dokku/plugins/available/$name" "/var/lib/dokku/plugins/enabled/$name"
+}
+
+remove_fake_plugin() {
+  local name="$1"
+  plugn disable "$name" 2>/dev/null || true
+  rm -rf "/var/lib/dokku/plugins/available/$name" "/var/lib/dokku/plugins/enabled/$name"
+}
+
+install_order_check_plugin() {
+  local dir=/var/lib/dokku/plugins/available/order-check
+  mkdir -p "$dir"
+  cat >"$dir/plugin.toml" <<EOF
+[plugin]
+description = "records app domains during post-backup-app-import for an ordering test"
+version = "0.1.0"
+[plugin.config]
+EOF
+  cat >"$dir/post-backup-app-import" <<'EOF'
+#!/usr/bin/env bash
+set -eo pipefail
+APP="$1"
+if [[ -f "$DOKKU_ROOT/$APP/VHOST" ]]; then
+  cp "$DOKKU_ROOT/$APP/VHOST" "/tmp/ordercheck-$APP.txt"
+else
+  echo "NO-DOMAINS" >"/tmp/ordercheck-$APP.txt"
+fi
+EOF
+  chmod +x "$dir/post-backup-app-import"
+  ln -sf "$dir" /var/lib/dokku/plugins/enabled/order-check
+}
+
+remove_order_check_plugin() {
+  plugn disable order-check 2>/dev/null || true
+  rm -rf /var/lib/dokku/plugins/available/order-check /var/lib/dokku/plugins/enabled/order-check
+  rm -f /tmp/ordercheck-*.txt
+}

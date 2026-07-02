@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+source "$PLUGIN_AVAILABLE_PATH/common/functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-ssh-keys-backup-global-import() {
+  declare desc="restores the dokku authorized_keys file from the backup scope dir"
+  declare trigger="backup-global-import"
+  declare SCOPE_DIR="$1"
+  local SRC="$SCOPE_DIR/data/ssh-keys/authorized_keys"
+
+  [[ -f "$SRC" ]] || return 0
+
+  mkdir -p "$DOKKU_ROOT/.ssh"
+  cp "$SRC" "$DOKKU_ROOT/.ssh/authorized_keys"
+  chown -R dokku:dokku "$DOKKU_ROOT/.ssh"
+  chmod 600 "$DOKKU_ROOT/.ssh/authorized_keys"
+}
+
+trigger-ssh-keys-backup-global-import "$@"

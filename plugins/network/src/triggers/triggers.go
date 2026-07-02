@@ -18,6 +18,14 @@ func main() {
 
 	var err error
 	switch trigger {
+	case "backup-app-export":
+		err = network.TriggerBackupAppExport(flag.Arg(0), flag.Arg(1))
+	case "backup-app-import":
+		err = network.TriggerBackupAppImport(flag.Arg(0), flag.Arg(1))
+	case "backup-global-export":
+		err = network.TriggerBackupGlobalExport(flag.Arg(0))
+	case "backup-global-import":
+		err = network.TriggerBackupGlobalImport(flag.Arg(0))
 	case "docker-args-process-build":
 		appName := flag.Arg(0)
 		imageSourceType := flag.Arg(1)
