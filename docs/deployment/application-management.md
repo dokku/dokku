@@ -8,7 +8,7 @@ apps:clone <old-app> <new-app>                 # Clones an app
 apps:create <app>                              # Create a new app
 apps:destroy <app>                             # Permanently destroy an app
 apps:exists <app>                              # Checks if an app exists
-apps:list                                      # List your apps
+apps:list [--format stdout|json]               # List your apps
 apps:lock <app>                                # Locks an app for deployment
 apps:locked <app>                              # Checks if an app is locked for deployment
 apps:rename <old-app> <new-app>                # Rename an app
@@ -46,6 +46,18 @@ dokku --quiet apps:list
 node-js-app
 python-app
 ```
+
+You can also retrieve the list of apps as a JSON array by using the `--format json` flag, which is useful for programmatic consumption:
+
+```shell
+dokku apps:list --format json
+```
+
+```json
+["node-js-app","python-app"]
+```
+
+When no apps exist, the JSON output is an empty array (`[]`).
 
 ### Checking if an application exists
 

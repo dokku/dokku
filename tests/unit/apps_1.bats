@@ -50,6 +50,36 @@ teardown() {
   assert_success
 }
 
+@test "(apps) apps:list --format json" {
+  run /bin/bash -c "dokku apps:list --format json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "[]"
+
+  run /bin/bash -c "dokku apps:create $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku apps:list --format json | jq '. | length'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "1"
+
+  run /bin/bash -c "dokku apps:list --format json | jq -r '.[0]'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "$TEST_APP"
+
+  run /bin/bash -c "dokku --force apps:destroy $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
 @test "(apps) apps:create" {
   run /bin/bash -c "dokku apps:create $TEST_APP"
   echo "output: $output"

@@ -1,6 +1,7 @@
 package apps
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -98,9 +99,26 @@ func CommandExists(appName string) error {
 }
 
 // CommandList lists all apps
-func CommandList() error {
-	common.LogInfo2Quiet("My Apps")
+func CommandList(format string) error {
 	apps, err := common.DokkuApps()
+
+	if format == "json" {
+		if err != nil && !errors.Is(err, common.NoAppsExist) {
+			return err
+		}
+
+		appList := []string{}
+		appList = append(appList, apps...)
+		out, err := json.Marshal(appList)
+		if err != nil {
+			return err
+		}
+
+		common.Log(string(out))
+		return nil
+	}
+
+	common.LogInfo2Quiet("My Apps")
 	if err != nil {
 		common.LogWarn(err.Error())
 		return nil
