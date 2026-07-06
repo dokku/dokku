@@ -1,6 +1,14 @@
 {
   "dependencies": [
     {
+      "name": "coredns-docker",
+      "version": "0.6.1",
+      "urls": {
+        "amd64": "https://github.com/dokku/coredns-docker/releases/download/v0.6.1/coredns-docker-linux-amd64",
+        "arm64": "https://github.com/dokku/coredns-docker/releases/download/v0.6.1/coredns-docker-linux-arm64"
+      }
+    },
+    {
       "name": "docker-container-healthchecker",
       "version": "0.15.2",
       "urls": {

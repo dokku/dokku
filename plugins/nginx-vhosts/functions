@@ -294,6 +294,9 @@ fn-nginx-vhosts-render-template() {
 
   local NGINX_BIND_ADDRESS_IP4="$(fn-nginx-computed-bind-address-ipv4 "$APP")"
   local NGINX_BIND_ADDRESS_IP6="$(fn-nginx-computed-bind-address-ipv6 "$APP")"
+  local NGINX_DNS_RESOLVER="$(fn-nginx-computed-dns-resolver "$APP")"
+  local NGINX_DNS_RESOLVER_TIMEOUT="$(fn-nginx-computed-dns-resolver-timeout "$APP")"
+  local NGINX_DNS_ZONE="$(fn-nginx-computed-dns-zone "$APP")"
   local NGINX_UNDERSCORE_IN_HEADERS="$(fn-nginx-computed-underscore-in-headers "$APP")"
   local PROXY_X_FORWARDED_FOR="$(fn-nginx-computed-x-forwarded-for-value "$APP")"
   local PROXY_X_FORWARDED_PORT="$(fn-nginx-computed-x-forwarded-port-value "$APP")"
@@ -324,6 +327,9 @@ fn-nginx-vhosts-render-template() {
     NGINX_ERROR_LOG_PATH="$NGINX_ERROR_LOG_PATH"
     NGINX_BIND_ADDRESS_IP4="$NGINX_BIND_ADDRESS_IP4"
     NGINX_BIND_ADDRESS_IP6="$NGINX_BIND_ADDRESS_IP6"
+    NGINX_DNS_RESOLVER="$NGINX_DNS_RESOLVER"
+    NGINX_DNS_RESOLVER_TIMEOUT="$NGINX_DNS_RESOLVER_TIMEOUT"
+    NGINX_DNS_ZONE="$NGINX_DNS_ZONE"
     HTTP2_DIRECTIVE_SUPPORTED="$HTTP2_DIRECTIVE_SUPPORTED"
     HTTP2_PUSH_SUPPORTED="$HTTP2_PUSH_SUPPORTED"
     GRPC_SUPPORTED="$GRPC_SUPPORTED"
@@ -354,21 +360,29 @@ fn-nginx-vhosts-render-template() {
     PROXY_X_FORWARDED_SSL="$PROXY_X_FORWARDED_SSL")
 
   if [[ "$IS_DEPLOYED_WITH_LISTENERS" == "true" ]]; then
-    local line PROC_TYPE LISTENERS UPP_PROC_TYPE
+    local line PROC_TYPE LISTENERS UPP_PROC_TYPE LISTENER_HOST
     while read -r line || [[ -n "$line" ]]; do
       PROC_TYPE=${line%%=*}
       LISTENERS="$(plugn trigger network-get-listeners "$APP" "$PROC_TYPE" | xargs)"
       UPP_PROC_TYPE="${PROC_TYPE^^}"
       UPP_PROC_TYPE="${UPP_PROC_TYPE//-/_}"
       SIGIL_PARAMS+=("DOKKU_APP_${UPP_PROC_TYPE}_LISTENERS=$LISTENERS")
+      LISTENER_HOST=""
+      if [[ -n "$NGINX_DNS_ZONE" ]]; then
+        LISTENER_HOST="${APP}.${PROC_TYPE}.${NGINX_DNS_ZONE}"
+      fi
+      SIGIL_PARAMS+=("DOKKU_APP_${UPP_PROC_TYPE}_LISTENER_HOST=$LISTENER_HOST")
     done < <(plugn trigger ps-current-scale "$APP")
   elif [[ "$PRE_VALIDATE" == "true" ]]; then
-    # During pre-validation no listeners exist yet; supply a placeholder so
-    # any upstream block in the template renders with a static server entry
-    # and nginx -t does not bail out on "host not found in upstream".
+    # During pre-validation no listeners exist yet; supply placeholders so
+    # both the legacy IP-based upstream block and the DNS-based resolver
+    # branch render syntactically valid nginx config that nginx -t can
+    # parse (no "host not found in upstream" and no empty set $var).
     SIGIL_PARAMS+=(DOKKU_APP_WEB_LISTENERS="127.0.0.1:5000")
+    SIGIL_PARAMS+=(DOKKU_APP_WEB_LISTENER_HOST="127.0.0.1")
   else
     SIGIL_PARAMS+=(DOKKU_APP_WEB_LISTENERS="")
+    SIGIL_PARAMS+=(DOKKU_APP_WEB_LISTENER_HOST="")
   fi
 
   sigil "${SIGIL_PARAMS[@]}" | cat -s >"$OUTPUT_PATH"
