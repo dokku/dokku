@@ -4,15 +4,15 @@
 > New as of 0.3.14, Enhanced in 0.7.0
 
 ```
-ps:inspect <app>                                                  # Displays a sanitized version of docker inspect for an app
-ps:rebuild [--parallel count] [--all|<app>]                       # Rebuilds an app from source
-ps:report [<app>] [<flag>]                                        # Displays a process report for one or more apps
-ps:restart [--parallel count] [--all|<app>]  [<process-name>]     # Restart an app
-ps:restore [<app>]                                                # Start previously running apps e.g. after reboot
-ps:scale [--skip-deploy] <app> <proc>=<count> [<proc>=<count>...] # Get/Set how many instances of a given process to run
-ps:set <app> <key> <value>                                        # Set or clear a ps property for an app
-ps:start [--parallel count] [--all|<app>]                         # Start an app
-ps:stop [--parallel count] [--all|<app>]                          # Stop an app
+ps:inspect <app>                                                          # Displays a sanitized version of docker inspect for an app
+ps:rebuild [--parallel count] [--all|<app>]                               # Rebuilds an app from source
+ps:report [<app>] [<flag>]                                                # Displays a process report for one or more apps
+ps:restart [--parallel count] [--all|<app>]  [<process-name>]             # Restart an app
+ps:restore [<app>]                                                        # Start previously running apps e.g. after reboot
+ps:scale [--skip-deploy] [--format stdout|json] <app> [<proc>=<count>...] # Get/Set how many instances of a given process to run
+ps:set <app> <key> <value>                                                # Set or clear a ps property for an app
+ps:start [--parallel count] [--all|<app>]                                 # Start an app
+ps:stop [--parallel count] [--all|<app>]                                  # Stop an app
 ```
 
 ## Usage
@@ -106,6 +106,18 @@ proctype: qty
 --------: ---
 web:  1
 ```
+
+The formation can also be retrieved as JSON by using the `--format json` flag, which is useful for programmatic consumption. Each entry maps a process type to its desired quantity:
+
+```shell
+dokku ps:scale node-js-app --format json
+```
+
+```json
+[{"process_type":"web","quantity":1},{"process_type":"worker","quantity":4}]
+```
+
+When no scale has been set for the app, the JSON output is an empty array (`[]`).
 
 ### Changing process management settings
 

@@ -269,6 +269,42 @@ web                                                                             
   assert_output $'beat: 0\nweb:  4\nworker: 1'
 }
 
+@test "(ps:scale) --format json" {
+  run /bin/bash -c "dokku ps:scale $TEST_APP --format json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output '[{"process_type":"web","quantity":1}]'
+
+  echo "web=4
+worker=1" >/var/lib/dokku/config/ps/$TEST_APP/scale
+
+  run /bin/bash -c "dokku ps:scale $TEST_APP --format json | jq '. | length'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "2"
+
+  run /bin/bash -c "dokku ps:scale $TEST_APP --format json | jq -r '.[] | select(.process_type==\"web\") | .quantity'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "4"
+
+  run /bin/bash -c "dokku ps:scale $TEST_APP --format json | jq -r '.[] | select(.process_type==\"worker\") | .quantity'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "1"
+
+  rm -f /var/lib/dokku/config/ps/$TEST_APP/scale
+  run /bin/bash -c "dokku ps:scale $TEST_APP --format json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "[]"
+}
+
 @test "(ps) handle windows newlines in procfile" {
   run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP procfile_line_endings_to_windows
   echo "output: $output"
