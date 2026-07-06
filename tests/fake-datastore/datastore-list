@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/config"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-fake-datastore-list() {
+  declare desc="reports this plugin's datastore type for backup discovery"
+  echo "$PLUGIN_COMMAND_PREFIX"
+}
+
+trigger-fake-datastore-list "$@"

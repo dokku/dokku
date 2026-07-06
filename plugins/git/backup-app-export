@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+source "$PLUGIN_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/git/internal-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-git-backup-app-export() {
+  declare desc="bundles an app's git repository into the backup scope dir"
+  declare trigger="backup-app-export"
+  declare APP="$1" SCOPE_DIR="$2"
+  local APP_ROOT="$DOKKU_ROOT/$APP"
+
+  "$PLUGIN_AVAILABLE_PATH/backup/backup-property" export "git" "$APP" "$SCOPE_DIR"
+
+  [[ -d "$APP_ROOT/refs" ]] || return 0
+  if [[ -z "$(fn-git-cmd "$APP_ROOT" for-each-ref 2>/dev/null)" ]]; then
+    return 0
+  fi
+
+  mkdir -p "$SCOPE_DIR/data"
+  fn-git-cmd "$APP_ROOT" bundle create "$SCOPE_DIR/data/repo.bundle" --all
+}
+
+trigger-git-backup-app-export "$@"

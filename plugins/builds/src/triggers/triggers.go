@@ -17,6 +17,14 @@ func main() {
 
 	var err error
 	switch trigger {
+	case "backup-app-export":
+		err = builds.TriggerBackupAppExport(flag.Arg(0), flag.Arg(1))
+	case "backup-app-import":
+		err = builds.TriggerBackupAppImport(flag.Arg(0), flag.Arg(1))
+	case "backup-global-export":
+		err = builds.TriggerBackupGlobalExport(flag.Arg(0))
+	case "backup-global-import":
+		err = builds.TriggerBackupGlobalImport(flag.Arg(0))
 	case "builds-generate-id":
 		err = builds.TriggerBuildsGenerateID()
 	case "builds-record-finalize":

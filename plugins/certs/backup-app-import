@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+source "$PLUGIN_AVAILABLE_PATH/common/functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-certs-backup-app-import() {
+  declare desc="restores an app's TLS certificate and key from the backup scope dir"
+  declare trigger="backup-app-import"
+  declare APP="$1" SCOPE_DIR="$2"
+  local SRC="$SCOPE_DIR/data/certs"
+  local TLS_DIR="$DOKKU_ROOT/$APP/tls"
+
+  [[ -d "$SRC" ]] || return 0
+  [[ -n "$(ls -A "$SRC" 2>/dev/null)" ]] || return 0
+
+  mkdir -p "$TLS_DIR"
+  cp -a "$SRC/." "$TLS_DIR/"
+  chown -R dokku:dokku "$TLS_DIR"
+}
+
+trigger-certs-backup-app-import "$@"

@@ -1,0 +1,4 @@
+[plugin]
+description = "dokku core backup plugin"
+version = "0.38.19"
+[plugin.config]

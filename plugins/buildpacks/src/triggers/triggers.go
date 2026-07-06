@@ -18,6 +18,14 @@ func main() {
 
 	var err error
 	switch trigger {
+	case "backup-app-export":
+		err = buildpacks.TriggerBackupAppExport(flag.Arg(0), flag.Arg(1))
+	case "backup-app-import":
+		err = buildpacks.TriggerBackupAppImport(flag.Arg(0), flag.Arg(1))
+	case "backup-global-export":
+		err = buildpacks.TriggerBackupGlobalExport(flag.Arg(0))
+	case "backup-global-import":
+		err = buildpacks.TriggerBackupGlobalImport(flag.Arg(0))
 	case "buildpack-stack-name":
 		appName := flag.Arg(0)
 		err = buildpacks.TriggerBuildpackStackName(appName)

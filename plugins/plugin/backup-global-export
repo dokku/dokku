@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-plugin-backup-global-export() {
+  declare desc="records installed third-party plugins (name, remote, committish) into the backup scope dir"
+  declare trigger="backup-global-export"
+  declare SCOPE_DIR="$1"
+  local ENABLED_PATH="${PLUGIN_PATH:-/var/lib/dokku/plugins}/enabled"
+
+  [[ -d "$ENABLED_PATH" ]] || return 0
+
+  local listing="" plugin name target url committish
+  for plugin in "$ENABLED_PATH"/*; do
+    [[ -e "$plugin" ]] || continue
+    name="$(basename "$plugin")"
+    target="$(readlink -f "$plugin")"
+    [[ "$target" == "$PLUGIN_CORE_AVAILABLE_PATH"/* ]] && continue
+
+    url=""
+    committish=""
+    if [[ -d "$target/.git" ]]; then
+      url="$(git -C "$target" -c safe.directory="$target" config --get remote.origin.url 2>/dev/null || true)"
+      committish="$(git -C "$target" -c safe.directory="$target" symbolic-ref --short -q HEAD 2>/dev/null || git -C "$target" -c safe.directory="$target" rev-parse HEAD 2>/dev/null || true)"
+    fi
+    listing+="$name"$'\t'"$url"$'\t'"$committish"$'\n'
+  done
+
+  [[ -n "$listing" ]] || return 0
+  mkdir -p "$SCOPE_DIR/data/plugin"
+  printf '%s' "$listing" >"$SCOPE_DIR/data/plugin/plugins.txt"
+}
+
+trigger-plugin-backup-global-export "$@"

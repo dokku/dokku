@@ -18,6 +18,14 @@ func main() {
 
 	var err error
 	switch trigger {
+	case "backup-app-export":
+		err = registry.TriggerBackupAppExport(flag.Arg(0), flag.Arg(1))
+	case "backup-app-import":
+		err = registry.TriggerBackupAppImport(flag.Arg(0), flag.Arg(1))
+	case "backup-global-export":
+		err = registry.TriggerBackupGlobalExport(flag.Arg(0))
+	case "backup-global-import":
+		err = registry.TriggerBackupGlobalImport(flag.Arg(0))
 	case "deployed-app-image-repo":
 		appName := flag.Arg(0)
 		err = registry.TriggerDeployedAppImageRepo(appName)

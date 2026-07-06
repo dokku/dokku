@@ -4,6 +4,67 @@
 
 The best plan for disaster recovery is to always keep multiple (remote) copies of your local repo, static assets and periodic database dumps. Backups should be regularly tested for data integrity and completeness.
 
+## Centralized export and import
+
+> [!IMPORTANT]
+> The `backup:export` and `backup:import` commands were introduced in 0.39.0.
+
+Dokku can export an app (and/or service, and/or the global configuration) into a single `tar.gz` archive and restore it again, either on the same host or a fresh one. Each plugin serializes its own slice of state, so the archive captures config, domains, ports, docker-options, process scale, the git repository, and any other plugin's data.
+
+```shell
+# export everything (all apps, all services, global config) to /tmp
+dokku backup:export
+
+# export a single app
+dokku backup:export --app node-js-app
+
+# export specific services (datastore plugins must implement the service-list trigger)
+dokku backup:export --service postgres:mydb --service redis:cache
+
+# write the archive somewhere else and include persistent storage volume data
+dokku backup:export --app node-js-app --backup-dir /mnt/backups --include-storage
+```
+
+The full path to the created archive is the only thing written to `stdout`; all progress and warnings are written to `stderr`, so the path can be captured directly:
+
+```shell
+BACKUP_FILE="$(dokku backup:export --app node-js-app)"
+```
+
+To restore, pass the archive to `backup:import`:
+
+```shell
+# restore everything in the archive
+dokku backup:import /tmp/dokku-backup-full-20260618T120000Z.tar.gz
+
+# restore only a single app or service from the archive
+dokku backup:import --app node-js-app "$BACKUP_FILE"
+dokku backup:import --service postgres:mydb "$BACKUP_FILE"
+```
+
+Importing is destructive. If an app or service already exists, the import aborts and asks you to re-run with `--force` to replace it:
+
+```shell
+dokku backup:import --force "$BACKUP_FILE"
+```
+
+A backup records the third-party plugins that were installed (by name and git remote). By default they are reinstalled from their remotes first, before any other restore step, so that datastore and other plugins exist before their state is restored. Pass `--skip-install-plugins` to only report them instead:
+
+```shell
+dokku backup:import --skip-install-plugins "$BACKUP_FILE"
+```
+
+### Notes and caveats
+
+- **Secrets are stored unencrypted.** The archive contains environment variables and TLS material in plaintext. Store and transfer it securely.
+- **Disk space.** Export buffers the archive to the `--backup-dir` (default `/tmp`); import extracts the whole archive before restoring. Ensure roughly twice the archive size is free.
+- **Persistent storage data** is only included when `--include-storage` is passed, and only for dokku-managed storage directories. Mount declarations are always captured.
+- **Datastore services** are provided by third-party plugins. They are auto-discovered for a full export only when their plugin implements the `datastore-list` and `service-list` triggers; otherwise pass `--service TYPE:NAME` explicitly.
+- **Access control.** Callers can only export and import apps and services they have access to via the [user-auth](/docs/development/plugin-triggers.md#user-auth) plugin trigger.
+- **Generated config** (nginx vhost files, proxy config) and **log history** are not backed up; they are regenerated when the app is redeployed.
+- **Portability.** The declarative `config/*.yml` slices are [docket](https://github.com/dokku/docket) (>= 0.6.0) recipes; a backup also contains aggregate `tasks.yml` recipes that `docket apply` can consume for out-of-band restores.
+- **Restore order.** An import reinstalls recorded plugins first, then restores global state, then services, then each app. Each app is created, has its config restored (`backup-app-import`, then `post-backup-app-import` for config that depends on another plugin's restored config such as `domains`), and is finally redeployed. Because the redeploy is last, all config is restored before the app is built. A `pre-backup-app-deploy` hook fires right before that redeploy (only when the app is redeployed) for pre-deploy preparation such as refreshing a restored TLS certificate; work that needs the already-running app acts during the normal deploy. See the [import-ordering note in the plugin triggers docs](/docs/development/plugin-triggers.md#backup-pre-and-post-hooks).
+
 ## TLDR
 
 > [!WARNING]

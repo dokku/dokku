@@ -30,6 +30,7 @@ require (
 	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/ryanuber/columnize v2.1.2+incompatible // indirect
 	github.com/tailscale/hujson v0.0.0-20250605163823-992244df8c5a // indirect
+	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/crypto v0.53.0 // indirect
 	golang.org/x/sys v0.46.0 // indirect
 	k8s.io/utils v0.0.0-20240102154912-e7106e64919e // indirect

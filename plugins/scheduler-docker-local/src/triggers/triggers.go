@@ -23,6 +23,14 @@ func main() {
 
 	var err error
 	switch trigger {
+	case "backup-app-export":
+		err = schedulerdockerlocal.TriggerBackupAppExport(flag.Arg(0), flag.Arg(1))
+	case "backup-app-import":
+		err = schedulerdockerlocal.TriggerBackupAppImport(flag.Arg(0), flag.Arg(1))
+	case "backup-global-export":
+		err = schedulerdockerlocal.TriggerBackupGlobalExport(flag.Arg(0))
+	case "backup-global-import":
+		err = schedulerdockerlocal.TriggerBackupGlobalImport(flag.Arg(0))
 	case "scheduler-cron-write":
 		scheduler := flag.Arg(0)
 		err = schedulerdockerlocal.TriggerSchedulerCronWrite(scheduler)

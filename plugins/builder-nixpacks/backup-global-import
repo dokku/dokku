@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+source "$PLUGIN_AVAILABLE_PATH/common/functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-builder-nixpacks-backup-global-import() {
+  declare desc="restores the global builder-nixpacks properties from the backup scope dir"
+  declare trigger="backup-global-import"
+  declare SCOPE_DIR="$1"
+  "$PLUGIN_AVAILABLE_PATH/backup/backup-property" import "builder-nixpacks" "--global" "$SCOPE_DIR"
+}
+
+trigger-builder-nixpacks-backup-global-import "$@"
