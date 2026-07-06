@@ -1,5 +1,39 @@
 # History
 
+## 0.38.21
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.38.21/bootstrap.sh
+sudo DOKKU_TAG=v0.38.21 bash bootstrap.sh
+```
+
+### New Features
+
+- #8795: @josegonzalez Add --format json support to apps:list
+
+### Tests
+
+- #8788: @dependabot[bot] chore(deps): bump google.golang.org/grpc from 1.81.1 to 1.82.0 in /tests/apps/gogrpc
+- #8787: @dependabot[bot] chore(deps): bump golang.org/x/net from 0.51.0 to 0.55.0 in /tests/apps/gogrpc
+
+### Dependencies
+
+- #8781: @dependabot[bot] chore(deps): bump lucaslorentz/caddy-docker-proxy from 2.12 to 2.13 in /plugins/caddy-vhosts
+- #8794: @dependabot[bot] chore(deps): bump github.com/fluxcd/pkg/kustomize from 1.36.0 to 1.37.0 in /plugins/scheduler-k3s
+- #8789: @dependabot[bot] chore(deps): bump pymdown-extensions from 11.0 to 11.0.1 in /docs/_build
+- #8782: @dependabot[bot] chore(deps): bump github.com/go-openapi/jsonpointer from 0.23.2 to 0.24.0 in /plugins/scheduler-k3s
+- #8785: @dependabot[bot] chore(deps): bump traefik from v3.7.5 to v3.7.6 in /plugins/traefik-vhosts
+- #8786: @dependabot[bot] chore(deps): bump github.com/fluxcd/pkg/kustomize from 1.31.0 to 1.36.0 in /plugins/scheduler-k3s
+- #8783: @dependabot[bot] chore(deps): bump github.com/traefik/traefik/v2 from 2.11.50 to 2.11.51 in /plugins/scheduler-k3s
+- #8780: @dependabot[bot] chore(deps): bump github.com/cert-manager/cert-manager from 1.20.2 to 1.20.3 in /plugins/scheduler-k3s
+- #8779: @dependabot[bot] chore(deps): bump github.com/go-openapi/jsonpointer from 0.23.1 to 0.23.2 in /plugins/scheduler-k3s
+
+### Other
+
+- #8796: @josegonzalez Add --format json support to ps:scale
+
 ## 0.38.20
 
 Install/update via the bootstrap script:

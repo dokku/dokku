@@ -1,4 +1,4 @@
 [plugin]
 description = "dokku core buildpacks plugin"
-version = "0.38.20"
+version = "0.38.21"
 [plugin.config]
