@@ -46,6 +46,8 @@ cmd-builder-pack-report-single() {
     flag_map=(
       "--builder-pack-computed-projecttoml-path: $(fn-builder-pack-computed-projecttoml-path "$APP")"
       "--builder-pack-global-projecttoml-path: $(fn-builder-pack-global-projecttoml-path "$APP")"
+      "--builder-pack-computed-stack: $(fn-builder-pack-computed-stack "$APP")"
+      "--builder-pack-global-stack: $(fn-builder-pack-global-stack "$APP")"
     )
   else
     verify_app_name "$APP"
@@ -53,6 +55,9 @@ cmd-builder-pack-report-single() {
       "--builder-pack-computed-projecttoml-path: $(fn-builder-pack-computed-projecttoml-path "$APP")"
       "--builder-pack-global-projecttoml-path: $(fn-builder-pack-global-projecttoml-path "$APP")"
       "--builder-pack-projecttoml-path: $(fn-builder-pack-projecttoml-path "$APP")"
+      "--builder-pack-computed-stack: $(fn-builder-pack-computed-stack "$APP")"
+      "--builder-pack-global-stack: $(fn-builder-pack-global-stack "$APP")"
+      "--builder-pack-stack: $(fn-builder-pack-stack "$APP")"
     )
   fi
 
@@ -115,4 +120,30 @@ fn-builder-pack-projecttoml-path() {
   declare APP="$1"
 
   fn-plugin-property-get-default "builder-pack" "$APP" "projecttoml-path" ""
+}
+
+fn-builder-pack-computed-stack() {
+  declare APP="$1"
+
+  stack="$(fn-builder-pack-stack "$APP")"
+  if [[ "$stack" == "" ]]; then
+    stack="$(fn-builder-pack-global-stack "$APP")"
+  fi
+  if [[ "$stack" == "" ]]; then
+    stack="${DOKKU_CNB_BUILDER:-heroku/builder:24}"
+  fi
+
+  echo "$stack"
+}
+
+fn-builder-pack-global-stack() {
+  declare APP="$1"
+
+  fn-plugin-property-get-default "builder-pack" "--global" "stack" ""
+}
+
+fn-builder-pack-stack() {
+  declare APP="$1"
+
+  fn-plugin-property-get-default "builder-pack" "$APP" "stack" ""
 }

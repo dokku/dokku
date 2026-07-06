@@ -100,14 +100,23 @@ dokku builder-pack:report
        Builder pack computed projecttoml path: project2.toml
        Builder pack global projecttoml path:
        Builder pack projecttoml path:          project2.toml
+       Builder pack computed stack:            heroku/builder:24
+       Builder pack global stack:
+       Builder pack stack:
 =====> python-sample builder-pack information
        Builder pack computed projecttoml path: project.toml
        Builder pack global projecttoml path:
        Builder pack projecttoml path:
+       Builder pack computed stack:            heroku/builder:24
+       Builder pack global stack:
+       Builder pack stack:
 =====> ruby-sample builder-pack information
        Builder pack computed projecttoml path: project.toml
        Builder pack global projecttoml path:
        Builder pack projecttoml path:
+       Builder pack computed stack:            heroku/builder:24
+       Builder pack global stack:
+       Builder pack stack:
 ```
 
 The `projecttoml-path` and `global-projecttoml-path` keys hold the raw per-app and global value respectively, and are empty when nothing has been set. The `computed-projecttoml-path` key holds the effective value used at build time, falling back to the global value (where one has been set) and then to the built-in default of `project.toml`.
@@ -138,31 +147,34 @@ project2.toml
 ### Customizing the Buildpack stack builder
 
 > [!IMPORTANT]
-> New as of 0.23.0
+> New as of 0.23.0. The `stack` property moved from the `buildpacks` plugin to the `builder-pack` plugin in 0.39.0.
 
-The default stack builder in use by CNB buildpacks in Dokku is based on `heroku/builder:24`. Users may desire to switch the stack builder to a custom version, either to update the operating system or to customize packages included with the stack builder. This can be performed via the `buildpacks:set-property` command.
-
-```shell
-dokku buildpacks:set-property node-js-app stack paketobuildpacks/build:base-cnb
-```
-
-The specified stack builder can also be unset by omitting the name of the stack builder when calling `buildpacks:set-property`.
+The default stack builder in use by CNB buildpacks in Dokku is based on `heroku/builder:24`. Users may desire to switch the stack builder to a custom version, either to update the operating system or to customize packages included with the stack builder. This can be performed via the `builder-pack:set` command.
 
 ```shell
-dokku buildpacks:set-property node-js-app stack
+dokku builder-pack:set node-js-app stack paketobuildpacks/build:base-cnb
 ```
 
-A change in the stack builder value will execute the `post-stack-set` trigger.
+The specified stack builder can also be unset by omitting the name of the stack builder when calling `builder-pack:set`.
+
+```shell
+dokku builder-pack:set node-js-app stack
+```
+
+A change in the stack builder value flags the next build to run with `--clear-cache` so a stale pack cache is not reused.
 
 Finally, stack builders can be set or unset globally as a fallback. This will take precedence over a globally set `DOKKU_CNB_BUILDER` environment variable (`heroku/builder:24` by default).
 
 ```shell
 # set globally
-dokku buildpacks:set-property --global stack paketobuildpacks/build:base-cnb
+dokku builder-pack:set --global stack paketobuildpacks/build:base-cnb
 
 # unset globally
-dokku buildpacks:set-property --global stack
+dokku builder-pack:set --global stack
 ```
+
+> [!WARNING]
+> The `buildpacks:set-property stack` command is deprecated. It still works but emits a deprecation warning and forwards the value to `builder-pack` (when the value is a CNB builder) or `builder-herokuish` (when the value references a herokuish image).
 
 ### Specifying commands via Procfile
 
@@ -175,3 +187,12 @@ See the [Procfile documentation](/docs/processes/process-management.md#procfile)
 | Property | Scope | Default | Report flags | Description |
 |---|---|---|---|---|
 | `projecttoml-path` | app + global | `project.toml` | `--builder-pack-projecttoml-path`, `--builder-pack-global-projecttoml-path`, `--builder-pack-computed-projecttoml-path` | Path within the app to the CNB `project.toml` manifest, relative to the build root |
+| `stack` | app + global | `heroku/builder:24` | `--builder-pack-stack`, `--builder-pack-global-stack`, `--builder-pack-computed-stack` | CNB builder image used to build the app (e.g. `paketobuildpacks/build:base-cnb`) |
+
+### Internal properties
+
+The following properties are recorded internally by the builder-pack plugin and are not exposed via `builder-pack:report`:
+
+| Property | Scope | Description | Source |
+|---|---|---|---|
+| `clear-cache` | per-app | Transient flag set when the pack `stack` changes. The next `pack build` runs with `--clear-cache` and then the flag is deleted, ensuring a stack change does not reuse a stale pack cache | `plugins/builder-pack/subcommands/set` sets it on stack change; `plugins/builder-pack/builder-build` consumes and deletes it |
