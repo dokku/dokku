@@ -44,8 +44,9 @@ func main() {
 		err = apps.CommandExists(appName)
 	case "list":
 		args := flag.NewFlagSet("apps:list", flag.ExitOnError)
+		format := args.String("format", "stdout", "format: [ stdout | json ]")
 		args.Parse(os.Args[2:])
-		err = apps.CommandList()
+		err = apps.CommandList(*format)
 	case "lock":
 		args := flag.NewFlagSet("apps:lock", flag.ExitOnError)
 		args.Parse(os.Args[2:])

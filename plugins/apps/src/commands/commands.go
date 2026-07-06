@@ -23,7 +23,7 @@ Additional commands:`
     apps:create <app>, Create a new app
     apps:destroy <app>, Permanently destroy an app
     apps:exists <app>, Checks if an app exists
-    apps:list, List your apps
+    apps:list [--format stdout|json], List your apps
     apps:lock <app>, Locks an app for deployment
     apps:locked <app>, Checks if an app is locked for deployment
     apps:rename <old-app> <new-app>, Rename an app
@@ -43,7 +43,7 @@ func main() {
 		args.Usage = usage
 		args.Parse(os.Args[2:])
 
-		if err := apps.CommandList(); err != nil {
+		if err := apps.CommandList("stdout"); err != nil {
 			common.LogFailWithError(err)
 		}
 	case "apps:help":
