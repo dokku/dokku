@@ -1,6 +1,7 @@
 package ps
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -243,10 +244,20 @@ func restorePrep() error {
 	return nil
 }
 
-func scaleReport(appName string) error {
+func scaleReport(appName string, format string) error {
 	formations, err := getFormations(appName)
 	if err != nil {
 		return err
+	}
+
+	if format == "json" {
+		out, err := json.Marshal(formations)
+		if err != nil {
+			return err
+		}
+
+		common.Log(string(out))
+		return nil
 	}
 
 	common.LogInfo1Quiet(fmt.Sprintf("Scaling for %s", appName))

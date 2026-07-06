@@ -158,13 +158,13 @@ func CommandRetire(appName string) error {
 }
 
 // CommandScale gets or sets how many instances of a given process to run
-func CommandScale(appName string, skipDeploy bool, processTuples []string) error {
+func CommandScale(appName string, skipDeploy bool, format string, processTuples []string) error {
 	if err := common.VerifyAppName(appName); err != nil {
 		return err
 	}
 
 	if len(processTuples) == 0 {
-		return scaleReport(appName)
+		return scaleReport(appName, format)
 	}
 
 	if !canScaleApp(appName) {
