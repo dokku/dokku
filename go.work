@@ -12,10 +12,12 @@ use (
 	./plugins/builder-railpack
 	./plugins/buildpacks
 	./plugins/caddy-vhosts
+	./plugins/checks
 	./plugins/common
 	./plugins/config
 	./plugins/cron
 	./plugins/docker-options
+	./plugins/domains
 	./plugins/haproxy-vhosts
 	./plugins/logs
 	./plugins/network
