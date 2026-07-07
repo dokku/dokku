@@ -179,6 +179,25 @@ A machine-readable JSON view is available via `--format json`:
 dokku docker-options:report node-js-app --format json
 ```
 
+The JSON report includes the existing string keys (`build`, `deploy`, `run`, and `deploy.<process>` when configured) plus parallel `-list` keys for the same shorthand keys. Each `-list` value is a JSON array with one element per option as originally stored via `docker-options:add`, which allows export tooling to round-trip options that contain spaces without splitting the legacy space-joined strings. Empty phases emit an empty array (`[]`). The deprecated `docker-options-*` prefixed keys are unchanged and do not gain `-list` companions.
+
+```json
+{
+  "build": "",
+  "build-list": [],
+  "deploy": "-v /logs:/logs --memory=512m",
+  "deploy-list": ["-v /logs:/logs", "--memory=512m"],
+  "run": "",
+  "run-list": [],
+  "deploy.web": "-p 8080:5000",
+  "deploy.web-list": ["-p 8080:5000"],
+  "docker-options-build": "",
+  "docker-options-deploy": "-v /logs:/logs --memory=512m",
+  "docker-options-run": "",
+  "docker-options-deploy.web": "-p 8080:5000"
+}
+```
+
 ### Process-Specific Options
 
 > [!IMPORTANT]

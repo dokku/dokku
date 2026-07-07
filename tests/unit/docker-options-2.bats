@@ -185,10 +185,68 @@ teardown() {
   assert_success
   assert_output_contains '"docker-options-deploy.web"'
   assert_output_contains '"deploy.web"'
-  assert_output_contains "-p 8080:5000" 2
+  assert_output_contains '"deploy.web-list"'
+  assert_output_contains "-p 8080:5000" 3
   assert_output_contains '"docker-options-deploy"'
   assert_output_contains '"deploy"'
-  assert_output_contains "-v /logs:/logs" 2
+  assert_output_contains '"deploy-list"'
+  assert_output_contains "-v /logs:/logs" 3
+}
+
+@test "(docker-options:report) --format json exposes structured -list keys" {
+  run /bin/bash -c "dokku docker-options:add $TEST_APP build --build-arg X=Y --link foo --link bar"
+  echo "output: $output"
+  assert_success
+
+  run /bin/bash -c "dokku docker-options:add --process web $TEST_APP deploy '-p 8080:5000'"
+  echo "output: $output"
+  assert_success
+
+  run /bin/bash -c "dokku docker-options:add $TEST_APP deploy '-v /logs:/logs' '--memory=512m'"
+  echo "output: $output"
+  assert_success
+
+  run /bin/bash -c "dokku docker-options:add $TEST_APP deploy --label 'com.example.description=my app'"
+  echo "output: $output"
+  assert_success
+
+  run /bin/bash -c "dokku docker-options:report $TEST_APP --format json | jq -e '.\"build-list\" | length == 3'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku docker-options:report $TEST_APP --format json | jq -e '.\"deploy-list\" | length == 3'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku docker-options:report $TEST_APP --format json | jq -e '.\"deploy-list\" | index(\"--memory=512m\") != null'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku docker-options:report $TEST_APP --format json | jq -e '.\"deploy-list\"[] | select(test(\"my app\"))'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku docker-options:report $TEST_APP --format json | jq -e '.\"deploy.web-list\"[]'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "-p 8080:5000"
+
+  run /bin/bash -c "dokku docker-options:report $TEST_APP --format json | jq -e 'has(\"docker-options-deploy-list\") | not'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
+@test "(docker-options:report) --format json emits empty -list arrays for unset phases" {
+  run /bin/bash -c "dokku docker-options:report $TEST_APP --format json | jq -e '.\"build-list\" == [] and .\"deploy-list\" == [] and .\"run-list\" == []'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 }
 
 @test "(docker-options) clone copies default and per-process options" {
