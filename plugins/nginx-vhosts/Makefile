@@ -1,6 +1,14 @@
 GOARCH ?= amd64
-BUILD = pagesize nginx-property
+TRIGGERS = triggers/report
+BUILD = pagesize nginx-property report-subcommand triggers
 PLUGIN_NAME = nginx-vhosts
+
+clean-report-subcommand:
+	rm -rf report-subcommand
+
+report-subcommand: clean-report-subcommand src/subcommands/subcommands.go
+	GOARCH=$(GOARCH) go build -mod=readonly -ldflags="-s -w" $(GO_ARGS) -o report-subcommand src/subcommands/subcommands.go
+	ln -sf ../report-subcommand subcommands/report
 
 clean-pagesize:
 	rm -rf pagesize
