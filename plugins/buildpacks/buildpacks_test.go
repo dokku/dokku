@@ -2,6 +2,7 @@ package buildpacks
 
 import (
 	"os"
+	"os/user"
 	"path/filepath"
 	"testing"
 
@@ -15,9 +16,20 @@ func setupTestEnvironment(t *testing.T) string {
 		t.Fatal(err)
 	}
 
-	os.Setenv("DOKKU_LIB_ROOT", tmpDir)
-	os.Setenv("PLUGIN_PATH", "/var/lib/dokku/plugins")
-	os.Setenv("PLUGIN_ENABLED_PATH", "/var/lib/dokku/plugins/enabled")
+	t.Setenv("DOKKU_LIB_ROOT", tmpDir)
+	t.Setenv("PLUGIN_PATH", "/var/lib/dokku/plugins")
+	t.Setenv("PLUGIN_ENABLED_PATH", "/var/lib/dokku/plugins/enabled")
+
+	current, err := user.Current()
+	if err != nil {
+		t.Fatal(err)
+	}
+	group, err := user.LookupGroupId(current.Gid)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("DOKKU_SYSTEM_USER", current.Username)
+	t.Setenv("DOKKU_SYSTEM_GROUP", group.Name)
 
 	return tmpDir
 }
