@@ -12,6 +12,7 @@ use (
 	./plugins/builder-railpack
 	./plugins/buildpacks
 	./plugins/caddy-vhosts
+	./plugins/certs
 	./plugins/checks
 	./plugins/common
 	./plugins/config
