@@ -4,6 +4,12 @@ use (
 	./plugins/app-json
 	./plugins/apps
 	./plugins/builder
+	./plugins/builder-dockerfile
+	./plugins/builder-herokuish
+	./plugins/builder-lambda
+	./plugins/builder-nixpacks
+	./plugins/builder-pack
+	./plugins/builder-railpack
 	./plugins/buildpacks
 	./plugins/common
 	./plugins/config
