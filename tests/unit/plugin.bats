@@ -26,6 +26,70 @@ teardown() {
   assert_output "$help_output"
 }
 
+@test "(plugin) plugin:list --format json" {
+  run /bin/bash -c "dokku plugin:list --format nonsense"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Invalid output format"
+
+  run /bin/bash -c "dokku plugin:list --format json | jq -r '.[] | select(.name == \"apps\") | .core'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku plugin:list --format json | jq -r '.[] | select(.name == \"apps\") | .enabled'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku plugin:list --format json | jq -r '.[] | select(.name == \"apps\") | .source_url'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  # Clone a git-based third-party plugin directly into the available path so the
+  # git install source is present without running the (build-dependent) install
+  # trigger. plugn lists it as a disabled plugin.
+  run /bin/bash -c "git clone $TEST_PLUGIN_GIT_REPO $PLUGIN_AVAILABLE_PATH/$TEST_PLUGIN_NAME"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku plugin:list --format json | jq -r '.[] | select(.name == \"$TEST_PLUGIN_NAME\") | .source_url'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "$TEST_PLUGIN_GIT_REPO"
+
+  run /bin/bash -c "dokku plugin:list --format json | jq -r '.[] | select(.name == \"$TEST_PLUGIN_NAME\") | .core'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku plugin:list --format json | jq -r '.[] | select(.name == \"$TEST_PLUGIN_NAME\") | .enabled'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku plugin:list --format json | jq -r '.[] | select(.name == \"$TEST_PLUGIN_NAME\") | .committish | length'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "40"
+
+  run /bin/bash -c "dokku plugin:list --format json | jq -r '.[] | select(.name == \"$TEST_PLUGIN_NAME\") | .branch'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_exists
+}
+
 @test "(plugin) plugin:install, plugin:disable, plugin:update plugin:uninstall" {
   run /bin/bash -c "dokku plugin:installed $TEST_PLUGIN_NAME"
   echo "output: $output"

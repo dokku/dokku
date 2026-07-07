@@ -12,6 +12,7 @@ use (
 	./plugins/logs
 	./plugins/network
 	./plugins/nginx-vhosts
+	./plugins/plugin
 	./plugins/ports
 	./plugins/proxy
 	./plugins/ps

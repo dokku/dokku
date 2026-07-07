@@ -31,7 +31,7 @@ fn-help-content() {
     plugin:enable <name>, Enable a previously disabled plugin
     plugin:install [--core|--git-url] [--committish branch|commit|commit] [--name custom-plugin-name] [--skip-install-trigger], Optionally download git-url (and pin to the specified branch/commit/tag) & run install trigger for active plugins (or only core ones)
     plugin:install-dependencies [--core], Run install-dependencies trigger for active plugins (or only core ones)
-    plugin:list, Print active plugins
+    plugin:list [--format stdout|json], Print active plugins
     plugin:trigger <args...>, Trigger an arbitrary plugin hook
     plugin:uninstall <name>, Uninstall a plugin (third-party only)
     plugin:update [name [branch|commit|tag]], Optionally update named plugin from git (and pin to the specified branch/commit/tag) & run update trigger for active plugins
