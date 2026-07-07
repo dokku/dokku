@@ -18,6 +18,7 @@ Additional commands:`
 
 	helpContent = `
     scheduler-k3s:autoscaling-auth:set <app|--global> <trigger> [<--metadata key=value>...], Set or clear a scheduler-k3s autoscaling keda trigger authentication resource for an app
+    scheduler-k3s:autoscaling-auth:report [<app>|--global] [--format stdout|json] [--include-metadata], Displays a scheduler-k3s autoscaling auth report for one or more apps
     scheduler-k3s:annotations:set <app|--global> <property> (<value>) [--process-type PROCESS_TYPE] <--resource-type RESOURCE_TYPE>, Set or clear an annotation for a given app/process-type/resource-type combination
     scheduler-k3s:annotations:report [<app>|--global] [--format stdout|json] [--process-type PROCESS_TYPE] [--resource-type RESOURCE_TYPE], Displays a scheduler-k3s annotations report for one or more apps
     scheduler-k3s:charts:report [<chart>] [--format stdout|json], Displays a scheduler-k3s chart override report
