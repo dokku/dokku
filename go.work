@@ -4,14 +4,27 @@ use (
 	./plugins/app-json
 	./plugins/apps
 	./plugins/builder
+	./plugins/builder-dockerfile
+	./plugins/builder-herokuish
+	./plugins/builder-lambda
+	./plugins/builder-nixpacks
+	./plugins/builder-pack
+	./plugins/builder-railpack
 	./plugins/buildpacks
+	./plugins/caddy-vhosts
+	./plugins/certs
+	./plugins/checks
 	./plugins/common
 	./plugins/config
 	./plugins/cron
 	./plugins/docker-options
+	./plugins/domains
+	./plugins/git
+	./plugins/haproxy-vhosts
 	./plugins/logs
 	./plugins/network
 	./plugins/nginx-vhosts
+	./plugins/openresty-vhosts
 	./plugins/plugin
 	./plugins/ports
 	./plugins/proxy
@@ -23,4 +36,5 @@ use (
 	./plugins/scheduler-docker-local
 	./plugins/scheduler-k3s
 	./plugins/storage
+	./plugins/traefik-vhosts
 )

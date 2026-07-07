@@ -1,5 +1,8 @@
 /triggers/*
 /triggers
 /cron-*
+/report
+/report-subcommand
 /scheduler-cron-write
 /scheduler-storage-exec
+/subcommands/report

@@ -47,6 +47,9 @@ func main() {
 			AsUser:      *asUser,
 			Command:     cmd,
 		})
+	case "report":
+		appName := flag.Arg(0)
+		err = schedulerdockerlocal.ReportSingleApp(appName, "", "")
 	default:
 		err = fmt.Errorf("Invalid plugin trigger call: %s", trigger)
 	}

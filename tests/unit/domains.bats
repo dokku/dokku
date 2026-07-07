@@ -44,13 +44,19 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "Global domains information"
+  assert_output_contains "global domains information"
 
   run /bin/bash -c "dokku domains:report --global --domains-global-enabled"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output "true"
+
+  run /bin/bash -c "dokku domains:report --global --domains-invalid-flag"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Invalid flag passed"
 }
 
 @test "(domains) domains" {
