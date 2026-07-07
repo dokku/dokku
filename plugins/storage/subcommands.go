@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
@@ -99,7 +100,13 @@ func ResolveChownID(chownFlag string) (string, error) {
 	case "false":
 		return "false", nil
 	default:
-		return "", errors.New("Unsupported chown permissions")
+		id, err := strconv.ParseUint(chownFlag, 10, 16)
+
+		if err != nil {
+			return "", errors.New("Unsupported chown permissions")
+		} else {
+			chownID = fmt.Sprint(id)
+		}
 	}
 
 	userns, err := isUserNamespacesEnabled()
