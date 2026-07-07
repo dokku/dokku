@@ -9,7 +9,7 @@ plugin:enable <name>                     # Enable a previously disabled plugin
 plugin:install [--core|git-url] [--committish branch|commit|tag] [--name custom-plugin-name] [--skip-install-trigger] # Optionally download git-url (and pin to the specified branch/commit/tag) & run install trigger for active plugins (or only core ones)
 plugin:installed <name>                  # Checks if a plugin is installed
 plugin:install-dependencies [--core]     # Run install-dependencies trigger for active plugins (or only core ones)
-plugin:list                              # Print active plugins
+plugin:list [--format stdout|json]       # Print active plugins
 plugin:trigger <args...>.                # Trigger an arbitrary plugin hook
 plugin:uninstall <name>                  # Uninstall a plugin (third-party only)
 plugin:update [name [branch|commit|tag]] # Optionally update named plugin from git (and pin to the specified branch/commit/tag) & run update trigger for active plugins
@@ -66,6 +66,39 @@ plugn: dev
   tar                  0.38.21 enabled    dokku core tar plugin
   trace                0.38.21 enabled    dokku core trace plugin
 ```
+
+The list can also be emitted as JSON via the `--format json` flag. In addition to the name, version, enabled state, and description shown in the default output, the JSON output includes whether a plugin is a core plugin and - for git-based third-party plugins - the install source (the git remote URL, the currently checked-out commit, and the followed branch). This is useful for tooling that reconstructs a server's set of installed plugins:
+
+```shell
+dokku plugin:list --format json
+```
+
+```json
+[
+  {
+    "name": "apps",
+    "version": "0.38.21",
+    "enabled": true,
+    "core": true,
+    "description": "dokku core apps plugin",
+    "source_url": "",
+    "committish": "",
+    "branch": ""
+  },
+  {
+    "name": "postgres",
+    "version": "1.42.0",
+    "enabled": true,
+    "core": false,
+    "description": "dokku postgres service plugin",
+    "source_url": "https://github.com/dokku/dokku-postgres.git",
+    "committish": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0",
+    "branch": "master"
+  }
+]
+```
+
+The `source_url`, `committish`, and `branch` fields are only populated for plugins installed from a git repository. They are empty for core plugins as well as for plugins installed from a tarball or a local `file://` path. When a plugin is pinned to a specific commit or tag (a detached checkout), the `branch` field is empty while `committish` still reports the exact commit.
 
 > [!WARNING]
 > All plugin commands other than `plugin:list` and `plugin:help` require sudo access and must be run directly from the Dokku server.
