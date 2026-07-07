@@ -19,6 +19,7 @@ use (
 	./plugins/cron
 	./plugins/docker-options
 	./plugins/domains
+	./plugins/git
 	./plugins/haproxy-vhosts
 	./plugins/logs
 	./plugins/network
