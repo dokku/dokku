@@ -11,13 +11,16 @@ use (
 	./plugins/builder-pack
 	./plugins/builder-railpack
 	./plugins/buildpacks
+	./plugins/caddy-vhosts
 	./plugins/common
 	./plugins/config
 	./plugins/cron
 	./plugins/docker-options
+	./plugins/haproxy-vhosts
 	./plugins/logs
 	./plugins/network
 	./plugins/nginx-vhosts
+	./plugins/openresty-vhosts
 	./plugins/ports
 	./plugins/proxy
 	./plugins/ps
@@ -28,4 +31,5 @@ use (
 	./plugins/scheduler-docker-local
 	./plugins/scheduler-k3s
 	./plugins/storage
+	./plugins/traefik-vhosts
 )
