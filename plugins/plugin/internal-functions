@@ -8,6 +8,35 @@ cmd-plugin-list() {
   declare cmd="plugin"
   [[ "$1" == "$cmd" ]] && shift 1
 
+  local FORMAT="stdout"
+  local arg
+  while [[ "$#" -gt 0 ]]; do
+    arg="$1"
+    shift
+    case "$arg" in
+      --format)
+        if [[ "$#" -gt 0 ]]; then
+          FORMAT="$1"
+          shift
+        else
+          FORMAT=""
+        fi
+        ;;
+      --format=*)
+        FORMAT="${arg#--format=}"
+        ;;
+    esac
+  done
+
+  if [[ "$FORMAT" != "stdout" ]] && [[ "$FORMAT" != "json" ]]; then
+    dokku_log_fail "Invalid output format specified, supported formats: json, stdout"
+  fi
+
+  if [[ "$FORMAT" == "json" ]]; then
+    "$PLUGIN_AVAILABLE_PATH/plugin/plugin-list" --format json
+    return "$?"
+  fi
+
   plugn list
 }
 

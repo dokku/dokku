@@ -25,6 +25,7 @@ use (
 	./plugins/network
 	./plugins/nginx-vhosts
 	./plugins/openresty-vhosts
+	./plugins/plugin
 	./plugins/ports
 	./plugins/proxy
 	./plugins/ps
