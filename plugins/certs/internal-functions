@@ -45,4 +45,3 @@ fn-certs-remove() {
   plugn trigger post-certs-remove "$APP"
   plugn trigger post-domains-update "$APP"
 }
-
