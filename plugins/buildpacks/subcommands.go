@@ -162,12 +162,24 @@ func CommandReport(appName string, format string, infoFlag string) error {
 }
 
 // CommandSet implements buildpacks:set
-func CommandSet(appName string, buildpack string, index int) error {
+func CommandSet(appName string, buildpacks []string, index int, replace bool) error {
 	if err := common.VerifyAppName(appName); err != nil {
 		return err
 	}
 
-	buildpack, err := validBuildpackURL(buildpack)
+	if replace {
+		return setBuildpackList(appName, buildpacks, index)
+	}
+
+	if len(buildpacks) > 1 {
+		return errors.New("Setting multiple buildpacks requires the --replace flag")
+	}
+
+	if len(buildpacks) == 0 {
+		return errors.New("Must specify a buildpack")
+	}
+
+	buildpack, err := validBuildpackURL(buildpacks[0])
 	if err != nil {
 		return err
 	}
@@ -177,6 +189,28 @@ func CommandSet(appName string, buildpack string, index int) error {
 	}
 
 	return common.PropertyListSet("buildpacks", appName, "buildpacks", buildpack, index)
+}
+
+// setBuildpackList atomically replaces the entire ordered buildpack list
+func setBuildpackList(appName string, buildpacks []string, index int) error {
+	if index != 0 {
+		return errors.New("The --index flag cannot be used with --replace")
+	}
+
+	if len(buildpacks) == 0 {
+		return errors.New("Must specify at least one buildpack, use buildpacks:clear to remove all buildpacks")
+	}
+
+	validated := make([]string, 0, len(buildpacks))
+	for _, buildpack := range buildpacks {
+		url, err := validBuildpackURL(buildpack)
+		if err != nil {
+			return err
+		}
+		validated = append(validated, url)
+	}
+
+	return common.PropertyListWrite("buildpacks", appName, "buildpacks", validated)
 }
 
 // CommandSetProperty implements buildpacks:set-property

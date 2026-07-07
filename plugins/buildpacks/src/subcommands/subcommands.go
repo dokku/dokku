@@ -66,10 +66,11 @@ func main() {
 	case "set":
 		args := flag.NewFlagSet("buildpacks:set", flag.ExitOnError)
 		index := args.Int("index", 0, "--index: the 1-based index of the URL in the list of URLs")
+		replace := args.Bool("replace", false, "--replace: replace the entire ordered buildpack list")
 		args.Parse(os.Args[2:])
 		appName := args.Arg(0)
-		buildpack := args.Arg(1)
-		err = buildpacks.CommandSet(appName, buildpack, *index)
+		_, buildpackList := common.ShiftString(args.Args())
+		err = buildpacks.CommandSet(appName, buildpackList, *index, *replace)
 	case "set-property":
 		args := flag.NewFlagSet("buildpacks:set-property", flag.ExitOnError)
 		global := args.Bool("global", false, "--global: set a global property")
