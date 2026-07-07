@@ -394,6 +394,22 @@ teardown() {
   assert_success
 }
 
+@test "(storage:create) --chown accepts a custom numeric uid" {
+  run /bin/bash -c "dokku storage:create --chown 1500 rdmtest-chown-numeric"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "stat -c '%u:%g' $DOKKU_LIB_ROOT/data/storage/rdmtest-chown-numeric"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "1500:1500"
+
+  run /bin/bash -c "dokku storage:destroy rdmtest-chown-numeric --force"
+  assert_success
+}
+
 @test "(storage:create) --chown rejects a non-default host path" {
   custom_path="/tmp/rdmtest-chown-custom"
   rm -rf "$custom_path"
