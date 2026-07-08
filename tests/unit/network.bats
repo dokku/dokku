@@ -14,6 +14,7 @@ teardown() {
   docker network rm create-network || true
   docker network rm deploy-network || true
   docker network rm initial-network || true
+  docker network rm "$TEST_NETWORK" || true
   global_teardown
 }
 
@@ -439,6 +440,63 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_failure
+}
+
+@test "(network:list) --format json exposes DokkuManaged" {
+  run /bin/bash -c "dokku network:create $TEST_NETWORK"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku network:list --format json | jq -e ."
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku network:list --format json | jq -r '.[] | select(.Name == \"bridge\") | .DokkuManaged'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku network:list --format json | jq -r '.[] | select(.Name == \"$TEST_NETWORK\") | .DokkuManaged'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku --force network:destroy $TEST_NETWORK"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
+@test "(network:list) --dokku-managed filters to dokku-created networks" {
+  run /bin/bash -c "dokku network:create $TEST_NETWORK"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku network:list --dokku-managed | grep -w bridge"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku network:list --dokku-managed | grep $TEST_NETWORK"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku network:list --dokku-managed --format json | jq -r '.[].DokkuManaged' | sort -u"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku --force network:destroy $TEST_NETWORK"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 }
 
 @test "(network) network:set attach" {
