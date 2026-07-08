@@ -8,6 +8,43 @@ A custom `nginx.conf.sigil` is pre-validated at the start of every deploy, immed
 
 Pre-validation is skipped when the proxy type is not `nginx` or when `disable-custom-config` is set to `true` for the app.
 
+### Custom nginx modules
+
+Pre-validation runs `nginx -t` against a minimal wrapper config that does _not_ include the top-level `load_module` directives from the global `/etc/nginx/nginx.conf`. A `nginx.conf.sigil` that uses a directive provided by a dynamically loaded module - such as `image_filter`, provided by the [ngx_http_image_filter_module](https://nginx.org/en/docs/http/ngx_http_image_filter_module.html) - therefore fails pre-validation with an `unknown directive` error, even though `nginx -t` succeeds against the real server config where the module is loaded.
+
+The `load_module` directive cannot be added to the app's `nginx.conf.sigil` to work around this, as that file is included inside the `http { }` block while `load_module` is only valid in nginx's top-level main context.
+
+To make pre-validation aware of a module, override the wrapper template used for validation. The [`nginx-app-template-source`](/docs/development/plugin-triggers.md#nginx-app-template-source) trigger returns the path to the `sigil` template used to generate a given nginx configuration file, and its `validate-config` template type controls the pre-validation wrapper. Create a [custom plugin](/docs/development/plugin-creation.md) that implements the trigger and returns a `validate.conf.sigil` that adds the required `load_module` line at the top of the wrapper.
+
+The trigger file (named `nginx-app-template-source` and marked executable):
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+APP="$1"
+TEMPLATE_TYPE="$2"
+if [[ "$TEMPLATE_TYPE" == "validate-config" ]]; then
+  echo "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/validate.conf.sigil"
+fi
+```
+
+The custom `validate.conf.sigil`, which is the [default wrapper](https://github.com/dokku/dokku/blob/master/plugins/nginx-vhosts/templates/validate.conf.sigil) with the required `load_module` line added at the top. Use the same `load_module` line that the host's global `/etc/nginx/nginx.conf` uses:
+
+```
+load_module modules/ngx_http_image_filter_module.so;
+events { worker_connections 768; }
+http {
+  access_log off;
+  error_log /dev/null;
+  include {{ $.NGINX_CONF }};
+}
+```
+
+The same override also governs the standalone `dokku nginx:validate-config` command, which renders the `validate-config` template as well.
+
 ## HTTP/2
 
 nginx 1.25.1 deprecated the `http2` parameter on the `listen` directive in favor of a standalone `http2 on;` directive. Custom `nginx.conf.sigil` templates that hardcode `listen ... ssl http2;` will produce `nginx: [warn] the "listen ... http2" directive is deprecated` warnings when run against nginx 1.25.1 or newer.
