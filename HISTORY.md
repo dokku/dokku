@@ -1,5 +1,42 @@
 # History
 
+## 0.38.22
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.38.22/bootstrap.sh
+sudo DOKKU_TAG=v0.38.22 bash bootstrap.sh
+```
+
+### New Features
+
+- #8805: @RichardDorian Allow custom values for chown
+- #8810: @josegonzalez Expose whether a network was created by dokku
+- #8807: @josegonzalez Allow replacing buildpack list atomically
+- #8808: @josegonzalez Expose docker-options as structured lists in JSON report
+- #8806: @josegonzalez Expose scheduler-k3s autoscaling-auth state for read-back
+- #8801: @josegonzalez Add --format json support to plugin:list
+
+### Refactors
+
+- #8804: @josegonzalez Port bash :report subcommands to golang
+
+### Documentation
+
+- #8809: @josegonzalez Document nginx validate-config load_module override
+
+### Tests
+
+- #8803: @dependabot[bot] chore(deps): bump django from 5.2.15 to 5.2.16 in /tests/apps/dockerfile-release
+
+### Dependencies
+
+- #8816: @dependabot[bot] chore(deps): bump golang.org/x/sync from 0.21.0 to 0.22.0 in /plugins/common
+- #8818: @dependabot[bot] chore(deps): bump github.com/traefik/traefik/v2 from 2.11.51 to 2.11.52 in /plugins/scheduler-k3s
+- #8817: @dependabot[bot] chore(deps): bump golang.org/x/sync from 0.21.0 to 0.22.0 in /plugins/scheduler-docker-local
+- #8819: @dependabot[bot] chore(deps): bump golang.org/x/sync from 0.21.0 to 0.22.0 in /plugins/scheduler-k3s
+
 ## 0.38.21
 
 Install/update via the bootstrap script:
