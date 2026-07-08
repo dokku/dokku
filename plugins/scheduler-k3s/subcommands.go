@@ -108,7 +108,7 @@ func CommandAutoscalingAuthSet(appName string, trigger string, metadata map[stri
 }
 
 // CommandAutoscalingAuthReport displays a scheduler-k3s autoscaling keda trigger authentication report for one or more apps
-func CommandAutoscalingAuthReport(appName string, format string, includeMetadata bool) error {
+func CommandAutoscalingAuthReport(appName string, format string, includeMetadata bool, infoFlag string) error {
 	if len(appName) == 0 {
 		apps, err := common.DokkuApps()
 		if err != nil {
@@ -119,14 +119,14 @@ func CommandAutoscalingAuthReport(appName string, format string, includeMetadata
 			return err
 		}
 		for _, app := range apps {
-			if err := ReportAutoscalingAuthSingleApp(app, format, includeMetadata); err != nil {
+			if err := ReportAutoscalingAuthSingleApp(app, format, includeMetadata, infoFlag); err != nil {
 				return err
 			}
 		}
 		return nil
 	}
 
-	return ReportAutoscalingAuthSingleApp(appName, format, includeMetadata)
+	return ReportAutoscalingAuthSingleApp(appName, format, includeMetadata, infoFlag)
 }
 
 // CommandAnnotationsReport displays a scheduler-k3s annotations report for one or more apps

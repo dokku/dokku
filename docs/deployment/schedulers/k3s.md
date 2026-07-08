@@ -657,8 +657,8 @@ dokku scheduler-k3s:autoscaling-auth:report --global
 ```
 
 ```
-====> $APP autoscaling-auth report
-      datadog: configured
+====> node-js-app autoscaling-auth information
+      Datadog:                       configured
 ```
 
 By default, the report will not display configured metadata - making it safe to include in Dokku report output. To include metadata and their values, add the `--include-metadata` flag:
@@ -668,11 +668,23 @@ dokku scheduler-k3s:autoscaling-auth:report node-js-app --include-metadata
 ```
 
 ```
-====> node-js-app autoscaling-auth report
+====> node-js-app autoscaling-auth information
       Datadog:                       configured
       Datadog apiKey:                1234567890
       Datadog appKey:                asdfghjkl
       Datadog datadogSite:           us5.datadoghq.com
+```
+
+JSON output emits flat keys of the form `{trigger}.{metadata_key}` and includes the actual metadata values so export tools can reconstruct the configured state:
+
+```shell
+dokku scheduler-k3s:autoscaling-auth:report node-js-app --format json
+```
+
+A single configured metadata key can also be queried with a flag of the form `--scheduler-k3s-autoscaling-auth.{trigger}.{metadata_key}`. The returned value is masked in the same way as stdout output; use `--format json` to read the actual value:
+
+```shell
+dokku scheduler-k3s:autoscaling-auth:report node-js-app --scheduler-k3s-autoscaling-auth.datadog.apiKey
 ```
 
 ### Integrating Kustomize

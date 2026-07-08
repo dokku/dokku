@@ -10,8 +10,9 @@ import (
 )
 
 const (
-	annotationsReportType = "scheduler-k3s-annotations"
-	labelsReportType      = "scheduler-k3s-labels"
+	annotationsReportType     = "scheduler-k3s-annotations"
+	labelsReportType          = "scheduler-k3s-labels"
+	autoscalingAuthReportType = "scheduler-k3s-autoscaling-auth"
 
 	// reportProcessTypeGlobal is the rendered form of GlobalProcessType in annotation
 	// and label report keys (both JSON and single-flag). Real process types cannot
@@ -138,42 +139,164 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 	})
 }
 
-// ReportAutoscalingAuthSingleApp is an internal function that displays the scheduler-k3s autoscaling-auth report for one app
-func ReportAutoscalingAuthSingleApp(appName string, format string, includeMetadata bool) error {
-	properties, err := common.PropertyGetAllByPrefix("scheduler-k3s", appName, TriggerAuthPropertyPrefix)
-	if err != nil {
-		return fmt.Errorf("Unable to get property list: %w", err)
+// autoscalingAuthReportEntry is a parsed trigger authentication metadata entry.
+type autoscalingAuthReportEntry struct {
+	Trigger     string
+	MetadataKey string
+	Value       string
+}
+
+// ReportAutoscalingAuthSingleApp displays the scheduler-k3s autoscaling-auth report for one app.
+func ReportAutoscalingAuthSingleApp(appName string, format string, includeMetadata bool, infoFlag string) error {
+	if appName != "--global" {
+		if err := common.VerifyAppName(appName); err != nil {
+			return err
+		}
 	}
 
-	infoFlags := map[string]string{}
+	entries, err := collectAutoscalingAuthEntries(appName)
+	if err != nil {
+		return err
+	}
+
+	return renderAutoscalingAuthReport(autoscalingAuthRenderInput{
+		AppName:         appName,
+		Entries:         entries,
+		Format:          format,
+		IncludeMetadata: includeMetadata,
+		InfoFlag:        infoFlag,
+	})
+}
+
+// collectAutoscalingAuthEntries scans the property store for trigger authentication metadata.
+func collectAutoscalingAuthEntries(appName string) ([]autoscalingAuthReportEntry, error) {
+	properties, err := common.PropertyGetAllByPrefix("scheduler-k3s", appName, TriggerAuthPropertyPrefix)
+	if err != nil {
+		return nil, fmt.Errorf("Unable to get property list: %w", err)
+	}
+
+	entries := []autoscalingAuthReportEntry{}
 	for key, value := range properties {
 		metadataKey := strings.TrimPrefix(key, TriggerAuthPropertyPrefix)
-		authType := strings.SplitN(metadataKey, ".", 2)[0]
-		if authType == "" {
+		parts := strings.SplitN(metadataKey, ".", 2)
+		if len(parts) != 2 || parts[0] == "" || parts[1] == "" {
 			continue
 		}
 
-		infoFlags[authType] = "configured"
-		if includeMetadata {
-			infoFlags[strings.ReplaceAll(metadataKey, ".", "-")] = value
+		entries = append(entries, autoscalingAuthReportEntry{
+			Trigger:     parts[0],
+			MetadataKey: parts[1],
+			Value:       value,
+		})
+	}
+
+	return entries, nil
+}
+
+type autoscalingAuthRenderInput struct {
+	AppName         string
+	Entries         []autoscalingAuthReportEntry
+	Format          string
+	IncludeMetadata bool
+	InfoFlag        string
+}
+
+// renderAutoscalingAuthReport dispatches to stdout/json/single-flag rendering for trigger auth.
+func renderAutoscalingAuthReport(input autoscalingAuthRenderInput) error {
+	if input.Format != "stdout" && input.Format != "json" {
+		return fmt.Errorf("Invalid format: %s", input.Format)
+	}
+	if input.Format == "json" && input.InfoFlag != "" {
+		return fmt.Errorf("--format flag cannot be specified when specifying an info flag")
+	}
+
+	flatValues := map[string]string{}
+	flagToValue := map[string]string{}
+	flagPrefix := "--" + autoscalingAuthReportType + "."
+	for _, entry := range input.Entries {
+		composedKey := entry.Trigger + "." + entry.MetadataKey
+		flatValues[composedKey] = entry.Value
+		flagToValue[flagPrefix+composedKey] = entry.Value
+	}
+
+	if input.InfoFlag != "" {
+		value, ok := flagToValue[input.InfoFlag]
+		if !ok {
+			validFlags := []string{}
+			for flag := range flagToValue {
+				validFlags = append(validFlags, flag)
+			}
+			sort.Strings(validFlags)
+			return fmt.Errorf("Invalid flag passed, valid flags: %s", strings.Join(validFlags, ", "))
+		}
+		if value != "" {
+			fmt.Println(tokenMask)
+		} else {
+			fmt.Println("")
+		}
+		return nil
+	}
+
+	if input.Format == "json" {
+		b, err := json.Marshal(flatValues)
+		if err != nil {
+			return fmt.Errorf("Unable to marshal json: %w", err)
+		}
+		fmt.Println(string(b))
+		return nil
+	}
+
+	triggers := map[string]bool{}
+	for _, entry := range input.Entries {
+		triggers[entry.Trigger] = true
+	}
+
+	triggerKeys := []string{}
+	for trigger := range triggers {
+		triggerKeys = append(triggerKeys, trigger)
+	}
+	sort.Strings(triggerKeys)
+
+	common.LogInfo2Quiet(fmt.Sprintf("%s autoscaling-auth information", input.AppName))
+	if len(triggerKeys) == 0 {
+		return nil
+	}
+
+	length := 31
+	if input.IncludeMetadata {
+		for _, entry := range input.Entries {
+			label := fmt.Sprintf("%s %s:", common.UcFirst(entry.Trigger), entry.MetadataKey)
+			if len(label) > length {
+				length = len(label)
+			}
 		}
 	}
 
-	flagKeys := []string{}
-	for flagKey := range infoFlags {
-		flagKeys = append(flagKeys, flagKey)
+	for _, trigger := range triggerKeys {
+		label := fmt.Sprintf("%s:", common.UcFirst(trigger))
+		common.LogVerbose(fmt.Sprintf("%s%s", common.RightPad(label, length, " "), "configured"))
+
+		if !input.IncludeMetadata {
+			continue
+		}
+
+		triggerEntries := []autoscalingAuthReportEntry{}
+		for _, entry := range input.Entries {
+			if entry.Trigger == trigger {
+				triggerEntries = append(triggerEntries, entry)
+			}
+		}
+		sort.Slice(triggerEntries, func(i, j int) bool {
+			return triggerEntries[i].MetadataKey < triggerEntries[j].MetadataKey
+		})
+
+		for _, entry := range triggerEntries {
+			label := fmt.Sprintf("%s %s:", common.UcFirst(entry.Trigger), entry.MetadataKey)
+			common.LogVerbose(fmt.Sprintf("%s%s", common.RightPad(label, length, " "), entry.Value))
+		}
 	}
 
-	return common.ReportSingleApp(common.ReportSingleAppInput{
-		ReportType:              "scheduler-k3s",
-		AppName:                 appName,
-		InfoFlags:               infoFlags,
-		InfoFlagKeys:            flagKeys,
-		Format:                  format,
-		TrimPrefix:              true,
-		UppercaseFirstCharacter: true,
-		EmitLegacyPrefix:        true,
-	})
+	return nil
 }
 
 // ExtractReportInfoFlag scans arguments for a single info flag whose name starts with

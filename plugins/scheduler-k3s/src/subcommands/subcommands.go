@@ -66,14 +66,19 @@ func main() {
 	case "autoscaling-auth:report":
 		args := flag.NewFlagSet("scheduler-k3s:autoscaling-auth:report", flag.ExitOnError)
 		global := args.Bool("global", false, "--global: show the global report")
-		includeMetadata := args.Bool("include-metadata", false, "--include-metadata: include metadata in the report")
+		includeMetadata := args.Bool("include-metadata", false, "--include-metadata: include metadata keys and values in the report")
 		format := args.String("format", "stdout", "format: [ stdout | json ]")
-		args.Parse(os.Args[2:])
+		passthroughArgs, infoFlag, flagErr := scheduler_k3s.ExtractReportInfoFlag("--scheduler-k3s-autoscaling-auth.", os.Args[2:])
+		if flagErr != nil {
+			err = flagErr
+			break
+		}
+		args.Parse(passthroughArgs)
 		appName := args.Arg(0)
 		if *global {
 			appName = "--global"
 		}
-		err = scheduler_k3s.CommandAutoscalingAuthReport(appName, *format, *includeMetadata)
+		err = scheduler_k3s.CommandAutoscalingAuthReport(appName, *format, *includeMetadata, infoFlag)
 	case "charts:set":
 		args := flag.NewFlagSet("scheduler-k3s:charts:set", flag.ExitOnError)
 		args.Parse(os.Args[2:])

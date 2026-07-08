@@ -96,3 +96,20 @@ teardown() {
   assert_success
   assert_output "$value"
 }
+
+@test "(scheduler-k3s:labels:report) rejects invalid format and info-flag combinations" {
+  run /bin/bash -c "dokku scheduler-k3s:labels:report $TEST_APP --format yaml"
+  assert_failure
+  assert_output_contains "Invalid format"
+
+  run /bin/bash -c "dokku scheduler-k3s:labels:set $TEST_APP --resource-type deployment foo bar"
+  assert_success
+
+  run /bin/bash -c "dokku scheduler-k3s:labels:report $TEST_APP --format json --scheduler-k3s-labels.global.deployment.foo"
+  assert_failure
+  assert_output_contains "--format flag cannot be specified when specifying an info flag"
+
+  run /bin/bash -c "dokku scheduler-k3s:labels:report $TEST_APP --scheduler-k3s-labels.global.deployment.missing"
+  assert_failure
+  assert_output_contains "Invalid flag passed"
+}
