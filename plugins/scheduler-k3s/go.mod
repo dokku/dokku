@@ -27,7 +27,7 @@ require (
 	github.com/onsi/gomega v1.42.1
 	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/spf13/pflag v1.0.10
-	github.com/traefik/traefik/v2 v2.11.51
+	github.com/traefik/traefik/v2 v2.11.52
 	golang.org/x/sync v0.22.0
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.1
@@ -185,7 +185,7 @@ require (
 	sigs.k8s.io/randfill v1.0.0 // indirect
 	sigs.k8s.io/structured-merge-diff/v6 v6.4.0 // indirect
 	sigs.k8s.io/yaml v1.6.0 // indirect
-	software.sslmate.com/src/go-pkcs12 v0.7.1 // indirect
+	software.sslmate.com/src/go-pkcs12 v0.7.3 // indirect
 )
 
 replace github.com/dokku/dokku/plugins/app-json => ../app-json
