@@ -121,6 +121,8 @@ dokku nginx:show-config node-js-app
 
 App-supplied `nginx.conf.sigil` files are pre-validated automatically at the start of every deploy, immediately after the template is extracted from the source tree and before the build phase runs. The template is rendered with sigil and run through `nginx -t` against a minimal wrapper config; if validation fails, the deploy is aborted before any build work begins. To bypass this behavior, set `disable-custom-config` to `true` (see "Disabling custom nginx config" below).
 
+The wrapper config used for validation does not include the top-level `load_module` directives from the global nginx config, so a `nginx.conf.sigil` that relies on a directive from a dynamically loaded module will fail this validation even when `nginx -t` passes against the real server config. See [Custom nginx modules](/docs/appendices/file-formats/nginx-conf-sigil.md#custom-nginx-modules) for how to supply a custom validation wrapper via the `nginx-app-template-source` trigger's `validate-config` template type.
+
 It may also be desired to validate an nginx config outside of the deployment process. To do so, run the `nginx:validate-config` command. With no arguments, this will validate all app nginx configs, one at a time. A minimal wrapper nginx config is generated for each app's nginx config, upon which `nginx -t` will be run.
 
 ```shell

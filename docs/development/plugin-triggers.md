@@ -1340,6 +1340,8 @@ esac
 
 The default templates are viewable here: [plugins/nginx-vhosts/templates/](https://github.com/dokku/dokku/tree/master/plugins/nginx-vhosts/templates)
 
+Overriding the `validate-config` template is the supported way to make deploy-time pre-validation aware of directives from nginx modules that the host loads via `load_module` in its global config. As implementing this trigger requires a [custom plugin](/docs/development/plugin-creation.md), see [Custom nginx modules](/docs/appendices/file-formats/nginx-conf-sigil.md#custom-nginx-modules) for a complete example.
+
 ### `nginx-dokku-template-source`
 
 - Description: Return the path to a `sigil` template that should be used to generate the `dokku.conf` nginx configuration file.
