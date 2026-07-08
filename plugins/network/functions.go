@@ -11,15 +11,21 @@ import (
 	"github.com/dokku/dokku/plugins/common"
 )
 
+// dokkuNetworkNameLabel is the docker label network:create applies to every
+// network it creates. Its presence is the marker used to identify a network as
+// dokku-managed.
+const dokkuNetworkNameLabel = "com.dokku.network-name"
+
 type DockerNetwork struct {
-	CreatedAt time.Time
-	Driver    string
-	ID        string
-	Internal  bool
-	IPv6      bool
-	Labels    map[string]string
-	Name      string
-	Scope     string
+	CreatedAt    time.Time
+	DokkuManaged bool
+	Driver       string
+	ID           string
+	Internal     bool
+	IPv6         bool
+	Labels       map[string]string
+	Name         string
+	Scope        string
 }
 
 // attachAppToNetwork attaches a container to a network
@@ -204,6 +210,10 @@ func getNetworks() (map[string]DockerNetwork, error) {
 			key := parts[0]
 			value := parts[1]
 			network.Labels[key] = value
+		}
+
+		if _, ok := network.Labels[dokkuNetworkNameLabel]; ok {
+			network.DokkuManaged = true
 		}
 
 		networks[network.Name] = network

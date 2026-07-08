@@ -8,7 +8,7 @@ network:create <network>                    # Creates an attachable docker netwo
 network:destroy <network>                   # Destroys a docker network
 network:exists <network>                    # Checks if a docker network exists
 network:info <network> [--format text|json] # Outputs information about a docker network
-network:list [--format text|json]           # Lists all docker networks
+network:list [--format text|json] [--dokku-managed] # Lists all docker networks
 network:report [<app>] [<flag>]             # Displays a network report for one or more apps
 network:rebuild <app>                       # Rebuilds network settings for an app
 network:rebuildall                          # Rebuild network settings for all apps
@@ -59,11 +59,24 @@ dokku network:list --format json
 
 ```
 [
-    {"CreatedAt":"2024-02-25T01:55:24.275184461Z","Driver":"bridge","ID":"d18df2d21433","Internal":false,"IPv6":false,"Labels":{},"Name":"bridge","Scope":"local"},
-    {"CreatedAt":"2024-02-25T01:55:24.275184461Z","Driver":"bridge","ID":"f50fa882e7de","Internal":false,"IPv6":false,"Labels":{},"Name":"test-network","Scope":"local"},
-    {"CreatedAt":"2024-02-25T01:55:24.275184461Z","Driver":"host","ID":"ab6a59291443","Internal":false,"IPv6":false,"Labels":{},"Name":"host","Scope":"local"},
-    {"CreatedAt":"2024-02-25T01:55:24.275184461Z","Driver":"null","ID":"e2506bc8b7d7","Internal":false,"IPv6":false,"Labels":{},"Name":"none","Scope":"local"}
+    {"CreatedAt":"2024-02-25T01:55:24.275184461Z","DokkuManaged":false,"Driver":"bridge","ID":"d18df2d21433","Internal":false,"IPv6":false,"Labels":{},"Name":"bridge","Scope":"local"},
+    {"CreatedAt":"2024-02-25T01:55:24.275184461Z","DokkuManaged":true,"Driver":"bridge","ID":"f50fa882e7de","Internal":false,"IPv6":false,"Labels":{"com.dokku.network-name":"test-network"},"Name":"test-network","Scope":"local"},
+    {"CreatedAt":"2024-02-25T01:55:24.275184461Z","DokkuManaged":false,"Driver":"host","ID":"ab6a59291443","Internal":false,"IPv6":false,"Labels":{},"Name":"host","Scope":"local"},
+    {"CreatedAt":"2024-02-25T01:55:24.275184461Z","DokkuManaged":false,"Driver":"null","ID":"e2506bc8b7d7","Internal":false,"IPv6":false,"Labels":{},"Name":"none","Scope":"local"}
 ]
+```
+
+The `DokkuManaged` field is `true` for networks created by `network:create` and `false` for Docker built-in networks (such as `bridge`, `host`, and `none`) or networks created outside of Dokku (such as compose `*_default` networks). This can be used by automation to determine which networks Dokku is responsible for.
+
+The `network:list` command also takes a `--dokku-managed` flag, which restricts the output to only those networks created by Dokku. It can be combined with the `--format` flag:
+
+```shell
+dokku network:list --dokku-managed
+```
+
+```
+=====> Networks
+test-network
 ```
 
 ### Creating a network
@@ -142,10 +155,11 @@ dokku network:info bridge
 
 ```
 =====> bridge network information
-       ID:       d18df2d21433
-       Name:     bridge
-       Driver:   bridge
-       Scope:    local
+       ID:             d18df2d21433
+       Name:           bridge
+       Driver:         bridge
+       Scope:          local
+       Dokku managed:  false
 ```
 
 The `network:info` command also takes a `--format` flag, with the valid options including `text` (default) and `json`. The `json` output format can be used for automation purposes:
@@ -155,7 +169,7 @@ dokku network:info bridge --format json
 ```
 
 ```
-{"CreatedAt":"2024-02-25T01:55:24.275184461Z","Driver":"bridge","ID":"d18df2d21433","Internal":false,"IPv6":false,"Labels":{},"Name":"bridge","Scope":"local"}
+{"CreatedAt":"2024-02-25T01:55:24.275184461Z","DokkuManaged":false,"Driver":"bridge","ID":"d18df2d21433","Internal":false,"IPv6":false,"Labels":{},"Name":"bridge","Scope":"local"}
 ```
 
 ### Routing an app to a known ip:port combination

@@ -22,7 +22,7 @@ Additional commands:`
     network:destroy <network>, Destroys a docker network
     network:exists <network>, Checks if a docker network exists
     network:info <network> [--format text|json], Outputs information about a docker network
-    network:list [--format text|json], Lists all docker networks
+    network:list [--format text|json] [--dokku-managed], Lists all docker networks
     network:rebuild <app>, Rebuilds network settings for an app
     network:rebuildall, Rebuild network settings for all apps
     network:report [<app>] [<flag>], Displays a network report for one or more apps

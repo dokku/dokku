@@ -15,7 +15,7 @@ func CommandCreate(networkName string) error {
 	common.LogInfo1Quiet(fmt.Sprintf("Creating network %v", networkName))
 	result, err := common.CallExecCommand(common.ExecCommandInput{
 		Command: common.DockerBin(),
-		Args:    []string{"network", "create", "--attachable", "--label", fmt.Sprintf("com.dokku.network-name=%v", networkName), networkName},
+		Args:    []string{"network", "create", "--attachable", "--label", fmt.Sprintf("%s=%v", dokkuNetworkNameLabel, networkName), networkName},
 	})
 	if err != nil {
 		return fmt.Errorf("Unable to create network: %w", err)
@@ -103,18 +103,19 @@ func CommandInfo(networkName string, format string) error {
 		return nil
 	}
 
-	length := 10
+	length := 16
 	common.LogInfo2Quiet(fmt.Sprintf("%s network information", networkName))
 	common.LogVerbose(fmt.Sprintf("%s%s", common.RightPad("ID:", length, " "), network.ID))
 	common.LogVerbose(fmt.Sprintf("%s%s", common.RightPad("Name:", length, " "), network.Name))
 	common.LogVerbose(fmt.Sprintf("%s%s", common.RightPad("Driver:", length, " "), network.Driver))
 	common.LogVerbose(fmt.Sprintf("%s%s", common.RightPad("Scope:", length, " "), network.Scope))
+	common.LogVerbose(fmt.Sprintf("%s%v", common.RightPad("Dokku managed:", length, " "), network.DokkuManaged))
 
 	return nil
 }
 
 // CommandList is an alias for "docker network ls"
-func CommandList(format string) error {
+func CommandList(format string, dokkuManaged bool) error {
 	networks, err := getNetworks()
 	if err != nil {
 		return err
@@ -123,6 +124,9 @@ func CommandList(format string) error {
 	if format == "json" {
 		networkList := []DockerNetwork{}
 		for _, network := range networks {
+			if dokkuManaged && !network.DokkuManaged {
+				continue
+			}
 			networkList = append(networkList, network)
 		}
 		out, err := json.Marshal(networkList)
@@ -135,6 +139,9 @@ func CommandList(format string) error {
 
 	common.LogInfo2Quiet("Networks")
 	for _, network := range networks {
+		if dokkuManaged && !network.DokkuManaged {
+			continue
+		}
 		fmt.Println(network.Name)
 	}
 

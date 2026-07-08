@@ -43,8 +43,9 @@ func main() {
 	case "list":
 		args := flag.NewFlagSet("network:list", flag.ExitOnError)
 		format := args.String("format", "text", "format: [ text | json ]")
+		dokkuManaged := args.Bool("dokku-managed", false, "show only dokku-managed networks")
 		args.Parse(os.Args[2:])
-		err = network.CommandList(*format)
+		err = network.CommandList(*format, *dokkuManaged)
 	case "rebuild":
 		args := flag.NewFlagSet("network:rebuild", flag.ExitOnError)
 		args.Parse(os.Args[2:])
