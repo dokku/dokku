@@ -106,6 +106,8 @@ By default, permissions are set for usage with Herokuish buildpacks. These permi
 - `--chown root`: Use `0:0` as the folder permissions.
     - This is used for containers that run their processes as root, as is typical for most Dockerfile or Docker image deploys.
 - `--chown false`: Skips the `chown` call.
+- `--chown <uid>`: Use `<uid>:<uid>` as the folder permissions, where `<uid>` is a custom numeric user/group id.
+    - This is used for containers that run their processes as a uid/gid that doesn't correspond to any of the above named options.
 
 Users deploying via Dockerfile will want to specify `--chown false` and manually `chown` the created directory if the user and/or group id  of the runnning process in the deployed container do not correspond to any of the above options.
 

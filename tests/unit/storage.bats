@@ -107,6 +107,38 @@ teardown() {
   assert_output_contains "Setting directory ownership to 32767:32767" 1
 }
 
+@test "(storage) chown-storage-dir rejects out-of-bounds chown values" {
+  run /bin/bash -c "DOKKU_LIB_ROOT=$DOKKU_LIB_ROOT $PLUGIN_AVAILABLE_PATH/storage/bin/chown-storage-dir $TEST_APP 65536"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Unsupported chown permissions"
+
+  run /bin/bash -c "DOKKU_LIB_ROOT=$DOKKU_LIB_ROOT $PLUGIN_AVAILABLE_PATH/storage/bin/chown-storage-dir $TEST_APP 165535"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Unsupported chown permissions"
+
+  run /bin/bash -c "DOKKU_LIB_ROOT=$DOKKU_LIB_ROOT $PLUGIN_AVAILABLE_PATH/storage/bin/chown-storage-dir $TEST_APP 231072"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Unsupported chown permissions"
+
+  run /bin/bash -c "DOKKU_LIB_ROOT=$DOKKU_LIB_ROOT $PLUGIN_AVAILABLE_PATH/storage/bin/chown-storage-dir $TEST_APP -1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Value must be a non-negative integer"
+
+  run /bin/bash -c "DOKKU_LIB_ROOT=$DOKKU_LIB_ROOT $PLUGIN_AVAILABLE_PATH/storage/bin/chown-storage-dir $TEST_APP abc"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Value must be a non-negative integer"
+}
+
 @test "(storage) storage:mount, storage:list, storage:umount" {
   run /bin/bash -c "dokku storage:mount $TEST_APP /tmp/mount:/mount"
   echo "output: $output"
@@ -392,6 +424,39 @@ teardown() {
 
   run /bin/bash -c "dokku storage:destroy rdmtest-chown --force"
   assert_success
+}
+
+@test "(storage:create) --chown accepts a custom numeric uid" {
+  run /bin/bash -c "dokku storage:create --chown 1500 rdmtest-chown-numeric"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "stat -c '%u:%g' $DOKKU_LIB_ROOT/data/storage/rdmtest-chown-numeric"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "1500:1500"
+
+  run /bin/bash -c "dokku storage:destroy rdmtest-chown-numeric --force"
+  assert_success
+}
+
+@test "(storage:create) --chown rejects an out-of-bounds numeric uid" {
+  run /bin/bash -c "dokku storage:create --chown 65536 rdmtest-chown-oob"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Unsupported chown permissions"
+
+  run /bin/bash -c "dokku storage:create --chown -1 rdmtest-chown-oob"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Unsupported chown permissions"
+
+  run /bin/bash -c "dokku storage:list-entries --format json | jq -r '.[].name' | grep '^rdmtest-chown-oob$' || true"
+  assert_output ""
 }
 
 @test "(storage:create) --chown rejects a non-default host path" {
