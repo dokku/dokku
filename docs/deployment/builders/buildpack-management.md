@@ -10,6 +10,7 @@ buildpacks:list <app>                                   # List all buildpacks fo
 buildpacks:remove <app> <buildpack>                     # Remove a buildpack set on the app
 buildpacks:report [<app>] [<flag>]                      # Displays a buildpack report for one or more apps
 buildpacks:set [--index 1] <app> <buildpack>            # Set new app buildpack at a given position defaulting to the first buildpack if no index is specified
+buildpacks:set --replace <app> <buildpack> [<buildpack> ...] # Replace the entire ordered buildpack list with the specified buildpacks
 ```
 
 ## Usage
@@ -85,6 +86,25 @@ If the index specified is larger than the number of buildpacks currently configu
 ```shell
 dokku buildpacks:set --index 99 node-js-app https://github.com/heroku/heroku-buildpack-ruby.git
 ```
+
+### Replacing the entire buildpack list
+
+To replace the complete ordered buildpack list in a single command, use the `--replace` flag. This is useful for tooling that needs to apply a full buildpack list atomically instead of running `buildpacks:clear` followed by multiple `buildpacks:add` calls.
+
+```shell
+dokku buildpacks:set --replace node-js-app https://github.com/heroku/heroku-buildpack-ruby.git https://github.com/heroku/heroku-buildpack-nodejs.git
+```
+
+The buildpacks are executed in the order they are specified, and the previous list is discarded. If any specified buildpack is invalid, the existing list is left unchanged.
+
+A single buildpack may also be specified to replace the entire list with just that buildpack:
+
+```shell
+dokku buildpacks:set --replace node-js-app https://github.com/heroku/heroku-buildpack-ruby.git
+```
+
+> [!NOTE]
+> The `--replace` flag cannot be combined with the `--index` flag. To remove all buildpacks, use the `buildpacks:clear` command instead of `--replace` with no buildpacks.
 
 ### Removing a buildpack
 
