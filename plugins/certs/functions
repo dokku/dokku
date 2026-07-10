@@ -20,7 +20,7 @@ get_ssl_hostnames() {
   local APP=$1
   local SSL_PATH="$DOKKU_ROOT/$APP/tls"
 
-  local SSL_HOSTNAME=$(openssl x509 -in "$SSL_PATH/server.crt" -noout -subject | tr '/' '\n' | grep CN= | cut -c4-)
+  local SSL_HOSTNAME=$(openssl x509 -in "$SSL_PATH/server.crt" -noout -subject -nameopt RFC2253 | sed -n 's/.*CN=\([^,]*\).*/\1/p')
   local SSL_HOSTNAME_ALT=$(openssl x509 -in "$SSL_PATH/server.crt" -noout -text | grep --after-context=1 '509v3 Subject Alternative Name:' | tail -n 1 | sed -e "s/[[:space:]]*DNS://g" | tr ',' '\n' || true)
   if [[ -n "$SSL_HOSTNAME_ALT" ]]; then
     local SSL_HOSTNAMES="${SSL_HOSTNAME}\n${SSL_HOSTNAME_ALT}"

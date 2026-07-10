@@ -146,6 +146,7 @@ lint-shfmt: shfmt
 lint: lint-shfmt lint-ci
 
 ci-go-coverage:
+	@$(MAKE) ci-go-coverage-plugin PLUGIN_NAME=certs
 	@$(MAKE) ci-go-coverage-plugin PLUGIN_NAME=common
 	@$(MAKE) ci-go-coverage-plugin PLUGIN_NAME=config
 	@$(MAKE) ci-go-coverage-plugin PLUGIN_NAME=network
@@ -176,6 +177,7 @@ ci-go-coverage-plugin:
 			(godacov -r ./../../test-results/coverage/$(PLUGIN_NAME).out -c $$CIRCLE_SHA1 -t $$CODACY_TOKEN || true)" || exit $$?
 
 go-tests:
+	@$(MAKE) go-test-plugin PLUGIN_NAME=certs
 	@$(MAKE) go-test-plugin PLUGIN_NAME=common
 	@$(MAKE) go-test-plugin PLUGIN_NAME=config
 	@$(MAKE) go-test-plugin PLUGIN_NAME=network
