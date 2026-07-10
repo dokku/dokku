@@ -146,15 +146,22 @@ func reportSSLSubject(appName string) string {
 
 	result, err := common.CallExecCommand(common.ExecCommandInput{
 		Command: "openssl",
-		Args:    []string{"x509", "-in", filepath.Join(certTLSPath(appName), "server.crt"), "-noout", "-subject"},
+		Args:    []string{"x509", "-in", filepath.Join(certTLSPath(appName), "server.crt"), "-noout", "-subject", "-nameopt", "compat"},
 	})
 	if err != nil {
 		return ""
 	}
 
-	subject := strings.Replace(result.StdoutContents(), "subject= ", "", 1)
-	subject = strings.TrimPrefix(subject, "/")
-	return strings.ReplaceAll(subject, "/", "; ")
+	return formatSSLSubject(result.StdoutContents())
+}
+
+// formatSSLSubject normalizes an openssl "-subject -nameopt compat" line into a
+// "; "-joined RDN string. The compat nameopt reproduces the legacy "/"-delimited,
+// order-preserving subject form on every OpenSSL/LibreSSL version.
+func formatSSLSubject(out string) string {
+	out = strings.TrimPrefix(strings.TrimSpace(out), "subject=")
+	out = strings.TrimPrefix(strings.TrimSpace(out), "/")
+	return strings.ReplaceAll(out, "/", "; ")
 }
 
 func reportSSLVerified(appName string) string {
@@ -196,21 +203,45 @@ func reportSSLHostnames(appName string) string {
 		return ""
 	}
 
-	hostnameSet := map[string]bool{}
-
+	subject := ""
 	subjectResult, err := common.CallExecCommand(common.ExecCommandInput{
 		Command: "openssl",
-		Args:    []string{"x509", "-in", filepath.Join(certTLSPath(appName), "server.crt"), "-noout", "-subject"},
+		Args:    []string{"x509", "-in", filepath.Join(certTLSPath(appName), "server.crt"), "-noout", "-subject", "-nameopt", "RFC2253"},
 	})
 	if err == nil {
-		for _, part := range strings.Split(subjectResult.StdoutContents(), "/") {
-			if strings.Contains(part, "CN=") && len(part) > 3 {
-				hostnameSet[part[3:]] = true
-			}
+		subject = subjectResult.StdoutContents()
+	}
+
+	return strings.Join(sslHostnames(subject, opensslCertText(appName)), " ")
+}
+
+// subjectCommonName extracts the CN value from an openssl "-subject" line. It is
+// tolerant of the "CN=value" (RFC2253) and "CN = value" (OpenSSL 3.x default)
+// renderings, the legacy "/"-delimited compat form, and a leading "subject="
+// prefix. The CN value of a certificate is a hostname, so splitting on "/" as
+// well as "," never truncates it.
+func subjectCommonName(subject string) string {
+	subject = strings.TrimPrefix(strings.TrimSpace(subject), "subject=")
+	for _, rdn := range strings.FieldsFunc(subject, func(r rune) bool { return r == ',' || r == '/' }) {
+		key, value, found := strings.Cut(rdn, "=")
+		if found && strings.TrimSpace(key) == "CN" {
+			return strings.TrimSpace(value)
 		}
 	}
 
-	textLines := strings.Split(opensslCertText(appName), "\n")
+	return ""
+}
+
+// sslHostnames returns the sorted, de-duplicated set of hostnames a certificate
+// covers, merging the subject Common Name (from an RFC2253 "-subject" line) with
+// every Subject Alternative Name DNS entry (from the "-text" rendering).
+func sslHostnames(subject string, certText string) []string {
+	hostnameSet := map[string]bool{}
+	if cn := subjectCommonName(subject); cn != "" {
+		hostnameSet[cn] = true
+	}
+
+	textLines := strings.Split(certText, "\n")
 	for i, line := range textLines {
 		if strings.Contains(line, "509v3 Subject Alternative Name:") && i+1 < len(textLines) {
 			sanLine := dnsPrefixRegex.ReplaceAllString(textLines[i+1], "")
@@ -229,5 +260,5 @@ func reportSSLHostnames(appName string) string {
 	}
 	sort.Strings(hostnames)
 
-	return strings.Join(hostnames, " ")
+	return hostnames
 }

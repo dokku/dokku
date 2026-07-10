@@ -80,6 +80,102 @@ teardown() {
   assert_output_contains "Invalid flag passed"
 }
 
+@test "(certs:report) reports hostnames and subject for a CN-only certificate" {
+  run /bin/bash -c "dokku certs:add $TEST_APP $BATS_TMPDIR/tls/server.crt $BATS_TMPDIR/tls/server.key"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku certs:report $TEST_APP --ssl-hostnames"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "dokku.me"
+
+  run /bin/bash -c "dokku certs:report $TEST_APP --ssl-subject"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "CN=dokku.me"
+}
+
+@test "(certs:report) preserves multi-field subject order" {
+  run /bin/bash -c "dokku certs:add $TEST_APP $BATS_TMPDIR/tls/domain.com.crt $BATS_TMPDIR/tls/domain.com.key"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku certs:report $TEST_APP --ssl-subject"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "C=US; ST=California; L=San Francisco; O=Expa; OU=Operations; CN=node-js-app.dokku.me"
+
+  run /bin/bash -c "dokku certs:report $TEST_APP --ssl-hostnames"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "node-js-app.dokku.me"
+}
+
+@test "(certs:report) reports the CN and all SANs as hostnames" {
+  local SANS_TLS="$BATS_TMPDIR/tls-sans"
+  mkdir -p "$SANS_TLS"
+  tar xf "$BATS_TEST_DIRNAME/server_ssl_sans.tar" -C "$SANS_TLS"
+  sudo chown -R dokku:dokku "$SANS_TLS"
+
+  run /bin/bash -c "dokku certs:add $TEST_APP $SANS_TLS/server.crt $SANS_TLS/server.key"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku certs:report $TEST_APP --ssl-hostnames"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "test.dokku.me www.test.app.dokku.me www.test.dokku.me"
+
+  rm -rf "$SANS_TLS"
+}
+
+@test "(certs) get_ssl_hostnames parses a CN-only certificate" {
+  run /bin/bash -c "dokku certs:add $TEST_APP $BATS_TMPDIR/tls/server.crt $BATS_TMPDIR/tls/server.key"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  source "$PLUGIN_CORE_AVAILABLE_PATH/certs/functions"
+  run get_ssl_hostnames "$TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "dokku.me"
+}
+
+@test "(certs) get_ssl_hostnames includes the CN and SANs" {
+  local SANS_TLS="$BATS_TMPDIR/tls-sans"
+  mkdir -p "$SANS_TLS"
+  tar xf "$BATS_TEST_DIRNAME/server_ssl_sans.tar" -C "$SANS_TLS"
+  sudo chown -R dokku:dokku "$SANS_TLS"
+
+  run /bin/bash -c "dokku certs:add $TEST_APP $SANS_TLS/server.crt $SANS_TLS/server.key"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  source "$PLUGIN_CORE_AVAILABLE_PATH/certs/functions"
+  run get_ssl_hostnames "$TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_line "test.dokku.me"
+  assert_line "www.test.dokku.me"
+  assert_line "www.test.app.dokku.me"
+  assert_line_count 3
+
+  rm -rf "$SANS_TLS"
+}
+
 @test "(certs) certs:add" {
   run /bin/bash -c "dokku certs:add $TEST_APP $BATS_TMPDIR/tls/server.crt $BATS_TMPDIR/tls/server.key"
   echo "output: $output"
