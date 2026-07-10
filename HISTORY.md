@@ -1,5 +1,36 @@
 # History
 
+## 0.38.23
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.38.23/bootstrap.sh
+sudo DOKKU_TAG=v0.38.23 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #8833: @josegonzalez Parse cert CN and subject on OpenSSL 3.x
+
+### Tests
+
+- #8825: @dependabot[bot] chore(deps): bump golang from 1.26.4 to 1.26.5 in /tests/apps/zombies-dockerfile-no-tini
+- #8823: @dependabot[bot] chore(deps): bump golang from 1.26.4 to 1.26.5 in /tests/apps/zombies-dockerfile-tini
+- #8820: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 292 to 293 in /tests/apps/php
+- #8821: @dependabot[bot] chore(deps): bump golang from 1.26.4 to 1.26.5 in /tests/apps/go-fail-predeploy
+- #8822: @dependabot[bot] chore(deps): bump golang from 1.26.4 to 1.26.5 in /tests/apps/gogrpc
+- #8824: @dependabot[bot] chore(deps): bump golang from 1.26.4 to 1.26.5 in /tests/apps/go-fail-postdeploy
+
+### Dependencies
+
+- #8831: @dependabot[bot] chore(deps): bump helm.sh/helm/v3 from 3.21.2 to 3.21.3 in /plugins/scheduler-k3s
+- #8830: @dependabot[bot] chore(deps): bump github.com/fluxcd/pkg/kustomize from 1.37.0 to 1.38.0 in /plugins/scheduler-k3s
+- #8826: @dependabot[bot] chore(deps): bump golang.org/x/crypto from 0.53.0 to 0.54.0 in /plugins/common
+- #8827: @dependabot[bot] chore(deps): bump github.com/cert-manager/cert-manager from 1.20.3 to 1.21.0 in /plugins/scheduler-k3s
+- #8828: @dependabot[bot] chore(deps): bump traefik from v3.7.6 to v3.7.7 in /plugins/traefik-vhosts
+- #8829: @dependabot[bot] chore(deps): bump github.com/go-openapi/jsonpointer from 0.24.0 to 1.0.0 in /plugins/scheduler-k3s
+
 ## 0.38.22
 
 Install/update via the bootstrap script:
