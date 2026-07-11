@@ -78,10 +78,10 @@
   "recommendations": [
     {
       "name": "dokku-event-listener",
-      "version": "0.19.1",
+      "version": "0.20.0",
       "urls": {
-        "amd64": "https://github.com/dokku/dokku-event-listener/releases/download/v0.19.1/dokku-event-listener-linux-amd64",
-        "arm64": "https://github.com/dokku/dokku-event-listener/releases/download/v0.19.1/dokku-event-listener-linux-arm64"
+        "amd64": "https://github.com/dokku/dokku-event-listener/releases/download/v0.20.0/dokku-event-listener-linux-amd64",
+        "arm64": "https://github.com/dokku/dokku-event-listener/releases/download/v0.20.0/dokku-event-listener-linux-arm64"
       }
     },
     {
