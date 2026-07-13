@@ -185,32 +185,32 @@ See the [Procfile documentation](/docs/processes/process-management.md#procfile)
 
 ### Listing Buildpacks in Use
 
-See the [buildpack management documentation](/docs/processes/process-management.md#listing-buildpacks-in-use) for more information on how to list buildpacks in use.
+See the [buildpack management documentation](/docs/deployment/builders/buildpack-management.md#listing-buildpacks-in-use) for more information on how to list buildpacks in use.
 
 ### Adding custom buildpacks
 
-See the [buildpack management documentation](/docs/processes/process-management.md#adding-custom-buildpacks) for more information on how to add custom buildpacks.
+See the [buildpack management documentation](/docs/deployment/builders/buildpack-management.md#adding-custom-buildpacks) for more information on how to add custom buildpacks.
 
 ### Overwriting a buildpack position
 
-See the [buildpack management documentation](/docs/processes/process-management.md#overwriting-a-buildpack-position) for more information on how to overwrite a buildpack position.
+See the [buildpack management documentation](/docs/deployment/builders/buildpack-management.md#overwriting-a-buildpack-position) for more information on how to overwrite a buildpack position.
 
 ### Removing a buildpack
 
-See the [buildpack management documentation](/docs/processes/process-management.md#removing-a-buildpack) for more information on how to remove a buildpack.
+See the [buildpack management documentation](/docs/deployment/builders/buildpack-management.md#removing-a-buildpack) for more information on how to remove a buildpack.
 
 ### Clearing all buildpacks
 
-See the [buildpack management documentation](/docs/processes/process-management.md#clearing-all-buildpacks) for more information on how to clear all buildpacks.
+See the [buildpack management documentation](/docs/deployment/builders/buildpack-management.md#clearing-all-buildpacks) for more information on how to clear all buildpacks.
 
 ### Using a specific buildpack version
 
-See the [buildpack management documentation](/docs/processes/process-management.md#using-a-specific-buildpack-version) for more information on how to using a specific buildpack version
+See the [buildpack management documentation](/docs/deployment/builders/buildpack-management.md#using-a-specific-buildpack-version) for more information on how to using a specific buildpack version
 
 
 ### Displaying buildpack reports for an app
 
-See the [buildpack management documentation](/docs/processes/process-management.md#displaying-buildpack-reports-for-an-app) for more information on how to display buildpack reports for an app.
+See the [buildpack management documentation](/docs/deployment/builders/buildpack-management.md#displaying-buildpack-reports-for-an-app) for more information on how to display buildpack reports for an app.
 
 ## Properties
 
