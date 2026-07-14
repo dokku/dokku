@@ -77,6 +77,16 @@ trigger-scheduler-docker-local-core-post-deploy() {
     fi
   done
   shopt -u nullglob
+
+  # Rebuild proxy config after rename so the upstream IP is guaranteed to
+  # reflect the new container. The pre-rename rebuilds (scheduler-post-deploy-process
+  # and nginx-vhosts/core-post-deploy) call network-build-config, which inspects
+  # the running container via CONTAINER.web.N files. If ContainerIsRunning races
+  # the container's network interface coming fully online, the IP file is not
+  # updated and nginx ends up with the old container's address. When the old
+  # container shuts down, all traffic returns 502. A post-rename rebuild is
+  # immune to this race: the container is fully settled and correctly named.
+  plugn trigger proxy-build-config "$APP"
 }
 
 trigger-scheduler-docker-local-core-post-deploy "$@"
