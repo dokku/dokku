@@ -6,7 +6,7 @@ require (
 	github.com/alexellis/go-execute/v2 v2.2.1
 	github.com/fatih/color v1.19.0
 	github.com/hashicorp/go-multierror v1.1.1
-	github.com/melbahja/goph v1.5.1
+	github.com/melbahja/goph v1.5.2
 	github.com/onsi/gomega v1.42.1
 	github.com/otiai10/copy v1.14.1
 	github.com/ryanuber/columnize v2.1.2+incompatible
@@ -23,7 +23,7 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/otiai10/mint v1.6.3 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/pkg/sftp v1.13.10 // indirect
+	github.com/pkg/sftp v1.13.11 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/net v0.56.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect
