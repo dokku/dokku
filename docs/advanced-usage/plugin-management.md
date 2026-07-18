@@ -36,35 +36,35 @@ dokku plugin:list
 
 ```
 plugn: dev
-  00_dokku-standard    0.38.23 enabled    dokku core standard plugin
-  20_events            0.38.23 enabled    dokku core events logging plugin
-  app-json             0.38.23 enabled    dokku core app-json plugin
-  apps                 0.38.23 enabled    dokku core apps plugin
-  build-env            0.38.23 enabled    dokku core build-env plugin
-  buildpacks           0.38.23 enabled    dokku core buildpacks plugin
-  certs                0.38.23 enabled    dokku core certificate management plugin
-  checks               0.38.23 enabled    dokku core checks plugin
-  common               0.38.23 enabled    dokku core common plugin
-  config               0.38.23 enabled    dokku core config plugin
-  docker-options       0.38.23 enabled    dokku core docker-options plugin
-  domains              0.38.23 enabled    dokku core domains plugin
-  enter                0.38.23 enabled    dokku core enter plugin
-  git                  0.38.23 enabled    dokku core git plugin
-  logs                 0.38.23 enabled    dokku core logs plugin
-  network              0.38.23 enabled    dokku core network plugin
-  nginx-vhosts         0.38.23 enabled    dokku core nginx-vhosts plugin
-  plugin               0.38.23 enabled    dokku core plugin plugin
-  proxy                0.38.23 enabled    dokku core proxy plugin
-  ps                   0.38.23 enabled    dokku core ps plugin
-  repo                 0.38.23 enabled    dokku core repo plugin
-  resource             0.38.23 enabled    dokku core resource plugin
-  scheduler-docker-local 0.38.23 enabled    dokku core scheduler-docker-local plugin
-  shell                0.38.23 enabled    dokku core shell plugin
-  ssh-keys             0.38.23 enabled    dokku core ssh-keys plugin
-  storage              0.38.23 enabled    dokku core storage plugin
-  tags                 0.38.23 enabled    dokku core tags plugin
-  tar                  0.38.23 enabled    dokku core tar plugin
-  trace                0.38.23 enabled    dokku core trace plugin
+  00_dokku-standard    0.38.24 enabled    dokku core standard plugin
+  20_events            0.38.24 enabled    dokku core events logging plugin
+  app-json             0.38.24 enabled    dokku core app-json plugin
+  apps                 0.38.24 enabled    dokku core apps plugin
+  build-env            0.38.24 enabled    dokku core build-env plugin
+  buildpacks           0.38.24 enabled    dokku core buildpacks plugin
+  certs                0.38.24 enabled    dokku core certificate management plugin
+  checks               0.38.24 enabled    dokku core checks plugin
+  common               0.38.24 enabled    dokku core common plugin
+  config               0.38.24 enabled    dokku core config plugin
+  docker-options       0.38.24 enabled    dokku core docker-options plugin
+  domains              0.38.24 enabled    dokku core domains plugin
+  enter                0.38.24 enabled    dokku core enter plugin
+  git                  0.38.24 enabled    dokku core git plugin
+  logs                 0.38.24 enabled    dokku core logs plugin
+  network              0.38.24 enabled    dokku core network plugin
+  nginx-vhosts         0.38.24 enabled    dokku core nginx-vhosts plugin
+  plugin               0.38.24 enabled    dokku core plugin plugin
+  proxy                0.38.24 enabled    dokku core proxy plugin
+  ps                   0.38.24 enabled    dokku core ps plugin
+  repo                 0.38.24 enabled    dokku core repo plugin
+  resource             0.38.24 enabled    dokku core resource plugin
+  scheduler-docker-local 0.38.24 enabled    dokku core scheduler-docker-local plugin
+  shell                0.38.24 enabled    dokku core shell plugin
+  ssh-keys             0.38.24 enabled    dokku core ssh-keys plugin
+  storage              0.38.24 enabled    dokku core storage plugin
+  tags                 0.38.24 enabled    dokku core tags plugin
+  tar                  0.38.24 enabled    dokku core tar plugin
+  trace                0.38.24 enabled    dokku core trace plugin
 ```
 
 The list can also be emitted as JSON via the `--format json` flag. In addition to the name, version, enabled state, and description shown in the default output, the JSON output includes whether a plugin is a core plugin and - for git-based third-party plugins - the install source (the git remote URL, the currently checked-out commit, and the followed branch). This is useful for tooling that reconstructs a server's set of installed plugins:
@@ -77,7 +77,7 @@ dokku plugin:list --format json
 [
   {
     "name": "apps",
-    "version": "0.38.23",
+    "version": "0.38.24",
     "enabled": true,
     "core": true,
     "description": "dokku core apps plugin",

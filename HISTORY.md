@@ -1,5 +1,33 @@
 # History
 
+## 0.38.24
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.38.24/bootstrap.sh
+sudo DOKKU_TAG=v0.38.24 bash bootstrap.sh
+```
+
+### Documentation
+
+- #8836: @josegonzalez Link herokuish buildpack references to buildpack management page
+
+### Tests
+
+- #8841: @dependabot[bot] chore(deps): bump ruby from 4.0.5 to 4.0.6 in /tests/apps/dockerfile-entrypoint
+- #8843: @dependabot[bot] chore(deps): bump google.golang.org/grpc from 1.82.0 to 1.82.1 in /tests/apps/gogrpc
+
+### Dependencies
+
+- #8845: @dependabot[bot] chore(deps): bump github.com/mattn/go-isatty from 0.0.22 to 0.0.23 in /plugins/app-json
+- #8844: @dependabot[bot] chore(deps): bump github.com/melbahja/goph from 1.5.1 to 1.5.2 in /plugins/common
+- #8842: @dependabot[bot] chore(deps): bump timberio/vector from 0.56.0-debian to 0.57.0-debian in /plugins/logs
+- #8838: @dokku-bot chore: bump pack to 0.40.8
+- #8846: @dependabot[bot] chore(deps): bump traefik from v3.7.7 to v3.7.8 in /plugins/traefik-vhosts
+- #8839: @dependabot[bot] chore(deps): bump actions/setup-node from 6 to 7
+- #8834: @dokku-bot chore: bump dokku-event-listener to 0.20.0
+
 ## 0.38.23
 
 Install/update via the bootstrap script:
