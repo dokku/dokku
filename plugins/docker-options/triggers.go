@@ -20,6 +20,10 @@ func TriggerInstall() error {
 		return fmt.Errorf("Unable to migrate legacy docker-options files: %v", err)
 	}
 
+	if err := migrateTraefikLabelBackticks(); err != nil {
+		return fmt.Errorf("Unable to repair docker-options label backticks: %v", err)
+	}
+
 	return nil
 }
 

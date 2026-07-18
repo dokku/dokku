@@ -245,6 +245,12 @@ fn-plugn-trigger-exists() {
   return 1
 }
 
+fn-docker-args-split() {
+  declare desc="tokenizes a docker args string into NUL-delimited fields without shell expansion"
+  declare DOCKER_ARGS="$1"
+  printf "%s" "$DOCKER_ARGS" | xargs -r printf "%s\0"
+}
+
 is_valid_app_name() {
   declare desc="verify that the app name matches naming restrictions"
   local APP="$1"

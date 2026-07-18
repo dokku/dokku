@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
-	"mvdan.cc/sh/v3/shell"
+	"mvdan.cc/sh/v3/syntax"
 )
 
 // DefaultProcessType is the sentinel process-type key used for options that
@@ -15,19 +15,23 @@ import (
 const DefaultProcessType = "_default_"
 
 // SplitOptionString shell-tokenizes input, groups tokens on flag boundaries,
-// and returns one re-serialized option per group. A docker-options subcommand
-// flag (currently just --process) that lands inside the option content -
-// because the user typed it after the app name, where pflag's
-// SetInterspersed(false) hands it back as positional - is lifted into the
-// returned processes slice rather than stored as a docker option. The caller
-// merges those processes with whatever pflag already captured. Empty or
-// whitespace-only input returns empty slices.
+// and returns one re-serialized option per group. Tokenization honors quotes
+// for word boundaries but performs no expansion, so parameter expansions,
+// command substitutions, and other shell metacharacters are stored verbatim
+// and passed through to the container as written (the bash scheduler splits
+// them the same way, without expansion). A docker-options subcommand flag
+// (currently just --process) that lands inside the option content - because
+// the user typed it after the app name, where pflag's SetInterspersed(false)
+// hands it back as positional - is lifted into the returned processes slice
+// rather than stored as a docker option. The caller merges those processes
+// with whatever pflag already captured. Empty or whitespace-only input returns
+// empty slices.
 func SplitOptionString(input string) (options []string, processes []string, err error) {
 	if strings.TrimSpace(input) == "" {
 		return nil, nil, nil
 	}
 
-	fields, err := shell.Fields(input, func(string) string { return "" })
+	fields, err := literalFields(input)
 	if err != nil {
 		return nil, nil, fmt.Errorf("Unable to parse docker option: %s", err.Error())
 	}
@@ -75,6 +79,79 @@ func SplitOptionString(input string) (options []string, processes []string, err 
 	}
 
 	return options, processes, nil
+}
+
+// literalFields splits input into shell words using the parser directly, so
+// quotes delimit words and are stripped from the stored value, but nothing is
+// expanded. Parameter expansions, command substitutions, and other
+// metacharacters are preserved verbatim. Malformed input, such as an unbalanced
+// quote, returns the parser error.
+func literalFields(input string) ([]string, error) {
+	parser := syntax.NewParser()
+	var fields []string
+	for word, err := range parser.WordsSeq(strings.NewReader(input)) {
+		if err != nil {
+			return nil, err
+		}
+		fields = append(fields, literalWordValue(input, word.Parts))
+	}
+	return fields, nil
+}
+
+// literalWordValue reconstructs the unquoted, unexpanded value of a shell word.
+// Literal and single-quoted parts contribute their literal text; double-quoted
+// parts have their surrounding quotes dropped while their contents stay
+// literal; every other part - parameter expansions, command substitutions,
+// arithmetic expansions - contributes its original source text unchanged.
+// Backslash escapes are removed the same way the shell removes them during
+// quote removal so a value such as `Host(\`app\`)` round-trips to `Host(`app`)`.
+func literalWordValue(input string, parts []syntax.WordPart) string {
+	var sb strings.Builder
+	for _, part := range parts {
+		switch p := part.(type) {
+		case *syntax.Lit:
+			sb.WriteString(unquoteBackslashes(p.Value, false))
+		case *syntax.SglQuoted:
+			sb.WriteString(p.Value)
+		case *syntax.DblQuoted:
+			for _, inner := range p.Parts {
+				if lit, ok := inner.(*syntax.Lit); ok {
+					sb.WriteString(unquoteBackslashes(lit.Value, true))
+					continue
+				}
+				sb.WriteString(input[inner.Pos().Offset():inner.End().Offset()])
+			}
+		default:
+			sb.WriteString(input[part.Pos().Offset():part.End().Offset()])
+		}
+	}
+	return sb.String()
+}
+
+// unquoteBackslashes removes backslashes the way the shell does during quote
+// removal. Inside double quotes only \$, \`, \", \\, and an escaped newline
+// lose their backslash; unquoted, a backslash escapes any following character.
+func unquoteBackslashes(s string, inDblQuotes bool) string {
+	if !strings.Contains(s, "\\") {
+		return s
+	}
+	var sb strings.Builder
+	for i := 0; i < len(s); i++ {
+		if s[i] == '\\' && i+1 < len(s) {
+			next := s[i+1]
+			if next == '\n' {
+				i++
+				continue
+			}
+			if !inDblQuotes || next == '$' || next == '`' || next == '"' || next == '\\' {
+				sb.WriteByte(next)
+				i++
+				continue
+			}
+		}
+		sb.WriteByte(s[i])
+	}
+	return sb.String()
 }
 
 // isFlagToken reports whether tok looks like a CLI flag (long or short) rather

@@ -285,6 +285,25 @@ teardown() {
   assert_output "/tmp:{} /var/tmp:{}"
 }
 
+@test "(docker-options) deploy does not expand command substitution in option values [buildpacks]" {
+  run /bin/bash -c "dokku docker-options:add $TEST_APP deploy '--label=com.dokku.test=\$(id)'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  CID=$(<$DOKKU_ROOT/$TEST_APP/CONTAINER.web.1)
+  run /bin/bash -c "docker inspect $CID --format '{{ index .Config.Labels \"com.dokku.test\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output '$(id)'
+  [[ "$output" != *"uid="* ]] || flunk "id command output leaked - option value was expanded"
+}
+
 @test "(docker-options) deploy with options [dockerfile]" {
   run /bin/bash -c "dokku docker-options:add $TEST_APP deploy \"-v /var/tmp\""
   echo "output: $output"

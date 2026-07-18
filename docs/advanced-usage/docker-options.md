@@ -64,6 +64,12 @@ Multiple docker options can also be specified in a single call. Each `--flag [va
 dokku docker-options:add node-js-app deploy "--ulimit nofile=12" "--shm-size 256m"
 ```
 
+Option values are stored and passed to the container verbatim. Quoting only controls how a value is split into words - no shell expansion is performed, so `$(...)`, backticks, `$VAR`, and globs are treated literally rather than being interpreted by the shell. This is what lets values such as a Traefik router rule be applied as-is:
+
+```shell
+dokku docker-options:add node-js-app deploy '--label "traefik.http.routers.web.rule=Host(`node-js-app.example.com`) && PathPrefix(`/api`)"'
+```
+
 A misplaced `--process PROC` (i.e. one specified after the app name instead of before it) is honored as a subcommand flag rather than stored as a docker option, so the example above and the equivalent process-scoped form below behave identically:
 
 ```shell

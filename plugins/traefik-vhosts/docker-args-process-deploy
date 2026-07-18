@@ -86,14 +86,14 @@ trigger-traefik-vhosts-docker-args-process-deploy() {
     if [[ -n "$app_domains" ]]; then
       # get length of domains
       if [[ "$(echo "$traefik_domains" | wc -w)" -eq 1 ]]; then
-        traefik_domains="Host(\\\`$traefik_domains\\\`)"
+        traefik_domains="Host(\`$traefik_domains\`)"
       else
         for domain in $(echo "$app_domains" | xargs); do
           if [[ -z "$traefik_domains" ]]; then
-            traefik_domains="Host(\\\`$domain\\\`)"
+            traefik_domains="Host(\`$domain\`)"
             continue
           fi
-          traefik_domains="$traefik_domains || Host(\\\`$domain\\\`)"
+          traefik_domains="$traefik_domains || Host(\`$domain\`)"
         done
       fi
     fi
