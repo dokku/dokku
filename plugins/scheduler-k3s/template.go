@@ -46,6 +46,7 @@ type GlobalValues struct {
 	AppName         string             `yaml:"app_name"`
 	DeploymentID    string             `yaml:"deployment_id"`
 	Image           GlobalImage        `yaml:"image"`
+	Issuer          AppIssuer          `yaml:"issuer"`
 	Labels          ProcessLabels      `yaml:"labels,omitempty"`
 	Keda            GlobalKedaValues   `yaml:"keda"`
 	Namespace       string             `yaml:"namespace"`
@@ -343,8 +344,17 @@ func (a NameSorter) Less(i, j int) bool { return a[i].Name < a[j].Name }
 
 type ProcessTls struct {
 	Enabled         bool   `yaml:"enabled"`
+	IssuerKind      string `yaml:"issuer_kind"`
 	IssuerName      string `yaml:"issuer_name"`
 	UseImportedCert bool   `yaml:"use_imported_cert"`
+}
+
+type AppIssuer struct {
+	Email        string `yaml:"email"`
+	Enabled      bool   `yaml:"enabled"`
+	IngressClass string `yaml:"ingress_class"`
+	Name         string `yaml:"name"`
+	Server       string `yaml:"server"`
 }
 
 type ClusterIssuer struct {

@@ -306,6 +306,30 @@ dokku scheduler-k3s:set --global letsencrypt-email-stag automated@dokku.sh
 
 After enabling and rebuilding, all apps with an `http:80` port mapping will have a corresponding `https:443` added and ssl will be automatically enabled. All http requests will then be redirected to https.
 
+#### Customizing the letsencrypt email per app
+
+The `letsencrypt-email-prod` and `letsencrypt-email-stag` properties can also be set per app, overriding the global value for that app. This is useful when different apps should register their certificates under different contact emails.
+
+```shell
+dokku scheduler-k3s:set node-js-app letsencrypt-email-prod team@node-js-app.com
+```
+
+The value resolves in two steps: the app's `letsencrypt-server` selects which server (`prod` or `staging`) is used, and the matching `letsencrypt-email-<server>` property is then resolved as the app-level value, falling back to the global value. Because the two emails are per-server, an app-level `letsencrypt-email-stag` only takes effect once the app's `letsencrypt-server` is set to `staging`.
+
+When an app sets its own email for the selected server, Dokku renders a namespaced cert-manager `Issuer` into the app's own release using that email instead of pointing the app at the shared global `ClusterIssuer`. Apps without an app-level email continue to use the shared `ClusterIssuer` with the global email.
+
+The default value may be set by passing an empty value for the option, which falls the app back to the global value:
+
+```shell
+dokku scheduler-k3s:set node-js-app letsencrypt-email-prod
+```
+
+The computed value in effect for an app can be inspected via the report command:
+
+```shell
+dokku scheduler-k3s:report node-js-app --scheduler-k3s-computed-letsencrypt-email-prod
+```
+
 #### Customizing the letsencrypt server
 
 The letsencrypt integration is set to the production letsencrypt server by default. This can be changed on an app-level by setting the `letsencrypt-server` property with the `scheduler-k3s:set` command
@@ -914,8 +938,8 @@ If unspecified for any task, the default reservation will be `.1` CPU and `128Mi
 | `kube-context` | global only | none | `--scheduler-k3s-global-kube-context`, `--scheduler-k3s-computed-kube-context` | Kube context name used by helm and kubectl invocations |
 | `kubeconfig-path` | global only | `/etc/rancher/k3s/k3s.yaml` | `--scheduler-k3s-global-kubeconfig-path`, `--scheduler-k3s-computed-kubeconfig-path` | Filesystem path to the kubeconfig used to talk to the cluster |
 | `kustomize-root-path` | app + global | `config/kustomize` | `--scheduler-k3s-kustomize-root-path`, `--scheduler-k3s-global-kustomize-root-path`, `--scheduler-k3s-computed-kustomize-root-path` | Path within the app to a kustomize root applied after the helm install |
-| `letsencrypt-email-prod` | global only | none | `--scheduler-k3s-global-letsencrypt-email-prod`, `--scheduler-k3s-computed-letsencrypt-email-prod` | Contact email for the production cert-manager ClusterIssuer |
-| `letsencrypt-email-stag` | global only | none | `--scheduler-k3s-global-letsencrypt-email-stag`, `--scheduler-k3s-computed-letsencrypt-email-stag` | Contact email for the staging cert-manager ClusterIssuer |
+| `letsencrypt-email-prod` | app + global | none | `--scheduler-k3s-letsencrypt-email-prod`, `--scheduler-k3s-global-letsencrypt-email-prod`, `--scheduler-k3s-computed-letsencrypt-email-prod` | Contact email for production certificates. App-level values render a per-app namespaced Issuer; otherwise the shared production ClusterIssuer is used |
+| `letsencrypt-email-stag` | app + global | none | `--scheduler-k3s-letsencrypt-email-stag`, `--scheduler-k3s-global-letsencrypt-email-stag`, `--scheduler-k3s-computed-letsencrypt-email-stag` | Contact email for staging certificates. App-level values render a per-app namespaced Issuer; otherwise the shared staging ClusterIssuer is used |
 | `letsencrypt-server` | app + global | `prod` | `--scheduler-k3s-letsencrypt-server`, `--scheduler-k3s-global-letsencrypt-server`, `--scheduler-k3s-computed-letsencrypt-server` | ACME directory (`prod` or `staging`) used for app certificates |
 | `namespace` | app + global | `default` | `--scheduler-k3s-namespace`, `--scheduler-k3s-global-namespace`, `--scheduler-k3s-computed-namespace` | Kubernetes namespace into which the app's resources are installed |
 | `network-interface` | global only | `eth0` | `--scheduler-k3s-global-network-interface`, `--scheduler-k3s-computed-network-interface` | Host network interface used by k3s |

@@ -18,13 +18,15 @@ import (
 var (
 	// DefaultProperties is a map of all valid k3s properties with corresponding default property values
 	DefaultProperties = map[string]string{
-		"deploy-timeout":      "",
-		"letsencrypt-server":  "",
-		"kustomize-root-path": "",
-		"image-pull-secrets":  "",
-		"namespace":           "",
-		"rollback-on-failure": "",
-		"shm-size":            "",
+		"deploy-timeout":         "",
+		"letsencrypt-email-prod": "",
+		"letsencrypt-email-stag": "",
+		"letsencrypt-server":     "",
+		"kustomize-root-path":    "",
+		"image-pull-secrets":     "",
+		"namespace":              "",
+		"rollback-on-failure":    "",
+		"shm-size":               "",
 	}
 
 	// GlobalProperties is a map of all valid global k3s properties
@@ -51,6 +53,8 @@ const GlobalProcessType = "--global"
 const KubeConfigPath = "/etc/rancher/k3s/k3s.yaml"
 const DefaultKubeContext = ""
 const TriggerAuthPropertyPrefix = "trigger-auth."
+const LetsencryptServerProd = "https://acme-v02.api.letsencrypt.org/directory"
+const LetsencryptServerStag = "https://acme-staging-v02.api.letsencrypt.org/directory"
 
 // AnnotationResourceTypes lists the kubernetes resource types that scheduler-k3s
 // supports user-provided annotations for. The order here is also the iteration order
