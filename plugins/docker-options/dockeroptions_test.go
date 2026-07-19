@@ -96,6 +96,41 @@ func TestSplitOptionString(t *testing.T) {
 			input:   `--build-arg FOO="bar`,
 			wantErr: true,
 		},
+		{
+			name:        "command substitution is stored verbatim",
+			input:       "--label x=$(id)",
+			wantOptions: []string{"--label 'x=$(id)'"},
+		},
+		{
+			name:        "backtick command substitution is stored verbatim",
+			input:       "--label x=`id`",
+			wantOptions: []string{"--label 'x=`id`'"},
+		},
+		{
+			name:        "parameter expansion is stored verbatim",
+			input:       "--label x=$FOO",
+			wantOptions: []string{"--label 'x=$FOO'"},
+		},
+		{
+			name:        "metacharacter value that parses is shell-quoted",
+			input:       `--label 'a;b'`,
+			wantOptions: []string{"--label 'a;b'"},
+		},
+		{
+			name:        "escaped backtick inside double quotes is unescaped",
+			input:       "--label \"traefik.rule=Host(\\`app.example.com\\`)\"",
+			wantOptions: []string{"--label 'traefik.rule=Host(`app.example.com`)'"},
+		},
+		{
+			name:        "escaped dollar inside double quotes is unescaped",
+			input:       "--label \"k=a\\$b\"",
+			wantOptions: []string{"--label 'k=a$b'"},
+		},
+		{
+			name:        "unquoted backslash escape is removed",
+			input:       "--label k=a\\ b",
+			wantOptions: []string{"--label 'k=a b'"},
+		},
 	}
 
 	for _, tc := range cases {

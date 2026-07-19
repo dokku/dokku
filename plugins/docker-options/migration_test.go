@@ -226,6 +226,58 @@ func TestMigrateLegacyDockerOptionsFiles_SkipsEmptyContentFiles(t *testing.T) {
 	}
 }
 
+func TestRepairTraefikLabelBackticks(t *testing.T) {
+	cases := []struct {
+		name    string
+		in      string
+		want    string
+		changed bool
+	}{
+		{"traefik rule space form", "--label 'traefik.http.routers.web.rule=Host(\\`app.example.com\\`)'", "--label 'traefik.http.routers.web.rule=Host(`app.example.com`)'", true},
+		{"traefik rule whole-quoted equals form", "'--label=traefik.http.routers.web.rule=Host(\\`x\\`)'", "'--label=traefik.http.routers.web.rule=Host(`x`)'", true},
+		{"non-traefik label left untouched", "--label 'some.key=Host(\\`x\\`)'", "--label 'some.key=Host(\\`x\\`)'", false},
+		{"already valid traefik label", "--label 'traefik.rule=Host(`x`)'", "--label 'traefik.rule=Host(`x`)'", false},
+		{"non-label option left untouched", "-v /tmp", "-v /tmp", false},
+		{"traefik label without backticks", "--label 'traefik.enable=true'", "--label 'traefik.enable=true'", false},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got, changed := repairTraefikLabelBackticks(tc.in)
+			if got != tc.want || changed != tc.changed {
+				t.Errorf("repairTraefikLabelBackticks(%q) = (%q, %v), want (%q, %v)", tc.in, got, changed, tc.want, tc.changed)
+			}
+		})
+	}
+}
+
+func TestMigrateTraefikLabelBackticks(t *testing.T) {
+	dokkuRoot := setupMigrationEnv(t)
+	if err := os.MkdirAll(filepath.Join(dokkuRoot, "alpha"), 0755); err != nil {
+		t.Fatalf("MkdirAll: %v", err)
+	}
+
+	broken := "--label 'traefik.http.routers.web.rule=Host(\\`app.example.com\\`)'"
+	if err := common.PropertyListWrite("docker-options", "alpha", "_default_.deploy", []string{broken}); err != nil {
+		t.Fatalf("seed: %v", err)
+	}
+
+	if err := migrateTraefikLabelBackticks(); err != nil {
+		t.Fatalf("migrateTraefikLabelBackticks: %v", err)
+	}
+
+	got, err := GetDockerOptionsForProcessPhase("alpha", "_default_", "deploy")
+	if err != nil {
+		t.Fatalf("GetDockerOptionsForProcessPhase: %v", err)
+	}
+	want := "--label 'traefik.http.routers.web.rule=Host(`app.example.com`)'"
+	if !equalStrings(got, []string{want}) {
+		t.Errorf("got %q, want [%q]", got, []string{want})
+	}
+	if common.PropertyGet("docker-options", "--global", traefikLabelMigrationKey) != "true" {
+		t.Errorf("expected %s guard to be set", traefikLabelMigrationKey)
+	}
+}
+
 func equalStrings(a, b []string) bool {
 	if len(a) != len(b) {
 		return false

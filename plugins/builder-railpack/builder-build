@@ -36,8 +36,11 @@ trigger-builder-railpack-builder-build() {
   local DOCKER_ARGS=$(: | plugn trigger docker-args-build "$APP" "$BUILDER_TYPE")
   DOCKER_ARGS+=" $(: | plugn trigger docker-args-process-build "$APP" "$BUILDER_TYPE")"
 
-  DOCKER_ARGS=" $DOCKER_ARGS "
-  eval set -- "$DOCKER_ARGS"
+  declare -a DOCKER_ARGS_ARRAY=()
+  while IFS= read -r -d '' arg; do
+    DOCKER_ARGS_ARRAY+=("$arg")
+  done < <(fn-docker-args-split "$DOCKER_ARGS")
+  set -- "${DOCKER_ARGS_ARRAY[@]}"
 
   declare -a RAILPACK_ARGS
   while true; do

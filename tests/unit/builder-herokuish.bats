@@ -105,6 +105,11 @@ teardown() {
 }
 
 @test "(builder-herouish:build .env)" {
+  run /bin/bash -c "dokku docker-options:add $TEST_APP build '--label=com.dokku.build-test=safe'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP
   echo "output: $output"
   echo "status: $status"

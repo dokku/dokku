@@ -146,6 +146,11 @@ teardown() {
   echo "status: $status"
   assert_success
 
+  run /bin/bash -c "dokku docker-options:add $TEST_APP build '--label=com.dokku.build-test=safe'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP add_requirements_txt
   echo "output: $output"
   echo "status: $status"

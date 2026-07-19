@@ -351,3 +351,103 @@ func readLegacyOptionsFile(path string) ([]string, error) {
 	}
 	return lines, nil
 }
+
+// traefikLabelMigrationKey gates the one-time pass that repairs docker-option
+// labels whose backticks were stored with a stray leading backslash by an
+// earlier release's option tokenizer (e.g. Traefik rules like Host(\`app\`)).
+const traefikLabelMigrationKey = "migrated-traefik-backticks"
+
+// migrateTraefikLabelBackticks repairs stored Traefik label options whose
+// backticks carry a stray backslash (Host(\`app\`) instead of Host(`app`)) so
+// they become valid on the next deploy. Only Traefik --label options (those
+// whose label key begins with "traefik.") are considered, and only when they
+// contain a backslash-escaped backtick, which correct storage never produces.
+// It runs once, guarded by a global property.
+func migrateTraefikLabelBackticks() error {
+	if common.PropertyGet("docker-options", "--global", traefikLabelMigrationKey) == "true" {
+		return nil
+	}
+
+	apps, err := common.DokkuApps()
+	if err != nil {
+		if errors.Is(err, common.NoAppsExist) {
+			return common.PropertyWrite("docker-options", "--global", traefikLabelMigrationKey, "true")
+		}
+		return err
+	}
+
+	for _, appName := range apps {
+		properties, err := common.PropertyGetAll("docker-options", appName)
+		if err != nil {
+			return err
+		}
+
+		for key := range properties {
+			processType, phase, ok := splitPropertyKey(key)
+			if !ok {
+				continue
+			}
+
+			options, err := GetDockerOptionsForProcessPhase(appName, processType, phase)
+			if err != nil {
+				return err
+			}
+
+			changed := false
+			for i, option := range options {
+				if fixed, ok := repairTraefikLabelBackticks(option); ok {
+					options[i] = fixed
+					changed = true
+				}
+			}
+
+			if changed {
+				if err := writeDockerOptionsForProcessPhase(appName, processType, phase, options); err != nil {
+					return err
+				}
+				common.LogInfo1(fmt.Sprintf("Repaired docker-options label backticks for %s (%s %s)", appName, processType, phase))
+			}
+		}
+	}
+
+	return common.PropertyWrite("docker-options", "--global", traefikLabelMigrationKey, "true")
+}
+
+// repairTraefikLabelBackticks removes the stray backslash before a backtick in
+// a Traefik --label option (one whose label key begins with "traefik."),
+// returning the repaired option and whether anything changed. Backticks are
+// Traefik's rule syntax, so the repair is scoped to Traefik labels; non-label
+// options, non-Traefik labels, and labels without a backslash-escaped backtick
+// are left untouched so an intentional backslash elsewhere is never rewritten.
+func repairTraefikLabelBackticks(option string) (string, bool) {
+	spec, ok := labelSpec(option)
+	if !ok || !strings.HasPrefix(spec, "traefik.") || !strings.Contains(option, "\\`") {
+		return option, false
+	}
+	return strings.ReplaceAll(option, "\\`", "`"), true
+}
+
+// labelSpec returns the "key=value" portion of a stored --label/-l option with
+// the flag and any surrounding shell-quoting removed so the label key can be
+// inspected. It reports ok=false for options that do not set a docker label.
+func labelSpec(option string) (string, bool) {
+	s := strings.TrimLeft(option, " ")
+	if len(s) >= 2 && s[0] == '\'' && s[len(s)-1] == '\'' {
+		s = s[1 : len(s)-1]
+	}
+	switch {
+	case strings.HasPrefix(s, "--label="):
+		s = s[len("--label="):]
+	case strings.HasPrefix(s, "--label "):
+		s = s[len("--label "):]
+	case strings.HasPrefix(s, "-l="):
+		s = s[len("-l="):]
+	case strings.HasPrefix(s, "-l "):
+		s = s[len("-l "):]
+	default:
+		return "", false
+	}
+	s = strings.TrimPrefix(s, "'")
+	s = strings.TrimPrefix(s, "\"")
+	return s, true
+}

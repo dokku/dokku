@@ -86,6 +86,10 @@ fn-run() {
     DOKKU_RUN_TTL_SECONDS="86400"
   fi
 
+  if ! is_number "$DOKKU_RUN_TTL_SECONDS"; then
+    dokku_log_fail "--ttl-seconds must be a positive integer"
+  fi
+
   if [[ "$CMD" == "run:detached" ]] && [[ "$DOKKU_FORCE_TTY" != "true" ]]; then
     export DOKKU_DISABLE_TTY=true
   fi

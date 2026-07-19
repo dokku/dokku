@@ -153,3 +153,46 @@ teardown() {
   assert_success
   assert_output "2"
 }
+
+@test "(run) docker-options and -e flags are not eval-injected" {
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku docker-options:add $TEST_APP run '--label=com.dokku.test=safe'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku run --ttl-seconds=60 -e FOO=bar $TEST_APP env | grep -E '^FOO=bar'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku run -e 'X=\$(id)' $TEST_APP env"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  [[ "$output" == *'X=$(id)'* ]] || flunk "expected literal X=\$(id) in container env"
+  [[ "$output" != *"uid="* ]] || flunk "id command output leaked - env value was expanded"
+}
+
+@test "(run) --ttl-seconds rejects non-numeric input; docker-options stores it verbatim" {
+  run /bin/bash -c "dokku run --ttl-seconds '\$(id)' $TEST_APP echo hi"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  [[ "$output" != *"uid="* ]] || flunk "id command output leaked - ttl value was expanded"
+
+  run /bin/bash -c "dokku docker-options:add $TEST_APP run '--label=x=\$(id)'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku docker-options:report $TEST_APP --docker-options-run"
+  echo "output: $output"
+  echo "status: $status"
+  [[ "$output" == *'x=$(id)'* ]] || flunk "expected literal x=\$(id) stored in docker options"
+  [[ "$output" != *"uid="* ]] || flunk "id command output leaked - docker option was expanded"
+}

@@ -91,3 +91,32 @@ teardown() {
   echo "status: $status"
   assert_output "false"
 }
+
+@test "(common) fn-docker-args-split does not expand injected commands" {
+  export DOKKU_TEST_PAYLOAD='--label x=$(id)'
+  run /bin/bash -c "source '$PLUGIN_CORE_AVAILABLE_PATH/common/functions'; fn-docker-args-split \"\$DOKKU_TEST_PAYLOAD\" | tr '\\0' '\\n'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_line 1 'x=$(id)'
+  [[ "$output" != *"uid="* ]] || flunk "id command output leaked - value was expanded"
+
+  export DOKKU_TEST_PAYLOAD='--label x=`id`'
+  run /bin/bash -c "source '$PLUGIN_CORE_AVAILABLE_PATH/common/functions'; fn-docker-args-split \"\$DOKKU_TEST_PAYLOAD\" | tr '\\0' '\\n'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_line 1 'x=`id`'
+  [[ "$output" != *"uid="* ]] || flunk "id command output leaked - value was expanded"
+
+  unset DOKKU_TEST_PAYLOAD
+}
+
+@test "(common) fn-docker-args-split preserves quoted tokens" {
+  run /bin/bash -c "source '$PLUGIN_CORE_AVAILABLE_PATH/common/functions'; fn-docker-args-split \"--label 'a b'\" | tr '\\0' '\\n'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_line 0 "--label"
+  assert_line 1 "a b"
+}
