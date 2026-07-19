@@ -1,4 +1,4 @@
-{{- if .Values.global.issuer.enabled }}
+{{- if and .Values.global.issuer .Values.global.issuer.enabled }}
 ---
 apiVersion: cert-manager.io/v1
 kind: Issuer

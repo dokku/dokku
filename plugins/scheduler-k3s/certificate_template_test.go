@@ -145,6 +145,25 @@ func TestCertificateTemplateUsesSharedClusterIssuerByDefault(t *testing.T) {
 	}
 }
 
+func TestCertificateTemplateRendersWithoutIssuerValues(t *testing.T) {
+	// Reproduces the deploy failure where global.issuer is absent from values.yaml
+	// (the common case, no per-app email). The chart must still render without a
+	// nil-pointer error, use the shared ClusterIssuer, and emit no Issuer document.
+	docs := renderCertificateChart(t, testCertificateValues("ClusterIssuer", "letsencrypt-prod", nil))
+
+	issuerRef := certificateIssuerRef(t, docs)
+	if issuerRef["kind"] != "ClusterIssuer" {
+		t.Fatalf("expected issuerRef.kind ClusterIssuer, got %#v", issuerRef["kind"])
+	}
+	if issuerRef["name"] != "letsencrypt-prod" {
+		t.Fatalf("expected issuerRef.name letsencrypt-prod, got %#v", issuerRef["name"])
+	}
+
+	if len(docs["issuer"]) != 0 {
+		t.Fatalf("expected no Issuer document when global.issuer is absent, got %#v", docs["issuer"])
+	}
+}
+
 func TestCertificateTemplateDefaultsKindWhenIssuerKindEmpty(t *testing.T) {
 	docs := renderCertificateChart(t, testCertificateValues("", "letsencrypt-prod", map[string]interface{}{"enabled": false}))
 

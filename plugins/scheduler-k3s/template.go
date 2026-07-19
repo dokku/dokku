@@ -46,7 +46,7 @@ type GlobalValues struct {
 	AppName         string             `yaml:"app_name"`
 	DeploymentID    string             `yaml:"deployment_id"`
 	Image           GlobalImage        `yaml:"image"`
-	Issuer          AppIssuer          `yaml:"issuer,omitempty"`
+	Issuer          AppIssuer          `yaml:"issuer"`
 	Labels          ProcessLabels      `yaml:"labels,omitempty"`
 	Keda            GlobalKedaValues   `yaml:"keda"`
 	Namespace       string             `yaml:"namespace"`
