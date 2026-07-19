@@ -1,4 +1,4 @@
 [plugin]
 description = "dokku core domains plugin"
-version = "0.38.24"
+version = "0.38.25"
 [plugin.config]

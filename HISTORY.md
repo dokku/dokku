@@ -1,5 +1,22 @@
 # History
 
+## 0.38.25
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.38.25/bootstrap.sh
+sudo DOKKU_TAG=v0.38.25 bash bootstrap.sh
+```
+
+### Security
+
+- #8848: @josegonzalez Prevent command injection via docker options eval
+
+### New Features
+
+- #8849: @josegonzalez Support per-app letsencrypt emails on k3s
+
 ## 0.38.24
 
 Install/update via the bootstrap script:
