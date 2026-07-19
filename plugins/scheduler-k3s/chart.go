@@ -119,24 +119,26 @@ func BuildAppChart(ctx context.Context, appName, imageTag string, opts BuildOpti
 	}
 
 	tlsEnabled := false
+	issuerKind := ""
 	issuerName := ""
 	useImportedCert := false
+	appIssuer := AppIssuer{}
 
 	if importedCertExists {
 		tlsEnabled = true
 		useImportedCert = true
 	} else {
 		server := getComputedLetsencryptServer(appName)
-		letsencryptEmailStag := getGlobalLetsencryptEmailStag()
-		letsencryptEmailProd := getGlobalLetsencryptEmailProd()
 
 		switch server {
 		case "prod", "production":
-			issuerName = "letsencrypt-prod"
-			tlsEnabled = letsencryptEmailProd != ""
+			computedEmail := getComputedLetsencryptEmailProd(appName)
+			tlsEnabled = computedEmail != ""
+			issuerKind, issuerName, appIssuer = resolveLetsencryptIssuer(appName, "letsencrypt-prod", getLetsencryptEmailProd(appName), computedEmail, LetsencryptServerProd)
 		case "stag", "staging":
-			issuerName = "letsencrypt-stag"
-			tlsEnabled = letsencryptEmailStag != ""
+			computedEmail := getComputedLetsencryptEmailStag(appName)
+			tlsEnabled = computedEmail != ""
+			issuerKind, issuerName, appIssuer = resolveLetsencryptIssuer(appName, "letsencrypt-stag", getLetsencryptEmailStag(appName), computedEmail, LetsencryptServerStag)
 		case "false":
 			issuerName = ""
 			tlsEnabled = false
@@ -297,6 +299,7 @@ func BuildAppChart(ctx context.Context, appName, imageTag string, opts BuildOpti
 				Type:             imageSourceType,
 				WorkingDir:       workingDir,
 			},
+			Issuer:    appIssuer,
 			Labels:    globalLabels,
 			Namespace: namespace,
 			Network: GlobalNetwork{
@@ -421,6 +424,7 @@ func BuildAppChart(ctx context.Context, appName, imageTag string, opts BuildOpti
 				PortMaps: []ProcessPortMap{},
 				TLS: ProcessTls{
 					Enabled:         tlsEnabled,
+					IssuerKind:      issuerKind,
 					IssuerName:      issuerName,
 					UseImportedCert: useImportedCert,
 				},
@@ -489,7 +493,7 @@ func BuildAppChart(ctx context.Context, appName, imageTag string, opts BuildOpti
 
 		templateFiles := []string{"deployment", "keda-scaled-object"}
 		if processType == "web" {
-			templateFiles = append(templateFiles, "service", "certificate", "ingress", "ingress-route", "compression-middleware", "https-redirect-middleware", "keda-http-scaled-object", "keda-interceptor-proxy-service")
+			templateFiles = append(templateFiles, "service", "certificate", "issuer", "ingress", "ingress-route", "compression-middleware", "https-redirect-middleware", "keda-http-scaled-object", "keda-interceptor-proxy-service")
 		}
 		for _, templateName := range templateFiles {
 			b, err := templates.ReadFile(fmt.Sprintf("templates/chart/%s.yaml", templateName))

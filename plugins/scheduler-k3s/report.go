@@ -89,8 +89,10 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 			"--scheduler-k3s-letsencrypt-server":              reportLetsencryptServer,
 			"--scheduler-k3s-global-letsencrypt-server":       reportGlobalLetsencryptServer,
 			"--scheduler-k3s-computed-letsencrypt-email-prod": reportComputedLetsencryptEmailProd,
+			"--scheduler-k3s-letsencrypt-email-prod":          reportLetsencryptEmailProd,
 			"--scheduler-k3s-global-letsencrypt-email-prod":   reportGlobalLetsencryptEmailProd,
 			"--scheduler-k3s-computed-letsencrypt-email-stag": reportComputedLetsencryptEmailStag,
+			"--scheduler-k3s-letsencrypt-email-stag":          reportLetsencryptEmailStag,
 			"--scheduler-k3s-global-letsencrypt-email-stag":   reportGlobalLetsencryptEmailStag,
 			"--scheduler-k3s-computed-namespace":              reportComputedNamespace,
 			"--scheduler-k3s-namespace":                       reportNamespace,
@@ -658,7 +660,11 @@ func reportGlobalLetsencryptServer(appName string) string {
 }
 
 func reportComputedLetsencryptEmailProd(appName string) string {
-	return getComputedLetsencryptEmailProd()
+	return getComputedLetsencryptEmailProd(appName)
+}
+
+func reportLetsencryptEmailProd(appName string) string {
+	return getLetsencryptEmailProd(appName)
 }
 
 func reportGlobalLetsencryptEmailProd(appName string) string {
@@ -666,7 +672,11 @@ func reportGlobalLetsencryptEmailProd(appName string) string {
 }
 
 func reportComputedLetsencryptEmailStag(appName string) string {
-	return getComputedLetsencryptEmailStag()
+	return getComputedLetsencryptEmailStag(appName)
+}
+
+func reportLetsencryptEmailStag(appName string) string {
+	return getLetsencryptEmailStag(appName)
 }
 
 func reportGlobalLetsencryptEmailStag(appName string) string {

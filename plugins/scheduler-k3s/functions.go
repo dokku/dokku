@@ -309,14 +309,14 @@ func applyClusterIssuers(ctx context.Context) error {
 				Enabled:      letsencryptEmailStag != "",
 				IngressClass: getComputedIngressClass(),
 				Name:         "letsencrypt-stag",
-				Server:       "https://acme-staging-v02.api.letsencrypt.org/directory",
+				Server:       LetsencryptServerStag,
 			},
 			"letsencrypt-prod": {
 				Email:        letsencryptEmailProd,
 				Enabled:      letsencryptEmailProd != "",
 				IngressClass: getComputedIngressClass(),
 				Name:         "letsencrypt-prod",
-				Server:       "https://acme-v02.api.letsencrypt.org/directory",
+				Server:       LetsencryptServerProd,
 			},
 		},
 	}
@@ -1233,20 +1233,57 @@ func getComputedLetsencryptServer(appName string) string {
 	return letsencryptServer
 }
 
+func getLetsencryptEmailProd(appName string) string {
+	return common.PropertyGet("scheduler-k3s", appName, "letsencrypt-email-prod")
+}
+
 func getGlobalLetsencryptEmailProd() string {
 	return common.PropertyGet("scheduler-k3s", "--global", "letsencrypt-email-prod")
 }
 
-func getComputedLetsencryptEmailProd() string {
-	return getGlobalLetsencryptEmailProd()
+func getComputedLetsencryptEmailProd(appName string) string {
+	letsencryptEmail := getLetsencryptEmailProd(appName)
+	if letsencryptEmail == "" {
+		letsencryptEmail = getGlobalLetsencryptEmailProd()
+	}
+
+	return letsencryptEmail
+}
+
+func getLetsencryptEmailStag(appName string) string {
+	return common.PropertyGet("scheduler-k3s", appName, "letsencrypt-email-stag")
 }
 
 func getGlobalLetsencryptEmailStag() string {
 	return common.PropertyGet("scheduler-k3s", "--global", "letsencrypt-email-stag")
 }
 
-func getComputedLetsencryptEmailStag() string {
-	return getGlobalLetsencryptEmailStag()
+func getComputedLetsencryptEmailStag(appName string) string {
+	letsencryptEmail := getLetsencryptEmailStag(appName)
+	if letsencryptEmail == "" {
+		letsencryptEmail = getGlobalLetsencryptEmailStag()
+	}
+
+	return letsencryptEmail
+}
+
+// resolveLetsencryptIssuer determines the issuer kind and name an app's Certificate should
+// reference for the selected letsencrypt server. When the app sets its own email for that
+// server, a namespaced Issuer is rendered into the app's chart using the app's email;
+// otherwise the app references the shared global ClusterIssuer.
+func resolveLetsencryptIssuer(appName string, clusterIssuerName string, appEmail string, computedEmail string, server string) (string, string, AppIssuer) {
+	if appEmail == "" {
+		return "ClusterIssuer", clusterIssuerName, AppIssuer{}
+	}
+
+	issuerName := fmt.Sprintf("%s-%s", appName, clusterIssuerName)
+	return "Issuer", issuerName, AppIssuer{
+		Email:        computedEmail,
+		Enabled:      true,
+		IngressClass: getComputedIngressClass(),
+		Name:         issuerName,
+		Server:       server,
+	}
 }
 
 func getKustomizeDirectory(appName string) string {

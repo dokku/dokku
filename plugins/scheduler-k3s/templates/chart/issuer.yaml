@@ -1,0 +1,23 @@
+{{- if .Values.global.issuer.enabled }}
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  annotations:
+    dokku.com/managed: "true"
+  labels:
+    app.kubernetes.io/name: {{ .Values.global.issuer.name }}
+    app.kubernetes.io/part-of: {{ .Values.global.app_name }}
+  name: {{ .Values.global.issuer.name }}
+  namespace: {{ .Values.global.namespace }}
+spec:
+  acme:
+    email: {{ .Values.global.issuer.email }}
+    server: {{ .Values.global.issuer.server }}
+    privateKeySecretRef:
+      name: {{ .Values.global.issuer.name }}
+    solvers:
+    - http01:
+        ingress:
+          class: {{ .Values.global.issuer.ingress_class }}
+{{- end }}

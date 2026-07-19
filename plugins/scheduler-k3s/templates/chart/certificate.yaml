@@ -22,7 +22,7 @@ metadata:
   namespace: {{ $.Values.global.namespace }}
 spec:
   issuerRef:
-    kind: ClusterIssuer
+    kind: {{ $config.web.tls.issuer_kind | default "ClusterIssuer" }}
     name: {{ $config.web.tls.issuer_name }}
   secretName: tls-{{ $.Values.global.app_name }}-{{ $processName }}
   secretTemplate:

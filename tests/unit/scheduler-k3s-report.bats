@@ -123,6 +123,37 @@ assert_k3s_global_unset_set() {
   assert_output ""
 }
 
+@test "(scheduler-k3s:report) app-level letsencrypt email overrides global and falls back when unset" {
+  run /bin/bash -c "dokku apps:create $TEST_APP"
+  assert_success
+
+  run /bin/bash -c "dokku scheduler-k3s:set $TEST_APP letsencrypt-email-prod team@dokku.me"
+  assert_success
+
+  run /bin/bash -c "dokku scheduler-k3s:report $TEST_APP --format json | jq -r '.\"scheduler-k3s-letsencrypt-email-prod\"'"
+  assert_success
+  assert_output "team@dokku.me"
+
+  run /bin/bash -c "dokku scheduler-k3s:report $TEST_APP --format json | jq -r '.\"scheduler-k3s-computed-letsencrypt-email-prod\"'"
+  assert_success
+  assert_output "team@dokku.me"
+
+  run /bin/bash -c "dokku scheduler-k3s:report $TEST_APP --scheduler-k3s-letsencrypt-email-prod"
+  assert_success
+  assert_output "team@dokku.me"
+
+  run /bin/bash -c "dokku scheduler-k3s:set $TEST_APP letsencrypt-email-prod"
+  assert_success
+
+  run /bin/bash -c "dokku scheduler-k3s:report $TEST_APP --format json | jq -r '.\"scheduler-k3s-letsencrypt-email-prod\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku scheduler-k3s:report $TEST_APP --format json | jq -r '.\"scheduler-k3s-computed-letsencrypt-email-prod\"'"
+  assert_success
+  assert_output ""
+}
+
 @test "(scheduler-k3s:report --global) token masked in stdout but exposed via json or explicit flag" {
   run /bin/bash -c "dokku scheduler-k3s:set --global token"
   assert_success
