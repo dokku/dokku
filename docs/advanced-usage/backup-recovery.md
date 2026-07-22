@@ -98,10 +98,10 @@ See the [persistent storage documentation](/docs/advanced-usage/persistent-stora
 
 ### Restoring on a machine with a different CPU Architecture
 
-When restoring a backup on a machine that has a different CPU architecture, you will need to reinstall `basher` as it's not portable across different CPU architectures. Do so with the following command immediately after restoring your dokku configs:
+When restoring a backup on a machine that has a different CPU architecture, you will need to clear out the `~/.basher`  as it's not portable across different CPU architectures. Do so with the following command immediately after restoring your dokku configs:
+
 ```shell
-export BASHER_PREFIX=/home/dokku/.basher
-curl -s https://raw.githubusercontent.com/basherpm/basher/master/install.sh | sudo -u dokku bash
+rm -rf /home/dokku/.basher
 ```
 
 ## Recovering app code
