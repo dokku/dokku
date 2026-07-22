@@ -9,6 +9,7 @@ require (
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/spf13/pflag v1.0.10
+	golang.org/x/sync v0.22.0
 	mvdan.cc/sh/v3 v3.13.1
 )
 
@@ -28,7 +29,6 @@ require (
 	github.com/pkg/sftp v1.13.11 // indirect
 	github.com/tailscale/hujson v0.0.0-20250605163823-992244df8c5a // indirect
 	golang.org/x/crypto v0.54.0 // indirect
-	golang.org/x/sync v0.22.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect
 	k8s.io/utils v0.0.0-20240102154912-e7106e64919e // indirect
 )

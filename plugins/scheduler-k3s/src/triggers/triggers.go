@@ -86,6 +86,9 @@ func main() {
 		scheduler := flag.Arg(0)
 		appName := flag.Arg(1)
 		err = scheduler_k3s.TriggerSchedulerIsDeployed(scheduler, appName)
+	case "scheduler-uses-host-cron":
+		scheduler := flag.Arg(0)
+		err = scheduler_k3s.TriggerSchedulerUsesHostCron(scheduler)
 	case "scheduler-logs":
 		var tail bool
 		var quiet bool

@@ -2527,8 +2527,8 @@ DOKKU_SCHEDULER="$1"; APP="$2";
 > The scheduler plugin trigger apis are under development and may change
 > between minor releases until the 1.0 release.
 
-- Description: Force triggers writing out cron tasks. Arguments are optional.
-- Invoked by: `ps:start`, `ps:stop`, `cron:set`
+- Description: Force triggers writing out cron tasks. Arguments are optional. The `cron` plugin implements this for host-crontab schedulers (regenerating the whole `dokku` user crontab when the scheduler uses host cron or when no scheduler is given); self-managed schedulers such as `k3s` implement it to update their own cron backend.
+- Invoked by: `ps:start`, `ps:stop`, `cron:set`, `apps:destroy`
 - Arguments: `$DOKKU_SCHEDULER $APP`
 - Example:
 
@@ -2988,6 +2988,30 @@ DOKKU_SCHEDULER="$1"; APP="$2"; REMOVE_CONTAINERS="$3";
 - Invoked by: `dokku storage:exec`
 - Arguments: `$SCHEDULER $ENTRY_NAME $IMAGE [-- $cmd...]`
 - Flags: `--interactive` (stdin is open), `--tty` (stdin is a terminal), `--as-user <uid>` (override `entry.Chown`).
+
+### `scheduler-uses-host-cron`
+
+> [!WARNING]
+> The scheduler plugin trigger apis are under development and may change
+> between minor releases until the 1.0 release.
+
+- Description: Reports whether the scheduler writes `app.json` cron tasks to the host `dokku` user crontab. Schedulers that use the host crontab (`docker-local`) echo `true`; schedulers that manage their own cron backend (`k3s`, which creates in-cluster CronJobs) echo `false`. The cron plugin reads this to decide which apps to include when regenerating the host crontab; a scheduler that does not implement the trigger is treated as `false`.
+- Invoked by: `cron`
+- Arguments: `$DOKKU_SCHEDULER`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+DOKKU_SCHEDULER="$1";
+
+if [[ "$DOKKU_SCHEDULER" != "custom-scheduler" ]]; then
+  return
+fi
+
+echo "true"
+```
 
 ### `traefik-template-source`
 

@@ -23,9 +23,6 @@ func main() {
 
 	var err error
 	switch trigger {
-	case "scheduler-cron-write":
-		scheduler := flag.Arg(0)
-		err = schedulerdockerlocal.TriggerSchedulerCronWrite(scheduler)
 	case "scheduler-storage-exec":
 		args := flag.Args()
 		if len(args) < 3 {
