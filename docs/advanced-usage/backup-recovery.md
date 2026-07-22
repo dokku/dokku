@@ -96,6 +96,14 @@ System administrators are highly encouraged to store persistent data in app-spec
 
 See the [persistent storage documentation](/docs/advanced-usage/persistent-storage.md) for more information on how to attach persistent storage to your app.
 
+### Restoring on a machine with a different CPU Architecture
+
+When restoring a backup on a machine that has a different CPU architecture, you will need to clear out the `~/.basher`  as it's not portable across different CPU architectures. Do so with the following command immediately after restoring your dokku configs:
+
+```shell
+rm -rf /home/dokku/.basher
+```
+
 ## Recovering app code
 
 In case of an emergency when your git repo and backups are completely lost, you can recover the last pushed copy from your remote Dokku server (assuming you still have the ssh key).
