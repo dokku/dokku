@@ -637,6 +637,17 @@ func TriggerSchedulerIsDeployed(scheduler string, appName string) error {
 	return fmt.Errorf("App %s is not deployed", appName)
 }
 
+// TriggerSchedulerUsesHostCron reports that the k3s scheduler does not use the
+// host crontab; it manages its own in-cluster CronJobs
+func TriggerSchedulerUsesHostCron(scheduler string) error {
+	if scheduler != "k3s" {
+		return nil
+	}
+
+	fmt.Println("false")
+	return nil
+}
+
 // TriggerSchedulerEnter enters a container for a given application
 func TriggerSchedulerEnter(scheduler string, appName string, processType string, podName string, args []string) error {
 	if scheduler != "k3s" {

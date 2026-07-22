@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-scheduler-null-scheduler-uses-host-cron() {
+  declare desc="reports whether the scheduler writes cron tasks to the host crontab"
+  declare trigger="scheduler-uses-host-cron"
+  declare DOKKU_SCHEDULER="$1"
+
+  if [[ "$DOKKU_SCHEDULER" != "null" ]]; then
+    return
+  fi
+
+  echo "false"
+}
+
+trigger-scheduler-null-scheduler-uses-host-cron "$@"
