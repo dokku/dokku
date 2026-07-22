@@ -1,6 +1,7 @@
 package ports
 
 import (
+	"encoding/json"
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
@@ -19,8 +20,10 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 		flags = map[string]common.ReportFunc{}
 	} else {
 		flags = map[string]common.ReportFunc{
-			"--ports-map":          reportPortMap,
-			"--ports-map-detected": reportPortMapDetected,
+			"--ports-map":               reportPortMap,
+			"--ports-map-json":          reportPortMapAsJSON,
+			"--ports-map-detected":      reportPortMapDetected,
+			"--ports-map-detected-json": reportPortMapDetectedAsJSON,
 		}
 	}
 
@@ -52,6 +55,15 @@ func reportPortMap(appName string) string {
 	return strings.Join(portMaps, " ")
 }
 
+func reportPortMapAsJSON(appName string) string {
+	json, err := json.Marshal(getPortMaps(appName))
+	if err != nil {
+		return ""
+	}
+
+	return string(json)
+}
+
 func reportPortMapDetected(appName string) string {
 	var portMaps []string
 	for _, portMap := range getDetectedPortMaps(appName) {
@@ -59,4 +71,13 @@ func reportPortMapDetected(appName string) string {
 	}
 
 	return strings.Join(portMaps, " ")
+}
+
+func reportPortMapDetectedAsJSON(appName string) string {
+	json, err := json.Marshal(getDetectedPortMaps(appName))
+	if err != nil {
+		return ""
+	}
+
+	return string(json)
 }
