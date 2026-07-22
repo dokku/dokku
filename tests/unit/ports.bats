@@ -50,6 +50,11 @@ teardown() {
   echo "status: $status"
   assert_output "http:1234:5001"
 
+  run /bin/bash -c "dokku --quiet ports:report $TEST_APP --ports-map-json | jq -e 'length == 1 and .[0].scheme == \"http\" and .[0].host_port == 1234 and .[0].container_port == 5001'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku ports:add $TEST_APP http:8080:5002 https:8443:5003"
   echo "output: $output"
   echo "status: $status"
@@ -59,6 +64,11 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_output "http:1234:5001 http:8080:5002 https:8443:5003"
+
+  run /bin/bash -c "dokku --quiet ports:report $TEST_APP --ports-map-json | jq -e 'length == 3 and any(.scheme == \"http\" and .host_port == 1234 and .container_port == 5001) and any(.scheme == \"http\" and .host_port == 8080 and .container_port == 5002) and any(.scheme == \"https\" and .host_port == 8443 and .container_port == 5003)'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 
   run /bin/bash -c "dokku ports:set $TEST_APP http:8080:5000 https:8443:5000 http:1234:5001"
   echo "output: $output"
@@ -90,6 +100,11 @@ teardown() {
   echo "status: $status"
   assert_output "http:1234:5001 http:8080:5000 https:8443:5000"
 
+  run /bin/bash -c "dokku --quiet ports:report $TEST_APP --ports-map-json | jq -e 'length == 3 and any(.scheme == \"http\" and .host_port == 1234 and .container_port == 5001) and any(.scheme == \"http\" and .host_port == 8080 and .container_port == 5000) and any(.scheme == \"https\" and .host_port == 8443 and .container_port == 5000)'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku ports:remove $TEST_APP 8080"
   echo "output: $output"
   echo "status: $status"
@@ -99,6 +114,11 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_output "http:1234:5001 https:8443:5000"
+
+  run /bin/bash -c "dokku --quiet ports:report $TEST_APP --ports-map-json | jq -e 'length == 2 and any(.scheme == \"http\" and .host_port == 1234 and .container_port == 5001) and any(.scheme == \"https\" and .host_port == 8443 and .container_port == 5000)'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 
   run /bin/bash -c "dokku ports:remove $TEST_APP http:1234:5001"
   echo "output: $output"
@@ -110,6 +130,11 @@ teardown() {
   echo "status: $status"
   assert_output "https:8443:5000"
 
+  run /bin/bash -c "dokku --quiet ports:report $TEST_APP --ports-map-json | jq -e 'length == 1 and .[0].scheme == \"https\" and .[0].host_port == 8443 and .[0].container_port == 5000'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku ports:clear $TEST_APP"
   echo "output: $output"
   echo "status: $status"
@@ -120,10 +145,20 @@ teardown() {
   echo "status: $status"
   assert_output_not_exists
 
+  run /bin/bash -c "dokku --quiet ports:report $TEST_APP --ports-map-json | jq -e '. == [] or . == null'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku --quiet ports:report $TEST_APP --ports-map-detected"
   echo "output: $output"
   echo "status: $status"
   assert_output "http:80:5000"
+
+  run /bin/bash -c "dokku --quiet ports:report $TEST_APP --ports-map-detected-json | jq -e 'length == 1 and .[0].scheme == \"http\" and .[0].host_port == 80 and .[0].container_port == 5000'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 }
 
 @test "(ports:add) post-deploy add" {

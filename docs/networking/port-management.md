@@ -221,7 +221,60 @@ You can pass flags which will output only the value of the specific information 
 dokku ports:report node-js-app --ports-map
 ```
 
+Use `--ports-map-json` or `--ports-map-detected-json` to get the same data as a JSON array of objects. Each object has the following fields:
+
+- `scheme`: the port scheme (e.g. `http`, `https`, `udp`)
+- `host_port`: the host/listener port
+- `container_port`: the container port
+
+```shell
+dokku ports:report node-js-app --ports-map-json
+```
+
+```json
+[
+  {
+    "scheme": "http",
+    "host_port": 80,
+    "container_port": 5000
+  },
+  {
+    "scheme": "https",
+    "host_port": 443,
+    "container_port": 5000
+  }
+]
+```
+
+The JSON output can be processed with tools such as `jq`:
+
+```shell
+dokku ports:report node-js-app --ports-map-json | jq '.[].host_port'
+```
+
+```
+80
+443
+```
+
+```shell
+dokku ports:report node-js-app --ports-map-detected-json | jq '.[0].container_port'
+```
+
+```
+5000
+```
+
 ## Properties
+
+### Configured flags
+
+The following flags surface configured port mappings managed by `ports:set` / `ports:add` / `ports:remove` / `ports:clear`:
+
+| Flag | Description |
+|---|---|
+| `--ports-map` | Configured port mappings as space-separated `scheme:host-port:container-port` values |
+| `--ports-map-json` | Configured port mappings as a JSON array of `{scheme, host_port, container_port}` objects |
 
 ### Read-only flags
 
@@ -230,3 +283,4 @@ The following flags surface in `ports:report` but are not managed by `ports:set`
 | Flag | Description |
 |---|---|
 | `--ports-map-detected` | Port mapping inferred from `EXPOSE` directives or the running container |
+| `--ports-map-detected-json` | Detected port mappings as a JSON array of `{scheme, host_port, container_port}` objects |
