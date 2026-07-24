@@ -36,7 +36,7 @@ require (
 	k8s.io/apimachinery v0.36.3
 	k8s.io/client-go v0.36.3
 	k8s.io/kubectl v0.36.3
-	k8s.io/kubernetes v1.36.2
+	k8s.io/kubernetes v1.36.3
 	k8s.io/utils v0.0.0-20260626114624-be93311217bd
 	mvdan.cc/sh/v3 v3.13.1
 	sigs.k8s.io/kustomize/api v0.21.1
