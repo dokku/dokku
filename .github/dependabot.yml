@@ -330,6 +330,11 @@ updates:
     open-pull-requests-limit: 10
     labels:
       - "type: dependencies"
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-minor"
+          - "version-update:semver-patch"
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
