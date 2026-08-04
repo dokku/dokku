@@ -39,6 +39,51 @@ A cron task takes the following properties:
 - `maintenance`: A boolean value that decides whether the cron task is in maintenance and therefore executable or not.
 - `schedule`: A [cron-compatible](https://en.wikipedia.org/wiki/Cron#Overview) scheduling definition upon which to run the command. Seconds are generally not supported.
 - `concurrency_policy`: A string (default: `allow`), that controls whether the cron task can be run concurrently with another invocation of itself. Valid options are `allow` (allow concurrency), `forbid` (exit the new cron task if there is an existing one), `replace` (delete any existing cron task and start the new one).
+- `logfile`: A host path to which the task's **merged** standard output and standard error are appended. Mutually exclusive with `stdout_logfile`/`stderr_logfile`.
+- `stdout_logfile`: A host path to which the task's standard output is appended.
+- `stderr_logfile`: A host path to which the task's standard error is appended.
+
+#### Redirecting task output to a log file
+
+By default a scheduled cron task produces no on-host log file - its output is only delivered to the `dokku` user's cron mail (see the `MAILTO`/`MAILFROM` settings below). To persist output to a file on the host instead, set one or more of the `logfile`, `stdout_logfile`, and `stderr_logfile` properties. Paths are on the **host** (not inside the container) and output is **appended** to them; the file is created by cron on first write, but any parent directories must already exist and be writable by the `dokku` user.
+
+Use `logfile` to send merged standard output and standard error to a single file:
+
+```json
+{
+  "cron": [
+    {
+      "command": "npm run send-email",
+      "schedule": "@daily",
+      "logfile": "/var/log/dokku/send-email.log"
+    }
+  ]
+}
+```
+
+This renders in the crontab as the equivalent of `... &>> /var/log/dokku/send-email.log`.
+
+Alternatively, redirect standard output and standard error to separate files. Either may be set independently:
+
+```json
+{
+  "cron": [
+    {
+      "command": "npm run send-email",
+      "schedule": "@daily",
+      "stdout_logfile": "/var/log/dokku/send-email.out.log",
+      "stderr_logfile": "/var/log/dokku/send-email.err.log"
+    }
+  ]
+}
+```
+
+This renders as `... >> /var/log/dokku/send-email.out.log 2>> /var/log/dokku/send-email.err.log`.
+
+> [!NOTE]
+> `logfile` cannot be combined with `stdout_logfile` or `stderr_logfile`; doing so fails validation at deploy time.
+>
+> Because the log path is interpolated directly into a crontab line executed via `/bin/bash`, each log path is validated at deploy time and must be an absolute path composed only of letters, digits, and the characters `.`, `_`, `-`, and `/`. Paths containing whitespace or shell metacharacters (such as `;`, `|`, `&`, `$`, `` ` ``, `(`, `)`, `<`, `>`, quotes, or glob characters) are rejected to prevent breaking the crontab or injecting commands.
 
 
 Zero or more cron tasks can be specified per app. Cron tasks are validated after the build artifact is created but before the app is deployed, and the cron schedule is updated during the post-deploy phase.

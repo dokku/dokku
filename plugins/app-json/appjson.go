@@ -115,6 +115,16 @@ type CronTask struct {
 
 	// ConcurrencyPolicy is the concurrency policy for the cron command
 	ConcurrencyPolicy string `json:"concurrency_policy"`
+
+	// LogFile is a host path to which merged stdout and stderr are appended.
+	// Mutually exclusive with StdoutLogFile/StderrLogFile.
+	LogFile string `json:"logfile,omitempty"`
+
+	// StdoutLogFile is a host path to which stdout is appended
+	StdoutLogFile string `json:"stdout_logfile,omitempty"`
+
+	// StderrLogFile is a host path to which stderr is appended
+	StderrLogFile string `json:"stderr_logfile,omitempty"`
 }
 
 // Formation is a struct that represents the scale for a process from an app.json file

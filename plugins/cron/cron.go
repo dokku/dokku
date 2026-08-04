@@ -2,6 +2,7 @@ package cron
 
 import (
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -22,6 +23,24 @@ func ValidateCronCommand(command string) error {
 		return ""
 	})
 	return err
+}
+
+// cronLogPathPattern matches absolute paths composed solely of characters that
+// are safe to interpolate into a crontab shell line without quoting.
+var cronLogPathPattern = regexp.MustCompile(`^/[A-Za-z0-9._/-]+$`)
+
+// ValidateCronLogPath returns an error if the path is not an absolute path
+// composed only of a conservative safe character set. Log file paths are
+// interpolated directly into the crontab line that cron executes via
+// /bin/bash, so a path containing whitespace or shell metacharacters
+// (; | & $ ( ) < > ` newlines, quotes, globs, ...) could break the crontab
+// entry or inject arbitrary commands. Rejecting at deploy time surfaces the
+// error before the schedule is written.
+func ValidateCronLogPath(path string) error {
+	if !cronLogPathPattern.MatchString(path) {
+		return fmt.Errorf("must be an absolute path containing only letters, digits, and the characters '.', '_', '-', '/'")
+	}
+	return nil
 }
 
 var (
@@ -65,8 +84,14 @@ type CronTask struct {
 	// AltCommand is an alternate command to run
 	AltCommand string `json:"-"`
 
-	// LogFile is the log file to write to
+	// LogFile is a host path to which merged stdout and stderr are appended
 	LogFile string `json:"-"`
+
+	// StdoutLogFile is a host path to which stdout is appended
+	StdoutLogFile string `json:"-"`
+
+	// StderrLogFile is a host path to which stderr is appended
+	StderrLogFile string `json:"-"`
 
 	// AppInMaintenance is whether the app's cron is in maintenance mode
 	AppInMaintenance bool `json:"app-in-maintenance"`
@@ -80,14 +105,25 @@ type CronTask struct {
 
 // DokkuRunCommand returns the dokku run command to execute for a given cron task
 func (t CronTask) DokkuRunCommand() string {
+	base := fmt.Sprintf("dokku cron:run %s %s", t.App, t.ID)
 	if t.AltCommand != "" {
-		if t.LogFile != "" {
-			return fmt.Sprintf("%s &>> %s", t.AltCommand, t.LogFile)
-		}
-		return t.AltCommand
+		base = t.AltCommand
 	}
 
-	return fmt.Sprintf("dokku cron:run %s %s", t.App, t.ID)
+	// A merged log file appends both stdout and stderr to a single path.
+	if t.LogFile != "" {
+		return fmt.Sprintf("%s &>> %s", base, t.LogFile)
+	}
+
+	// Otherwise stdout and stderr may each be redirected independently.
+	if t.StdoutLogFile != "" {
+		base = fmt.Sprintf("%s >> %s", base, t.StdoutLogFile)
+	}
+	if t.StderrLogFile != "" {
+		base = fmt.Sprintf("%s 2>> %s", base, t.StderrLogFile)
+	}
+
+	return base
 }
 
 // FetchCronTasksInput is the input for the FetchCronTasks function
@@ -174,6 +210,40 @@ func FetchCronTasks(input FetchCronTasksInput) ([]CronTask, error) {
 			return tasks, fmt.Errorf("Invalid cron concurrency policy for app %s (schedule %s): %s", appName, c.Schedule, c.ConcurrencyPolicy)
 		}
 
+		if c.LogFile != "" && (c.StdoutLogFile != "" || c.StderrLogFile != "") {
+			if input.WarnToFailure {
+				return tasks, fmt.Errorf("Cannot set both logfile and stdout_logfile/stderr_logfile for app %s (index %d)", appName, i)
+			}
+
+			common.LogWarn(fmt.Sprintf("Cannot set both logfile and stdout_logfile/stderr_logfile for app %s (index %d)", appName, i))
+			continue
+		}
+
+		logPaths := map[string]string{
+			"logfile":        c.LogFile,
+			"stdout_logfile": c.StdoutLogFile,
+			"stderr_logfile": c.StderrLogFile,
+		}
+		invalidLogPath := false
+		for field, path := range logPaths {
+			if path == "" {
+				continue
+			}
+
+			if err := ValidateCronLogPath(path); err != nil {
+				if input.WarnToFailure {
+					return tasks, fmt.Errorf("Invalid cron %s for app %s (path %q): %s", field, appName, path, err.Error())
+				}
+
+				common.LogWarn(fmt.Sprintf("Invalid cron %s for app %s (path %q): %s", field, appName, path, err.Error()))
+				invalidLogPath = true
+				break
+			}
+		}
+		if invalidLogPath {
+			continue
+		}
+
 		tasks = append(tasks, CronTask{
 			App:               appName,
 			Command:           c.Command,
@@ -183,6 +253,9 @@ func FetchCronTasks(input FetchCronTasksInput) ([]CronTask, error) {
 			Maintenance:       isAppCronInMaintenance || maintenance,
 			AppInMaintenance:  isAppCronInMaintenance,
 			TaskInMaintenance: maintenance,
+			LogFile:           c.LogFile,
+			StdoutLogFile:     c.StdoutLogFile,
+			StderrLogFile:     c.StderrLogFile,
 		})
 	}
 
