@@ -68,10 +68,10 @@
     },
     {
       "name": "plugn",
-      "version": "0.17.0",
+      "version": "0.17.1",
       "urls": {
-        "amd64": "https://github.com/dokku/plugn/releases/download/v0.17.0/plugn-linux-amd64",
-        "arm64": "https://github.com/dokku/plugn/releases/download/v0.17.0/plugn-linux-arm64"
+        "amd64": "https://github.com/dokku/plugn/releases/download/v0.17.1/plugn-linux-amd64",
+        "arm64": "https://github.com/dokku/plugn/releases/download/v0.17.1/plugn-linux-arm64"
       }
     }
   ],
