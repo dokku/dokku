@@ -45,6 +45,95 @@ func CommandAnnotationsSet(appName string, processType string, resourceType stri
 	return nil
 }
 
+// CommandNodeSysctlsSet sets or clears a node-level kernel sysctl for a scope
+func CommandNodeSysctlsSet(profileName string, key string, value string) error {
+	if key == "" {
+		return fmt.Errorf("Missing sysctl name")
+	}
+
+	if profileName != "" {
+		if err := verifyNodeProfileExists(profileName); err != nil {
+			return err
+		}
+	}
+
+	property := getNodeSysctlsProperty(profileName)
+	if value == "" {
+		if err := common.PropertyMapDelete("scheduler-k3s", "--global", property, key); err != nil {
+			return fmt.Errorf("Unable to delete property map entry: %w", err)
+		}
+
+		common.LogWarn(fmt.Sprintf("Removing %s stops dokku managing it, but does not restore the previous value on affected nodes until they reboot", key))
+	} else {
+		if err := common.PropertyMapSet("scheduler-k3s", "--global", property, key, value); err != nil {
+			return fmt.Errorf("Unable to set property map entry: %w", err)
+		}
+	}
+
+	return CreateOrUpdateNodeSysctls(context.Background())
+}
+
+// CommandNodeSysctlsReport displays the configured node-level kernel sysctls
+func CommandNodeSysctlsReport(format string) error {
+	if format != "stdout" && format != "json" {
+		return fmt.Errorf("Invalid format: %s", format)
+	}
+
+	scopes, err := resolveNodeSysctlScopes()
+	if err != nil {
+		return err
+	}
+
+	if format == "json" {
+		output := map[string]map[string]string{}
+		for _, scope := range scopes {
+			key := scope.ProfileName
+			if key == "" {
+				key = "--global"
+			}
+
+			entries := map[string]string{}
+			for _, sysctl := range scope.Sysctls {
+				entries[sysctl.Name] = sysctl.Value
+			}
+			output[key] = entries
+		}
+
+		b, err := json.Marshal(output)
+		if err != nil {
+			return fmt.Errorf("Unable to marshal json: %w", err)
+		}
+
+		fmt.Println(string(b))
+		return nil
+	}
+
+	lines := []string{"scope|sysctl|value"}
+	for _, scope := range scopes {
+		scopeName := scope.ProfileName
+		if scopeName == "" {
+			scopeName = "--global"
+		}
+
+		for _, sysctl := range scope.Sysctls {
+			lines = append(lines, fmt.Sprintf("%s|%s|%s", scopeName, sysctl.Name, sysctl.Value))
+		}
+	}
+
+	fmt.Println(columnize.SimpleFormat(lines))
+	return nil
+}
+
+// verifyNodeProfileExists returns an error when a node profile has not been created
+func verifyNodeProfileExists(profileName string) error {
+	properties := common.PropertyGetDefault("scheduler-k3s", "--global", fmt.Sprintf("node-profile-%s.json", profileName), "")
+	if properties == "" {
+		return fmt.Errorf("Node profile %s not found", profileName)
+	}
+
+	return nil
+}
+
 // CommandAutoscalingAuthSet set or clear a scheduler-k3s autoscaling keda trigger authentication object for an app
 func CommandAutoscalingAuthSet(appName string, trigger string, metadata map[string]string, global bool) error {
 	if global {
@@ -174,7 +263,7 @@ func CommandLabelsReport(appName string, format string, processType string, reso
 }
 
 // CommandInitialize initializes a k3s cluster on the local server
-func CommandInitialize(ingressClass string, serverIP string, taintScheduling bool) error {
+func CommandInitialize(ingressClass string, serverIP string, taintScheduling bool, kubeletArgs []string) error {
 	if ingressClass != "nginx" && ingressClass != "traefik" {
 		return fmt.Errorf("Invalid ingress-class: %s", ingressClass)
 	}
@@ -308,40 +397,15 @@ func CommandInitialize(ingressClass string, serverIP string, taintScheduling boo
 	}
 	nodeName = strings.ReplaceAll(strings.ToLower(fmt.Sprintf("ip-%s-%s", nodeName, fmt.Sprintf("%X", b))), ".", "-")
 
-	args := []string{
-		// initialize the cluster
-		"--cluster-init",
-		// disable local-storage
-		"--disable", "local-storage",
-		// disable traefik so it can be installed separately
-		"--disable", "traefik",
-		// expose etcd metrics
-		"--etcd-expose-metrics",
-		// use wireguard for flannel
-		"--flannel-backend=wireguard-native",
-		// bind controller-manager to all interfaces
-		"--kube-controller-manager-arg", "bind-address=0.0.0.0",
-		// bind proxy metrics to all interfaces
-		"--kube-proxy-arg", "metrics-bind-address=0.0.0.0",
-		// bind scheduler to all interfaces
-		"--kube-scheduler-arg", "bind-address=0.0.0.0",
-		// gc terminated pods
-		"--kube-controller-manager-arg", "terminated-pod-gc-threshold=10",
-		// specify the node name
-		"--node-name", nodeName,
-		// allow access for the dokku user
-		"--write-kubeconfig-mode", "0644",
-		// specify a token
-		"--token", token,
-	}
-	if taintScheduling {
-		args = append(args, "--node-taint", "CriticalAddonsOnly=true:NoSchedule")
-	}
-
 	common.CommandPropertySet("scheduler-k3s", "--global", "ingress-class", ingressClass, DefaultProperties, GlobalProperties)
-	if ingressClass == "nginx" {
-		args = append(args, "--disable", "traefik")
-	}
+
+	args := initializeInstallerArgs(InitializeInstallerArgsInput{
+		IngressClass:    ingressClass,
+		KubeletArgs:     kubeletArgs,
+		NodeName:        nodeName,
+		TaintScheduling: taintScheduling,
+		Token:           token,
+	})
 
 	common.LogInfo2Quiet("Running k3s installer")
 	installerCmd, err := common.CallExecCommand(common.ExecCommandInput{
@@ -420,6 +484,11 @@ func CommandInitialize(ingressClass string, serverIP string, taintScheduling boo
 	err = installHelperCommands(ctx)
 	if err != nil {
 		return fmt.Errorf("Unable to install helper commands: %w", err)
+	}
+
+	common.LogInfo2Quiet("Applying node sysctls")
+	if err := CreateOrUpdateNodeSysctls(ctx); err != nil {
+		return fmt.Errorf("Unable to apply node sysctls: %w", err)
 	}
 
 	common.LogVerboseQuiet("Done")
@@ -900,10 +969,7 @@ export INSTALL_K3S_VERSION=%s
 		return fmt.Errorf("Unable to find node after joining cluster, node will not be annotated/labeled appropriately access registry secrets")
 	}
 
-	labels := ServerLabels
-	if incomingProfile.Role == "worker" {
-		labels = WorkerLabels
-	}
+	labels := nodeLabels(incomingProfile.Role, profileName)
 
 	for key, value := range labels {
 		common.LogInfo2Quiet(fmt.Sprintf("Labeling node %s=%s", key, value))
@@ -1288,6 +1354,10 @@ func CommandProfilesRemove(profileName string) error {
 
 	if err := common.PropertyDelete("scheduler-k3s", "--global", fmt.Sprintf("node-profile-%s.json", profileName)); err != nil {
 		return fmt.Errorf("Unable to delete node profile: %w", err)
+	}
+
+	if err := DeleteNodeSysctls(context.Background(), profileName); err != nil {
+		return err
 	}
 
 	common.LogInfo1(fmt.Sprintf("Node profile %s removed", profileName))

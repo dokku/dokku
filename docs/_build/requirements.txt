@@ -3,7 +3,7 @@ click==8.4.2
 ghp-import==2.1.0
 importlib-metadata==9.0.0
 Jinja2==3.1.6
-Markdown>=3.10.2,<3.11
+Markdown>=3.10.3,<3.11
 MarkupSafe==3.0.3
 mergedeep==1.3.4
 mkdocs==1.6.1
@@ -18,6 +18,6 @@ python-dateutil==2.9.0.post0
 PyYAML==6.0.3
 pyyaml_env_tag==1.1
 six==1.17.0
-soupsieve==2.9
+soupsieve==2.9.1
 watchdog==6.0.0
 zipp==4.1.0

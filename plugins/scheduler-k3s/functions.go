@@ -1286,6 +1286,86 @@ func resolveLetsencryptIssuer(appName string, clusterIssuerName string, appEmail
 	}
 }
 
+// nodeLabels returns the labels to apply to a node joining the cluster, including
+// the node profile label when the node was added with a named profile. The returned
+// map is always a fresh copy so callers cannot mutate ServerLabels or WorkerLabels.
+func nodeLabels(role string, profileName string) map[string]string {
+	source := ServerLabels
+	if role == "worker" {
+		source = WorkerLabels
+	}
+
+	labels := make(map[string]string, len(source)+1)
+	for key, value := range source {
+		labels[key] = value
+	}
+
+	if profileName != "" {
+		labels[NodeProfileLabel] = profileName
+	}
+
+	return labels
+}
+
+// InitializeInstallerArgsInput contains the inputs to initializeInstallerArgs
+type InitializeInstallerArgsInput struct {
+	// IngressClass is the ingress class the cluster is initialized with
+	IngressClass string
+	// KubeletArgs is a list of key=value kubelet arguments for the server node
+	KubeletArgs []string
+	// NodeName is the generated name of the server node
+	NodeName string
+	// TaintScheduling is whether to taint the node against app workloads
+	TaintScheduling bool
+	// Token is the cluster join token
+	Token string
+}
+
+// initializeInstallerArgs builds the argument list handed to the k3s installer
+// when creating the initial server node
+func initializeInstallerArgs(input InitializeInstallerArgsInput) []string {
+	args := []string{
+		// initialize the cluster
+		"--cluster-init",
+		// disable local-storage
+		"--disable", "local-storage",
+		// disable traefik so it can be installed separately
+		"--disable", "traefik",
+		// expose etcd metrics
+		"--etcd-expose-metrics",
+		// use wireguard for flannel
+		"--flannel-backend=wireguard-native",
+		// bind controller-manager to all interfaces
+		"--kube-controller-manager-arg", "bind-address=0.0.0.0",
+		// bind proxy metrics to all interfaces
+		"--kube-proxy-arg", "metrics-bind-address=0.0.0.0",
+		// bind scheduler to all interfaces
+		"--kube-scheduler-arg", "bind-address=0.0.0.0",
+		// gc terminated pods
+		"--kube-controller-manager-arg", "terminated-pod-gc-threshold=10",
+		// specify the node name
+		"--node-name", input.NodeName,
+		// allow access for the dokku user
+		"--write-kubeconfig-mode", "0644",
+		// specify a token
+		"--token", input.Token,
+	}
+
+	if input.TaintScheduling {
+		args = append(args, "--node-taint", "CriticalAddonsOnly=true:NoSchedule")
+	}
+
+	for _, kubeletArg := range input.KubeletArgs {
+		args = append(args, "--kubelet-arg", kubeletArg)
+	}
+
+	if input.IngressClass == "nginx" {
+		args = append(args, "--disable", "traefik")
+	}
+
+	return args
+}
+
 func getKustomizeDirectory(appName string) string {
 	directory := filepath.Join(common.MustGetEnv("DOKKU_LIB_ROOT"), "data", "scheduler-k3s", appName)
 	return filepath.Join(directory, "kustomization")
@@ -1309,6 +1389,24 @@ func getComputedKustomizeRootPath(appName string) string {
 	}
 
 	return kustomizeRootPath
+}
+
+func getComputedNodeSysctlsImage() string {
+	image := common.PropertyGet("scheduler-k3s", "--global", "node-sysctls-image")
+	if image == "" {
+		image = DefaultNodeSysctlsImage
+	}
+
+	return image
+}
+
+func getComputedNodeSysctlsPauseImage() string {
+	image := common.PropertyGet("scheduler-k3s", "--global", "node-sysctls-pause-image")
+	if image == "" {
+		image = DefaultNodeSysctlsPauseImage
+	}
+
+	return image
 }
 
 func getNamespace(appName string) string {
@@ -1674,12 +1772,62 @@ func getStartCommand(input StartCommandInput) (StartCommandOutput, error) {
 	}, nil
 }
 
+// namespacedSysctlPrefixes are the sysctl prefixes the kernel maintains per-namespace
+var namespacedSysctlPrefixes = []string{
+	"net.",
+	"kernel.shm",
+	"kernel.msg",
+	"fs.mqueue.",
+}
+
+// isNamespacedSysctl reports whether a sysctl is maintained per-namespace by the
+// kernel and can therefore be set on a pod spec. Sysctls outside these subtrees
+// hold a single value shared by the entire machine, and kubelet rejects them.
+func isNamespacedSysctl(name string) bool {
+	if name == "kernel.sem" {
+		return true
+	}
+
+	for _, prefix := range namespacedSysctlPrefixes {
+		if strings.HasPrefix(name, prefix) {
+			return true
+		}
+	}
+
+	return false
+}
+
+// parseSysctls converts docker-option key=value pairs into sysctls sorted by name,
+// rejecting any sysctl that cannot take effect within a pod's namespaces.
+func parseSysctls(values []string) ([]Sysctl, error) {
+	sysctls := []Sysctl{}
+	for _, value := range values {
+		name, sysctlValue, found := strings.Cut(value, "=")
+		if !found || name == "" {
+			return nil, fmt.Errorf("Invalid --sysctl value, expected name=value: %s", value)
+		}
+
+		if !isNamespacedSysctl(name) {
+			return nil, fmt.Errorf("Sysctl %s is not namespaced and cannot be set on a pod, apply it to the nodes with 'dokku scheduler-k3s:node-sysctls:set %s <value>' instead", name, name)
+		}
+
+		sysctls = append(sysctls, Sysctl{Name: name, Value: sysctlValue})
+	}
+
+	sort.Slice(sysctls, func(i int, j int) bool {
+		return sysctls[i].Name < sysctls[j].Name
+	})
+
+	return sysctls, nil
+}
+
 func getSecurityContext(appName string, phase string) (SecurityContext, error) {
 	securityContext := SecurityContext{}
 	deployOptions, err := dockeroptions.GetSpecifiedDockerOptionsForPhase(appName, phase, []string{
 		"--cap-add",
 		"--cap-drop",
 		"--privileged",
+		"--sysctl",
 	})
 	if err != nil {
 		return SecurityContext{}, fmt.Errorf("Error getting deploy options: %w", err)
@@ -1701,6 +1849,13 @@ func getSecurityContext(appName string, phase string) (SecurityContext, error) {
 			capabilities = append(capabilities, strings.ToUpper(cap))
 		}
 		securityContext.Capabilities.Drop = capabilities
+	}
+	if sysctlOptions, ok := deployOptions["--sysctl"]; ok {
+		sysctls, err := parseSysctls(sysctlOptions)
+		if err != nil {
+			return SecurityContext{}, err
+		}
+		securityContext.Sysctls = sysctls
 	}
 	return securityContext, nil
 }
