@@ -27,7 +27,7 @@ Additional commands:`
     scheduler-k3s:cluster:list [--format json|stdout], Lists all nodes in a Dokku-managed cluster
     scheduler-k3s:cluster:remove [node-id], Removes client node to a Dokku-managed cluster
     scheduler-k3s:ensure-charts, Ensures the k3s charts are installed
-    scheduler-k3s:initialize [--server-ip SERVER_IP] [--taint-scheduling], Initializes a cluster
+    scheduler-k3s:initialize [--server-ip SERVER_IP] [--taint-scheduling] [--kubelet-args KUBELET_ARGS], Initializes a cluster
     scheduler-k3s:labels:set <app|--global> <property> (<value>) [--process-type PROCESS_TYPE] <--resource-type RESOURCE_TYPE>, Set or clear a label for a given app/process-type/resource-type combination
     scheduler-k3s:labels:report [<app>|--global] [--format stdout|json] [--process-type PROCESS_TYPE] [--resource-type RESOURCE_TYPE], Displays a scheduler-k3s labels report for one or more apps
     scheduler-k3s:preview <app> [--context N] [--show-secrets] [--show-secrets-decoded], Displays a diff between the current and next deployment for an app

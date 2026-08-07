@@ -78,6 +78,20 @@ Dokku can also use Traefik on cluster initialization via the [Traefik's CRDs](ht
 dokku scheduler-k3s:initialize --ingress-class traefik
 ```
 
+Kubelet flags for the initial server node can be supplied by passing `--kubelet-args` with a comma-separated `key=value` list. This is the only way to configure the kubelet on the node created by `scheduler-k3s:initialize`, as that node never passes through `scheduler-k3s:cluster:add`.
+
+```shell
+dokku scheduler-k3s:initialize \
+  --kubelet-args allowed-unsafe-sysctls=net.ipv6.conf.all.disable_ipv6
+```
+
+Multiple kubelet arguments can be specified in the same call by separating them with commas.
+
+```shell
+dokku scheduler-k3s:initialize \
+  --kubelet-args allowed-unsafe-sysctls=net.ipv6.conf.all.disable_ipv6,max-pods=150
+```
+
 ### Adding nodes to the cluster
 
 > [!WARNING]

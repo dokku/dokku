@@ -128,8 +128,9 @@ func main() {
 		taintScheduling := args.Bool("taint-scheduling", false, "taint-scheduling: add a taint against scheduling app workloads")
 		serverIP := args.String("server-ip", "", "server-ip: IP address of the dokku server node")
 		ingressClass := args.String("ingress-class", "nginx", "ingress-class: ingress-class to use for all outbound traffic")
+		kubeletArgs := args.StringSlice("kubelet-args", []string{}, "kubelet-args: repeatable key=value kubelet arguments (e.g., --kubelet-args key=value)")
 		args.Parse(os.Args[2:])
-		err = scheduler_k3s.CommandInitialize(*ingressClass, *serverIP, *taintScheduling)
+		err = scheduler_k3s.CommandInitialize(*ingressClass, *serverIP, *taintScheduling, *kubeletArgs)
 	case "labels:set":
 		args := flag.NewFlagSet("scheduler-k3s:labels:set", flag.ExitOnError)
 		global := args.Bool("global", false, "--global: set a global property")

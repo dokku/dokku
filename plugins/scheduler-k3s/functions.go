@@ -1286,6 +1286,65 @@ func resolveLetsencryptIssuer(appName string, clusterIssuerName string, appEmail
 	}
 }
 
+// InitializeInstallerArgsInput contains the inputs to initializeInstallerArgs
+type InitializeInstallerArgsInput struct {
+	// IngressClass is the ingress class the cluster is initialized with
+	IngressClass string
+	// KubeletArgs is a list of key=value kubelet arguments for the server node
+	KubeletArgs []string
+	// NodeName is the generated name of the server node
+	NodeName string
+	// TaintScheduling is whether to taint the node against app workloads
+	TaintScheduling bool
+	// Token is the cluster join token
+	Token string
+}
+
+// initializeInstallerArgs builds the argument list handed to the k3s installer
+// when creating the initial server node
+func initializeInstallerArgs(input InitializeInstallerArgsInput) []string {
+	args := []string{
+		// initialize the cluster
+		"--cluster-init",
+		// disable local-storage
+		"--disable", "local-storage",
+		// disable traefik so it can be installed separately
+		"--disable", "traefik",
+		// expose etcd metrics
+		"--etcd-expose-metrics",
+		// use wireguard for flannel
+		"--flannel-backend=wireguard-native",
+		// bind controller-manager to all interfaces
+		"--kube-controller-manager-arg", "bind-address=0.0.0.0",
+		// bind proxy metrics to all interfaces
+		"--kube-proxy-arg", "metrics-bind-address=0.0.0.0",
+		// bind scheduler to all interfaces
+		"--kube-scheduler-arg", "bind-address=0.0.0.0",
+		// gc terminated pods
+		"--kube-controller-manager-arg", "terminated-pod-gc-threshold=10",
+		// specify the node name
+		"--node-name", input.NodeName,
+		// allow access for the dokku user
+		"--write-kubeconfig-mode", "0644",
+		// specify a token
+		"--token", input.Token,
+	}
+
+	if input.TaintScheduling {
+		args = append(args, "--node-taint", "CriticalAddonsOnly=true:NoSchedule")
+	}
+
+	for _, kubeletArg := range input.KubeletArgs {
+		args = append(args, "--kubelet-arg", kubeletArg)
+	}
+
+	if input.IngressClass == "nginx" {
+		args = append(args, "--disable", "traefik")
+	}
+
+	return args
+}
+
 func getKustomizeDirectory(appName string) string {
 	directory := filepath.Join(common.MustGetEnv("DOKKU_LIB_ROOT"), "data", "scheduler-k3s", appName)
 	return filepath.Join(directory, "kustomization")
