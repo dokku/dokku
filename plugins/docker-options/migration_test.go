@@ -278,6 +278,147 @@ func TestMigrateTraefikLabelBackticks(t *testing.T) {
 	}
 }
 
+// TestMigrateLegacyDockerOptionsFiles_CanonicalizesLines covers the
+// regression behind #8904: legacy lines were drained verbatim, so an
+// option holding shell metacharacters could never match the
+// canonically re-serialized string `docker-options:remove` builds.
+func TestMigrateLegacyDockerOptionsFiles_CanonicalizesLines(t *testing.T) {
+	dokkuRoot := setupMigrationEnv(t)
+
+	writeLegacyDockerOptionsFile(t, dokkuRoot, "alpha", "DEPLOY", "--group-add $(getent group docker | cut -d: -f3)\n-v /a:/a -v /b:/b\n")
+
+	if err := migrateLegacyDockerOptionsFiles(); err != nil {
+		t.Fatalf("migrateLegacyDockerOptionsFiles: %v", err)
+	}
+
+	got, err := GetDockerOptionsForProcessPhase("alpha", "_default_", "deploy")
+	if err != nil {
+		t.Fatalf("GetDockerOptionsForProcessPhase: %v", err)
+	}
+	want := []string{
+		"--group-add '$(getent group docker | cut -d: -f3)'",
+		"-v /a:/a",
+		"-v /b:/b",
+	}
+	if !equalStrings(got, want) {
+		t.Errorf("alpha deploy = %q, want %q", got, want)
+	}
+}
+
+// TestMigrateNonCanonicalOptions covers the repair pass for installs
+// that already drained their legacy files under an earlier release, so
+// the non-canonical values are sitting in the property store.
+func TestMigrateNonCanonicalOptions(t *testing.T) {
+	dokkuRoot := setupMigrationEnv(t)
+	if err := os.MkdirAll(filepath.Join(dokkuRoot, "alpha"), 0755); err != nil {
+		t.Fatalf("MkdirAll: %v", err)
+	}
+
+	if err := common.PropertyListWrite("docker-options", "alpha", "_default_.deploy", []string{
+		"--group-add $(getent group docker | cut -d: -f3)",
+		"-v /a:/a -v /b:/b",
+	}); err != nil {
+		t.Fatalf("seed default scope: %v", err)
+	}
+	if err := common.PropertyListWrite("docker-options", "alpha", "web.deploy", []string{
+		"--label FOO=$BAR",
+	}); err != nil {
+		t.Fatalf("seed web scope: %v", err)
+	}
+	if err := common.PropertyListWrite("docker-options", "alpha", "_default_.build", []string{
+		"--build-arg FOO=bar",
+	}); err != nil {
+		t.Fatalf("seed build scope: %v", err)
+	}
+
+	if err := migrateNonCanonicalOptions(); err != nil {
+		t.Fatalf("migrateNonCanonicalOptions: %v", err)
+	}
+
+	deploy, err := GetDockerOptionsForProcessPhase("alpha", "_default_", "deploy")
+	if err != nil {
+		t.Fatalf("GetDockerOptionsForProcessPhase deploy: %v", err)
+	}
+	wantDeploy := []string{
+		"--group-add '$(getent group docker | cut -d: -f3)'",
+		"-v /a:/a",
+		"-v /b:/b",
+	}
+	if !equalStrings(deploy, wantDeploy) {
+		t.Errorf("alpha deploy = %q, want %q", deploy, wantDeploy)
+	}
+
+	web, err := GetDockerOptionsForProcessPhase("alpha", "web", "deploy")
+	if err != nil {
+		t.Fatalf("GetDockerOptionsForProcessPhase web.deploy: %v", err)
+	}
+	if !equalStrings(web, []string{"--label 'FOO=$BAR'"}) {
+		t.Errorf("alpha web.deploy = %q, want [--label 'FOO=$BAR']", web)
+	}
+
+	build, err := GetDockerOptionsForProcessPhase("alpha", "_default_", "build")
+	if err != nil {
+		t.Fatalf("GetDockerOptionsForProcessPhase build: %v", err)
+	}
+	if !equalStrings(build, []string{"--build-arg FOO=bar"}) {
+		t.Errorf("alpha build = %q, want [--build-arg FOO=bar]", build)
+	}
+
+	if common.PropertyGet("docker-options", "--global", canonicalOptionsMigrationKey) != "true" {
+		t.Errorf("expected %s guard to be set", canonicalOptionsMigrationKey)
+	}
+
+	if err := migrateNonCanonicalOptions(); err != nil {
+		t.Fatalf("second migrateNonCanonicalOptions: %v", err)
+	}
+	deployAfter, err := GetDockerOptionsForProcessPhase("alpha", "_default_", "deploy")
+	if err != nil {
+		t.Fatalf("GetDockerOptionsForProcessPhase deploy (post re-run): %v", err)
+	}
+	if !equalStrings(deployAfter, wantDeploy) {
+		t.Errorf("alpha deploy after rerun = %q, want %q (idempotency violated)", deployAfter, wantDeploy)
+	}
+}
+
+// TestRemoveDockerOptionFromPhases_MatchesNonCanonicalStoredOption is
+// the regression test for #8904 itself: an option left in the store in
+// its pre-0.38.25 unquoted form must still be removable using the
+// string a user would type.
+func TestRemoveDockerOptionFromPhases_MatchesNonCanonicalStoredOption(t *testing.T) {
+	dokkuRoot := setupMigrationEnv(t)
+	if err := os.MkdirAll(filepath.Join(dokkuRoot, "alpha"), 0755); err != nil {
+		t.Fatalf("MkdirAll: %v", err)
+	}
+
+	stored := "--group-add $(getent group docker | cut -d: -f3)"
+	if err := common.PropertyListWrite("docker-options", "alpha", "_default_.deploy", []string{
+		stored,
+		"-v /keep:/keep",
+	}); err != nil {
+		t.Fatalf("seed: %v", err)
+	}
+
+	options, _, err := SplitOptionString(stored)
+	if err != nil {
+		t.Fatalf("SplitOptionString: %v", err)
+	}
+	if len(options) != 1 {
+		t.Fatalf("SplitOptionString returned %d options, want 1", len(options))
+	}
+
+	if err := RemoveDockerOptionFromPhases("alpha", []string{"deploy"}, options[0]); err != nil {
+		t.Fatalf("RemoveDockerOptionFromPhases: %v", err)
+	}
+
+	got, err := GetDockerOptionsForProcessPhase("alpha", "_default_", "deploy")
+	if err != nil {
+		t.Fatalf("GetDockerOptionsForProcessPhase: %v", err)
+	}
+	if !equalStrings(got, []string{"-v /keep:/keep"}) {
+		t.Errorf("alpha deploy = %q, want [-v /keep:/keep]", got)
+	}
+}
+
 func equalStrings(a, b []string) bool {
 	if len(a) != len(b) {
 		return false

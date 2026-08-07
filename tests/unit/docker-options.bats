@@ -441,6 +441,47 @@ teardown() {
   assert_output_contains "--link foo" 0
 }
 
+@test "(docker-options:remove) removes an option stored in the pre-0.38.25 unquoted form" {
+  # Options drained out of a legacy DOCKER_OPTIONS_<PHASE> file by
+  # releases before 0.38.26 were copied verbatim, so a value holding
+  # shell metacharacters sits in the property store unquoted. Seed that
+  # state directly - the add path always canonicalizes, so it cannot
+  # produce it.
+  run /bin/bash -c "dokku docker-options:add $TEST_APP deploy \"-v /tmp/keep:/keep\""
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  legacy_option='--group-add $(getent group docker | cut -d: -f3)'
+  property_file="/var/lib/dokku/config/docker-options/$TEST_APP/_default_.deploy"
+  run /bin/bash -c "printf '%s\n-v /tmp/keep:/keep\n' '$legacy_option' | sudo tee $property_file"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "sudo chown dokku:dokku $property_file"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku docker-options:list $TEST_APP --phase deploy"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "$legacy_option"
+
+  run /bin/bash -c "dokku docker-options:remove $TEST_APP deploy '$legacy_option'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku docker-options:list $TEST_APP --phase deploy"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "-v /tmp/keep:/keep"
+}
+
 @test "(docker-options) dockerfile build skips unsupported flags from multi-flag input" {
   run /bin/bash -c "dokku docker-options:add $TEST_APP build --build-arg PAYPAL_CLIENT_ID=abc --link postgres"
   echo "output: $output"

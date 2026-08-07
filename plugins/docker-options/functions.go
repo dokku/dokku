@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
@@ -278,10 +279,6 @@ func convertLegacyMigratedMarker(appName, phase string) error {
 // previous release - who have `migrated-from-files` set AND `.migrated`
 // files on disk - still get those files drained into properties.
 func migrateLegacyDockerOptionsFiles() error {
-	if common.PropertyGet("docker-options", "--global", "migrated-from-files") == "true" {
-		return nil
-	}
-
 	apps, err := common.DokkuApps()
 	if err != nil {
 		if errors.Is(err, common.NoAppsExist) {
@@ -301,6 +298,10 @@ func migrateLegacyDockerOptionsFiles() error {
 		}
 	}
 
+	if common.PropertyGet("docker-options", "--global", "migrated-from-files") == "true" {
+		return nil
+	}
+
 	for _, appName := range apps {
 		for _, phase := range availablePhases {
 			legacyPath := filepath.Join(common.AppRoot(appName), "DOCKER_OPTIONS_"+strings.ToUpper(phase))
@@ -313,8 +314,9 @@ func migrateLegacyDockerOptionsFiles() error {
 				return err
 			}
 
-			if len(lines) > 0 {
-				if err := common.PropertyListWrite("docker-options", appName, propertyKey(DefaultProcessType, phase), lines); err != nil {
+			options := canonicalizeOptionLines(lines)
+			if len(options) > 0 {
+				if err := common.PropertyListWrite("docker-options", appName, propertyKey(DefaultProcessType, phase), options); err != nil {
 					return err
 				}
 				if err := common.PropertyWrite("docker-options", appName, migratedPropertyKey(phase), "true"); err != nil {
@@ -350,6 +352,17 @@ func readLegacyOptionsFile(path string) ([]string, error) {
 		lines = append(lines, trimmed)
 	}
 	return lines, nil
+}
+
+// canonicalizeOptionLines re-serializes stored option lines into the canonical
+// form `docker-options:add` writes, flattening the per-line results so a line
+// carrying several flags becomes one entry per flag. Order is preserved.
+func canonicalizeOptionLines(lines []string) []string {
+	options := make([]string, 0, len(lines))
+	for _, line := range lines {
+		options = append(options, canonicalOptionsFromLine(line)...)
+	}
+	return options
 }
 
 // traefikLabelMigrationKey gates the one-time pass that repairs docker-option
@@ -450,4 +463,64 @@ func labelSpec(option string) (string, bool) {
 	s = strings.TrimPrefix(s, "'")
 	s = strings.TrimPrefix(s, "\"")
 	return s, true
+}
+
+// canonicalOptionsMigrationKey gates the one-time pass that re-serializes
+// stored docker options into the canonical form. Options drained out of the
+// legacy DOCKER_OPTIONS_<PHASE> flat files by releases before this one were
+// copied verbatim, so they never matched the canonically re-serialized string
+// `docker-options:remove` compares against.
+const canonicalOptionsMigrationKey = "migrated-canonical-options"
+
+// migrateNonCanonicalOptions rewrites stored docker options into the canonical
+// form so the whole store uses the same representation `docker-options:add`
+// writes. Two things get repaired: values whose shell metacharacters were never
+// quoted, and lines carrying several flags, which are split into one entry per
+// flag so a single flag can be removed and so the prefix-matching readers
+// (`getRestartPolicy`, `GetSpecifiedDockerOptionsForPhase`) see one value per
+// entry. Canonicalization is idempotent, so options written through the CLI are
+// left untouched. It runs once, guarded by a global property.
+func migrateNonCanonicalOptions() error {
+	if common.PropertyGet("docker-options", "--global", canonicalOptionsMigrationKey) == "true" {
+		return nil
+	}
+
+	apps, err := common.DokkuApps()
+	if err != nil {
+		if errors.Is(err, common.NoAppsExist) {
+			return common.PropertyWrite("docker-options", "--global", canonicalOptionsMigrationKey, "true")
+		}
+		return err
+	}
+
+	for _, appName := range apps {
+		properties, err := common.PropertyGetAll("docker-options", appName)
+		if err != nil {
+			return err
+		}
+
+		for key := range properties {
+			processType, phase, ok := splitPropertyKey(key)
+			if !ok {
+				continue
+			}
+
+			options, err := GetDockerOptionsForProcessPhase(appName, processType, phase)
+			if err != nil {
+				return err
+			}
+
+			canonical := canonicalizeOptionLines(options)
+			if slices.Equal(canonical, options) {
+				continue
+			}
+
+			if err := writeDockerOptionsForProcessPhase(appName, processType, phase, canonical); err != nil {
+				return err
+			}
+			common.LogInfo1(fmt.Sprintf("Rewrote docker-options into canonical form for %s (%s %s)", appName, processType, phase))
+		}
+	}
+
+	return common.PropertyWrite("docker-options", "--global", canonicalOptionsMigrationKey, "true")
 }

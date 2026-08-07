@@ -80,7 +80,15 @@ Option values are stored and passed to the container verbatim. Quoting only cont
 dokku docker-options:add node-js-app deploy '--label "traefik.http.routers.web.rule=Host(`node-js-app.example.com`) && PathPrefix(`/api`)"'
 ```
 
-A misplaced `--process PROC` (i.e. one specified after the app name instead of before it) is honored as a subcommand flag rather than stored as a docker option, so the example above and the equivalent process-scoped form below behave identically:
+> [!WARNING]
+> Options added before 0.38.25 were expanded by the shell when a container was created. Any such option that relied on shell expansion - `$(...)`, backticks, or `$VAR` - is treated as a literal string after upgrading and must be re-added with the value already resolved:
+>
+> ```shell
+> dokku docker-options:remove node-js-app deploy "--group-add \$(getent group docker | cut -d: -f3)"
+> dokku docker-options:add node-js-app deploy "--group-add $(getent group docker | cut -d: -f3)"
+> ```
+
+A misplaced `--process PROC` (i.e. one specified after the app name instead of before it) is honored as a subcommand flag rather than stored as a docker option, so the two invocations below behave identically:
 
 ```shell
 dokku docker-options:add --process web node-js-app deploy "--ulimit nofile=12" "--shm-size 256m"
@@ -105,6 +113,13 @@ Multiple docker options can also be removed in a single call, mirroring the spli
 
 ```shell
 dokku docker-options:remove node-js-app deploy "--ulimit nofile=12" "--shm-size 256m"
+```
+
+A stored option is matched by shell word rather than by exact string, so the value only has to be equivalent to the stored one, not byte-identical. Quoting an option one way removes an option that was stored quoted another way:
+
+```shell
+dokku docker-options:add node-js-app deploy "--label 'com.example.owner=platform team'"
+dokku docker-options:remove node-js-app deploy '--label "com.example.owner=platform team"'
 ```
 
 #### Clear all Docker options for an app
@@ -278,3 +293,5 @@ The following properties are recorded internally by the docker-options plugin an
 | `migrated-build` | per-app | Per-app marker recording that the app's legacy `DOCKER_OPTIONS_BUILD` file was drained into the `_default_.build` property list. Only set when the legacy file contained non-empty content | `plugins/docker-options/functions.go` writes `"true"` after the per-phase drain |
 | `migrated-deploy` | per-app | Per-app marker recording that the app's legacy `DOCKER_OPTIONS_DEPLOY` file was drained into the `_default_.deploy` property list. Only set when the legacy file contained non-empty content | `plugins/docker-options/functions.go` writes `"true"` after the per-phase drain |
 | `migrated-run` | per-app | Per-app marker recording that the app's legacy `DOCKER_OPTIONS_RUN` file was drained into the `_default_.run` property list. Only set when the legacy file contained non-empty content | `plugins/docker-options/functions.go` writes `"true"` after the per-phase drain |
+| `migrated-traefik-backticks` | global | Global sentinel recording that stored Traefik labels whose backticks carried a stray backslash have been repaired | `plugins/docker-options/functions.go` writes `"true"` once the install-time repair runs |
+| `migrated-canonical-options` | global | Global sentinel recording that stored options have been rewritten into the canonical form, quoting values whose shell metacharacters were left bare by an older legacy-file drain and splitting entries that carried several flags | `plugins/docker-options/functions.go` writes `"true"` once the install-time rewrite runs |
