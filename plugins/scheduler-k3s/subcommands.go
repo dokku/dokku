@@ -45,6 +45,95 @@ func CommandAnnotationsSet(appName string, processType string, resourceType stri
 	return nil
 }
 
+// CommandNodeSysctlsSet sets or clears a node-level kernel sysctl for a scope
+func CommandNodeSysctlsSet(profileName string, key string, value string) error {
+	if key == "" {
+		return fmt.Errorf("Missing sysctl name")
+	}
+
+	if profileName != "" {
+		if err := verifyNodeProfileExists(profileName); err != nil {
+			return err
+		}
+	}
+
+	property := getNodeSysctlsProperty(profileName)
+	if value == "" {
+		if err := common.PropertyMapDelete("scheduler-k3s", "--global", property, key); err != nil {
+			return fmt.Errorf("Unable to delete property map entry: %w", err)
+		}
+
+		common.LogWarn(fmt.Sprintf("Removing %s stops dokku managing it, but does not restore the previous value on affected nodes until they reboot", key))
+	} else {
+		if err := common.PropertyMapSet("scheduler-k3s", "--global", property, key, value); err != nil {
+			return fmt.Errorf("Unable to set property map entry: %w", err)
+		}
+	}
+
+	return CreateOrUpdateNodeSysctls(context.Background())
+}
+
+// CommandNodeSysctlsReport displays the configured node-level kernel sysctls
+func CommandNodeSysctlsReport(format string) error {
+	if format != "stdout" && format != "json" {
+		return fmt.Errorf("Invalid format: %s", format)
+	}
+
+	scopes, err := resolveNodeSysctlScopes()
+	if err != nil {
+		return err
+	}
+
+	if format == "json" {
+		output := map[string]map[string]string{}
+		for _, scope := range scopes {
+			key := scope.ProfileName
+			if key == "" {
+				key = "--global"
+			}
+
+			entries := map[string]string{}
+			for _, sysctl := range scope.Sysctls {
+				entries[sysctl.Name] = sysctl.Value
+			}
+			output[key] = entries
+		}
+
+		b, err := json.Marshal(output)
+		if err != nil {
+			return fmt.Errorf("Unable to marshal json: %w", err)
+		}
+
+		fmt.Println(string(b))
+		return nil
+	}
+
+	lines := []string{"scope|sysctl|value"}
+	for _, scope := range scopes {
+		scopeName := scope.ProfileName
+		if scopeName == "" {
+			scopeName = "--global"
+		}
+
+		for _, sysctl := range scope.Sysctls {
+			lines = append(lines, fmt.Sprintf("%s|%s|%s", scopeName, sysctl.Name, sysctl.Value))
+		}
+	}
+
+	fmt.Println(columnize.SimpleFormat(lines))
+	return nil
+}
+
+// verifyNodeProfileExists returns an error when a node profile has not been created
+func verifyNodeProfileExists(profileName string) error {
+	properties := common.PropertyGetDefault("scheduler-k3s", "--global", fmt.Sprintf("node-profile-%s.json", profileName), "")
+	if properties == "" {
+		return fmt.Errorf("Node profile %s not found", profileName)
+	}
+
+	return nil
+}
+
 // CommandAutoscalingAuthSet set or clear a scheduler-k3s autoscaling keda trigger authentication object for an app
 func CommandAutoscalingAuthSet(appName string, trigger string, metadata map[string]string, global bool) error {
 	if global {
@@ -395,6 +484,11 @@ func CommandInitialize(ingressClass string, serverIP string, taintScheduling boo
 	err = installHelperCommands(ctx)
 	if err != nil {
 		return fmt.Errorf("Unable to install helper commands: %w", err)
+	}
+
+	common.LogInfo2Quiet("Applying node sysctls")
+	if err := CreateOrUpdateNodeSysctls(ctx); err != nil {
+		return fmt.Errorf("Unable to apply node sysctls: %w", err)
 	}
 
 	common.LogVerboseQuiet("Done")
@@ -1260,6 +1354,10 @@ func CommandProfilesRemove(profileName string) error {
 
 	if err := common.PropertyDelete("scheduler-k3s", "--global", fmt.Sprintf("node-profile-%s.json", profileName)); err != nil {
 		return fmt.Errorf("Unable to delete node profile: %w", err)
+	}
+
+	if err := DeleteNodeSysctls(context.Background(), profileName); err != nil {
+		return err
 	}
 
 	common.LogInfo1(fmt.Sprintf("Node profile %s removed", profileName))

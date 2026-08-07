@@ -1,0 +1,55 @@
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  annotations:
+    dokku.com/managed: "true"
+  labels:
+    app.kubernetes.io/name: {{ .Values.global.release_name }}
+    app.kubernetes.io/part-of: dokku
+  name: {{ .Values.global.release_name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Values.global.release_name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ .Values.global.release_name }}
+        app.kubernetes.io/part-of: dokku
+    spec:
+      {{- if .Values.global.profile_name }}
+      nodeSelector:
+        dokku.com/node-profile: {{ .Values.global.profile_name | quote }}
+      {{- else }}
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: dokku.com/node-profile
+                operator: DoesNotExist
+      {{- end }}
+      tolerations:
+      - operator: Exists
+      initContainers:
+      - name: apply-sysctls
+        image: {{ .Values.global.image | quote }}
+        securityContext:
+          privileged: true
+        command:
+        - sh
+        - -c
+        - |
+          set -e
+          {{- range .Values.global.sysctls }}
+          sysctl -w {{ printf "%s=%s" .name .value | quote }}
+          {{- end }}
+      containers:
+      - name: pause
+        image: {{ .Values.global.pause_image | quote }}
+        resources:
+          requests:
+            cpu: 1m
+            memory: 8Mi

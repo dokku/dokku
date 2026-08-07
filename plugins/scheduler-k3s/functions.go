@@ -1391,6 +1391,24 @@ func getComputedKustomizeRootPath(appName string) string {
 	return kustomizeRootPath
 }
 
+func getComputedNodeSysctlsImage() string {
+	image := common.PropertyGet("scheduler-k3s", "--global", "node-sysctls-image")
+	if image == "" {
+		image = DefaultNodeSysctlsImage
+	}
+
+	return image
+}
+
+func getComputedNodeSysctlsPauseImage() string {
+	image := common.PropertyGet("scheduler-k3s", "--global", "node-sysctls-pause-image")
+	if image == "" {
+		image = DefaultNodeSysctlsPauseImage
+	}
+
+	return image
+}
+
 func getNamespace(appName string) string {
 	return common.PropertyGet("scheduler-k3s", appName, "namespace")
 }
@@ -1790,7 +1808,7 @@ func parseSysctls(values []string) ([]Sysctl, error) {
 		}
 
 		if !isNamespacedSysctl(name) {
-			return nil, fmt.Errorf("Sysctl %s is not namespaced and cannot be set on a pod, it must be applied at the node level instead", name)
+			return nil, fmt.Errorf("Sysctl %s is not namespaced and cannot be set on a pod, apply it to the nodes with 'dokku scheduler-k3s:node-sysctls:set %s <value>' instead", name, name)
 		}
 
 		sysctls = append(sysctls, Sysctl{Name: name, Value: sysctlValue})

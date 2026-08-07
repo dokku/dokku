@@ -31,20 +31,22 @@ var (
 
 	// GlobalProperties is a map of all valid global k3s properties
 	GlobalProperties = map[string]bool{
-		"deploy-timeout":         true,
-		"image-pull-secrets":     true,
-		"ingress-class":          true,
-		"kube-context":           true,
-		"kubeconfig-path":        true,
-		"kustomize-root-path":    true,
-		"letsencrypt-server":     true,
-		"letsencrypt-email-prod": true,
-		"letsencrypt-email-stag": true,
-		"namespace":              true,
-		"network-interface":      true,
-		"rollback-on-failure":    true,
-		"shm-size":               true,
-		"token":                  true,
+		"deploy-timeout":           true,
+		"image-pull-secrets":       true,
+		"ingress-class":            true,
+		"kube-context":             true,
+		"kubeconfig-path":          true,
+		"kustomize-root-path":      true,
+		"letsencrypt-server":       true,
+		"letsencrypt-email-prod":   true,
+		"letsencrypt-email-stag":   true,
+		"namespace":                true,
+		"network-interface":        true,
+		"node-sysctls-image":       true,
+		"node-sysctls-pause-image": true,
+		"rollback-on-failure":      true,
+		"shm-size":                 true,
+		"token":                    true,
 	}
 )
 
@@ -102,6 +104,7 @@ var reservedAnnotationPrefixes = []string{
 	"chart-overrides.",
 	"labels.",
 	"node-profile-",
+	"node-sysctls.",
 	TriggerAuthPropertyPrefix,
 }
 
@@ -233,6 +236,15 @@ type NodeProfile struct {
 
 // NodeProfileLabel is the node label recording the node profile a node was added with
 const NodeProfileLabel = "dokku.com/node-profile"
+
+// NodeSysctlsNamespace is the namespace the node sysctls daemonsets are installed into
+const NodeSysctlsNamespace = "kube-system"
+
+// DefaultNodeSysctlsImage is the image used to apply sysctls on each node
+const DefaultNodeSysctlsImage = "busybox:1.36"
+
+// DefaultNodeSysctlsPauseImage is the image keeping the node sysctls daemonset pods running
+const DefaultNodeSysctlsPauseImage = "registry.k8s.io/pause:3.9"
 
 // ServerLabels are the labels for a server node
 var ServerLabels = map[string]string{

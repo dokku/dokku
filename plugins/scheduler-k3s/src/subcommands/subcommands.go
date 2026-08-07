@@ -164,6 +164,23 @@ func main() {
 			appName = "--global"
 		}
 		err = scheduler_k3s.CommandLabelsReport(appName, *format, *processType, *resourceType, infoFlag)
+	case "node-sysctls:set":
+		args := flag.NewFlagSet("scheduler-k3s:node-sysctls:set", flag.ExitOnError)
+		global := args.Bool("global", false, "--global: scope to all nodes without a node profile")
+		profileName := args.String("profile", "", "--profile: scope to a node profile instead of all unprofiled nodes")
+		args.Parse(os.Args[2:])
+		key := args.Arg(0)
+		value := args.Arg(1)
+		if *global && *profileName != "" {
+			err = fmt.Errorf("Only one of --global and --profile may be specified")
+			break
+		}
+		err = scheduler_k3s.CommandNodeSysctlsSet(*profileName, key, value)
+	case "node-sysctls:report":
+		args := flag.NewFlagSet("scheduler-k3s:node-sysctls:report", flag.ExitOnError)
+		format := args.String("format", "stdout", "format: [ stdout | json ]")
+		args.Parse(os.Args[2:])
+		err = scheduler_k3s.CommandNodeSysctlsReport(*format)
 	case "preview":
 		args := flag.NewFlagSet("scheduler-k3s:preview", flag.ExitOnError)
 		context := args.Int("context", 3, "--context: number of unchanged lines of context around each change (-1 for full output)")

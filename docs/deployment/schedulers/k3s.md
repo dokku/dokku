@@ -17,6 +17,8 @@ scheduler-k3s:ensure-charts                         # Ensures the k3s charts are
 scheduler-k3s:initialize                            # Initializes a cluster
 scheduler-k3s:labels:set <app|--global> <property> (<value>) [--process-type PROCESS_TYPE] <--resource-type RESOURCE_TYPE> # Set or clear a label for a given app/process-type/resource-type combination
 scheduler-k3s:labels:report [<app>|--global] [--format stdout|json] [--process-type PROCESS_TYPE] [--resource-type RESOURCE_TYPE] # Displays a scheduler-k3s labels report for one or more apps
+scheduler-k3s:node-sysctls:set <sysctl> (<value>) [--global|--profile PROFILE] # Set or clear a node-level kernel sysctl for unprofiled nodes or a single node profile
+scheduler-k3s:node-sysctls:report [--format stdout|json] # Displays the node-level kernel sysctls applied to each scope
 scheduler-k3s:preview <app> [--context N] [--show-secrets] [--show-secrets-decoded] # Displays a diff between the current and next deployment for an app
 scheduler-k3s:profiles:add <profile> [--role ROLE] [--insecure-allow-unknown-hosts] [--taint-scheduling] [--kubelet-args KUBELET_ARGS] Adds a node profile to the k3s cluster
 scheduler-k3s:profiles:list [--format json|stdout]  # Lists all node profiles in the k3s cluster
@@ -766,17 +768,47 @@ Dokku does not enforce the safe list itself, as its membership changes between K
 
 #### Non-namespaced sysctls
 
-Non-namespaced sysctls are a property of the node, not of any app. Set them directly on each node in the cluster.
+Non-namespaced sysctls are a property of the node, not of any app, and are managed with the `node-sysctls:set` command. Dokku applies them via a privileged DaemonSet, so they reach every node without being told which nodes exist, cover nodes joined later, and are reapplied after a node reboots.
 
 ```shell
-sudo sysctl -w vm.max_map_count=262144
+dokku scheduler-k3s:node-sysctls:set --global vm.max_map_count 262144
+```
+
+Omitting the value clears it.
+
+```shell
+dokku scheduler-k3s:node-sysctls:set --global vm.max_map_count
+```
+
+Clearing a sysctl stops Dokku managing it, but does not restore whatever the node had before. The last value written stays in place until that node reboots, which is how `sysctl -w` behaves everywhere else.
+
+Sysctls can also be scoped to a [node profile](#node-profiles) with `--profile`, which applies them only to nodes joined with that profile.
+
+```shell
+dokku scheduler-k3s:node-sysctls:set --profile edge-workers vm.max_map_count 524288
+```
+
+A profile scope inherits everything set globally and overrides it on conflict, so each node is covered by exactly one DaemonSet and no two ever write the same value. Note that the server node created by `scheduler-k3s:initialize` never carries a profile label, so only globally-scoped sysctls reach it.
+
+Use `node-sysctls:report` to see the resolved set for every scope.
+
+```shell
+dokku scheduler-k3s:node-sysctls:report
 ```
 
 ```shell
-echo "vm.max_map_count = 262144" | sudo tee /etc/sysctl.d/99-max-map-count.conf
+dokku scheduler-k3s:node-sysctls:report --format json
 ```
 
-The second command is what makes the change survive a reboot; `sysctl -w` alone does not. Repeat both on every node, including any added later via `scheduler-k3s:cluster:add`.
+The DaemonSet pulls `busybox` and `registry.k8s.io/pause` by default. On an air-gapped cluster or one behind a registry mirror, point them elsewhere:
+
+```shell
+dokku scheduler-k3s:set --global node-sysctls-image registry.internal/busybox:1.36
+```
+
+```shell
+dokku scheduler-k3s:set --global node-sysctls-pause-image registry.internal/pause:3.9
+```
 
 ### Integrating Kustomize
 
@@ -1011,6 +1043,8 @@ If unspecified for any task, the default reservation will be `.1` CPU and `128Mi
 | `letsencrypt-server` | app + global | `prod` | `--scheduler-k3s-letsencrypt-server`, `--scheduler-k3s-global-letsencrypt-server`, `--scheduler-k3s-computed-letsencrypt-server` | ACME directory (`prod` or `staging`) used for app certificates |
 | `namespace` | app + global | `default` | `--scheduler-k3s-namespace`, `--scheduler-k3s-global-namespace`, `--scheduler-k3s-computed-namespace` | Kubernetes namespace into which the app's resources are installed |
 | `network-interface` | global only | `eth0` | `--scheduler-k3s-global-network-interface`, `--scheduler-k3s-computed-network-interface` | Host network interface used by k3s |
+| `node-sysctls-image` | global only | `busybox:1.36` | `--scheduler-k3s-global-node-sysctls-image` | Image used to apply node-level sysctls, override for air-gapped clusters |
+| `node-sysctls-pause-image` | global only | `registry.k8s.io/pause:3.9` | `--scheduler-k3s-global-node-sysctls-pause-image` | Image keeping the node sysctls daemonset pods running |
 | `rollback-on-failure` | app + global | `false` | `--scheduler-k3s-rollback-on-failure`, `--scheduler-k3s-global-rollback-on-failure`, `--scheduler-k3s-computed-rollback-on-failure` | When `true`, helm rolls back the release if a deploy fails |
 | `shm-size` | app + global | none | `--scheduler-k3s-shm-size`, `--scheduler-k3s-global-shm-size`, `--scheduler-k3s-computed-shm-size` | `/dev/shm` size override applied to app containers |
 | `token` | global only | none | `--scheduler-k3s-global-token` (masked as `*******` in default stdout output; the raw value is returned when queried via `--format json` or when this flag is requested explicitly) | Cluster join token used by `scheduler-k3s:cluster-add` |

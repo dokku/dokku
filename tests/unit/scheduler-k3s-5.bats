@@ -12,6 +12,7 @@ setup() {
 }
 
 teardown() {
+  dokku scheduler-k3s:node-sysctls:set --global vm.max_map_count || true
   global_teardown
   dokku nginx:start
   uninstall_k3s || true
@@ -77,4 +78,70 @@ teardown() {
   echo "status: $status"
   assert_failure
   assert_output_contains "is not namespaced" -1
+}
+
+@test "(scheduler-k3s:node-sysctls) applies non-namespaced sysctls to nodes" {
+  if [[ -z "$DOCKERHUB_USERNAME" ]] || [[ -z "$DOCKERHUB_TOKEN" ]]; then
+    skip "skipping due to missing docker.io credentials DOCKERHUB_USERNAME:DOCKERHUB_TOKEN"
+  fi
+
+  INGRESS_CLASS=nginx install_k3s
+
+  run /bin/bash -c "kubectl get daemonset -n kube-system dokku-node-sysctls-global"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku scheduler-k3s:node-sysctls:set --global vm.max_map_count 262144"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku scheduler-k3s:node-sysctls:report --format json | jq -r '.\"--global\".\"vm.max_map_count\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "262144"
+
+  run /bin/bash -c "kubectl rollout status daemonset -n kube-system dokku-node-sysctls-global --timeout=120s"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "kubectl get daemonset -n kube-system dokku-node-sysctls-global -o json | jq -r '.status.desiredNumberScheduled'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "$(kubectl get nodes --no-headers | wc -l | tr -d ' ')"
+
+  run /bin/bash -c "cat /proc/sys/vm/max_map_count"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "262144"
+
+  run /bin/bash -c "dokku scheduler-k3s:node-sysctls:set --global vm.max_map_count"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run wait_for_daemonset_deletion dokku-node-sysctls-global
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
+wait_for_daemonset_deletion() {
+  declare desc="waits for a daemonset to be removed from the api server"
+  declare NAME="$1"
+
+  for _ in $(seq 1 30); do
+    if ! kubectl get daemonset -n kube-system "$NAME" >/dev/null 2>&1; then
+      return 0
+    fi
+    sleep 2
+  done
+
+  echo "daemonset $NAME still exists after 60s"
+  return 1
 }

@@ -30,6 +30,8 @@ Additional commands:`
     scheduler-k3s:initialize [--server-ip SERVER_IP] [--taint-scheduling] [--kubelet-args KUBELET_ARGS], Initializes a cluster
     scheduler-k3s:labels:set <app|--global> <property> (<value>) [--process-type PROCESS_TYPE] <--resource-type RESOURCE_TYPE>, Set or clear a label for a given app/process-type/resource-type combination
     scheduler-k3s:labels:report [<app>|--global] [--format stdout|json] [--process-type PROCESS_TYPE] [--resource-type RESOURCE_TYPE], Displays a scheduler-k3s labels report for one or more apps
+    scheduler-k3s:node-sysctls:set <sysctl> (<value>) [--global|--profile PROFILE], Set or clear a node-level kernel sysctl for unprofiled nodes or a single node profile
+    scheduler-k3s:node-sysctls:report [--format stdout|json], Displays the node-level kernel sysctls applied to each scope
     scheduler-k3s:preview <app> [--context N] [--show-secrets] [--show-secrets-decoded], Displays a diff between the current and next deployment for an app
     scheduler-k3s:profiles:add <profile> [--role ROLE] [--insecure-allow-unknown-hosts] [--taint-scheduling] [--kubelet-args KUBELET_ARGS], Adds a node profile to the k3s cluster
     scheduler-k3s:profiles:list [--format json|stdout], Lists all node profiles in the k3s cluster
