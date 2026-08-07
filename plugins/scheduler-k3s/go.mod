@@ -22,7 +22,7 @@ require (
 	github.com/gofrs/flock v0.13.0
 	github.com/gosimple/slug v1.15.0
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
-	github.com/kedacore/keda/v2 v2.20.1
+	github.com/kedacore/keda/v2 v2.20.2
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d
 	github.com/onsi/gomega v1.42.1
 	github.com/ryanuber/columnize v2.1.2+incompatible
