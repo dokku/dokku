@@ -668,6 +668,8 @@ type MigrateConfigEntry struct {
 // across all apps and optionally globally. It is idempotent: if the property already
 // exists, the migration is skipped for that app/entry.
 func MigrateConfigToProperties(pluginName string, entries []MigrateConfigEntry) error {
+	migrateLegacyEnvFiles()
+
 	apps, err := UnfilteredDokkuApps()
 	if err != nil && !errors.Is(err, NoAppsExist) {
 		return nil
@@ -692,6 +694,24 @@ func MigrateConfigToProperties(pluginName string, entries []MigrateConfigEntry) 
 	}
 
 	return nil
+}
+
+// migrateLegacyEnvFiles drains the pre-0.38 ENV files into the config property
+// path before any config var is read.
+//
+// Install triggers fire in lexicographic order of the enabled-plugin directory
+// names, so plugins sorting before "config" - apps, builder and checks among
+// them - would otherwise read an environment the config plugin has not
+// relocated yet, find it empty, and migrate nothing without reporting anything.
+// A failure here is not fatal: the migration is retried on the next install, so
+// an unavailable trigger degrades to the previous behavior rather than aborting
+// every plugin's install.
+func migrateLegacyEnvFiles() {
+	if _, err := CallPlugnTrigger(PlugnTriggerInput{
+		Trigger: "config-migrate-env",
+	}); err != nil {
+		LogWarn(fmt.Sprintf("Unable to migrate legacy env files: %s", err.Error()))
+	}
 }
 
 // migrateConfigEntry migrates a single config variable to a property for a given app

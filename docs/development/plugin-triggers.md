@@ -581,6 +581,21 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `config-migrate-env`
+
+- Description: Drains the pre-0.38 `$DOKKU_ROOT/ENV` and `$DOKKU_ROOT/<app>/ENV` files into the config property path, removing each file once it has been drained. Idempotent, and safe to call from an install trigger that runs before the config plugin's own.
+- Invoked by: `common` when migrating deprecated config vars to plugin properties, checks plugin
+- Arguments: none
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+plugn trigger config-migrate-env
+```
+
 ### `config-set`
 
 - Description: Sets one or more config values for an app without restarting (when --no-restart flag is specified)
