@@ -875,10 +875,7 @@ export INSTALL_K3S_VERSION=%s
 		return fmt.Errorf("Unable to find node after joining cluster, node will not be annotated/labeled appropriately access registry secrets")
 	}
 
-	labels := ServerLabels
-	if incomingProfile.Role == "worker" {
-		labels = WorkerLabels
-	}
+	labels := nodeLabels(incomingProfile.Role, profileName)
 
 	for key, value := range labels {
 		common.LogInfo2Quiet(fmt.Sprintf("Labeling node %s=%s", key, value))

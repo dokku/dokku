@@ -214,6 +214,21 @@ dokku scheduler-k3s:profiles:remove edge-workers
 
 Removal only deletes the stored definition; nodes that already joined the cluster keep their existing configuration.
 
+#### The node profile label
+
+When a node joins via `scheduler-k3s:cluster:add --profile <name>`, Dokku labels it with `dokku.com/node-profile=<name>`. This makes a profile selectable after the fact, whether via `kubectl`, a `nodeSelector`, or a node affinity rule.
+
+```shell
+kubectl get nodes -L dokku.com/node-profile
+```
+
+Nodes added without `--profile` are not labeled, as an empty label value would be indistinguishable from a profile literally named the empty string.
+
+Two limits are worth knowing before relying on this label:
+
+- The server node never carries it. That node is created by `scheduler-k3s:initialize` and never passes through `scheduler-k3s:cluster:add`, so no profile is ever associated with it.
+- Nodes that joined before this label existed are not backfilled. Use `kubectl label node <node> dokku.com/node-profile=<name>` to set it on an existing node.
+
 ### Changing deployment settings
 
 The k3s plugin provides a number of settings that can be used to managed deployments on a per-app basis. The following table outlines ones not covered elsewhere:

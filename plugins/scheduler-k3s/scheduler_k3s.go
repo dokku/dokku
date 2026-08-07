@@ -231,6 +231,9 @@ type NodeProfile struct {
 	KubeletArgs []string `json:"kubelet_args,omitempty"`
 }
 
+// NodeProfileLabel is the node label recording the node profile a node was added with
+const NodeProfileLabel = "dokku.com/node-profile"
+
 // ServerLabels are the labels for a server node
 var ServerLabels = map[string]string{
 	"svccontroller.k3s.cattle.io/enablelb": "true",

@@ -178,3 +178,80 @@ func containsArgPair(args []string, flag string, value string) bool {
 	}
 	return false
 }
+
+func TestNodeLabels(t *testing.T) {
+	cases := []struct {
+		name        string
+		role        string
+		profileName string
+		wantKey     string
+		wantValue   string
+		wantProfile bool
+	}{
+		{
+			name:        "server without a profile",
+			role:        "server",
+			profileName: "",
+			wantKey:     "svccontroller.k3s.cattle.io/enablelb",
+			wantValue:   "true",
+			wantProfile: false,
+		},
+		{
+			name:        "worker without a profile",
+			role:        "worker",
+			profileName: "",
+			wantKey:     "node-role.kubernetes.io/worker",
+			wantValue:   "worker",
+			wantProfile: false,
+		},
+		{
+			name:        "worker with a profile",
+			role:        "worker",
+			profileName: "edge-workers",
+			wantKey:     "node-role.kubernetes.io/worker",
+			wantValue:   "worker",
+			wantProfile: true,
+		},
+		{
+			name:        "server with a profile",
+			role:        "server",
+			profileName: "control-plane",
+			wantKey:     "svccontroller.k3s.cattle.io/enablelb",
+			wantValue:   "true",
+			wantProfile: true,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := nodeLabels(tc.role, tc.profileName)
+
+			if got[tc.wantKey] != tc.wantValue {
+				t.Errorf("nodeLabels() role label = %q, want %q", got[tc.wantKey], tc.wantValue)
+			}
+
+			profile, ok := got[NodeProfileLabel]
+			if ok != tc.wantProfile {
+				t.Errorf("nodeLabels() has %s = %v, want %v", NodeProfileLabel, ok, tc.wantProfile)
+			}
+			if tc.wantProfile && profile != tc.profileName {
+				t.Errorf("nodeLabels() %s = %q, want %q", NodeProfileLabel, profile, tc.profileName)
+			}
+		})
+	}
+}
+
+func TestNodeLabelsDoesNotMutatePackageLabels(t *testing.T) {
+	serverBefore := len(ServerLabels)
+	workerBefore := len(WorkerLabels)
+
+	nodeLabels("server", "control-plane")
+	nodeLabels("worker", "edge-workers")
+
+	if len(ServerLabels) != serverBefore {
+		t.Errorf("nodeLabels() mutated ServerLabels: len = %d, want %d", len(ServerLabels), serverBefore)
+	}
+	if len(WorkerLabels) != workerBefore {
+		t.Errorf("nodeLabels() mutated WorkerLabels: len = %d, want %d", len(WorkerLabels), workerBefore)
+	}
+}

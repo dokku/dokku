@@ -1286,6 +1286,27 @@ func resolveLetsencryptIssuer(appName string, clusterIssuerName string, appEmail
 	}
 }
 
+// nodeLabels returns the labels to apply to a node joining the cluster, including
+// the node profile label when the node was added with a named profile. The returned
+// map is always a fresh copy so callers cannot mutate ServerLabels or WorkerLabels.
+func nodeLabels(role string, profileName string) map[string]string {
+	source := ServerLabels
+	if role == "worker" {
+		source = WorkerLabels
+	}
+
+	labels := make(map[string]string, len(source)+1)
+	for key, value := range source {
+		labels[key] = value
+	}
+
+	if profileName != "" {
+		labels[NodeProfileLabel] = profileName
+	}
+
+	return labels
+}
+
 // InitializeInstallerArgsInput contains the inputs to initializeInstallerArgs
 type InitializeInstallerArgsInput struct {
 	// IngressClass is the ingress class the cluster is initialized with
