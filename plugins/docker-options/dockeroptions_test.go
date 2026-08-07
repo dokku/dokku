@@ -175,6 +175,142 @@ func TestQuoteShellArg(t *testing.T) {
 	}
 }
 
+func TestOptionsEqual(t *testing.T) {
+	cases := []struct {
+		name   string
+		stored string
+		option string
+		want   bool
+	}{
+		{
+			name:   "identical strings",
+			stored: "-v /tmp:/tmp",
+			option: "-v /tmp:/tmp",
+			want:   true,
+		},
+		{
+			name:   "legacy unquoted command substitution matches canonical form",
+			stored: "--group-add $(getent group docker | cut -d: -f3)",
+			option: "--group-add '$(getent group docker | cut -d: -f3)'",
+			want:   true,
+		},
+		{
+			name:   "legacy unquoted parameter expansion matches canonical form",
+			stored: "--label FOO=$BAR",
+			option: "--label 'FOO=$BAR'",
+			want:   true,
+		},
+		{
+			name:   "double quoted matches single quoted",
+			stored: `--label "hello world"`,
+			option: "--label 'hello world'",
+			want:   true,
+		},
+		{
+			name:   "different values do not match",
+			stored: "-v /tmp:/tmp",
+			option: "-v /var:/var",
+			want:   false,
+		},
+		{
+			name:   "different flags do not match",
+			stored: "--link foo",
+			option: "--link bar",
+			want:   false,
+		},
+		{
+			name:   "multi-flag entry does not match a single flag",
+			stored: "-v /a:/a -v /b:/b",
+			option: "-v /a:/a",
+			want:   false,
+		},
+		{
+			name:   "unbalanced quote never matches",
+			stored: "--label 'unbalanced",
+			option: "--label unbalanced",
+			want:   false,
+		},
+		{
+			name:   "empty stored entry does not match an option",
+			stored: "",
+			option: "-v /tmp:/tmp",
+			want:   false,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := optionsEqual(tc.stored, tc.option); got != tc.want {
+				t.Errorf("optionsEqual(%q, %q) = %v, want %v", tc.stored, tc.option, got, tc.want)
+			}
+		})
+	}
+}
+
+func TestCanonicalOptionsFromLine(t *testing.T) {
+	cases := []struct {
+		name string
+		line string
+		want []string
+	}{
+		{
+			name: "quotes an unquoted command substitution",
+			line: "--group-add $(getent group docker | cut -d: -f3)",
+			want: []string{"--group-add '$(getent group docker | cut -d: -f3)'"},
+		},
+		{
+			name: "splits a line carrying several flags",
+			line: "-v /a:/a -v /b:/b",
+			want: []string{"-v /a:/a", "-v /b:/b"},
+		},
+		{
+			name: "leaves an already canonical line untouched",
+			line: "--group-add '$(getent group docker | cut -d: -f3)'",
+			want: []string{"--group-add '$(getent group docker | cut -d: -f3)'"},
+		},
+		{
+			name: "leaves a plain option untouched",
+			line: "--restart=on-failure:5",
+			want: []string{"--restart=on-failure:5"},
+		},
+		{
+			name: "preserves a line with an unbalanced quote",
+			line: "--label 'unbalanced",
+			want: []string{"--label 'unbalanced"},
+		},
+		{
+			name: "preserves a line whose tail reads as a shell comment",
+			line: "-v /a:/a # a note",
+			want: []string{"-v /a:/a # a note"},
+		},
+		{
+			name: "returns nothing for an empty line",
+			line: "",
+			want: nil,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := canonicalOptionsFromLine(tc.line)
+			if !equalStringSlice(got, tc.want) {
+				t.Errorf("canonicalOptionsFromLine(%q) = %q, want %q", tc.line, got, tc.want)
+			}
+
+			if len(tc.want) == 0 {
+				return
+			}
+
+			// Canonicalization must be idempotent so the one-time repair
+			// pass is a no-op on stores it has already rewritten.
+			again := canonicalizeOptionLines(got)
+			if !equalStringSlice(again, got) {
+				t.Errorf("canonicalizing %q again = %q, want %q", got, again, got)
+			}
+		})
+	}
+}
+
 func equalStringSlice(a, b []string) bool {
 	if len(a) == 0 && len(b) == 0 {
 		return true

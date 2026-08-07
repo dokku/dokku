@@ -149,6 +149,7 @@ ci-go-coverage:
 	@$(MAKE) ci-go-coverage-plugin PLUGIN_NAME=certs
 	@$(MAKE) ci-go-coverage-plugin PLUGIN_NAME=common
 	@$(MAKE) ci-go-coverage-plugin PLUGIN_NAME=config
+	@$(MAKE) ci-go-coverage-plugin PLUGIN_NAME=docker-options
 	@$(MAKE) ci-go-coverage-plugin PLUGIN_NAME=network
 	@$(MAKE) ci-go-coverage-plugin PLUGIN_NAME=buildpacks
 
@@ -180,6 +181,7 @@ go-tests:
 	@$(MAKE) go-test-plugin PLUGIN_NAME=certs
 	@$(MAKE) go-test-plugin PLUGIN_NAME=common
 	@$(MAKE) go-test-plugin PLUGIN_NAME=config
+	@$(MAKE) go-test-plugin PLUGIN_NAME=docker-options
 	@$(MAKE) go-test-plugin PLUGIN_NAME=network
 	@$(MAKE) go-test-plugin PLUGIN_NAME=buildpacks
 

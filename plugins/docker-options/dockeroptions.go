@@ -2,6 +2,7 @@ package dockeroptions
 
 import (
 	"fmt"
+	"slices"
 	"sort"
 	"strings"
 
@@ -36,49 +37,98 @@ func SplitOptionString(input string) (options []string, processes []string, err 
 		return nil, nil, fmt.Errorf("Unable to parse docker option: %s", err.Error())
 	}
 
-	var current []string
-	flush := func() error {
-		if len(current) == 0 {
-			return nil
-		}
-		head := current[0]
+	for _, group := range groupOptionTokens(fields) {
+		head := group[0]
 		if head == "--process" {
-			if len(current) < 2 {
-				return fmt.Errorf("--process requires a value")
+			if len(group) < 2 {
+				return nil, nil, fmt.Errorf("--process requires a value")
 			}
-			if len(current) > 2 {
-				return fmt.Errorf("--process accepts a single value, got %d", len(current)-1)
+			if len(group) > 2 {
+				return nil, nil, fmt.Errorf("--process accepts a single value, got %d", len(group)-1)
 			}
-			processes = append(processes, current[1])
-			current = nil
-			return nil
+			processes = append(processes, group[1])
+			continue
 		}
 		if strings.HasPrefix(head, "--process=") {
-			if len(current) > 1 {
-				return fmt.Errorf("--process=value cannot be followed by additional tokens")
+			if len(group) > 1 {
+				return nil, nil, fmt.Errorf("--process=value cannot be followed by additional tokens")
 			}
 			processes = append(processes, head[len("--process="):])
-			current = nil
-			return nil
+			continue
 		}
-		options = append(options, joinShellTokens(current))
-		current = nil
-		return nil
-	}
-
-	for _, tok := range fields {
-		if isFlagToken(tok) && len(current) > 0 {
-			if err := flush(); err != nil {
-				return nil, nil, err
-			}
-		}
-		current = append(current, tok)
-	}
-	if err := flush(); err != nil {
-		return nil, nil, err
+		options = append(options, joinShellTokens(group))
 	}
 
 	return options, processes, nil
+}
+
+// groupOptionTokens groups shell words on flag boundaries so each group holds
+// one flag and the values that follow it. A group is emitted for every token
+// that looks like a flag, meaning `--build-arg X=Y --link a` yields
+// [["--build-arg" "X=Y"] ["--link" "a"]]. Tokens preceding the first flag stay
+// in the leading group so malformed input is never silently dropped.
+func groupOptionTokens(fields []string) [][]string {
+	var groups [][]string
+	var current []string
+	for _, tok := range fields {
+		if isFlagToken(tok) && len(current) > 0 {
+			groups = append(groups, current)
+			current = nil
+		}
+		current = append(current, tok)
+	}
+	if len(current) > 0 {
+		groups = append(groups, current)
+	}
+	return groups
+}
+
+// canonicalOptionsFromLine re-serializes a stored option line into the
+// canonical, shell-quoted form `docker-options:add` produces, splitting it on
+// flag boundaries so a line carrying several flags becomes one entry per flag.
+// Unlike SplitOptionString it never lifts `--process`: a stored line is data
+// rather than command-line input.
+//
+// The line is returned unchanged when it cannot be parsed, or when the parser
+// stops before consuming all of it - a line whose tail begins with an unquoted
+// `#` reads as a shell comment, and dropping it would lose stored data.
+func canonicalOptionsFromLine(line string) []string {
+	fields, end, err := literalFieldsWithEnd(line)
+	if err != nil || end < len(strings.TrimRight(line, " \t")) {
+		return []string{line}
+	}
+
+	groups := groupOptionTokens(fields)
+	options := make([]string, 0, len(groups))
+	for _, group := range groups {
+		options = append(options, joinShellTokens(group))
+	}
+	return options
+}
+
+// optionsEqual reports whether two option strings denote the same docker
+// option. Exact equality short-circuits; otherwise both sides are
+// shell-tokenized without expansion and compared word by word, so an option
+// held in a non-canonical form - drained verbatim out of a pre-0.38.25
+// DOCKER_OPTIONS_<PHASE> file, or written directly by another plugin - still
+// matches the canonically re-serialized string the CLI builds. Input that
+// cannot be parsed never matches.
+func optionsEqual(stored string, option string) bool {
+	if stored == option {
+		return true
+	}
+
+	storedFields, err := literalFields(stored)
+	if err != nil {
+		return false
+	}
+
+	optionFields, err := literalFields(option)
+	if err != nil {
+		return false
+	}
+
+	return slices.Equal(storedFields, optionFields)
 }
 
 // literalFields splits input into shell words using the parser directly, so
@@ -87,15 +137,26 @@ func SplitOptionString(input string) (options []string, processes []string, err 
 // metacharacters are preserved verbatim. Malformed input, such as an unbalanced
 // quote, returns the parser error.
 func literalFields(input string) ([]string, error) {
+	fields, _, err := literalFieldsWithEnd(input)
+	return fields, err
+}
+
+// literalFieldsWithEnd is literalFields plus the byte offset just past the last
+// word the parser consumed. Callers that must not lose data compare the offset
+// against the length of the input to detect a tail the parser skipped, such as
+// a shell comment.
+func literalFieldsWithEnd(input string) ([]string, int, error) {
 	parser := syntax.NewParser()
 	var fields []string
+	end := 0
 	for word, err := range parser.WordsSeq(strings.NewReader(input)) {
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 		fields = append(fields, literalWordValue(input, word.Parts))
+		end = int(word.End().Offset())
 	}
-	return fields, nil
+	return fields, end, nil
 }
 
 // literalWordValue reconstructs the unquoted, unexpanded value of a shell word.
@@ -304,7 +365,11 @@ func RemoveDockerOptionFromPhases(appName string, phases []string, option string
 	return RemoveDockerOptionFromProcessPhases(appName, []string{DefaultProcessType}, phases, option)
 }
 
-// RemoveDockerOptionFromProcessPhases removes an option from the specified process types and phases.
+// RemoveDockerOptionFromProcessPhases removes an option from the specified
+// process types and phases. Stored options are matched against the requested
+// option by shell word rather than by raw string, so an entry held in a
+// non-canonical form still matches the canonically re-serialized string the
+// CLI hands down.
 func RemoveDockerOptionFromProcessPhases(appName string, processTypes []string, phases []string, option string) error {
 	if len(processTypes) == 0 {
 		processTypes = []string{DefaultProcessType}
@@ -318,7 +383,7 @@ func RemoveDockerOptionFromProcessPhases(appName string, processTypes []string, 
 
 			newOptions := []string{}
 			for _, opt := range options {
-				if opt != option {
+				if !optionsEqual(opt, option) {
 					newOptions = append(newOptions, opt)
 				}
 			}

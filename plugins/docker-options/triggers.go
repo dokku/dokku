@@ -24,6 +24,10 @@ func TriggerInstall() error {
 		return fmt.Errorf("Unable to repair docker-options label backticks: %v", err)
 	}
 
+	if err := migrateNonCanonicalOptions(); err != nil {
+		return fmt.Errorf("Unable to rewrite docker-options into canonical form: %v", err)
+	}
+
 	return nil
 }
 
