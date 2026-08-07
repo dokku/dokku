@@ -73,6 +73,14 @@ spec:
             {{ include "print.labels" (dict "config" $.Values.global "key" "pod") | indent 12 }}
             {{ include "print.labels" (dict "config" $config "key" "pod") | indent 12 }}
         spec:
+          {{- if and (hasKey $.Values.global "security_context") $.Values.global.security_context.sysctls }}
+          securityContext:
+            sysctls:
+            {{- range $.Values.global.security_context.sysctls }}
+            - name: {{ .name }}
+              value: {{ .value | quote }}
+            {{- end }}
+          {{- end }}
           containers:
           - args:
             {{- range $config.args }}

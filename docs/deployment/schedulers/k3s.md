@@ -740,6 +740,44 @@ A single configured metadata key can also be queried with a flag of the form `--
 dokku scheduler-k3s:autoscaling-auth:report node-js-app --scheduler-k3s-autoscaling-auth.datadog.apiKey
 ```
 
+### Setting kernel sysctls
+
+Kernel sysctls fall into two categories, and which one a sysctl belongs to determines how it must be set.
+
+The kernel maintains a per-namespace copy of `net.*` (network namespace) as well as `kernel.shm*`, `kernel.msg*`, `kernel.sem`, and `fs.mqueue.*` (IPC namespace). These can be set on a single app's pods. Every other sysctl - including all of `vm.*`, and therefore `vm.max_map_count` - holds a single value shared by the entire machine, so it cannot be scoped to a pod and must be applied to the node itself.
+
+#### Namespaced sysctls
+
+Namespaced sysctls are set with the `docker-options` plugin, and are translated into the pod's `securityContext.sysctls`. A `ps:restart` is required to apply them.
+
+```shell
+dokku docker-options:add node-js-app deploy "--sysctl net.ipv4.ip_unprivileged_port_start=1024"
+```
+
+Passing a non-namespaced sysctl this way fails the deploy rather than silently dropping the value, since it provably cannot take effect within a pod. Note this differs from the `docker-local` scheduler, where such an option is passed straight through to `docker run`.
+
+Kubernetes further splits namespaced sysctls into a *safe* list that any pod may set, and everything else. A sysctl outside the safe list - `net.core.somaxconn`, for example - is rejected at pod admission unless the node's kubelet was started with a matching `allowed-unsafe-sysctls` value, which can be supplied at cluster initialization or when joining a node.
+
+```shell
+dokku scheduler-k3s:initialize --kubelet-args allowed-unsafe-sysctls=net.core.somaxconn
+```
+
+Dokku does not enforce the safe list itself, as its membership changes between Kubernetes releases. Only the namespaced/non-namespaced distinction, which is a property of the kernel, is validated.
+
+#### Non-namespaced sysctls
+
+Non-namespaced sysctls are a property of the node, not of any app. Set them directly on each node in the cluster.
+
+```shell
+sudo sysctl -w vm.max_map_count=262144
+```
+
+```shell
+echo "vm.max_map_count = 262144" | sudo tee /etc/sysctl.d/99-max-map-count.conf
+```
+
+The second command is what makes the change survive a reboot; `sysctl -w` alone does not. Repeat both on every node, including any added later via `scheduler-k3s:cluster:add`.
+
 ### Integrating Kustomize
 
 Dokku supports integration with [Kustomize](https://kustomize.io/) to further customize the generated helm charts for app deployments. For example, a `config/kustomize/kustomization.yaml` file with the following contents will override the scale for each process deployed to `3`:
@@ -894,6 +932,7 @@ This plugin implements various functionality through `plugn` triggers to integra
         - `--cap-add`
         - `--cap-drop`
         - `--privileged`
+        - `--sysctl` (namespaced sysctls only, see [Setting kernel sysctls](#setting-kernel-sysctls))
 - `cron`
 - `enter`
 - `deploy`

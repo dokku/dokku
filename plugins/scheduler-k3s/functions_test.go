@@ -255,3 +255,105 @@ func TestNodeLabelsDoesNotMutatePackageLabels(t *testing.T) {
 		t.Errorf("nodeLabels() mutated WorkerLabels: len = %d, want %d", len(WorkerLabels), workerBefore)
 	}
 }
+
+func TestIsNamespacedSysctl(t *testing.T) {
+	cases := []struct {
+		name string
+		want bool
+	}{
+		{name: "net.core.somaxconn", want: true},
+		{name: "net.ipv4.tcp_rmem", want: true},
+		{name: "kernel.shm_rmid_forced", want: true},
+		{name: "kernel.shmmax", want: true},
+		{name: "kernel.msgmax", want: true},
+		{name: "kernel.sem", want: true},
+		{name: "fs.mqueue.msg_max", want: true},
+		{name: "vm.max_map_count", want: false},
+		{name: "vm.swappiness", want: false},
+		{name: "kernel.pid_max", want: false},
+		{name: "kernel.semaphore", want: false},
+		{name: "fs.file-max", want: false},
+		{name: "", want: false},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := isNamespacedSysctl(tc.name); got != tc.want {
+				t.Errorf("isNamespacedSysctl(%q) = %v, want %v", tc.name, got, tc.want)
+			}
+		})
+	}
+}
+
+func TestParseSysctls(t *testing.T) {
+	cases := []struct {
+		name    string
+		values  []string
+		want    []Sysctl
+		wantErr bool
+	}{
+		{
+			name:   "empty input",
+			values: []string{},
+			want:   []Sysctl{},
+		},
+		{
+			name:   "single namespaced sysctl",
+			values: []string{"net.core.somaxconn=1024"},
+			want:   []Sysctl{{Name: "net.core.somaxconn", Value: "1024"}},
+		},
+		{
+			name:   "sorted by name regardless of input order",
+			values: []string{"net.core.somaxconn=1024", "kernel.sem=250", "fs.mqueue.msg_max=20"},
+			want: []Sysctl{
+				{Name: "fs.mqueue.msg_max", Value: "20"},
+				{Name: "kernel.sem", Value: "250"},
+				{Name: "net.core.somaxconn", Value: "1024"},
+			},
+		},
+		{
+			name:   "value containing an equals sign is preserved",
+			values: []string{"net.ipv4.tcp_rmem=4096 87380 6291456"},
+			want:   []Sysctl{{Name: "net.ipv4.tcp_rmem", Value: "4096 87380 6291456"}},
+		},
+		{
+			name:    "non-namespaced sysctl is rejected",
+			values:  []string{"vm.max_map_count=262144"},
+			wantErr: true,
+		},
+		{
+			name:    "missing equals sign is rejected",
+			values:  []string{"net.core.somaxconn"},
+			wantErr: true,
+		},
+		{
+			name:    "empty name is rejected",
+			values:  []string{"=1024"},
+			wantErr: true,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got, err := parseSysctls(tc.values)
+			if tc.wantErr {
+				if err == nil {
+					t.Fatalf("parseSysctls(%v) expected an error, got %v", tc.values, got)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatalf("parseSysctls(%v) unexpected error: %v", tc.values, err)
+			}
+
+			if len(got) != len(tc.want) {
+				t.Fatalf("parseSysctls(%v) = %v, want %v", tc.values, got, tc.want)
+			}
+			for i := range got {
+				if got[i] != tc.want[i] {
+					t.Errorf("parseSysctls(%v)[%d] = %v, want %v", tc.values, i, got[i], tc.want[i])
+				}
+			}
+		})
+	}
+}

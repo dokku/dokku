@@ -38,6 +38,16 @@ More information on supported Docker options can be found [here](https://docs.do
 
 Container options configured via the `docker-options` plugin are not used to modify the process a container runs. Container options are the `[OPTIONS]` portion of the following, where `[CONTAINER_COMMAND]` and `[ARG]` are the process and the arguments passed to it that are launched in the created container: `docker run [OPTIONS] [CONTAINER_COMMAND] [ARG...]`. Please see the documentation for [customizing the run command](/docs/deployment/builders/dockerfiles.md#customizing-the-run-command) or use a [Procfile](/docs/deployment/builders/dockerfiles.md#procfiles-and-multiple-processes) to modify the command used by a Dockerfile-based container.
 
+#### Scheduler support
+
+Docker options are written in Docker's own vocabulary and are passed verbatim to `docker run` by the `docker-local` scheduler. Other schedulers translate only the subset that has an equivalent in their own runtime, and ignore the rest.
+
+The `k3s` scheduler translates `--cap-add`, `--cap-drop`, `--privileged`, and `--sysctl` into their Kubernetes equivalents. See the [k3s scheduler documentation](/docs/deployment/schedulers/k3s.md) for details, including the restriction that only namespaced sysctls can be set on a pod.
+
+```shell
+dokku docker-options:add node-js-app deploy "--sysctl net.ipv4.ip_unprivileged_port_start=1024"
+```
+
 #### Mounting volumes and host directories
 
 Docker supports volume and host directory mounting via the `-v` or `--volume` flags. In order to simplify usage, Dokku provides a `storage` plugin as an abstraction to interact with persistent storage. In most cases, the Dokku project recommends using the persistent storage plugin over directly manipulating docker options at different phases. See the [persistent storage documentation](/docs/advanced-usage/persistent-storage.md) for more information on how to attach persistent storage to your app.

@@ -394,6 +394,32 @@ type SecurityContext struct {
 	Capabilities SecurityContextCapabilities `yaml:"capabilities,omitempty"`
 	// Privileged contains the privileged flag for a process
 	Privileged bool `yaml:"privileged,omitempty"`
+	// Sysctls contains the namespaced kernel sysctls for a process
+	Sysctls []Sysctl `yaml:"sysctls,omitempty"`
+}
+
+// Sysctl contains a single kernel sysctl key/value pair
+type Sysctl struct {
+	// Name is the name of the sysctl
+	Name string `yaml:"name"`
+	// Value is the value the sysctl is set to
+	Value string `yaml:"value"`
+}
+
+// ToCoreV1PodSecurityContext converts the sysctls to a corev1.PodSecurityContext,
+// returning nil when no sysctls are configured so an empty security context does
+// not churn the pod template hash and trigger a spurious rollout.
+func (s SecurityContext) ToCoreV1PodSecurityContext() *corev1.PodSecurityContext {
+	if len(s.Sysctls) == 0 {
+		return nil
+	}
+
+	sysctls := make([]corev1.Sysctl, len(s.Sysctls))
+	for i, sysctl := range s.Sysctls {
+		sysctls[i] = corev1.Sysctl{Name: sysctl.Name, Value: sysctl.Value}
+	}
+
+	return &corev1.PodSecurityContext{Sysctls: sysctls}
 }
 
 // ToCoreV1SecurityContext converts the security context to a corev1.SecurityContext
@@ -533,6 +559,7 @@ func templateKubernetesJob(input Job) (batchv1.Job, error) {
 						},
 					},
 					RestartPolicy:      corev1.RestartPolicyNever,
+					SecurityContext:    input.SecurityContext.ToCoreV1PodSecurityContext(),
 					ServiceAccountName: input.AppName,
 				},
 			},

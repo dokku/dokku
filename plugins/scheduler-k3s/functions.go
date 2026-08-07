@@ -1754,12 +1754,62 @@ func getStartCommand(input StartCommandInput) (StartCommandOutput, error) {
 	}, nil
 }
 
+// namespacedSysctlPrefixes are the sysctl prefixes the kernel maintains per-namespace
+var namespacedSysctlPrefixes = []string{
+	"net.",
+	"kernel.shm",
+	"kernel.msg",
+	"fs.mqueue.",
+}
+
+// isNamespacedSysctl reports whether a sysctl is maintained per-namespace by the
+// kernel and can therefore be set on a pod spec. Sysctls outside these subtrees
+// hold a single value shared by the entire machine, and kubelet rejects them.
+func isNamespacedSysctl(name string) bool {
+	if name == "kernel.sem" {
+		return true
+	}
+
+	for _, prefix := range namespacedSysctlPrefixes {
+		if strings.HasPrefix(name, prefix) {
+			return true
+		}
+	}
+
+	return false
+}
+
+// parseSysctls converts docker-option key=value pairs into sysctls sorted by name,
+// rejecting any sysctl that cannot take effect within a pod's namespaces.
+func parseSysctls(values []string) ([]Sysctl, error) {
+	sysctls := []Sysctl{}
+	for _, value := range values {
+		name, sysctlValue, found := strings.Cut(value, "=")
+		if !found || name == "" {
+			return nil, fmt.Errorf("Invalid --sysctl value, expected name=value: %s", value)
+		}
+
+		if !isNamespacedSysctl(name) {
+			return nil, fmt.Errorf("Sysctl %s is not namespaced and cannot be set on a pod, it must be applied at the node level instead", name)
+		}
+
+		sysctls = append(sysctls, Sysctl{Name: name, Value: sysctlValue})
+	}
+
+	sort.Slice(sysctls, func(i int, j int) bool {
+		return sysctls[i].Name < sysctls[j].Name
+	})
+
+	return sysctls, nil
+}
+
 func getSecurityContext(appName string, phase string) (SecurityContext, error) {
 	securityContext := SecurityContext{}
 	deployOptions, err := dockeroptions.GetSpecifiedDockerOptionsForPhase(appName, phase, []string{
 		"--cap-add",
 		"--cap-drop",
 		"--privileged",
+		"--sysctl",
 	})
 	if err != nil {
 		return SecurityContext{}, fmt.Errorf("Error getting deploy options: %w", err)
@@ -1781,6 +1831,13 @@ func getSecurityContext(appName string, phase string) (SecurityContext, error) {
 			capabilities = append(capabilities, strings.ToUpper(cap))
 		}
 		securityContext.Capabilities.Drop = capabilities
+	}
+	if sysctlOptions, ok := deployOptions["--sysctl"]; ok {
+		sysctls, err := parseSysctls(sysctlOptions)
+		if err != nil {
+			return SecurityContext{}, err
+		}
+		securityContext.Sysctls = sysctls
 	}
 	return securityContext, nil
 }
