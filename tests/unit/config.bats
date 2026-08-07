@@ -624,9 +624,9 @@ teardown() {
 }
 
 @test "(config) config-migrate-env imports an ENV file written after migration" {
-  # record the migration as already done, so the ENV file below can only have
-  # been written by hand rather than by an upgrade
-  run /bin/bash -c "sudo mkdir -p ${DOKKU_LIB_ROOT}/config/config/$TEST_APP && printf true | sudo tee ${DOKKU_LIB_ROOT}/config/config/$TEST_APP/env-migrated"
+  # drain once so the migration is on record, which makes the ENV file staged
+  # below one that could only have been written by hand
+  run_plugn_trigger config-migrate-env
   echo "output: $output"
   echo "status: $status"
   assert_success
