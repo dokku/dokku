@@ -44,9 +44,16 @@ func main() {
 	case "post-delete":
 		appName := flag.Arg(0)
 		err = cron.TriggerPostDelete(appName)
+	case "post-deploy":
+		appName := flag.Arg(0)
+		err = cron.TriggerPostDeploy(appName)
 	case "report":
 		appName := flag.Arg(0)
 		err = cron.ReportSingleApp(appName, "", "")
+	case "scheduler-cron-write":
+		scheduler := flag.Arg(0)
+		appName := flag.Arg(1)
+		err = cron.TriggerSchedulerCronWrite(scheduler, appName)
 	case "scheduler-stop":
 		scheduler := flag.Arg(0)
 		appName := flag.Arg(1)

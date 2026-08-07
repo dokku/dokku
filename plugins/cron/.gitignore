@@ -7,4 +7,5 @@
 /install
 /post-*
 /report
+/scheduler-cron-write
 /scheduler-stop

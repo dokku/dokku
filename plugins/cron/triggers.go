@@ -98,11 +98,43 @@ func TriggerPostDelete(appName string) error {
 	return nil
 }
 
-// TriggerSchedulerStop stops the scheduler for a given app container
-func TriggerSchedulerStop(scheduler string, appName string, removeContainers string) error {
-	if scheduler != "docker-local" {
+// TriggerPostDeploy regenerates the cron schedule for a given app after it is
+// deployed. Dispatching scheduler-cron-write lets the cron plugin regenerate the
+// host crontab for host-cron schedulers while self-managed schedulers update
+// their own backends.
+func TriggerPostDeploy(appName string) error {
+	scheduler := common.GetAppScheduler(appName)
+	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "scheduler-cron-write",
+		Args:        []string{scheduler, appName},
+		StreamStdio: true,
+	})
+	return err
+}
+
+// TriggerSchedulerCronWrite regenerates the host crontab when no scheduler is
+// given (the letsencrypt "all apps" path) or when the given scheduler uses the
+// host crontab. Self-managed schedulers implement their own scheduler-cron-write
+// trigger and are no-ops here.
+func TriggerSchedulerCronWrite(scheduler string, appName string) error {
+	if scheduler != "" && !usesHostCron(scheduler) {
 		return nil
 	}
 
-	return nil
+	return writeCronTab()
+}
+
+// TriggerSchedulerStop regenerates the host crontab for a host-cron app after
+// its processes are stopped
+func TriggerSchedulerStop(scheduler string, appName string, removeContainers string) error {
+	if !usesHostCron(scheduler) {
+		return nil
+	}
+
+	_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger:     "scheduler-cron-write",
+		Args:        []string{scheduler, appName},
+		StreamStdio: true,
+	})
+	return err
 }

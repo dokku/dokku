@@ -18,6 +18,10 @@ EOF
 
 teardown() {
   rm -rf /var/lib/dokku/plugins/available/cron-entries /var/lib/dokku/plugins/enabled/cron-entries
+  # restore the default scheduler before destroy: a k3s-scheduled app cannot be
+  # torn down cleanly without a cluster, and would otherwise leak into the next
+  # test's cleanup_apps
+  dokku scheduler:set "$TEST_APP" selected docker-local 2>/dev/null || true
   destroy_app
   global_teardown
 }
@@ -41,6 +45,32 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_failure
+}
+
+@test "(cron) scheduler-uses-host-cron" {
+  run /bin/bash -c "dokku plugin:trigger scheduler-uses-host-cron docker-local"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku plugin:trigger scheduler-uses-host-cron k3s"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku plugin:trigger scheduler-uses-host-cron null"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku plugin:trigger scheduler-uses-host-cron bogus-scheduler"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
 }
 
 @test "(cron) invalid [missing-keys]" {
@@ -395,6 +425,39 @@ teardown() {
   echo "[[ \$1 == 'kubernetes' ]] && echo '@daily;/bin/true'" >/var/lib/dokku/plugins/enabled/cron-entries/cron-entries
   chmod +x /var/lib/dokku/plugins/enabled/cron-entries/cron-entries
 
+  run /bin/bash -c "dokku plugin:trigger scheduler-cron-write"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "cat /var/spool/cron/crontabs/dokku"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+}
+
+@test "(cron) k3s-scheduled app skips host crontab" {
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP template_cron_file_valid_single
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  cron_id="$(dokku cron:list $TEST_APP --format json | jq -r '.[0].id')"
+
+  run /bin/bash -c "cat /var/spool/cron/crontabs/dokku"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "dokku cron:run $TEST_APP $cron_id"
+
+  # switch the app to a scheduler that manages its own cron backend
+  run /bin/bash -c "dokku scheduler:set $TEST_APP selected k3s"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  # regenerating the host crontab must now skip the k3s app's tasks, leaving
+  # no host-cron tasks and therefore no crontab file
   run /bin/bash -c "dokku plugin:trigger scheduler-cron-write"
   echo "output: $output"
   echo "status: $status"
