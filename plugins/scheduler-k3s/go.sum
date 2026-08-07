@@ -216,8 +216,8 @@ github.com/json-iterator/go v1.1.13-0.20220915233716-71ac16282d12 h1:9Nu54bhS/H/
 github.com/json-iterator/go v1.1.13-0.20220915233716-71ac16282d12/go.mod h1:TBzl5BIHNXfS9+C35ZyJaklL7mLDbgUkcgXzSLa8Tk0=
 github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 h1:Z9n2FFNUXsshfwJMBgNA0RU6/i7WVaAegv3PtuIHPMs=
 github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51/go.mod h1:CzGEWj7cYgsdH8dAjBGEr58BoE7ScuLd+fwFZ44+/x8=
-github.com/kedacore/keda/v2 v2.20.1 h1:0Bb2zX/s+RSPtU2W+/Jk24A/aFl8MO79UuU0C4lA8ts=
-github.com/kedacore/keda/v2 v2.20.1/go.mod h1:wrV1MP6buZQ1S5/J/R7UyBeJr857x92E43LADVoSajs=
+github.com/kedacore/keda/v2 v2.20.2 h1:SR60v8uIcelbveS8n/1jcl8tLdBBIbHMxmdOHw8tKqA=
+github.com/kedacore/keda/v2 v2.20.2/go.mod h1:wrV1MP6buZQ1S5/J/R7UyBeJr857x92E43LADVoSajs=
 github.com/klauspost/compress v1.18.7 h1:aUyZsS4kH3QTKurYhAOwAHxllVPnOthb3vPfnF1Ehjw=
 github.com/klauspost/compress v1.18.7/go.mod h1:cwPg85FWrGar70rWktvGQj8/hthj3wpl0PGDogxkrSQ=
 github.com/kr/fs v0.1.0 h1:Jskdu9ieNAYnjxsi0LbQp1ulIKZV1LAFgK1tWhpZgl8=
