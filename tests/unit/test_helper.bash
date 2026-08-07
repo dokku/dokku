@@ -740,6 +740,10 @@ install_k3s() {
     args="$args --server-ip $CI_SERVER_IP"
   fi
 
+  if [[ -n "$KUBELET_ARGS" ]]; then
+    args="$args --kubelet-args $KUBELET_ARGS"
+  fi
+
   run /bin/bash -c "dokku scheduler-k3s:initialize ${args}"
   echo "output: $output"
   echo "status: $status"

@@ -62,6 +62,8 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 			"--scheduler-k3s-global-namespace":                reportGlobalNamespace,
 			"--scheduler-k3s-computed-network-interface":      reportComputedNetworkInterface,
 			"--scheduler-k3s-global-network-interface":        reportGlobalNetworkInterface,
+			"--scheduler-k3s-global-node-sysctls-image":       reportGlobalNodeSysctlsImage,
+			"--scheduler-k3s-global-node-sysctls-pause-image": reportGlobalNodeSysctlsPauseImage,
 			"--scheduler-k3s-computed-rollback-on-failure":    reportComputedRollbackOnFailure,
 			"--scheduler-k3s-global-rollback-on-failure":      reportGlobalRollbackOnFailure,
 			"--scheduler-k3s-computed-shm-size":               reportComputedShmSize,
@@ -99,6 +101,8 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 			"--scheduler-k3s-global-namespace":                reportGlobalNamespace,
 			"--scheduler-k3s-computed-network-interface":      reportComputedNetworkInterface,
 			"--scheduler-k3s-global-network-interface":        reportGlobalNetworkInterface,
+			"--scheduler-k3s-global-node-sysctls-image":       reportGlobalNodeSysctlsImage,
+			"--scheduler-k3s-global-node-sysctls-pause-image": reportGlobalNodeSysctlsPauseImage,
 			"--scheduler-k3s-computed-rollback-on-failure":    reportComputedRollbackOnFailure,
 			"--scheduler-k3s-rollback-on-failure":             reportRollbackOnFailure,
 			"--scheduler-k3s-global-rollback-on-failure":      reportGlobalRollbackOnFailure,
@@ -713,6 +717,14 @@ func reportComputedNetworkInterface(appName string) string {
 
 func reportGlobalNetworkInterface(appName string) string {
 	return getGlobalNetworkInterface()
+}
+
+func reportGlobalNodeSysctlsImage(appName string) string {
+	return getComputedNodeSysctlsImage()
+}
+
+func reportGlobalNodeSysctlsPauseImage(appName string) string {
+	return getComputedNodeSysctlsPauseImage()
 }
 
 func reportComputedRollbackOnFailure(appName string) string {
