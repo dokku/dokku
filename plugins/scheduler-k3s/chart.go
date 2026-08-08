@@ -16,7 +16,6 @@ import (
 	"github.com/dokku/dokku/plugins/config"
 	"github.com/dokku/dokku/plugins/cron"
 	"github.com/dokku/dokku/plugins/registry"
-	"github.com/gosimple/slug"
 	"github.com/kballard/go-shellquote"
 )
 
@@ -118,33 +117,12 @@ func BuildAppChart(ctx context.Context, appName, imageTag string, opts BuildOpti
 		}
 	}
 
-	tlsEnabled := false
-	issuerKind := ""
-	issuerName := ""
-	useImportedCert := false
-	appIssuer := AppIssuer{}
-
-	if importedCertExists {
-		tlsEnabled = true
-		useImportedCert = true
-	} else {
-		server := getComputedLetsencryptServer(appName)
-
-		switch server {
-		case "prod", "production":
-			computedEmail := getComputedLetsencryptEmailProd(appName)
-			tlsEnabled = computedEmail != ""
-			issuerKind, issuerName, appIssuer = resolveLetsencryptIssuer(appName, "letsencrypt-prod", getLetsencryptEmailProd(appName), computedEmail, LetsencryptServerProd)
-		case "stag", "staging":
-			computedEmail := getComputedLetsencryptEmailStag(appName)
-			tlsEnabled = computedEmail != ""
-			issuerKind, issuerName, appIssuer = resolveLetsencryptIssuer(appName, "letsencrypt-stag", getLetsencryptEmailStag(appName), computedEmail, LetsencryptServerStag)
-		case "false":
-			issuerName = ""
-			tlsEnabled = false
-		default:
-			return result, fmt.Errorf("Invalid letsencrypt server config: %s", server)
-		}
+	tlsConfig, err := resolveAppTLSConfig(ResolveAppTLSConfigInput{
+		AppName:            appName,
+		ImportedCertExists: importedCertExists,
+	})
+	if err != nil {
+		return result, err
 	}
 
 	chartDir, err := os.MkdirTemp("", "dokku-chart-")
@@ -299,7 +277,7 @@ func BuildAppChart(ctx context.Context, appName, imageTag string, opts BuildOpti
 				Type:             imageSourceType,
 				WorkingDir:       workingDir,
 			},
-			Issuer:    appIssuer,
+			Issuer:    tlsConfig.Issuer,
 			Labels:    globalLabels,
 			Namespace: namespace,
 			Network: GlobalNetwork{
@@ -415,7 +393,7 @@ func BuildAppChart(ctx context.Context, appName, imageTag string, opts BuildOpti
 			for _, domain := range domains {
 				domainValues = append(domainValues, ProcessDomains{
 					Name: domain,
-					Slug: slug.Make(domain),
+					Slug: domainSlug(domain),
 				})
 			}
 
@@ -423,10 +401,10 @@ func BuildAppChart(ctx context.Context, appName, imageTag string, opts BuildOpti
 				Domains:  domainValues,
 				PortMaps: []ProcessPortMap{},
 				TLS: ProcessTls{
-					Enabled:         tlsEnabled,
-					IssuerKind:      issuerKind,
-					IssuerName:      issuerName,
-					UseImportedCert: useImportedCert,
+					Enabled:         tlsConfig.Enabled,
+					IssuerKind:      tlsConfig.IssuerKind,
+					IssuerName:      tlsConfig.IssuerName,
+					UseImportedCert: tlsConfig.UseImportedCert,
 				},
 			}
 
@@ -449,7 +427,7 @@ func BuildAppChart(ctx context.Context, appName, imageTag string, opts BuildOpti
 			for _, portMap := range processValues.Web.PortMaps {
 				_, httpOk := portMaps[fmt.Sprintf("http-80-%d", portMap.ContainerPort)]
 				_, httpsOk := portMaps[fmt.Sprintf("https-443-%d", portMap.ContainerPort)]
-				if portMap.Scheme == "http" && !httpsOk && tlsEnabled {
+				if portMap.Scheme == "http" && !httpsOk && tlsConfig.Enabled {
 					processValues.Web.PortMaps = append(processValues.Web.PortMaps, ProcessPortMap{
 						ContainerPort: portMap.ContainerPort,
 						HostPort:      443,

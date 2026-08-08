@@ -1435,6 +1435,23 @@ func CommandSet(appName string, property string, value string) error {
 		return nil
 	}
 
+	switch property {
+	case "cert-issuer-kind":
+		normalized, err := normalizeCertIssuerKind(value)
+		if err != nil {
+			return err
+		}
+		value = normalized
+	case "cert-issuer-name":
+		if err := validateCertIssuerName(value); err != nil {
+			return err
+		}
+	case "letsencrypt-server":
+		if err := validateLetsencryptServer(value); err != nil {
+			return err
+		}
+	}
+
 	common.CommandPropertySet("scheduler-k3s", appName, property, value, validProperties, globalProperties)
 
 	letsencryptProperties := map[string]bool{

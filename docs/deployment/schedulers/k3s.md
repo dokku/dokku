@@ -409,7 +409,7 @@ The default value may be set by passing an empty value for the option.
 dokku scheduler-k3s:set --global letsencrypt-server staging
 ```
 
-Letsencrypt can be completely disabled for a given app by setting the `letsencrypt-server` to `false`
+Automatic certificate issuance can be completely disabled for a given app by setting the `letsencrypt-server` to `false`. This is the single off switch for the app, and also disables a [manually managed issuer](#using-a-manually-managed-cert-manager-issuer).
 
 ```shell
 dokku scheduler-k3s:set node-js-app letsencrypt-server false
@@ -420,6 +420,75 @@ The server can also be disabled globally, and then conditionally enabled on a pe
 ```shell
 dokku scheduler-k3s:set --global letsencrypt-server false
 ```
+
+Values are validated when the property is set, so a typo fails immediately rather than breaking the next deploy. The valid values are `prod`, `production`, `stag`, `staging`, and `false`.
+
+#### Using a manually managed cert-manager issuer
+
+Dokku's built-in letsencrypt integration uses an `http01` solver, which cannot issue wildcard certificates and cannot satisfy providers that require `dns01`. For those cases, create a cert-manager `Issuer` or `ClusterIssuer` yourself and point an app at it with the `cert-issuer-name` property.
+
+```shell
+dokku scheduler-k3s:set node-js-app cert-issuer-name acme-dns
+```
+
+Dokku does not create, modify, or delete the issuer - it only references it from the app's generated `Certificate`. Any cert-manager issuer works, including non-ACME ones such as `selfSigned`, `ca`, or `vault`.
+
+The issuer kind defaults to `ClusterIssuer`. To reference a namespaced `Issuer`, set the `cert-issuer-kind` property:
+
+```shell
+dokku scheduler-k3s:set node-js-app cert-issuer-kind Issuer
+```
+
+> [!WARNING]
+> A namespaced `Issuer` must exist in the same namespace as the app, as configured by the `namespace` property. cert-manager cannot reference an `Issuer` across namespaces.
+
+Unlike the letsencrypt integration, no email property is required - setting `cert-issuer-name` is itself what enables https for the app. Certificates are requested for every domain attached to the app.
+
+Both properties can also be set globally, which enables https for every app that has domains, no imported certificate, and no `letsencrypt-server false`:
+
+```shell
+dokku scheduler-k3s:set --global cert-issuer-name acme-dns
+```
+
+Certificate sources are resolved in the following order:
+
+1. A certificate imported via the `certs` plugin.
+2. `letsencrypt-server` set to `false`, which disables issuance entirely.
+3. `cert-issuer-name`, resolved app-first and then globally.
+4. The built-in letsencrypt integration.
+
+Because an empty app-level property falls back to the global value, an app cannot return to the built-in letsencrypt integration by unsetting `cert-issuer-name` while a global value is configured. Set the app's `cert-issuer-name` to the reserved value `false` instead:
+
+```shell
+dokku scheduler-k3s:set node-js-app cert-issuer-name false
+```
+
+As a consequence, an issuer literally named `false` cannot be referenced.
+
+The default value may be set by passing an empty value for the option, which falls the app back to the global value:
+
+```shell
+dokku scheduler-k3s:set node-js-app cert-issuer-name
+```
+
+If the named issuer does not exist in the cluster, Dokku emits a warning before the build starts. The warning never blocks a deploy, since the issuer may be managed independently and applied later. When a certificate fails to issue, inspect it directly:
+
+```shell
+kubectl describe certificate node-js-app-web -n default
+```
+
+##### Wildcard certificates
+
+A `dns01` issuer can issue wildcard certificates. Add the wildcard as a domain on the app, and it will be included in the generated `Certificate`:
+
+```shell
+dokku domains:add node-js-app '*.node-js-app.com'
+```
+
+> [!WARNING]
+> Wildcard domains require the `nginx` ingress class. The Traefik integration matches hosts exactly and will not route requests for a wildcard domain.
+
+Note that a Kubernetes wildcard host matches exactly one label, so `*.node-js-app.com` does not cover `node-js-app.com`. Add both domains if the apex should also be served.
 
 #### Using imported SSL certificates
 
@@ -435,9 +504,9 @@ When a certificate is imported:
 
 - A Kubernetes TLS secret named `tls-<app-name>` is created in the app's namespace
 - The ingress configuration is updated to use the imported certificate
-- Automatic Let's Encrypt certificate generation is disabled for the app
+- Automatic certificate generation is disabled for the app
 
-Imported certificates take precedence over Let's Encrypt certificates. If you have both an imported certificate and Let's Encrypt configured, the imported certificate will be used.
+Imported certificates take precedence over both Let's Encrypt and a [manually managed issuer](#using-a-manually-managed-cert-manager-issuer). If you have an imported certificate alongside either of those, the imported certificate will be used.
 
 To remove an imported certificate:
 
@@ -1054,6 +1123,8 @@ If unspecified for any task, the default reservation will be `.1` CPU and `128Mi
 
 | Property | Scope | Default | Report flags | Description |
 |---|---|---|---|---|
+| `cert-issuer-kind` | app + global | `ClusterIssuer` | `--scheduler-k3s-cert-issuer-kind`, `--scheduler-k3s-global-cert-issuer-kind`, `--scheduler-k3s-computed-cert-issuer-kind` | Kind of the manually managed cert-manager issuer referenced by `cert-issuer-name`, either `Issuer` or `ClusterIssuer` |
+| `cert-issuer-name` | app + global | none | `--scheduler-k3s-cert-issuer-name`, `--scheduler-k3s-global-cert-issuer-name`, `--scheduler-k3s-computed-cert-issuer-name` | Name of a manually managed cert-manager issuer to request certificates from, taking precedence over the letsencrypt integration. Set to `false` to opt an app out of a global value |
 | `deploy-timeout` | app + global | `300s` | `--scheduler-k3s-deploy-timeout`, `--scheduler-k3s-global-deploy-timeout`, `--scheduler-k3s-computed-deploy-timeout` | Timeout for a single helm install/upgrade cycle |
 | `image-pull-secrets` | app + global | none | `--scheduler-k3s-image-pull-secrets`, `--scheduler-k3s-global-image-pull-secrets`, `--scheduler-k3s-computed-image-pull-secrets` | Comma-separated list of Kubernetes secret names used to pull private images |
 | `ingress-class` | global only | `nginx` | `--scheduler-k3s-global-ingress-class`, `--scheduler-k3s-computed-ingress-class` | IngressClass name used for app ingresses (e.g. `nginx`, `traefik`) |
@@ -1062,7 +1133,7 @@ If unspecified for any task, the default reservation will be `.1` CPU and `128Mi
 | `kustomize-root-path` | app + global | `config/kustomize` | `--scheduler-k3s-kustomize-root-path`, `--scheduler-k3s-global-kustomize-root-path`, `--scheduler-k3s-computed-kustomize-root-path` | Path within the app to a kustomize root applied after the helm install |
 | `letsencrypt-email-prod` | app + global | none | `--scheduler-k3s-letsencrypt-email-prod`, `--scheduler-k3s-global-letsencrypt-email-prod`, `--scheduler-k3s-computed-letsencrypt-email-prod` | Contact email for production certificates. App-level values render a per-app namespaced Issuer; otherwise the shared production ClusterIssuer is used |
 | `letsencrypt-email-stag` | app + global | none | `--scheduler-k3s-letsencrypt-email-stag`, `--scheduler-k3s-global-letsencrypt-email-stag`, `--scheduler-k3s-computed-letsencrypt-email-stag` | Contact email for staging certificates. App-level values render a per-app namespaced Issuer; otherwise the shared staging ClusterIssuer is used |
-| `letsencrypt-server` | app + global | `prod` | `--scheduler-k3s-letsencrypt-server`, `--scheduler-k3s-global-letsencrypt-server`, `--scheduler-k3s-computed-letsencrypt-server` | ACME directory (`prod` or `staging`) used for app certificates |
+| `letsencrypt-server` | app + global | `prod` | `--scheduler-k3s-letsencrypt-server`, `--scheduler-k3s-global-letsencrypt-server`, `--scheduler-k3s-computed-letsencrypt-server` | ACME directory (`prod` or `staging`) used for app certificates, or `false` to disable all automatic certificate issuance |
 | `namespace` | app + global | `default` | `--scheduler-k3s-namespace`, `--scheduler-k3s-global-namespace`, `--scheduler-k3s-computed-namespace` | Kubernetes namespace into which the app's resources are installed |
 | `network-interface` | global only | `eth0` | `--scheduler-k3s-global-network-interface`, `--scheduler-k3s-computed-network-interface` | Host network interface used by k3s |
 | `node-sysctls-image` | global only | `busybox:1.36` | `--scheduler-k3s-global-node-sysctls-image` | Image used to apply node-level sysctls, override for air-gapped clusters |

@@ -216,3 +216,35 @@ func TestCertificateTemplateRendersPerAppNamespacedIssuer(t *testing.T) {
 		t.Fatalf("expected Issuer acme server %q, got %#v", LetsencryptServerStag, acme["server"])
 	}
 }
+
+func TestCertificateTemplateUsesManuallyManagedIssuer(t *testing.T) {
+	// A manually managed issuer is owned by the operator, so global.issuer is absent
+	// from values.yaml and Dokku must emit no Issuer of its own for either kind.
+	cases := []struct {
+		name string
+		kind string
+	}{
+		{name: "cluster scoped", kind: CertIssuerKindClusterIssuer},
+		{name: "namespaced", kind: CertIssuerKindIssuer},
+	}
+
+	for _, tc := range cases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			docs := renderCertificateChart(t, testCertificateValues(tc.kind, "acme-dns", nil))
+
+			issuerRef := certificateIssuerRef(t, docs)
+			if issuerRef["kind"] != tc.kind {
+				t.Fatalf("expected issuerRef.kind %s, got %#v", tc.kind, issuerRef["kind"])
+			}
+			if issuerRef["name"] != "acme-dns" {
+				t.Fatalf("expected issuerRef.name acme-dns, got %#v", issuerRef["name"])
+			}
+
+			if len(docs["issuer"]) != 0 {
+				t.Fatalf("expected no Issuer document for a manually managed issuer, got %#v", docs["issuer"])
+			}
+		})
+	}
+}

@@ -53,6 +53,8 @@ func CommandPreview(appName string, diffContext int, showSecrets bool, showSecre
 		cancel()
 	}()
 
+	warnMissingCertIssuer(ctx, appName)
+
 	namespace := getComputedNamespace(appName)
 	helmAgent, err := NewHelmAgent(namespace, DevNullPrinter)
 	if err != nil {

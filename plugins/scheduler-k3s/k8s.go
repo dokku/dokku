@@ -25,6 +25,7 @@ import (
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
+	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -682,6 +683,48 @@ func (k KubernetesClient) GetSecret(ctx context.Context, input GetSecretInput) (
 	}
 
 	return *secret, err
+}
+
+// CertIssuerExistsInput contains all the information needed to look up a cert-manager issuer
+type CertIssuerExistsInput struct {
+	// Kind is the cert-manager issuer kind, either Issuer or ClusterIssuer
+	Kind string
+
+	// Name is the cert-manager issuer name
+	Name string
+
+	// Namespace is the namespace to search for a namespaced Issuer. It is ignored
+	// for a cluster-scoped ClusterIssuer.
+	Namespace string
+}
+
+// CertIssuerExists reports whether a cert-manager issuer of the given kind and name
+// exists. A missing issuer returns false with no error, while an unreachable cluster,
+// an absent cert-manager CRD, or insufficient permissions return an error so callers
+// can distinguish "not there" from "could not tell".
+func (k KubernetesClient) CertIssuerExists(ctx context.Context, input CertIssuerExistsInput) (bool, error) {
+	resource := "clusterissuers"
+	namespace := ""
+	if input.Kind == CertIssuerKindIssuer {
+		resource = "issuers"
+		namespace = input.Namespace
+	}
+
+	gvr := schema.GroupVersionResource{
+		Group:    "cert-manager.io",
+		Version:  "v1",
+		Resource: resource,
+	}
+
+	_, err := k.DynamicClient.Resource(gvr).Namespace(namespace).Get(ctx, input.Name, metav1.GetOptions{})
+	if err != nil {
+		if k8serrors.IsNotFound(err) {
+			return false, nil
+		}
+		return false, err
+	}
+
+	return true, nil
 }
 
 // LabelNodeInput contains all the information needed to label a Kubernetes node

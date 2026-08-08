@@ -18,6 +18,8 @@ import (
 var (
 	// DefaultProperties is a map of all valid k3s properties with corresponding default property values
 	DefaultProperties = map[string]string{
+		"cert-issuer-kind":       "",
+		"cert-issuer-name":       "",
 		"deploy-timeout":         "",
 		"letsencrypt-email-prod": "",
 		"letsencrypt-email-stag": "",
@@ -31,6 +33,8 @@ var (
 
 	// GlobalProperties is a map of all valid global k3s properties
 	GlobalProperties = map[string]bool{
+		"cert-issuer-kind":         true,
+		"cert-issuer-name":         true,
 		"deploy-timeout":           true,
 		"image-pull-secrets":       true,
 		"ingress-class":            true,
@@ -57,6 +61,21 @@ const DefaultKubeContext = ""
 const TriggerAuthPropertyPrefix = "trigger-auth."
 const LetsencryptServerProd = "https://acme-v02.api.letsencrypt.org/directory"
 const LetsencryptServerStag = "https://acme-staging-v02.api.letsencrypt.org/directory"
+
+// CertIssuerKindIssuer is the namespaced cert-manager issuer kind
+const CertIssuerKindIssuer = "Issuer"
+
+// CertIssuerKindClusterIssuer is the cluster-scoped cert-manager issuer kind, and
+// the default kind used when an app references a manually managed issuer
+const CertIssuerKindClusterIssuer = "ClusterIssuer"
+
+// CertIssuerNameDisabled is the reserved cert-issuer-name value that opts a single
+// app out of a globally configured manually managed issuer
+const CertIssuerNameDisabled = "false"
+
+// LetsencryptServerDisabled is the letsencrypt-server value that disables all
+// automatic certificate issuance for an app
+const LetsencryptServerDisabled = "false"
 
 // AnnotationResourceTypes lists the kubernetes resource types that scheduler-k3s
 // supports user-provided annotations for. The order here is also the iteration order
