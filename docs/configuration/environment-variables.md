@@ -151,4 +151,4 @@ The following property is recorded internally by the config plugin and is not ex
 
 | Property | Description | Source |
 |---|---|---|
-| `env-migrated` | Migration sentinel that records the per-app or global `DOKKU_*` env-var → property migration completed for 0.38.0 | `plugins/config/triggers.go` writes `"true"` after the upgrade-time pass |
+| `env-migrated` | Migration sentinel that records that the per-app or global `ENV` file has been drained out of its pre-0.38.0 location into the config path. The old file is removed as soon as it has been drained, so one that reappears afterwards was written by hand rather than through `dokku config:*`; its contents are merged in and named in a warning on the next migration pass | `plugins/config/migrate.go` writes `"true"` once the file has been drained |

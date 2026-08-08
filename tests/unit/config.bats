@@ -586,3 +586,69 @@ teardown() {
   echo "status: $status"
   assert_output '[{"name":"BKEY","value":"true"},{"name":"aKey","value":"true"},{"name":"bKey","value":"true"},{"name":"zKey","value":"true"}]'
 }
+
+@test "(config) install migrates a pre-0.38 ENV file before plugins read it" {
+  # The checks plugin installs before the config plugin, so before this was
+  # fixed it read the not-yet-relocated ENV file, found nothing, and migrated
+  # DOKKU_CHECKS_SKIPPED to the checks property silently doing nothing.
+  run /bin/bash -c "sudo rm -f ${DOKKU_LIB_ROOT}/config/config/$TEST_APP/env-migrated ${DOKKU_LIB_ROOT}/config/checks/$TEST_APP/skipped"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "echo 'export DOKKU_CHECKS_SKIPPED=worker' | sudo tee $DOKKU_ROOT/$TEST_APP/ENV && sudo chown dokku:dokku $DOKKU_ROOT/$TEST_APP/ENV"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku plugin:install --core"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku checks:report $TEST_APP --checks-skipped-list"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "worker"
+
+  run /bin/bash -c "dokku config:show $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "DOKKU_CHECKS_SKIPPED" 0
+
+  run /bin/bash -c "test -f $DOKKU_ROOT/$TEST_APP/ENV"
+  echo "status: $status"
+  assert_failure
+}
+
+@test "(config) config-migrate-env imports an ENV file written after migration" {
+  # drain once so the migration is on record, which makes the ENV file staged
+  # below one that could only have been written by hand
+  run_plugn_trigger config-migrate-env
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "echo 'export HAND_EDITED=yes' | sudo tee $DOKKU_ROOT/$TEST_APP/ENV && sudo chown dokku:dokku $DOKKU_ROOT/$TEST_APP/ENV"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run_plugn_trigger config-migrate-env
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "$DOKKU_ROOT/$TEST_APP/ENV"
+
+  run /bin/bash -c "dokku config:get $TEST_APP HAND_EDITED"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "yes"
+
+  run /bin/bash -c "test -f $DOKKU_ROOT/$TEST_APP/ENV"
+  echo "status: $status"
+  assert_failure
+}

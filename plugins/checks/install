@@ -60,6 +60,11 @@ trigger-checks-install() {
   declare trigger="install"
 
   fn-plugin-property-setup "checks"
+
+  # the checks plugin installs before the config plugin, so the pre-0.38 ENV
+  # files have to be drained before any deprecated config var is read
+  plugn trigger config-migrate-env
+
   migrate_checks_vars_0_5_0 "$@"
   migrate_checks_vars_0_6_0 "$@"
 

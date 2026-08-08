@@ -37,6 +37,8 @@ func main() {
 	case "config-get-global":
 		key := flag.Arg(0)
 		err = config.TriggerConfigGetGlobal(key)
+	case "config-migrate-env":
+		err = config.TriggerConfigMigrateEnv()
 	case "config-set":
 		appName := flag.Arg(0)
 		pairs := flag.Args()[1:]
