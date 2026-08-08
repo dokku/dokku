@@ -343,6 +343,20 @@ In the above example, the `internal-web` process is exposed as a service. The `P
 > [!NOTE]
 > It is not possible to modify the port mapping, nor is it possible to assign domains or SSL to a non-web process.
 
+### Wildcard domains
+
+Both the `nginx` and `traefik` ingress classes route wildcard domains. Add the wildcard as a domain on the app:
+
+```shell
+dokku domains:add node-js-app '*.node-js-app.com'
+```
+
+A wildcard matches exactly one label, matching DNS itself, so `*.node-js-app.com` covers `api.node-js-app.com` but not `node-js-app.com` or `api.staging.node-js-app.com`. Add the apex as a separate domain if it should also be served.
+
+An exact domain always takes precedence over a wildcard, including across apps. If one app serves `*.node-js-app.com` and another serves `api.node-js-app.com`, requests for `api.node-js-app.com` are routed to the second app.
+
+Only the leading label may be wildcarded. A domain such as `api.*.node-js-app.com` is treated as a literal hostname and will not match anything.
+
 ### SSL Certificates
 
 #### Enabling letsencrypt integration
@@ -485,10 +499,7 @@ A `dns01` issuer can issue wildcard certificates. Add the wildcard as a domain o
 dokku domains:add node-js-app '*.node-js-app.com'
 ```
 
-> [!WARNING]
-> Wildcard domains require the `nginx` ingress class. The Traefik integration matches hosts exactly and will not route requests for a wildcard domain.
-
-Note that a Kubernetes wildcard host matches exactly one label, so `*.node-js-app.com` does not cover `node-js-app.com`. Add both domains if the apex should also be served.
+See [wildcard domains](#wildcard-domains) for how a wildcard is matched against incoming requests.
 
 #### Using imported SSL certificates
 

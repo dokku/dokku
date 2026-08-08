@@ -281,6 +281,83 @@ func TestIngressRouteTemplateMultipleDomainsRenderOneRoutePerDomain(t *testing.T
 	}
 }
 
+func TestIngressRouteTemplateWildcardDomainUsesHostRegexp(t *testing.T) {
+	values := testIngressRouteValues(true)
+	web := values["processes"].(map[string]interface{})["web"].(map[string]interface{})["web"].(map[string]interface{})
+	web["domains"] = []interface{}{
+		map[string]interface{}{"name": "*.example.com"},
+	}
+
+	docs := renderIngressRouteTemplate(t, values)
+	if len(docs) != 2 {
+		t.Fatalf("expected 2 ingress routes when tls enabled, got %d", len(docs))
+	}
+
+	for _, name := range []string{"myapp-web-http-80-5000", "myapp-web-http-80-5000-websecure"} {
+		routes := findDocByName(t, docs, name)["spec"].(map[string]interface{})["routes"].([]interface{})
+		if len(routes) != 1 {
+			t.Fatalf("expected %s to have 1 route, got %d", name, len(routes))
+		}
+
+		route := routes[0].(map[string]interface{})
+		if got := route["match"]; got != "HostRegexp(`{subdomain:[^.]+}.example.com`)" {
+			t.Fatalf("expected %s match HostRegexp(`{subdomain:[^.]+}.example.com`), got %#v", name, got)
+		}
+		if got := route["priority"]; got != 1 {
+			t.Fatalf("expected %s priority 1, got %#v", name, got)
+		}
+	}
+}
+
+func TestIngressRouteTemplateWildcardRouteYieldsToExactDomain(t *testing.T) {
+	values := testIngressRouteValues(false)
+	web := values["processes"].(map[string]interface{})["web"].(map[string]interface{})["web"].(map[string]interface{})
+	web["domains"] = []interface{}{
+		map[string]interface{}{"name": "*.example.com"},
+		map[string]interface{}{"name": "app.example.com"},
+	}
+
+	docs := renderIngressRouteTemplate(t, values)
+	routes := findDocByName(t, docs, "myapp-web-http-80-5000")["spec"].(map[string]interface{})["routes"].([]interface{})
+	if len(routes) != 2 {
+		t.Fatalf("expected 2 routes (one per domain), got %d", len(routes))
+	}
+
+	wildcard := routes[0].(map[string]interface{})
+	if got := wildcard["match"]; got != "HostRegexp(`{subdomain:[^.]+}.example.com`)" {
+		t.Fatalf("expected wildcard match HostRegexp(`{subdomain:[^.]+}.example.com`), got %#v", got)
+	}
+	if got := wildcard["priority"]; got != 1 {
+		t.Fatalf("expected wildcard priority 1, got %#v", got)
+	}
+
+	exact := routes[1].(map[string]interface{})
+	if got := exact["match"]; got != "Host(`app.example.com`)" {
+		t.Fatalf("expected exact match Host(`app.example.com`), got %#v", got)
+	}
+	if got, ok := exact["priority"]; ok {
+		t.Fatalf("expected exact route to omit priority so traefik defaults it above the wildcard, got %#v", got)
+	}
+}
+
+func TestIngressRouteTemplateNonLeadingWildcardStaysExactHost(t *testing.T) {
+	values := testIngressRouteValues(false)
+	web := values["processes"].(map[string]interface{})["web"].(map[string]interface{})["web"].(map[string]interface{})
+	web["domains"] = []interface{}{
+		map[string]interface{}{"name": "app.*.example.com"},
+	}
+
+	docs := renderIngressRouteTemplate(t, values)
+	routes := findDocByName(t, docs, "myapp-web-http-80-5000")["spec"].(map[string]interface{})["routes"].([]interface{})
+	route := routes[0].(map[string]interface{})
+	if got := route["match"]; got != "Host(`app.*.example.com`)" {
+		t.Fatalf("expected non-leading wildcard to stay Host(`app.*.example.com`), got %#v", got)
+	}
+	if got, ok := route["priority"]; ok {
+		t.Fatalf("expected non-leading wildcard to omit priority, got %#v", got)
+	}
+}
+
 func TestIngressRouteTemplateNonTraefikIngressClassRendersNothing(t *testing.T) {
 	values := testIngressRouteValues(true)
 	values["global"].(map[string]interface{})["network"].(map[string]interface{})["ingress_class"] = "nginx"
