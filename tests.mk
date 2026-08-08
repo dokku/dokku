@@ -184,6 +184,7 @@ go-tests:
 	@$(MAKE) go-test-plugin PLUGIN_NAME=docker-options
 	@$(MAKE) go-test-plugin PLUGIN_NAME=network
 	@$(MAKE) go-test-plugin PLUGIN_NAME=buildpacks
+	@$(MAKE) go-test-plugin PLUGIN_NAME=scheduler-k3s
 
 go-test-plugin:
 	cd plugins/$(PLUGIN_NAME) && go get github.com/onsi/gomega && DOKKU_ROOT=/home/dokku DOKKU_LIB_ROOT=/var/lib/dokku go test -v -p 1 -race -mod=readonly || exit $$?

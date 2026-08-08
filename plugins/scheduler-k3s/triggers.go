@@ -41,7 +41,17 @@ func TriggerCorePostDeploy(appName string) error {
 }
 
 // TriggerCorePostExtract moves a configured kustomize root path to be in the app root dir
+// and warns about a missing cert issuer before any build work is performed
 func TriggerCorePostExtract(appName string, sourceWorkDir string) error {
+	scheduler := common.PropertyGetDefault("scheduler", appName, "selected", "")
+	globalScheduler := common.PropertyGetDefault("scheduler", "--global", "selected", "docker-local")
+	if scheduler == "" {
+		scheduler = globalScheduler
+	}
+	if scheduler == "k3s" {
+		warnMissingCertIssuer(context.Background(), appName)
+	}
+
 	destination := common.GetAppDataDirectory("scheduler-k3s", appName)
 	kustomizeRootPath := getComputedKustomizeRootPath(appName)
 	return common.CorePostExtract(common.CorePostExtractInput{

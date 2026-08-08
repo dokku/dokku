@@ -40,6 +40,10 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 		}
 
 		flags = map[string]common.ReportFunc{
+			"--scheduler-k3s-computed-cert-issuer-kind":       reportComputedCertIssuerKind,
+			"--scheduler-k3s-global-cert-issuer-kind":         reportGlobalCertIssuerKind,
+			"--scheduler-k3s-computed-cert-issuer-name":       reportComputedCertIssuerName,
+			"--scheduler-k3s-global-cert-issuer-name":         reportGlobalCertIssuerName,
 			"--scheduler-k3s-computed-deploy-timeout":         reportComputedDeployTimeout,
 			"--scheduler-k3s-global-deploy-timeout":           reportGlobalDeployTimeout,
 			"--scheduler-k3s-computed-image-pull-secrets":     reportComputedImagePullSecrets,
@@ -72,6 +76,12 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 		}
 	} else {
 		flags = map[string]common.ReportFunc{
+			"--scheduler-k3s-computed-cert-issuer-kind":       reportComputedCertIssuerKind,
+			"--scheduler-k3s-cert-issuer-kind":                reportCertIssuerKind,
+			"--scheduler-k3s-global-cert-issuer-kind":         reportGlobalCertIssuerKind,
+			"--scheduler-k3s-computed-cert-issuer-name":       reportComputedCertIssuerName,
+			"--scheduler-k3s-cert-issuer-name":                reportCertIssuerName,
+			"--scheduler-k3s-global-cert-issuer-name":         reportGlobalCertIssuerName,
 			"--scheduler-k3s-computed-deploy-timeout":         reportComputedDeployTimeout,
 			"--scheduler-k3s-deploy-timeout":                  reportDeployTimeout,
 			"--scheduler-k3s-global-deploy-timeout":           reportGlobalDeployTimeout,
@@ -649,6 +659,30 @@ func reportComputedKubeContext(appName string) string {
 
 func reportGlobalKubeContext(appName string) string {
 	return getGlobalKubeContext()
+}
+
+func reportComputedCertIssuerKind(appName string) string {
+	return getComputedCertIssuerKind(appName)
+}
+
+func reportCertIssuerKind(appName string) string {
+	return getCertIssuerKind(appName)
+}
+
+func reportGlobalCertIssuerKind(appName string) string {
+	return getGlobalCertIssuerKind()
+}
+
+func reportComputedCertIssuerName(appName string) string {
+	return getComputedCertIssuerName(appName)
+}
+
+func reportCertIssuerName(appName string) string {
+	return getCertIssuerName(appName)
+}
+
+func reportGlobalCertIssuerName(appName string) string {
+	return getGlobalCertIssuerName()
 }
 
 func reportComputedLetsencryptServer(appName string) string {

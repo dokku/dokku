@@ -7,7 +7,7 @@ setup() {
 }
 
 teardown() {
-  for prop in deploy-timeout image-pull-secrets ingress-class kubeconfig-path kube-context kustomize-root-path namespace network-interface rollback-on-failure shm-size token; do
+  for prop in cert-issuer-kind cert-issuer-name deploy-timeout image-pull-secrets ingress-class kubeconfig-path kube-context kustomize-root-path namespace network-interface rollback-on-failure shm-size token; do
     dokku scheduler-k3s:set --global "$prop" >/dev/null 2>/dev/null || true
   done
   global_teardown
@@ -55,10 +55,11 @@ assert_k3s_global_unset_set() {
   assert_k3s_global_unset_set "ingress-class" "nginx" "traefik"
   assert_k3s_global_unset_set "network-interface" "eth0" "eth1"
   assert_k3s_global_unset_set "kubeconfig-path" "/etc/rancher/k3s/k3s.yaml" "/tmp/custom-kubeconfig.yaml"
+  assert_k3s_global_unset_set "cert-issuer-kind" "ClusterIssuer" "Issuer"
 }
 
 @test "(scheduler-k3s:report --global) empty-default properties expose computed sibling" {
-  for prop in image-pull-secrets shm-size kube-context; do
+  for prop in image-pull-secrets shm-size kube-context cert-issuer-name; do
     run /bin/bash -c "dokku scheduler-k3s:set --global $prop"
     assert_success
 
@@ -77,6 +78,16 @@ assert_k3s_global_unset_set() {
   assert_success
   run /bin/bash -c "dokku scheduler-k3s:set --global kube-context my-context"
   assert_success
+  run /bin/bash -c "dokku scheduler-k3s:set --global cert-issuer-name acme-dns"
+  assert_success
+
+  run /bin/bash -c "dokku scheduler-k3s:report --global --format json | jq -r '.\"scheduler-k3s-global-cert-issuer-name\"'"
+  assert_success
+  assert_output "acme-dns"
+
+  run /bin/bash -c "dokku scheduler-k3s:report --global --format json | jq -r '.\"scheduler-k3s-computed-cert-issuer-name\"'"
+  assert_success
+  assert_output "acme-dns"
 
   run /bin/bash -c "dokku scheduler-k3s:report --global --format json | jq -r '.\"scheduler-k3s-global-image-pull-secrets\"'"
   assert_success
@@ -121,6 +132,34 @@ assert_k3s_global_unset_set() {
   run /bin/bash -c "dokku scheduler-k3s:report --global --format json | jq -r '.\"scheduler-k3s-computed-letsencrypt-email-stag\"'"
   assert_success
   assert_output ""
+}
+
+@test "(scheduler-k3s:set) rejects invalid cert issuer and letsencrypt server values" {
+  run /bin/bash -c "dokku apps:create $TEST_APP"
+  assert_success
+
+  run /bin/bash -c "dokku scheduler-k3s:set $TEST_APP cert-issuer-kind Certificate"
+  assert_failure
+  assert_output_contains "Invalid cert-issuer-kind"
+
+  run /bin/bash -c "dokku scheduler-k3s:set $TEST_APP cert-issuer-name my_own_issuer_name"
+  assert_failure
+  assert_output_contains "Invalid cert-issuer-name"
+
+  run /bin/bash -c "dokku scheduler-k3s:set $TEST_APP letsencrypt-server prodd"
+  assert_failure
+  assert_output_contains "Invalid letsencrypt-server"
+
+  run /bin/bash -c "dokku scheduler-k3s:report $TEST_APP --format json | jq -r '.\"scheduler-k3s-cert-issuer-kind\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku scheduler-k3s:set $TEST_APP cert-issuer-kind clusterissuer"
+  assert_success
+
+  run /bin/bash -c "dokku scheduler-k3s:report $TEST_APP --format json | jq -r '.\"scheduler-k3s-cert-issuer-kind\"'"
+  assert_success
+  assert_output "ClusterIssuer"
 }
 
 @test "(scheduler-k3s:report) app-level letsencrypt email overrides global and falls back when unset" {

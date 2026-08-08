@@ -24,6 +24,7 @@ import (
 	"github.com/dokku/dokku/plugins/logs"
 	nginxvhosts "github.com/dokku/dokku/plugins/nginx-vhosts"
 	resty "github.com/go-resty/resty/v2"
+	"github.com/gosimple/slug"
 	kedav1alpha1 "github.com/kedacore/keda/v2/apis/keda/v1alpha1"
 	"golang.org/x/sync/errgroup"
 	"gopkg.in/yaml.v3"
@@ -33,6 +34,7 @@ import (
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/validation"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/kubernetes/pkg/client/conditions"
 	"k8s.io/utils/ptr"
@@ -1213,6 +1215,86 @@ func getLabel(appName string, processType string, resourceType string) (map[stri
 	return common.PropertyMapGet("scheduler-k3s", appName, fmt.Sprintf("labels.%s.%s", processType, resourceType))
 }
 
+func getCertIssuerName(appName string) string {
+	return common.PropertyGet("scheduler-k3s", appName, "cert-issuer-name")
+}
+
+func getGlobalCertIssuerName() string {
+	return common.PropertyGet("scheduler-k3s", "--global", "cert-issuer-name")
+}
+
+func getComputedCertIssuerName(appName string) string {
+	certIssuerName := getCertIssuerName(appName)
+	if certIssuerName == "" {
+		certIssuerName = getGlobalCertIssuerName()
+	}
+
+	return certIssuerName
+}
+
+func getCertIssuerKind(appName string) string {
+	return common.PropertyGet("scheduler-k3s", appName, "cert-issuer-kind")
+}
+
+func getGlobalCertIssuerKind() string {
+	return common.PropertyGet("scheduler-k3s", "--global", "cert-issuer-kind")
+}
+
+func getComputedCertIssuerKind(appName string) string {
+	certIssuerKind := getCertIssuerKind(appName)
+	if certIssuerKind == "" {
+		certIssuerKind = getGlobalCertIssuerKind()
+	}
+	if certIssuerKind == "" {
+		certIssuerKind = CertIssuerKindClusterIssuer
+	}
+
+	return certIssuerKind
+}
+
+// normalizeCertIssuerKind validates a cert-issuer-kind value case-insensitively and
+// returns it in the casing cert-manager expects, as the value is interpolated
+// directly into the rendered Certificate manifest. An empty value is left as-is so
+// the property can still be unset.
+func normalizeCertIssuerKind(value string) (string, error) {
+	switch strings.ToLower(value) {
+	case "":
+		return "", nil
+	case strings.ToLower(CertIssuerKindIssuer):
+		return CertIssuerKindIssuer, nil
+	case strings.ToLower(CertIssuerKindClusterIssuer):
+		return CertIssuerKindClusterIssuer, nil
+	}
+
+	return "", fmt.Errorf("Invalid cert-issuer-kind: %s, valid values are %s and %s", value, CertIssuerKindIssuer, CertIssuerKindClusterIssuer)
+}
+
+// validateCertIssuerName ensures a cert-issuer-name refers to a legal Kubernetes
+// object name. An empty value unsets the property and the reserved disabled value
+// opts an app out of a globally configured issuer, so neither is name-checked.
+func validateCertIssuerName(value string) error {
+	if value == "" || value == CertIssuerNameDisabled {
+		return nil
+	}
+
+	if errs := validation.IsDNS1123Subdomain(value); len(errs) > 0 {
+		return fmt.Errorf("Invalid cert-issuer-name: %s, %s", value, strings.Join(errs, ", "))
+	}
+
+	return nil
+}
+
+// validateLetsencryptServer ensures a letsencrypt-server value is one the deploy can
+// act on, so a typo fails when it is set rather than breaking every subsequent deploy.
+func validateLetsencryptServer(value string) error {
+	switch value {
+	case "", "prod", "production", "stag", "staging", LetsencryptServerDisabled:
+		return nil
+	}
+
+	return fmt.Errorf("Invalid letsencrypt-server: %s, valid values are prod, production, stag, staging, and %s", value, LetsencryptServerDisabled)
+}
+
 func getLetsencryptServer(appName string) string {
 	return common.PropertyGet("scheduler-k3s", appName, "letsencrypt-server")
 }
@@ -1277,13 +1359,166 @@ func resolveLetsencryptIssuer(appName string, clusterIssuerName string, appEmail
 	}
 
 	issuerName := fmt.Sprintf("%s-%s", appName, clusterIssuerName)
-	return "Issuer", issuerName, AppIssuer{
+	return CertIssuerKindIssuer, issuerName, AppIssuer{
 		Email:        computedEmail,
 		Enabled:      true,
 		IngressClass: getComputedIngressClass(),
 		Name:         issuerName,
 		Server:       server,
 	}
+}
+
+// AppTLSConfig is the resolved certificate configuration for an app's web process.
+type AppTLSConfig struct {
+	// Enabled is whether the app serves https and has a certificate source
+	Enabled bool
+
+	// Issuer is a namespaced cert-manager Issuer for Dokku to render into the app's
+	// own chart. It is zero-valued whenever Dokku manages no issuer for the app.
+	Issuer AppIssuer
+
+	// IssuerKind is the cert-manager kind the app's Certificate references
+	IssuerKind string
+
+	// IssuerName is the cert-manager issuer name the app's Certificate references
+	IssuerName string
+
+	// UseImportedCert is whether the app serves a certificate imported via the certs plugin
+	UseImportedCert bool
+
+	// UsesCustomIssuer is whether IssuerName refers to an issuer the operator manages
+	// rather than one Dokku creates
+	UsesCustomIssuer bool
+}
+
+// ResolveAppTLSConfigInput contains the inputs to resolveAppTLSConfig
+type ResolveAppTLSConfigInput struct {
+	// AppName is the app being resolved
+	AppName string
+
+	// ImportedCertExists is whether a certificate imported via the certs plugin is
+	// available for the app
+	ImportedCertExists bool
+}
+
+// resolveAppTLSConfig determines which certificate source an app's web process uses.
+// An imported certificate wins outright, then the letsencrypt-server kill switch,
+// then a manually managed issuer named by cert-issuer-name, and finally the built-in
+// letsencrypt flow. It reads only properties so it can be exercised without a cluster.
+func resolveAppTLSConfig(input ResolveAppTLSConfigInput) (AppTLSConfig, error) {
+	appName := input.AppName
+	if input.ImportedCertExists {
+		return AppTLSConfig{
+			Enabled:         true,
+			UseImportedCert: true,
+		}, nil
+	}
+
+	server := getComputedLetsencryptServer(appName)
+	if server == LetsencryptServerDisabled {
+		return AppTLSConfig{}, nil
+	}
+
+	certIssuerName := getComputedCertIssuerName(appName)
+	if certIssuerName != "" && certIssuerName != CertIssuerNameDisabled {
+		certIssuerKind, err := normalizeCertIssuerKind(getComputedCertIssuerKind(appName))
+		if err != nil {
+			return AppTLSConfig{}, err
+		}
+
+		return AppTLSConfig{
+			Enabled:          true,
+			IssuerKind:       certIssuerKind,
+			IssuerName:       certIssuerName,
+			UsesCustomIssuer: true,
+		}, nil
+	}
+
+	switch server {
+	case "prod", "production":
+		computedEmail := getComputedLetsencryptEmailProd(appName)
+		issuerKind, issuerName, appIssuer := resolveLetsencryptIssuer(appName, "letsencrypt-prod", getLetsencryptEmailProd(appName), computedEmail, LetsencryptServerProd)
+		return AppTLSConfig{
+			Enabled:    computedEmail != "",
+			Issuer:     appIssuer,
+			IssuerKind: issuerKind,
+			IssuerName: issuerName,
+		}, nil
+	case "stag", "staging":
+		computedEmail := getComputedLetsencryptEmailStag(appName)
+		issuerKind, issuerName, appIssuer := resolveLetsencryptIssuer(appName, "letsencrypt-stag", getLetsencryptEmailStag(appName), computedEmail, LetsencryptServerStag)
+		return AppTLSConfig{
+			Enabled:    computedEmail != "",
+			Issuer:     appIssuer,
+			IssuerKind: issuerKind,
+			IssuerName: issuerName,
+		}, nil
+	}
+
+	return AppTLSConfig{}, fmt.Errorf("Invalid letsencrypt server config: %s", server)
+}
+
+// warnMissingCertIssuer warns when an app references a manually managed cert-manager
+// issuer that is not present in the cluster. Without it a deploy succeeds while
+// cert-manager sits on IssuerNotFound and the ingress serves its default certificate.
+// Every failure is swallowed: this is advisory only and must never interrupt a deploy.
+func warnMissingCertIssuer(ctx context.Context, appName string) {
+	tlsConfig, err := resolveAppTLSConfig(ResolveAppTLSConfigInput{
+		AppName:            appName,
+		ImportedCertExists: HasImportedTLSCert(appName),
+	})
+	if err != nil {
+		common.LogDebug(fmt.Sprintf("Skipping cert issuer check for %s: %v", appName, err))
+		return
+	}
+
+	if !tlsConfig.UsesCustomIssuer {
+		return
+	}
+
+	if err := isKubernetesAvailable(); err != nil {
+		common.LogDebug(fmt.Sprintf("Skipping cert issuer check for %s: %v", appName, err))
+		return
+	}
+
+	clientset, err := NewKubernetesClient()
+	if err != nil {
+		common.LogDebug(fmt.Sprintf("Skipping cert issuer check for %s: %v", appName, err))
+		return
+	}
+
+	namespace := getComputedNamespace(appName)
+	exists, err := clientset.CertIssuerExists(ctx, CertIssuerExistsInput{
+		Kind:      tlsConfig.IssuerKind,
+		Name:      tlsConfig.IssuerName,
+		Namespace: namespace,
+	})
+	if err != nil {
+		common.LogDebug(fmt.Sprintf("Skipping cert issuer check for %s: %v", appName, err))
+		return
+	}
+
+	if exists {
+		return
+	}
+
+	if tlsConfig.IssuerKind == CertIssuerKindIssuer {
+		common.LogWarn(fmt.Sprintf("Issuer %s not found in namespace %s, certificates will not be issued for %s", tlsConfig.IssuerName, namespace, appName))
+		return
+	}
+
+	common.LogWarn(fmt.Sprintf("ClusterIssuer %s not found, certificates will not be issued for %s", tlsConfig.IssuerName, appName))
+}
+
+// domainSlug renders a domain as a Kubernetes object name suffix. A leading wildcard
+// label is spelled out rather than stripped, so that a wildcard domain and its parent
+// do not collapse onto the same generated name.
+func domainSlug(domain string) string {
+	if strings.HasPrefix(domain, "*.") {
+		return fmt.Sprintf("wildcard-%s", slug.Make(strings.TrimPrefix(domain, "*.")))
+	}
+
+	return slug.Make(domain)
 }
 
 // nodeLabels returns the labels to apply to a node joining the cluster, including
