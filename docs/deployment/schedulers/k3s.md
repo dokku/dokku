@@ -4,29 +4,29 @@
 > New as of 0.33.0
 
 ```
-scheduler-k3s:annotations:set <app|--global> <property> (<value>) [--process-type PROCESS_TYPE] <--resource-type RESOURCE_TYPE>, Set or clear an annotation for a given app/process-type/resource-type combination
+scheduler-k3s:annotations:set <app|--global> <property> (<value>) [--process-type PROCESS_TYPE] <--resource-type RESOURCE_TYPE> # Set or clear an annotation for a given app/process-type/resource-type combination
 scheduler-k3s:annotations:report [<app>|--global] [--format stdout|json] [--process-type PROCESS_TYPE] [--resource-type RESOURCE_TYPE] # Displays a scheduler-k3s annotations report for one or more apps
-scheduler-k3s:autoscaling-auth:set <app|--global> <trigger> [<--metadata key=value>...], Set or clear a scheduler-k3s autoscaling keda trigger authentication resource for an app
+scheduler-k3s:autoscaling-auth:set <app|--global> <trigger> [<--metadata key=value>...] # Set or clear a scheduler-k3s autoscaling keda trigger authentication resource for an app
 scheduler-k3s:autoscaling-auth:report [<app>|--global] [--format stdout|json] [--include-metadata] # Displays a scheduler-k3s autoscaling auth report for one or more apps
 scheduler-k3s:charts:report [<chart>] [--format stdout|json] # Displays a scheduler-k3s chart override report
 scheduler-k3s:charts:set <chart-name.property> (<value>) # Set or clear a chart-specific helm value
-scheduler-k3s:cluster:add [ssh://user@host:port]    # Adds a server node to a Dokku-managed cluster
-scheduler-k3s:cluster:list                          # Lists all nodes in a Dokku-managed cluster
-scheduler-k3s:cluster:remove [node-id]              # Removes client node to a Dokku-managed cluster
-scheduler-k3s:ensure-charts                         # Ensures the k3s charts are installed
-scheduler-k3s:initialize                            # Initializes a cluster
+scheduler-k3s:cluster:add [--profile PROFILE] [--role ROLE] [--insecure-allow-unknown-hosts] [--server-ip SERVER_IP] [--taint-scheduling] [--kubelet-args KUBELET_ARGS] <ssh://user@host:port> # Adds a server node to a Dokku-managed cluster
+scheduler-k3s:cluster:list [--format json|stdout] # Lists all nodes in a Dokku-managed cluster
+scheduler-k3s:cluster:remove [node-id] # Removes client node to a Dokku-managed cluster
+scheduler-k3s:ensure-charts # Ensures the k3s charts are installed
+scheduler-k3s:initialize [--server-ip SERVER_IP] [--taint-scheduling] [--kubelet-args KUBELET_ARGS] # Initializes a cluster
 scheduler-k3s:labels:set <app|--global> <property> (<value>) [--process-type PROCESS_TYPE] <--resource-type RESOURCE_TYPE> # Set or clear a label for a given app/process-type/resource-type combination
 scheduler-k3s:labels:report [<app>|--global] [--format stdout|json] [--process-type PROCESS_TYPE] [--resource-type RESOURCE_TYPE] # Displays a scheduler-k3s labels report for one or more apps
 scheduler-k3s:node-sysctls:set <sysctl> (<value>) [--global|--profile PROFILE] # Set or clear a node-level kernel sysctl for unprofiled nodes or a single node profile
 scheduler-k3s:node-sysctls:report [--format stdout|json] # Displays the node-level kernel sysctls applied to each scope
 scheduler-k3s:preview <app> [--context N] [--show-secrets] [--show-secrets-decoded] # Displays a diff between the current and next deployment for an app
-scheduler-k3s:profiles:add <profile> [--role ROLE] [--insecure-allow-unknown-hosts] [--taint-scheduling] [--kubelet-args KUBELET_ARGS] Adds a node profile to the k3s cluster
-scheduler-k3s:profiles:list [--format json|stdout]  # Lists all node profiles in the k3s cluster
-scheduler-k3s:profiles:remove <profile>             # Removes a node profile from the k3s cluster
-scheduler-k3s:report [<app>] [<flag>]               # Displays a scheduler-k3s report for one or more apps
-scheduler-k3s:set [<app>|--global] <key> (<value>)  # Set or clear a scheduler-k3s property for an app or the scheduler
-scheduler-k3s:show-kubeconfig                       # Displays the kubeconfig for remote usage
-scheduler-k3s:uninstall                             # Uninstalls k3s from the Dokku server
+scheduler-k3s:profiles:add <profile> [--role ROLE] [--insecure-allow-unknown-hosts] [--taint-scheduling] [--kubelet-args KUBELET_ARGS] # Adds a node profile to the k3s cluster
+scheduler-k3s:profiles:list [--format json|stdout] # Lists all node profiles in the k3s cluster
+scheduler-k3s:profiles:remove <profile> # Removes a node profile from the k3s cluster
+scheduler-k3s:report [<app>|--global] [--format stdout|json] [<flag>] # Displays a scheduler-k3s report for one or more apps
+scheduler-k3s:set <app|--global> <property> (<value>) # Set or clear a scheduler-k3s property for an app or globally
+scheduler-k3s:show-kubeconfig # Displays the kubeconfig for remote usage
+scheduler-k3s:uninstall # Uninstalls k3s from the Dokku server
 ```
 
 > [!NOTE]
@@ -266,6 +266,28 @@ The global default value may be set by passing an empty value for the option.
 
 ```shell
 dokku scheduler-k3s:set --global deploy-timeout
+```
+
+### Displaying the scheduler report
+
+Configured properties can be inspected with the `scheduler-k3s:report` command. Without arguments, it iterates every app. Passing an app name scopes the report to that app, while `--global` reports the scheduler-wide properties on their own:
+
+```shell
+dokku scheduler-k3s:report
+dokku scheduler-k3s:report node-js-app
+dokku scheduler-k3s:report --global
+```
+
+The output can be emitted as JSON for programmatic consumption:
+
+```shell
+dokku scheduler-k3s:report --global --format json
+```
+
+A single value can also be read directly by passing its report flag, as listed in the [settable properties](#settable-properties) table:
+
+```shell
+dokku scheduler-k3s:report node-js-app --scheduler-k3s-computed-deploy-timeout
 ```
 
 ### Previewing deployment changes
