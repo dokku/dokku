@@ -1,5 +1,85 @@
 # History
 
+## 0.38.26
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.38.26/bootstrap.sh
+sudo DOKKU_TAG=v0.38.26 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #8906: @josegonzalez Match docker options by shell word when removing
+
+### New Features
+
+- #8911: @josegonzalez Route wildcard domains through traefik on k3s
+- #8909: @josegonzalez Support manually managed cert issuers on k3s
+- #8903: @josegonzalez Support kernel sysctls on the k3s scheduler
+- #8856: @youdie006 Add pre-parsed port_mappings to ports:report json
+
+### Refactors
+
+- #8863: @josegonzalez Move host-crontab generation into cron plugin
+
+### Documentation
+
+- #8908: @josegonzalez Document --global on scheduler-k3s report and set
+- #8858: @bakatz Added instructions for restoring backups on different CPU architectures.
+
+### Tests
+
+- #8893: @dependabot[bot] chore(deps): bump django from 5.2.16 to 5.2.17 in /tests/apps/dockerfile-release
+- #8891: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 293 to 294 in /tests/apps/php
+- #8877: @dependabot[bot] chore(deps): bump google.golang.org/grpc from 1.82.1 to 1.83.0 in /tests/apps/gogrpc
+- #8874: @dependabot[bot] chore(deps): bump sass from 1.101.7 to 1.102.0 in /tests/apps/multi
+- #8870: @dependabot[bot] chore(deps): bump sass from 1.101.6 to 1.101.7 in /tests/apps/multi
+- #8866: @dependabot[bot] chore(deps): bump sass from 1.101.3 to 1.101.6 in /tests/apps/multi
+- #8860: @dependabot[bot] chore(deps): bump setuptools from 78.1.1 to 83.0.0 in /tests/apps/dockerfile-release
+- #8859: @dependabot[bot] chore(deps): bump immutable from 5.1.5 to 5.1.9 in /tests/apps/multi
+- #8855: @dependabot[bot] chore(deps): bump sass from 1.101.0 to 1.101.3 in /tests/apps/multi
+- #8857: @dependabot[bot] chore(deps): bump body-parser from 2.2.1 to 2.3.0 in /tests/apps/checks-root
+- #8853: @dependabot[bot] chore(deps): bump python from 3.15.0b3-bookworm to 3.15.0b4-bookworm in /tests/apps/dockerfile-release
+
+### Dependencies
+
+- #8905: @dependabot[bot] chore(deps): bump oras.land/oras-go/v2 from 2.6.1 to 2.6.2 in /plugins/scheduler-k3s
+- #8869: @dependabot[bot] chore(deps): bump github.com/mattn/go-isatty from 0.0.23 to 0.0.24 in /plugins/app-json
+- #8887: @dependabot[bot] chore(deps): bump github.com/kedacore/keda/v2 from 2.20.1 to 2.20.2 in /plugins/scheduler-k3s
+- #8883: @dokku-bot chore: bump docker-container-healthchecker to 0.16.0
+- #8886: @dependabot[bot] chore(deps): update markdown requirement from <3.11,>=3.10.2 to >=3.10.3,<3.11 in /docs/_build
+- #8892: @dependabot[bot] chore(deps): bump traefik from v3.7.9 to v3.7.10 in /plugins/traefik-vhosts
+- #8885: @dokku-bot chore: bump dokku-update to 0.10.0
+- #8884: @dokku-bot chore: bump procfile-util to 0.20.8
+- #8882: @dokku-bot chore: bump docker-image-labeler to 0.10.0
+- #8888: @dependabot[bot] chore(deps): bump github.com/traefik/traefik/v2 from 2.11.53 to 2.11.54 in /plugins/scheduler-k3s
+- #8900: @dokku-bot chore: bump gliderlabs-sigil to 0.12.1
+- #8899: @dokku-bot chore: bump herokuish to 0.11.14
+- #8898: @dokku-bot chore: bump netrc to 0.11.1
+- #8897: @dokku-bot chore: bump dokku-event-listener to 0.20.1
+- #8896: @dokku-bot chore: bump sshcommand to 0.20.2
+- #8895: @dokku-bot chore: bump lambda-builder to 0.9.4
+- #8894: @dokku-bot chore: bump plugn to 0.17.1
+- #8876: @dependabot[bot] chore(deps): bump github.com/cert-manager/cert-manager from 1.21.0 to 1.21.1 in /plugins/scheduler-k3s
+- #8873: @dependabot[bot] chore(deps): bump traefik from v3.7.8 to v3.7.9 in /plugins/traefik-vhosts
+- #8872: @dependabot[bot] chore(deps): bump github.com/traefik/traefik/v2 from 2.11.52 to 2.11.53 in /plugins/scheduler-k3s
+- #8871: @dependabot[bot] chore(deps): bump k8s.io/kubernetes from 1.36.2 to 1.36.3 in /plugins/scheduler-k3s
+- #8868: @dependabot[bot] chore(deps): bump k8s.io/kubectl from 0.36.2 to 0.36.3 in /plugins/scheduler-k3s
+- #8867: @dependabot[bot] chore(deps): bump k8s.io/client-go from 0.36.2 to 0.36.3 in /plugins/scheduler-k3s
+- #8865: @dependabot[bot] chore(deps): bump github.com/fluxcd/pkg/kustomize from 1.38.0 to 1.39.0 in /plugins/scheduler-k3s
+- #8864: @dependabot[bot] chore(deps): bump soupsieve from 2.9 to 2.9.1 in /docs/_build
+- #8854: @dependabot[bot] chore(deps): bump python from 3.15.0b3-alpine to 3.15.0b4-alpine in /docs/_build
+- #8852: @dependabot[bot] chore(deps): bump soupsieve from 2.8.4 to 2.9 in /docs/_build
+- #8851: @dependabot[bot] chore(deps): bump mkdocs-material from 9.7.6 to 9.7.7 in /docs/_build
+- #8850: @dependabot[bot] chore(deps): bump actions/setup-python from 6 to 7
+
+### Other
+
+- #8907: @josegonzalez fix: migrate env files before reading deprecated vars
+- #8881: @josegonzalez Ignore minor and patch updates for github actions
+
 ## 0.38.25
 
 Install/update via the bootstrap script:
