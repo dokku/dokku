@@ -1113,6 +1113,24 @@ dokku scheduler-k3s:ensure-charts --charts vector
 
 Please see the [vector logs documentation](/docs/deployment/logs.md#configuring-a-log-sink) for more information on specifying vector sinks.
 
+#### Shipping cron task logs
+
+The global `vector-cron-sink` property is also respected. When set, logs from cron task pods are routed to that sink instead of the sink configured for everything else, matching the behavior described in the [cron task log sink documentation](/docs/deployment/logs.md#configuring-a-cron-task-log-sink).
+
+```shell
+dokku logs:set --global vector-cron-sink "console://?encoding[codec]=text"
+dokku scheduler-k3s:ensure-charts --charts vector
+```
+
+As with `vector-sink`, only the global property is respected - a per-app `vector-cron-sink` has no effect on the `k3s` scheduler.
+
+Cron events carry the same `dokku_app` and `dokku_cron_id` fields as they do on the `docker-local` scheduler, so sink configuration referencing them is portable between the two.
+
+Two differences are worth noting:
+
+- Templated values must be base64 encoded. Sink values containing `{{ }}` are interpreted by Helm at chart install time rather than by Vector, so the `base64enc:` form documented under [log sink DSN format](/docs/deployment/logs.md#log-sink-dsn-format) is required.
+- The `file` sink is not useful here. Vector runs as a DaemonSet agent, so a file path resolves to whichever node the agent is running on rather than to durable shared storage. Use a network sink and reference `dokku_cron_id` as a field instead of as a path component.
+
 ### Supported Resource Management Properties
 
 The `k3s` scheduler supports a minimal list of resource _limits_ and _reservations_:

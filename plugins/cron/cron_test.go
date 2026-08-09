@@ -100,3 +100,26 @@ func TestDokkuRunCommandAltCommandWithLogFile(t *testing.T) {
 		t.Errorf("DokkuRunCommand() = %q, want %q", got, want)
 	}
 }
+
+// TestDokkuRunCommandAppTaskIgnoresLogFile pins that LogFile is honored only
+// for internally injected tasks from the cron-entries trigger. App tasks never
+// interpolate a path into the crontab line - their output is shipped by the
+// vector integration instead.
+func TestDokkuRunCommandAppTaskIgnoresLogFile(t *testing.T) {
+	task := CronTask{
+		App:     "myapp",
+		ID:      "abc123",
+		Command: "npm run send-email",
+		LogFile: "/var/log/dokku/should-not-appear.log",
+	}
+
+	got := task.DokkuRunCommand()
+	want := "dokku cron:run myapp abc123"
+	if got != want {
+		t.Errorf("DokkuRunCommand() = %q, want %q", got, want)
+	}
+
+	if strings.Contains(got, ">>") {
+		t.Errorf("DokkuRunCommand() interpolated a redirect into an app task line: %q", got)
+	}
+}

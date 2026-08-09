@@ -60,7 +60,32 @@ When running scheduled cron tasks, there are a few items to be aware of:
 - Scheduled cron tasks are supported on a per-scheduler basis. Schedulers that use the host crontab - such as `docker-local` - have their `app.json` cron tasks written to the `dokku` user crontab, while schedulers that manage their own cron backend - such as `k3s` - schedule them natively.
 - Tasks for _all_ apps managed by a host-crontab scheduler such as `docker-local` are written to a single crontab file owned by the `dokku` user. The `dokku` user's crontab should be considered reserved for this purpose.
 - The `command` is tokenized and exec'd directly inside the container. Shell features such as `;`, `&&`, `|`, and `>` are _not_ interpreted. Commands that contain a bare shell operator are rejected when `app.json` is validated at deploy time, so a malformed cron command will fail the deploy rather than silently fail to run. If shell semantics are required, wrap the command explicitly, for example `"sh -c 'do-thing > /var/log/x.log'"`.
+- Task output is written to the container's stdout and stderr, and can be persisted via Dokku's [vector integration](/docs/deployment/logs.md#configuring-a-cron-task-log-sink). See [persisting cron task output](#persisting-cron-task-output) below.
+- A cron task cannot declare a log file path in `app.json`. The crontab written for the `dokku` user contains only `dokku cron:run <app> <cron_id>` lines, and no path from a deployed repository is ever interpolated into it.
 
+#### Persisting cron task output
+
+Without further configuration, a task's output is only delivered to the `MAILTO` address configured for cron. To retain it, configure a sink via Dokku's [vector integration](/docs/deployment/logs.md#vector-logging-shipping).
+
+Any sink configured for the app already receives cron task output alongside the app's other logs:
+
+```shell
+dokku logs:set node-js-app vector-sink "console://?encoding[codec]=json"
+```
+
+To keep cron output separate, set a `vector-cron-sink` instead. Cron output is then routed there rather than to the app's sink:
+
+```shell
+dokku logs:set node-js-app vector-cron-sink "console://?encoding[codec]=text"
+```
+
+To write it to a file on the host, target the `/var/log/dokku/apps` directory, which is mounted into the vector container. The `dokku_cron_id` field is available for templating, so each task can be given its own file:
+
+```shell
+dokku logs:set node-js-app vector-cron-sink "file://?path=/var/log/dokku/apps/node-js-app/cron-{{ dokku_cron_id }}.log&encoding[codec]=text"
+```
+
+See [configuring a cron task log sink](/docs/deployment/logs.md#configuring-a-cron-task-log-sink) for the routing rules, the available fields, and the caveat around very short-lived tasks.
 
 ### Changing cron management settings
 

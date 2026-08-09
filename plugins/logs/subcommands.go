@@ -78,8 +78,9 @@ func CommandSet(appName string, property string, value string) error {
 	common.CommandPropertySet("logs", appName, property, value, DefaultProperties, GlobalProperties)
 
 	vectorProperties := map[string]bool{
-		"app-label-alias": true,
-		"vector-sink":     true,
+		"app-label-alias":  true,
+		"vector-cron-sink": true,
+		"vector-sink":      true,
 	}
 
 	if _, ok := vectorProperties[property]; ok {

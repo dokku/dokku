@@ -22,7 +22,7 @@ func validateSetValue(appName string, key string, value string) error {
 		return validateVectorNetworks(appName, value)
 	}
 
-	if key == "vector-sink" {
+	if key == "vector-sink" || key == "vector-cron-sink" {
 		return validateVectorSink(appName, value)
 	}
 
@@ -60,7 +60,7 @@ func validateVectorSink(appName string, value string) error {
 		return nil
 	}
 
-	_, err := SinkValueToConfig(appName, value)
+	_, err := SinkValueToConfig(SinkValueToConfigInput{SinkValue: value})
 	if err != nil {
 		return err
 	}
