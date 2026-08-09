@@ -8,6 +8,7 @@ import (
 	"html/template"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
@@ -232,11 +233,34 @@ type vectorAppSinks struct {
 	// CronRemapID is the component id for the remap transform on the cron branch
 	CronRemapID string
 
+	// RelabelID is the component id for the remap transform renaming the app
+	// label on the non-cron branch
+	RelabelID string
+
+	// LabelAlias is the label key the app name is shipped under for this scope.
+	// It is the AppLabelAlias constant unless the app-label-alias property is set
+	LabelAlias string
+
+	// LabelAliasOverrides holds the apps within this scope whose own alias
+	// differs from LabelAlias. Only the global scope carries these, since a
+	// per-app source only ever covers one app
+	LabelAliasOverrides []vectorLabelAliasOverride
+
 	// Sink is the DSN for non-cron logs, empty when unset
 	Sink string
 
 	// CronSink is the DSN for cron task logs, empty when unset
 	CronSink string
+}
+
+// vectorLabelAliasOverride is the alias a single app ships its name under when
+// it differs from the alias of the scope collecting it
+type vectorLabelAliasOverride struct {
+	// AppName is the app the override applies to
+	AppName string
+
+	// Alias is the label key the app name is shipped under
+	Alias string
 }
 
 // cronRouteTransforms returns the route and remap pair that splits a source
@@ -247,12 +271,22 @@ type vectorAppSinks struct {
 // The route carries a single condition, so an event either matches it or falls
 // through to the reserved _unmatched output. A second route added later would
 // need a mutually exclusive condition, since route fans out to every match.
-func cronRouteTransforms(routerID string, remapID string, sourceID string, hasSink bool) map[string]any {
+//
+// Any label rename is appended to the remap rather than given a component of
+// its own, so that dokku_app is captured from the literal label before the
+// rename runs and keeps its value regardless of the configured alias.
+func cronRouteTransforms(scope vectorAppSinks, relabel string) map[string]any {
+	source := fmt.Sprintf(".dokku_app = to_string(%s) ?? \"\"\n.dokku_cron_id = to_string(%s) ?? \"\"",
+		vrlLabelPath(AppLabelAlias), vrlLabelPath(CronIDLabel))
+	if relabel != "" {
+		source = fmt.Sprintf("%s\n%s", source, relabel)
+	}
+
 	return map[string]any{
-		routerID: vectorRouteTransform{
+		scope.RouterID: vectorRouteTransform{
 			Type:             "route",
-			Inputs:           []string{sourceID},
-			RerouteUnmatched: hasSink,
+			Inputs:           []string{scope.SourceID},
+			RerouteUnmatched: scope.Sink != "",
 			Route: map[string]vectorCondition{
 				CronRouteName: {
 					Type:   "vrl",
@@ -260,11 +294,10 @@ func cronRouteTransforms(routerID string, remapID string, sourceID string, hasSi
 				},
 			},
 		},
-		remapID: vectorRemapTransform{
+		scope.CronRemapID: vectorRemapTransform{
 			Type:   "remap",
-			Inputs: []string{fmt.Sprintf("%s.%s", routerID, CronRouteName)},
-			Source: fmt.Sprintf(".dokku_app = to_string(%s) ?? \"\"\n.dokku_cron_id = to_string(%s) ?? \"\"",
-				vrlLabelPath(AppLabelAlias), vrlLabelPath(CronIDLabel)),
+			Inputs: []string{fmt.Sprintf("%s.%s", scope.RouterID, CronRouteName)},
+			Source: source,
 		},
 	}
 }
@@ -273,6 +306,92 @@ func cronRouteTransforms(routerID string, remapID string, sourceID string, hasSi
 // characters outside [A-Za-z0-9_] must be double quoted.
 func vrlLabelPath(label string) string {
 	return fmt.Sprintf(".label.%q", label)
+}
+
+// vrlRenameLabel renders the assignment moving the dokku app label onto the
+// supplied alias
+func vrlRenameLabel(alias string) string {
+	return fmt.Sprintf("%s = del(%s)", vrlLabelPath(alias), vrlLabelPath(AppLabelAlias))
+}
+
+// vrlClause is one branch of a generated VRL conditional. An empty Condition
+// renders as a trailing else
+type vrlClause struct {
+	Condition string
+	Statement string
+}
+
+// vrlIfChain renders clauses as a single if/else if/else statement
+func vrlIfChain(clauses []vrlClause) string {
+	if len(clauses) == 1 && clauses[0].Condition == "" {
+		return clauses[0].Statement
+	}
+
+	var chain strings.Builder
+	for i, clause := range clauses {
+		if i > 0 {
+			chain.WriteString(" else ")
+		}
+		if clause.Condition != "" {
+			chain.WriteString(fmt.Sprintf("if %s ", clause.Condition))
+		}
+		chain.WriteString(fmt.Sprintf("{\n  %s\n}", clause.Statement))
+	}
+
+	return chain.String()
+}
+
+// relabelVRL renders the program renaming the dokku app label to the alias
+// configured for the scope, or an empty string when there is nothing to rename.
+//
+// The rename happens on the event rather than on the container because dokku
+// only ever labels containers com.dokku.app-name: pointing the source filter at
+// any other label - which is what this property used to do - matches nothing at
+// all and silently collects no logs.
+//
+// The global scope collects every app, so an app whose own alias differs from
+// the global one gets a branch of its own here. Without that, a per-app alias
+// would be silently ignored for any app shipping through the global sink.
+func relabelVRL(scope vectorAppSinks) string {
+	alias := scope.LabelAlias
+	if alias == "" {
+		alias = AppLabelAlias
+	}
+
+	if len(scope.LabelAliasOverrides) == 0 {
+		if alias == AppLabelAlias {
+			return ""
+		}
+
+		return vrlRenameLabel(alias)
+	}
+
+	clauses := []vrlClause{}
+	retained := []string{}
+	for _, override := range scope.LabelAliasOverrides {
+		if override.Alias == AppLabelAlias {
+			retained = append(retained, fmt.Sprintf("app != %q", override.AppName))
+			continue
+		}
+
+		clauses = append(clauses, vrlClause{
+			Condition: fmt.Sprintf("app == %q", override.AppName),
+			Statement: vrlRenameLabel(override.Alias),
+		})
+	}
+
+	if alias != AppLabelAlias {
+		clauses = append(clauses, vrlClause{
+			Condition: strings.Join(retained, " && "),
+			Statement: vrlRenameLabel(alias),
+		})
+	}
+
+	if len(clauses) == 0 {
+		return ""
+	}
+
+	return fmt.Sprintf("app = to_string(%s) ?? \"\"\n%s", vrlLabelPath(AppLabelAlias), vrlIfChain(clauses))
 }
 
 // buildVectorConfig assembles the vector configuration for the supplied scopes.
@@ -293,12 +412,14 @@ func buildVectorConfig(scopes []vectorAppSinks) (vectorConfig, error) {
 			IncludeLabels: scope.IncludeLabels,
 		}
 
+		relabel := relabelVRL(scope)
+
 		sinkInputs := []string{scope.SourceID}
 		if scope.CronSink != "" {
 			if data.Transforms == nil {
 				data.Transforms = map[string]any{}
 			}
-			for id, transform := range cronRouteTransforms(scope.RouterID, scope.CronRemapID, scope.SourceID, scope.Sink != "") {
+			for id, transform := range cronRouteTransforms(scope, relabel) {
 				data.Transforms[id] = transform
 			}
 
@@ -316,6 +437,21 @@ func buildVectorConfig(scopes []vectorAppSinks) (vectorConfig, error) {
 		}
 
 		if scope.Sink != "" {
+			// the cron branch renames within its own remap, so this transform
+			// only exists when there is a non-cron sink downstream to consume it
+			if relabel != "" {
+				if data.Transforms == nil {
+					data.Transforms = map[string]any{}
+				}
+				data.Transforms[scope.RelabelID] = vectorRemapTransform{
+					Type:   "remap",
+					Inputs: sinkInputs,
+					Source: relabel,
+				}
+
+				sinkInputs = []string{scope.RelabelID}
+			}
+
 			sink, err := SinkValueToConfig(SinkValueToConfigInput{
 				SinkValue: scope.Sink,
 				Inputs:    sinkInputs,
@@ -355,30 +491,50 @@ func buildVectorConfig(scopes []vectorAppSinks) (vectorConfig, error) {
 // vectorScopes collects the sink configuration for every app plus the global scope
 func vectorScopes() []vectorAppSinks {
 	apps, _ := common.UnfilteredDokkuApps()
+	globalAlias := reportComputedAppLabelAlias("--global")
+
 	scopes := []vectorAppSinks{}
+	overrides := []vectorLabelAliasOverride{}
 	for _, appName := range apps {
 		inflectedAppName := strings.ReplaceAll(appName, ".", "-")
+		appAlias := reportComputedAppLabelAlias(appName)
+		if appAlias != globalAlias {
+			overrides = append(overrides, vectorLabelAliasOverride{
+				AppName: appName,
+				Alias:   appAlias,
+			})
+		}
+
 		scopes = append(scopes, vectorAppSinks{
 			SourceID:      fmt.Sprintf("docker-source:%s", inflectedAppName),
-			IncludeLabels: []string{fmt.Sprintf("%s=%s", reportComputedAppLabelAlias(appName), appName)},
+			IncludeLabels: []string{fmt.Sprintf("%s=%s", AppLabelAlias, appName)},
 			SinkID:        fmt.Sprintf("docker-sink:%s", inflectedAppName),
 			CronSinkID:    fmt.Sprintf("docker-cron-sink:%s", inflectedAppName),
 			RouterID:      fmt.Sprintf("docker-router:%s", inflectedAppName),
 			CronRemapID:   fmt.Sprintf("docker-cron-remap:%s", inflectedAppName),
+			RelabelID:     fmt.Sprintf("docker-relabel:%s", inflectedAppName),
+			LabelAlias:    appAlias,
 			Sink:          common.PropertyGet("logs", appName, "vector-sink"),
 			CronSink:      common.PropertyGet("logs", appName, "vector-cron-sink"),
 		})
 	}
 
+	sort.Slice(overrides, func(i int, j int) bool {
+		return overrides[i].AppName < overrides[j].AppName
+	})
+
 	return append(scopes, vectorAppSinks{
-		SourceID:      "docker-global-source",
-		IncludeLabels: []string{reportComputedAppLabelAlias("global")},
-		SinkID:        "docker-global-sink",
-		CronSinkID:    "docker-global-cron-sink",
-		RouterID:      "docker-global-router",
-		CronRemapID:   "docker-global-cron-remap",
-		Sink:          common.PropertyGet("logs", "--global", "vector-sink"),
-		CronSink:      common.PropertyGet("logs", "--global", "vector-cron-sink"),
+		SourceID:            "docker-global-source",
+		IncludeLabels:       []string{AppLabelAlias},
+		SinkID:              "docker-global-sink",
+		CronSinkID:          "docker-global-cron-sink",
+		RouterID:            "docker-global-router",
+		CronRemapID:         "docker-global-cron-remap",
+		RelabelID:           "docker-global-relabel",
+		LabelAlias:          globalAlias,
+		LabelAliasOverrides: overrides,
+		Sink:                common.PropertyGet("logs", "--global", "vector-sink"),
+		CronSink:            common.PropertyGet("logs", "--global", "vector-cron-sink"),
 	})
 }
 

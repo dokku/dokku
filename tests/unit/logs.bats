@@ -713,13 +713,80 @@ teardown() {
   echo "status: $status"
   assert_success
 
+  # the relabel branches are generated VRL too, and a syntax error there would
+  # take the whole config down rather than just the rename
+  run /bin/bash -c "dokku logs:set --global vector-sink console://?encoding[codec]=json"
+  assert_success
+
+  run /bin/bash -c "dokku logs:set --global app-label-alias global_alt_name"
+  assert_success
+
+  run /bin/bash -c "dokku logs:set $TEST_APP app-label-alias app_alt_name"
+  assert_success
+
+  run /bin/bash -c "docker exec vector-vector-1 vector validate --no-environment /etc/vector/vector.json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku logs:vector-stop 2>&1"
+  assert_success
+
+  run /bin/bash -c "dokku logs:set $TEST_APP app-label-alias"
+  assert_success
+
+  run /bin/bash -c "dokku logs:set --global app-label-alias"
+  assert_success
+
+  run /bin/bash -c "dokku logs:set --global vector-sink"
   assert_success
 
   run /bin/bash -c "dokku logs:set $TEST_APP vector-cron-sink"
   assert_success
 
   run /bin/bash -c "dokku logs:set $TEST_APP vector-sink"
+  assert_success
+}
+
+# the regression test for the alias silently disabling collection: the source
+# has to keep filtering on the label dokku applies, while the event that comes
+# out the other end carries the alias instead
+@test "(logs) a non-default app-label-alias still ships logs" {
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku logs:set $TEST_APP vector-sink 'console://?encoding[codec]=json'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku logs:set --global app-label-alias alt_name"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku logs:vector-start 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run start_vector_probe VECTOR_ALIAS_OK
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run wait_for_vector_alias_event VECTOR_ALIAS_OK alt_name
+  echo "output: $output"
+  echo "status: $status"
+  dump_vector_diagnostics "$TEST_APP"
+  assert_success
+
+  run /bin/bash -c "docker container rm --force vector-alias-probe"
+  assert_success
+
+  run /bin/bash -c "dokku logs:vector-stop 2>&1"
   assert_success
 }
 
@@ -927,7 +994,13 @@ teardown() {
   assert_success
   assert_output "com.dokku.app-name=$TEST_APP"
 
-  run /bin/bash -c "dokku logs:set --global app-label-alias global-alt-name" 2>&1
+  run /bin/bash -c "jq -r '.transforms' /var/lib/dokku/data/logs/vector.json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "null"
+
+  run /bin/bash -c "dokku logs:set --global app-label-alias global_alt_name" 2>&1
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -937,20 +1010,34 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "global-alt-name"
+  assert_output_contains "global_alt_name"
 
   run /bin/bash -c "cat /var/lib/dokku/data/logs/vector.json"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
+  # the source filter never moves off the label dokku actually applies, or the
+  # source would match no container at all and silently collect nothing
   run /bin/bash -c "jq -r '.sources[\"docker-source:$TEST_APP\"].include_labels[0]' /var/lib/dokku/data/logs/vector.json"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "global-alt-name=$TEST_APP"
+  assert_output "com.dokku.app-name=$TEST_APP"
 
-  run /bin/bash -c "dokku logs:set --global app-label-alias alt-name" 2>&1
+  run /bin/bash -c "jq -r '.transforms[\"docker-relabel:$TEST_APP\"].source' /var/lib/dokku/data/logs/vector.json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output '.label."global_alt_name" = del(.label."com.dokku.app-name")'
+
+  run /bin/bash -c "jq -r '.sinks[\"docker-sink:$TEST_APP\"].inputs[0]' /var/lib/dokku/data/logs/vector.json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "docker-relabel:$TEST_APP"
+
+  run /bin/bash -c "dokku logs:set $TEST_APP app-label-alias alt_name" 2>&1
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -960,13 +1047,94 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "alt-name"
+  assert_output_contains "alt_name"
 
   run /bin/bash -c "jq -r '.sources[\"docker-source:$TEST_APP\"].include_labels[0]' /var/lib/dokku/data/logs/vector.json"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "alt-name=$TEST_APP"
+  assert_output "com.dokku.app-name=$TEST_APP"
+
+  run /bin/bash -c "jq -r '.transforms[\"docker-relabel:$TEST_APP\"].source' /var/lib/dokku/data/logs/vector.json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output '.label."alt_name" = del(.label."com.dokku.app-name")'
+
+  run /bin/bash -c "dokku logs:set $TEST_APP app-label-alias" 2>&1
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
+@test "(logs:set) app-label-alias rejects an unusable label key" {
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku logs:set $TEST_APP app-label-alias 'not a label' 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Invalid app-label-alias value"
+
+  run /bin/bash -c "dokku logs:set --global app-label-alias '_leading_underscore' 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Invalid app-label-alias value"
+}
+
+# an app whose own alias differs from the global one is collected by the global
+# source too, so the global pipeline carries a branch for it
+@test "(logs) vector.json global relabel honors a per-app alias" {
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku logs:set --global vector-sink console://?encoding[codec]=json"
+  assert_success
+
+  run /bin/bash -c "dokku logs:set --global app-label-alias global_alt_name"
+  assert_success
+
+  run /bin/bash -c "dokku logs:set $TEST_APP app-label-alias app_alt_name"
+  assert_success
+
+  run /bin/bash -c "jq -r '.transforms[\"docker-global-relabel\"].source' /var/lib/dokku/data/logs/vector.json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "if app == \"$TEST_APP\""
+  assert_output_contains '.label."app_alt_name" = del(.label."com.dokku.app-name")'
+  assert_output_contains '.label."global_alt_name" = del(.label."com.dokku.app-name")'
+
+  run /bin/bash -c "jq -r '.sinks[\"docker-global-sink\"].inputs[0]' /var/lib/dokku/data/logs/vector.json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "docker-global-relabel"
+
+  # a per-app alias matching the global one needs no branch of its own
+  run /bin/bash -c "dokku logs:set $TEST_APP app-label-alias global_alt_name"
+  assert_success
+
+  run /bin/bash -c "jq -r '.transforms[\"docker-global-relabel\"].source' /var/lib/dokku/data/logs/vector.json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output '.label."global_alt_name" = del(.label."com.dokku.app-name")'
+
+  run /bin/bash -c "dokku logs:set $TEST_APP app-label-alias"
+  assert_success
+
+  run /bin/bash -c "dokku logs:set --global app-label-alias"
+  assert_success
+
+  run /bin/bash -c "dokku logs:set --global vector-sink"
+  assert_success
 }
 
 @test "(logs) logs:set max-size with alternate log-driver daemon" {
@@ -1253,6 +1421,34 @@ wait_for_vector_route() {
   done
 
   echo "timed out waiting for the cron router in vector.json"
+  return 1
+}
+
+start_vector_probe() {
+  declare desc="runs a container carrying only the label dokku applies, emitting a marker for long enough for vector to attach"
+  declare MARKER="$1"
+
+  docker container run --detach --name vector-alias-probe \
+    --label "com.dokku.app-name=$TEST_APP" \
+    gliderlabs/herokuish \
+    bash -c "for i in \$(seq 1 30); do echo $MARKER; sleep 1; done"
+}
+
+wait_for_vector_alias_event() {
+  declare desc="waits for a marker to arrive carrying the configured alias in place of the default label"
+  declare MARKER="$1" ALIAS="$2"
+  local i
+
+  for i in $(seq 1 60); do
+    if docker logs vector-vector-1 2>/dev/null | grep "$MARKER" \
+      | jq -e --arg alias "$ALIAS" \
+        'select(.label[$alias] != null and .label["com.dokku.app-name"] == null)' >/dev/null 2>/dev/null; then
+      return 0
+    fi
+    sleep 1
+  done
+
+  echo "timed out waiting for a $MARKER event labelled $ALIAS"
   return 1
 }
 
