@@ -9,6 +9,10 @@ setup() {
 
 teardown() {
   destroy_app
+  # a leftover app-label-alias makes every later test's vector source filter on
+  # a label that dokku never applies to a container, which silently disables log
+  # collection for the rest of the file
+  dokku logs:set --global app-label-alias >/dev/null 2>/dev/null || true
   dokku logs:set --global vector-image >/dev/null 2>/dev/null || true
   dokku logs:set --global vector-networks >/dev/null 2>/dev/null || true
   dokku logs:set --global vector-sink >/dev/null 2>/dev/null || true
@@ -1180,7 +1184,7 @@ teardown() {
   assert_output "true"
 }
 
-@test "(logs) vector-cron-sink ships cron task output to a file sink" {
+@test "(logs) vector-cron-sink routes cron task output to the cron sink" {
   run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP template_cron_file_marker
   echo "output: $output"
   echo "status: $status"
@@ -1194,20 +1198,16 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  # a file sink silently writes nothing if the container cannot write to the
-  # dokku-owned mount, so fail loudly rather than time out below
-  run /bin/bash -c "docker exec vector-vector-1 id -u"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  assert_output "0"
-
-  run /bin/bash -c "dokku logs:set $TEST_APP vector-sink 'file://?path=/var/log/dokku/apps/$TEST_APP/app.log&encoding[codec]=text&idle_timeout_secs=1'"
+  # both sinks write to vector's own stdout, with different codecs, so the sink
+  # an event was routed to is identifiable without depending on a writable
+  # mount: the cron branch emits json carrying the fields the remap adds, while
+  # anything reaching the plain sink emits the bare message
+  run /bin/bash -c "dokku logs:set $TEST_APP vector-sink 'console://?encoding[codec]=text'"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku logs:set $TEST_APP vector-cron-sink 'file://?path=/var/log/dokku/apps/$TEST_APP/cron-{{ dokku_cron_id }}.log&encoding[codec]=text&idle_timeout_secs=1'"
+  run /bin/bash -c "dokku logs:set $TEST_APP vector-cron-sink 'console://?encoding[codec]=json'"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -1223,16 +1223,15 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run wait_for_log_marker "/var/log/dokku/apps/$TEST_APP/cron-$cron_id.log" VECTOR_CRON_OK
+  run wait_for_vector_cron_event VECTOR_CRON_OK "$cron_id"
   echo "output: $output"
   echo "status: $status"
   dump_vector_diagnostics "$TEST_APP"
   assert_success
 
-  # the cron branch is routed away from the plain sink, so the marker must not
-  # also land in the app log. a marker here instead means the route condition
-  # failed to match rather than that nothing was collected
-  run count_log_marker "/var/log/dokku/apps/$TEST_APP/app.log" VECTOR_CRON_OK
+  # a bare message line would mean the event reached the plain sink instead of
+  # being routed onto the cron branch
+  run count_vector_plain_lines VECTOR_CRON_OK
   echo "output: $output"
   echo "status: $status"
   assert_output "0"
@@ -1257,48 +1256,49 @@ wait_for_vector_route() {
   return 1
 }
 
-wait_for_log_marker() {
-  declare desc="waits for a marker to be flushed to a vector file sink"
-  declare LOGFILE="$1" MARKER="$2"
+wait_for_vector_cron_event() {
+  declare desc="waits for a marker to arrive on the cron branch, carrying the fields the remap adds"
+  declare MARKER="$1" CRON_ID="$2"
   local i
 
   for i in $(seq 1 60); do
-    if grep -q "$MARKER" "$LOGFILE" 2>/dev/null; then
+    if docker logs vector-vector-1 2>/dev/null | grep "$MARKER" |
+      jq -e --arg id "$CRON_ID" 'select(.dokku_cron_id == $id)' >/dev/null 2>/dev/null; then
       return 0
     fi
     sleep 1
   done
 
-  echo "timed out waiting for $MARKER in $LOGFILE"
+  echo "timed out waiting for a cron-routed $MARKER event with dokku_cron_id=$CRON_ID"
   return 1
 }
 
-count_log_marker() {
-  declare desc="counts marker occurrences, treating a missing log file as zero"
-  declare LOGFILE="$1" MARKER="$2"
+count_vector_plain_lines() {
+  declare desc="counts bare message lines, which only the text-encoded plain sink emits"
+  declare MARKER="$1"
 
-  if [[ ! -f "$LOGFILE" ]]; then
-    echo "0"
-    return 0
-  fi
-
-  grep -c "$MARKER" "$LOGFILE" || true
+  docker logs vector-vector-1 2>/dev/null | grep -c -x "$MARKER" || true
 }
 
 dump_vector_diagnostics() {
   declare desc="prints the state needed to tell apart the ways cron shipping can fail"
   declare APP="$1"
 
-  echo "--- sink files written ---"
-  ls -la "/var/log/dokku/apps/$APP/" || echo "no sink directory was created"
+  # sources matter as much as routing here: a stale app-label-alias makes the
+  # source filter on a label no container carries, which collects nothing
+  echo "--- generated config ---"
+  jq '{sources, transforms, sinks}' /var/lib/dokku/data/logs/vector.json || true
 
-  echo "--- generated routing ---"
-  jq '{transforms, sinks}' /var/lib/dokku/data/logs/vector.json || true
+  echo "--- containers carrying the app label ---"
+  docker ps --all --filter "label=com.dokku.app-name=$APP" --format '{{.Names}} {{.Status}}' || true
+
+  echo "--- vector stdout, where both sinks write ---"
+  docker logs vector-vector-1 2>/dev/null | tail -20 || true
 
   # vector reports template_failed and other component errors on stderr, so
   # keep it separate from the collected log lines on stdout
   echo "--- vector stderr ---"
-  docker logs vector-vector-1 2>&1 1>/dev/null | tail -30 || true
+  docker logs vector-vector-1 2>&1 1>/dev/null | tail -20 || true
 }
 
 template_cron_file_marker() {
@@ -1306,11 +1306,14 @@ template_cron_file_marker() {
   local APP="$1" APP_REPO_DIR="$2"
   [[ -z "$APP" ]] && local APP="$TEST_APP"
   echo "injecting cron app.json -> $APP_REPO_DIR/app.json"
+  # cron_task.py sleeps either side of its output. a task that exits
+  # immediately is removed before vector can attach to it, which is documented
+  # behavior rather than something this test should assert against
   cat <<EOF >"$APP_REPO_DIR/app.json"
 {
   "cron": [
     {
-      "command": "echo VECTOR_CRON_OK",
+      "command": "python3 cron_task.py VECTOR_CRON_OK",
       "schedule": "@daily"
     }
   ]
