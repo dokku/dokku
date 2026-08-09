@@ -11,6 +11,8 @@ teardown() {
   destroy_app
   dokku logs:set --global vector-image >/dev/null 2>/dev/null || true
   dokku logs:set --global vector-networks >/dev/null 2>/dev/null || true
+  dokku logs:set --global vector-sink >/dev/null 2>/dev/null || true
+  dokku logs:set --global vector-cron-sink >/dev/null 2>/dev/null || true
   docker network rm test-vector-net-a >/dev/null || true
   docker network rm test-vector-net-b >/dev/null || true
   global_teardown
@@ -58,7 +60,7 @@ teardown() {
   echo "status: $status"
   assert_failure
   assert_output_contains "$TEST_APP logs information" 0
-  assert_output_contains "Invalid flag passed, valid flags: --logs-app-label-alias, --logs-computed-app-label-alias, --logs-computed-max-size, --logs-computed-vector-image, --logs-computed-vector-networks, --logs-computed-vector-sink, --logs-global-app-label-alias, --logs-global-max-size, --logs-global-vector-image, --logs-global-vector-networks, --logs-global-vector-sink, --logs-max-size, --logs-vector-sink"
+  assert_output_contains "Invalid flag passed, valid flags: --logs-app-label-alias, --logs-computed-app-label-alias, --logs-computed-max-size, --logs-computed-vector-cron-sink, --logs-computed-vector-image, --logs-computed-vector-networks, --logs-computed-vector-sink, --logs-global-app-label-alias, --logs-global-max-size, --logs-global-vector-cron-sink, --logs-global-vector-image, --logs-global-vector-networks, --logs-global-vector-sink, --logs-max-size, --logs-vector-cron-sink, --logs-vector-sink"
 
   run /bin/bash -c "dokku logs:report $TEST_APP --logs-vector-sink 2>&1"
   echo "output: $output"
@@ -80,7 +82,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_failure
-  assert_output_contains "Invalid flag passed, valid flags: --logs-computed-app-label-alias, --logs-computed-max-size, --logs-computed-vector-image, --logs-computed-vector-networks, --logs-computed-vector-sink, --logs-global-app-label-alias, --logs-global-max-size, --logs-global-vector-image, --logs-global-vector-networks, --logs-global-vector-sink"
+  assert_output_contains "Invalid flag passed, valid flags: --logs-computed-app-label-alias, --logs-computed-max-size, --logs-computed-vector-cron-sink, --logs-computed-vector-image, --logs-computed-vector-networks, --logs-computed-vector-sink, --logs-global-app-label-alias, --logs-global-max-size, --logs-global-vector-cron-sink, --logs-global-vector-image, --logs-global-vector-networks, --logs-global-vector-sink"
 }
 
 @test "(logs) logs:set [error]" {
@@ -111,13 +113,13 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_failure
-  assert_output_contains "Invalid property specified, valid properties include: app-label-alias, max-size, vector-image, vector-networks, vector-sink"
+  assert_output_contains "Invalid property specified, valid properties include: app-label-alias, max-size, vector-cron-sink, vector-image, vector-networks, vector-sink"
 
   run /bin/bash -c "dokku logs:set $TEST_APP invalid value" 2>&1
   echo "output: $output"
   echo "status: $status"
   assert_failure
-  assert_output_contains "Invalid property specified, valid properties include: app-label-alias, max-size, vector-image, vector-networks, vector-sink"
+  assert_output_contains "Invalid property specified, valid properties include: app-label-alias, max-size, vector-cron-sink, vector-image, vector-networks, vector-sink"
 
   run /bin/bash -c "dokku logs:set $TEST_APP vector-image timberio/vector:latest-debian 2>&1"
   echo "output: $output"
@@ -527,6 +529,193 @@ teardown() {
   assert_success
 
   run /bin/bash -c "dokku logs:set --global vector-sink"
+  assert_success
+}
+
+@test "(logs:set) vector-cron-sink" {
+  run create_app
+  assert_success
+
+  run /bin/bash -c "dokku logs:report $TEST_APP --logs-vector-cron-sink 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku logs:set $TEST_APP vector-cron-sink console://?encoding[codec]=text"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Setting vector-cron-sink"
+  assert_output_contains "Writing updated vector config to /var/lib/dokku/data/logs/vector.json"
+
+  run /bin/bash -c "dokku logs:report $TEST_APP --logs-vector-cron-sink 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "console://?encoding[codec]=text"
+
+  # as with vector-sink, only the exact raw flag returns an unredacted value
+  run /bin/bash -c "dokku logs:report $TEST_APP --logs-computed-vector-cron-sink 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "console://redacted"
+
+  run /bin/bash -c "dokku logs:report $TEST_APP --format json | jq -r '.\"computed-vector-cron-sink\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "console://?encoding[codec]=text"
+
+  # a general report redacts everything but the scheme, on both the raw and
+  # the computed row
+  run /bin/bash -c "dokku logs:report $TEST_APP 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "console://redacted" 2
+
+  run /bin/bash -c "dokku logs:set $TEST_APP vector-cron-sink"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Unsetting vector-cron-sink"
+
+  run /bin/bash -c "dokku logs:report $TEST_APP --logs-vector-cron-sink 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+}
+
+@test "(logs) vector.json cron routing" {
+  run create_app
+  assert_success
+
+  # a plain sink alone must generate no transforms at all
+  run /bin/bash -c "dokku logs:set $TEST_APP vector-sink console://?encoding[codec]=json"
+  assert_success
+
+  run /bin/bash -c "jq -r '.transforms' /var/lib/dokku/data/logs/vector.json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "null"
+
+  run /bin/bash -c "jq -r '.sinks[\"docker-sink:$TEST_APP\"].inputs[0]' /var/lib/dokku/data/logs/vector.json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "docker-source:$TEST_APP"
+
+  # adding a cron sink splits the source and rewires the plain sink
+  run /bin/bash -c "dokku logs:set $TEST_APP vector-cron-sink console://?encoding[codec]=text"
+  assert_success
+
+  run /bin/bash -c "jq -r '.transforms[\"docker-router:$TEST_APP\"].type' /var/lib/dokku/data/logs/vector.json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "route"
+
+  run /bin/bash -c "jq -r '.transforms[\"docker-router:$TEST_APP\"].reroute_unmatched' /var/lib/dokku/data/logs/vector.json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "jq -r '.transforms[\"docker-router:$TEST_APP\"].route.cron.source' /var/lib/dokku/data/logs/vector.json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "com.dokku.container-type"
+
+  run /bin/bash -c "jq -r '.transforms[\"docker-cron-remap:$TEST_APP\"].source' /var/lib/dokku/data/logs/vector.json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "dokku_cron_id"
+
+  run /bin/bash -c "jq -r '.sinks[\"docker-sink:$TEST_APP\"].inputs[0]' /var/lib/dokku/data/logs/vector.json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "docker-router:$TEST_APP._unmatched"
+
+  run /bin/bash -c "jq -r '.sinks[\"docker-cron-sink:$TEST_APP\"].inputs[0]' /var/lib/dokku/data/logs/vector.json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "docker-cron-remap:$TEST_APP"
+
+  # dropping the plain sink leaves nothing to consume the unmatched branch
+  run /bin/bash -c "dokku logs:set $TEST_APP vector-sink"
+  assert_success
+
+  run /bin/bash -c "jq -r '.transforms[\"docker-router:$TEST_APP\"].reroute_unmatched' /var/lib/dokku/data/logs/vector.json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "jq -r '.sinks[\"docker-sink:$TEST_APP\"]' /var/lib/dokku/data/logs/vector.json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "null"
+
+  run /bin/bash -c "dokku logs:set $TEST_APP vector-cron-sink"
+  assert_success
+
+  # the global scope gets its own router and cron sink
+  run /bin/bash -c "dokku logs:set --global vector-cron-sink console://?encoding[codec]=text"
+  assert_success
+
+  run /bin/bash -c "jq -r '.transforms[\"docker-global-router\"].type' /var/lib/dokku/data/logs/vector.json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "route"
+
+  run /bin/bash -c "jq -r '.sinks[\"docker-global-cron-sink\"].inputs[0]' /var/lib/dokku/data/logs/vector.json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "docker-global-cron-remap"
+
+  run /bin/bash -c "dokku logs:set --global vector-cron-sink"
+  assert_success
+}
+
+@test "(logs) vector validates the generated cron routing config" {
+  run create_app
+  assert_success
+
+  run /bin/bash -c "dokku logs:set $TEST_APP vector-sink console://?encoding[codec]=json"
+  assert_success
+
+  run /bin/bash -c "dokku logs:set $TEST_APP vector-cron-sink console://?encoding[codec]=text"
+  assert_success
+
+  run /bin/bash -c "dokku logs:vector-start 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  # unit tests cannot catch a VRL syntax error or a malformed route schema
+  run /bin/bash -c "docker exec vector-vector-1 vector validate --no-environment /etc/vector/vector.json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku logs:vector-stop 2>&1"
+  assert_success
+
+  run /bin/bash -c "dokku logs:set $TEST_APP vector-cron-sink"
+  assert_success
+
+  run /bin/bash -c "dokku logs:set $TEST_APP vector-sink"
   assert_success
 }
 
@@ -989,4 +1178,142 @@ teardown() {
   run /bin/bash -c "dokku logs:report --global --format json | jq -r 'has(\"global-vector-image\") and has(\"logs-global-vector-image\")'"
   assert_success
   assert_output "true"
+}
+
+@test "(logs) vector-cron-sink ships cron task output to a file sink" {
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP template_cron_file_marker
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  cron_id="$(dokku cron:list $TEST_APP --format json | jq -r '.[0].id')"
+  echo "cron_id: $cron_id"
+
+  run /bin/bash -c "dokku logs:vector-start 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  # a file sink silently writes nothing if the container cannot write to the
+  # dokku-owned mount, so fail loudly rather than time out below
+  run /bin/bash -c "docker exec vector-vector-1 id -u"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "0"
+
+  run /bin/bash -c "dokku logs:set $TEST_APP vector-sink 'file://?path=/var/log/dokku/apps/$TEST_APP/app.log&encoding[codec]=text&idle_timeout_secs=1'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku logs:set $TEST_APP vector-cron-sink 'file://?path=/var/log/dokku/apps/$TEST_APP/cron-{{ dokku_cron_id }}.log&encoding[codec]=text&idle_timeout_secs=1'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  # vector reloads via --watch-config, so wait for the routing to be live
+  run wait_for_vector_route "$TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku cron:run $TEST_APP $cron_id"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run wait_for_log_marker "/var/log/dokku/apps/$TEST_APP/cron-$cron_id.log" VECTOR_CRON_OK
+  echo "output: $output"
+  echo "status: $status"
+  dump_vector_diagnostics "$TEST_APP"
+  assert_success
+
+  # the cron branch is routed away from the plain sink, so the marker must not
+  # also land in the app log. a marker here instead means the route condition
+  # failed to match rather than that nothing was collected
+  run count_log_marker "/var/log/dokku/apps/$TEST_APP/app.log" VECTOR_CRON_OK
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "0"
+
+  run /bin/bash -c "dokku logs:vector-stop 2>&1"
+  assert_success
+}
+
+wait_for_vector_route() {
+  declare desc="waits for the vector config on disk to contain the app's cron router"
+  declare APP="$1"
+  local i
+
+  for i in $(seq 1 30); do
+    if jq -e ".transforms[\"docker-router:$APP\"]" /var/lib/dokku/data/logs/vector.json >/dev/null 2>&1; then
+      return 0
+    fi
+    sleep 1
+  done
+
+  echo "timed out waiting for the cron router in vector.json"
+  return 1
+}
+
+wait_for_log_marker() {
+  declare desc="waits for a marker to be flushed to a vector file sink"
+  declare LOGFILE="$1" MARKER="$2"
+  local i
+
+  for i in $(seq 1 60); do
+    if grep -q "$MARKER" "$LOGFILE" 2>/dev/null; then
+      return 0
+    fi
+    sleep 1
+  done
+
+  echo "timed out waiting for $MARKER in $LOGFILE"
+  return 1
+}
+
+count_log_marker() {
+  declare desc="counts marker occurrences, treating a missing log file as zero"
+  declare LOGFILE="$1" MARKER="$2"
+
+  if [[ ! -f "$LOGFILE" ]]; then
+    echo "0"
+    return 0
+  fi
+
+  grep -c "$MARKER" "$LOGFILE" || true
+}
+
+dump_vector_diagnostics() {
+  declare desc="prints the state needed to tell apart the ways cron shipping can fail"
+  declare APP="$1"
+
+  echo "--- sink files written ---"
+  ls -la "/var/log/dokku/apps/$APP/" || echo "no sink directory was created"
+
+  echo "--- generated routing ---"
+  jq '{transforms, sinks}' /var/lib/dokku/data/logs/vector.json || true
+
+  # vector reports template_failed and other component errors on stderr, so
+  # keep it separate from the collected log lines on stdout
+  echo "--- vector stderr ---"
+  docker logs vector-vector-1 2>&1 1>/dev/null | tail -30 || true
+}
+
+template_cron_file_marker() {
+  declare desc="writes an app.json with a cron task emitting a known marker"
+  local APP="$1" APP_REPO_DIR="$2"
+  [[ -z "$APP" ]] && local APP="$TEST_APP"
+  echo "injecting cron app.json -> $APP_REPO_DIR/app.json"
+  cat <<EOF >"$APP_REPO_DIR/app.json"
+{
+  "cron": [
+    {
+      "command": "echo VECTOR_CRON_OK",
+      "schedule": "@daily"
+    }
+  ]
+}
+EOF
 }

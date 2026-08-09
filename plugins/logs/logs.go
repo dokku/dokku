@@ -22,21 +22,35 @@ const MaxSize = "10m"
 // AppLabelAlias is the property key for the app label alias
 const AppLabelAlias = "com.dokku.app-name"
 
+// ContainerTypeLabel is the docker label holding the type of a dokku container
+const ContainerTypeLabel = "com.dokku.container-type"
+
+// CronContainerType is the ContainerTypeLabel value used for cron task containers
+const CronContainerType = "cron"
+
+// CronIDLabel is the docker label holding the cron task id
+const CronIDLabel = "com.dokku.cron-id"
+
+// CronRouteName is the vector route output carrying cron task logs
+const CronRouteName = "cron"
+
 var (
 	// DefaultProperties is a map of all valid logs properties with corresponding default property values
 	DefaultProperties = map[string]string{
-		"app-label-alias": AppLabelAlias,
-		"max-size":        MaxSize,
-		"vector-sink":     "",
+		"app-label-alias":  AppLabelAlias,
+		"max-size":         MaxSize,
+		"vector-cron-sink": "",
+		"vector-sink":      "",
 	}
 
 	// GlobalProperties is a map of all valid global logs properties
 	GlobalProperties = map[string]bool{
-		"app-label-alias": true,
-		"max-size":        true,
-		"vector-image":    true,
-		"vector-networks": true,
-		"vector-sink":     true,
+		"app-label-alias":  true,
+		"max-size":         true,
+		"vector-cron-sink": true,
+		"vector-image":     true,
+		"vector-networks":  true,
+		"vector-sink":      true,
 	}
 )
 
@@ -64,9 +78,21 @@ func GetFailedLogs(appName string) error {
 	return err
 }
 
+// SinkValueToConfigInput is the input for the SinkValueToConfig function
+type SinkValueToConfigInput struct {
+	// SinkValue is the sink DSN to convert
+	SinkValue string
+
+	// Inputs are the vector component ids feeding the sink. When empty, the
+	// inputs key is omitted, which is appropriate for callers that only need
+	// the parsed sink for validation or redaction.
+	Inputs []string
+}
+
 // SinkValueToConfig converts a sink DSN value to a VectorSink
-func SinkValueToConfig(appName string, sinkValue string) (VectorSink, error) {
+func SinkValueToConfig(input SinkValueToConfigInput) (VectorSink, error) {
 	var data VectorSink
+	sinkValue := input.SinkValue
 	if strings.Contains(sinkValue, "://") {
 		parts := strings.SplitN(sinkValue, "://", 2)
 		parts[0] = strings.ReplaceAll(parts[0], "_", "-")
@@ -96,12 +122,8 @@ func SinkValueToConfig(appName string, sinkValue string) (VectorSink, error) {
 	}
 
 	data["type"] = u.Scheme
-	data["inputs"] = []string{"docker-source:" + appName}
-	if appName == "--global" {
-		data["inputs"] = []string{"docker-global-source"}
-	}
-	if appName == "--null" {
-		data["inputs"] = []string{"docker-null-source"}
+	if len(input.Inputs) > 0 {
+		data["inputs"] = input.Inputs
 	}
 
 	// add special support for `base64enc:VAL` fields

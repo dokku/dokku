@@ -20,32 +20,37 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 	var flags map[string]common.ReportFunc
 	if appName == "--global" {
 		flags = map[string]common.ReportFunc{
-			"--logs-computed-app-label-alias": reportComputedAppLabelAlias,
-			"--logs-computed-max-size":        reportComputedMaxSize,
-			"--logs-computed-vector-image":    reportComputedVectorImage,
-			"--logs-computed-vector-networks": reportComputedVectorNetworks,
-			"--logs-computed-vector-sink":     reportComputedVectorSink,
-			"--logs-global-app-label-alias":   reportGlobalAppLabelAlias,
-			"--logs-global-max-size":          reportGlobalMaxSize,
-			"--logs-global-vector-image":      reportGlobalVectorImage,
-			"--logs-global-vector-networks":   reportGlobalVectorNetworks,
-			"--logs-global-vector-sink":       reportGlobalVectorSink,
+			"--logs-computed-app-label-alias":  reportComputedAppLabelAlias,
+			"--logs-computed-max-size":         reportComputedMaxSize,
+			"--logs-computed-vector-cron-sink": reportComputedVectorCronSink,
+			"--logs-computed-vector-image":     reportComputedVectorImage,
+			"--logs-computed-vector-networks":  reportComputedVectorNetworks,
+			"--logs-computed-vector-sink":      reportComputedVectorSink,
+			"--logs-global-app-label-alias":    reportGlobalAppLabelAlias,
+			"--logs-global-max-size":           reportGlobalMaxSize,
+			"--logs-global-vector-cron-sink":   reportGlobalVectorCronSink,
+			"--logs-global-vector-image":       reportGlobalVectorImage,
+			"--logs-global-vector-networks":    reportGlobalVectorNetworks,
+			"--logs-global-vector-sink":        reportGlobalVectorSink,
 		}
 	} else {
 		flags = map[string]common.ReportFunc{
-			"--logs-app-label-alias":          reportAppLabelAlias,
-			"--logs-computed-app-label-alias": reportComputedAppLabelAlias,
-			"--logs-computed-max-size":        reportComputedMaxSize,
-			"--logs-computed-vector-image":    reportComputedVectorImage,
-			"--logs-computed-vector-networks": reportComputedVectorNetworks,
-			"--logs-computed-vector-sink":     reportComputedVectorSink,
-			"--logs-global-app-label-alias":   reportGlobalAppLabelAlias,
-			"--logs-global-max-size":          reportGlobalMaxSize,
-			"--logs-global-vector-image":      reportGlobalVectorImage,
-			"--logs-global-vector-networks":   reportGlobalVectorNetworks,
-			"--logs-global-vector-sink":       reportGlobalVectorSink,
-			"--logs-max-size":                 reportMaxSize,
-			"--logs-vector-sink":              reportVectorSink,
+			"--logs-app-label-alias":           reportAppLabelAlias,
+			"--logs-computed-app-label-alias":  reportComputedAppLabelAlias,
+			"--logs-computed-max-size":         reportComputedMaxSize,
+			"--logs-computed-vector-cron-sink": reportComputedVectorCronSink,
+			"--logs-computed-vector-image":     reportComputedVectorImage,
+			"--logs-computed-vector-networks":  reportComputedVectorNetworks,
+			"--logs-computed-vector-sink":      reportComputedVectorSink,
+			"--logs-global-app-label-alias":    reportGlobalAppLabelAlias,
+			"--logs-global-max-size":           reportGlobalMaxSize,
+			"--logs-global-vector-cron-sink":   reportGlobalVectorCronSink,
+			"--logs-global-vector-image":       reportGlobalVectorImage,
+			"--logs-global-vector-networks":    reportGlobalVectorNetworks,
+			"--logs-global-vector-sink":        reportGlobalVectorSink,
+			"--logs-max-size":                  reportMaxSize,
+			"--logs-vector-cron-sink":          reportVectorCronSink,
+			"--logs-vector-sink":               reportVectorSink,
 		}
 	}
 
@@ -129,7 +134,29 @@ func reportComputedVectorSink(appName string) string {
 }
 
 func reportGlobalVectorSink(appName string) string {
-	value := common.PropertyGet("logs", "--global", "vector-sink")
+	return redactedSink(common.PropertyGet("logs", "--global", "vector-sink"), "--logs-global-vector-sink")
+}
+
+func reportComputedVectorCronSink(appName string) string {
+	value := reportVectorCronSink(appName)
+	if value == "" {
+		value = reportGlobalVectorCronSink(appName)
+	}
+	return value
+}
+
+func reportGlobalVectorCronSink(appName string) string {
+	return redactedSink(common.PropertyGet("logs", "--global", "vector-cron-sink"), "--logs-global-vector-cron-sink")
+}
+
+func reportVectorCronSink(appName string) string {
+	return redactedSink(common.PropertyGet("logs", appName, "vector-cron-sink"), "--logs-vector-cron-sink")
+}
+
+// redactedSink returns the sink value as-is for json reports or when the exact
+// flag was requested, and otherwise reduces it to its scheme so that
+// credentials embedded in the DSN are not printed in a general report
+func redactedSink(value string, exactFlag string) string {
 	if value == "" {
 		return value
 	}
@@ -138,12 +165,11 @@ func reportGlobalVectorSink(appName string) string {
 		return value
 	}
 
-	if os.Getenv("DOKKU_REPORT_FLAG") == "--logs-global-vector-sink" {
+	if os.Getenv("DOKKU_REPORT_FLAG") == exactFlag {
 		return value
 	}
 
-	// only show the schema and sanitize the rest
-	sink, err := SinkValueToConfig("--global", value)
+	sink, err := SinkValueToConfig(SinkValueToConfigInput{SinkValue: value})
 	if err != nil {
 		return ""
 	}
@@ -156,24 +182,5 @@ func reportMaxSize(appName string) string {
 }
 
 func reportVectorSink(appName string) string {
-	value := common.PropertyGet("logs", appName, "vector-sink")
-	if value == "" {
-		return value
-	}
-
-	if os.Getenv("DOKKU_REPORT_FORMAT") != "stdout" {
-		return value
-	}
-
-	if os.Getenv("DOKKU_REPORT_FLAG") == "--logs-vector-sink" {
-		return value
-	}
-
-	// only show the schema and sanitize the rest
-	sink, err := SinkValueToConfig(appName, value)
-	if err != nil {
-		return ""
-	}
-
-	return fmt.Sprintf("%s://redacted", sink["type"])
+	return redactedSink(common.PropertyGet("logs", appName, "vector-sink"), "--logs-vector-sink")
 }

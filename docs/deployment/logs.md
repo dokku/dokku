@@ -124,6 +124,21 @@ The `/etc/vector` mount includes the `vector.json` configuration file, but also 
 
 The final volume mount - `/var/log/dokku/apps` - may be used for users that wish to ship logs to a file on disk that may be later logrotated. This directory is owned by the `dokku` user and group, with permissions set to `0755`. At this time, log-rotation is not configured for this directory.
 
+Operators using a `file` sink are encouraged to configure rotation themselves, as Dokku will not truncate these files. A minimal `/etc/logrotate.d/dokku-app-logs` might look like:
+
+```
+/var/log/dokku/apps/*/*.log {
+  daily
+  rotate 14
+  compress
+  missingok
+  notifempty
+  copytruncate
+}
+```
+
+`copytruncate` is used because Vector holds the file open between writes.
+
 #### Stopping the Vector container
 
 Vector may be stopped via the `logs:vector-stop` command.
@@ -282,6 +297,63 @@ This will transform the value to it's encoded form when configuring Vector sinks
 
 Please read the [sink documentation](https://vector.dev/docs/reference/configuration/sinks/) for your sink of choice to configure the sink as desired.
 
+#### Configuring a cron task log sink
+
+Scheduled cron tasks run in one-off containers that carry the app's usual labels, so their output is already collected by the `vector-sink` configured for the app or globally. To send that output somewhere separate, set a `vector-cron-sink`.
+
+```shell
+dokku logs:set node-js-app vector-cron-sink "console://?encoding[codec]=text"
+```
+
+As with `vector-sink`, the value may be cleared by setting an empty value, and may also be set globally:
+
+```shell
+dokku logs:set --global vector-cron-sink "console://?encoding[codec]=text"
+```
+
+Setting a cron sink **moves** cron task output rather than copying it. Vector routes each log line to exactly one of the two sinks:
+
+| Configuration | Where cron output goes | Where all other output goes |
+|---|---|---|
+| `vector-sink` only | `vector-sink` | `vector-sink` |
+| `vector-cron-sink` only | `vector-cron-sink` | nowhere |
+| both | `vector-cron-sink` | `vector-sink` |
+
+If an app is already shipping to a metered service via `vector-sink`, adding a cron sink will stop cron output from arriving there.
+
+Events on the cron branch have two extra fields added to them, so that they can be used in sink options that support templating:
+
+- `dokku_app`: the name of the app the task belongs to
+- `dokku_cron_id`: the cron task ID, as shown by `dokku cron:list`
+
+> [!WARNING]
+> Cron task containers are removed as soon as the task exits. Vector attaches to a container after it starts, so output from tasks that finish almost immediately - a bare `echo`, for instance - may be missed. Log shipping should not be relied on as the sole record that a task ran; use an external check for that.
+
+##### Writing cron output to a file on disk
+
+The `file` sink writes to a path within the vector container. The `/var/log/dokku/apps` directory is mounted into that container from the host at the same path, so it is the correct destination for output that should survive on the host.
+
+```shell
+dokku logs:set node-js-app vector-cron-sink "file://?path=/var/log/dokku/apps/node-js-app/cron.log&encoding[codec]=text"
+```
+
+Because `path` supports templating, `dokku_cron_id` can be used to give each task its own file:
+
+```shell
+dokku logs:set node-js-app vector-cron-sink "file://?path=/var/log/dokku/apps/node-js-app/cron-{{ dokku_cron_id }}.log&encoding[codec]=text"
+```
+
+Quoting the value is required, both for the `&` separators and for the spaces inside the template.
+
+> [!WARNING]
+> Vector drops any event whose templated `path` references a field it cannot resolve. Only `dokku_app` and `dokku_cron_id` are guaranteed to exist on cron events - referencing anything else risks silently discarding log lines.
+
+Vector creates missing parent directories, and buffers writes before flushing. Set `idle_timeout_secs` to shorten that delay for infrequent tasks:
+
+```shell
+dokku logs:set node-js-app vector-cron-sink "file://?path=/var/log/dokku/apps/node-js-app/cron.log&encoding[codec]=text&idle_timeout_secs=5"
+```
+
 ##### Configuring the app label
 
 Logs shipped by vector include the label `com.dokku.app-name`, which is an alias for the app name. This can be changed via the `app-label-alias` logs property with the `logs:set` command. Specifying a new alias will reload any running vector container.
@@ -325,4 +397,5 @@ dokku logs:set --global app-label-alias
 | `max-size` | app + global | `10m` | `--logs-max-size`, `--logs-global-max-size`, `--logs-computed-max-size` | Maximum size of an individual log file before rotation |
 | `vector-image` | global only | _parsed from `plugins/logs/Dockerfile`_ | `--logs-global-vector-image`, `--logs-computed-vector-image` | Docker image used to run the vector log-shipper container |
 | `vector-networks` | global only | none | `--logs-global-vector-networks`, `--logs-computed-vector-networks` | Comma-separated list of docker networks the vector container is attached to |
+| `vector-cron-sink` | app + global | none | `--logs-vector-cron-sink`, `--logs-global-vector-cron-sink`, `--logs-computed-vector-cron-sink` | DSN-style sink configuration for scheduled cron task output; when set, cron output is routed here instead of to `vector-sink` |
 | `vector-sink` | app + global | none | `--logs-vector-sink`, `--logs-global-vector-sink`, `--logs-computed-vector-sink` | DSN-style sink configuration for vector (e.g. `console://` or `loki://...`) |

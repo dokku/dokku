@@ -2175,7 +2175,10 @@ func installHelmCharts(ctx context.Context, clientset KubernetesClient, shouldIn
 		}
 
 		if chart.ReleaseName == "vector" && chart.Namespace == "vector" {
-			values = updateVectorValues(values)
+			values, err = updateVectorValues(values)
+			if err != nil {
+				return fmt.Errorf("Error updating vector values: %w", err)
+			}
 		}
 
 		chartProperties, err := common.PropertyMapGet("scheduler-k3s", "--global", "chart-overrides."+chart.ReleaseName)
@@ -2256,26 +2259,129 @@ func installHelmCharts(ctx context.Context, clientset KubernetesClient, shouldIn
 	return nil
 }
 
-func updateVectorValues(values map[string]interface{}) map[string]interface{} {
-	value := common.PropertyGet("logs", "--global", "vector-sink")
-	if value == "" {
-		return values
+const (
+	// kubernetesLogsTransform is the base transform enriching every container log event
+	kubernetesLogsTransform = "kubernetes_container_logs"
+
+	// kubernetesRouterTransform splits container logs into cron and non-cron branches
+	kubernetesRouterTransform = "kubernetes_router"
+
+	// kubernetesCronRemapTransform flattens cron metadata onto the event
+	kubernetesCronRemapTransform = "kubernetes_cron_remap"
+
+	// kubernetesDefaultSink is the console sink shipped in the base values file
+	kubernetesDefaultSink = "default_global_sink"
+
+	// kubernetesGlobalSink receives non-cron logs when a vector-sink is configured
+	kubernetesGlobalSink = "kubernetes_global_sink"
+
+	// kubernetesCronSink receives cron task logs when a vector-cron-sink is configured
+	kubernetesCronSink = "kubernetes_cron_sink"
+)
+
+// kubernetesCronRouteTransforms returns the route and remap pair that splits
+// container logs into cron and non-cron branches.
+//
+// Cron pods are labelled app.kubernetes.io/name=cron. The raw cron id exceeds
+// the Kubernetes label length cap, so it lives in an annotation and is
+// flattened onto the event here - vector drops any event whose sink template
+// references a missing field.
+func kubernetesCronRouteTransforms() map[string]interface{} {
+	return map[string]interface{}{
+		kubernetesRouterTransform: map[string]interface{}{
+			"type":              "route",
+			"inputs":            []string{kubernetesLogsTransform},
+			"reroute_unmatched": true,
+			"route": map[string]interface{}{
+				logs.CronRouteName: map[string]interface{}{
+					"type":   "vrl",
+					"source": `.kubernetes.pod_labels."app.kubernetes.io/name" == "cron"`,
+				},
+			},
+		},
+		kubernetesCronRemapTransform: map[string]interface{}{
+			"type":   "remap",
+			"inputs": []string{kubernetesRouterTransform + "." + logs.CronRouteName},
+			"source": ".dokku_app = to_string(.kubernetes.pod_labels.\"app.kubernetes.io/part-of\") ?? \"\"\n" +
+				".dokku_cron_id = to_string(.kubernetes.pod_annotations.\"dokku.com/cron-id\") ?? \"\"",
+		},
+	}
+}
+
+// updateVectorValues layers the configured log sinks onto the vector chart
+// values. Sinks and transforms from the base values file are preserved unless
+// they are explicitly superseded, so unrelated components such as the
+// prometheus exporter keep working.
+func updateVectorValues(values map[string]interface{}) (map[string]interface{}, error) {
+	sinkValue := common.PropertyGet("logs", "--global", "vector-sink")
+	cronSinkValue := common.PropertyGet("logs", "--global", "vector-cron-sink")
+	if sinkValue == "" && cronSinkValue == "" {
+		return values, nil
 	}
 
-	sink, err := logs.SinkValueToConfig("--global", value)
-	if err != nil {
-		return nil
+	customConfig, ok := values["customConfig"].(map[string]interface{})
+	if !ok {
+		return values, errors.New("Missing or invalid customConfig in vector chart values")
 	}
 
-	sink["inputs"] = []string{"kubernetes_container_logs"}
-
-	sinkMap := map[string]interface{}{
-		"kubernetes_global_sink": sink,
+	sinks, ok := customConfig["sinks"].(map[string]interface{})
+	if !ok {
+		sinks = map[string]interface{}{}
 	}
 
-	values["customConfig"].(map[string]interface{})["sinks"] = sinkMap
+	// a configured sink supersedes the console sink from the base values;
+	// without one, the console sink remains the destination for non-cron logs
+	nonCronSinkID := kubernetesDefaultSink
+	if sinkValue != "" {
+		nonCronSinkID = kubernetesGlobalSink
+		delete(sinks, kubernetesDefaultSink)
 
-	return values
+		sink, err := logs.SinkValueToConfig(logs.SinkValueToConfigInput{
+			SinkValue: sinkValue,
+			Inputs:    []string{kubernetesLogsTransform},
+		})
+		if err != nil {
+			return values, fmt.Errorf("Error parsing vector-sink: %w", err)
+		}
+
+		// stored as a plain map so that later lookups, and the yaml encoder,
+		// see the same shape as the sinks parsed from the base values file
+		sinks[kubernetesGlobalSink] = map[string]interface{}(sink)
+	}
+
+	if cronSinkValue != "" {
+		transforms, ok := customConfig["transforms"].(map[string]interface{})
+		if !ok {
+			transforms = map[string]interface{}{}
+		}
+		for id, transform := range kubernetesCronRouteTransforms() {
+			transforms[id] = transform
+		}
+		customConfig["transforms"] = transforms
+
+		cronSink, err := logs.SinkValueToConfig(logs.SinkValueToConfigInput{
+			SinkValue: cronSinkValue,
+			Inputs:    []string{kubernetesCronRemapTransform},
+		})
+		if err != nil {
+			return values, fmt.Errorf("Error parsing vector-cron-sink: %w", err)
+		}
+		sinks[kubernetesCronSink] = map[string]interface{}(cronSink)
+
+		// cron logs are routed away from the non-cron sink so that each event
+		// lands in exactly one destination
+		nonCronSink, ok := sinks[nonCronSinkID].(map[string]interface{})
+		if !ok {
+			return values, fmt.Errorf("Missing or invalid %s sink in vector chart values", nonCronSinkID)
+		}
+		nonCronSink["inputs"] = []string{kubernetesRouterTransform + "._unmatched"}
+		sinks[nonCronSinkID] = nonCronSink
+	}
+
+	customConfig["sinks"] = sinks
+	values["customConfig"] = customConfig
+
+	return values, nil
 }
 
 func installHelperCommands(ctx context.Context) error {
