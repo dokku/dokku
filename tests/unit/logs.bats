@@ -1262,8 +1262,8 @@ wait_for_vector_cron_event() {
   local i
 
   for i in $(seq 1 60); do
-    if docker logs vector-vector-1 2>/dev/null | grep "$MARKER" |
-      jq -e --arg id "$CRON_ID" 'select(.dokku_cron_id == $id)' >/dev/null 2>/dev/null; then
+    if docker logs vector-vector-1 2>/dev/null | grep "$MARKER" \
+      | jq -e --arg id "$CRON_ID" 'select(.dokku_cron_id == $id)' >/dev/null 2>/dev/null; then
       return 0
     fi
     sleep 1
