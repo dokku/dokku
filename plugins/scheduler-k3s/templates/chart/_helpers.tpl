@@ -16,6 +16,20 @@
 {{- end }}
 {{- end }}
 
+{{/*
+traefik.host.match renders a domain as a Traefik router rule. Traefik v2 resolves HostRegexp
+through gorilla/mux, where the pattern is a {name:regexp} template and every literal segment is
+quoted, so a wildcard label is spelled out as a named group rather than a raw regexp. The group
+matches a single label, mirroring both DNS and Kubernetes Ingress wildcard hosts.
+*/}}
+{{- define "traefik.host.match" -}}
+{{- if hasPrefix "*." . -}}
+HostRegexp(`{subdomain:[^.]+}.{{ trimPrefix "*." . }}`)
+{{- else -}}
+Host(`{{ . }}`)
+{{- end -}}
+{{- end -}}
+
 {{- define "primary.port" -}}
 {{- $found := dict -}}
 {{- range $idx, $port_map := . -}}
