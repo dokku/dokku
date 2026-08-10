@@ -66,11 +66,11 @@ func TriggerInstall() error {
 		return nil
 	}
 
-	pluginPath := common.MustGetEnv("PLUGIN_AVAILABLE_PATH")
-	chownScript := filepath.Join(pluginPath, "storage", "bin", "chown-storage-dir")
-
 	sudoersFile := "/etc/sudoers.d/dokku-storage"
-	content := fmt.Sprintf("%%dokku ALL=(ALL) NOPASSWD:%s *\n", chownScript)
+	content := ""
+	for _, script := range StorageDirScripts() {
+		content += fmt.Sprintf("%%dokku ALL=(ALL) NOPASSWD:%s *\n", script)
+	}
 	content += "Defaults env_keep += \"DOKKU_LIB_ROOT\"\n"
 
 	if err := os.WriteFile(sudoersFile, []byte(content), 0440); err != nil {

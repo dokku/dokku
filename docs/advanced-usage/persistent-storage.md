@@ -7,7 +7,7 @@ The preferred method to attach persistent storage to a Dokku-managed container i
 
 ```
 storage:create <name> [<path>] [flags]                 # Register a named storage entry
-storage:destroy <name> [--force]                       # Remove a named storage entry (must be unmounted from every app first)
+storage:destroy <name> [--force] [--destroy-host-dir]  # Remove a named storage entry (must be unmounted from every app first)
 storage:ensure-directory [--chown option] <directory>  # [DEPRECATED] use storage:create instead
 storage:exec <name> [-- <cmd>...]                      # Run a command (or shell) in a temporary container that mounts the entry
 storage:info <name> [--format text|json]               # Show details for one storage entry
@@ -116,6 +116,36 @@ The `--chown` flag - whether on `storage:create` or `storage:ensure-directory` -
 > [!WARNING]
 > Failing to set the correct directory ownership may result in issues in persisting files written to the mounted storage directory.
 
+### Setting directory permissions
+
+> [!IMPORTANT]
+> New as of 0.38.27
+
+Where `--chown` states who owns the host directory, `--mode` states its permission bits. It takes a 3 or 4 digit octal mode and is available on both `storage:create` and `storage:set`:
+
+```shell
+dokku storage:create node-js-data --mode 0777
+```
+
+```shell
+dokku storage:set node-js-data --mode 0770
+```
+
+Without `--mode`, a newly created directory keeps the `0755` default and a pre-existing directory keeps whatever permissions it already had. The value is stored on the entry and re-applied every time `storage:create` or `storage:set` runs against it, so a declarative caller converges the directory by re-running the same command rather than reaching for `chmod` over SSH. The mode is shown by `storage:info`:
+
+```shell
+dokku storage:info node-js-data
+```
+
+```
+-----> Storage entry node-js-data
+       Scheduler:        docker-local
+       Host path:        /var/lib/dokku/data/storage/node-js-data
+       Mode:             0777
+```
+
+`--mode` is applied to the directory itself and does not recurse into its contents. Like `--chown`, it is docker-local only and only manages the default `/var/lib/dokku/data/storage/<name>` location - it is refused for k3s entries and for entries created with a custom `<path>`.
+
 ### Mounting storage into apps
 
 Dokku supports mounting both explicit host paths as well as docker volumes via the `storage:mount` command. This takes two arguments, an app name and a `host-path:container-path` or `docker-volume:container-path` combination.
@@ -198,6 +228,35 @@ The global `--force` flag is also supported:
 ```shell
 dokku --force storage:destroy rdmtest-entry
 ```
+
+#### Removing the host directory
+
+> [!IMPORTANT]
+> New as of 0.38.27
+
+By default a docker-local entry's host directory survives `storage:destroy` - the entry is deregistered but the data stays on disk. The `--destroy-host-dir` flag removes the directory and everything in it:
+
+```shell
+dokku storage:destroy node-js-data --destroy-host-dir
+```
+
+```
+ !     Storage entry node-js-data is backed by /var/lib/dokku/data/storage/node-js-data, which will be removed along with its contents.
+ !     WARNING: Potentially Destructive Action
+ !     This command will destroy storage entry node-js-data.
+ !     To proceed, type "node-js-data"
+```
+
+The removal is recursive, so it succeeds whether or not the directory is empty. It is only permitted for entries at the default `/var/lib/dokku/data/storage/<name>` location; an entry created with a custom `<path>` is refused, and the operator removes the path themselves.
+
+The same removal can be declared ahead of time with `--reclaim-policy`, which behaves for a docker-local host directory the way it behaves for a k3s PersistentVolume. An entry created with `Delete` has its host directory removed on `storage:destroy` without any extra flag, while `Retain` - the default when unset - keeps it:
+
+```shell
+dokku storage:create node-js-data --reclaim-policy Delete
+dokku storage:destroy node-js-data --force
+```
+
+`--destroy-host-dir` is docker-local only. On a k3s entry the underlying volume is already governed by the reclaim policy recorded on the entry, so passing the flag is an error.
 
 ### Displaying storage reports for an app
 

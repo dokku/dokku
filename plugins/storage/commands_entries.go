@@ -13,17 +13,18 @@ import (
 
 // CommandCreateInput captures the flags accepted by storage:create.
 type CommandCreateInput struct {
-	Name           string
-	Path           string
-	Scheduler      string
-	Size           string
-	AccessMode     string
-	StorageClass   string
-	Namespace      string
-	Chown          string
-	ReclaimPolicy  string
-	Annotations    map[string]string
-	Labels         map[string]string
+	Name          string
+	Path          string
+	Scheduler     string
+	Size          string
+	AccessMode    string
+	StorageClass  string
+	Namespace     string
+	Chown         string
+	Mode          string
+	ReclaimPolicy string
+	Annotations   map[string]string
+	Labels        map[string]string
 }
 
 // CommandCreate registers a new storage entry.
@@ -42,6 +43,11 @@ func CommandCreate(input CommandCreateInput) error {
 		hostPath = filepath.Join(GetStorageDirectory(), input.Name)
 	}
 
+	mode, err := NormalizeDirectoryMode(input.Mode)
+	if err != nil {
+		return err
+	}
+
 	entry := &Entry{
 		Name:          input.Name,
 		Scheduler:     scheduler,
@@ -51,6 +57,7 @@ func CommandCreate(input CommandCreateInput) error {
 		StorageClass:  input.StorageClass,
 		Namespace:     input.Namespace,
 		Chown:         input.Chown,
+		Mode:          mode,
 		ReclaimPolicy: input.ReclaimPolicy,
 		Annotations:   input.Annotations,
 		Labels:        input.Labels,
@@ -98,7 +105,12 @@ func CommandCreate(input CommandCreateInput) error {
 // an entry that any app still has attached. Prompts for confirmation
 // unless force is set (or the global --force flag exported
 // DOKKU_APPS_FORCE_DELETE).
-func CommandDestroy(name string, force bool) error {
+//
+// On docker-local, the host directory is removed when destroyHostDir is
+// set or when the entry's reclaim policy is Delete - the same distinction
+// a k3s PV reclaim policy draws between keeping and dropping the backing
+// data. Removal is recursive.
+func CommandDestroy(name string, force bool, destroyHostDir bool) error {
 	if name == "" {
 		return errors.New("storage entry name is required")
 	}
@@ -114,24 +126,54 @@ func CommandDestroy(name string, force bool) error {
 		return fmt.Errorf("storage entry %q is still mounted by app(s): %s", name, strings.Join(using, ", "))
 	}
 
+	entry, err := LoadEntry(name)
+	if err != nil {
+		return err
+	}
+
+	if destroyHostDir && entry.Scheduler != SchedulerDockerLocal {
+		return fmt.Errorf("--destroy-host-dir only applies to docker-local storage entries; %q is scheduler %q and follows --reclaim-policy", name, entry.Scheduler)
+	}
+
+	removeHostDir := false
+	if entry.Scheduler == SchedulerDockerLocal && (destroyHostDir || entry.ReclaimPolicy == ReclaimPolicyDelete) {
+		err := requireDefaultHostPath(entry, "--destroy-host-dir")
+		if err == nil {
+			removeHostDir = true
+		} else if destroyHostDir {
+			return err
+		} else {
+			// An entry written before the reclaim policy was honored on
+			// docker-local can carry Delete on a custom path. Refusing
+			// here would wedge storage:destroy for that entry, so warn
+			// and leave the path alone.
+			common.LogWarn(fmt.Sprintf("Leaving %s in place; reclaim policy Delete only removes the default host path", entry.HostPath))
+		}
+	}
+
 	if os.Getenv("DOKKU_APPS_FORCE_DELETE") == "1" {
 		force = true
 	}
 	if !force {
+		if removeHostDir {
+			common.LogWarn(fmt.Sprintf("Storage entry %s is backed by %s, which will be removed along with its contents.", name, entry.HostPath))
+		}
 		if err := common.AskForDestructiveConfirmation(name, "storage entry"); err != nil {
 			return err
 		}
-	}
-
-	entry, err := LoadEntry(name)
-	if err != nil {
-		return err
 	}
 
 	if entry.Scheduler == SchedulerK3s {
 		if err := callSchedulerDestroyTrigger(entry); err != nil {
 			return fmt.Errorf("scheduler refused to remove storage entry %q: %w", name, err)
 		}
+	}
+
+	if removeHostDir {
+		if err := callStorageDirScript("destroy-storage-dir", entry.Name); err != nil {
+			return fmt.Errorf("unable to remove %s: %w", entry.HostPath, err)
+		}
+		common.LogVerbose(fmt.Sprintf("Removed %s", entry.HostPath))
 	}
 
 	if err := DeleteEntry(name); err != nil {
@@ -184,6 +226,9 @@ func CommandInfo(name string, format string) error {
 	if entry.Chown != "" {
 		common.LogVerbose(fmt.Sprintf("Chown:            %s", entry.Chown))
 	}
+	if entry.Mode != "" {
+		common.LogVerbose(fmt.Sprintf("Mode:             %s", entry.Mode))
+	}
 	if entry.ReclaimPolicy != "" {
 		common.LogVerbose(fmt.Sprintf("Reclaim policy:   %s", entry.ReclaimPolicy))
 	}
@@ -198,6 +243,7 @@ type CommandSetInput struct {
 	StorageClass  string
 	Namespace     string
 	Chown         string
+	Mode          string
 	ReclaimPolicy string
 	Annotations   map[string]string
 	Labels        map[string]string
@@ -230,6 +276,13 @@ func CommandSet(input CommandSetInput) error {
 	if input.Chown != "" {
 		entry.Chown = input.Chown
 	}
+	if input.Mode != "" {
+		mode, err := NormalizeDirectoryMode(input.Mode)
+		if err != nil {
+			return err
+		}
+		entry.Mode = mode
+	}
 	if input.ReclaimPolicy != "" {
 		entry.ReclaimPolicy = input.ReclaimPolicy
 	}
@@ -245,6 +298,14 @@ func CommandSet(input CommandSetInput) error {
 	}
 	if err := SaveEntry(entry); err != nil {
 		return err
+	}
+	// Only converge the directory when the caller actually asked to change
+	// its permissions; an unrelated storage:set should not create or touch
+	// anything on disk.
+	if entry.Scheduler == SchedulerDockerLocal && (input.Chown != "" || input.Mode != "") {
+		if err := ensureDockerLocalPath(entry); err != nil {
+			return err
+		}
 	}
 	if entry.Scheduler == SchedulerK3s {
 		if err := callSchedulerCreateTrigger(entry); err != nil {
@@ -421,8 +482,8 @@ func CommandReportGlobal(format string) error {
 		return err
 	}
 	type entryWithUse struct {
-		Entry      *Entry   `json:"entry"`
-		MountedBy  []string `json:"mounted_by"`
+		Entry     *Entry   `json:"entry"`
+		MountedBy []string `json:"mounted_by"`
 	}
 	rows := []entryWithUse{}
 	for _, entry := range entries {
@@ -492,14 +553,28 @@ func CommandListEntries(scheduler string, format string) error {
 }
 
 // ensureDockerLocalPath creates the host directory referenced by a
-// docker-local entry if it doesn't already exist. Idempotent: a
-// pre-existing directory is left in place.
+// docker-local entry if it doesn't already exist, then applies the entry's
+// --mode and --chown. Idempotent: a pre-existing directory keeps its
+// contents, and mode/ownership are re-applied on every run so a
+// declarative caller converges by re-running storage:create.
 func ensureDockerLocalPath(entry *Entry) error {
-	if entry.Chown != "" && entry.Chown != "false" {
-		defaultHostPath := filepath.Join(GetStorageDirectory(), entry.Name)
-		if entry.HostPath != defaultHostPath {
-			return fmt.Errorf("--chown is only supported when the storage entry uses the default host path (%s); use --chown false and chown %s manually", defaultHostPath, entry.HostPath)
+	wantsChown := entry.Chown != "" && entry.Chown != "false"
+	if wantsChown {
+		if err := requireDefaultHostPath(entry, "--chown"); err != nil {
+			return err
 		}
+	}
+	if entry.Mode != "" {
+		if err := requireDefaultHostPath(entry, "--mode"); err != nil {
+			return err
+		}
+	}
+
+	// A docker named volume is resolved by the docker engine, not by us.
+	// Without this guard the stat and mkdir below run against a relative
+	// token and create a stray directory in the process working directory.
+	if !filepath.IsAbs(entry.HostPath) {
+		return nil
 	}
 
 	info, err := os.Stat(entry.HostPath)
@@ -516,27 +591,37 @@ func ensureDockerLocalPath(entry *Entry) error {
 		common.LogVerbose(fmt.Sprintf("Created %s", entry.HostPath))
 	}
 
-	if entry.Chown != "" && entry.Chown != "false" {
+	if entry.Mode != "" {
+		common.LogVerbose(fmt.Sprintf("Setting directory mode to %s", entry.Mode))
+		if err := callStorageDirScript("chmod-storage-dir", entry.Name, entry.Mode); err != nil {
+			return fmt.Errorf("unable to chmod %s: %w", entry.HostPath, err)
+		}
+	}
+
+	if wantsChown {
 		chownID, err := ResolveChownID(entry.Chown)
 		if err != nil {
 			return err
 		}
 		if chownID != "false" {
-			pluginPath := common.MustGetEnv("PLUGIN_AVAILABLE_PATH")
-			chownScript := filepath.Join(pluginPath, "storage", "bin", "chown-storage-dir")
-			result, err := common.CallExecCommand(common.ExecCommandInput{
-				Command: "sudo",
-				Args:    []string{chownScript, entry.Name, chownID},
-			})
-			if err != nil {
+			common.LogVerbose(fmt.Sprintf("Setting directory ownership to %s:%s", chownID, chownID))
+			if err := callStorageDirScript("chown-storage-dir", entry.Name, chownID); err != nil {
 				return fmt.Errorf("unable to chown %s: %w", entry.HostPath, err)
-			}
-			if result.ExitCode != 0 {
-				return fmt.Errorf("unable to chown %s: %s", entry.HostPath, result.StderrContents())
 			}
 		}
 	}
 	return nil
+}
+
+// requireDefaultHostPath refuses flags that are implemented by the sudo
+// helpers in bin/, which only ever operate on the default host path. An
+// operator pointing an entry at their own path owns that path themselves.
+func requireDefaultHostPath(entry *Entry, flagName string) error {
+	defaultHostPath := filepath.Join(GetStorageDirectory(), entry.Name)
+	if entry.HostPath == defaultHostPath {
+		return nil
+	}
+	return fmt.Errorf("%s is only supported when the storage entry uses the default host path (%s); omit %s and manage %s manually", flagName, defaultHostPath, flagName, entry.HostPath)
 }
 
 // callSchedulerCreateTrigger asks the scheduler plugin (k3s) to provision

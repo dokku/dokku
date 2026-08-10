@@ -21,7 +21,7 @@ Additional commands:`
 
 	helpContent = `
     storage:create <name> [<path>] [flags], Register a named storage entry
-    storage:destroy <name> [--force], Remove a named storage entry (must be unmounted from every app first)
+    storage:destroy <name> [--force] [--destroy-host-dir], Remove a named storage entry (must be unmounted from every app first)
     storage:ensure-directory [--chown option] <directory>, [DEPRECATED] use storage:create instead
     storage:exec <name> [-- <cmd>...], Run a command (or shell) in a temporary container that mounts the entry
     storage:info <name> [--format text|json], Show details for one storage entry
@@ -62,18 +62,8 @@ func CommandEnsureDirectory(directory string, chownFlag string) error {
 	if chownID != "false" {
 		common.LogVerboseQuiet(fmt.Sprintf("Setting directory ownership to %s:%s", chownID, chownID))
 
-		pluginPath := common.MustGetEnv("PLUGIN_AVAILABLE_PATH")
-		chownScript := filepath.Join(pluginPath, "storage", "bin", "chown-storage-dir")
-
-		result, err := common.CallExecCommand(common.ExecCommandInput{
-			Command: "sudo",
-			Args:    []string{chownScript, directory, chownID},
-		})
-		if err != nil {
+		if err := callStorageDirScript("chown-storage-dir", directory, chownID); err != nil {
 			return fmt.Errorf("Unable to set directory ownership: %s", err.Error())
-		}
-		if result.ExitCode != 0 {
-			return fmt.Errorf("Unable to set directory ownership: %s", result.StderrContents())
 		}
 	}
 

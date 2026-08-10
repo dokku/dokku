@@ -953,3 +953,309 @@ teardown() {
   run /bin/bash -c "dokku storage:destroy rdmtest-rpt-keys --force"
   assert_success
 }
+
+@test "(storage:create) --mode sets directory permissions" {
+  run /bin/bash -c "dokku storage:create --mode 0777 rdmtest-mode"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "stat -c '%a' $DOKKU_LIB_ROOT/data/storage/rdmtest-mode"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "777"
+
+  # the mode is stored on the entry in its canonical 4-digit form
+  run /bin/bash -c "dokku storage:info rdmtest-mode --format json | jq -r '.mode'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "0777"
+
+  run /bin/bash -c "dokku storage:destroy rdmtest-mode --destroy-host-dir --force"
+  assert_success
+}
+
+@test "(storage:create) --mode re-applies on an existing directory" {
+  # the default mode assertion below only holds for a freshly created directory
+  rm -rf "$DOKKU_LIB_ROOT/data/storage/rdmtest-mode-converge"
+
+  run /bin/bash -c "dokku storage:create rdmtest-mode-converge"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "stat -c '%a' $DOKKU_LIB_ROOT/data/storage/rdmtest-mode-converge"
+  assert_success
+  assert_output "755"
+
+  # re-running create against the existing entry converges the directory
+  run /bin/bash -c "dokku storage:create --mode 0700 rdmtest-mode-converge"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "stat -c '%a' $DOKKU_LIB_ROOT/data/storage/rdmtest-mode-converge"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "700"
+
+  run /bin/bash -c "dokku storage:destroy rdmtest-mode-converge --destroy-host-dir --force"
+  assert_success
+}
+
+@test "(storage:create) --mode accepts a 3 digit octal mode" {
+  run /bin/bash -c "dokku storage:create --mode 750 rdmtest-mode-short"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "stat -c '%a' $DOKKU_LIB_ROOT/data/storage/rdmtest-mode-short"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "750"
+
+  run /bin/bash -c "dokku storage:info rdmtest-mode-short --format json | jq -r '.mode'"
+  assert_success
+  assert_output "0750"
+
+  run /bin/bash -c "dokku storage:destroy rdmtest-mode-short --destroy-host-dir --force"
+  assert_success
+}
+
+@test "(storage:create) --mode rejects an invalid value" {
+  run /bin/bash -c "dokku storage:create --mode 0888 rdmtest-mode-bad"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Unsupported directory mode"
+
+  run /bin/bash -c "dokku storage:create --mode u+rwx rdmtest-mode-bad"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Unsupported directory mode"
+
+  run /bin/bash -c "dokku storage:list-entries --format json | jq -r '.[].name' | grep '^rdmtest-mode-bad$' || true"
+  assert_output ""
+}
+
+@test "(storage:create) --mode rejects a non-default host path" {
+  custom_path="/tmp/rdmtest-mode-custom"
+  rm -rf "$custom_path"
+
+  run /bin/bash -c "dokku storage:create --mode 0777 rdmtest-mode-custom $custom_path"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "--mode is only supported when the storage entry uses the default host path"
+
+  run /bin/bash -c "dokku storage:list-entries --format json | jq -r '.[].name' | grep '^rdmtest-mode-custom$' || true"
+  assert_output ""
+
+  rm -rf "$custom_path"
+}
+
+@test "(storage:create) --mode is rejected on a k3s entry" {
+  run /bin/bash -c "dokku storage:create --scheduler k3s --size 1Gi --mode 0777 rdmtest-mode-k3s"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "does not accept --mode"
+
+  run /bin/bash -c "dokku storage:list-entries --format json | jq -r '.[].name' | grep '^rdmtest-mode-k3s$' || true"
+  assert_output ""
+}
+
+@test "(storage:set) --mode updates permissions on an existing entry" {
+  run /bin/bash -c "dokku storage:create --mode 0755 rdmtest-mode-set"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku storage:set rdmtest-mode-set --mode 0770"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "stat -c '%a' $DOKKU_LIB_ROOT/data/storage/rdmtest-mode-set"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "770"
+
+  run /bin/bash -c "dokku storage:info rdmtest-mode-set --format json | jq -r '.mode'"
+  assert_success
+  assert_output "0770"
+
+  run /bin/bash -c "dokku storage:destroy rdmtest-mode-set --destroy-host-dir --force"
+  assert_success
+}
+
+@test "(storage) chmod-storage-dir rejects invalid modes" {
+  run /bin/bash -c "DOKKU_LIB_ROOT=$DOKKU_LIB_ROOT $PLUGIN_AVAILABLE_PATH/storage/bin/chmod-storage-dir $TEST_APP 0888"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Unsupported directory mode"
+
+  run /bin/bash -c "DOKKU_LIB_ROOT=$DOKKU_LIB_ROOT $PLUGIN_AVAILABLE_PATH/storage/bin/chmod-storage-dir $TEST_APP 07555"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Unsupported directory mode"
+
+  run /bin/bash -c "DOKKU_LIB_ROOT=$DOKKU_LIB_ROOT $PLUGIN_AVAILABLE_PATH/storage/bin/chmod-storage-dir $TEST_APP u+rwx"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Unsupported directory mode"
+
+  run /bin/bash -c "DOKKU_LIB_ROOT=$DOKKU_LIB_ROOT $PLUGIN_AVAILABLE_PATH/storage/bin/chmod-storage-dir '../escape' 0777"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Directory can only contain the following set of characters"
+}
+
+@test "(storage) destroy-storage-dir refuses a traversing directory name" {
+  run /bin/bash -c "DOKKU_LIB_ROOT=$DOKKU_LIB_ROOT $PLUGIN_AVAILABLE_PATH/storage/bin/destroy-storage-dir '../escape'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Directory can only contain the following set of characters"
+
+  # a missing directory is a no-op rather than an error
+  run /bin/bash -c "DOKKU_LIB_ROOT=$DOKKU_LIB_ROOT $PLUGIN_AVAILABLE_PATH/storage/bin/destroy-storage-dir rdmtest-absent"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
+@test "(storage:destroy) leaves the host directory in place by default" {
+  run /bin/bash -c "dokku storage:create rdmtest-keep-dir"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku storage:destroy rdmtest-keep-dir --force"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "test -d $DOKKU_LIB_ROOT/data/storage/rdmtest-keep-dir"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  rm -rf "$DOKKU_LIB_ROOT/data/storage/rdmtest-keep-dir"
+}
+
+@test "(storage:destroy) --destroy-host-dir removes a non-empty host directory" {
+  run /bin/bash -c "dokku storage:create rdmtest-drop-dir"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "sudo touch $DOKKU_LIB_ROOT/data/storage/rdmtest-drop-dir/payload"
+  assert_success
+
+  run /bin/bash -c "dokku storage:destroy rdmtest-drop-dir --destroy-host-dir --force"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "test -d $DOKKU_LIB_ROOT/data/storage/rdmtest-drop-dir"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku storage:list-entries --format json | jq -r '.[].name' | grep '^rdmtest-drop-dir$' || true"
+  assert_output ""
+}
+
+@test "(storage:destroy) --reclaim-policy Delete removes the host directory" {
+  run /bin/bash -c "dokku storage:create --reclaim-policy Delete rdmtest-reclaim"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku storage:destroy rdmtest-reclaim --force"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "test -d $DOKKU_LIB_ROOT/data/storage/rdmtest-reclaim"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+}
+
+@test "(storage:create) --reclaim-policy Delete rejects a non-default host path" {
+  custom_path="/tmp/rdmtest-reclaim-custom"
+  rm -rf "$custom_path"
+
+  run /bin/bash -c "dokku storage:create --reclaim-policy Delete rdmtest-reclaim-custom $custom_path"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "default host path"
+
+  run /bin/bash -c "dokku storage:list-entries --format json | jq -r '.[].name' | grep '^rdmtest-reclaim-custom$' || true"
+  assert_output ""
+
+  rm -rf "$custom_path"
+}
+
+@test "(storage:destroy) --destroy-host-dir refuses a non-default host path" {
+  custom_path="/tmp/rdmtest-drop-custom"
+  rm -rf "$custom_path"
+  mkdir -p "$custom_path"
+
+  run /bin/bash -c "dokku storage:create rdmtest-drop-custom $custom_path"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku storage:destroy rdmtest-drop-custom --destroy-host-dir --force"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "--destroy-host-dir is only supported when the storage entry uses the default host path"
+
+  run /bin/bash -c "test -d $custom_path"
+  assert_success
+
+  run /bin/bash -c "dokku storage:destroy rdmtest-drop-custom --force"
+  assert_success
+
+  rm -rf "$custom_path"
+}
+
+@test "(storage) install trigger whitelists the storage directory helpers" {
+  run /bin/bash -c "test -f /etc/sudoers.d/dokku-storage"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "sudo grep -c 'storage/bin/chown-storage-dir' /etc/sudoers.d/dokku-storage"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "1"
+
+  run /bin/bash -c "sudo grep -c 'storage/bin/chmod-storage-dir' /etc/sudoers.d/dokku-storage"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "1"
+
+  run /bin/bash -c "sudo grep -c 'storage/bin/destroy-storage-dir' /etc/sudoers.d/dokku-storage"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "1"
+}

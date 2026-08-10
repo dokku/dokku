@@ -27,7 +27,8 @@ func main() {
 		storageClass := args.String("storage-class-name", "", "--storage-class-name: PVC storage class (k3s only)")
 		namespace := args.String("namespace", "", "--namespace: PVC namespace (k3s only)")
 		chown := args.String("chown", "", "--chown: chown option (docker-local only)")
-		reclaim := args.String("reclaim-policy", "", "--reclaim-policy: PV reclaim policy (Retain or Delete, k3s only)")
+		mode := args.String("mode", "", "--mode: octal permissions for the host directory, such as 0755 (docker-local only)")
+		reclaim := args.String("reclaim-policy", "", "--reclaim-policy: reclaim policy for the underlying volume (Retain or Delete)")
 		annotations := args.StringSlice("annotation", nil, "--annotation key=value: PVC annotation (repeatable)")
 		labels := args.StringSlice("label", nil, "--label key=value: PVC label (repeatable)")
 		args.Parse(os.Args[2:])
@@ -52,6 +53,7 @@ func main() {
 			StorageClass:  *storageClass,
 			Namespace:     *namespace,
 			Chown:         *chown,
+			Mode:          *mode,
 			ReclaimPolicy: *reclaim,
 			Annotations:   annotMap,
 			Labels:        labelMap,
@@ -59,8 +61,9 @@ func main() {
 	case "destroy":
 		args := flag.NewFlagSet("storage:destroy", flag.ExitOnError)
 		force := args.Bool("force", false, "--force: force destroy without confirmation")
+		destroyHostDir := args.Bool("destroy-host-dir", false, "--destroy-host-dir: also remove the host directory and its contents (docker-local only)")
 		args.Parse(os.Args[2:])
-		err = storage.CommandDestroy(args.Arg(0), *force)
+		err = storage.CommandDestroy(args.Arg(0), *force, *destroyHostDir)
 	case "ensure-directory":
 		args := flag.NewFlagSet("storage:ensure-directory", flag.ExitOnError)
 		chown := args.String("chown", "herokuish", "--chown: chown option (herokuish, heroku, paketo, root, false)")
@@ -86,7 +89,8 @@ func main() {
 		storageClass := args.String("storage-class-name", "", "--storage-class-name: existing storage class (must match)")
 		namespace := args.String("namespace", "", "--namespace: new namespace")
 		chown := args.String("chown", "", "--chown: chown option")
-		reclaim := args.String("reclaim-policy", "", "--reclaim-policy: PV reclaim policy")
+		mode := args.String("mode", "", "--mode: octal permissions for the host directory, such as 0755 (docker-local only)")
+		reclaim := args.String("reclaim-policy", "", "--reclaim-policy: reclaim policy for the underlying volume (Retain or Delete)")
 		annotations := args.StringSlice("annotation", nil, "--annotation key=value: PVC annotation (repeatable, replaces all)")
 		labels := args.StringSlice("label", nil, "--label key=value: PVC label (repeatable, replaces all)")
 		args.Parse(os.Args[2:])
@@ -107,6 +111,7 @@ func main() {
 			StorageClass:  *storageClass,
 			Namespace:     *namespace,
 			Chown:         *chown,
+			Mode:          *mode,
 			ReclaimPolicy: *reclaim,
 			Annotations:   annotMap,
 			Labels:        labelMap,

@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+main() {
+  declare desc="chmods a storage directory"
+  declare DIRECTORY="$1" MODE="$2"
+
+  if [[ -z "$DIRECTORY" ]]; then
+    echo " !     Please specify a directory to chmod" 1>&2
+    exit 1
+  fi
+
+  if [[ ! "$DIRECTORY" =~ ^[A-Za-z0-9\\_-]+$ ]]; then
+    echo " !     Directory can only contain the following set of characters: [A-Za-z0-9_-]" 1>&2
+    exit 1
+  fi
+
+  if [[ ! "$MODE" =~ ^[0-7]{3,4}$ ]]; then
+    echo " !     Unsupported directory mode. Value must be a 3 or 4 digit octal mode, such as 0755" 1>&2
+    exit 1
+  fi
+
+  chmod "$MODE" "${DOKKU_LIB_ROOT}/data/storage/$DIRECTORY"
+}
+
+main "$@"

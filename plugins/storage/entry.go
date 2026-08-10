@@ -48,6 +48,9 @@ var (
 	// rule docker uses to disambiguate volume names from bind paths.
 	dockerNamedVolumeRegexp = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9_.-]+$`)
 
+	// directoryModeRegexp matches a 3 or 4 digit octal directory mode.
+	directoryModeRegexp = regexp.MustCompile(`^[0-7]{3,4}$`)
+
 	// supportedSchedulers lists the values accepted for --scheduler.
 	supportedSchedulers = map[string]bool{
 		SchedulerDockerLocal: true,
@@ -66,18 +69,19 @@ var (
 // Entry is the source of truth for a storage volume. One file per entry
 // lives at $DOKKU_LIB_ROOT/config/storage/entries/<name>.json.
 type Entry struct {
-	Name           string            `json:"name"`
-	Scheduler      string            `json:"scheduler"`
-	HostPath       string            `json:"host_path,omitempty"`
-	Size           string            `json:"size,omitempty"`
-	AccessMode     string            `json:"access_mode,omitempty"`
-	StorageClass   string            `json:"storage_class,omitempty"`
-	Namespace      string            `json:"namespace,omitempty"`
-	Chown          string            `json:"chown,omitempty"`
-	ReclaimPolicy  string            `json:"reclaim_policy,omitempty"`
-	Annotations    map[string]string `json:"annotations,omitempty"`
-	Labels         map[string]string `json:"labels,omitempty"`
-	SchemaVersion  int               `json:"schema_version"`
+	Name          string            `json:"name"`
+	Scheduler     string            `json:"scheduler"`
+	HostPath      string            `json:"host_path,omitempty"`
+	Size          string            `json:"size,omitempty"`
+	AccessMode    string            `json:"access_mode,omitempty"`
+	StorageClass  string            `json:"storage_class,omitempty"`
+	Namespace     string            `json:"namespace,omitempty"`
+	Chown         string            `json:"chown,omitempty"`
+	Mode          string            `json:"mode,omitempty"`
+	ReclaimPolicy string            `json:"reclaim_policy,omitempty"`
+	Annotations   map[string]string `json:"annotations,omitempty"`
+	Labels        map[string]string `json:"labels,omitempty"`
+	SchemaVersion int               `json:"schema_version"`
 }
 
 // RegistryDirectory returns the parent directory for storage-plugin
@@ -213,6 +217,23 @@ func ValidateEntryName(name string, allowLegacyPrefix bool) error {
 	return nil
 }
 
+// NormalizeDirectoryMode canonicalizes a user-supplied octal directory
+// mode to its 4 digit form so the stored value is stable regardless of
+// whether the caller wrote 755 or 0755. An empty mode is passed through,
+// meaning "leave the directory's permissions alone".
+func NormalizeDirectoryMode(mode string) (string, error) {
+	if mode == "" {
+		return "", nil
+	}
+	if !directoryModeRegexp.MatchString(mode) {
+		return "", fmt.Errorf("Unsupported directory mode %q. Value must be a 3 or 4 digit octal mode, such as 0755", mode)
+	}
+	if len(mode) == 3 {
+		return "0" + mode, nil
+	}
+	return mode, nil
+}
+
 // Validate checks an Entry's fields against the cross-field rules for its
 // scheduler. It is reused by both storage:create and the legacy migration.
 func (e *Entry) Validate() error {
@@ -225,6 +246,12 @@ func (e *Entry) Validate() error {
 
 	if !supportedSchedulers[e.Scheduler] {
 		return fmt.Errorf("storage entry %q has unsupported scheduler %q (supported: docker-local, k3s)", e.Name, e.Scheduler)
+	}
+
+	// The reclaim policy governs whether the underlying volume survives a
+	// storage:destroy on both schedulers, so it is validated for both.
+	if e.ReclaimPolicy != "" && e.ReclaimPolicy != ReclaimPolicyRetain && e.ReclaimPolicy != ReclaimPolicyDelete {
+		return fmt.Errorf("storage entry %q has unsupported reclaim policy %q", e.Name, e.ReclaimPolicy)
 	}
 
 	switch e.Scheduler {
@@ -244,6 +271,16 @@ func (e *Entry) Validate() error {
 		if e.AccessMode != "" {
 			return fmt.Errorf("storage entry %q (docker-local) does not accept --access-mode", e.Name)
 		}
+		if _, err := NormalizeDirectoryMode(e.Mode); err != nil {
+			return err
+		}
+		// Removing the host path is implemented by a sudo helper that only
+		// ever operates on the default location, so a Delete policy on any
+		// other path could never be honored.
+		defaultHostPath := filepath.Join(GetStorageDirectory(), e.Name)
+		if e.ReclaimPolicy == ReclaimPolicyDelete && e.HostPath != defaultHostPath {
+			return fmt.Errorf("storage entry %q (docker-local) only accepts --reclaim-policy Delete on the default host path (%s)", e.Name, defaultHostPath)
+		}
 	case SchedulerK3s:
 		if e.Size == "" {
 			return fmt.Errorf("storage entry %q (k3s) requires --size", e.Name)
@@ -257,8 +294,8 @@ func (e *Entry) Validate() error {
 		if e.HostPath != "" && !filepath.IsAbs(e.HostPath) {
 			return fmt.Errorf("storage entry %q host_path must be absolute, got %q", e.Name, e.HostPath)
 		}
-		if e.ReclaimPolicy != "" && e.ReclaimPolicy != ReclaimPolicyRetain && e.ReclaimPolicy != ReclaimPolicyDelete {
-			return fmt.Errorf("storage entry %q has unsupported reclaim policy %q", e.Name, e.ReclaimPolicy)
+		if e.Mode != "" {
+			return fmt.Errorf("storage entry %q (k3s) does not accept --mode", e.Name)
 		}
 	}
 
