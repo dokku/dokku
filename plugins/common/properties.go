@@ -706,9 +706,15 @@ func MigrateConfigToProperties(pluginName string, entries []MigrateConfigEntry) 
 // A failure here is not fatal: the migration is retried on the next install, so
 // an unavailable trigger degrades to the previous behavior rather than aborting
 // every plugin's install.
+//
+// The trigger's stderr is streamed rather than captured. This is the first call
+// to reach the migration on an upgrade, so anything it has to report about the
+// files it found is only ever said once, and a captured warning would be
+// discarded with the response.
 func migrateLegacyEnvFiles() {
 	if _, err := CallPlugnTrigger(PlugnTriggerInput{
-		Trigger: "config-migrate-env",
+		Trigger:      "config-migrate-env",
+		StreamStderr: true,
 	}); err != nil {
 		LogWarn(fmt.Sprintf("Unable to migrate legacy env files: %s", err.Error()))
 	}

@@ -86,9 +86,11 @@ func migrateAppEnv(appName string) error {
 // removed once the merged environment has been written successfully, so a parse
 // or write failure leaves the original in place.
 //
-// A legacy file that turns up after the migration has already been recorded was
-// written by hand rather than through `dokku config:*`, so its contents are
-// merged in and named in a warning rather than being discarded silently.
+// The merge happens once and only once. A legacy file that is still there when
+// the migration is already on record is handed to preserveStaleEnvFile instead:
+// releases 0.38.0 through 0.38.25 recorded the migration and left the file
+// behind on purpose, so importing it would replay the environment as it stood
+// at that upgrade over every config:set and config:unset made since.
 func drainLegacyEnvFile(name string, oldEnvFile string, env *Env) error {
 	migrated := common.PropertyGetDefault("config", name, envMigratedProperty, "") == "true"
 
@@ -99,13 +101,13 @@ func drainLegacyEnvFile(name string, oldEnvFile string, env *Env) error {
 		return writeEnvMigrated(name)
 	}
 
+	if migrated {
+		return preserveStaleEnvFile(name, oldEnvFile, env)
+	}
+
 	oldEnv, err := loadFromFile(name, oldEnvFile)
 	if err != nil {
 		return fmt.Errorf("Unable to load old environment: %s", err.Error())
-	}
-
-	if migrated && oldEnv.Len() > 0 {
-		common.LogWarn(fmt.Sprintf("Importing %s written outside of dokku config: %s", oldEnvFile, strings.Join(oldEnv.Keys(), " ")))
 	}
 
 	env.Merge(oldEnv)
@@ -129,6 +131,51 @@ func drainLegacyEnvFile(name string, oldEnvFile string, env *Env) error {
 	}
 
 	return nil
+}
+
+// preserveStaleEnvFile clears a legacy ENV file that outlived its own migration
+// out of the way without importing any of it. A file whose values all match the
+// current environment has nothing left to give and is removed outright;
+// otherwise it is moved alongside itself with a .migrated suffix and the keys it
+// disagrees on are named, so an operator who did write it by hand can still
+// recover the values through `dokku config:set`.
+func preserveStaleEnvFile(name string, oldEnvFile string, env *Env) error {
+	staleEnv, err := loadFromFile(name, oldEnvFile)
+	if err != nil {
+		return fmt.Errorf("Unable to load stale environment: %s", err.Error())
+	}
+
+	diverged := divergedKeys(staleEnv, env)
+	if len(diverged) == 0 {
+		if err := os.Remove(oldEnvFile); err != nil {
+			return fmt.Errorf("Unable to remove stale file %s: %s", oldEnvFile, err.Error())
+		}
+		return nil
+	}
+
+	preservedFile := oldEnvFile + ".migrated"
+	common.LogWarn(fmt.Sprintf("Not importing already-migrated ENV file %s: the current config takes precedence for %s", oldEnvFile, strings.Join(diverged, " ")))
+	common.LogWarn(fmt.Sprintf("Preserved at %s; apply any values still needed with dokku config:set", preservedFile))
+
+	if err := os.Rename(oldEnvFile, preservedFile); err != nil {
+		return fmt.Errorf("Unable to preserve stale file %s: %s", oldEnvFile, err.Error())
+	}
+
+	return nil
+}
+
+// divergedKeys returns the keys stale holds that env either does not have at all
+// or holds a different value for.
+func divergedKeys(stale *Env, env *Env) []string {
+	diverged := []string{}
+	for _, key := range stale.Keys() {
+		staleValue, _ := stale.Get(key)
+		if value, ok := env.Get(key); !ok || value != staleValue {
+			diverged = append(diverged, key)
+		}
+	}
+
+	return diverged
 }
 
 func writeEnvMigrated(name string) error {

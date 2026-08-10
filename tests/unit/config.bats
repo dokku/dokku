@@ -623,32 +623,96 @@ teardown() {
   assert_failure
 }
 
-@test "(config) config-migrate-env imports an ENV file written after migration" {
-  # drain once so the migration is on record, which makes the ENV file staged
-  # below one that could only have been written by hand
+@test "(config) config-migrate-env preserves a stale ENV file without importing it" {
+  # drain once so the migration is on record, which is the state releases 0.38.0
+  # through 0.38.25 left behind alongside the ENV file staged below
   run_plugn_trigger config-migrate-env
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "echo 'export HAND_EDITED=yes' | sudo tee $DOKKU_ROOT/$TEST_APP/ENV && sudo chown dokku:dokku $DOKKU_ROOT/$TEST_APP/ENV"
+  run /bin/bash -c "dokku config:set --no-restart $TEST_APP KEEP=new"
   echo "output: $output"
   echo "status: $status"
   assert_success
+
+  stage_stale_env "KEEP=old" "RESURRECTED=yes"
 
   run_plugn_trigger config-migrate-env
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "$DOKKU_ROOT/$TEST_APP/ENV"
+  assert_output_contains "the current config takes precedence for KEEP RESURRECTED"
+  assert_output_contains "$DOKKU_ROOT/$TEST_APP/ENV.migrated"
 
-  run /bin/bash -c "dokku config:get $TEST_APP HAND_EDITED"
+  run /bin/bash -c "dokku config:get $TEST_APP KEEP"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "yes"
+  assert_output "new"
+
+  run /bin/bash -c "dokku config:get $TEST_APP RESURRECTED"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
 
   run /bin/bash -c "test -f $DOKKU_ROOT/$TEST_APP/ENV"
   echo "status: $status"
   assert_failure
+
+  run /bin/bash -c "sudo cat $DOKKU_ROOT/$TEST_APP/ENV.migrated"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "RESURRECTED"
+
+  run /bin/bash -c "sudo rm -f $DOKKU_ROOT/$TEST_APP/ENV.migrated"
+  echo "status: $status"
+  assert_success
+}
+
+@test "(config) install reports a stale ENV file it did not import" {
+  # the apps plugin installs before config and drains through a captured
+  # trigger, so the report only reaches the operator if that stderr is streamed
+  run_plugn_trigger config-migrate-env
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku config:set --no-restart $TEST_APP KEEP=new"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  stage_stale_env "KEEP=old"
+
+  run /bin/bash -c "dokku plugin:install --core"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "$DOKKU_ROOT/$TEST_APP/ENV.migrated"
+
+  run /bin/bash -c "dokku config:get $TEST_APP KEEP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "new"
+
+  run /bin/bash -c "sudo rm -f $DOKKU_ROOT/$TEST_APP/ENV.migrated"
+  echo "status: $status"
+  assert_success
+}
+
+stage_stale_env() {
+  declare desc="writes a legacy ENV file at the pre-0.38 path for the test app"
+
+  local contents=""
+  for pair in "$@"; do
+    contents+="export $pair\n"
+  done
+
+  run /bin/bash -c "printf '$contents' | sudo tee $DOKKU_ROOT/$TEST_APP/ENV && sudo chown dokku:dokku $DOKKU_ROOT/$TEST_APP/ENV"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 }
