@@ -106,14 +106,20 @@ func TriggerLogsGetProperty(appName string, key string) error {
 	return nil
 }
 
-// TriggerPostAppCloneSetup creates new logs files
+// TriggerPostAppCloneSetup creates new logs files and regenerates the vector
+// config so that the clone gets a source of its own for the sink it inherited
 func TriggerPostAppCloneSetup(oldAppName string, newAppName string) error {
 	err := common.PropertyClone("logs", oldAppName, newAppName)
 	if err != nil {
 		return err
 	}
 
-	return common.CloneAppData("logs", oldAppName, newAppName)
+	if err := common.CloneAppData("logs", oldAppName, newAppName); err != nil {
+		return err
+	}
+
+	regenerateVectorConfig()
+	return nil
 }
 
 // TriggerPostAppRename removes the old app data
@@ -121,7 +127,9 @@ func TriggerPostAppRename(oldAppName string, newAppName string) error {
 	return common.MigrateAppDataDirectory("logs", oldAppName, newAppName)
 }
 
-// TriggerPostAppRenameSetup renames logs files
+// TriggerPostAppRenameSetup renames logs files and regenerates the vector config.
+// Both app roots exist at this point, but the old app no longer has any logs
+// properties, so it drops out of the generated config.
 func TriggerPostAppRenameSetup(oldAppName string, newAppName string) error {
 	if err := common.PropertyClone("logs", oldAppName, newAppName); err != nil {
 		return err
@@ -131,7 +139,12 @@ func TriggerPostAppRenameSetup(oldAppName string, newAppName string) error {
 		return err
 	}
 
-	return common.CloneAppData("logs", oldAppName, newAppName)
+	if err := common.CloneAppData("logs", oldAppName, newAppName); err != nil {
+		return err
+	}
+
+	regenerateVectorConfig()
+	return nil
 }
 
 // TriggerPostCreate ensures apps have the correct data directory structure
@@ -139,10 +152,15 @@ func TriggerPostCreate(appName string) error {
 	return common.CreateAppDataDirectory("logs", appName)
 }
 
-// TriggerPostDelete destroys the logs property for a given app container
+// TriggerPostDelete destroys the logs property for a given app container and
+// regenerates the vector config. The regeneration runs after the properties are
+// destroyed so that the app drops out of the config even though its app root is
+// only removed later in the destroy flow.
 func TriggerPostDelete(appName string) error {
 	dataErr := common.RemoveAppDataDirectory("logs", appName)
 	propertyErr := common.PropertyDestroy("logs", appName)
+
+	regenerateVectorConfig()
 
 	if dataErr != nil {
 		return dataErr

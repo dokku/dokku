@@ -2,6 +2,7 @@ package logs
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -291,10 +292,149 @@ func setupScopesTest(t *testing.T, apps []string) {
 		t.Fatalf("PropertySetup: %v", err)
 	}
 
+	if err := common.CreateDataDirectory("logs"); err != nil {
+		t.Fatalf("CreateDataDirectory: %v", err)
+	}
+
 	for _, appName := range apps {
 		if err := os.MkdirAll(filepath.Join(os.Getenv("DOKKU_ROOT"), appName), 0755); err != nil {
 			t.Fatalf("MkdirAll %s: %v", appName, err)
 		}
+	}
+}
+
+// setLogsProperty sets a logs property for the given scope and regenerates the
+// config, standing in for the logs:set command
+func setLogsProperty(t *testing.T, appName string, property string, value string) {
+	t.Helper()
+
+	if err := common.PropertyWrite("logs", appName, property, value); err != nil {
+		t.Fatalf("PropertyWrite %s %s: %v", appName, property, err)
+	}
+
+	if err := writeVectorConfig(); err != nil {
+		t.Fatalf("writeVectorConfig: %v", err)
+	}
+}
+
+// readVectorConfig decodes the generated config from disk
+func readVectorConfig(t *testing.T) map[string]interface{} {
+	t.Helper()
+
+	b, err := os.ReadFile(filepath.Join(common.GetDataDirectory("logs"), "vector.json"))
+	if err != nil {
+		t.Fatalf("ReadFile vector.json: %v", err)
+	}
+
+	var decoded map[string]interface{}
+	if err := json.Unmarshal(b, &decoded); err != nil {
+		t.Fatalf("Unmarshal vector.json: %v", err)
+	}
+
+	return decoded
+}
+
+// assertComponents checks whether an app has a source and a sink in the config
+func assertComponents(t *testing.T, decoded map[string]interface{}, appName string, want bool) {
+	t.Helper()
+
+	components := map[string]string{
+		"sources": fmt.Sprintf("docker-source:%s", appName),
+		"sinks":   fmt.Sprintf("docker-sink:%s", appName),
+	}
+
+	for section, id := range components {
+		group, ok := lookup(t, decoded, section).(map[string]interface{})
+		if !ok {
+			t.Fatalf("%s is not a map", section)
+		}
+
+		if _, ok := group[id]; ok != want {
+			t.Errorf("%s[%q] exists = %v, want %v", section, id, ok, want)
+		}
+	}
+}
+
+// TestTriggerPostDeleteRewritesVectorConfig covers a destroyed app leaving its
+// source and sink behind forever. post-delete fires before the app root is
+// removed, so the app is still listed by UnfilteredDokkuApps at this point and
+// only drops out because its properties are destroyed first.
+func TestTriggerPostDeleteRewritesVectorConfig(t *testing.T) {
+	setupScopesTest(t, []string{"appa", "appb"})
+	setLogsProperty(t, "appa", "vector-sink", "console://?encoding[codec]=json")
+	setLogsProperty(t, "appb", "vector-sink", "console://?encoding[codec]=json")
+
+	assertComponents(t, readVectorConfig(t), "appa", true)
+
+	if err := TriggerPostDelete("appa"); err != nil {
+		t.Fatalf("TriggerPostDelete: %v", err)
+	}
+
+	decoded := readVectorConfig(t)
+	assertComponents(t, decoded, "appa", false)
+	assertComponents(t, decoded, "appb", true)
+}
+
+// TestTriggerPostAppRenameSetupRewritesVectorConfig covers the rename case: the
+// sink property follows the app, so without a regeneration the surviving source
+// filters on a label no container carries and the new name has no source at all.
+func TestTriggerPostAppRenameSetupRewritesVectorConfig(t *testing.T) {
+	setupScopesTest(t, []string{"appa", "appa-renamed"})
+	setLogsProperty(t, "appa", "vector-sink", "console://?encoding[codec]=json")
+
+	if err := TriggerPostAppRenameSetup("appa", "appa-renamed"); err != nil {
+		t.Fatalf("TriggerPostAppRenameSetup: %v", err)
+	}
+
+	decoded := readVectorConfig(t)
+	assertComponents(t, decoded, "appa", false)
+	assertComponents(t, decoded, "appa-renamed", true)
+
+	labels := lookup(t, decoded, "sources", "docker-source:appa-renamed", "include_labels")
+	if got := labels.([]interface{})[0]; got != "com.dokku.app-name=appa-renamed" {
+		t.Errorf("include_labels[0] = %v, want com.dokku.app-name=appa-renamed", got)
+	}
+}
+
+// TestTriggerPostAppCloneSetupRewritesVectorConfig covers the clone case, where
+// the clone inherits a sink but would otherwise have no source feeding it.
+func TestTriggerPostAppCloneSetupRewritesVectorConfig(t *testing.T) {
+	setupScopesTest(t, []string{"appa", "appa-clone"})
+	setLogsProperty(t, "appa", "vector-sink", "console://?encoding[codec]=json")
+
+	if err := TriggerPostAppCloneSetup("appa", "appa-clone"); err != nil {
+		t.Fatalf("TriggerPostAppCloneSetup: %v", err)
+	}
+
+	decoded := readVectorConfig(t)
+	assertComponents(t, decoded, "appa", true)
+	assertComponents(t, decoded, "appa-clone", true)
+}
+
+// TestTriggerPostAppRenameSetupRewritesGlobalRelabel pins the generated VRL,
+// which embeds app names directly as branches of the global relabel transform.
+// A rename leaves a branch naming an app that no longer exists, so the renamed
+// app ships under the global alias rather than its own.
+func TestTriggerPostAppRenameSetupRewritesGlobalRelabel(t *testing.T) {
+	setupScopesTest(t, []string{"appa", "appa-renamed"})
+	setLogsProperty(t, "--global", "vector-sink", "console://?encoding[codec]=json")
+	setLogsProperty(t, "appa", "app-label-alias", "app_name")
+
+	source := lookup(t, readVectorConfig(t), "transforms", "docker-global-relabel", "source").(string)
+	if !strings.Contains(source, `app == "appa"`) {
+		t.Fatalf("relabel source %q missing the pre-rename branch", source)
+	}
+
+	if err := TriggerPostAppRenameSetup("appa", "appa-renamed"); err != nil {
+		t.Fatalf("TriggerPostAppRenameSetup: %v", err)
+	}
+
+	source = lookup(t, readVectorConfig(t), "transforms", "docker-global-relabel", "source").(string)
+	if strings.Contains(source, `app == "appa"`) {
+		t.Errorf("relabel source %q still names the old app", source)
+	}
+	if !strings.Contains(source, `app == "appa-renamed"`) {
+		t.Errorf("relabel source %q missing the renamed app", source)
 	}
 }
 
