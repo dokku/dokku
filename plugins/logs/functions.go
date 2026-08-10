@@ -538,6 +538,17 @@ func vectorScopes() []vectorAppSinks {
 	})
 }
 
+// regenerateVectorConfig rewrites the generated vector config so that it matches
+// the current set of apps and their properties. App lifecycle triggers call this
+// instead of writeVectorConfig because the config is derived state: failing to
+// rewrite it should not abort the app operation that changed the state it is
+// derived from.
+func regenerateVectorConfig() {
+	if err := writeVectorConfig(); err != nil {
+		common.LogWarn(fmt.Sprintf("Unable to write updated vector config: %s", err.Error()))
+	}
+}
+
 func writeVectorConfig() error {
 	data, err := buildVectorConfig(vectorScopes())
 	if err != nil {

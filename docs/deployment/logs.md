@@ -256,6 +256,8 @@ As with app-specific sink settings, the global value may also be cleared by sett
 dokku logs:set --global vector-sink
 ```
 
+The generated vector configuration is also rewritten whenever an app is renamed, cloned or destroyed. A renamed app keeps shipping to its sink under the new name, a cloned app gets a source of its own for the sink it inherited, and a destroyed app's source and sink are removed rather than left pointing at an endpoint that was decommissioned with the app.
+
 ##### Log Sink DSN Format
 
 The DSN form of a sink is as follows:
