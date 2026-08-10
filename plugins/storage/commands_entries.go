@@ -235,23 +235,40 @@ func CommandInfo(name string, format string) error {
 	return nil
 }
 
-// CommandSetInput captures the flags accepted by storage:set.
+// PropertyChange is a single assignment against a storage entry. An empty
+// Value unsets the property, restoring whatever the entry defaults to.
+type PropertyChange struct {
+	Property string
+	Value    string
+}
+
+// SettableProperties lists the entry fields storage:set understands, in the
+// sorted order the "invalid property" error reports them.
+var SettableProperties = []string{
+	"access-mode",
+	"chown",
+	"mode",
+	"namespace",
+	"reclaim-policy",
+	"size",
+	"storage-class-name",
+}
+
+// CommandSetInput captures the inputs accepted by storage:set.
 type CommandSetInput struct {
-	Name          string
-	Size          string
-	AccessMode    string
-	StorageClass  string
-	Namespace     string
-	Chown         string
-	Mode          string
-	ReclaimPolicy string
-	Annotations   map[string]string
-	Labels        map[string]string
+	Name    string
+	Changes []PropertyChange
+
+	// Annotations and Labels back the deprecated --annotation / --label
+	// flags only, and replace the whole map. The property form has no
+	// equivalent; storage:annotations:set supersedes them.
+	Annotations map[string]string
+	Labels      map[string]string
 }
 
 // CommandSet edits an existing entry's mutable fields and re-fires the
 // scheduler-side helm release. Refuses changes Kubernetes can't apply
-// in place (access-mode swap, storage-class swap, size shrink).
+// in place (access-mode swap, storage-class swap).
 func CommandSet(input CommandSetInput) error {
 	if !EntryExists(input.Name) {
 		return fmt.Errorf("storage entry %q does not exist", input.Name)
@@ -261,31 +278,16 @@ func CommandSet(input CommandSetInput) error {
 		return err
 	}
 
-	if input.AccessMode != "" && input.AccessMode != entry.AccessMode {
-		return fmt.Errorf("storage:set cannot change access-mode in place; recreate the entry")
-	}
-	if input.StorageClass != "" && input.StorageClass != entry.StorageClass {
-		return fmt.Errorf("storage:set cannot change storage-class-name in place; recreate the entry")
-	}
-	if input.Size != "" {
-		entry.Size = input.Size
-	}
-	if input.Namespace != "" {
-		entry.Namespace = input.Namespace
-	}
-	if input.Chown != "" {
-		entry.Chown = input.Chown
-	}
-	if input.Mode != "" {
-		mode, err := NormalizeDirectoryMode(input.Mode)
-		if err != nil {
+	touchesDirectory := false
+	for _, change := range input.Changes {
+		if err := applyPropertyChange(entry, change); err != nil {
 			return err
 		}
-		entry.Mode = mode
+		if change.Property == "chown" || change.Property == "mode" {
+			touchesDirectory = true
+		}
 	}
-	if input.ReclaimPolicy != "" {
-		entry.ReclaimPolicy = input.ReclaimPolicy
-	}
+
 	if input.Annotations != nil {
 		entry.Annotations = input.Annotations
 	}
@@ -302,7 +304,7 @@ func CommandSet(input CommandSetInput) error {
 	// Only converge the directory when the caller actually asked to change
 	// its permissions; an unrelated storage:set should not create or touch
 	// anything on disk.
-	if entry.Scheduler == SchedulerDockerLocal && (input.Chown != "" || input.Mode != "") {
+	if entry.Scheduler == SchedulerDockerLocal && touchesDirectory {
 		if err := ensureDockerLocalPath(entry); err != nil {
 			return err
 		}
@@ -313,6 +315,43 @@ func CommandSet(input CommandSetInput) error {
 		}
 	}
 	common.LogInfo1(fmt.Sprintf("Storage entry %s updated", entry.Name))
+	return nil
+}
+
+// applyPropertyChange writes a single property onto an entry. An empty
+// value clears the field rather than being ignored, which is what lets
+// storage:set undo itself the way every other :set command can.
+func applyPropertyChange(entry *Entry, change PropertyChange) error {
+	switch change.Property {
+	case "access-mode":
+		// Kubernetes cannot swap these on a bound PVC, so any change -
+		// including clearing one that is set - has to be refused.
+		if change.Value != entry.AccessMode {
+			return errors.New("storage:set cannot change access-mode in place; recreate the entry")
+		}
+	case "storage-class-name":
+		if change.Value != entry.StorageClass {
+			return errors.New("storage:set cannot change storage-class-name in place; recreate the entry")
+		}
+	case "size":
+		entry.Size = change.Value
+	case "namespace":
+		entry.Namespace = change.Value
+	case "chown":
+		entry.Chown = change.Value
+	case "mode":
+		mode, err := NormalizeDirectoryMode(change.Value)
+		if err != nil {
+			return err
+		}
+		entry.Mode = mode
+	case "reclaim-policy":
+		entry.ReclaimPolicy = change.Value
+	case "":
+		return errors.New("No property specified")
+	default:
+		return fmt.Errorf("Invalid property specified, valid properties include: %s", strings.Join(SettableProperties, ", "))
+	}
 	return nil
 }
 

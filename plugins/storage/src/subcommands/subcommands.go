@@ -19,6 +19,34 @@ func main() {
 	switch subcommand {
 	case "default":
 		err = storage.CommandHelp()
+	case "annotations:set":
+		args := flag.NewFlagSet("storage:annotations:set", flag.ExitOnError)
+		args.Parse(os.Args[2:])
+		err = storage.CommandAnnotationsSet(args.Arg(0), args.Arg(1), args.Arg(2))
+	case "annotations:report":
+		args := flag.NewFlagSet("storage:annotations:report", flag.ExitOnError)
+		format := args.String("format", "stdout", "format: [ stdout | json ]")
+		reportArgs, flagErr := common.ParseReportArgs("storage", os.Args[2:])
+		if flagErr != nil {
+			err = flagErr
+			break
+		}
+		args.Parse(reportArgs.OSArgs)
+		err = storage.CommandAnnotationsReport(args.Arg(0), *format, reportArgs.InfoFlag)
+	case "labels:set":
+		args := flag.NewFlagSet("storage:labels:set", flag.ExitOnError)
+		args.Parse(os.Args[2:])
+		err = storage.CommandLabelsSet(args.Arg(0), args.Arg(1), args.Arg(2))
+	case "labels:report":
+		args := flag.NewFlagSet("storage:labels:report", flag.ExitOnError)
+		format := args.String("format", "stdout", "format: [ stdout | json ]")
+		reportArgs, flagErr := common.ParseReportArgs("storage", os.Args[2:])
+		if flagErr != nil {
+			err = flagErr
+			break
+		}
+		args.Parse(reportArgs.OSArgs)
+		err = storage.CommandLabelsReport(args.Arg(0), *format, reportArgs.InfoFlag)
 	case "create":
 		args := flag.NewFlagSet("storage:create", flag.ExitOnError)
 		scheduler := args.String("scheduler", storage.SchedulerDockerLocal, "--scheduler: target scheduler (docker-local, k3s)")
@@ -84,38 +112,73 @@ func main() {
 		err = storage.CommandList(appName, *format)
 	case "set":
 		args := flag.NewFlagSet("storage:set", flag.ExitOnError)
-		size := args.String("size", "", "--size: new PVC size (k3s)")
-		accessMode := args.String("access-mode", "", "--access-mode: existing access mode (must match)")
-		storageClass := args.String("storage-class-name", "", "--storage-class-name: existing storage class (must match)")
-		namespace := args.String("namespace", "", "--namespace: new namespace")
-		chown := args.String("chown", "", "--chown: chown option")
-		mode := args.String("mode", "", "--mode: octal permissions for the host directory, such as 0755 (docker-local only)")
-		reclaim := args.String("reclaim-policy", "", "--reclaim-policy: reclaim policy for the underlying volume (Retain or Delete)")
-		annotations := args.StringSlice("annotation", nil, "--annotation key=value: PVC annotation (repeatable, replaces all)")
-		labels := args.StringSlice("label", nil, "--label key=value: PVC label (repeatable, replaces all)")
+		args.String("size", "", "--size: [DEPRECATED] use 'storage:set <name> size <value>'")
+		args.String("access-mode", "", "--access-mode: [DEPRECATED] use 'storage:set <name> access-mode <value>'")
+		args.String("storage-class-name", "", "--storage-class-name: [DEPRECATED] use 'storage:set <name> storage-class-name <value>'")
+		args.String("namespace", "", "--namespace: [DEPRECATED] use 'storage:set <name> namespace <value>'")
+		args.String("chown", "", "--chown: [DEPRECATED] use 'storage:set <name> chown <value>'")
+		args.String("mode", "", "--mode: [DEPRECATED] use 'storage:set <name> mode <value>'")
+		args.String("reclaim-policy", "", "--reclaim-policy: [DEPRECATED] use 'storage:set <name> reclaim-policy <value>'")
+		annotations := args.StringSlice("annotation", nil, "--annotation key=value: [DEPRECATED] use 'storage:annotations:set'")
+		labels := args.StringSlice("label", nil, "--label key=value: [DEPRECATED] use 'storage:labels:set'")
 		args.Parse(os.Args[2:])
-		annotMap, parseErr := parseKVPairs(*annotations)
-		if parseErr != nil {
-			err = parseErr
+
+		input := storage.CommandSetInput{Name: args.Arg(0)}
+		property := args.Arg(1)
+
+		for _, name := range storage.SettableProperties {
+			if !args.Changed(name) {
+				continue
+			}
+			value, lookupErr := args.GetString(name)
+			if lookupErr != nil {
+				err = lookupErr
+				break
+			}
+			input.Changes = append(input.Changes, storage.PropertyChange{Property: name, Value: value})
+		}
+		if err != nil {
 			break
 		}
-		labelMap, parseErr := parseKVPairs(*labels)
-		if parseErr != nil {
-			err = parseErr
+
+		usedMapFlags := args.Changed("annotation") || args.Changed("label")
+		if usedMapFlags {
+			annotMap, parseErr := parseKVPairs(*annotations)
+			if parseErr != nil {
+				err = parseErr
+				break
+			}
+			labelMap, parseErr := parseKVPairs(*labels)
+			if parseErr != nil {
+				err = parseErr
+				break
+			}
+			input.Annotations = annotMap
+			input.Labels = labelMap
+		}
+
+		usedFlags := len(input.Changes) > 0 || usedMapFlags
+		if property != "" && usedFlags {
+			err = fmt.Errorf("storage:set accepts either a property and a value or flags, not both")
 			break
 		}
-		err = storage.CommandSet(storage.CommandSetInput{
-			Name:          args.Arg(0),
-			Size:          *size,
-			AccessMode:    *accessMode,
-			StorageClass:  *storageClass,
-			Namespace:     *namespace,
-			Chown:         *chown,
-			Mode:          *mode,
-			ReclaimPolicy: *reclaim,
-			Annotations:   annotMap,
-			Labels:        labelMap,
-		})
+		if property == "" && !usedFlags {
+			err = fmt.Errorf("No property specified")
+			break
+		}
+
+		if usedFlags {
+			if len(input.Changes) > 0 {
+				common.LogWarn("Deprecated: please use 'storage:set <name> <property> [<value>]' instead of flags")
+			}
+			if usedMapFlags {
+				common.LogWarn("Deprecated: please use 'storage:annotations:set' and 'storage:labels:set' instead of --annotation and --label")
+			}
+		} else {
+			input.Changes = append(input.Changes, storage.PropertyChange{Property: property, Value: args.Arg(2)})
+		}
+
+		err = storage.CommandSet(input)
 	case "exec":
 		args := flag.NewFlagSet("storage:exec", flag.ExitOnError)
 		image := args.String("image", "", "--image: container image to use (default alpine:3)")
