@@ -3,6 +3,7 @@ package storage
 import (
 	"errors"
 	"fmt"
+	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -187,6 +188,50 @@ func ParseMountPath(mountPath string) StorageListEntry {
 func GetStorageDirectory() string {
 	dokkuLibRoot := common.GetenvWithDefault("DOKKU_LIB_ROOT", "/var/lib/dokku")
 	return fmt.Sprintf("%s/data/storage", dokkuLibRoot)
+}
+
+// storageDirScriptNames lists the sudo helpers shipped in the plugin's bin
+// directory. Each one takes a storage entry basename and builds the path
+// under $DOKKU_LIB_ROOT/data/storage itself, so no caller can point them
+// outside the storage root.
+var storageDirScriptNames = []string{
+	"chown-storage-dir",
+	"chmod-storage-dir",
+	"destroy-storage-dir",
+}
+
+// StorageDirScriptPath returns the absolute path to a storage directory
+// sudo helper.
+func StorageDirScriptPath(name string) string {
+	pluginPath := common.MustGetEnv("PLUGIN_AVAILABLE_PATH")
+	return filepath.Join(pluginPath, "storage", "bin", name)
+}
+
+// StorageDirScripts returns the absolute path of every storage directory
+// sudo helper. TriggerInstall whitelists each one in the plugin's sudoers
+// file.
+func StorageDirScripts() []string {
+	paths := []string{}
+	for _, name := range storageDirScriptNames {
+		paths = append(paths, StorageDirScriptPath(name))
+	}
+	return paths
+}
+
+// callStorageDirScript runs a storage directory sudo helper, surfacing the
+// helper's own stderr message when it refuses the arguments.
+func callStorageDirScript(name string, args ...string) error {
+	result, err := common.CallExecCommand(common.ExecCommandInput{
+		Command: "sudo",
+		Args:    append([]string{StorageDirScriptPath(name)}, args...),
+	})
+	if err != nil {
+		return err
+	}
+	if result.ExitCode != 0 {
+		return errors.New(strings.TrimSpace(result.StderrContents()))
+	}
+	return nil
 }
 
 // ValidateDirectoryName validates a storage directory name

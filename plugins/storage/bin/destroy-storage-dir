@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+main() {
+  declare desc="removes a storage directory and its contents"
+  declare DIRECTORY="$1"
+
+  if [[ -z "$DIRECTORY" ]]; then
+    echo " !     Please specify a directory to destroy" 1>&2
+    exit 1
+  fi
+
+  if [[ ! "$DIRECTORY" =~ ^[A-Za-z0-9\\_-]+$ ]]; then
+    echo " !     Directory can only contain the following set of characters: [A-Za-z0-9_-]" 1>&2
+    exit 1
+  fi
+
+  local storage_path="${DOKKU_LIB_ROOT}/data/storage/$DIRECTORY"
+
+  if [[ ! -e "$storage_path" ]]; then
+    exit 0
+  fi
+
+  if [[ ! -d "$storage_path" ]]; then
+    echo " !     $storage_path exists but is not a directory" 1>&2
+    exit 1
+  fi
+
+  rm -rf "$storage_path"
+}
+
+main "$@"

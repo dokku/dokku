@@ -6,18 +6,22 @@
 The preferred method to attach persistent storage to a Dokku-managed container is the Dokku storage plugin.
 
 ```
+storage:annotations:report [<name>] [<flag>]           # Display annotations for one or more storage entries
+storage:annotations:set <name> <key> [<value>]         # Set or clear a single annotation on a storage entry
 storage:create <name> [<path>] [flags]                 # Register a named storage entry
-storage:destroy <name> [--force]                       # Remove a named storage entry (must be unmounted from every app first)
+storage:destroy <name> [--force] [--destroy-host-dir]  # Remove a named storage entry (must be unmounted from every app first)
 storage:ensure-directory [--chown option] <directory>  # [DEPRECATED] use storage:create instead
 storage:exec <name> [-- <cmd>...]                      # Run a command (or shell) in a temporary container that mounts the entry
 storage:info <name> [--format text|json]               # Show details for one storage entry
+storage:labels:report [<name>] [<flag>]                # Display labels for one or more storage entries
+storage:labels:set <name> <key> [<value>]              # Set or clear a single label on a storage entry
 storage:list <app> [--format text|json]                # List bind mounts for an app's container(s) (legacy host:container view)
 storage:list-entries [--scheduler s] [--format text|json]  # List registered storage entries
 storage:mount <app> <name> --container-dir <path> [flags]  # Mount a named entry into an app
 storage:mount <app> <host-dir:container-dir>           # [LEGACY] colon-form mount, docker-local only
 storage:report [<app>] [<flag>]                        # Display a storage report for one or more apps
 storage:report --global                                # Display a cluster-wide entry inventory
-storage:set <name> [flags]                             # Update a storage entry in place
+storage:set <name> <property> [<value>]                # Update a storage entry in place
 storage:unmount <app> <name> [--container-dir <path>]  # Remove an attachment
 storage:wait <name>                                    # Block until a k3s entry's PVC is bound
 ```
@@ -116,6 +120,120 @@ The `--chown` flag - whether on `storage:create` or `storage:ensure-directory` -
 > [!WARNING]
 > Failing to set the correct directory ownership may result in issues in persisting files written to the mounted storage directory.
 
+### Setting directory permissions
+
+> [!IMPORTANT]
+> New as of 0.38.27
+
+Where `--chown` states who owns the host directory, `--mode` states its permission bits. It takes a 3 or 4 digit octal mode, and is a `--mode` flag on `storage:create` and a `mode` property on `storage:set`:
+
+```shell
+dokku storage:create node-js-data --mode 0777
+```
+
+```shell
+dokku storage:set node-js-data mode 0770
+```
+
+Omitting the value clears the mode, leaving the directory's permissions alone on subsequent runs:
+
+```shell
+dokku storage:set node-js-data mode
+```
+
+Without a mode, a newly created directory keeps the `0755` default and a pre-existing directory keeps whatever permissions it already had. The value is stored on the entry and re-applied every time `storage:create` or `storage:set` runs against it, so a declarative caller converges the directory by re-running the same command rather than reaching for `chmod` over SSH. The mode is shown by `storage:info`:
+
+```shell
+dokku storage:info node-js-data
+```
+
+```
+-----> Storage entry node-js-data
+       Scheduler:        docker-local
+       Host path:        /var/lib/dokku/data/storage/node-js-data
+       Mode:             0777
+```
+
+The mode is applied to the directory itself and does not recurse into its contents. Like `--chown`, it is docker-local only and only manages the default `/var/lib/dokku/data/storage/<name>` location - it is refused for k3s entries and for entries created with a custom `<path>`. That refusal also covers migrated `legacy-*` entries, whose host paths come from the original colon-form mount rather than the default location.
+
+### Updating a storage entry
+
+> [!IMPORTANT]
+> The property form is new as of 0.38.27. Prior versions used flags, which still work but emit a deprecation warning.
+
+An existing entry is edited with `storage:set`, which takes a property and a value. Omitting the value unsets the property, restoring whatever the entry defaults to:
+
+```shell
+dokku storage:set node-js-data chown herokuish
+dokku storage:set node-js-data chown
+```
+
+The following properties can be set:
+
+| Property | Description | Unsetting it means |
+|---|---|---|
+| `chown` | Ownership preset or numeric uid for the host directory | no chown is performed |
+| `mode` | Octal permissions for the host directory | permissions are left alone |
+| `namespace` | Namespace holding the PVC (k3s) | the `default` namespace |
+| `reclaim-policy` | Whether the underlying volume survives `storage:destroy` | `Retain` |
+| `size` | PVC size (k3s) | rejected, since k3s entries require a size |
+| `access-mode` | PVC access mode (k3s) | rejected, see below |
+| `storage-class-name` | PVC storage class (k3s) | rejected, see below |
+
+`access-mode` and `storage-class-name` cannot be changed on an entry that already exists, because Kubernetes cannot apply either to a bound PVC. Both a different value and an empty one are refused, since clearing is equally a change:
+
+```shell
+dokku storage:set node-js-data access-mode ReadWriteMany
+```
+
+```
+ !     storage:set cannot change access-mode in place; recreate the entry
+```
+
+Setting `chown` or `mode` on a docker-local entry applies the change to the host directory immediately. Every other property is a metadata write, and k3s entries re-apply their helm release so the cluster picks the change up.
+
+The older flag form - `dokku storage:set node-js-data --mode 0770` - continues to work and warns. It gained unset semantics too, so `--mode ""` clears the mode the same way omitting the positional value does.
+
+### Annotations and labels
+
+> [!IMPORTANT]
+> New as of 0.38.27
+
+Annotations and labels are attached to a storage entry one key at a time, matching the [scheduler-k3s equivalents](/docs/deployment/schedulers/k3s.md#setting-annotations). On k3s they propagate to both the PersistentVolumeClaim and the PersistentVolume, so backup tools like Velero and Longhorn can find the volume.
+
+```shell
+dokku storage:annotations:set node-js-data backup.velero.io/backup-volumes node-js-data
+dokku storage:labels:set node-js-data app.kubernetes.io/part-of billing
+```
+
+Keys may contain `/`, as the Kubernetes-style keys above do, and are stored verbatim. To clear a single key, omit the value. Other keys are left untouched, so a declarative caller does not need to re-send the whole set on every call:
+
+```shell
+dokku storage:annotations:set node-js-data backup.velero.io/backup-volumes
+```
+
+Configured annotations and labels can be inspected with the matching report commands. Without an entry name they cover every registered entry:
+
+```shell
+dokku storage:annotations:report
+dokku storage:annotations:report node-js-data
+dokku storage:labels:report node-js-data
+```
+
+```
+=====> node-js-data annotations information
+       Annotation backup.velero.io/backup-volumes: node-js-data
+```
+
+JSON output emits the keys flat, and a single value can be read directly with a flag of the form `--storage-annotations.<key>` (or `--storage-labels.<key>`), which requires an entry name:
+
+```shell
+dokku storage:annotations:report node-js-data --format json
+dokku storage:annotations:report node-js-data --storage-annotations.backup.velero.io/backup-volumes
+```
+
+`storage:create` still accepts repeatable `--annotation key=value` and `--label key=value` flags for setting the initial set at creation time. The same flags on `storage:set` are deprecated in favor of these commands, because they replace the entire map rather than a single key.
+
 ### Mounting storage into apps
 
 Dokku supports mounting both explicit host paths as well as docker volumes via the `storage:mount` command. This takes two arguments, an app name and a `host-path:container-path` or `docker-volume:container-path` combination.
@@ -198,6 +316,35 @@ The global `--force` flag is also supported:
 ```shell
 dokku --force storage:destroy rdmtest-entry
 ```
+
+#### Removing the host directory
+
+> [!IMPORTANT]
+> New as of 0.38.27
+
+By default a docker-local entry's host directory survives `storage:destroy` - the entry is deregistered but the data stays on disk. The `--destroy-host-dir` flag removes the directory and everything in it:
+
+```shell
+dokku storage:destroy node-js-data --destroy-host-dir
+```
+
+```
+ !     Storage entry node-js-data is backed by /var/lib/dokku/data/storage/node-js-data, which will be removed along with its contents.
+ !     WARNING: Potentially Destructive Action
+ !     This command will destroy storage entry node-js-data.
+ !     To proceed, type "node-js-data"
+```
+
+The removal is recursive, so it succeeds whether or not the directory is empty. It is only permitted for entries at the default `/var/lib/dokku/data/storage/<name>` location; an entry created with a custom `<path>` is refused, and the operator removes the path themselves.
+
+The same removal can be declared ahead of time with `--reclaim-policy`, which behaves for a docker-local host directory the way it behaves for a k3s PersistentVolume. An entry created with `Delete` has its host directory removed on `storage:destroy` without any extra flag, while `Retain` - the default when unset - keeps it:
+
+```shell
+dokku storage:create node-js-data --reclaim-policy Delete
+dokku storage:destroy node-js-data --force
+```
+
+`--destroy-host-dir` is docker-local only. On a k3s entry the underlying volume is already governed by the reclaim policy recorded on the entry, so passing the flag is an error.
 
 ### Displaying storage reports for an app
 

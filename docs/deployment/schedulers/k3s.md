@@ -1038,7 +1038,7 @@ dokku storage:wait demo-data
 git push dokku master
 ```
 
-For a hostPath-backed PV (no StorageClass), pass `<path>` as the second positional argument and omit `--storage-class-name`. The plugin renders both the PV and the PVC into the entry's helm release. The `--reclaim-policy` flag (`Retain` or `Delete`) controls whether the underlying PV survives `storage:destroy`. Annotations and labels on `storage:create` / `storage:set` propagate to both the PVC and the PV so backup tools (Velero, Longhorn snapshots) can find them.
+For a hostPath-backed PV (no StorageClass), pass `<path>` as the second positional argument and omit `--storage-class-name`. The plugin renders both the PV and the PVC into the entry's helm release. The `--reclaim-policy` flag (`Retain` or `Delete`) controls whether the underlying PV survives `storage:destroy`. Annotations and labels set via `storage:annotations:set` and `storage:labels:set` propagate to both the PVC and the PV so backup tools (Velero, Longhorn snapshots) can find them.
 
 The legacy `storage:mount <app> <host>:<container>` colon form is rejected on k3s apps; create a named entry instead. See [Persistent Storage](/docs/advanced-usage/persistent-storage.md) for the full command reference.
 

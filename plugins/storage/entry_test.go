@@ -101,6 +101,70 @@ func TestEntryValidateDockerLocal(t *testing.T) {
 
 	withClass := &Entry{Name: "foo", Scheduler: SchedulerDockerLocal, HostPath: "/data", StorageClass: "longhorn"}
 	Expect(withClass.Validate()).To(HaveOccurred())
+
+	withMode := &Entry{Name: "foo", Scheduler: SchedulerDockerLocal, HostPath: "/var/lib/dokku/data/storage/foo", Mode: "0777"}
+	Expect(withMode.Validate()).To(Succeed())
+
+	withBadMode := &Entry{Name: "foo", Scheduler: SchedulerDockerLocal, HostPath: "/var/lib/dokku/data/storage/foo", Mode: "0999"}
+	Expect(withBadMode.Validate()).To(HaveOccurred())
+}
+
+// TestEntryValidateDockerLocalReclaimPolicy covers the reclaim policy now
+// that it governs whether storage:destroy removes the host directory on
+// docker-local, not just the k3s PV.
+func TestEntryValidateDockerLocalReclaimPolicy(t *testing.T) {
+	RegisterTestingT(t)
+
+	defaultPath := "/var/lib/dokku/data/storage/foo"
+
+	retain := &Entry{Name: "foo", Scheduler: SchedulerDockerLocal, HostPath: defaultPath, ReclaimPolicy: ReclaimPolicyRetain}
+	Expect(retain.Validate()).To(Succeed())
+
+	del := &Entry{Name: "foo", Scheduler: SchedulerDockerLocal, HostPath: defaultPath, ReclaimPolicy: ReclaimPolicyDelete}
+	Expect(del.Validate()).To(Succeed())
+
+	bad := &Entry{Name: "foo", Scheduler: SchedulerDockerLocal, HostPath: defaultPath, ReclaimPolicy: "Recycle"}
+	err := bad.Validate()
+	Expect(err).To(HaveOccurred())
+	Expect(err.Error()).To(ContainSubstring("reclaim policy"))
+
+	// Delete can only be honored where the sudo helper is allowed to
+	// operate, so a custom host path is refused up front rather than
+	// silently ignored at destroy time.
+	custom := &Entry{Name: "foo", Scheduler: SchedulerDockerLocal, HostPath: "/mnt/custom", ReclaimPolicy: ReclaimPolicyDelete}
+	err = custom.Validate()
+	Expect(err).To(HaveOccurred())
+	Expect(err.Error()).To(ContainSubstring("default host path"))
+
+	// Retain on a custom path stays legal; nothing gets removed either way.
+	customRetain := &Entry{Name: "foo", Scheduler: SchedulerDockerLocal, HostPath: "/mnt/custom", ReclaimPolicy: ReclaimPolicyRetain}
+	Expect(customRetain.Validate()).To(Succeed())
+}
+
+func TestNormalizeDirectoryMode(t *testing.T) {
+	RegisterTestingT(t)
+
+	accepted := map[string]string{
+		"":     "",
+		"755":  "0755",
+		"777":  "0777",
+		"0755": "0755",
+		"0777": "0777",
+		"2775": "2775",
+		"1777": "1777",
+		"0000": "0000",
+	}
+	for input, expected := range accepted {
+		normalized, err := NormalizeDirectoryMode(input)
+		Expect(err).NotTo(HaveOccurred(), "expected %q to be accepted", input)
+		Expect(normalized).To(Equal(expected), "unexpected normalization of %q", input)
+	}
+
+	for _, input := range []string{"8", "88", "888", "0888", "07555", "0x1ff", "u+rwx", "-1", " 755 ", "rwx"} {
+		_, err := NormalizeDirectoryMode(input)
+		Expect(err).To(HaveOccurred(), "expected %q to be rejected", input)
+		Expect(err.Error()).To(ContainSubstring("Unsupported directory mode"))
+	}
 }
 
 func TestEntryValidateK3s(t *testing.T) {
@@ -125,6 +189,11 @@ func TestEntryValidateK3s(t *testing.T) {
 
 	badReclaim := &Entry{Name: "foo", Scheduler: SchedulerK3s, Size: "2Gi", StorageClass: "longhorn", ReclaimPolicy: "Recycle"}
 	Expect(badReclaim.Validate()).To(HaveOccurred())
+
+	withMode := &Entry{Name: "foo", Scheduler: SchedulerK3s, Size: "2Gi", StorageClass: "longhorn", Mode: "0777"}
+	err = withMode.Validate()
+	Expect(err).To(HaveOccurred())
+	Expect(err.Error()).To(ContainSubstring("--mode"))
 }
 
 func TestEntryValidateScheduler(t *testing.T) {
@@ -165,6 +234,23 @@ func TestEntryRoundTrip(t *testing.T) {
 	Expect(loaded.Annotations).To(Equal(original.Annotations))
 	Expect(loaded.Labels).To(Equal(original.Labels))
 	Expect(loaded.SchemaVersion).To(Equal(SchemaVersion))
+
+	// mode is docker-local only, so it round-trips through its own entry.
+	local := &Entry{
+		Name:          "demo-local",
+		Scheduler:     SchedulerDockerLocal,
+		HostPath:      filepath.Join(GetStorageDirectory(), "demo-local"),
+		Chown:         "herokuish",
+		Mode:          "0777",
+		ReclaimPolicy: ReclaimPolicyDelete,
+	}
+	Expect(SaveEntry(local)).To(Succeed())
+
+	loadedLocal, err := LoadEntry("demo-local")
+	Expect(err).NotTo(HaveOccurred())
+	Expect(loadedLocal.Mode).To(Equal("0777"))
+	Expect(loadedLocal.Chown).To(Equal("herokuish"))
+	Expect(loadedLocal.ReclaimPolicy).To(Equal(ReclaimPolicyDelete))
 
 	expectedPath := filepath.Join(root, "data", "storage-registry", "entries", "demo-data.json")
 	Expect(expectedPath).To(BeARegularFile())

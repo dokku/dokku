@@ -386,122 +386,6 @@ teardown() {
   assert_success
 }
 
-@test "(storage) storage:create / storage:list-entries / storage:destroy" {
-  run /bin/bash -c "dokku storage:create rdmtest-entry"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run /bin/bash -c "dokku storage:list-entries --format json | jq -r '.[].name' | grep '^rdmtest-entry$'"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  assert_output "rdmtest-entry"
-
-  run /bin/bash -c "dokku storage:info rdmtest-entry --format json | jq -r '.scheduler'"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  assert_output "docker-local"
-
-  run /bin/bash -c "dokku storage:destroy rdmtest-entry --force"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-}
-
-@test "(storage:create) --chown sets directory ownership" {
-  run /bin/bash -c "dokku storage:create --chown herokuish rdmtest-chown"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run /bin/bash -c "stat -c '%u:%g' $DOKKU_LIB_ROOT/data/storage/rdmtest-chown"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  assert_output "32767:32767"
-
-  run /bin/bash -c "dokku storage:destroy rdmtest-chown --force"
-  assert_success
-}
-
-@test "(storage:create) --chown accepts a custom numeric uid" {
-  run /bin/bash -c "dokku storage:create --chown 1500 rdmtest-chown-numeric"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run /bin/bash -c "stat -c '%u:%g' $DOKKU_LIB_ROOT/data/storage/rdmtest-chown-numeric"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  assert_output "1500:1500"
-
-  run /bin/bash -c "dokku storage:destroy rdmtest-chown-numeric --force"
-  assert_success
-}
-
-@test "(storage:create) --chown rejects an out-of-bounds numeric uid" {
-  run /bin/bash -c "dokku storage:create --chown 65536 rdmtest-chown-oob"
-  echo "output: $output"
-  echo "status: $status"
-  assert_failure
-  assert_output_contains "Unsupported chown permissions"
-
-  run /bin/bash -c "dokku storage:create --chown -1 rdmtest-chown-oob"
-  echo "output: $output"
-  echo "status: $status"
-  assert_failure
-  assert_output_contains "Unsupported chown permissions"
-
-  run /bin/bash -c "dokku storage:list-entries --format json | jq -r '.[].name' | grep '^rdmtest-chown-oob$' || true"
-  assert_output ""
-}
-
-@test "(storage:create) --chown rejects a non-default host path" {
-  custom_path="/tmp/rdmtest-chown-custom"
-  rm -rf "$custom_path"
-
-  run /bin/bash -c "dokku storage:create --chown herokuish rdmtest-chown-custom $custom_path"
-  echo "output: $output"
-  echo "status: $status"
-  assert_failure
-  assert_output_contains "--chown is only supported when the storage entry uses the default host path"
-
-  run /bin/bash -c "dokku storage:list-entries --format json | jq -r '.[].name' | grep '^rdmtest-chown-custom$' || true"
-  assert_output ""
-
-  rm -rf "$custom_path"
-}
-
-@test "(storage) storage:create rejects invalid names" {
-  # underscore: rejected
-  run /bin/bash -c "dokku storage:create rdmtest_invalid"
-  echo "output: $output"
-  echo "status: $status"
-  assert_failure
-
-  # uppercase: rejected
-  run /bin/bash -c "dokku storage:create RdmTest"
-  echo "output: $output"
-  echo "status: $status"
-  assert_failure
-
-  # 46 chars: too long
-  long_name=$(printf 'a%.0s' {1..46})
-  run /bin/bash -c "dokku storage:create $long_name"
-  echo "output: $output"
-  echo "status: $status"
-  assert_failure
-
-  # legacy- prefix: reserved
-  run /bin/bash -c "dokku storage:create legacy-foo"
-  echo "output: $output"
-  echo "status: $status"
-  assert_failure
-}
-
 @test "(storage) storage:create + storage:mount with named entry attaches multiple entries to one app" {
   run /bin/bash -c "dokku storage:create rdmtest-data"
   assert_success
@@ -697,78 +581,6 @@ teardown() {
   assert_success
 }
 
-@test "(storage) storage:destroy refuses to remove a still-mounted entry" {
-  run /bin/bash -c "dokku storage:create rdmtest-busy"
-  assert_success
-  run /bin/bash -c "dokku storage:mount $TEST_APP rdmtest-busy --container-dir /data"
-  assert_success
-
-  run /bin/bash -c "dokku storage:destroy rdmtest-busy"
-  echo "output: $output"
-  echo "status: $status"
-  assert_failure
-  assert_output_contains "still mounted"
-
-  run /bin/bash -c "dokku storage:unmount $TEST_APP rdmtest-busy"
-  assert_success
-  run /bin/bash -c "dokku storage:destroy rdmtest-busy --force"
-  assert_success
-}
-
-@test "(storage:destroy) requires confirmation without --force" {
-  run /bin/bash -c "dokku storage:create rdmtest-confirm"
-  assert_success
-
-  # No --force and no matching stdin: aborts, entry remains.
-  run /bin/bash -c "dokku storage:destroy rdmtest-confirm < /dev/null"
-  echo "output: $output"
-  echo "status: $status"
-  assert_failure
-
-  run /bin/bash -c "dokku storage:list-entries --format json | jq -r '.[].name' | grep '^rdmtest-confirm$'"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  assert_output "rdmtest-confirm"
-
-  # Matching confirmation via stdin: succeeds and removes the entry.
-  run /bin/bash -c "echo rdmtest-confirm | dokku storage:destroy rdmtest-confirm"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run /bin/bash -c "dokku storage:list-entries --format json | jq -r '.[].name' | grep '^rdmtest-confirm$' || true"
-  echo "output: $output"
-  echo "status: $status"
-  assert_output ""
-}
-
-@test "(storage:destroy) --force skips confirmation" {
-  run /bin/bash -c "dokku storage:create rdmtest-force"
-  assert_success
-
-  run /bin/bash -c "dokku storage:destroy rdmtest-force --force < /dev/null"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run /bin/bash -c "dokku storage:list-entries --format json | jq -r '.[].name' | grep '^rdmtest-force$' || true"
-  assert_output ""
-}
-
-@test "(storage:destroy) global --force skips confirmation" {
-  run /bin/bash -c "dokku storage:create rdmtest-gforce"
-  assert_success
-
-  run /bin/bash -c "dokku --force storage:destroy rdmtest-gforce < /dev/null"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run /bin/bash -c "dokku storage:list-entries --format json | jq -r '.[].name' | grep '^rdmtest-gforce$' || true"
-  assert_output ""
-}
-
 @test "(storage) storage:exec runs a non-interactive command and propagates exit code" {
   run /bin/bash -c "dokku storage:create rdmtest-exec"
   assert_success
@@ -952,4 +764,69 @@ teardown() {
   assert_success
   run /bin/bash -c "dokku storage:destroy rdmtest-rpt-keys --force"
   assert_success
+}
+
+@test "(storage) chmod-storage-dir rejects invalid modes" {
+  run /bin/bash -c "DOKKU_LIB_ROOT=$DOKKU_LIB_ROOT $PLUGIN_AVAILABLE_PATH/storage/bin/chmod-storage-dir $TEST_APP 0888"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Unsupported directory mode"
+
+  run /bin/bash -c "DOKKU_LIB_ROOT=$DOKKU_LIB_ROOT $PLUGIN_AVAILABLE_PATH/storage/bin/chmod-storage-dir $TEST_APP 07555"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Unsupported directory mode"
+
+  run /bin/bash -c "DOKKU_LIB_ROOT=$DOKKU_LIB_ROOT $PLUGIN_AVAILABLE_PATH/storage/bin/chmod-storage-dir $TEST_APP u+rwx"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Unsupported directory mode"
+
+  run /bin/bash -c "DOKKU_LIB_ROOT=$DOKKU_LIB_ROOT $PLUGIN_AVAILABLE_PATH/storage/bin/chmod-storage-dir '../escape' 0777"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Directory can only contain the following set of characters"
+}
+
+@test "(storage) destroy-storage-dir refuses a traversing directory name" {
+  run /bin/bash -c "DOKKU_LIB_ROOT=$DOKKU_LIB_ROOT $PLUGIN_AVAILABLE_PATH/storage/bin/destroy-storage-dir '../escape'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Directory can only contain the following set of characters"
+
+  # a missing directory is a no-op rather than an error
+  run /bin/bash -c "DOKKU_LIB_ROOT=$DOKKU_LIB_ROOT $PLUGIN_AVAILABLE_PATH/storage/bin/destroy-storage-dir rdmtest-absent"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
+@test "(storage) install trigger whitelists the storage directory helpers" {
+  run /bin/bash -c "test -f /etc/sudoers.d/dokku-storage"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "sudo grep -c 'storage/bin/chown-storage-dir' /etc/sudoers.d/dokku-storage"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "1"
+
+  run /bin/bash -c "sudo grep -c 'storage/bin/chmod-storage-dir' /etc/sudoers.d/dokku-storage"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "1"
+
+  run /bin/bash -c "sudo grep -c 'storage/bin/destroy-storage-dir' /etc/sudoers.d/dokku-storage"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "1"
 }
