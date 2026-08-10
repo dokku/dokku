@@ -3,6 +3,7 @@ package logs
 import (
 	"errors"
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -10,6 +11,10 @@ import (
 )
 
 func validateSetValue(appName string, key string, value string) error {
+	if key == "app-label-alias" {
+		return validateAppLabelAlias(appName, value)
+	}
+
 	if key == "max-size" {
 		return validateMaxSize(appName, value)
 	}
@@ -24,6 +29,22 @@ func validateSetValue(appName string, key string, value string) error {
 
 	if key == "vector-sink" || key == "vector-cron-sink" {
 		return validateVectorSink(appName, value)
+	}
+
+	return nil
+}
+
+// appLabelAliasPattern matches label keys that are safe to both use as a docker
+// label and quote into the generated vector remap program
+var appLabelAliasPattern = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9_.-]*$`)
+
+func validateAppLabelAlias(appName string, value string) error {
+	if value == "" {
+		return nil
+	}
+
+	if !appLabelAliasPattern.MatchString(value) {
+		return errors.New("Invalid app-label-alias value, must start with a letter or number and contain only letters, numbers, and any of [_, ., -]")
 	}
 
 	return nil

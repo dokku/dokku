@@ -356,13 +356,13 @@ dokku logs:set node-js-app vector-cron-sink "file://?path=/var/log/dokku/apps/no
 
 ##### Configuring the app label
 
-Logs shipped by vector include the label `com.dokku.app-name`, which is an alias for the app name. This can be changed via the `app-label-alias` logs property with the `logs:set` command. Specifying a new alias will reload any running vector container.
+Dokku labels every app container with `com.dokku.app-name`, and events shipped by vector carry that label as the field `label."com.dokku.app-name"`. Some sinks cannot use a field named that way - Loki label names, for instance, may only contain letters, digits and underscores - so the field can be renamed on the way to the sink via the `app-label-alias` logs property. Specifying a new alias will reload any running vector container.
 
 ```shell
-# setting the sink value in quotes is encouraged to avoid
-# issues with ampersand encoding in shell commands
-dokku logs:set node-js-app app-label-alias "app-name"
+dokku logs:set node-js-app app-label-alias "app_name"
 ```
+
+Events for `node-js-app` then carry `label.app_name` and no longer carry `label."com.dokku.app-name"`.
 
 An alias may be removed by setting an empty value, which will also reload the running vector container.
 
@@ -370,12 +370,12 @@ An alias may be removed by setting an empty value, which will also reload the ru
 dokku logs:set node-js-app app-label-alias
 ```
 
-Only one alias may be specified on a per-app basis at a given time.
+Only one alias may be specified on a per-app basis at a given time. Valid values start with a letter or number and may otherwise contain letters, numbers, underscores, periods and hyphens.
 
 App label aliases can also be specified globally by specifying the `--global` flag to `logs:set` with no app name specified:
 
 ```shell
-dokku logs:set --global app-label-alias "app-name"
+dokku logs:set --global app-label-alias "app_name"
 ```
 
 As with app-specific label alias settings, the global value may also be cleared by setting no value.
@@ -383,6 +383,10 @@ As with app-specific label alias settings, the global value may also be cleared 
 ```shell
 dokku logs:set --global app-label-alias
 ```
+
+An app-specific value takes precedence over the global one, and is applied to that app's events whether they are shipped by the app's own `vector-sink` or by the global one.
+
+The alias only changes the shipped event. Containers are always discovered by the `com.dokku.app-name` label, so changing this property never affects which logs are collected, and a change takes effect on the next vector reload without redeploying the app. Cron events are unaffected in another respect too: `dokku_app` is read from the container label before the rename, so it holds the app name regardless of the configured alias.
 
 ## Properties
 
@@ -393,7 +397,7 @@ dokku logs:set --global app-label-alias
 
 | Property | Scope | Default | Report flags | Description |
 |---|---|---|---|---|
-| `app-label-alias` | app + global | `com.dokku.app-name` | `--logs-app-label-alias`, `--logs-global-app-label-alias`, `--logs-computed-app-label-alias` | Docker label key whose value is used to identify the app when shipping logs |
+| `app-label-alias` | app + global | `com.dokku.app-name` | `--logs-app-label-alias`, `--logs-global-app-label-alias`, `--logs-computed-app-label-alias` | Field name the app name is shipped under, renamed from `com.dokku.app-name` on the event |
 | `max-size` | app + global | `10m` | `--logs-max-size`, `--logs-global-max-size`, `--logs-computed-max-size` | Maximum size of an individual log file before rotation |
 | `vector-image` | global only | _parsed from `plugins/logs/Dockerfile`_ | `--logs-global-vector-image`, `--logs-computed-vector-image` | Docker image used to run the vector log-shipper container |
 | `vector-networks` | global only | none | `--logs-global-vector-networks`, `--logs-computed-vector-networks` | Comma-separated list of docker networks the vector container is attached to |

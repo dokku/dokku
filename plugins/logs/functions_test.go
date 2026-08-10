@@ -2,8 +2,12 @@ package logs
 
 import (
 	"encoding/json"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/dokku/dokku/plugins/common"
 )
 
 func appScope(sink string, cronSink string) vectorAppSinks {
@@ -14,6 +18,27 @@ func appScope(sink string, cronSink string) vectorAppSinks {
 		CronSinkID:    "docker-cron-sink:myapp",
 		RouterID:      "docker-router:myapp",
 		CronRemapID:   "docker-cron-remap:myapp",
+		RelabelID:     "docker-relabel:myapp",
+		Sink:          sink,
+		CronSink:      cronSink,
+	}
+}
+
+func aliasScope(sink string, cronSink string, alias string) vectorAppSinks {
+	scope := appScope(sink, cronSink)
+	scope.LabelAlias = alias
+	return scope
+}
+
+func globalScope(sink string, cronSink string) vectorAppSinks {
+	return vectorAppSinks{
+		SourceID:      "docker-global-source",
+		IncludeLabels: []string{"com.dokku.app-name"},
+		SinkID:        "docker-global-sink",
+		CronSinkID:    "docker-global-cron-sink",
+		RouterID:      "docker-global-router",
+		CronRemapID:   "docker-global-cron-remap",
+		RelabelID:     "docker-global-relabel",
 		Sink:          sink,
 		CronSink:      cronSink,
 	}
@@ -131,16 +156,9 @@ func TestBuildVectorConfigBothSinks(t *testing.T) {
 }
 
 func TestBuildVectorConfigGlobalScope(t *testing.T) {
-	_, decoded := marshalConfig(t, []vectorAppSinks{{
-		SourceID:      "docker-global-source",
-		IncludeLabels: []string{"com.dokku.app-name"},
-		SinkID:        "docker-global-sink",
-		CronSinkID:    "docker-global-cron-sink",
-		RouterID:      "docker-global-router",
-		CronRemapID:   "docker-global-cron-remap",
-		Sink:          "console://?encoding[codec]=json",
-		CronSink:      "console://?encoding[codec]=text",
-	}})
+	_, decoded := marshalConfig(t, []vectorAppSinks{
+		globalScope("console://?encoding[codec]=json", "console://?encoding[codec]=text"),
+	})
 
 	lookup(t, decoded, "transforms", "docker-global-router")
 	lookup(t, decoded, "transforms", "docker-global-cron-remap")
@@ -170,5 +188,217 @@ func TestBuildVectorConfigNoSinks(t *testing.T) {
 func TestBuildVectorConfigInvalidSink(t *testing.T) {
 	if _, err := buildVectorConfig([]vectorAppSinks{appScope("console://?sinks=nope", "")}); err == nil {
 		t.Fatal("buildVectorConfig() expected an error for an invalid sink DSN")
+	}
+}
+
+// TestBuildVectorConfigAliasKeepsSourceFilter is the guard for the bug this
+// alias handling replaced: filtering the source on the alias matched no
+// container at all, because dokku only ever labels containers with the literal
+// key, so setting the property silently collected nothing.
+func TestBuildVectorConfigAliasKeepsSourceFilter(t *testing.T) {
+	_, decoded := marshalConfig(t, []vectorAppSinks{
+		aliasScope("console://?encoding[codec]=json", "", "app_name"),
+	})
+
+	labels := lookup(t, decoded, "sources", "docker-source:myapp", "include_labels")
+	if got := labels.([]interface{})[0]; got != "com.dokku.app-name=myapp" {
+		t.Errorf("include_labels[0] = %v, want com.dokku.app-name=myapp", got)
+	}
+}
+
+func TestBuildVectorConfigAliasRelabelsPlainBranch(t *testing.T) {
+	_, decoded := marshalConfig(t, []vectorAppSinks{
+		aliasScope("console://?encoding[codec]=json", "", "app_name"),
+	})
+
+	if got := lookup(t, decoded, "transforms", "docker-relabel:myapp", "type"); got != "remap" {
+		t.Errorf("relabel type = %v, want remap", got)
+	}
+
+	inputs := lookup(t, decoded, "transforms", "docker-relabel:myapp", "inputs")
+	if got := inputs.([]interface{})[0]; got != "docker-source:myapp" {
+		t.Errorf("relabel inputs[0] = %v, want docker-source:myapp", got)
+	}
+
+	source := lookup(t, decoded, "transforms", "docker-relabel:myapp", "source")
+	want := `.label."app_name" = del(.label."com.dokku.app-name")`
+	if source != want {
+		t.Errorf("relabel source = %v, want %v", source, want)
+	}
+
+	sinkInputs := lookup(t, decoded, "sinks", "docker-sink:myapp", "inputs")
+	if got := sinkInputs.([]interface{})[0]; got != "docker-relabel:myapp" {
+		t.Errorf("sink inputs[0] = %v, want docker-relabel:myapp", got)
+	}
+}
+
+// TestBuildVectorConfigAliasRelabelsBothBranches pins the rename onto the tail
+// of the cron remap. dokku_app is captured from the literal label first, so it
+// keeps its value no matter which alias the event is shipped under.
+func TestBuildVectorConfigAliasRelabelsBothBranches(t *testing.T) {
+	_, decoded := marshalConfig(t, []vectorAppSinks{
+		aliasScope("console://?encoding[codec]=json", "console://?encoding[codec]=text", "app_name"),
+	})
+
+	remapSource := lookup(t, decoded, "transforms", "docker-cron-remap:myapp", "source")
+	want := ".dokku_app = to_string(.label.\"com.dokku.app-name\") ?? \"\"\n" +
+		".dokku_cron_id = to_string(.label.\"com.dokku.cron-id\") ?? \"\"\n" +
+		".label.\"app_name\" = del(.label.\"com.dokku.app-name\")"
+	if remapSource != want {
+		t.Errorf("cron remap source = %v, want %v", remapSource, want)
+	}
+
+	inputs := lookup(t, decoded, "transforms", "docker-relabel:myapp", "inputs")
+	if got := inputs.([]interface{})[0]; got != "docker-router:myapp._unmatched" {
+		t.Errorf("relabel inputs[0] = %v, want docker-router:myapp._unmatched", got)
+	}
+
+	sinkInputs := lookup(t, decoded, "sinks", "docker-sink:myapp", "inputs")
+	if got := sinkInputs.([]interface{})[0]; got != "docker-relabel:myapp" {
+		t.Errorf("sink inputs[0] = %v, want docker-relabel:myapp", got)
+	}
+}
+
+// TestBuildVectorConfigAliasCronSinkOnly covers the branch with nothing
+// downstream to consume a relabel component: vector rejects a transform whose
+// output no sink reads, so the rename has to stay inside the cron remap.
+func TestBuildVectorConfigAliasCronSinkOnly(t *testing.T) {
+	_, decoded := marshalConfig(t, []vectorAppSinks{
+		aliasScope("", "console://?encoding[codec]=text", "app_name"),
+	})
+
+	transforms := lookup(t, decoded, "transforms").(map[string]interface{})
+	if _, ok := transforms["docker-relabel:myapp"]; ok {
+		t.Error("relabel transform should not exist without a plain sink")
+	}
+
+	remapSource := lookup(t, decoded, "transforms", "docker-cron-remap:myapp", "source").(string)
+	if !strings.Contains(remapSource, `.label."app_name" = del(.label."com.dokku.app-name")`) {
+		t.Errorf("cron remap source %q missing the rename", remapSource)
+	}
+}
+
+func setupScopesTest(t *testing.T, apps []string) {
+	t.Helper()
+	t.Setenv("PLUGIN_PATH", "/var/lib/dokku/plugins")
+	t.Setenv("PLUGIN_ENABLED_PATH", "/var/lib/dokku/plugins/enabled")
+	t.Setenv("DOKKU_LIB_ROOT", t.TempDir())
+	t.Setenv("DOKKU_ROOT", t.TempDir())
+	t.Setenv("DOKKU_SYSTEM_USER", "root")
+	t.Setenv("DOKKU_SYSTEM_GROUP", "root")
+
+	if err := common.PropertySetup("logs"); err != nil {
+		t.Fatalf("PropertySetup: %v", err)
+	}
+
+	for _, appName := range apps {
+		if err := os.MkdirAll(filepath.Join(os.Getenv("DOKKU_ROOT"), appName), 0755); err != nil {
+			t.Fatalf("MkdirAll %s: %v", appName, err)
+		}
+	}
+}
+
+func scopeByID(t *testing.T, scopes []vectorAppSinks, sourceID string) vectorAppSinks {
+	t.Helper()
+
+	for _, scope := range scopes {
+		if scope.SourceID == sourceID {
+			return scope
+		}
+	}
+
+	t.Fatalf("no scope with source id %q", sourceID)
+	return vectorAppSinks{}
+}
+
+// TestVectorScopesGlobalAliasIgnoresAppNamedGlobal pins the global scope to the
+// --global property. It used to resolve against an app literally named global,
+// which would have let that app's own alias drive every other app's shipping.
+func TestVectorScopesGlobalAliasIgnoresAppNamedGlobal(t *testing.T) {
+	setupScopesTest(t, []string{"global", "myapp"})
+
+	if err := common.PropertyWrite("logs", "--global", "app-label-alias", "gname"); err != nil {
+		t.Fatalf("PropertyWrite --global: %v", err)
+	}
+	if err := common.PropertyWrite("logs", "global", "app-label-alias", "hijack"); err != nil {
+		t.Fatalf("PropertyWrite global: %v", err)
+	}
+
+	scopes := vectorScopes()
+
+	globalScope := scopeByID(t, scopes, "docker-global-source")
+	if globalScope.LabelAlias != "gname" {
+		t.Errorf("global LabelAlias = %q, want gname", globalScope.LabelAlias)
+	}
+
+	// the app named global differs from the global alias, so it is the only
+	// scope that should be listed as an override
+	want := []vectorLabelAliasOverride{{AppName: "global", Alias: "hijack"}}
+	if len(globalScope.LabelAliasOverrides) != 1 || globalScope.LabelAliasOverrides[0] != want[0] {
+		t.Errorf("global LabelAliasOverrides = %v, want %v", globalScope.LabelAliasOverrides, want)
+	}
+
+	appScope := scopeByID(t, scopes, "docker-source:myapp")
+	if appScope.LabelAlias != "gname" {
+		t.Errorf("myapp LabelAlias = %q, want gname", appScope.LabelAlias)
+	}
+	if got := appScope.IncludeLabels[0]; got != "com.dokku.app-name=myapp" {
+		t.Errorf("myapp include_labels[0] = %q, want com.dokku.app-name=myapp", got)
+	}
+}
+
+func TestRelabelVRLDefaultAlias(t *testing.T) {
+	for _, alias := range []string{"", AppLabelAlias} {
+		if got := relabelVRL(aliasScope("console://", "", alias)); got != "" {
+			t.Errorf("relabelVRL(%q) = %q, want an empty string", alias, got)
+		}
+	}
+}
+
+// TestRelabelVRLGlobalOverrides covers the global scope, which collects every
+// app: an app whose own alias differs from the global one needs a branch here,
+// or its alias would be silently dropped whenever it ships through the global
+// sink.
+func TestRelabelVRLGlobalOverrides(t *testing.T) {
+	prelude := "app = to_string(.label.\"com.dokku.app-name\") ?? \"\"\n"
+
+	tests := []struct {
+		name      string
+		alias     string
+		overrides []vectorLabelAliasOverride
+		want      string
+	}{
+		{
+			name:      "renaming override under a default global alias",
+			alias:     AppLabelAlias,
+			overrides: []vectorLabelAliasOverride{{AppName: "appa", Alias: "foo"}},
+			want:      prelude + "if app == \"appa\" {\n  .label.\"foo\" = del(.label.\"com.dokku.app-name\")\n}",
+		},
+		{
+			name:      "override pinned back to the default label",
+			alias:     "gname",
+			overrides: []vectorLabelAliasOverride{{AppName: "appb", Alias: AppLabelAlias}},
+			want:      prelude + "if app != \"appb\" {\n  .label.\"gname\" = del(.label.\"com.dokku.app-name\")\n}",
+		},
+		{
+			name:  "both kinds of override at once",
+			alias: "gname",
+			overrides: []vectorLabelAliasOverride{
+				{AppName: "appa", Alias: "foo"},
+				{AppName: "appb", Alias: AppLabelAlias},
+			},
+			want: prelude + "if app == \"appa\" {\n  .label.\"foo\" = del(.label.\"com.dokku.app-name\")\n}" +
+				" else if app != \"appb\" {\n  .label.\"gname\" = del(.label.\"com.dokku.app-name\")\n}",
+		},
+	}
+
+	for _, test := range tests {
+		scope := globalScope("console://", "")
+		scope.LabelAlias = test.alias
+		scope.LabelAliasOverrides = test.overrides
+
+		if got := relabelVRL(scope); got != test.want {
+			t.Errorf("%s: relabelVRL() = %q, want %q", test.name, got, test.want)
+		}
 	}
 }
