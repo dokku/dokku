@@ -139,6 +139,11 @@ func drainLegacyEnvFile(name string, oldEnvFile string, env *Env) error {
 // otherwise it is moved alongside itself with a .migrated suffix and the keys it
 // disagrees on are named, so an operator who did write it by hand can still
 // recover the values through `dokku config:set`.
+//
+// The preserved copy is the operator's to delete. It holds everything the file
+// was not allowed to import, which includes keys that were unset on purpose, so
+// leaving a revoked secret sitting in a file dokku no longer reads is not what
+// anyone wants once its contents have been reviewed.
 func preserveStaleEnvFile(name string, oldEnvFile string, env *Env) error {
 	staleEnv, err := loadFromFile(name, oldEnvFile)
 	if err != nil {
@@ -155,7 +160,7 @@ func preserveStaleEnvFile(name string, oldEnvFile string, env *Env) error {
 
 	preservedFile := oldEnvFile + ".migrated"
 	common.LogWarn(fmt.Sprintf("Not importing already-migrated ENV file %s: the current config takes precedence for %s", oldEnvFile, strings.Join(diverged, " ")))
-	common.LogWarn(fmt.Sprintf("Preserved at %s; apply any values still needed with dokku config:set", preservedFile))
+	common.LogWarn(fmt.Sprintf("Preserved at %s: re-apply anything still needed with dokku config:set, then delete it - dokku does not read it and it may hold values that were unset on purpose", preservedFile))
 
 	if err := os.Rename(oldEnvFile, preservedFile); err != nil {
 		return fmt.Errorf("Unable to preserve stale file %s: %s", oldEnvFile, err.Error())

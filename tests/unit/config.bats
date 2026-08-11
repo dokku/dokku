@@ -644,6 +644,7 @@ teardown() {
   assert_success
   assert_output_contains "the current config takes precedence for KEEP RESURRECTED"
   assert_output_contains "$DOKKU_ROOT/$TEST_APP/ENV.migrated"
+  assert_output_contains "then delete it"
 
   run /bin/bash -c "dokku config:get $TEST_APP KEEP"
   echo "output: $output"
