@@ -49,6 +49,24 @@ func writeLegacyAppEnv(t *testing.T, dokkuRoot, appName, contents string) string
 	return path
 }
 
+// expectPreservedKey asserts the stale ENV file moved aside at path still holds
+// the given key, so the values it was not allowed to import remain recoverable.
+func expectPreservedKey(t *testing.T, path, key, want string) {
+	t.Helper()
+
+	preserved, err := loadFromFile("preserved", path)
+	if err != nil {
+		t.Fatalf("loadFromFile(%s): %v", path, err)
+	}
+	got, ok := preserved.Get(key)
+	if !ok {
+		t.Fatalf("expected %s to hold %s", path, key)
+	}
+	if got != want {
+		t.Errorf("%s in %s = %q, want %q", key, path, got, want)
+	}
+}
+
 func expectEnvValue(t *testing.T, appName, key, want string) {
 	t.Helper()
 	got, ok := Get(appName, key)
@@ -102,11 +120,10 @@ func TestMigrateEnvFiles_DrainsAndRemovesGlobalFile(t *testing.T) {
 	}
 }
 
-// TestMigrateEnvFiles_ImportsHandEditedFile covers a legacy file that turns up
-// after the migration was already recorded, which means it was written by hand
-// rather than through `dokku config:*`. Its contents are merged in rather than
-// discarded.
-func TestMigrateEnvFiles_ImportsHandEditedFile(t *testing.T) {
+// TestMigrateEnvFiles_PreservesStaleFileWithoutImporting covers a legacy file
+// that is still there once the migration has been recorded. Nothing it holds is
+// imported, and it is moved aside so the values remain recoverable.
+func TestMigrateEnvFiles_PreservesStaleFileWithoutImporting(t *testing.T) {
 	dokkuRoot, _ := setupMigrateEnv(t)
 
 	writeLegacyAppEnv(t, dokkuRoot, "alpha", "export FIRST=one\n")
@@ -114,21 +131,129 @@ func TestMigrateEnvFiles_ImportsHandEditedFile(t *testing.T) {
 		t.Fatalf("first MigrateEnvFiles: %v", err)
 	}
 
-	legacy := writeLegacyAppEnv(t, dokkuRoot, "alpha", "export SECOND=two\n")
+	legacy := writeLegacyAppEnv(t, dokkuRoot, "alpha", "export FIRST=one\nexport SECOND=two\n")
 	if err := MigrateEnvFiles(); err != nil {
 		t.Fatalf("second MigrateEnvFiles: %v", err)
 	}
 
 	expectEnvValue(t, "alpha", "FIRST", "one")
-	expectEnvValue(t, "alpha", "SECOND", "two")
+	if _, ok := Get("alpha", "SECOND"); ok {
+		t.Errorf("did not expect SECOND to be imported from a stale legacy file")
+	}
+
 	if _, err := os.Stat(legacy); !os.IsNotExist(err) {
-		t.Errorf("expected %s to be removed, got err=%v", legacy, err)
+		t.Errorf("expected %s to be cleared out, got err=%v", legacy, err)
+	}
+	expectPreservedKey(t, legacy+".migrated", "SECOND", "two")
+}
+
+// TestMigrateEnvFiles_KeepsConfigSetAfterMigration covers the 0.38.26 regression
+// reported in #8929: releases 0.38.0 through 0.38.25 recorded the migration and
+// left the legacy file in place, so draining it a second time replayed the
+// environment as it stood at that upgrade over every config:set made since.
+func TestMigrateEnvFiles_KeepsConfigSetAfterMigration(t *testing.T) {
+	dokkuRoot, _ := setupMigrateEnv(t)
+
+	writeLegacyAppEnv(t, dokkuRoot, "alpha", "export DATABASE_URL=value-A\n")
+	if err := MigrateEnvFiles(); err != nil {
+		t.Fatalf("first MigrateEnvFiles: %v", err)
+	}
+
+	if err := SetMany("alpha", map[string]string{"DATABASE_URL": "value-B"}, false, false); err != nil {
+		t.Fatalf("SetMany: %v", err)
+	}
+
+	legacy := writeLegacyAppEnv(t, dokkuRoot, "alpha", "export DATABASE_URL=value-A\n")
+	if err := MigrateEnvFiles(); err != nil {
+		t.Fatalf("second MigrateEnvFiles: %v", err)
+	}
+
+	expectEnvValue(t, "alpha", "DATABASE_URL", "value-B")
+	expectPreservedKey(t, legacy+".migrated", "DATABASE_URL", "value-A")
+}
+
+// TestMigrateEnvFiles_DoesNotResurrectUnsetKeys covers the other half of #8929: a
+// key unset after the migration was recorded came back when the legacy file was
+// drained again, which for a rotated secret meant putting it back into service.
+func TestMigrateEnvFiles_DoesNotResurrectUnsetKeys(t *testing.T) {
+	dokkuRoot, _ := setupMigrateEnv(t)
+
+	writeLegacyAppEnv(t, dokkuRoot, "alpha", "export DOKKU_PROXY_PORT=80\n")
+	if err := MigrateEnvFiles(); err != nil {
+		t.Fatalf("first MigrateEnvFiles: %v", err)
+	}
+
+	if err := UnsetMany("alpha", []string{"DOKKU_PROXY_PORT"}, false); err != nil {
+		t.Fatalf("UnsetMany: %v", err)
+	}
+
+	writeLegacyAppEnv(t, dokkuRoot, "alpha", "export DOKKU_PROXY_PORT=80\n")
+	if err := MigrateEnvFiles(); err != nil {
+		t.Fatalf("second MigrateEnvFiles: %v", err)
+	}
+
+	if _, ok := Get("alpha", "DOKKU_PROXY_PORT"); ok {
+		t.Errorf("did not expect DOKKU_PROXY_PORT to be resurrected from a stale legacy file")
 	}
 }
 
-// TestMigrateEnvFiles_LegacyValueWins documents the merge precedence the
-// hand-edit path depends on: the legacy file overwrites the value already held
-// at the config path.
+// TestMigrateEnvFiles_RemovesStaleFileMatchingCurrentConfig covers the common
+// upgrade: the leftover file still agrees with the current config, so there is
+// nothing to preserve and no reason to say anything about it.
+func TestMigrateEnvFiles_RemovesStaleFileMatchingCurrentConfig(t *testing.T) {
+	dokkuRoot, _ := setupMigrateEnv(t)
+
+	writeLegacyAppEnv(t, dokkuRoot, "alpha", "export MY_VAR=value\n")
+	if err := MigrateEnvFiles(); err != nil {
+		t.Fatalf("first MigrateEnvFiles: %v", err)
+	}
+
+	legacy := writeLegacyAppEnv(t, dokkuRoot, "alpha", "export MY_VAR=value\n")
+	if err := MigrateEnvFiles(); err != nil {
+		t.Fatalf("second MigrateEnvFiles: %v", err)
+	}
+
+	expectEnvValue(t, "alpha", "MY_VAR", "value")
+	if _, err := os.Stat(legacy); !os.IsNotExist(err) {
+		t.Errorf("expected %s to be removed, got err=%v", legacy, err)
+	}
+	if _, err := os.Stat(legacy + ".migrated"); !os.IsNotExist(err) {
+		t.Errorf("did not expect %s.migrated to be left behind, got err=%v", legacy, err)
+	}
+}
+
+// TestMigrateEnvFiles_PreservesStaleGlobalFile covers the global file, which
+// releases 0.38.0 through 0.38.25 never removed at all, so every host upgraded
+// through that range still has one.
+func TestMigrateEnvFiles_PreservesStaleGlobalFile(t *testing.T) {
+	dokkuRoot, _ := setupMigrateEnv(t)
+
+	legacy := filepath.Join(dokkuRoot, "ENV")
+	if err := os.WriteFile(legacy, []byte("export DOKKU_WAIT_TO_RETIRE=30\n"), 0600); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
+	if err := MigrateEnvFiles(); err != nil {
+		t.Fatalf("first MigrateEnvFiles: %v", err)
+	}
+
+	if err := SetMany("--global", map[string]string{"DOKKU_WAIT_TO_RETIRE": "60"}, false, false); err != nil {
+		t.Fatalf("SetMany: %v", err)
+	}
+
+	if err := os.WriteFile(legacy, []byte("export DOKKU_WAIT_TO_RETIRE=30\n"), 0600); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
+	if err := MigrateEnvFiles(); err != nil {
+		t.Fatalf("second MigrateEnvFiles: %v", err)
+	}
+
+	expectEnvValue(t, "--global", "DOKKU_WAIT_TO_RETIRE", "60")
+	expectPreservedKey(t, legacy+".migrated", "DOKKU_WAIT_TO_RETIRE", "30")
+}
+
+// TestMigrateEnvFiles_LegacyValueWins documents the precedence of the one drain
+// that does import: before the migration is recorded the legacy file is the
+// source of truth, so it overwrites the value already held at the config path.
 func TestMigrateEnvFiles_LegacyValueWins(t *testing.T) {
 	dokkuRoot, _ := setupMigrateEnv(t)
 
