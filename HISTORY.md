@@ -1,5 +1,42 @@
 # History
 
+## 0.38.27
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.38.27/bootstrap.sh
+sudo DOKKU_TAG=v0.38.27 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #8933: @josegonzalez Do not require a local image for k3s deploys
+- #8930: @josegonzalez Do not import an already-migrated ENV file
+- #8919: @josegonzalez Regenerate vector config on app lifecycle changes
+- #8917: @josegonzalez Apply app-label-alias to shipped events
+
+### New Features
+
+- #8934: @josegonzalez Report traefik dns-provider env vars as global keys
+- #8920: @josegonzalez Add storage directory mode and removal flags
+- #8914: @josegonzalez Add vector-cron-sink for scheduled cron task output
+
+### Tests
+
+- #8931: @dependabot[bot] chore(deps): bump djangorestframework from 3.17.2 to 3.18.0 in /tests/apps/dockerfile-release
+- #8927: @dependabot[bot] chore(deps): bump djangorestframework from 3.17.1 to 3.17.2 in /tests/apps/dockerfile-release
+- #8923: @dependabot[bot] chore(deps): bump python from 3.15.0b4-bookworm to 3.15.0rc1-bookworm in /tests/apps/dockerfile-release
+
+### Dependencies
+
+- #8926: @dependabot[bot] chore(deps): bump github.com/gliderlabs/sigil from 0.12.0 to 0.12.1 in /plugins/nginx-vhosts
+- #8925: @dependabot[bot] chore(deps): bump packaging from 26.2 to 26.3 in /docs/_build
+- #8921: @dokku-bot chore: bump pack to 0.40.9
+- #8924: @dependabot[bot] chore(deps): bump soupsieve from 2.9.1 to 2.9.2 in /docs/_build
+- #8922: @dependabot[bot] chore(deps): bump python from 3.15.0b4-alpine to 3.15.0rc1-alpine in /docs/_build
+- #8915: @dokku-bot chore: bump herokuish to 0.11.15
+
 ## 0.38.26
 
 Install/update via the bootstrap script:
