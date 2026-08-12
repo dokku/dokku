@@ -181,6 +181,7 @@ go-tests:
 	@$(MAKE) go-test-plugin PLUGIN_NAME=certs
 	@$(MAKE) go-test-plugin PLUGIN_NAME=common
 	@$(MAKE) go-test-plugin PLUGIN_NAME=config
+	@$(MAKE) go-test-plugin PLUGIN_NAME=cron
 	@$(MAKE) go-test-plugin PLUGIN_NAME=docker-options
 	@$(MAKE) go-test-plugin PLUGIN_NAME=logs
 	@$(MAKE) go-test-plugin PLUGIN_NAME=network

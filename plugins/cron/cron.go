@@ -42,6 +42,23 @@ var (
 
 const MaintenancePropertyPrefix = "maintenance."
 
+// DefaultTTLSeconds is how long a cron task may run before it is reaped. The
+// docker-local scheduler stamps this onto the container as the
+// com.dokku.active-deadline-seconds label, while the k3s scheduler renders it
+// as the CronJob's activeDeadlineSeconds.
+const DefaultTTLSeconds int64 = 86400
+
+// validateTTLSeconds returns an error if the requested task lifetime is not a
+// positive number of seconds. A zero or negative deadline would either expire
+// the task the instant it starts or never expire it at all.
+func validateTTLSeconds(ttlSeconds int64) error {
+	if ttlSeconds <= 0 {
+		return fmt.Errorf("--ttl-seconds must be a positive integer")
+	}
+
+	return nil
+}
+
 // CronTask is a struct that represents a cron task
 type CronTask struct {
 	// ID is a unique identifier for the cron task

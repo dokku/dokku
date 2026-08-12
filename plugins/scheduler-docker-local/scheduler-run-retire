@@ -7,7 +7,7 @@ source "$PLUGIN_AVAILABLE_PATH/scheduler-docker-local/internal-functions"
 
 fn-scheduler-docker-local-run-retire-container() {
   declare desc="stop a container"
-  declare CONTAINER_ID="$1"
+  declare CONTAINER_ID="$1" APP="$2"
 
   local DOKKU_DOCKER_STOP_TIMEOUT="$(plugn trigger ps-get-property "$APP" stop-timeout-seconds || true)"
 
@@ -18,25 +18,33 @@ fn-scheduler-docker-local-run-retire-container() {
   "$DOCKER_BIN" container kill "$CONTAINER_ID" &>/dev/null || true
   "$DOCKER_BIN" container rm "$CONTAINER_ID" &>/dev/null || true
 
-  if "$DOCKER_BIN" container inspect "$CONTAINER_ID" &>/dev/null; then
-    dokku_log_warn "Unable to retire container ${CONTAINER_ID}"
-    return 1
+  local CONTAINER_STATUS
+  if ! CONTAINER_STATUS="$("$DOCKER_BIN" container inspect "$CONTAINER_ID" --format '{{ .State.Status }}' 2>/dev/null)"; then
+    return
   fi
+
+  # a container started with --rm is removed by the daemon once it exits, and
+  # stays inspectable in the removing state until that completes
+  if [[ "$CONTAINER_STATUS" == "removing" ]]; then
+    return
+  fi
+
+  dokku_log_warn "Unable to retire container ${CONTAINER_ID}"
+  return 1
 }
 
 fn-scheduler-docker-local-run-retire() {
-  declare desc="stop all run containers that have exceeded their active deadline"
-  declare APP="$1"
+  declare desc="stop all containers of a given type that have exceeded their active deadline"
+  declare CONTAINER_TYPE="$1" APP="$2"
   local containers=""
 
-  # find all run containers for the specified app
-  container_type_filter="label=com.dokku.container-type=run"
+  # docker ands repeated label filters, so each container type requires its own pass
+  declare -a filters=(--filter "label=com.dokku.container-type=$CONTAINER_TYPE")
   if [[ -n "$APP" ]]; then
-    app_filter="label=com.dokku.app-name=$APP"
-    containers="$("$DOCKER_BIN" container ls --filter "$container_type_filter" --filter "$app_filter" --format '{{.ID}} {{.CreatedAt}}')"
-  else
-    containers="$("$DOCKER_BIN" container ls --filter "$container_type_filter" --format '{{.ID}} {{.CreatedAt}}')"
+    filters+=(--filter "label=com.dokku.app-name=$APP")
   fi
+
+  containers="$("$DOCKER_BIN" container ls "${filters[@]}" --format '{{.ID}} {{.CreatedAt}}')"
 
   if [[ -z "$containers" ]]; then
     return
@@ -44,8 +52,11 @@ fn-scheduler-docker-local-run-retire() {
 
   # iterate over all containers, ignoring the timezone in the last two columns
   echo "$containers" | awk '{NF-=2} 1' | while read -r container_id container_date container_time; do
-    # get the cutoff time in seconds from the container's `com.dokku.active-deadline-seconds` label
-    active_deadline_seconds="$("$DOCKER_BIN" container inspect "$container_id" --format '{{ index .Config.Labels "com.dokku.active-deadline-seconds" }}')"
+    # get the cutoff time in seconds from the container's `com.dokku.active-deadline-seconds` label,
+    # along with the owning app so the app's stop timeout is respected during the global pass
+    container_labels="$("$DOCKER_BIN" container inspect "$container_id" --format '{{ index .Config.Labels "com.dokku.active-deadline-seconds" }}|{{ index .Config.Labels "com.dokku.app-name" }}')"
+    active_deadline_seconds="${container_labels%%|*}"
+    container_app="${container_labels##*|}"
     if [[ -z "$active_deadline_seconds" ]]; then
       continue
     fi
@@ -59,28 +70,36 @@ fn-scheduler-docker-local-run-retire() {
     # if the container start time is before the cutoff time, stop the container
     if [[ "$start_time" -lt "$cutoff_time" ]]; then
       dokku_log_verbose_quiet "Retiring container ${container_id}"
-      fn-scheduler-docker-local-run-retire-container "$container_id"
+      fn-scheduler-docker-local-run-retire-container "$container_id" "$container_app"
     fi
   done
 }
 
 trigger-scheduler-docker-local-scheduler-run-retire() {
-  declare desc="retires all run containers for an app that have exceeded their active deadline"
+  declare desc="retires all run and cron containers for an app that have exceeded their active deadline"
   declare trigger="scheduler-run-retire"
   declare DOKKU_SCHEDULER="$1" APP="$2"
+  declare -a CONTAINER_TYPES=(run cron)
+  local exit_code=0
 
   if [[ -z "$DOKKU_SCHEDULER" ]]; then
-    dokku_log_info1_quiet "Retiring all run containers"
-    fn-scheduler-docker-local-run-retire
-    return "$?"
+    dokku_log_info1_quiet "Retiring all run and cron containers"
+    for container_type in "${CONTAINER_TYPES[@]}"; do
+      fn-scheduler-docker-local-run-retire "$container_type" || exit_code=1
+    done
+    return "$exit_code"
   fi
 
   if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
     return
   fi
 
-  dokku_log_info1_quiet "Retiring run containers for app ${APP}"
-  fn-scheduler-docker-local-run-retire "$APP"
+  dokku_log_info1_quiet "Retiring run and cron containers for app ${APP}"
+  for container_type in "${CONTAINER_TYPES[@]}"; do
+    fn-scheduler-docker-local-run-retire "$container_type" "$APP" || exit_code=1
+  done
+
+  return "$exit_code"
 }
 
 trigger-scheduler-docker-local-scheduler-run-retire "$@"

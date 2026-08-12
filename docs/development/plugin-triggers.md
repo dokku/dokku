@@ -2903,8 +2903,8 @@ DOKKU_SCHEDULER="$1"; APP="$2"; CONTAINER="$3"; TAIL="$4"; PRETTY_PRINT="$5"; NU
 > The scheduler plugin trigger apis are under development and may change
 > between minor releases until the 1.0 release.
 
-- Description: Allows you to retire containers started by the `run` command
-- Invoked by: `dokku run:retire`
+- Description: Allows you to retire containers started by the `run` and `cron:run` commands that have exceeded their active deadline
+- Invoked by: `dokku run:retire`, `dokku ps:retire`
 - Arguments: `$DOKKU_SCHEDULER $APP`
 - Example:
 

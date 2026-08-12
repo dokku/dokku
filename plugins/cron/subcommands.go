@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
@@ -97,8 +98,12 @@ func CommandResume(appName string, cronID string) error {
 }
 
 // CommandRun executes a cron task on the fly
-func CommandRun(appName string, cronID string, detached bool) error {
+func CommandRun(appName string, cronID string, detached bool, ttlSeconds int64) error {
 	if err := common.VerifyAppName(appName); err != nil {
+		return err
+	}
+
+	if err := validateTTLSeconds(ttlSeconds); err != nil {
 		return err
 	}
 
@@ -139,7 +144,7 @@ func CommandRun(appName string, cronID string, detached bool) error {
 	os.Setenv("DOKKU_CONCURRENCY_POLICY", concurrencyPolicy)
 	os.Setenv("DOKKU_CRON_ID", cronID)
 	os.Setenv("DOKKU_RM_CONTAINER", "1")
-	os.Setenv("DOKKU_RUN_TTL_SECONDS", "86400")
+	os.Setenv("DOKKU_RUN_TTL_SECONDS", strconv.FormatInt(ttlSeconds, 10))
 	scheduler := common.GetAppScheduler(appName)
 	args := append([]string{scheduler, appName, "0", "--"}, fields...)
 	_, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
