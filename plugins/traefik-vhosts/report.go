@@ -8,6 +8,9 @@ import (
 	"github.com/dokku/dokku/plugins/common"
 )
 
+// valueMask is shown in place of credential values in the default stdout report
+const valueMask = "*******"
+
 // ReportSingleApp is an internal function that displays the traefik report for one or more apps
 func ReportSingleApp(appName string, format string, infoFlag string) error {
 	if appName != "--global" {
@@ -49,20 +52,16 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 		"--traefik-global-log-level":                 reportGlobalLogLevel,
 	}
 
-	// dns-provider-* env vars are dynamic; their values are masked in the default
-	// stdout report, but shown for --format json or when queried explicitly by name
-	dnsProviderVars, err := common.PropertyGetAllByPrefix("traefik", "--global", "dns-provider-")
+	for _, flagName := range []string{"--traefik-computed-basic-auth-password", "--traefik-global-basic-auth-password"} {
+		flags[flagName] = maskedReportFunc(flags[flagName], flagName, format, infoFlag)
+	}
+
+	dnsProviderFlags, err := dnsProviderReportFlags(format, infoFlag)
 	if err != nil {
 		return err
 	}
-	for key, value := range dnsProviderVars {
-		flagName := "--traefik-" + key
-		realValue := value
-		if format == "json" || infoFlag == flagName {
-			flags[flagName] = func(string) string { return realValue }
-		} else {
-			flags[flagName] = func(string) string { return "*******" }
-		}
+	for flagName, reportFunc := range dnsProviderFlags {
+		flags[flagName] = reportFunc
 	}
 
 	flagKeys := []string{}
@@ -82,6 +81,40 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 		UppercaseFirstCharacter: true,
 		EmitLegacyPrefix:        false,
 	})
+}
+
+// maskedReportFunc hides a credential value behind valueMask so the default stdout
+// report - and thus the aggregate `dokku report` - never prints it. The raw value is
+// returned for machine-readable output or when the flag is requested by name.
+func maskedReportFunc(fn common.ReportFunc, flagName string, format string, infoFlag string) common.ReportFunc {
+	if format == "json" || infoFlag == flagName {
+		return fn
+	}
+
+	return func(appName string) string {
+		if fn(appName) == "" {
+			return ""
+		}
+
+		return valueMask
+	}
+}
+
+// dnsProviderReportFlags returns report functions for the dynamic dns-provider-*
+// properties, keyed by their global report flag
+func dnsProviderReportFlags(format string, infoFlag string) (map[string]common.ReportFunc, error) {
+	flags := map[string]common.ReportFunc{}
+	properties, err := common.PropertyGetAllByPrefix("traefik", "--global", "dns-provider-")
+	if err != nil {
+		return flags, err
+	}
+
+	for property, value := range properties {
+		flagName := "--traefik-global-" + property
+		flags[flagName] = maskedReportFunc(func(string) string { return value }, flagName, format, infoFlag)
+	}
+
+	return flags, nil
 }
 
 func reportGlobalAPIEnabled(appName string) string {

@@ -10,6 +10,8 @@ setup() {
   dokku traefik:set --global api-enabled
   dokku traefik:set --global api-entry-point
   dokku traefik:set --global api-entry-point-address
+  dokku traefik:set --global basic-auth-username
+  dokku traefik:set --global basic-auth-password
   dokku traefik:set --global challenge-mode
   dokku traefik:set --global dns-provider
   dokku traefik:start
@@ -539,19 +541,19 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "dns provider cf_api_email"
-  assert_output_contains "dns provider cf_api_key"
+  assert_output_contains "global dns provider cf_api_email"
+  assert_output_contains "global dns provider cf_api_key"
   assert_output_contains "*******" 2
   assert_output_not_contains "test@example.com"
   assert_output_not_contains "secret-key"
 
-  run /bin/bash -c "dokku traefik:report $TEST_APP --traefik-dns-provider-cf_api_email"
+  run /bin/bash -c "dokku traefik:report $TEST_APP --traefik-global-dns-provider-cf_api_email"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output "test@example.com"
 
-  run /bin/bash -c "dokku traefik:report $TEST_APP --traefik-dns-provider-cf_api_key"
+  run /bin/bash -c "dokku traefik:report $TEST_APP --traefik-global-dns-provider-cf_api_key"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -571,8 +573,8 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_not_contains "dns provider cf_api_email"
-  assert_output_not_contains "dns provider cf_api_key"
+  assert_output_not_contains "global dns provider cf_api_email"
+  assert_output_not_contains "global dns provider cf_api_key"
 }
 
 @test "(traefik) [dns-01] dns-provider-* can only be set globally" {
@@ -610,13 +612,13 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku traefik:report $TEST_APP --format json | jq -r '.\"dns-provider-cf_api_email\"'"
+  run /bin/bash -c "dokku traefik:report $TEST_APP --format json | jq -r '.\"global-dns-provider-cf_api_email\"'"
   echo "output: $output"
   echo "status: $status"
   assert_success
   assert_output "test@example.com"
 
-  run /bin/bash -c "dokku traefik:report $TEST_APP --format json | jq -r '.\"dns-provider-cf_api_key\"'"
+  run /bin/bash -c "dokku traefik:report $TEST_APP --format json | jq -r '.\"global-dns-provider-cf_api_key\"'"
   echo "output: $output"
   echo "status: $status"
   assert_success
