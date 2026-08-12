@@ -145,7 +145,7 @@ func CommandRetire(appName string) error {
 		return fmt.Errorf("Error retiring containers: %w", err)
 	}
 
-	common.LogInfo1("Retiring expired run containers")
+	common.LogInfo1("Retiring expired run and cron containers")
 	_, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
 		Trigger:     "scheduler-run-retire",
 		StreamStdio: true,

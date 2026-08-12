@@ -49,10 +49,11 @@ func main() {
 	case "run":
 		args := flag.NewFlagSet("cron:run", flag.ExitOnError)
 		detached := args.Bool("detach", false, "--detach: run the container in a detached mode")
+		ttlSeconds := args.Int64("ttl-seconds", cron.DefaultTTLSeconds, "--ttl-seconds: number of seconds the task may run before it is reaped")
 		args.Parse(os.Args[2:])
 		appName := args.Arg(0)
 		cronID := args.Arg(1)
-		err = cron.CommandRun(appName, cronID, *detached)
+		err = cron.CommandRun(appName, cronID, *detached, *ttlSeconds)
 	case "set":
 		args := flag.NewFlagSet("cron:set", flag.ExitOnError)
 		global := args.Bool("global", false, "--global: set a global property")

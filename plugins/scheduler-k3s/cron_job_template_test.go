@@ -3,6 +3,7 @@ package scheduler_k3s
 import (
 	"errors"
 	"io"
+	"maps"
 	"os"
 	"path/filepath"
 	"strings"
@@ -146,6 +147,61 @@ func TestCronJobTemplateRendersLongCronID(t *testing.T) {
 			}
 		}
 	})
+}
+
+// TestCronJobTemplateRendersActiveDeadlineSeconds asserts that the job's
+// activeDeadlineSeconds comes from the chart values rather than a literal
+// baked into the template, so the deadline cannot drift from the value the
+// docker-local scheduler stamps onto its cron containers. A release rendered
+// from values that predate the field must still fall back to 24 hours.
+func TestCronJobTemplateRendersActiveDeadlineSeconds(t *testing.T) {
+	baseValues := map[string]interface{}{
+		"id":                 "abcde",
+		"hash":               "0123456789abcdef0123456789abcdef01234567",
+		"schedule":           "5 5 5 5 5",
+		"suffix":             "abcde",
+		"suspend":            false,
+		"concurrency_policy": "Allow",
+	}
+
+	t.Run("from values", func(t *testing.T) {
+		values := maps.Clone(baseValues)
+		values["active_deadline_seconds"] = 600
+		if got := renderedActiveDeadlineSeconds(t, renderCronJobTemplate(t, values)); got != 600 {
+			t.Errorf("activeDeadlineSeconds = %d, want 600", got)
+		}
+	})
+
+	t.Run("defaults when absent", func(t *testing.T) {
+		if got := renderedActiveDeadlineSeconds(t, renderCronJobTemplate(t, maps.Clone(baseValues))); got != 86400 {
+			t.Errorf("activeDeadlineSeconds = %d, want 86400", got)
+		}
+	})
+}
+
+// renderedActiveDeadlineSeconds pulls jobTemplate.spec.activeDeadlineSeconds
+// out of a rendered cron-job manifest.
+func renderedActiveDeadlineSeconds(t *testing.T, manifest string) int {
+	t.Helper()
+
+	var doc map[string]interface{}
+	if err := yaml.NewDecoder(strings.NewReader(manifest)).Decode(&doc); err != nil {
+		t.Fatalf("yaml decode failed (would also fail in Kubernetes API): %v\nrendered:\n%s", err, manifest)
+	}
+
+	spec, _ := doc["spec"].(map[string]interface{})
+	jobTemplate, _ := spec["jobTemplate"].(map[string]interface{})
+	jobSpec, ok := jobTemplate["spec"].(map[string]interface{})
+	if !ok {
+		t.Fatalf("jobTemplate.spec missing from rendered manifest:\n%s", manifest)
+	}
+
+	deadline, ok := jobSpec["activeDeadlineSeconds"].(int)
+	if !ok {
+		t.Fatalf("activeDeadlineSeconds = %v (type %T); want an integer", jobSpec["activeDeadlineSeconds"], jobSpec["activeDeadlineSeconds"])
+	}
+
+	return deadline
 }
 
 // renderCronJobTemplate renders templates/chart/cron-job.yaml with the

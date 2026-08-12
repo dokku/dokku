@@ -123,3 +123,32 @@ func TestDokkuRunCommandAppTaskIgnoresLogFile(t *testing.T) {
 		t.Errorf("DokkuRunCommand() interpolated a redirect into an app task line: %q", got)
 	}
 }
+
+// TestValidateTTLSeconds pins that a cron task deadline must be a positive
+// number of seconds. A zero or negative value would either expire the task the
+// instant it starts or leave it running forever, and the docker-local retire
+// pass only reaps containers whose deadline has actually elapsed.
+func TestValidateTTLSeconds(t *testing.T) {
+	cases := []struct {
+		name       string
+		ttlSeconds int64
+		wantErr    bool
+	}{
+		{name: "default", ttlSeconds: DefaultTTLSeconds},
+		{name: "positive override", ttlSeconds: 1},
+		{name: "zero", ttlSeconds: 0, wantErr: true},
+		{name: "negative", ttlSeconds: -1, wantErr: true},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			err := validateTTLSeconds(tc.ttlSeconds)
+			if tc.wantErr && err == nil {
+				t.Errorf("validateTTLSeconds(%d) = nil, want an error", tc.ttlSeconds)
+			}
+			if !tc.wantErr && err != nil {
+				t.Errorf("validateTTLSeconds(%d) = %v, want nil", tc.ttlSeconds, err)
+			}
+		})
+	}
+}

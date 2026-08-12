@@ -4,12 +4,12 @@
 > New as of 0.23.0
 
 ```
-cron:list <app> [--format json|stdout]  # List scheduled cron tasks for an app
-cron:report [<app>] [<flag>]            # Display report about an app
-cron:resume <app> <cron_id>             # Resume a cron task
-cron:run <app> <cron_id> [--detach]     # Run a cron task on the fly
-cron:set [--global|<app>] <key> <value> # Set or clear a cron property for an app
-cron:suspend <app> <cron_id>            # Suspend a cron task
+cron:list <app> [--format json|stdout]                      # List scheduled cron tasks for an app
+cron:report [<app>] [<flag>]                                # Display report about an app
+cron:resume <app> <cron_id>                                 # Resume a cron task
+cron:run <app> <cron_id> [--detach] [--ttl-seconds SECONDS] # Run a cron task on the fly
+cron:set [--global|<app>] <key> <value>                     # Set or clear a cron property for an app
+cron:suspend <app> <cron_id>                                # Suspend a cron task
 ```
 
 ## Usage
@@ -43,7 +43,7 @@ A cron task takes the following properties:
 
 Zero or more cron tasks can be specified per app. Cron tasks are validated after the build artifact is created but before the app is deployed, and the cron schedule is updated during the post-deploy phase.
 
-Cron tasks can run for a maximum of 24 hours via the docker-local scheduler, after which they are reaped from the system.
+Cron tasks can run for a maximum of 24 hours, after which they are reaped from the system. The `docker-local` scheduler reaps expired tasks via the `dokku ps:retire` pass that runs every 5 minutes, so a task may overrun its deadline by up to 5 minutes. The `k3s` scheduler enforces the deadline directly through the job's `activeDeadlineSeconds`.
 
 See the [app.json location documentation](/docs/advanced-usage/deployment-tasks.md#changing-the-appjson-location) for more information on where to place your `app.json` file.
 
@@ -189,6 +189,14 @@ By default, the task is run in an attached container - as supported by the sched
 ```shell
 dokku cron:run node-js-app cGhwPT09cGhwIHRlc3QucGhwPT09QGRhaWx5 --detach
 ```
+
+An on-the-fly invocation runs for a maximum of 24 hours (86400 seconds), the same deadline scheduled invocations receive. A different deadline can be requested with the `--ttl-seconds` argument:
+
+```shell
+dokku cron:run node-js-app cGhwPT09cGhwIHRlc3QucGhwPT09QGRhaWx5 --detach --ttl-seconds 600
+```
+
+The value applies only to that invocation - tasks started by the schedule keep the 24 hour default.
 
 All one-off cron executions have their containers terminated after invocation.
 

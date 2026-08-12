@@ -52,7 +52,7 @@ spec:
       backoffLimit: 0
       podReplacementPolicy: Failed
       ttlSecondsAfterFinished: 60
-      activeDeadlineSeconds: 86400
+      activeDeadlineSeconds: {{ $config.cron.active_deadline_seconds | default 86400 }}
       template:
         metadata:
           annotations:
