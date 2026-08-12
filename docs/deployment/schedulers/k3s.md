@@ -268,6 +268,20 @@ The global default value may be set by passing an empty value for the option.
 dokku scheduler-k3s:set --global deploy-timeout
 ```
 
+### Restarting apps
+
+A `ps:restart` re-renders the app's Helm chart from its current configuration and upgrades the release, which is how configuration changes are picked up. Pods cycle because each Deployment's pod template carries an `app.kubernetes.io/version` annotation that changes on restart.
+
+A single process type may be targeted, in which case only that process type's pods are replaced. The rest of the release is still upgraded so configuration converges everywhere, but the untargeted Deployments keep their existing annotation and are left running:
+
+```shell
+dokku ps:restart node-js-app web
+```
+
+The app image does not need to be present on the Dokku host. Kubernetes pulls it from the registry, so a host that has reaped its local copy - as the `registry` plugin does on its own once an app has been deployed a number of times - can still restart, scale, and run one-off commands against the app. The builder type and working directory needed to render the chart are read back from the app's current Helm release when the image is unavailable locally.
+
+There is one exception. An `app.json` with a `scripts.dokku.postdeploy` task runs that task in a container on the Dokku host rather than in the cluster, and so does require the image locally. Apps without a postdeploy task are unaffected.
+
 ### Displaying the scheduler report
 
 Configured properties can be inspected with the `scheduler-k3s:report` command. Without arguments, it iterates every app. Passing an app name scopes the report to that app, while `--global` reports the scheduler-wide properties on their own:
@@ -1079,6 +1093,8 @@ This plugin implements various functionality through `plugn` triggers to integra
     - Properties set by the `nginx` plugin will be respected, either by turning them into annotations or creating a custom server/location snippet that the `ingress-nginx` project can use. A `ps:restart` after changing any nginx properties is required in order to have them apply.
     - The `nginx:access-logs` and `nginx:error-logs` commands will fetch logs from one running `ingress-nginx` pod.
     - The `nginx:show-config` command will retrieve any `server` blocks associated with a domain attached to the app from one running `ingress-nginx` pod.
+- `ps:restart`
+    - Supports targeting a single process type, see [Restarting apps](#restarting-apps)
 - `ps:stop`
 - `run`
     - The `scheduler-post-run` trigger is not always triggered

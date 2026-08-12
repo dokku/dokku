@@ -2562,16 +2562,16 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 > The scheduler plugin trigger apis are under development and may change
 > between minor releases until the 1.0 release.
 
-- Description: Allows you to run scheduler commands when an app is deployed
+- Description: Allows you to run scheduler commands when an app is deployed. `$PROCESS_TYPE` is empty for a normal deploy and set when a single process type is targeted, as by `dokku ps:restart <app> <process-type>`, in which case only that process type should be redeployed.
 - Invoked by: `dokku deploy`
-- Arguments: `$DOKKU_SCHEDULER $APP $IMAGE_TAG`
+- Arguments: `$DOKKU_SCHEDULER $APP $IMAGE_TAG $PROCESS_TYPE`
 - Example:
 
 ```shell
 #!/usr/bin/env bash
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-DOKKU_SCHEDULER="$1"; APP="$2"; IMAGE_TAG="$3";
+DOKKU_SCHEDULER="$1"; APP="$2"; IMAGE_TAG="$3"; PROCESS_TYPE="$4";
 
 # TODO
 ```

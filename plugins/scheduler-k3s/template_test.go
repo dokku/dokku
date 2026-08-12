@@ -56,6 +56,17 @@ func TestToCoreV1PodSecurityContext(t *testing.T) {
 func renderDeploymentTemplate(t *testing.T, globalValues map[string]interface{}) string {
 	t.Helper()
 
+	return renderDeploymentTemplateWithProcesses(t, globalValues, map[string]interface{}{
+		"worker": map[string]interface{}{
+			"args":     []interface{}{"echo", "hello"},
+			"replicas": 1,
+		},
+	})
+}
+
+func renderDeploymentTemplateWithProcesses(t *testing.T, globalValues map[string]interface{}, processes map[string]interface{}) string {
+	t.Helper()
+
 	chartDir := t.TempDir()
 	if err := os.MkdirAll(filepath.Join(chartDir, "templates"), 0o755); err != nil {
 		t.Fatalf("mkdir: %v", err)
@@ -95,13 +106,8 @@ func renderDeploymentTemplate(t *testing.T, globalValues map[string]interface{})
 	}
 
 	values := map[string]interface{}{
-		"global": global,
-		"processes": map[string]interface{}{
-			"worker": map[string]interface{}{
-				"args":     []interface{}{"echo", "hello"},
-				"replicas": 1,
-			},
-		},
+		"global":    global,
+		"processes": processes,
 	}
 
 	renderValues, err := chartutil.ToRenderValues(loaded, values, chartutil.ReleaseOptions{Name: "test", Namespace: "default"}, nil)
@@ -194,6 +200,50 @@ func TestDeploymentSysctlsRendering(t *testing.T) {
 			if _, ok := securityContext["sysctls"]; !ok {
 				t.Errorf("pod securityContext has no sysctls:\n%s", manifest)
 			}
+		}
+	})
+}
+
+// TestDeploymentDeploymentIDRendering asserts each Deployment's pod template
+// carries its own process's deployment id. A targeted ps:restart works by
+// giving only the named process a fresh id, so an untargeted process whose id
+// is unchanged must render an unchanged pod template - otherwise Kubernetes
+// rolls its pods too and the targeting is meaningless.
+func TestDeploymentDeploymentIDRendering(t *testing.T) {
+	t.Run("each process renders its own deployment id", func(t *testing.T) {
+		manifest := renderDeploymentTemplateWithProcesses(t, map[string]interface{}{}, map[string]interface{}{
+			"web": map[string]interface{}{
+				"args":          []interface{}{"echo", "web"},
+				"deployment_id": "200",
+				"replicas":      1,
+			},
+			"worker": map[string]interface{}{
+				"args":          []interface{}{"echo", "worker"},
+				"deployment_id": "100",
+				"replicas":      1,
+			},
+		})
+
+		if !strings.Contains(manifest, `app.kubernetes.io/version: "200"`) {
+			t.Errorf("rendered deployment missing the targeted process id:\n%s", manifest)
+		}
+		if !strings.Contains(manifest, `app.kubernetes.io/version: "100"`) {
+			t.Errorf("rendered deployment missing the untargeted process id:\n%s", manifest)
+		}
+	})
+
+	t.Run("falls back to the global id when a process has none", func(t *testing.T) {
+		manifest := renderDeploymentTemplateWithProcesses(t, map[string]interface{}{
+			"deployment_id": "42",
+		}, map[string]interface{}{
+			"worker": map[string]interface{}{
+				"args":     []interface{}{"echo", "worker"},
+				"replicas": 1,
+			},
+		})
+
+		if !strings.Contains(manifest, `app.kubernetes.io/version: "42"`) {
+			t.Errorf("rendered deployment did not fall back to the global id:\n%s", manifest)
 		}
 	})
 }

@@ -186,7 +186,20 @@ func TriggerPostDelete(appName string) error {
 }
 
 // TriggerPostDeploy is a trigger to execute the postdeploy deployment task
+//
+// The task is looked up before the image name is resolved because resolving it
+// asserts the image exists on the local docker daemon. That assertion does not
+// hold for schedulers running workloads off this host, which are free to reap
+// the local copy while the app keeps running in a cluster. An app with no
+// postdeploy task needs no image at all, so it should not be made to fail here.
 func TriggerPostDeploy(appName string, imageTag string) error {
+	command, err := getPhaseScript(appName, "postdeploy")
+	if err == nil && command == "" {
+		common.LogInfo1("Checking for postdeploy task")
+		common.LogVerbose("No postdeploy task found, skipping")
+		return nil
+	}
+
 	image, err := common.GetDeployingAppImageName(appName, imageTag, "")
 	if err != nil {
 		return err

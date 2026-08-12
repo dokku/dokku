@@ -15,7 +15,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    app.kubernetes.io/version: {{ $.Values.global.deployment_id | quote }}
+    app.kubernetes.io/version: {{ $config.deployment_id | default $.Values.global.deployment_id | quote }}
     dokku.com/builder-type: {{ $.Values.global.image.type | quote }}
     dokku.com/managed: "true"
     kubectl.kubernetes.io/default-container: {{ printf "%s-%s" $.Values.global.app_name $processName | quote }}
@@ -45,7 +45,7 @@ spec:
   template:
     metadata:
       annotations:
-        app.kubernetes.io/version: {{ $.Values.global.deployment_id | quote }}
+        app.kubernetes.io/version: {{ $config.deployment_id | default $.Values.global.deployment_id | quote }}
         dokku.com/builder-type: {{ $.Values.global.image.type }}
         dokku.com/managed: "true"
         kubectl.kubernetes.io/default-container: {{ $.Values.global.app_name }}-{{ $processName }}

@@ -263,7 +263,7 @@ func TriggerPostCertsUpdate(appName string) error {
 	}
 
 	common.LogInfo1(fmt.Sprintf("Triggering redeploy for %s to update ingress configuration", appName))
-	return TriggerSchedulerDeploy("k3s", appName, imageTag)
+	return TriggerSchedulerDeploy("k3s", appName, imageTag, "")
 }
 
 // TriggerPostCertsRemove handles post-certs-remove trigger
@@ -299,7 +299,7 @@ func TriggerPostCertsRemove(appName string) error {
 	}
 
 	common.LogInfo1(fmt.Sprintf("Triggering redeploy for %s to update ingress configuration", appName))
-	return TriggerSchedulerDeploy("k3s", appName, imageTag)
+	return TriggerSchedulerDeploy("k3s", appName, imageTag, "")
 }
 
 // TriggerPostAppCloneSetup creates new scheduler-k3s files
@@ -464,7 +464,7 @@ func TriggerSchedulerCronWrite(scheduler string, appName string) error {
 }
 
 // TriggerSchedulerDeploy deploys an image tag for a given application
-func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) error {
+func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string, processType string) error {
 	if scheduler != "k3s" {
 		return nil
 	}
@@ -486,7 +486,17 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 		return fmt.Errorf("Error creating kubernetes namespace for deployment: %w", err)
 	}
 
-	chartResult, err := BuildAppChart(ctx, appName, imageTag, BuildOptions{})
+	helmAgent, err := NewHelmAgent(namespace, DeployLogPrinter)
+	if err != nil {
+		return fmt.Errorf("Error creating helm agent: %w", err)
+	}
+
+	priorValues := releaseValues(helmAgent, appName)
+	chartResult, err := BuildAppChart(ctx, appName, imageTag, BuildOptions{
+		FallbackImageMetadata:     imageMetadataFromValues(priorValues),
+		RestartProcessType:        processType,
+		PriorProcessDeploymentIDs: processDeploymentIDsFromValues(priorValues),
+	})
 	if err != nil {
 		return err
 	}
@@ -527,11 +537,6 @@ func TriggerSchedulerDeploy(scheduler string, appName string, imageTag string) e
 	clientset, err := NewKubernetesClient()
 	if err != nil {
 		return fmt.Errorf("Error creating kubernetes client: %w", err)
-	}
-
-	helmAgent, err := NewHelmAgent(chartResult.Namespace, DeployLogPrinter)
-	if err != nil {
-		return fmt.Errorf("Error creating helm agent: %w", err)
 	}
 
 	ingresses, err := clientset.ListIngresses(ctx, ListIngressesInput{
@@ -934,18 +939,26 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 	if err != nil {
 		return fmt.Errorf("Error getting running image tag: %w", err)
 	}
-	image, err := common.GetDeployingAppImageName(appName, imageTag, "")
+	image, err := common.ResolveDeployingAppImageName(appName, imageTag, "")
 	if err != nil {
 		return fmt.Errorf("Error getting deploying app image name: %w", err)
 	}
 
-	imageStage, err := common.DockerInspect(image, "{{ index .Config.Labels \"com.dokku.image-stage\" }}")
-	if err != nil {
-		return fmt.Errorf("Error getting image stage: %w", err)
-	}
-	if imageStage != "release" {
-		common.LogWarn("Invalid image stage detected: expected 'release', got '$IMAGE_STAGE'")
-		return fmt.Errorf("Successfully deploy your app to fix dokku run calls")
+	// The image-stage guard exists to catch a build-stage image being run before
+	// the app was ever deployed. It can only be answered from a local copy of the
+	// image, which a k3s host is free to reap since the cluster pulls its own. In
+	// that case the guard is skipped: resolveImageMetadata below falls back to the
+	// app's Helm release, and the existence of that release is itself proof the
+	// app got past the release stage.
+	if common.VerifyImage(image) {
+		imageStage, err := common.DockerInspect(image, "{{ index .Config.Labels \"com.dokku.image-stage\" }}")
+		if err != nil {
+			return fmt.Errorf("Error getting image stage: %w", err)
+		}
+		if imageStage != "release" {
+			common.LogWarn(fmt.Sprintf("Invalid image stage detected: expected 'release', got '%s'", imageStage))
+			return fmt.Errorf("Successfully deploy your app to fix dokku run calls")
+		}
 	}
 
 	dokkuRmContainer := os.Getenv("DOKKU_RM_CONTAINER")
@@ -1026,10 +1039,17 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 		}
 	}
 
-	imageSourceType, err := common.DockerInspect(image, "{{ index .Config.Labels \"com.dokku.builder-type\" }}")
+	helmAgent, err := NewHelmAgent(namespace, DevNullPrinter)
 	if err != nil {
-		return fmt.Errorf("Error getting image builder type: %w", err)
+		return fmt.Errorf("Error creating helm agent: %w", err)
 	}
+
+	values := releaseValues(helmAgent, appName)
+	imageMetadata, err := resolveImageMetadata(appName, image, imageMetadataFromValues(values))
+	if err != nil {
+		return err
+	}
+	imageSourceType := imageMetadata.SourceType
 
 	// todo: do something with docker args
 	command := args
@@ -1057,16 +1077,6 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 		entrypoint = "/exec"
 	case "pack":
 		entrypoint = "launcher"
-	}
-
-	helmAgent, err := NewHelmAgent(namespace, DevNullPrinter)
-	if err != nil {
-		return fmt.Errorf("Error creating helm agent: %w", err)
-	}
-
-	values, err := helmAgent.GetValues(appName)
-	if err != nil {
-		return fmt.Errorf("Error getting helm values: %w", err)
 	}
 
 	globalValues, ok := values["global"].(map[string]interface{})
@@ -1123,7 +1133,7 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 		}
 	}
 
-	workingDir := common.GetWorkingDir(appName, image)
+	workingDir := imageMetadata.WorkingDir
 	job, err := templateKubernetesJob(Job{
 		ActiveDeadlineSeconds: activeDeadlineSeconds,
 		Annotations:           annotations,

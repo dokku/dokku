@@ -468,8 +468,27 @@ func GetGlobalScheduler() string {
 	return "docker-local"
 }
 
-// GetDeployingAppImageName returns deploying image identifier for a given app, tag tuple. validate if tag is presented
+// GetDeployingAppImageName returns deploying image identifier for a given app, tag tuple,
+// erroring when the image is not present on the local docker daemon. Callers that hand the
+// image off to a remote runtime should use ResolveDeployingAppImageName instead.
 func GetDeployingAppImageName(appName, imageTag, imageRepo string) (string, error) {
+	imageName, err := ResolveDeployingAppImageName(appName, imageTag, imageRepo)
+	if err != nil {
+		return "", err
+	}
+
+	if !VerifyImage(imageName) {
+		return "", fmt.Errorf("App image (%s) not found", imageName)
+	}
+
+	return imageName, nil
+}
+
+// ResolveDeployingAppImageName returns the deploying image identifier for a given app, tag
+// tuple without asserting that the image exists locally. Schedulers that run workloads off
+// the dokku host - where the image is pulled from a registry by the remote runtime and may
+// have been reaped locally - need the name without the local existence check.
+func ResolveDeployingAppImageName(appName, imageTag, imageRepo string) (string, error) {
 	imageRemoteRepository := ""
 	newImageTag := ""
 	newImageRepo := ""
@@ -526,11 +545,7 @@ func GetDeployingAppImageName(appName, imageTag, imageRepo string) (string, erro
 		imageTag = "latest"
 	}
 
-	imageName := fmt.Sprintf("%s%s:%s", imageRemoteRepository, imageRepo, imageTag)
-	if !VerifyImage(imageName) {
-		return "", fmt.Errorf("App image (%s) not found", imageName)
-	}
-	return imageName, nil
+	return fmt.Sprintf("%s%s:%s", imageRemoteRepository, imageRepo, imageTag), nil
 }
 
 // GetAppImageRepo is the central definition of a dokku image repo pattern
