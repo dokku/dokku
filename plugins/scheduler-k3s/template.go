@@ -108,6 +108,7 @@ type ProcessValues struct {
 	Args         []string            `yaml:"args,omitempty"`
 	Autoscaling  ProcessAutoscaling  `yaml:"autoscaling,omitempty"`
 	Cron         ProcessCron         `yaml:"cron,omitempty"`
+	DeploymentID string              `yaml:"deployment_id,omitempty"`
 	Healthchecks ProcessHealthchecks `yaml:"healthchecks,omitempty"`
 	Labels       ProcessLabels       `yaml:"labels,omitempty"`
 	ProcessType  ProcessType         `yaml:"process_type"`

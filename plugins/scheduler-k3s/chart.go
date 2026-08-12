@@ -45,6 +45,25 @@ type BuildOptions struct {
 	// yet (e.g. a never-deployed app being previewed). The deploy path
 	// leaves this false so a missing image still errors.
 	AllowMissingImage bool
+
+	// FallbackImageMetadata supplies the builder type and working directory to
+	// use when the image is absent from the local docker daemon. It is only
+	// consulted after a local inspect fails - it never overrides a present
+	// image - so callers pass the values recorded in the app's current Helm
+	// release and let a deploy proceed on a host that has since reaped its
+	// local copy of the image.
+	FallbackImageMetadata *ImageMetadata
+
+	// RestartProcessType, when set, limits which process type receives a fresh
+	// deployment id. Helm still upgrades the whole release so configuration
+	// converges everywhere, but only this process type's pod template changes,
+	// so only its pods roll. Empty means every process type rolls.
+	RestartProcessType string
+
+	// PriorProcessDeploymentIDs carries the deployment ids currently deployed
+	// per process type, used to hold untargeted processes steady when
+	// RestartProcessType is set.
+	PriorProcessDeploymentIDs map[string]string
 }
 
 // BuildAppChart constructs a Helm chart on disk that reflects dokku's configured
@@ -72,14 +91,26 @@ func BuildAppChart(ctx context.Context, appName, imageTag string, opts BuildOpti
 		return result, err
 	}
 
+	if opts.RestartProcessType != "" {
+		if _, ok := processes[opts.RestartProcessType]; !ok {
+			return result, fmt.Errorf("Process type %s not found in the scale for app %s", opts.RestartProcessType, appName)
+		}
+	}
+
 	namespace := getComputedNamespace(appName)
 
-	image, err := common.GetDeployingAppImageName(appName, imageTag, "")
+	image, err := common.ResolveDeployingAppImageName(appName, imageTag, "")
+	if err != nil {
+		return result, fmt.Errorf("Error getting deploying app image name: %w", err)
+	}
+
+	imageMetadata, err := resolveImageMetadata(appName, image, opts.FallbackImageMetadata)
 	if err != nil {
 		if !opts.AllowMissingImage {
-			return result, fmt.Errorf("Error getting deploying app image name: %w", err)
+			return result, err
 		}
 		image = fmt.Sprintf("dokku/%s:not-yet-deployed", appName)
+		imageMetadata = ImageMetadata{SourceType: "dockerfile"}
 	}
 
 	deployTimeout := getComputedDeployTimeout(appName)
@@ -97,12 +128,7 @@ func BuildAppChart(ctx context.Context, appName, imageTag string, opts BuildOpti
 		return result, fmt.Errorf("Error parsing rollback-on-failure value as boolean: %w", err)
 	}
 
-	imageSourceType := "dockerfile"
-	if common.IsImageCnbBased(image) {
-		imageSourceType = "pack"
-	} else if common.IsImageHerokuishBased(image, appName) {
-		imageSourceType = "herokuish"
-	}
+	imageSourceType := imageMetadata.SourceType
 
 	env, err := config.LoadMergedAppEnv(appName)
 	if err != nil {
@@ -189,7 +215,7 @@ func BuildAppChart(ctx context.Context, appName, imageTag string, opts BuildOpti
 		return cleanup(fmt.Errorf("Error getting app.json for deployment: %w", err))
 	}
 
-	workingDir := common.GetWorkingDir(appName, image)
+	workingDir := imageMetadata.WorkingDir
 
 	cronTasks, err := cron.FetchCronTasks(cron.FetchCronTasksInput{AppName: appName})
 	if err != nil {
@@ -379,6 +405,7 @@ func BuildAppChart(ctx context.Context, appName, imageTag string, opts BuildOpti
 			Annotations:  annotations,
 			Autoscaling:  autoscaling,
 			Args:         args,
+			DeploymentID: resolveProcessDeploymentID(processType, deploymentId, opts.RestartProcessType, opts.PriorProcessDeploymentIDs),
 			Healthchecks: processHealthchecks,
 			Labels:       labels,
 			ProcessType:  ProcessType_Worker,

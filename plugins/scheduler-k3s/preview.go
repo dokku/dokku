@@ -69,6 +69,7 @@ func CommandPreview(appName string, diffContext int, showSecrets bool, showSecre
 	buildOpts := BuildOptions{AllowMissingImage: true}
 	if currentRelease != nil {
 		buildOpts.OverrideDeploymentID = deploymentIDFromRelease(currentRelease)
+		buildOpts.FallbackImageMetadata = imageMetadataFromValues(releaseValues(helmAgent, appName))
 	}
 
 	chartResult, err := BuildAppChart(ctx, appName, "", buildOpts)

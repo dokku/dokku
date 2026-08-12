@@ -66,7 +66,8 @@ func main() {
 		scheduler := flag.Arg(0)
 		appName := flag.Arg(1)
 		imageTag := flag.Arg(2)
-		err = scheduler_k3s.TriggerSchedulerDeploy(scheduler, appName, imageTag)
+		processType := flag.Arg(3)
+		err = scheduler_k3s.TriggerSchedulerDeploy(scheduler, appName, imageTag, processType)
 	case "scheduler-enter":
 		scheduler := flag.Arg(0)
 		appName := flag.Arg(1)
