@@ -278,6 +278,10 @@ deploy-test-php:
 	@echo deploying php app...
 	cd tests && ./test_deploy ./apps/php $(DOKKU_DOMAIN)
 
+deploy-test-php-platform-repositories:
+	@echo deploying php app with platform repositories...
+	cd tests && ./test_deploy ./apps/php-platform-repositories $(DOKKU_DOMAIN)
+
 deploy-test-python-flask:
 	@echo deploying python-flask app...
 	cd tests && ./test_deploy ./apps/python-flask $(DOKKU_DOMAIN)
@@ -317,6 +321,7 @@ deploy-tests:
 	@$(QUIET) $(MAKE) deploy-test-nodejs-express-noprocfile
 	@$(QUIET) $(MAKE) deploy-test-nodejs-worker
 	@$(QUIET) $(MAKE) deploy-test-php
+	@$(QUIET) $(MAKE) deploy-test-php-platform-repositories
 	@$(QUIET) $(MAKE) deploy-test-python-flask
 	@$(QUIET) $(MAKE) deploy-test-scala
 	@$(QUIET) $(MAKE) deploy-test-static
