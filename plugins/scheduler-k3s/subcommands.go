@@ -9,7 +9,6 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
-	"regexp"
 	"slices"
 	"sort"
 	"strings"
@@ -18,6 +17,7 @@ import (
 	"github.com/dokku/dokku/plugins/common"
 	resty "github.com/go-resty/resty/v2"
 	"github.com/ryanuber/columnize"
+	"helm.sh/helm/v3/pkg/chartutil"
 )
 
 // CommandAnnotationsSet set or clear a scheduler-k3s annotation for an app
@@ -53,6 +53,10 @@ func CommandNodeSysctlsSet(profileName string, key string, value string) error {
 
 	if profileName != "" {
 		if err := verifyNodeProfileExists(profileName); err != nil {
+			return err
+		}
+
+		if err := verifyNodeProfileSysctlsSupported(profileName); err != nil {
 			return err
 		}
 	}
@@ -129,6 +133,17 @@ func verifyNodeProfileExists(profileName string) error {
 	properties := common.PropertyGetDefault("scheduler-k3s", "--global", fmt.Sprintf("node-profile-%s.json", profileName), "")
 	if properties == "" {
 		return fmt.Errorf("Node profile %s not found", profileName)
+	}
+
+	return nil
+}
+
+// verifyNodeProfileSysctlsSupported returns an error when a node profile is stored under a
+// name dokku cannot derive a node sysctls release name from. Such a profile predates the
+// validation in profiles:add and must be recreated before it can carry node sysctls.
+func verifyNodeProfileSysctlsSupported(profileName string) error {
+	if err := chartutil.ValidateReleaseName(getNodeSysctlsReleaseName(profileName)); err != nil {
+		return fmt.Errorf("Node profile %s cannot carry node sysctls, recreate it with a name of at most %d lowercase alphanumeric characters and dashes: %w", profileName, maxNodeProfileNameLength, err)
 	}
 
 	return nil
@@ -1253,18 +1268,8 @@ func CommandProfilesAdd(profileName string, role string, allowUknownHosts bool, 
 		return fmt.Errorf("Invalid role: %s", role)
 	}
 
-	if profileName == "" {
-		return fmt.Errorf("Missing profile name")
-	}
-
-	// profile names must only contain alphanumeric characters and dashes and cannot start with a dash
-	if !regexp.MustCompile(`^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?$`).MatchString(profileName) {
-		return fmt.Errorf("Invalid profile name, must only contain alphanumeric characters and dashes and cannot start with a dash: %s", profileName)
-	}
-
-	// ensure profile names are no longer than 32 characters
-	if len(profileName) > 32 {
-		return fmt.Errorf("Profile name is too long, must be less than 32 characters: %s", profileName)
+	if err := validateNodeProfileName(profileName); err != nil {
+		return err
 	}
 
 	profile := NodeProfile{
@@ -1338,18 +1343,8 @@ func CommandProfilesList(format string) error {
 
 // CommandProfilesRemove removes a node profile from the k3s cluster
 func CommandProfilesRemove(profileName string) error {
-	if profileName == "" {
-		return fmt.Errorf("Missing profile name")
-	}
-
-	// profile names must only contain alphanumeric characters and dashes and cannot start with a dash
-	if !regexp.MustCompile(`^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?$`).MatchString(profileName) {
-		return fmt.Errorf("Invalid profile name, must only contain alphanumeric characters and dashes and cannot start with a dash: %s", profileName)
-	}
-
-	// ensure profile names are no longer than 32 characters
-	if len(profileName) > 32 {
-		return fmt.Errorf("Profile name is too long, must be less than 32 characters: %s", profileName)
+	if err := validateStoredNodeProfileName(profileName); err != nil {
+		return err
 	}
 
 	if err := common.PropertyDelete("scheduler-k3s", "--global", fmt.Sprintf("node-profile-%s.json", profileName)); err != nil {

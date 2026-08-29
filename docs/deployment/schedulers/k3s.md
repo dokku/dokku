@@ -204,7 +204,7 @@ dokku scheduler-k3s:profiles:add edge-workers \
   --kubelet-args protect-kernel-defaults=true,eviction-hard=memory.available<200Mi
 ```
 
-Profile names must be alphanumeric, may include internal dashes, cannot start/end with a dash, and must be ≤32 characters. Other than the `--server-ip` flag, all flags used for `scheduler-k3s:cluster:add` are valid for the `scheduler-k3s:profiles:add` command.
+Profile names must be lowercase alphanumeric, may include internal dashes, cannot start/end with a dash, and must be ≤26 characters. The limit is not arbitrary: the name becomes part of the helm release backing that profile's [non-namespaced sysctls](#non-namespaced-sysctls), and helm caps a release name at 53 characters. Other than the `--server-ip` flag, all flags used for `scheduler-k3s:cluster:add` are valid for the `scheduler-k3s:profiles:add` command.
 
 #### scheduler-k3s:profiles:remove
 
@@ -905,6 +905,8 @@ dokku scheduler-k3s:node-sysctls:set --profile edge-workers vm.max_map_count 524
 ```
 
 A profile scope inherits everything set globally and overrides it on conflict, so each node is covered by exactly one DaemonSet and no two ever write the same value. Note that the server node created by `scheduler-k3s:initialize` never carries a profile label, so only globally-scoped sysctls reach it.
+
+A profile created by an older Dokku may carry a name outside the [current rules](#adding-profiles), such as one containing uppercase or longer than 26 characters. Dokku cannot name a helm release after such a profile, so it is skipped with a warning and `node-sysctls:set --profile` refuses it. Recreate the profile under a valid name to give it sysctls; `scheduler-k3s:profiles:remove` still removes the old one.
 
 Use `node-sysctls:report` to see the resolved set for every scope.
 
