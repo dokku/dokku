@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
+	"helm.sh/helm/v3/pkg/chartutil"
 )
 
 // NodeSysctlsValues contains the values for a dokku-managed node sysctls helm chart
@@ -45,13 +46,18 @@ func getNodeSysctlsProperty(profileName string) string {
 	return fmt.Sprintf("node-sysctls.profile.%s", profileName)
 }
 
+// nodeSysctlsProfileReleasePrefix prefixes the helm release name of every profile-scoped
+// node sysctls chart. A profile name is appended to it verbatim, so this is what bounds
+// how long a profile name may be.
+const nodeSysctlsProfileReleasePrefix = "dokku-node-sysctls-profile-"
+
 // getNodeSysctlsReleaseName returns the helm release name for a node sysctls scope
 func getNodeSysctlsReleaseName(profileName string) string {
 	if profileName == "" {
 		return "dokku-node-sysctls-global"
 	}
 
-	return fmt.Sprintf("dokku-node-sysctls-profile-%s", profileName)
+	return nodeSysctlsProfileReleasePrefix + profileName
 }
 
 // getNodeSysctls returns the sysctls stored against a single scope
@@ -175,6 +181,11 @@ func CreateOrUpdateNodeSysctls(ctx context.Context) error {
 	}
 
 	for _, scope := range scopes {
+		if err := chartutil.ValidateReleaseName(scope.ReleaseName); err != nil {
+			common.LogWarn(fmt.Sprintf("Skipping node sysctls for %s, its name predates profile name validation and cannot back a helm release: %s", nodeSysctlsScopeLabel(scope.ProfileName), err))
+			continue
+		}
+
 		if len(scope.Sysctls) == 0 {
 			if err := deleteNodeSysctlsRelease(scope.ReleaseName); err != nil {
 				return err
@@ -278,6 +289,11 @@ func installNodeSysctlsChart(ctx context.Context, scope nodeSysctlScope) error {
 // to an empty set. The kernel values it wrote are not reverted; they persist on the
 // affected nodes until those nodes reboot.
 func deleteNodeSysctlsRelease(releaseName string) error {
+	if err := chartutil.ValidateReleaseName(releaseName); err != nil {
+		common.LogDebug(fmt.Sprintf("skipping node sysctls release deletion, helm could never have installed %s: %s", releaseName, err))
+		return nil
+	}
+
 	helmAgent, err := NewHelmAgent(NodeSysctlsNamespace, DeployLogPrinter)
 	if err != nil {
 		return fmt.Errorf("error creating helm agent: %w", err)
