@@ -14,9 +14,52 @@ import (
 	dockeroptions "github.com/dokku/dokku/plugins/docker-options"
 )
 
+// appendClearedFormations appends a zero quantity formation for every existing
+// process type that was not specified, ensuring cleared process types are both
+// persisted and scaled down instead of being silently dropped
+func appendClearedFormations(formations FormationSlice, existingFormations FormationSlice) FormationSlice {
+	specifiedProcessTypes := map[string]bool{}
+	for _, formation := range formations {
+		specifiedProcessTypes[formation.ProcessType] = true
+	}
+
+	for _, existingFormation := range existingFormations {
+		if specifiedProcessTypes[existingFormation.ProcessType] {
+			continue
+		}
+
+		specifiedProcessTypes[existingFormation.ProcessType] = true
+		formations = append(formations, &Formation{
+			ProcessType: existingFormation.ProcessType,
+			Quantity:    0,
+		})
+	}
+
+	return formations
+}
+
 func canScaleApp(appName string) bool {
 	canScale := common.PropertyGetDefault("ps", appName, "can-scale", "true")
 	return common.ToBool(canScale)
+}
+
+// defaultProcessTuples returns the process tuples an app is created with, scaling
+// the web process to one when it is valid for the app and nothing otherwise
+func defaultProcessTuples(appName string) ([]string, error) {
+	if !hasProcfile(appName) {
+		return []string{"web=1"}, nil
+	}
+
+	validProcessTypes, err := processesInProcfile(getProcessSpecificProcfilePath(appName))
+	if err != nil {
+		return []string{}, err
+	}
+
+	if !validProcessTypes["web"] {
+		return []string{}, nil
+	}
+
+	return []string{"web=1"}, nil
 }
 
 func getProcfileCommand(appName string, procfilePath string, processType string, port int) (string, error) {
@@ -306,6 +349,10 @@ func scaleSet(input scaleSetInput) error {
 	formations, err := parseProcessTuples(input.processTuples)
 	if err != nil {
 		return err
+	}
+
+	if input.clearExisting {
+		formations = appendClearedFormations(formations, existingFormations)
 	}
 
 	if err := updateScale(input.appName, input.clearExisting, formations); err != nil {

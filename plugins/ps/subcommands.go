@@ -157,25 +157,70 @@ func CommandRetire(appName string) error {
 	return err
 }
 
+// CommandScaleInput is the input for the CommandScale function
+type CommandScaleInput struct {
+	// AppName is the name of the app to scale
+	AppName string
+
+	// Clear is a flag to reset the formation to the default scale
+	Clear bool
+
+	// Format is the format to display the formation in
+	Format string
+
+	// ProcessTuples is a list of process tuples to scale
+	ProcessTuples []string
+
+	// Replace is a flag to replace the formation with the specified process tuples
+	Replace bool
+
+	// SkipDeploy is a flag to skip the deploy phase
+	SkipDeploy bool
+}
+
 // CommandScale gets or sets how many instances of a given process to run
-func CommandScale(appName string, skipDeploy bool, format string, processTuples []string) error {
-	if err := common.VerifyAppName(appName); err != nil {
+func CommandScale(input CommandScaleInput) error {
+	if err := common.VerifyAppName(input.AppName); err != nil {
 		return err
 	}
 
-	if len(processTuples) == 0 {
-		return scaleReport(appName, format)
+	if input.Clear && input.Replace {
+		return errors.New("The --clear and --replace flags cannot be specified together")
 	}
 
-	if !canScaleApp(appName) {
-		return fmt.Errorf("App %s contains an app.json file with a formations key and cannot be manually scaled", appName)
+	if input.Clear && len(input.ProcessTuples) > 0 {
+		return errors.New("Process types cannot be specified when using the --clear flag, use --replace to set the entire formation")
 	}
 
-	common.LogInfo1(fmt.Sprintf("Scaling %s processes: %s", appName, strings.Join(processTuples, " ")))
+	if input.Replace && len(input.ProcessTuples) == 0 {
+		return errors.New("Must specify at least one process type when using the --replace flag, use --clear to reset the formation")
+	}
+
+	if !input.Clear && len(input.ProcessTuples) == 0 {
+		return scaleReport(input.AppName, input.Format)
+	}
+
+	if !canScaleApp(input.AppName) {
+		return fmt.Errorf("App %s contains an app.json file with a formations key and cannot be manually scaled", input.AppName)
+	}
+
+	processTuples := input.ProcessTuples
+	if input.Clear {
+		var err error
+		processTuples, err = defaultProcessTuples(input.AppName)
+		if err != nil {
+			return err
+		}
+
+		common.LogInfo1(fmt.Sprintf("Resetting %s processes to the default scale", input.AppName))
+	} else {
+		common.LogInfo1(fmt.Sprintf("Scaling %s processes: %s", input.AppName, strings.Join(processTuples, " ")))
+	}
+
 	return scaleSet(scaleSetInput{
-		appName:           appName,
-		skipDeploy:        skipDeploy,
-		clearExisting:     false,
+		appName:           input.AppName,
+		skipDeploy:        input.SkipDeploy,
+		clearExisting:     input.Clear || input.Replace,
 		processTuples:     processTuples,
 		deployOnlyChanged: true,
 	})

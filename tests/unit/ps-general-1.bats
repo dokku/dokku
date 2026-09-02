@@ -305,6 +305,58 @@ worker=1" >/var/lib/dokku/config/ps/$TEST_APP/scale
   assert_output "[]"
 }
 
+@test "(ps:scale) --replace" {
+  echo "web=4
+worker=1" >/var/lib/dokku/config/ps/$TEST_APP/scale
+
+  run /bin/bash -c "dokku ps:scale --replace $TEST_APP web=2"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku --quiet ps:scale $TEST_APP"
+  output=$(echo "$output" | tr -s " ")
+  echo "output: ($output)"
+  echo "status: $status"
+  assert_output $'web: 2\nworker: 0'
+}
+
+@test "(ps:scale) --clear" {
+  echo "web=4
+worker=1" >/var/lib/dokku/config/ps/$TEST_APP/scale
+
+  run /bin/bash -c "dokku ps:scale --clear $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku --quiet ps:scale $TEST_APP"
+  output=$(echo "$output" | tr -s " ")
+  echo "output: ($output)"
+  echo "status: $status"
+  assert_output $'web: 1\nworker: 0'
+}
+
+@test "(ps:scale) --clear and --replace argument validation" {
+  run /bin/bash -c "dokku ps:scale --replace $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Must specify at least one process type when using the --replace flag"
+
+  run /bin/bash -c "dokku ps:scale --clear $TEST_APP web=1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Process types cannot be specified when using the --clear flag"
+
+  run /bin/bash -c "dokku ps:scale --clear --replace $TEST_APP web=1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "The --clear and --replace flags cannot be specified together"
+}
+
 @test "(ps) handle windows newlines in procfile" {
   run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP procfile_line_endings_to_windows
   echo "output: $output"

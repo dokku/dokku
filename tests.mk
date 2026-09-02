@@ -185,6 +185,7 @@ go-tests:
 	@$(MAKE) go-test-plugin PLUGIN_NAME=docker-options
 	@$(MAKE) go-test-plugin PLUGIN_NAME=logs
 	@$(MAKE) go-test-plugin PLUGIN_NAME=network
+	@$(MAKE) go-test-plugin PLUGIN_NAME=ps
 	@$(MAKE) go-test-plugin PLUGIN_NAME=buildpacks
 	@$(MAKE) go-test-plugin PLUGIN_NAME=scheduler-k3s
 	@$(MAKE) go-test-plugin PLUGIN_NAME=storage
