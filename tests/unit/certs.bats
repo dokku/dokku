@@ -53,6 +53,18 @@ teardown() {
   assert_success
   assert_output_contains "/$TEST_APP/tls"
 
+  run /bin/bash -c "dokku certs:report $TEST_APP --ssl-fingerprint"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku certs:report $TEST_APP --ssl-serial"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
   run /bin/bash -c "dokku certs:report $TEST_APP --ssl-invalid-flag"
   echo "output: $output"
   echo "status: $status"
@@ -116,6 +128,75 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output "node-js-app.dokku.me"
+}
+
+@test "(certs:report) reports the certificate fingerprint and serial" {
+  local EXPECTED_FINGERPRINT EXPECTED_SERIAL
+  EXPECTED_FINGERPRINT="$(openssl x509 -in "$BATS_TMPDIR/tls/server.crt" -noout -fingerprint -sha256 | cut -d= -f2-)"
+  EXPECTED_SERIAL="$(openssl x509 -in "$BATS_TMPDIR/tls/server.crt" -noout -serial | cut -d= -f2-)"
+
+  run /bin/bash -c "dokku certs:add $TEST_APP $BATS_TMPDIR/tls/server.crt $BATS_TMPDIR/tls/server.key"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku certs:report $TEST_APP --ssl-fingerprint"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "$EXPECTED_FINGERPRINT"
+
+  run /bin/bash -c "dokku certs:report $TEST_APP --ssl-serial"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "$EXPECTED_SERIAL"
+
+  run /bin/bash -c "dokku certs:report $TEST_APP --format json | jq -r '.fingerprint'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "$EXPECTED_FINGERPRINT"
+
+  run /bin/bash -c "dokku certs:report $TEST_APP --format json | jq -r '.serial'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "$EXPECTED_SERIAL"
+}
+
+@test "(certs:report) fingerprint and serial follow a replaced certificate" {
+  local EXPECTED_FINGERPRINT EXPECTED_SERIAL
+  EXPECTED_FINGERPRINT="$(openssl x509 -in "$BATS_TMPDIR/tls/domain.com.crt" -noout -fingerprint -sha256 | cut -d= -f2-)"
+  EXPECTED_SERIAL="$(openssl x509 -in "$BATS_TMPDIR/tls/domain.com.crt" -noout -serial | cut -d= -f2-)"
+
+  run /bin/bash -c "dokku certs:add $TEST_APP $BATS_TMPDIR/tls/server.crt $BATS_TMPDIR/tls/server.key"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku certs:report $TEST_APP --ssl-fingerprint"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_not_output "$EXPECTED_FINGERPRINT"
+
+  run /bin/bash -c "dokku certs:update $TEST_APP $BATS_TMPDIR/tls/domain.com.crt $BATS_TMPDIR/tls/domain.com.key"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku certs:report $TEST_APP --ssl-fingerprint"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "$EXPECTED_FINGERPRINT"
+
+  run /bin/bash -c "dokku certs:report $TEST_APP --ssl-serial"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "$EXPECTED_SERIAL"
 }
 
 @test "(certs:report) reports the CN and all SANs as hostnames" {

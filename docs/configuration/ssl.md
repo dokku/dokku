@@ -85,21 +85,25 @@ dokku certs:report
 ```
 
 ```
-=====> node-js-app
-       Ssl dir:             /home/dokku/node-js-app/tls
-       Ssl enabled:         true
-       Ssl hostnames:       *.node-js-app.org node-js-app.org
-       Ssl expires at:      Oct  5 23:59:59 2019 GMT
-       Ssl issuer:          C=GB, ST=Greater Manchester, L=Salford, O=COMODO CA Limited, CN=COMODO RSA Domain Validation Secure Server CA
-       Ssl starts at:       Oct  5 00:00:00 2016 GMT
-       Ssl subject:         OU=Domain Control Validated; OU=PositiveSSL Wildcard; CN=*.node-js-app.org
-       Ssl verified:        self signed.
-=====> python-app
-       Ssl dir:             /home/dokku/python-app/tls
-       Ssl enabled:         false
-       Ssl hostnames:
+=====> node-js-app ssl information
+       Ssl dir:                       /home/dokku/node-js-app/tls
+       Ssl enabled:                   true
+       Ssl expires at:                Oct  5 23:59:59 2019 GMT
+       Ssl fingerprint:               9E:2F:0B:74:C3:5A:81:D6:4F:AA:12:38:E7:6B:90:5C:D1:47:2E:8A:B3:65:F9:0D:28:C4:71:AE:53:80:6F:12
+       Ssl hostnames:                 *.node-js-app.org node-js-app.org
+       Ssl issuer:                    C=GB, ST=Greater Manchester, L=Salford, O=COMODO CA Limited, CN=COMODO RSA Domain Validation Secure Server CA
+       Ssl serial:                    2F4B8C1D6E9A0357B8C2D4E6F8091A2B
+       Ssl starts at:                 Oct  5 00:00:00 2016 GMT
+       Ssl subject:                   OU=Domain Control Validated; OU=PositiveSSL Wildcard; CN=*.node-js-app.org
+       Ssl verified:                  self signed
+=====> python-app ssl information
+       Ssl dir:                       /home/dokku/python-app/tls
+       Ssl enabled:                   false
        Ssl expires at:
+       Ssl fingerprint:
+       Ssl hostnames:
        Ssl issuer:
+       Ssl serial:
        Ssl starts at:
        Ssl subject:
        Ssl verified:
@@ -113,14 +117,16 @@ dokku certs:report node-js-app
 
 ```
 =====> node-js-app ssl information
-       Ssl dir:             /home/dokku/node-js-app/tls
-       Ssl enabled:         true
-       Ssl hostnames:       *.dokku.org dokku.org
-       Ssl expires at:      Oct  5 23:59:59 2019 GMT
-       Ssl issuer:          C=GB, ST=Greater Manchester, L=Salford, O=COMODO CA Limited, CN=COMODO RSA Domain Validation Secure Server CA
-       Ssl starts at:       Oct  5 00:00:00 2016 GMT
-       Ssl subject:         OU=Domain Control Validated; OU=PositiveSSL Wildcard; CN=*.dokku.org
-       Ssl verified:        self signed.
+       Ssl dir:                       /home/dokku/node-js-app/tls
+       Ssl enabled:                   true
+       Ssl expires at:                Oct  5 23:59:59 2019 GMT
+       Ssl fingerprint:               9E:2F:0B:74:C3:5A:81:D6:4F:AA:12:38:E7:6B:90:5C:D1:47:2E:8A:B3:65:F9:0D:28:C4:71:AE:53:80:6F:12
+       Ssl hostnames:                 *.dokku.org dokku.org
+       Ssl issuer:                    C=GB, ST=Greater Manchester, L=Salford, O=COMODO CA Limited, CN=COMODO RSA Domain Validation Secure Server CA
+       Ssl serial:                    2F4B8C1D6E9A0357B8C2D4E6F8091A2B
+       Ssl starts at:                 Oct  5 00:00:00 2016 GMT
+       Ssl subject:                   OU=Domain Control Validated; OU=PositiveSSL Wildcard; CN=*.dokku.org
+       Ssl verified:                  self signed
 ```
 
 You can pass flags which will output only the value of the specific information you want. For example:
@@ -164,6 +170,8 @@ The following flags surface in `certs:report` but are not managed by `certs:set`
 | `--ssl-hostnames` | Hostnames the certificate covers (CN plus Subject Alternative Names) |
 | `--ssl-issuer` | Certificate issuer DN |
 | `--ssl-subject` | Certificate subject DN |
-| `--ssl-verified` | `true` if the certificate chain verifies against the system CA bundle |
+| `--ssl-fingerprint` | SHA-256 digest of the leaf certificate's DER encoding, the value `openssl x509 -noout -fingerprint -sha256` prints |
+| `--ssl-serial` | Serial number of the leaf certificate |
+| `--ssl-verified` | `verified by a certificate authority` when the certificate chain verifies against the system CA bundle, `self signed` otherwise |
 | `--ssl-expires-at` | Certificate `notAfter` timestamp |
 | `--ssl-starts-at` | Certificate `notBefore` timestamp |
