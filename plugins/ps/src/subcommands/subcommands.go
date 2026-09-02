@@ -65,11 +65,20 @@ func main() {
 	case "scale":
 		args := flag.NewFlagSet("ps:scale", flag.ExitOnError)
 		skipDeploy := args.Bool("skip-deploy", false, "--skip-deploy: skip deploy of the app")
+		clearFormation := args.Bool("clear", false, "--clear: reset the formation to the default scale")
+		replace := args.Bool("replace", false, "--replace: replace the formation and scale unspecified process types to zero")
 		format := args.String("format", "stdout", "format: [ stdout | json ]")
 		args.Parse(os.Args[2:])
 		appName := args.Arg(0)
 		_, processTuples := common.ShiftString(args.Args())
-		err = ps.CommandScale(appName, *skipDeploy, *format, processTuples)
+		err = ps.CommandScale(ps.CommandScaleInput{
+			AppName:       appName,
+			Clear:         *clearFormation,
+			Format:        *format,
+			ProcessTuples: processTuples,
+			Replace:       *replace,
+			SkipDeploy:    *skipDeploy,
+		})
 	case "set":
 		args := flag.NewFlagSet("ps:set", flag.ExitOnError)
 		global := args.Bool("global", false, "--global: set a global property")

@@ -24,6 +24,8 @@ Additional commands:`
     ps:restart [--parallel count] [--all|<app>] [<process-name>], Restart an app
     ps:restore [<app>], Start previously running apps e.g. after reboot
     ps:scale [--skip-deploy] [--format stdout|json] <app> [<proc>=<count>...], Get/Set how many instances of a given process to run
+    ps:scale --replace [--skip-deploy] <app> <proc>=<count> [<proc>=<count>...], Replace the formation and scale unspecified process types to zero
+    ps:scale --clear [--skip-deploy] <app>, Reset the formation to the default scale
     ps:set <app> <key> <value>, Set or clear a ps property for an app
     ps:start [--parallel count] [--all|<app>], Start an app
     ps:stop [--parallel count] [--all|<app>], Stop an app

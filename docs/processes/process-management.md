@@ -4,15 +4,17 @@
 > New as of 0.3.14, Enhanced in 0.7.0
 
 ```
-ps:inspect <app>                                                          # Displays a sanitized version of docker inspect for an app
-ps:rebuild [--parallel count] [--all|<app>]                               # Rebuilds an app from source
-ps:report [<app>] [<flag>]                                                # Displays a process report for one or more apps
-ps:restart [--parallel count] [--all|<app>]  [<process-name>]             # Restart an app
-ps:restore [<app>]                                                        # Start previously running apps e.g. after reboot
-ps:scale [--skip-deploy] [--format stdout|json] <app> [<proc>=<count>...] # Get/Set how many instances of a given process to run
-ps:set <app> <key> <value>                                                # Set or clear a ps property for an app
-ps:start [--parallel count] [--all|<app>]                                 # Start an app
-ps:stop [--parallel count] [--all|<app>]                                  # Stop an app
+ps:inspect <app>                                                             # Displays a sanitized version of docker inspect for an app
+ps:rebuild [--parallel count] [--all|<app>]                                  # Rebuilds an app from source
+ps:report [<app>] [<flag>]                                                   # Displays a process report for one or more apps
+ps:restart [--parallel count] [--all|<app>]  [<process-name>]                # Restart an app
+ps:restore [<app>]                                                           # Start previously running apps e.g. after reboot
+ps:scale [--skip-deploy] [--format stdout|json] <app> [<proc>=<count>...]    # Get/Set how many instances of a given process to run
+ps:scale --replace [--skip-deploy] <app> <proc>=<count> [<proc>=<count>...]  # Replace the formation and scale unspecified process types to zero
+ps:scale --clear [--skip-deploy] <app>                                       # Reset the formation to the default scale
+ps:set <app> <key> <value>                                                   # Set or clear a ps property for an app
+ps:start [--parallel count] [--all|<app>]                                    # Start an app
+ps:stop [--parallel count] [--all|<app>]                                     # Stop an app
 ```
 
 ## Usage
@@ -251,6 +253,32 @@ If desired, the corresponding deploy will be skipped by using the `--skip-deploy
 ```shell
 dokku ps:scale --skip-deploy node-js-app web=1
 ```
+
+#### Replacing the formation
+
+By default, `ps:scale` merges the specified process types into the existing formation, leaving any unspecified process type at its current count. The `--replace` flag instead treats the specified process types as the entire formation, setting the process count for every unspecified process type to zero:
+
+```shell
+dokku ps:scale --replace node-js-app web=1
+```
+
+An app scaled to `web=2 worker=3` before the above command will be scaled to `web=1 worker=0` after it, with the `worker` containers stopped as part of the same command.
+
+> [!NOTE]
+> At least one process type must be specified when using the `--replace` flag. Use the `--clear` flag to reset the formation instead.
+
+#### Clearing the formation
+
+The `--clear` flag resets the formation to the scale a newly created app has, a single `web` process, with the process count for every other process type set to zero:
+
+```shell
+dokku ps:scale --clear node-js-app
+```
+
+Apps with a `Procfile` that does not specify a `web` process type will have the process count for every process type set to zero.
+
+> [!NOTE]
+> Process types cannot be specified when using the `--clear` flag, nor can it be combined with the `--replace` flag.
 
 #### Manually managing process scaling
 
