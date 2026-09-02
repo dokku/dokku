@@ -20,14 +20,16 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 			return err
 		}
 		flags = map[string]common.ReportFunc{
-			"--ssl-dir":        reportSSLDir,
-			"--ssl-enabled":    reportSSLEnabled,
-			"--ssl-hostnames":  reportSSLHostnames,
-			"--ssl-expires-at": reportSSLExpiresAt,
-			"--ssl-issuer":     reportSSLIssuer,
-			"--ssl-starts-at":  reportSSLStartsAt,
-			"--ssl-subject":    reportSSLSubject,
-			"--ssl-verified":   reportSSLVerified,
+			"--ssl-dir":         reportSSLDir,
+			"--ssl-enabled":     reportSSLEnabled,
+			"--ssl-hostnames":   reportSSLHostnames,
+			"--ssl-expires-at":  reportSSLExpiresAt,
+			"--ssl-fingerprint": reportSSLFingerprint,
+			"--ssl-issuer":      reportSSLIssuer,
+			"--ssl-serial":      reportSSLSerial,
+			"--ssl-starts-at":   reportSSLStartsAt,
+			"--ssl-subject":     reportSSLSubject,
+			"--ssl-verified":    reportSSLVerified,
 		}
 	}
 
@@ -78,6 +80,21 @@ func opensslCertText(appName string) string {
 	return result.Stdout
 }
 
+// opensslCertOption runs "openssl x509 -in <server.crt> -noout" with the given
+// output options and returns the trimmed stdout, or an empty string when openssl
+// cannot read the certificate.
+func opensslCertOption(appName string, args ...string) string {
+	result, err := common.CallExecCommand(common.ExecCommandInput{
+		Command: "openssl",
+		Args:    append([]string{"x509", "-in", filepath.Join(certTLSPath(appName), "server.crt"), "-noout"}, args...),
+	})
+	if err != nil {
+		return ""
+	}
+
+	return result.StdoutContents()
+}
+
 func reportSSLDir(appName string) string {
 	return certTLSPath(appName)
 }
@@ -124,6 +141,37 @@ func reportSSLStartsAt(appName string) string {
 	return ""
 }
 
+func reportSSLFingerprint(appName string) string {
+	if !isSSLEnabled(appName) {
+		return ""
+	}
+
+	return formatSSLHexField(opensslCertOption(appName, "-fingerprint", "-sha256"))
+}
+
+func reportSSLSerial(appName string) string {
+	if !isSSLEnabled(appName) {
+		return ""
+	}
+
+	return formatSSLHexField(opensslCertOption(appName, "-serial"))
+}
+
+// formatSSLHexField extracts the value from an openssl "key=HEX" output line, as
+// printed by "-fingerprint" and "-serial". The key is discarded rather than
+// matched against a literal: OpenSSL 3.x labels the digest "sha256" where
+// OpenSSL 1.x and LibreSSL label it "SHA256". Neither a fingerprint nor a serial
+// can contain an "=", so cutting at the first one is unambiguous. Only hex
+// values may be passed through here, as uppercasing would corrupt a subject.
+func formatSSLHexField(out string) string {
+	_, value, found := strings.Cut(strings.TrimSpace(out), "=")
+	if !found {
+		return ""
+	}
+
+	return strings.ToUpper(strings.TrimSpace(value))
+}
+
 func reportSSLIssuer(appName string) string {
 	if !isSSLEnabled(appName) {
 		return ""
@@ -144,15 +192,7 @@ func reportSSLSubject(appName string) string {
 		return ""
 	}
 
-	result, err := common.CallExecCommand(common.ExecCommandInput{
-		Command: "openssl",
-		Args:    []string{"x509", "-in", filepath.Join(certTLSPath(appName), "server.crt"), "-noout", "-subject", "-nameopt", "compat"},
-	})
-	if err != nil {
-		return ""
-	}
-
-	return formatSSLSubject(result.StdoutContents())
+	return formatSSLSubject(opensslCertOption(appName, "-subject", "-nameopt", "compat"))
 }
 
 // formatSSLSubject normalizes an openssl "-subject -nameopt compat" line into a
@@ -203,14 +243,7 @@ func reportSSLHostnames(appName string) string {
 		return ""
 	}
 
-	subject := ""
-	subjectResult, err := common.CallExecCommand(common.ExecCommandInput{
-		Command: "openssl",
-		Args:    []string{"x509", "-in", filepath.Join(certTLSPath(appName), "server.crt"), "-noout", "-subject", "-nameopt", "RFC2253"},
-	})
-	if err == nil {
-		subject = subjectResult.StdoutContents()
-	}
+	subject := opensslCertOption(appName, "-subject", "-nameopt", "RFC2253")
 
 	return strings.Join(sslHostnames(subject, opensslCertText(appName)), " ")
 }

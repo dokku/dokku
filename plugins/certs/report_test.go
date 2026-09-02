@@ -112,3 +112,30 @@ func TestFormatSSLSubject(t *testing.T) {
 		})
 	}
 }
+
+func TestFormatSSLHexField(t *testing.T) {
+	cases := []struct {
+		name string
+		in   string
+		want string
+	}{
+		{"fingerprint openssl 1.x label", "SHA256 Fingerprint=B7:DF:D5:84:C6:2E:27:BF", "B7:DF:D5:84:C6:2E:27:BF"},
+		{"fingerprint openssl 3.x label", "sha256 Fingerprint=B7:DF:D5:84:C6:2E:27:BF", "B7:DF:D5:84:C6:2E:27:BF"},
+		{"fingerprint lowercase digest", "sha256 Fingerprint=b7:df:d5:84:c6:2e:27:bf", "B7:DF:D5:84:C6:2E:27:BF"},
+		{"serial", "serial=322844AD8CD6D4FF76B05C50833AB91DEEDA2AD1", "322844AD8CD6D4FF76B05C50833AB91DEEDA2AD1"},
+		{"serial shorter", "serial=C46823E5D7C09FC9", "C46823E5D7C09FC9"},
+		{"serial lowercase", "serial=c46823e5d7c09fc9", "C46823E5D7C09FC9"},
+		{"serial negative", "serial=-1F2E", "-1F2E"},
+		{"surrounding whitespace", "  serial=C46823E5D7C09FC9  \n", "C46823E5D7C09FC9"},
+		{"no separator", "unable to load certificate", ""},
+		{"empty", "", ""},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := formatSSLHexField(tc.in); got != tc.want {
+				t.Errorf("formatSSLHexField(%q) = %q, want %q", tc.in, got, tc.want)
+			}
+		})
+	}
+}
