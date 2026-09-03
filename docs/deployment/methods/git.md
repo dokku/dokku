@@ -204,7 +204,7 @@ echo "personal-access-token" | dokku git:auth github.com username
 > [!IMPORTANT]
 > New as of 0.38.0
 
-The `git:auth-status` command reports whether the configured `netrc` entry matches a desired state without exposing the underlying file. It exits `0` when the configured state matches and `1` otherwise. This allows external tooling such as configuration management systems to perform idempotent updates without reading `$DOKKU_ROOT/.netrc` directly.
+The `git:auth-status` command reports whether the configured `netrc` entry matches a desired state without exposing the underlying file. This allows external tooling such as configuration management systems to perform idempotent updates without reading `$DOKKU_ROOT/.netrc` directly.
 
 ```shell
 # check whether github.com is configured with the expected credentials
@@ -213,6 +213,19 @@ dokku git:auth-status github.com username personal-access-token
 # check whether no credentials are configured for github.com
 dokku git:auth-status github.com
 ```
+
+The result is reported via the exit code:
+
+| Exit code | Description |
+| --------- | ----------- |
+| `0` | The configured `netrc` entry matches the requested state. |
+| `1` | There is no `netrc` entry for the specified host. |
+| `2` | There is a `netrc` entry for the specified host, but it does not match the requested state. |
+| `3` | The command was called with invalid arguments and the state could not be checked. |
+
+The distinction between `1` and `2` allows a caller to tell a host that needs a `netrc` entry created apart from a host whose existing credentials would be replaced, without issuing a second call.
+
+When called without a username, the requested state is that no `netrc` entry exists for the host. An existing entry is therefore reported as `2`, and `1` is never returned.
 
 As with `git:auth`, the password may be provided via `STDIN`:
 

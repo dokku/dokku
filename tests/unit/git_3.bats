@@ -185,12 +185,18 @@ teardown() {
   run /bin/bash -c "dokku git:auth-status"
   echo "output: $output"
   echo "status: $status"
-  assert_failure
+  assert_exit_status 3
+  assert_output_contains "Please supply a git host"
 
   run /bin/bash -c "dokku git:auth-status github.com"
   echo "output: $output"
   echo "status: $status"
-  assert_success
+  assert_exit_status 0
+
+  run /bin/bash -c "dokku git:auth-status github.com username password"
+  echo "output: $output"
+  echo "status: $status"
+  assert_exit_status 1
 
   run /bin/bash -c "dokku git:auth github.com username password"
   echo "output: $output"
@@ -200,38 +206,85 @@ teardown() {
   run /bin/bash -c "dokku git:auth-status github.com"
   echo "output: $output"
   echo "status: $status"
-  assert_failure
+  assert_exit_status 2
 
   run /bin/bash -c "dokku git:auth-status github.com username password"
   echo "output: $output"
   echo "status: $status"
-  assert_success
+  assert_exit_status 0
 
   run /bin/bash -c "dokku git:auth-status github.com username wrong-password"
   echo "output: $output"
   echo "status: $status"
-  assert_failure
+  assert_exit_status 2
 
   run /bin/bash -c "dokku git:auth-status github.com other-username password"
   echo "output: $output"
   echo "status: $status"
-  assert_failure
+  assert_exit_status 2
 
   run /bin/bash -c "dokku git:auth-status github.com username"
   echo "output: $output"
   echo "status: $status"
-  assert_failure
+  assert_exit_status 3
   assert_output_contains "Missing password for netrc auth entry"
 
   run /bin/bash -c "printf 'password' | dokku git:auth-status github.com username"
   echo "output: $output"
   echo "status: $status"
-  assert_success
+  assert_exit_status 0
 
   run /bin/bash -c "printf 'wrong-password' | dokku git:auth-status github.com username"
   echo "output: $output"
   echo "status: $status"
-  assert_failure
+  assert_exit_status 2
+}
+
+@test "(git:auth-status) distinguishes a missing entry from a differing entry" {
+  run /bin/bash -c "dokku git:auth auth-status.example.com"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:auth-status auth-status.example.com username password"
+  echo "output: $output"
+  echo "status: $status"
+  assert_exit_status 1
+
+  run /bin/bash -c "dokku git:auth-status auth-status.example.com"
+  echo "output: $output"
+  echo "status: $status"
+  assert_exit_status 0
+
+  run /bin/bash -c "dokku git:auth auth-status.example.com username password"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:auth-status auth-status.example.com username password"
+  echo "output: $output"
+  echo "status: $status"
+  assert_exit_status 0
+
+  run /bin/bash -c "dokku git:auth-status auth-status.example.com username other-password"
+  echo "output: $output"
+  echo "status: $status"
+  assert_exit_status 2
+
+  run /bin/bash -c "dokku git:auth-status auth-status.example.com"
+  echo "output: $output"
+  echo "status: $status"
+  assert_exit_status 2
+
+  run /bin/bash -c "dokku git:auth auth-status.example.com"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:auth-status auth-status.example.com username password"
+  echo "output: $output"
+  echo "status: $status"
+  assert_exit_status 1
 }
 
 @test "(git) git:sync new [errors]" {

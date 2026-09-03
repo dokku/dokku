@@ -108,25 +108,30 @@ cmd-git-auth-status() {
   declare desc="reports whether netrc authentication matches the requested state"
   local cmd="git:auth-status"
   [[ "$1" == "$cmd" ]] && shift 1
+  local exit_code_missing_entry=1 exit_code_differing_entry=2 exit_code_invalid_arguments=3
   declare HOST="$1" USERNAME="$2" PASSWORD="$3"
-  [[ -z "$HOST" ]] && dokku_log_fail "Please supply a git host"
+  [[ -z "$HOST" ]] && DOKKU_FAIL_EXIT_CODE="$exit_code_invalid_arguments" dokku_log_fail "Please supply a git host"
 
   PASSWORD="$(fn-git-auth-read-password "$USERNAME" "$PASSWORD")"
 
   if [[ -n "$USERNAME" ]] && [[ -z "$PASSWORD" ]]; then
-    dokku_log_fail "Missing password for netrc auth entry"
+    DOKKU_FAIL_EXIT_CODE="$exit_code_invalid_arguments" dokku_log_fail "Missing password for netrc auth entry"
   fi
 
   local current
   current="$(netrc get "$HOST" 2>/dev/null)" || current=""
 
+  if [[ -z "$current" ]]; then
+    [[ -z "$USERNAME" ]] && return 0
+    return "$exit_code_missing_entry"
+  fi
+
   if [[ -z "$USERNAME" ]]; then
-    [[ -z "$current" ]] && return 0
-    return 1
+    return "$exit_code_differing_entry"
   fi
 
   [[ "$current" == "${USERNAME}:${PASSWORD}" ]] && return 0
-  return 1
+  return "$exit_code_differing_entry"
 }
 
 fn-git-auth-read-password() {
