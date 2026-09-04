@@ -152,11 +152,16 @@ func CommandMount(input CommandMountInput) error {
 		return err
 	}
 
+	appScheduler := common.GetAppScheduler(input.AppName)
+
 	// Legacy colon form: synthesize a legacy-<hash> entry plus an
 	// attachment so storage:list (now attachment-only) sees the mount.
 	// The storage docker-args trigger emits the corresponding -v flag at
 	// deploy time, so behavior at the docker-run boundary is unchanged.
 	if strings.Contains(input.NameOrPath, ":") {
+		if appScheduler != SchedulerDockerLocal {
+			return fmt.Errorf("colon-form mounts are only supported on docker-local apps; %s is a %s app. Create a named entry with 'dokku storage:create --scheduler %s' and mount it instead", input.AppName, appScheduler, appScheduler)
+		}
 		return mountLegacyColon(input.AppName, input.NameOrPath)
 	}
 
@@ -171,6 +176,10 @@ func CommandMount(input CommandMountInput) error {
 	entry, err := LoadEntry(input.NameOrPath)
 	if err != nil {
 		return err
+	}
+
+	if entry.Scheduler != appScheduler {
+		return fmt.Errorf("storage entry %q is scheduler=%s but cannot be mounted on a %s app; recreate it with --scheduler %s", entry.Name, entry.Scheduler, appScheduler, appScheduler)
 	}
 
 	phases := input.Phases
