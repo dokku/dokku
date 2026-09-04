@@ -156,6 +156,34 @@ teardown() {
   assert_output_contains "SECRET_KEY=fjdkslafjdk"
 }
 
+@test "(scheduler-k3s) dockerfile dokku run propagates the command exit code" {
+  if [[ -z "$DOCKERHUB_USERNAME" ]] || [[ -z "$DOCKERHUB_TOKEN" ]]; then
+    skip "skipping due to missing docker.io credentials DOCKERHUB_USERNAME:DOCKERHUB_TOKEN"
+  fi
+
+  INGRESS_CLASS=nginx install_k3s
+
+  run /bin/bash -c "dokku apps:create $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app dockerfile-procfile dokku@$DOKKU_DOMAIN:$TEST_APP
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku --quiet run $TEST_APP sh -c 'exit 3'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_exit_status 3
+
+  run /bin/bash -c "dokku --quiet run $TEST_APP sh -c 'exit 0'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
 @test "(scheduler-k3s) dockerfile dokku run resolves Procfile key" {
   if [[ -z "$DOCKERHUB_USERNAME" ]] || [[ -z "$DOCKERHUB_TOKEN" ]]; then
     skip "skipping due to missing docker.io credentials DOCKERHUB_USERNAME:DOCKERHUB_TOKEN"
