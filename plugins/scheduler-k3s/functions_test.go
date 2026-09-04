@@ -1,11 +1,14 @@
 package scheduler_k3s
 
 import (
+	"errors"
+	"fmt"
 	"strings"
 	"testing"
 
 	"github.com/dokku/dokku/plugins/common"
 	corev1 "k8s.io/api/core/v1"
+	utilexec "k8s.io/client-go/util/exec"
 )
 
 func TestNeedsImagePullSecretsPrune(t *testing.T) {
@@ -679,5 +682,44 @@ func TestResolveAppTLSConfig(t *testing.T) {
 				t.Errorf("resolveAppTLSConfig() = %+v, want %+v", got, tc.want)
 			}
 		})
+	}
+}
+
+func TestAttachExitError(t *testing.T) {
+	plainErr := errors.New("boom")
+	codedErr := utilexec.CodeExitError{
+		Err:  fmt.Errorf("command terminated with exit code 3"),
+		Code: 3,
+	}
+
+	if err := attachExitError(nil); err != nil {
+		t.Errorf("attachExitError(nil) = %v, want nil", err)
+	}
+
+	if err := attachExitError(plainErr); err != plainErr {
+		t.Errorf("attachExitError(plain error) = %v, want the original error", err)
+	}
+
+	err := attachExitError(codedErr)
+	if err == nil {
+		t.Fatal("attachExitError(CodeExitError) = nil, want ExitCodeError")
+	}
+	exitErr, ok := err.(*ExitCodeError)
+	if !ok {
+		t.Fatalf("attachExitError(CodeExitError) returned %T, want *ExitCodeError", err)
+	}
+	if exitErr.Code != 3 {
+		t.Errorf("Code = %d, want 3", exitErr.Code)
+	}
+	if err.Error() != "command terminated with exit code 3" {
+		t.Errorf("Error() = %q, want %q", err.Error(), "command terminated with exit code 3")
+	}
+
+	zeroCodeErr := utilexec.CodeExitError{
+		Err:  fmt.Errorf("command terminated with exit code 0"),
+		Code: 0,
+	}
+	if err := attachExitError(zeroCodeErr); err != zeroCodeErr {
+		t.Errorf("attachExitError(zero code error) = %v, want the original error", err)
 	}
 }

@@ -178,6 +178,23 @@ teardown() {
   [[ "$output" != *"uid="* ]] || flunk "id command output leaked - env value was expanded"
 }
 
+@test "(run) run propagates the command exit code" {
+  run deploy_app dockerfile
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku run $TEST_APP sh -c 'exit 3'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_exit_status 3
+
+  run /bin/bash -c "dokku run $TEST_APP sh -c 'exit 0'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
 @test "(run) --ttl-seconds rejects non-numeric input; docker-options stores it verbatim" {
   run /bin/bash -c "dokku run --ttl-seconds '\$(id)' $TEST_APP echo hi"
   echo "output: $output"
