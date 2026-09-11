@@ -3,6 +3,7 @@
 /triggers/*
 /triggers
 /builds-generate-id
+/builds-record-discard
 /builds-record-finalize
 /builds-record-start
 /install

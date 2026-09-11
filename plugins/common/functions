@@ -910,6 +910,20 @@ dokku_setup_build_capture() {
   exec &> >(tee -a "$LOG" >(logger -i -t "dokku-${DOKKU_BUILD_ID}"))
 }
 
+dokku_discard_build_capture() {
+  declare desc="drop the build record started by dokku_setup_build_capture when nothing ended up being built"
+  declare APP="$1"
+  if [[ -z "$APP" ]] || [[ -z "$DOKKU_BUILD_ID" ]]; then
+    return 0
+  fi
+
+  plugn trigger builds-record-discard "$APP" "$DOKKU_BUILD_ID" || true
+  # forget the id so a later finalize does not warn about the missing record.
+  # output stays redirected: the tee keeps the now-unlinked log open until the
+  # process exits, and stdout still reaches the operator.
+  unset DOKKU_BUILD_ID DOKKU_BUILD_LOG_FILE DOKKU_BUILD_SOURCE
+}
+
 acquire_app_deploy_lock() {
   declare desc="acquire advisory lock for use in deploys"
   local APP="$1"

@@ -436,6 +436,30 @@ func PruneAppBuilds(appName string) error {
 	return nil
 }
 
+// DiscardBuild removes a build record and its log outright. It exists for
+// callers that start a record and then discover there was nothing to build:
+// leaving such a record at status=running means it is later reaped as a
+// spurious failure, and counts against retention in the meantime.
+//
+// It is a no-op for a record that is missing or already terminal - discarding
+// a finalized build would delete real history.
+func DiscardBuild(appName, buildID string) error {
+	b, err := ReadBuild(appName, buildID)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		}
+		return err
+	}
+
+	if b.Status.IsTerminal() {
+		return nil
+	}
+
+	removeBuildFiles(appName, buildID)
+	return nil
+}
+
 func removeBuildFiles(appName, buildID string) {
 	if err := os.Remove(RecordPath(appName, buildID)); err != nil && !os.IsNotExist(err) {
 		common.LogWarn(fmt.Sprintf("Could not remove build record %s/%s: %s", appName, buildID, err))
