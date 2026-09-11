@@ -96,6 +96,23 @@ func TriggerBuildsRecordStart(appName, buildID, pidStr, sourceStr string) error 
 	return WriteBuild(b)
 }
 
+// TriggerBuildsRecordDiscard drops a record that was started before the caller
+// knew whether it would build anything - the git:sync no-op paths, which fetch
+// first and only then discover there is nothing to deploy. Records that are
+// missing or already terminal are left alone.
+//
+// Args: <app> <build-id>
+func TriggerBuildsRecordDiscard(appName, buildID string) error {
+	if appName == "" {
+		return errors.New("builds-record-discard: missing app name")
+	}
+	if buildID == "" {
+		return errors.New("builds-record-discard: missing build id")
+	}
+
+	return DiscardBuild(appName, buildID)
+}
+
 // TriggerBuildsRecordFinalize writes the terminal status onto an existing
 // build record. It is idempotent: records that are already terminal (or have
 // been overwritten by an earlier finalize) are left untouched.

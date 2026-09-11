@@ -19,6 +19,10 @@ func main() {
 	switch trigger {
 	case "builds-generate-id":
 		err = builds.TriggerBuildsGenerateID()
+	case "builds-record-discard":
+		appName := flag.Arg(0)
+		buildID := flag.Arg(1)
+		err = builds.TriggerBuildsRecordDiscard(appName, buildID)
 	case "builds-record-finalize":
 		appName := flag.Arg(0)
 		buildID := flag.Arg(1)

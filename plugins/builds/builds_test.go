@@ -553,6 +553,72 @@ func TestRecordStartFinalizeIdempotency(t *testing.T) {
 	}
 }
 
+func TestRecordDiscardRemovesRunningRecord(t *testing.T) {
+	setupTestRoot(t)
+	app := "discard"
+	id := GenerateBuildID()
+
+	if err := TriggerBuildsRecordStart(app, id, strconv.Itoa(os.Getpid()), string(BuildSourceGitSync)); err != nil {
+		t.Fatalf("record-start: %v", err)
+	}
+	if err := os.WriteFile(LogPathFor(app, id), []byte("fetch chatter\n"), 0644); err != nil {
+		t.Fatalf("write log: %v", err)
+	}
+
+	if err := TriggerBuildsRecordDiscard(app, id); err != nil {
+		t.Fatalf("record-discard: %v", err)
+	}
+
+	if _, err := os.Stat(RecordPath(app, id)); !os.IsNotExist(err) {
+		t.Errorf("record still present after discard, stat err = %v", err)
+	}
+	if _, err := os.Stat(LogPathFor(app, id)); !os.IsNotExist(err) {
+		t.Errorf("log still present after discard, stat err = %v", err)
+	}
+}
+
+func TestRecordDiscardLeavesTerminalRecordsAlone(t *testing.T) {
+	setupTestRoot(t)
+	app := "discard-terminal"
+	id := GenerateBuildID()
+
+	if err := TriggerBuildsRecordStart(app, id, strconv.Itoa(os.Getpid()), string(BuildSourceGitSync)); err != nil {
+		t.Fatalf("record-start: %v", err)
+	}
+	if err := TriggerBuildsRecordFinalize(app, id, "0"); err != nil {
+		t.Fatalf("finalize: %v", err)
+	}
+
+	if err := TriggerBuildsRecordDiscard(app, id); err != nil {
+		t.Fatalf("record-discard: %v", err)
+	}
+
+	got, err := ReadBuild(app, id)
+	if err != nil {
+		t.Fatalf("read after discard: %v", err)
+	}
+	if got.Status != BuildStatusSucceeded {
+		t.Errorf("Status = %v, want succeeded (discard must not touch finalized history)", got.Status)
+	}
+}
+
+func TestRecordDiscardMissingRecordIsNoop(t *testing.T) {
+	setupTestRoot(t)
+	if err := TriggerBuildsRecordDiscard("discard-missing", GenerateBuildID()); err != nil {
+		t.Errorf("discard of missing record = %v, want nil", err)
+	}
+}
+
+func TestRecordDiscardValidatesArguments(t *testing.T) {
+	setupTestRoot(t)
+	if err := TriggerBuildsRecordDiscard("", "abc"); err == nil {
+		t.Error("discard with empty app = nil, want error")
+	}
+	if err := TriggerBuildsRecordDiscard("app", ""); err == nil {
+		t.Error("discard with empty build id = nil, want error")
+	}
+}
+
 func TestRecordStartUnknownSourceCoercedToUnknown(t *testing.T) {
 	setupTestRoot(t)
 	app := "src"
