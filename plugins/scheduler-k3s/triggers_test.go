@@ -2,12 +2,15 @@ package scheduler_k3s
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
 
 	"github.com/dokku/dokku/plugins/common"
 	. "github.com/onsi/gomega"
+	corev1 "k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 )
 
 func setupChartMigrationTest(t *testing.T) {
@@ -193,4 +196,147 @@ func TestMigrateAnnotationsLabelsToMapFormatSkipsReservedPrefixes(t *testing.T) 
 
 	Expect(common.PropertyGet("scheduler-k3s", "--global", "chart.cert-manager.deployment")).To(Equal("irrelevant"))
 	Expect(common.PropertyGet("scheduler-k3s", "--global", "node-profile-foo.json")).To(Equal("{}"))
+}
+
+func TestExitCodeError(t *testing.T) {
+	var _ common.ErrWithExitCode = (*ExitCodeError)(nil)
+
+	err := &ExitCodeError{Code: 3, Message: "boom"}
+	if err.ExitCode() != 3 {
+		t.Errorf("ExitCode() = %d, want 3", err.ExitCode())
+	}
+	if err.Error() != "boom" {
+		t.Errorf("Error() = %q, want %q", err.Error(), "boom")
+	}
+}
+
+func runPod(appName string, processType string, containerStatuses []corev1.ContainerStatus) v1.Pod {
+	return v1.Pod{
+		Status: v1.PodStatus{
+			Phase:             v1.PodFailed,
+			ContainerStatuses: containerStatuses,
+		},
+	}
+}
+
+func terminatedContainerStatus(name string, exitCode int32, message string) corev1.ContainerStatus {
+	return corev1.ContainerStatus{
+		Name: name,
+		State: corev1.ContainerState{
+			Terminated: &corev1.ContainerStateTerminated{
+				ExitCode: exitCode,
+				Message:  message,
+			},
+		},
+	}
+}
+
+func TestFailedRunContainerError(t *testing.T) {
+	containerName := fmt.Sprintf("%s-%s", "myapp", "run")
+
+	cases := []struct {
+		name        string
+		appName     string
+		processType string
+		statuses    []corev1.ContainerStatus
+		wantCode    int
+		wantError   string
+	}{
+		{
+			name:        "terminated run container with nonzero exit code",
+			appName:     "myapp",
+			processType: "run",
+			statuses:    []corev1.ContainerStatus{terminatedContainerStatus(containerName, 3, "")},
+			wantCode:    3,
+			wantError:   "Unable to attach as the pod has already exited with a failed exit code: 3",
+		},
+		{
+			name:        "terminated run container with nonzero exit code and message",
+			appName:     "myapp",
+			processType: "run",
+			statuses:    []corev1.ContainerStatus{terminatedContainerStatus(containerName, 137, "OOMKilled")},
+			wantCode:    137,
+			wantError:   "Unable to attach as the pod has already exited with a failed exit code: 137 (OOMKilled)",
+		},
+		{
+			name:        "terminated run container with zero exit code returns generic error",
+			appName:     "myapp",
+			processType: "run",
+			statuses:    []corev1.ContainerStatus{terminatedContainerStatus(containerName, 0, "")},
+			wantCode:    -1,
+			wantError:   "Unable to attach as the pod has already exited with a failed exit code",
+		},
+		{
+			name:        "no container statuses returns generic error",
+			appName:     "myapp",
+			processType: "run",
+			statuses:    []corev1.ContainerStatus{},
+			wantCode:    -1,
+			wantError:   "Unable to attach as the pod has already exited with a failed exit code",
+		},
+		{
+			name:        "container name mismatch returns generic error",
+			appName:     "myapp",
+			processType: "run",
+			statuses:    []corev1.ContainerStatus{terminatedContainerStatus("other-app-run", 3, "")},
+			wantCode:    -1,
+			wantError:   "Unable to attach as the pod has already exited with a failed exit code",
+		},
+		{
+			name:        "unterminated matching container returns generic error",
+			appName:     "myapp",
+			processType: "run",
+			statuses: []corev1.ContainerStatus{
+				{
+					Name:  containerName,
+					State: corev1.ContainerState{},
+				},
+			},
+			wantCode:  -1,
+			wantError: "Unable to attach as the pod has already exited with a failed exit code",
+		},
+		{
+			name:        "unrelated terminated container before matching one",
+			appName:     "myapp",
+			processType: "run",
+			statuses: []corev1.ContainerStatus{
+				terminatedContainerStatus("myapp-web", 9, ""),
+				terminatedContainerStatus(containerName, 5, ""),
+			},
+			wantCode:  5,
+			wantError: "Unable to attach as the pod has already exited with a failed exit code: 5",
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			err := failedRunContainerError(tc.appName, tc.processType, runPod(tc.appName, tc.processType, tc.statuses))
+			if tc.wantCode == -1 {
+				if err == nil {
+					t.Fatal("failedRunContainerError() = nil, want generic error")
+				}
+				if _, ok := err.(*ExitCodeError); ok {
+					t.Fatalf("failedRunContainerError() returned %T, want generic error", err)
+				}
+				if err.Error() != tc.wantError {
+					t.Errorf("failedRunContainerError() error = %q, want %q", err.Error(), tc.wantError)
+				}
+				return
+			}
+
+			if err == nil {
+				t.Fatal("failedRunContainerError() = nil, want ExitCodeError")
+			}
+			exitErr, ok := err.(*ExitCodeError)
+			if !ok {
+				t.Fatalf("failedRunContainerError() returned %T, want *ExitCodeError", err)
+			}
+			if exitErr.ExitCode() != tc.wantCode {
+				t.Errorf("ExitCode() = %d, want %d", exitErr.ExitCode(), tc.wantCode)
+			}
+			if err.Error() != tc.wantError {
+				t.Errorf("Error() = %q, want %q", err.Error(), tc.wantError)
+			}
+		})
+	}
 }

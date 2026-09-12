@@ -916,6 +916,55 @@ func TriggerSchedulerProxyLogs(scheduler string, appName string, proxyType strin
 	})
 }
 
+// ExitCodeError carries the exit code of a failed user command so that the
+// scheduler trigger can exit with the command's own status rather than a
+// generic failure. It implements common.ErrWithExitCode, which
+// common.LogFailWithError honors, matching docker-local scheduler behavior.
+type ExitCodeError struct {
+	// Code is the exit code of the failed command or container
+	Code int
+
+	// Message is the error text printed to stderr
+	Message string
+}
+
+var _ common.ErrWithExitCode = (*ExitCodeError)(nil)
+
+// Error returns the error text to print to stderr
+func (e *ExitCodeError) Error() string {
+	return e.Message
+}
+
+// ExitCode returns the exit code to use in case this error bubbles up into an
+// os.Exit() call
+func (e *ExitCodeError) ExitCode() int {
+	return e.Code
+}
+
+// failedRunContainerError builds an ExitCodeError from the terminated run
+// container of a failed run pod. The container's exit code is the exit code of
+// the command the run pod executed, so it can be propagated to the caller.
+// When no terminated container with a nonzero exit code exists, a generic
+// failure error is returned instead.
+func failedRunContainerError(appName string, processType string, pod v1.Pod) error {
+	containerName := fmt.Sprintf("%s-%s", appName, processType)
+	for _, status := range pod.Status.ContainerStatuses {
+		if status.Name != containerName || status.State.Terminated == nil {
+			continue
+		}
+		exitCode := int(status.State.Terminated.ExitCode)
+		if exitCode > 0 {
+			message := fmt.Sprintf("Unable to attach as the pod has already exited with a failed exit code: %d", exitCode)
+			if messageDetail := status.State.Terminated.Message; messageDetail != "" {
+				message = fmt.Sprintf("%s (%s)", message, messageDetail)
+			}
+			return &ExitCodeError{Code: exitCode, Message: message}
+		}
+	}
+
+	return fmt.Errorf("Unable to attach as the pod has already exited with a failed exit code")
+}
+
 // TriggerSchedulerRun runs a command in an ephemeral container
 func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []string) error {
 	if scheduler != "k3s" {
@@ -1240,16 +1289,7 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 		case v1.PodSucceeded:
 			return nil
 		case v1.PodFailed:
-			for _, status := range selectedPod.Status.ContainerStatuses {
-				if status.Name != fmt.Sprintf("%s-%s", appName, processType) {
-					continue
-				}
-				if status.State.Terminated == nil {
-					continue
-				}
-				return fmt.Errorf("Unable to attach as the pod has already exited with a failed exit code: %s", status.State.Terminated.Message)
-			}
-			return fmt.Errorf("Unable to attach as the pod has already exited with a failed exit code")
+			return failedRunContainerError(appName, processType, selectedPod)
 		}
 		return fmt.Errorf("Unable to attach as the pod is in an unknown state: %s", selectedPod.Status.Phase)
 	}
@@ -1276,17 +1316,7 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 				return fmt.Errorf("Error streaming logs: %w", err)
 			}
 			if selectedPod.Status.Phase == v1.PodFailed {
-				for _, status := range selectedPod.Status.ContainerStatuses {
-					if status.Name != fmt.Sprintf("%s-%s", appName, processType) {
-						continue
-					}
-					if status.State.Terminated == nil {
-						continue
-					}
-					return fmt.Errorf("Unable to attach as the pod has already exited with a failed exit code: %s", status.State.Terminated.Message)
-				}
-
-				return fmt.Errorf("Unable to attach as the pod has already exited with a failed exit code")
+				return failedRunContainerError(appName, processType, selectedPod)
 			} else if selectedPod.Status.Phase == v1.PodSucceeded {
 				return nil
 			}
@@ -1307,17 +1337,7 @@ func TriggerSchedulerRun(scheduler string, appName string, envCount int, args []
 	switch selectedPod.Status.Phase {
 	case v1.PodFailed, v1.PodSucceeded:
 		if selectedPod.Status.Phase == v1.PodFailed {
-			for _, status := range selectedPod.Status.ContainerStatuses {
-				if status.Name != fmt.Sprintf("%s-%s", appName, processType) {
-					continue
-				}
-				if status.State.Terminated == nil {
-					continue
-				}
-				return fmt.Errorf("Unable to attach as the pod has already exited with a failed exit code: %s", status.State.Terminated.Message)
-			}
-
-			return fmt.Errorf("Unable to attach as the pod has already exited with a failed exit code")
+			return failedRunContainerError(appName, processType, selectedPod)
 		} else if selectedPod.Status.Phase == v1.PodSucceeded {
 			return errors.New("Unable to attach as the pod has already exited with a successful exit code")
 		}
