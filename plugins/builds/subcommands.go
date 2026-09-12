@@ -381,6 +381,14 @@ func CommandOutput(appName, buildID string) error {
 	logPath := LogPathFor(appName, buildID)
 	if _, err := os.Stat(logPath); err != nil {
 		if os.IsNotExist(err) {
+			// A missing log is normal after prune/rotation, but a typo'd or
+			// never-recorded id must not fall through to journalctl and exit 0.
+			if _, err := ReadBuild(appName, buildID); err != nil {
+				if os.IsNotExist(err) {
+					return fmt.Errorf("no such build %s for app %s", buildID, appName)
+				}
+				return err
+			}
 			return outputViaJournalctl(buildID)
 		}
 		return err
