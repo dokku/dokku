@@ -299,6 +299,7 @@ cmd-git-sync() {
   elif [[ "$FLAG" == "--build-if-changes" ]]; then
     if [[ "$CURRENT_REF" == "$UPDATED_REF" ]]; then
       dokku_log_verbose "Skipping build as no changes were detected"
+      dokku_discard_build_capture "$APP"
       return
     fi
 
@@ -314,6 +315,11 @@ cmd-git-sync() {
 
     plugn trigger receive-app "$APP" "$GIT_REF"
     plugn trigger deploy-source-set "$APP" "git-sync" "${GIT_REMOTE}#${GIT_REF}"
+  else
+    # nothing was built, so the record opened before the fetch has no build to
+    # describe. Left in place it stays at status=running, is later reaped as a
+    # spurious failure, and evicts real history from the retention window.
+    dokku_discard_build_capture "$APP"
   fi
 }
 
