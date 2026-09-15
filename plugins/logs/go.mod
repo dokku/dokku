@@ -26,7 +26,7 @@ require (
 	golang.org/x/crypto v0.57.0 // indirect
 	golang.org/x/sync v0.23.0 // indirect
 	golang.org/x/sys v0.48.0 // indirect
-	mvdan.cc/sh/v3 v3.14.0 // indirect
+	mvdan.cc/sh/v3 v3.14.1 // indirect
 )
 
 replace github.com/dokku/dokku/plugins/common => ../common
