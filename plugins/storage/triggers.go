@@ -252,7 +252,7 @@ func TriggerDockerArgs(appName string, phase string) error {
 			return fmt.Errorf("attachment on %q references missing entry %q: %w", appName, attachment.EntryName, err)
 		}
 		if entry.Scheduler != SchedulerDockerLocal {
-			continue
+			return fmt.Errorf("storage entry %q is scheduler=%s but is mounted on a docker-local app; recreate it with --scheduler docker-local", entry.Name, entry.Scheduler)
 		}
 		flag := buildDockerVFlag(entry, attachment)
 		if flag == "" {

@@ -60,3 +60,25 @@ func TestBuildDockerVFlagVolumeOptions(t *testing.T) {
 	roOpts := buildDockerVFlag(entry, &Attachment{ContainerPath: "/container", Readonly: true, VolumeOptions: "noexec,nosuid"})
 	Expect(roOpts).To(Equal("-v /host:/container:ro,noexec,nosuid"))
 }
+
+func TestTriggerDockerArgsRejectsSchedulerMismatch(t *testing.T) {
+	RegisterTestingT(t)
+	root := withTempLibRoot(t)
+
+	Expect(SaveEntry(&Entry{
+		Name:      "demo-pvc",
+		Scheduler: SchedulerK3s,
+	})).To(Succeed())
+
+	writeAttachmentsFile(t, root, "demo", []*Attachment{
+		{
+			EntryName:     "demo-pvc",
+			ContainerPath: "/data",
+			Phases:        []string{PhaseDeploy},
+		},
+	})
+
+	err := TriggerDockerArgs("demo", PhaseDeploy)
+	Expect(err).To(HaveOccurred())
+	Expect(err.Error()).To(Equal(`storage entry "demo-pvc" is scheduler=k3s but is mounted on a docker-local app; recreate it with --scheduler docker-local`))
+}

@@ -285,8 +285,8 @@ func ToProcessVolumes(pairs []AppMountPair) ([]ProcessVolume, error) {
 		if pair.Entry == nil || pair.Attachment == nil {
 			continue
 		}
-		if pair.Entry.Scheduler == storage.SchedulerDockerLocal {
-			return nil, fmt.Errorf("storage entry %q is scheduler=docker-local but is mounted on a k3s app; recreate it with --scheduler k3s", pair.Entry.Name)
+		if pair.Entry.Scheduler != storage.SchedulerK3s {
+			return nil, fmt.Errorf("storage entry %q is scheduler=%s but is mounted on a k3s app; recreate it with --scheduler k3s", pair.Entry.Name, pair.Entry.Scheduler)
 		}
 		volumes = append(volumes, ProcessVolume{
 			Name:      pair.Entry.Name,

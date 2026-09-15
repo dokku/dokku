@@ -842,3 +842,57 @@ teardown() {
   run /bin/bash -c "dokku storage:destroy rdmtest-set-annot --destroy-host-dir --force"
   assert_success
 }
+
+@test "(storage:mount) rejects k3s storage entry on docker-local app" {
+  entry_path="$DOKKU_LIB_ROOT/data/storage-registry/entries/rdmtest-k3s-entry.json"
+  run /bin/bash -c "echo '{\"name\":\"rdmtest-k3s-entry\",\"scheduler\":\"k3s\",\"size\":\"1Gi\",\"schema_version\":1}' | sudo tee $entry_path >/dev/null"
+  assert_success
+  run /bin/bash -c "sudo chown dokku:dokku $entry_path"
+  assert_success
+
+  run /bin/bash -c "dokku storage:mount $TEST_APP rdmtest-k3s-entry --container-dir /data"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "storage entry \"rdmtest-k3s-entry\" is scheduler=k3s but cannot be mounted on a docker-local app; recreate it with --scheduler docker-local"
+
+  run /bin/bash -c "dokku storage:list $TEST_APP --format json | jq -r '.[].entry_name' | grep '^rdmtest-k3s-entry$' || true"
+  assert_output ""
+
+  run /bin/bash -c "sudo rm -f $entry_path"
+  assert_success
+}
+
+@test "(storage:mount) rejects docker-local storage entry on k3s app" {
+  run /bin/bash -c "dokku storage:create rdmtest-local-entry"
+  assert_success
+
+  run /bin/bash -c "dokku scheduler:set $TEST_APP selected k3s"
+  assert_success
+
+  run /bin/bash -c "dokku storage:mount $TEST_APP rdmtest-local-entry --container-dir /data"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "storage entry \"rdmtest-local-entry\" is scheduler=docker-local but cannot be mounted on a k3s app; recreate it with --scheduler k3s"
+
+  run /bin/bash -c "dokku scheduler:set $TEST_APP selected docker-local"
+  assert_success
+
+  run /bin/bash -c "dokku storage:destroy rdmtest-local-entry --destroy-host-dir --force"
+  assert_success
+}
+
+@test "(storage:mount) rejects colon-form mount on k3s app" {
+  run /bin/bash -c "dokku scheduler:set $TEST_APP selected k3s"
+  assert_success
+
+  run /bin/bash -c "dokku storage:mount $TEST_APP /tmp/custom-mount:/data"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "colon-form mounts are only supported on docker-local apps"
+
+  run /bin/bash -c "dokku scheduler:set $TEST_APP selected docker-local"
+  assert_success
+}
