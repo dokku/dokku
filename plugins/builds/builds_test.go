@@ -609,3 +609,53 @@ func TestBuildJSONShape(t *testing.T) {
 		t.Errorf("kind not serialized as enum string: %s", string(raw))
 	}
 }
+
+func setupTestAppRoot(t *testing.T, libRoot, appName string) {
+	t.Helper()
+	dokkuRoot := filepath.Join(libRoot, "dokku-root")
+	if err := os.MkdirAll(filepath.Join(dokkuRoot, appName), 0755); err != nil {
+		t.Fatalf("mkdir app root: %v", err)
+	}
+	t.Setenv("DOKKU_ROOT", dokkuRoot)
+}
+
+func TestCommandOutputRejectsUnknownBuildID(t *testing.T) {
+	tmp := setupTestRoot(t)
+	app := "demo"
+	setupTestAppRoot(t, tmp, app)
+
+	err := CommandOutput(app, "not-a-real-build-id")
+	if err == nil {
+		t.Fatal("expected error for unknown build id")
+	}
+	want := "no such build not-a-real-build-id for app demo"
+	if err.Error() != want {
+		t.Fatalf("got %q, want %q", err.Error(), want)
+	}
+}
+
+func TestCommandOutputMissingLogWithRecordDoesNotClaimUnknown(t *testing.T) {
+	tmp := setupTestRoot(t)
+	app := "demo"
+	setupTestAppRoot(t, tmp, app)
+
+	b := Build{
+		ID:        "abc123xyz00001",
+		App:       app,
+		Kind:      BuildKindBuild,
+		PID:       1,
+		StartedAt: time.Now().UTC().Truncate(time.Second),
+		Status:    BuildStatusSucceeded,
+		Source:    BuildSourceGitHook,
+	}
+	if err := WriteBuild(b); err != nil {
+		t.Fatalf("WriteBuild: %v", err)
+	}
+
+	err := CommandOutput(app, b.ID)
+	if err != nil && strings.Contains(err.Error(), "no such build") {
+		t.Fatalf("existing record should not be reported unknown: %v", err)
+	}
+	// Without a log file, the next step is journalctl (or a clear "not available"
+	// error). Either outcome is fine; the regression is the false "success".
+}
