@@ -120,6 +120,7 @@ The following plugins are available and provided by Dokku maintainers.  Please f
 | [Dokku Clone](https://github.com/crisward/dokku-clone)                                            | [crisward][]          | 0.4.0+                |
 | [Dokku Copy App Config Files](https://github.com/dokku-community/dokku-supply-config)             | [josegonzalez][]      | 0.4.0+                |
 | [Dokku Require](https://github.com/crisward/dokku-require)<sup>3</sup>                            | [crisward][]          | 0.4.0+                |
+| [Generic (any Docker image)](https://github.com/meteozond/dokku-generic)                          | [meteozond][]         | 0.35.0+               |
 | [Global Certificates](https://github.com/josegonzalez/dokku-global-cert)                          | [josegonzalez][]      | 0.5.0+                |
 | [Graduate (Environment Management)](https://github.com/glassechidna/dokku-graduate)               | [benjamin-dobell][]   | 0.4.0+                |
 | [Host post-build command hook](https://github.com/baikunz/dokku-post-deploy-script)               | [baikunz][]           | 0.4.0+                |
@@ -334,3 +335,4 @@ The following plugins are no longer maintained by their developers.
 [lazyatom]: https://github.com/lazyatom
 [ollej]: https://github.com/ollej
 [ignisda]: https://github.com/IgnisDa
+[meteozond]: https://github.com/meteozond
