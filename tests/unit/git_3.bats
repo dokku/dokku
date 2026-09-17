@@ -395,6 +395,59 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_contains "$SMOKE_TEST_APP_MASTER_SHA"
+
+  # the no-op tick must not add a record of its own, and must leave the
+  # succeeded record of the build above untouched
+  run /bin/bash -c "ls $DOKKU_LIB_ROOT/data/builds/$TEST_APP/*.json 2>/dev/null | wc -l"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "1"
+
+  run /bin/bash -c "dokku builds:list $TEST_APP --format json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains '"status":"succeeded"'
+  assert_output_not_contains '"display_status":"abandoned"'
+}
+
+@test "(git) git:sync new [no build leaves no build record]" {
+  run /bin/bash -c "rm -rf $DOKKU_LIB_ROOT/data/builds/$TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  # a sync with no build flag builds nothing, so it should record nothing
+  run /bin/bash -c "dokku git:sync $TEST_APP https://github.com/dokku/smoke-test-app.git"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "ls $DOKKU_LIB_ROOT/data/builds/$TEST_APP/*.json 2>/dev/null | wc -l"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "0"
+
+  # and neither should a --build-if-changes poll that finds no changes
+  run /bin/bash -c "dokku git:sync --build-if-changes $TEST_APP https://github.com/dokku/smoke-test-app.git"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Skipping build as no changes were detected"
+
+  run /bin/bash -c "ls $DOKKU_LIB_ROOT/data/builds/$TEST_APP/*.json 2>/dev/null | wc -l"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "0"
+
+  run /bin/bash -c "ls $DOKKU_LIB_ROOT/data/builds/$TEST_APP/*.log 2>/dev/null | wc -l"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "0"
 }
 
 @test "(git) git:sync new [--build branch]" {
