@@ -1,5 +1,116 @@
 # History
 
+## 0.38.28
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.38.28/bootstrap.sh
+sudo DOKKU_TAG=v0.38.28 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #9033: @mvysny Discard the build record git:sync starts when nothing is built
+- #9035: @vulragrag-star Fix builds:output exiting 0 for unknown build ids
+- #9010: @visheshgubrani Reject scheduler mismatch at mount time
+- #8975: @BetterAndBetterII Treat is_app_listening as a boolean, not a non-empty string
+- #8972: @josegonzalez Validate k3s profile names against derived release name
+- #8937: @josegonzalez Retire cron containers past their active deadline
+
+### New Features
+
+- #9047: @josegonzalez Release dokku on resolute
+- #8791: @akhil-naidu Add Ubuntu 26.04 LTS to bootstrap supported versions
+- #9003: @josegonzalez Distinct git:auth-status exit codes for netrc state
+- #9001: @josegonzalez Add --clear and --replace flags to ps:scale
+- #8996: @josegonzalez Add fingerprint and serial to certs:report
+
+### Documentation
+
+- #9036: @meteozond Add dokku-generic to community plugins
+
+### Tests
+
+- #9046: @dependabot[bot] chore(deps): bump ruby from 4.0.6 to 4.0.7 in /tests/apps/dockerfile-entrypoint
+- #9045: @dependabot[bot] chore(deps): bump sass from 1.104.0 to 1.104.1 in /tests/apps/multi
+- #9032: @dependabot[bot] chore(deps): bump djangorestframework from 3.18.0 to 3.18.1 in /tests/apps/dockerfile-release
+- #9038: @dependabot[bot] chore(deps): bump monolog/monolog from 3.11.0 to 3.12.0 in /tests/apps/php
+- #9040: @dependabot[bot] chore(deps): bump psycopg2-binary from 2.9.12 to 2.9.13 in /tests/apps/dockerfile-release
+- #9014: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 294 to 295 in /tests/apps/php
+- #9016: @dependabot[bot] chore(deps): bump slim/slim from 4.15.2 to 4.15.3 in /tests/apps/php
+- #9019: @dependabot[bot] chore(deps): bump sass from 1.103.1 to 1.104.0 in /tests/apps/multi
+- #9015: @dependabot[bot] chore(deps): bump monolog/monolog from 3.10.0 to 3.11.0 in /tests/apps/php
+- #9004: @dependabot[bot] chore(deps): bump qs from 6.15.2 to 6.16.0 in /tests/apps/checks-root
+- #9005: @dependabot[bot] chore(deps): bump golang from 1.27.0 to 1.27.1 in /tests/apps/gogrpc
+- #9006: @dependabot[bot] chore(deps): bump golang from 1.27.0 to 1.27.1 in /tests/apps/zombies-dockerfile-no-tini
+- #9007: @dependabot[bot] chore(deps): bump golang from 1.27.0 to 1.27.1 in /tests/apps/zombies-dockerfile-tini
+- #9008: @dependabot[bot] chore(deps): bump golang from 1.27.0 to 1.27.1 in /tests/apps/go-fail-predeploy
+- #9009: @dependabot[bot] chore(deps): bump golang from 1.27.0 to 1.27.1 in /tests/apps/go-fail-postdeploy
+- #8998: @dependabot[bot] chore(deps): bump python from 3.15.0rc1-bookworm to 3.15.0rc2-bookworm in /tests/apps/dockerfile-release
+- #8976: @dependabot[bot] chore(deps): bump google.golang.org/grpc from 1.83.1 to 1.83.2 in /tests/apps/gogrpc
+- #8970: @dependabot[bot] chore(deps): bump gunicorn from 26.1.0 to 26.2.0 in /tests/apps/dockerfile-release
+- #8969: @dependabot[bot] chore(deps): bump gunicorn from 26.1.0 to 26.2.0 in /tests/apps/python-flask
+- #8968: @dependabot[bot] chore(deps): bump gunicorn from 26.1.0 to 26.2.0 in /tests/apps/multi
+- #8965: @dependabot[bot] chore(deps): bump sass from 1.102.0 to 1.103.1 in /tests/apps/multi
+- #8962: @dependabot[bot] chore(deps): bump golang from 1.26.6 to 1.27.0 in /tests/apps/go-fail-predeploy
+- #8961: @dependabot[bot] chore(deps): bump golang from 1.26.6 to 1.27.0 in /tests/apps/go-fail-postdeploy
+- #8960: @dependabot[bot] chore(deps): bump golang from 1.26.6 to 1.27.0 in /tests/apps/gogrpc
+- #8959: @dependabot[bot] chore(deps): bump golang from 1.26.6 to 1.27.0 in /tests/apps/zombies-dockerfile-tini
+- #8958: @dependabot[bot] chore(deps): bump golang from 1.26.6 to 1.27.0 in /tests/apps/zombies-dockerfile-no-tini
+- #8957: @dependabot[bot] chore(deps): bump google.golang.org/grpc from 1.83.0 to 1.83.1 in /tests/apps/gogrpc
+- #8954: @dependabot[bot] chore(deps): bump gunicorn from 26.0.0 to 26.1.0 in /tests/apps/dockerfile-release
+- #8952: @dependabot[bot] chore(deps): bump gunicorn from 26.0.0 to 26.1.0 in /tests/apps/multi
+- #8951: @dependabot[bot] chore(deps): bump gunicorn from 26.0.0 to 26.1.0 in /tests/apps/python-flask
+- #8943: @dependabot[bot] chore(deps): bump golang from 1.26.5 to 1.26.6 in /tests/apps/zombies-dockerfile-no-tini
+- #8944: @dependabot[bot] chore(deps): bump golang from 1.26.5 to 1.26.6 in /tests/apps/go-fail-postdeploy
+- #8942: @dependabot[bot] chore(deps): bump golang from 1.26.5 to 1.26.6 in /tests/apps/go-fail-predeploy
+- #8941: @dependabot[bot] chore(deps): bump golang from 1.26.5 to 1.26.6 in /tests/apps/gogrpc
+- #8940: @dependabot[bot] chore(deps): bump golang from 1.26.5 to 1.26.6 in /tests/apps/zombies-dockerfile-tini
+- #8947: @dependabot[bot] chore(deps): bump sqlparse from 0.5.5 to 0.6.0 in /tests/apps/dockerfile-release
+- #8939: @dependabot[bot] chore(deps): bump google.golang.org/protobuf from 1.36.11 to 1.36.12 in /tests/apps/gogrpc
+
+### Dependencies
+
+- #9027: @dependabot[bot] chore(deps): bump mvdan.cc/sh/v3 from 3.14.0 to 3.14.1 in /plugins/docker-options
+- #9039: @dependabot[bot] chore(deps): bump golang.org/x/crypto from 0.56.0 to 0.57.0 in /plugins/common
+- #9041: @dependabot[bot] chore(deps): bump helm.sh/helm/v3 from 3.21.4 to 3.22.0 in /plugins/scheduler-k3s
+- #9042: @dependabot[bot] chore(deps): bump github.com/cert-manager/cert-manager from 1.21.1 to 1.21.2 in /plugins/scheduler-k3s
+- #9028: @dependabot[bot] chore(deps): bump mvdan.cc/sh/v3 from 3.14.0 to 3.14.1 in /plugins/cron
+- #9023: @dependabot[bot] chore(deps): bump golang.org/x/sync from 0.22.0 to 0.23.0 in /plugins/common
+- #9017: @dependabot[bot] chore(deps): bump golang.org/x/crypto from 0.55.0 to 0.56.0 in /plugins/common
+- #9029: @dependabot[bot] chore(deps): bump mvdan.cc/sh/v3 from 3.14.0 to 3.14.1 in /plugins/scheduler-k3s
+- #9026: @dokku-bot chore: bump herokuish to 0.11.17
+- #9024: @dependabot[bot] chore(deps): bump github.com/go-openapi/jsonpointer from 1.0.0 to 1.0.1 in /plugins/scheduler-k3s
+- #9025: @dependabot[bot] chore(deps): bump golang.org/x/sync from 0.22.0 to 0.23.0 in /plugins/scheduler-k3s
+- #8978: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.42.1 to 1.43.0 in /plugins/common
+- #8987: @dependabot[bot] chore(deps): bump mvdan.cc/sh/v3 from 3.13.1 to 3.14.0 in /plugins/cron
+- #9018: @dependabot[bot] chore(deps): bump traefik from v3.7.12 to v3.7.13 in /plugins/traefik-vhosts
+- #9020: @dependabot[bot] chore(deps): bump github.com/traefik/traefik/v2 from 2.11.56 to 2.11.57 in /plugins/scheduler-k3s
+- #9021: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.42.1 to 1.43.0 in /plugins/scheduler-k3s
+- #8988: @dependabot[bot] chore(deps): bump mvdan.cc/sh/v3 from 3.13.1 to 3.14.0 in /plugins/docker-options
+- #9013: @dependabot[bot] chore(deps): bump github.com/fluxcd/pkg/kustomize from 1.39.0 to 1.40.0 in /plugins/scheduler-k3s
+- #9012: @dependabot[bot] chore(deps): bump github.com/traefik/traefik/v2 from 2.11.55 to 2.11.56 in /plugins/scheduler-k3s
+- #8999: @dependabot[bot] chore(deps): bump k8s.io/kubectl from 0.36.4 to 0.37.0 in /plugins/scheduler-k3s
+- #8997: @dependabot[bot] chore(deps): bump python from 3.15.0rc1-alpine to 3.15.0rc2-alpine in /docs/_build
+- #8977: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.42.1 to 1.43.0 in /plugins/buildpacks
+- #8981: @dependabot[bot] chore(deps): bump timberio/vector from 0.57.0-debian to 0.58.0-debian in /plugins/logs
+- #8982: @dependabot[bot] chore(deps): bump traefik from v3.7.11 to v3.7.12 in /plugins/traefik-vhosts
+- #8980: @dependabot[bot] chore(deps): bump click from 8.4.2 to 8.5.0 in /docs/_build
+- #8983: @dependabot[bot] chore(deps): bump github.com/gofrs/flock from 0.13.0 to 0.13.1 in /plugins/ps
+- #8984: @dependabot[bot] chore(deps): bump k8s.io/kubernetes from 1.36.4 to 1.37.0 in /plugins/scheduler-k3s
+- #8985: @dependabot[bot] chore(deps): bump github.com/gofrs/flock from 0.13.0 to 0.13.1 in /plugins/scheduler-k3s
+- #8986: @dependabot[bot] chore(deps): bump importlib-metadata from 9.0.0 to 9.0.1 in /docs/_build
+- #8967: @dependabot[bot] chore(deps): bump pymdown-extensions from 11.0.1 to 11.0.2 in /docs/_build
+- #8966: @dependabot[bot] chore(deps): bump k8s.io/kubectl from 0.36.3 to 0.36.4 in /plugins/scheduler-k3s
+- #8964: @dependabot[bot] chore(deps): bump k8s.io/kubernetes from 1.36.3 to 1.36.4 in /plugins/scheduler-k3s
+- #8963: @dependabot[bot] chore(deps): bump traefik from v3.7.10 to v3.7.11 in /plugins/traefik-vhosts
+- #8953: @dependabot[bot] chore(deps): bump github.com/traefik/traefik/v2 from 2.11.54 to 2.11.55 in /plugins/scheduler-k3s
+- #8950: @dependabot[bot] chore(deps): bump pygments from 2.20.0 to 2.21.0 in /docs/_build
+- #8945: @dependabot[bot] chore(deps): bump golang.org/x/crypto from 0.54.0 to 0.55.0 in /plugins/common
+- #8949: @dokku-bot chore: bump herokuish to 0.11.16
+- #8946: @dependabot[bot] chore(deps): bump helm.sh/helm/v3 from 3.21.3 to 3.21.4 in /plugins/scheduler-k3s
+
 ## 0.38.27
 
 Install/update via the bootstrap script:
