@@ -17,6 +17,7 @@ import (
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart/loader"
 	"helm.sh/helm/v3/pkg/cli"
+	"helm.sh/helm/v3/pkg/helmpath"
 	"helm.sh/helm/v3/pkg/kube"
 	"helm.sh/helm/v3/pkg/postrender"
 	"helm.sh/helm/v3/pkg/release"
@@ -99,6 +100,60 @@ func applyChartPathOptions(options *action.ChartPathOptions, input ChartInput) {
 	if input.Version != "" {
 		options.Version = input.Version
 	}
+}
+
+// helmHomeEnvVars are the environment variables helm resolves its cache, config
+// and data homes from, mapped to the scratch subdirectory each one gets.
+var helmHomeEnvVars = map[string]string{
+	helmpath.CacheHomeEnvVar:  "cache",
+	helmpath.ConfigHomeEnvVar: "config",
+	helmpath.DataHomeEnvVar:   "data",
+}
+
+// newHelmSettings returns helm settings backed by a private scratch directory,
+// along with a function that removes it and restores the environment.
+//
+// helm otherwise resolves its cache, config and data homes from $HOME. Dokku
+// runs scheduler-k3s:initialize as root and every other subcommand as the dokku
+// user, so $HOME is not always readable by the user a command ends up as, and
+// helm treats a repositories file it cannot read as a fatal error rather than
+// an absent one. Nothing dokku keeps there needs to outlive a command: every
+// chart carries its own repository url, and helm re-fetches both the repository
+// index and the chart archive on every call.
+func newHelmSettings() (*cli.EnvSettings, func(), error) {
+	directory, err := os.MkdirTemp("", "dokku-helm-")
+	if err != nil {
+		return nil, nil, fmt.Errorf("Error creating helm scratch directory: %w", err)
+	}
+
+	restore := map[string]*string{}
+	cleanup := func() {
+		for envVar, previous := range restore {
+			if previous == nil {
+				os.Unsetenv(envVar) // nolint: errcheck
+				continue
+			}
+
+			os.Setenv(envVar, *previous) // nolint: errcheck
+		}
+
+		os.RemoveAll(directory) // nolint: errcheck
+	}
+
+	for envVar, subdirectory := range helmHomeEnvVars {
+		if previous, ok := os.LookupEnv(envVar); ok {
+			restore[envVar] = &previous
+		} else {
+			restore[envVar] = nil
+		}
+
+		if err := os.Setenv(envVar, filepath.Join(directory, subdirectory)); err != nil {
+			cleanup()
+			return nil, nil, fmt.Errorf("Error setting %s: %w", envVar, err)
+		}
+	}
+
+	return cli.New(), cleanup, nil
 }
 
 type HelmAgent struct {
@@ -231,7 +286,12 @@ func (h *HelmAgent) InstallChart(ctx context.Context, input ChartInput) error {
 
 	applyChartPathOptions(&client.ChartPathOptions, input)
 
-	settings := cli.New()
+	settings, cleanup, err := newHelmSettings()
+	if err != nil {
+		return err
+	}
+	defer cleanup()
+
 	chart, err := client.ChartPathOptions.LocateChart(input.ChartPath, settings)
 	if err != nil {
 		return fmt.Errorf("Error locating chart: %w", err)
@@ -357,7 +417,12 @@ func (h *HelmAgent) UpgradeChart(ctx context.Context, input ChartInput) error {
 
 	applyChartPathOptions(&client.ChartPathOptions, input)
 
-	settings := cli.New()
+	settings, cleanup, err := newHelmSettings()
+	if err != nil {
+		return err
+	}
+	defer cleanup()
+
 	chart, err := client.ChartPathOptions.LocateChart(input.ChartPath, settings)
 	if err != nil {
 		return fmt.Errorf("Error locating chart: %w", err)

@@ -1,9 +1,13 @@
 package scheduler_k3s
 
 import (
+	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 
 	"helm.sh/helm/v3/pkg/action"
+	"helm.sh/helm/v3/pkg/helmpath"
 )
 
 func TestApplyChartPathOptions(t *testing.T) {
@@ -143,5 +147,80 @@ func TestSelectRevisions(t *testing.T) {
 				t.Errorf("selectRevisions() = %v, want %v", got, tc.want)
 			}
 		})
+	}
+}
+
+func TestNewHelmSettings(t *testing.T) {
+	sentinel := map[string]string{
+		helmpath.CacheHomeEnvVar:  "/sentinel/cache",
+		helmpath.ConfigHomeEnvVar: "/sentinel/config",
+		helmpath.DataHomeEnvVar:   "/sentinel/data",
+	}
+	for envVar, value := range sentinel {
+		t.Setenv(envVar, value)
+	}
+
+	settings, cleanup, err := newHelmSettings()
+	if err != nil {
+		t.Fatalf("newHelmSettings() returned an error: %v", err)
+	}
+
+	directory := os.Getenv(helmpath.CacheHomeEnvVar)
+	if directory == sentinel[helmpath.CacheHomeEnvVar] {
+		t.Fatalf("%s was not overridden", helmpath.CacheHomeEnvVar)
+	}
+	scratch := filepath.Dir(directory)
+
+	if _, err := os.Stat(scratch); err != nil {
+		t.Fatalf("scratch directory %q is not usable: %v", scratch, err)
+	}
+
+	for envVar, subdirectory := range helmHomeEnvVars {
+		want := filepath.Join(scratch, subdirectory)
+		if got := os.Getenv(envVar); got != want {
+			t.Errorf("%s = %q, want %q", envVar, got, want)
+		}
+	}
+
+	paths := map[string]string{
+		"RepositoryConfig": settings.RepositoryConfig,
+		"RepositoryCache":  settings.RepositoryCache,
+		"RegistryConfig":   settings.RegistryConfig,
+	}
+	for name, path := range paths {
+		if !strings.HasPrefix(path, scratch+string(os.PathSeparator)) {
+			t.Errorf("%s = %q, want a path under %q", name, path, scratch)
+		}
+	}
+
+	cleanup()
+
+	if _, err := os.Stat(scratch); !os.IsNotExist(err) {
+		t.Errorf("scratch directory %q still exists after cleanup", scratch)
+	}
+
+	for envVar, want := range sentinel {
+		if got := os.Getenv(envVar); got != want {
+			t.Errorf("%s = %q after cleanup, want the prior value %q", envVar, got, want)
+		}
+	}
+}
+
+func TestNewHelmSettingsUnsetsVariablesThatWereNotSet(t *testing.T) {
+	for envVar := range helmHomeEnvVars {
+		t.Setenv(envVar, "")
+		os.Unsetenv(envVar) // nolint: errcheck
+	}
+
+	_, cleanup, err := newHelmSettings()
+	if err != nil {
+		t.Fatalf("newHelmSettings() returned an error: %v", err)
+	}
+	cleanup()
+
+	for envVar := range helmHomeEnvVars {
+		if value, ok := os.LookupEnv(envVar); ok {
+			t.Errorf("%s = %q after cleanup, want it to be unset", envVar, value)
+		}
 	}
 }
