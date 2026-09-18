@@ -58,6 +58,23 @@ teardown() {
   assert_output_contains "cron: 1" 1
 }
 
+@test "(app-json) negative formation quantity" {
+  mkdir -p /var/lib/dokku/data/app-json/$TEST_APP
+  negative_formation_callback "$TEST_APP" /var/lib/dokku/data/app-json/$TEST_APP
+
+  run_plugn_trigger post-release-builder herokuish $TEST_APP dokku/$TEST_APP:latest
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Invalid quantity for process type web in app.json: value must be zero or greater"
+
+  run /bin/bash -c "dokku --quiet ps:scale $TEST_APP"
+  output=$(echo "$output" | tr -s " ")
+  echo "output: ($output)"
+  echo "status: $status"
+  assert_output "web: 1"
+}
+
 persist_scale_callback_a() {
   local APP="$1"
   local APP_REPO_DIR="$2"
@@ -80,4 +97,20 @@ persist_scale_callback_b() {
   echo "web: python3 web.py" >>"$APP_REPO_DIR/Procfile"
   echo "cron: python3 worker.py" >>"$APP_REPO_DIR/Procfile"
   mv "$APP_REPO_DIR/app-5205b.json" "$APP_REPO_DIR/app.json"
+}
+
+negative_formation_callback() {
+  local APP="$1"
+  local APP_REPO_DIR="$2"
+  [[ -z "$APP" ]] && local APP="$TEST_APP"
+
+  cat >"$APP_REPO_DIR/app.json" <<EOF
+{
+  "formation": {
+    "web": {
+      "quantity": -1
+    }
+  }
+}
+EOF
 }

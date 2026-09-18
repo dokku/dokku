@@ -2396,7 +2396,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 ### `ps-set-scale`
 
-- Description: Sets the scale for an app based on a specified formation (process-type=quantity). Any unspecified process types will be left as is, or have their process count set to zero when `$CLEAR_EXISTING` is `true`.
+- Description: Sets the scale for an app based on a specified formation (process-type=quantity). Any unspecified process types will be left as is, or have their process count set to zero when `$CLEAR_EXISTING` is `true`. Each process tuple must name a process type, and process counts must be zero or greater.
 - Invoked by:
 - Arguments: `$APP $SKIP_DEPLOY $CLEAR_EXISTING [$PROCESS_TUPLE...]`
 - Example:
