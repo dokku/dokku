@@ -36,6 +36,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/validation"
 	"k8s.io/apimachinery/pkg/util/wait"
+	utilexec "k8s.io/client-go/util/exec"
 	"k8s.io/kubernetes/pkg/client/conditions"
 	"k8s.io/utils/ptr"
 	"mvdan.cc/sh/v3/shell"
@@ -409,6 +410,24 @@ func createKubernetesNamespace(ctx context.Context, namespaceName string) error 
 	return nil
 }
 
+// attachExitError surfaces the exit code of the remote command from a
+// kubernetes exec stream as an ExitCodeError, so that attached sessions
+// (dokku run in interactive mode, dokku enter) exit with the command's own
+// status rather than a generic failure, matching docker-local scheduler
+// behavior. Other errors pass through unchanged.
+func attachExitError(err error) error {
+	if err == nil {
+		return nil
+	}
+
+	var coded utilexec.CodeExitError
+	if errors.As(err, &coded) && coded.Code > 0 {
+		return &ExitCodeError{Code: coded.Code, Message: coded.Error()}
+	}
+
+	return err
+}
+
 func enterPod(ctx context.Context, input EnterPodInput) error {
 	labelSelector := []string{}
 	for k, v := range input.SelectedPod.Labels {
@@ -440,13 +459,13 @@ func enterPod(ctx context.Context, input EnterPodInput) error {
 		return fmt.Errorf("No container specified and no default container found")
 	}
 
-	return input.Clientset.ExecCommand(ctx, ExecCommandInput{
+	return attachExitError(input.Clientset.ExecCommand(ctx, ExecCommandInput{
 		Command:       input.Command,
 		ContainerName: input.SelectedContainerName,
 		Entrypoint:    input.Entrypoint,
 		Name:          input.SelectedPod.Name,
 		Namespace:     input.SelectedPod.Namespace,
-	})
+	}))
 }
 
 func extractStartCommand(input StartCommandInput) string {
