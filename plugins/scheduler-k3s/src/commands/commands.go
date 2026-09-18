@@ -17,9 +17,12 @@ Manage scheduler-k3s settings for an app
 Additional commands:`
 
 	helpContent = `
+    scheduler-k3s:annotations:clear <app|--global> [--process-type PROCESS_TYPE] [--resource-type RESOURCE_TYPE], Clear all annotations for an app or a single process-type/resource-type scope
     scheduler-k3s:annotations:set <app|--global> <property> (<value>) [--process-type PROCESS_TYPE] <--resource-type RESOURCE_TYPE>, Set or clear an annotation for a given app/process-type/resource-type combination
+    scheduler-k3s:annotations:set --replace <app|--global> <key=value> [<key=value> ...] [--process-type PROCESS_TYPE] <--resource-type RESOURCE_TYPE>, Replace the entire annotation map for a given app/process-type/resource-type combination
     scheduler-k3s:annotations:report [<app>|--global] [--format stdout|json] [--process-type PROCESS_TYPE] [--resource-type RESOURCE_TYPE], Displays a scheduler-k3s annotations report for one or more apps
     scheduler-k3s:autoscaling-auth:set <app|--global> <trigger> [<--metadata key=value>...], Set or clear a scheduler-k3s autoscaling keda trigger authentication resource for an app
+    scheduler-k3s:autoscaling-auth:set --replace <app|--global> <trigger> <--metadata key=value> [<--metadata key=value>...], Replace the entire metadata map for a scheduler-k3s autoscaling keda trigger authentication resource
     scheduler-k3s:autoscaling-auth:report [<app>|--global] [--format stdout|json] [--include-metadata], Displays a scheduler-k3s autoscaling auth report for one or more apps
     scheduler-k3s:charts:report [<chart>] [--format stdout|json], Displays a scheduler-k3s chart override report
     scheduler-k3s:charts:set <chart-name.property> (<value>), Set or clear a chart-specific helm value
@@ -28,9 +31,13 @@ Additional commands:`
     scheduler-k3s:cluster:remove [node-id], Removes client node to a Dokku-managed cluster
     scheduler-k3s:ensure-charts, Ensures the k3s charts are installed
     scheduler-k3s:initialize [--server-ip SERVER_IP] [--taint-scheduling] [--kubelet-args KUBELET_ARGS], Initializes a cluster
+    scheduler-k3s:labels:clear <app|--global> [--process-type PROCESS_TYPE] [--resource-type RESOURCE_TYPE], Clear all labels for an app or a single process-type/resource-type scope
     scheduler-k3s:labels:set <app|--global> <property> (<value>) [--process-type PROCESS_TYPE] <--resource-type RESOURCE_TYPE>, Set or clear a label for a given app/process-type/resource-type combination
+    scheduler-k3s:labels:set --replace <app|--global> <key=value> [<key=value> ...] [--process-type PROCESS_TYPE] <--resource-type RESOURCE_TYPE>, Replace the entire label map for a given app/process-type/resource-type combination
     scheduler-k3s:labels:report [<app>|--global] [--format stdout|json] [--process-type PROCESS_TYPE] [--resource-type RESOURCE_TYPE], Displays a scheduler-k3s labels report for one or more apps
+    scheduler-k3s:node-sysctls:clear [--global|--profile PROFILE], Clear all node-level kernel sysctls for unprofiled nodes or a single node profile
     scheduler-k3s:node-sysctls:set <sysctl> (<value>) [--global|--profile PROFILE], Set or clear a node-level kernel sysctl for unprofiled nodes or a single node profile
+    scheduler-k3s:node-sysctls:set --replace <sysctl=value> [<sysctl=value> ...] [--global|--profile PROFILE], Replace the entire node-level kernel sysctl map for unprofiled nodes or a single node profile
     scheduler-k3s:node-sysctls:report [--format stdout|json], Displays the node-level kernel sysctls applied to each scope
     scheduler-k3s:preview <app> [--context N] [--show-secrets] [--show-secrets-decoded], Displays a diff between the current and next deployment for an app
     scheduler-k3s:profiles:add <profile> [--role ROLE] [--insecure-allow-unknown-hosts] [--taint-scheduling] [--kubelet-args KUBELET_ARGS], Adds a node profile to the k3s cluster

@@ -396,101 +396,34 @@ func ReportLabelsSingleApp(appName string, format string, processType string, re
 // collectAnnotationsEntries scans the property store for annotation entries on appName,
 // optionally filtered by processType/resourceType.
 func collectAnnotationsEntries(appName string, processType string, resourceType string) ([]annotationsLabelsReportEntry, error) {
-	properties, err := common.PropertyGetAllByPrefix("scheduler-k3s", appName, "")
-	if err != nil {
-		return nil, fmt.Errorf("Unable to get property list: %w", err)
-	}
-
-	knownResourceTypes := map[string]bool{}
-	for _, rt := range AnnotationResourceTypes {
-		knownResourceTypes[rt] = true
-	}
-
-	entries := []annotationsLabelsReportEntry{}
-	for propertyName := range properties {
-		if isReservedAnnotationProperty(propertyName) {
-			continue
-		}
-
-		dot := strings.LastIndex(propertyName, ".")
-		if dot <= 0 || dot == len(propertyName)-1 {
-			continue
-		}
-
-		propProcessType := propertyName[:dot]
-		propResourceType := propertyName[dot+1:]
-		if !knownResourceTypes[propResourceType] {
-			continue
-		}
-
-		if processType != "" && propProcessType != processType {
-			continue
-		}
-		if resourceType != "" && propResourceType != resourceType {
-			continue
-		}
-
-		annotationMap, err := getAnnotation(appName, propProcessType, propResourceType)
-		if err != nil {
-			return nil, fmt.Errorf("Unable to read annotation %s: %w", propertyName, err)
-		}
-
-		for key, value := range annotationMap {
-			entries = append(entries, annotationsLabelsReportEntry{
-				ProcessType:  propProcessType,
-				ResourceType: propResourceType,
-				Key:          key,
-				Value:        value,
-			})
-		}
-	}
-
-	return entries, nil
+	return collectMetadataEntries(annotationsField, appName, processType, resourceType, getAnnotation)
 }
 
 // collectLabelsEntries scans the property store for label entries on appName,
 // optionally filtered by processType/resourceType.
 func collectLabelsEntries(appName string, processType string, resourceType string) ([]annotationsLabelsReportEntry, error) {
-	properties, err := common.PropertyGetAllByPrefix("scheduler-k3s", appName, "labels.")
-	if err != nil {
-		return nil, fmt.Errorf("Unable to get property list: %w", err)
-	}
+	return collectMetadataEntries(labelsField, appName, processType, resourceType, getLabel)
+}
 
-	knownResourceTypes := map[string]bool{}
-	for _, rt := range LabelResourceTypes {
-		knownResourceTypes[rt] = true
+// collectMetadataEntries flattens every stored scope a field owns on appName into
+// report entries, reading the scopes through the same scan the clear commands use.
+func collectMetadataEntries(field metadataField, appName string, processType string, resourceType string, read func(string, string, string) (map[string]string, error)) ([]annotationsLabelsReportEntry, error) {
+	properties, err := matchingMetadataProperties(field, appName, processType, resourceType)
+	if err != nil {
+		return nil, err
 	}
 
 	entries := []annotationsLabelsReportEntry{}
-	for propertyName := range properties {
-		suffix := strings.TrimPrefix(propertyName, "labels.")
-		dot := strings.LastIndex(suffix, ".")
-		if dot <= 0 || dot == len(suffix)-1 {
-			continue
-		}
-
-		propProcessType := suffix[:dot]
-		propResourceType := suffix[dot+1:]
-		if !knownResourceTypes[propResourceType] {
-			continue
-		}
-
-		if processType != "" && propProcessType != processType {
-			continue
-		}
-		if resourceType != "" && propResourceType != resourceType {
-			continue
-		}
-
-		labelMap, err := getLabel(appName, propProcessType, propResourceType)
+	for _, property := range properties {
+		values, err := read(appName, property.ProcessType, property.ResourceType)
 		if err != nil {
-			return nil, fmt.Errorf("Unable to read label %s: %w", propertyName, err)
+			return nil, fmt.Errorf("Unable to read %s %s: %w", field.Singular, property.PropertyName, err)
 		}
 
-		for key, value := range labelMap {
+		for key, value := range values {
 			entries = append(entries, annotationsLabelsReportEntry{
-				ProcessType:  propProcessType,
-				ResourceType: propResourceType,
+				ProcessType:  property.ProcessType,
+				ResourceType: property.ResourceType,
 				Key:          key,
 				Value:        value,
 			})

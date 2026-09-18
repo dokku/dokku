@@ -20,61 +20,137 @@ import (
 	"helm.sh/helm/v3/pkg/chartutil"
 )
 
-// CommandAnnotationsSet set or clear a scheduler-k3s annotation for an app
-func CommandAnnotationsSet(appName string, processType string, resourceType string, key string, value string) error {
-	if resourceType == "" {
-		return fmt.Errorf("Missing resource-type")
-	}
-
-	if processType == "" {
-		processType = GlobalProcessType
-	}
-
-	property := fmt.Sprintf("%s.%s", processType, resourceType)
-	if value == "" {
-		if err := common.PropertyMapDelete("scheduler-k3s", appName, property, key); err != nil {
-			return fmt.Errorf("Unable to delete property map entry: %w", err)
-		}
-		return nil
-	}
-
-	if err := common.PropertyMapSet("scheduler-k3s", appName, property, key, value); err != nil {
-		return fmt.Errorf("Unable to set property map entry: %w", err)
-	}
-
-	return nil
+// CommandAnnotationsSet sets, clears or replaces scheduler-k3s annotations for an app
+func CommandAnnotationsSet(input MetadataSetInput) error {
+	return commandMetadataSet(annotationsField, input)
 }
 
-// CommandNodeSysctlsSet sets or clears a node-level kernel sysctl for a scope
-func CommandNodeSysctlsSet(profileName string, key string, value string) error {
-	if key == "" {
+// CommandAnnotationsClear clears scheduler-k3s annotations for an app
+func CommandAnnotationsClear(input MetadataClearInput) error {
+	return commandMetadataClear(annotationsField, input)
+}
+
+// NodeSysctlsSetInput captures the inputs accepted by node-sysctls:set.
+// Key/Value and Pairs are mutually exclusive: Pairs is populated only under
+// --replace, where the positional arguments are key=value pairs rather than a
+// single sysctl name and value.
+type NodeSysctlsSetInput struct {
+	ProfileName string
+	Key         string
+	Value       string
+	Pairs       []string
+	Replace     bool
+}
+
+// CommandNodeSysctlsSet sets, clears or replaces node-level kernel sysctls for a scope
+func CommandNodeSysctlsSet(input NodeSysctlsSetInput) error {
+	if err := verifyNodeSysctlsScope(input.ProfileName); err != nil {
+		return err
+	}
+
+	property := getNodeSysctlsProperty(input.ProfileName)
+	if input.Replace {
+		if len(input.Pairs) == 0 {
+			return fmt.Errorf("Must specify at least one key=value pair, use scheduler-k3s:node-sysctls:clear to remove all sysctls")
+		}
+
+		parsed, err := parseMetadataPairs(input.Pairs)
+		if err != nil {
+			return err
+		}
+
+		removed, err := removedSysctlNames(property, parsed)
+		if err != nil {
+			return err
+		}
+
+		if err := common.PropertyMapWrite("scheduler-k3s", "--global", property, parsed); err != nil {
+			return fmt.Errorf("Unable to write property map: %w", err)
+		}
+
+		warnUnmanagedSysctls(removed)
+		return CreateOrUpdateNodeSysctls(context.Background())
+	}
+
+	if input.Key == "" {
 		return fmt.Errorf("Missing sysctl name")
 	}
 
-	if profileName != "" {
-		if err := verifyNodeProfileExists(profileName); err != nil {
-			return err
-		}
-
-		if err := verifyNodeProfileSysctlsSupported(profileName); err != nil {
-			return err
-		}
-	}
-
-	property := getNodeSysctlsProperty(profileName)
-	if value == "" {
-		if err := common.PropertyMapDelete("scheduler-k3s", "--global", property, key); err != nil {
+	if input.Value == "" {
+		if err := common.PropertyMapDelete("scheduler-k3s", "--global", property, input.Key); err != nil {
 			return fmt.Errorf("Unable to delete property map entry: %w", err)
 		}
 
-		common.LogWarn(fmt.Sprintf("Removing %s stops dokku managing it, but does not restore the previous value on affected nodes until they reboot", key))
+		warnUnmanagedSysctls([]string{input.Key})
 	} else {
-		if err := common.PropertyMapSet("scheduler-k3s", "--global", property, key, value); err != nil {
+		if err := common.PropertyMapSet("scheduler-k3s", "--global", property, input.Key, input.Value); err != nil {
 			return fmt.Errorf("Unable to set property map entry: %w", err)
 		}
 	}
 
 	return CreateOrUpdateNodeSysctls(context.Background())
+}
+
+// CommandNodeSysctlsClear clears every node-level kernel sysctl for a scope
+func CommandNodeSysctlsClear(profileName string) error {
+	if err := verifyNodeSysctlsScope(profileName); err != nil {
+		return err
+	}
+
+	property := getNodeSysctlsProperty(profileName)
+	removed, err := removedSysctlNames(property, map[string]string{})
+	if err != nil {
+		return err
+	}
+
+	if err := common.PropertyDelete("scheduler-k3s", "--global", property); err != nil {
+		return fmt.Errorf("Unable to delete property: %w", err)
+	}
+
+	warnUnmanagedSysctls(removed)
+	return CreateOrUpdateNodeSysctls(context.Background())
+}
+
+// verifyNodeSysctlsScope returns an error when a profile-scoped command names a profile
+// that does not exist or cannot back a helm release.
+func verifyNodeSysctlsScope(profileName string) error {
+	if profileName == "" {
+		return nil
+	}
+
+	if err := verifyNodeProfileExists(profileName); err != nil {
+		return err
+	}
+
+	return verifyNodeProfileSysctlsSupported(profileName)
+}
+
+// removedSysctlNames returns the sysctls a scope currently manages that the next
+// stored map no longer will, so they can be warned about before the write happens.
+func removedSysctlNames(property string, next map[string]string) ([]string, error) {
+	current, err := common.PropertyMapGet("scheduler-k3s", "--global", property)
+	if err != nil {
+		return nil, fmt.Errorf("Unable to get property map: %w", err)
+	}
+
+	removed := []string{}
+	for key := range current {
+		if _, ok := next[key]; !ok {
+			removed = append(removed, key)
+		}
+	}
+
+	sort.Strings(removed)
+	return removed, nil
+}
+
+// warnUnmanagedSysctls notes that dokku has stopped managing a sysctl. The last
+// value written stays on affected nodes until they reboot, which is how sysctl -w
+// behaves everywhere else.
+func warnUnmanagedSysctls(names []string) {
+	for _, name := range names {
+		common.LogWarn(fmt.Sprintf("Removing %s stops dokku managing it, but does not restore the previous value on affected nodes until they reboot", name))
+	}
 }
 
 // CommandNodeSysctlsReport displays the configured node-level kernel sysctls
@@ -149,8 +225,8 @@ func verifyNodeProfileSysctlsSupported(profileName string) error {
 	return nil
 }
 
-// CommandAutoscalingAuthSet set or clear a scheduler-k3s autoscaling keda trigger authentication object for an app
-func CommandAutoscalingAuthSet(appName string, trigger string, metadata map[string]string, global bool) error {
+// CommandAutoscalingAuthSet sets, clears or replaces a scheduler-k3s autoscaling keda trigger authentication object for an app
+func CommandAutoscalingAuthSet(appName string, trigger string, metadata map[string]string, global bool, replace bool) error {
 	if global {
 		appName = "--global"
 	}
@@ -165,18 +241,17 @@ func CommandAutoscalingAuthSet(appName string, trigger string, metadata map[stri
 		return fmt.Errorf("Missing trigger type argument")
 	}
 
+	if replace && len(metadata) == 0 {
+		return fmt.Errorf("Must specify at least one --metadata flag, omit --replace to remove all metadata for the trigger")
+	}
+
+	if len(metadata) == 0 || replace {
+		if err := deleteTriggerAuthProperties(appName, trigger); err != nil {
+			return err
+		}
+	}
+
 	if len(metadata) == 0 {
-		properties, err := common.PropertyGetAllByPrefix("scheduler-k3s", appName, fmt.Sprintf("%s%s.", TriggerAuthPropertyPrefix, trigger))
-		if err != nil {
-			return fmt.Errorf("Unable to get property list: %w", err)
-		}
-
-		for key := range properties {
-			if err := common.PropertyDelete("scheduler-k3s", appName, key); err != nil {
-				return fmt.Errorf("Unable to delete property: %w", err)
-			}
-		}
-
 		if appName == "--global" {
 			helmAgent, err := NewHelmAgent("keda", DeployLogPrinter)
 			if err != nil {
@@ -196,15 +271,31 @@ func CommandAutoscalingAuthSet(appName string, trigger string, metadata map[stri
 		if err := common.PropertyWrite("scheduler-k3s", appName, fmt.Sprintf("%s%s.%s", TriggerAuthPropertyPrefix, trigger, key), value); err != nil {
 			return fmt.Errorf("Unable to set property: %w", err)
 		}
-
-		common.LogInfo1("Trigger authentication settings saved")
-		common.LogVerbose("Resources will be created or updated on next deploy")
 	}
+
+	common.LogInfo1("Trigger authentication settings saved")
+	common.LogVerbose("Resources will be created or updated on next deploy")
 
 	if appName == "--global" {
 		err := applyKedaClusterTriggerAuthentications(context.Background(), trigger, metadata)
 		if err != nil {
 			return fmt.Errorf("Unable to install chart: %w", err)
+		}
+	}
+
+	return nil
+}
+
+// deleteTriggerAuthProperties removes every stored metadata key for one trigger.
+func deleteTriggerAuthProperties(appName string, trigger string) error {
+	properties, err := common.PropertyGetAllByPrefix("scheduler-k3s", appName, fmt.Sprintf("%s%s.", TriggerAuthPropertyPrefix, trigger))
+	if err != nil {
+		return fmt.Errorf("Unable to get property list: %w", err)
+	}
+
+	for key := range properties {
+		if err := common.PropertyDelete("scheduler-k3s", appName, key); err != nil {
+			return fmt.Errorf("Unable to delete property: %w", err)
 		}
 	}
 
@@ -1237,29 +1328,14 @@ func CommandEnsureCharts(forceInstall bool, forceChartNames []string) error {
 	return nil
 }
 
-// CommandLabelsSet set or clear a scheduler-k3s label for an app
-func CommandLabelsSet(appName string, processType string, resourceType string, key string, value string) error {
-	if resourceType == "" {
-		return fmt.Errorf("Missing resource-type")
-	}
+// CommandLabelsSet sets, clears or replaces scheduler-k3s labels for an app
+func CommandLabelsSet(input MetadataSetInput) error {
+	return commandMetadataSet(labelsField, input)
+}
 
-	if processType == "" {
-		processType = GlobalProcessType
-	}
-
-	property := fmt.Sprintf("labels.%s.%s", processType, resourceType)
-	if value == "" {
-		if err := common.PropertyMapDelete("scheduler-k3s", appName, property, key); err != nil {
-			return fmt.Errorf("Unable to delete property map entry: %w", err)
-		}
-		return nil
-	}
-
-	if err := common.PropertyMapSet("scheduler-k3s", appName, property, key, value); err != nil {
-		return fmt.Errorf("Unable to set property map entry: %w", err)
-	}
-
-	return nil
+// CommandLabelsClear clears scheduler-k3s labels for an app
+func CommandLabelsClear(input MetadataClearInput) error {
+	return commandMetadataClear(labelsField, input)
 }
 
 // CommandProfilesAdd adds a node profile to the k3s cluster

@@ -4,9 +4,12 @@
 > New as of 0.33.0
 
 ```
+scheduler-k3s:annotations:clear <app|--global> [--process-type PROCESS_TYPE] [--resource-type RESOURCE_TYPE] # Clear all annotations for an app or a single process-type/resource-type scope
 scheduler-k3s:annotations:set <app|--global> <property> (<value>) [--process-type PROCESS_TYPE] <--resource-type RESOURCE_TYPE> # Set or clear an annotation for a given app/process-type/resource-type combination
+scheduler-k3s:annotations:set --replace <app|--global> <key=value> [<key=value> ...] [--process-type PROCESS_TYPE] <--resource-type RESOURCE_TYPE> # Replace the entire annotation map for a given app/process-type/resource-type combination
 scheduler-k3s:annotations:report [<app>|--global] [--format stdout|json] [--process-type PROCESS_TYPE] [--resource-type RESOURCE_TYPE] # Displays a scheduler-k3s annotations report for one or more apps
 scheduler-k3s:autoscaling-auth:set <app|--global> <trigger> [<--metadata key=value>...] # Set or clear a scheduler-k3s autoscaling keda trigger authentication resource for an app
+scheduler-k3s:autoscaling-auth:set --replace <app|--global> <trigger> <--metadata key=value> [<--metadata key=value>...] # Replace the entire metadata map for a scheduler-k3s autoscaling keda trigger authentication resource
 scheduler-k3s:autoscaling-auth:report [<app>|--global] [--format stdout|json] [--include-metadata] # Displays a scheduler-k3s autoscaling auth report for one or more apps
 scheduler-k3s:charts:report [<chart>] [--format stdout|json] # Displays a scheduler-k3s chart override report
 scheduler-k3s:charts:set <chart-name.property> (<value>) # Set or clear a chart-specific helm value
@@ -15,9 +18,13 @@ scheduler-k3s:cluster:list [--format json|stdout] # Lists all nodes in a Dokku-m
 scheduler-k3s:cluster:remove [node-id] # Removes client node to a Dokku-managed cluster
 scheduler-k3s:ensure-charts # Ensures the k3s charts are installed
 scheduler-k3s:initialize [--server-ip SERVER_IP] [--taint-scheduling] [--kubelet-args KUBELET_ARGS] # Initializes a cluster
+scheduler-k3s:labels:clear <app|--global> [--process-type PROCESS_TYPE] [--resource-type RESOURCE_TYPE] # Clear all labels for an app or a single process-type/resource-type scope
 scheduler-k3s:labels:set <app|--global> <property> (<value>) [--process-type PROCESS_TYPE] <--resource-type RESOURCE_TYPE> # Set or clear a label for a given app/process-type/resource-type combination
+scheduler-k3s:labels:set --replace <app|--global> <key=value> [<key=value> ...] [--process-type PROCESS_TYPE] <--resource-type RESOURCE_TYPE> # Replace the entire label map for a given app/process-type/resource-type combination
 scheduler-k3s:labels:report [<app>|--global] [--format stdout|json] [--process-type PROCESS_TYPE] [--resource-type RESOURCE_TYPE] # Displays a scheduler-k3s labels report for one or more apps
+scheduler-k3s:node-sysctls:clear [--global|--profile PROFILE] # Clear all node-level kernel sysctls for unprofiled nodes or a single node profile
 scheduler-k3s:node-sysctls:set <sysctl> (<value>) [--global|--profile PROFILE] # Set or clear a node-level kernel sysctl for unprofiled nodes or a single node profile
+scheduler-k3s:node-sysctls:set --replace <sysctl=value> [<sysctl=value> ...] [--global|--profile PROFILE] # Replace the entire node-level kernel sysctl map for unprofiled nodes or a single node profile
 scheduler-k3s:node-sysctls:report [--format stdout|json] # Displays the node-level kernel sysctls applied to each scope
 scheduler-k3s:preview <app> [--context N] [--show-secrets] [--show-secrets-decoded] # Displays a diff between the current and next deployment for an app
 scheduler-k3s:profiles:add <profile> [--role ROLE] [--insecure-allow-unknown-hosts] [--taint-scheduling] [--kubelet-args KUBELET_ARGS] # Adds a node profile to the k3s cluster
@@ -595,6 +602,49 @@ dokku scheduler-k3s:annotations:set node-js-app annotation.key --resource-type d
 
 A `ps:restart` is required after removing annotations in order to remove them from running resources.
 
+#### Replacing the entire annotation set
+
+The per-key form above changes one annotation at a time, so matching the stored annotations to a declared set means computing the difference and issuing one command per added, changed and removed key. The `--replace` flag writes the whole map for a scope in a single call, taking `key=value` pairs instead of a single key and value.
+
+```shell
+dokku scheduler-k3s:annotations:set --replace node-js-app --resource-type deployment annotation.key=annotation.value other.key=other.value
+```
+
+Anything previously stored for that scope and not named in the call is removed. `--resource-type` is still required, and `--process-type` scopes the replacement the same way it scopes a single key.
+
+```shell
+dokku scheduler-k3s:annotations:set --replace node-js-app --resource-type deployment --process-type web annotation.key=annotation.value
+```
+
+Every pair is parsed before anything is written, so a rejected pair leaves the stored annotations untouched. A pair without a `=`, a pair with an empty key, and a key named more than once are all rejected.
+
+A pair ending in `=` stores an empty value, which the per-key form cannot express - there, an empty value deletes the key instead.
+
+```shell
+dokku scheduler-k3s:annotations:set --replace node-js-app --resource-type deployment annotation.key=
+```
+
+> [!NOTE]
+> An empty pair list is rejected rather than treated as a request to remove everything, so a generated list that expands to nothing cannot silently drop an app's annotations. Use `scheduler-k3s:annotations:clear` for that.
+
+#### Clearing annotations
+
+The `scheduler-k3s:annotations:clear` command removes every annotation configured for an app.
+
+```shell
+dokku scheduler-k3s:annotations:clear node-js-app
+```
+
+The `--process-type` and `--resource-type` flags narrow what is cleared, and filter the same way they do for `scheduler-k3s:annotations:report`. Omitting both clears every scope.
+
+```shell
+dokku scheduler-k3s:annotations:clear node-js-app --resource-type deployment
+dokku scheduler-k3s:annotations:clear node-js-app --process-type web --resource-type deployment
+dokku scheduler-k3s:annotations:clear --global --resource-type deployment
+```
+
+A `ps:restart` is required after clearing annotations in order to remove them from running resources.
+
 #### Displaying annotations
 
 Configured annotations can be inspected with the `scheduler-k3s:annotations:report` command. Without arguments, it iterates every app and prints all annotations. Passing an app name (or `--global`) scopes the report:
@@ -658,14 +708,37 @@ A `ps:restart` is required after setting labels in order to have them apply to r
 
 #### Removing a label
 
-To unset an label, pass an empty value:
+To unset a label, pass an empty value:
 
 ```shell
-dokku scheduler-k3s:annotations:set node-js-app label.key --resource-type deployment
+dokku scheduler-k3s:labels:set node-js-app label.key --resource-type deployment
 dokku scheduler-k3s:labels:set node-js-app label.key --resource-type deployment --process-type web
 ```
 
 A `ps:restart` is required after removing labels in order to remove them from running resources.
+
+#### Replacing the entire label set
+
+As with annotations, the `--replace` flag writes the whole map for a scope in a single call, taking `key=value` pairs instead of a single key and value.
+
+```shell
+dokku scheduler-k3s:labels:set --replace node-js-app --resource-type deployment label.key=label.value other.key=other.value
+```
+
+Anything previously stored for that scope and not named in the call is removed. `--resource-type` is still required, `--process-type` scopes the replacement, every pair is parsed before anything is written, and a pair ending in `=` stores an empty value. An empty pair list is rejected; use `scheduler-k3s:labels:clear` to remove everything.
+
+#### Clearing labels
+
+The `scheduler-k3s:labels:clear` command removes every label configured for an app, with the same optional `--process-type` and `--resource-type` filters as `scheduler-k3s:labels:report`.
+
+```shell
+dokku scheduler-k3s:labels:clear node-js-app
+dokku scheduler-k3s:labels:clear node-js-app --resource-type deployment
+dokku scheduler-k3s:labels:clear node-js-app --process-type web --resource-type deployment
+dokku scheduler-k3s:labels:clear --global --resource-type deployment
+```
+
+A `ps:restart` is required after clearing labels in order to remove them from running resources.
 
 #### Displaying labels
 
@@ -809,9 +882,19 @@ After execution, Dokku will include the following resources for each specified t
 
 If the `--global` flag is specified instead of an app name, a custom helm chart is created on the fly with the above resources.
 
+##### Replacing Authentication Metadata
+
+Without `--replace`, the metadata supplied is merged into whatever is already stored for the trigger, so a key that is no longer named stays behind. The `--replace` flag drops the trigger's existing metadata before writing, making the stored set exactly what was specified.
+
+```shell
+dokku scheduler-k3s:autoscaling-auth:set --replace node-js-app datadog --metadata apiKey=1234567890 --metadata appKey=asdfghjkl
+```
+
+In the example above, a `datadogSite` key configured earlier is removed rather than left in place. At least one `--metadata` flag is required with `--replace`; omit the flag entirely to remove everything, as below.
+
 ##### Removing Authentication Resources
 
-To remove a configured authenticatin resource, run the `scheduler-k3s:autoscaling-auth:set` command with no metadata specified. Subsequent deploys will not include these resources.
+To remove a configured authentication resource, run the `scheduler-k3s:autoscaling-auth:set` command with no metadata specified. Subsequent deploys will not include these resources.
 
 ```shell
 dokku scheduler-k3s:autoscaling-auth:set $APP $TRIGGER_TYPE
@@ -907,6 +990,23 @@ dokku scheduler-k3s:node-sysctls:set --profile edge-workers vm.max_map_count 524
 A profile scope inherits everything set globally and overrides it on conflict, so each node is covered by exactly one DaemonSet and no two ever write the same value. Note that the server node created by `scheduler-k3s:initialize` never carries a profile label, so only globally-scoped sysctls reach it.
 
 A profile created by an older Dokku may carry a name outside the [current rules](#adding-profiles), such as one containing uppercase or longer than 26 characters. Dokku cannot name a helm release after such a profile, so it is skipped with a warning and `node-sysctls:set --profile` refuses it. Recreate the profile under a valid name to give it sysctls; `scheduler-k3s:profiles:remove` still removes the old one.
+
+The `--replace` flag writes the whole set for a scope in one call, taking `sysctl=value` pairs instead of a single name and value. Anything previously set for that scope and not named in the call is cleared, with the same caveat about the value staying on affected nodes until they reboot.
+
+```shell
+dokku scheduler-k3s:node-sysctls:set --replace --global vm.max_map_count=262144 vm.swappiness=10
+```
+
+Every pair is parsed before anything is written, so a rejected pair leaves the stored sysctls untouched. A pair without a `=`, a pair with an empty key, and a key named more than once are all rejected. An empty pair list is rejected rather than treated as a request to remove everything.
+
+To remove every sysctl for a scope, use `scheduler-k3s:node-sysctls:clear`.
+
+```shell
+dokku scheduler-k3s:node-sysctls:clear --global
+dokku scheduler-k3s:node-sysctls:clear --profile edge-workers
+```
+
+Clearing a scope removes its DaemonSet. As with clearing a single sysctl, the values it last wrote stay in place on affected nodes until they reboot.
 
 Use `node-sysctls:report` to see the resolved set for every scope.
 

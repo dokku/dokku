@@ -18,22 +18,50 @@ func main() {
 
 	var err error
 	switch subcommand {
+	case "annotations:clear":
+		args := flag.NewFlagSet("scheduler-k3s:annotations:clear", flag.ExitOnError)
+		global := args.Bool("global", false, "--global: clear global annotations")
+		processType := args.String("process-type", "", "--process-type: filter by process-type")
+		resourceType := args.String("resource-type", "", "--resource-type: filter by resource-type")
+		args.Parse(os.Args[2:])
+		appName := args.Arg(0)
+		if *global {
+			appName = "--global"
+		}
+
+		err = scheduler_k3s.CommandAnnotationsClear(scheduler_k3s.MetadataClearInput{
+			AppName:      appName,
+			ProcessType:  *processType,
+			ResourceType: *resourceType,
+		})
 	case "annotations:set":
 		args := flag.NewFlagSet("scheduler-k3s:annotations:set", flag.ExitOnError)
 		global := args.Bool("global", false, "--global: set a global property")
 		processType := args.String("process-type", "", "--process-type: scope to process-type")
 		resourceType := args.String("resource-type", "", "--resource-type: scope to resource-type")
+		replace := args.Bool("replace", false, "--replace: replace the entire annotation map for the scope")
 		args.Parse(os.Args[2:])
-		appName := args.Arg(0)
-		property := args.Arg(1)
-		value := args.Arg(2)
-		if *global {
-			appName = "--global"
-			property = args.Arg(0)
-			value = args.Arg(1)
+		input := scheduler_k3s.MetadataSetInput{
+			AppName:      args.Arg(0),
+			ProcessType:  *processType,
+			ResourceType: *resourceType,
+			Replace:      *replace,
 		}
 
-		err = scheduler_k3s.CommandAnnotationsSet(appName, *processType, *resourceType, property, value)
+		skip := 1
+		if *global {
+			input.AppName = "--global"
+			skip = 0
+		}
+
+		if *replace {
+			input.Pairs = common.VarArgs(args.Args(), skip)
+		} else {
+			input.Key = args.Arg(skip)
+			input.Value = args.Arg(skip + 1)
+		}
+
+		err = scheduler_k3s.CommandAnnotationsSet(input)
 	case "annotations:report":
 		args := flag.NewFlagSet("scheduler-k3s:annotations:report", flag.ExitOnError)
 		global := args.Bool("global", false, "--global: show the global report")
@@ -55,6 +83,7 @@ func main() {
 		args := flag.NewFlagSet("scheduler-k3s:autoscaling-auth:set", flag.ExitOnError)
 		global := args.Bool("global", false, "--global: set a global property")
 		metadata := args.StringToString("metadata", map[string]string{}, "--metadata: a key=value map of parameter metadata")
+		replace := args.Bool("replace", false, "--replace: replace the entire metadata map for the trigger")
 		args.Parse(os.Args[2:])
 		appName := args.Arg(0)
 		trigger := args.Arg(1)
@@ -62,7 +91,7 @@ func main() {
 			appName = "--global"
 			trigger = args.Arg(0)
 		}
-		err = scheduler_k3s.CommandAutoscalingAuthSet(appName, trigger, *metadata, *global)
+		err = scheduler_k3s.CommandAutoscalingAuthSet(appName, trigger, *metadata, *global, *replace)
 	case "autoscaling-auth:report":
 		args := flag.NewFlagSet("scheduler-k3s:autoscaling-auth:report", flag.ExitOnError)
 		global := args.Bool("global", false, "--global: show the global report")
@@ -131,22 +160,50 @@ func main() {
 		kubeletArgs := args.StringSlice("kubelet-args", []string{}, "kubelet-args: repeatable key=value kubelet arguments (e.g., --kubelet-args key=value)")
 		args.Parse(os.Args[2:])
 		err = scheduler_k3s.CommandInitialize(*ingressClass, *serverIP, *taintScheduling, *kubeletArgs)
+	case "labels:clear":
+		args := flag.NewFlagSet("scheduler-k3s:labels:clear", flag.ExitOnError)
+		global := args.Bool("global", false, "--global: clear global labels")
+		processType := args.String("process-type", "", "--process-type: filter by process-type")
+		resourceType := args.String("resource-type", "", "--resource-type: filter by resource-type")
+		args.Parse(os.Args[2:])
+		appName := args.Arg(0)
+		if *global {
+			appName = "--global"
+		}
+
+		err = scheduler_k3s.CommandLabelsClear(scheduler_k3s.MetadataClearInput{
+			AppName:      appName,
+			ProcessType:  *processType,
+			ResourceType: *resourceType,
+		})
 	case "labels:set":
 		args := flag.NewFlagSet("scheduler-k3s:labels:set", flag.ExitOnError)
 		global := args.Bool("global", false, "--global: set a global property")
 		processType := args.String("process-type", "", "--process-type: scope to process-type")
 		resourceType := args.String("resource-type", "", "--resource-type: scope to resource-type")
+		replace := args.Bool("replace", false, "--replace: replace the entire label map for the scope")
 		args.Parse(os.Args[2:])
-		appName := args.Arg(0)
-		property := args.Arg(1)
-		value := args.Arg(2)
-		if *global {
-			appName = "--global"
-			property = args.Arg(0)
-			value = args.Arg(1)
+		input := scheduler_k3s.MetadataSetInput{
+			AppName:      args.Arg(0),
+			ProcessType:  *processType,
+			ResourceType: *resourceType,
+			Replace:      *replace,
 		}
 
-		err = scheduler_k3s.CommandLabelsSet(appName, *processType, *resourceType, property, value)
+		skip := 1
+		if *global {
+			input.AppName = "--global"
+			skip = 0
+		}
+
+		if *replace {
+			input.Pairs = common.VarArgs(args.Args(), skip)
+		} else {
+			input.Key = args.Arg(skip)
+			input.Value = args.Arg(skip + 1)
+		}
+
+		err = scheduler_k3s.CommandLabelsSet(input)
 	case "labels:report":
 		args := flag.NewFlagSet("scheduler-k3s:labels:report", flag.ExitOnError)
 		global := args.Bool("global", false, "--global: show the global report")
@@ -164,18 +221,39 @@ func main() {
 			appName = "--global"
 		}
 		err = scheduler_k3s.CommandLabelsReport(appName, *format, *processType, *resourceType, infoFlag)
-	case "node-sysctls:set":
-		args := flag.NewFlagSet("scheduler-k3s:node-sysctls:set", flag.ExitOnError)
+	case "node-sysctls:clear":
+		args := flag.NewFlagSet("scheduler-k3s:node-sysctls:clear", flag.ExitOnError)
 		global := args.Bool("global", false, "--global: scope to all nodes without a node profile")
 		profileName := args.String("profile", "", "--profile: scope to a node profile instead of all unprofiled nodes")
 		args.Parse(os.Args[2:])
-		key := args.Arg(0)
-		value := args.Arg(1)
 		if *global && *profileName != "" {
 			err = fmt.Errorf("Only one of --global and --profile may be specified")
 			break
 		}
-		err = scheduler_k3s.CommandNodeSysctlsSet(*profileName, key, value)
+		err = scheduler_k3s.CommandNodeSysctlsClear(*profileName)
+	case "node-sysctls:set":
+		args := flag.NewFlagSet("scheduler-k3s:node-sysctls:set", flag.ExitOnError)
+		global := args.Bool("global", false, "--global: scope to all nodes without a node profile")
+		profileName := args.String("profile", "", "--profile: scope to a node profile instead of all unprofiled nodes")
+		replace := args.Bool("replace", false, "--replace: replace the entire sysctl map for the scope")
+		args.Parse(os.Args[2:])
+		if *global && *profileName != "" {
+			err = fmt.Errorf("Only one of --global and --profile may be specified")
+			break
+		}
+
+		input := scheduler_k3s.NodeSysctlsSetInput{
+			ProfileName: *profileName,
+			Replace:     *replace,
+		}
+		if *replace {
+			input.Pairs = args.Args()
+		} else {
+			input.Key = args.Arg(0)
+			input.Value = args.Arg(1)
+		}
+
+		err = scheduler_k3s.CommandNodeSysctlsSet(input)
 	case "node-sysctls:report":
 		args := flag.NewFlagSet("scheduler-k3s:node-sysctls:report", flag.ExitOnError)
 		format := args.String("format", "stdout", "format: [ stdout | json ]")
