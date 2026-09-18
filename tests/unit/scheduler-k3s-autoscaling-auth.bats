@@ -149,3 +149,44 @@ teardown() {
   assert_failure
   assert_output_contains "Invalid flag passed"
 }
+
+@test "(scheduler-k3s:autoscaling-auth:set) --replace drops metadata keys not named" {
+  run /bin/bash -c "dokku scheduler-k3s:autoscaling-auth:set $TEST_APP datadog --metadata apiKey=secret-1 --metadata appKey=secret-2 --metadata datadogSite=us5.datadoghq.com"
+  assert_success
+
+  run /bin/bash -c "dokku scheduler-k3s:autoscaling-auth:set $TEST_APP datadog --metadata apiKey=secret-3"
+  assert_success
+
+  run /bin/bash -c "dokku scheduler-k3s:autoscaling-auth:report $TEST_APP --format json | jq -r 'keys | sort | join(\",\")'"
+  assert_success
+  assert_output "datadog.apiKey,datadog.appKey,datadog.datadogSite"
+
+  run /bin/bash -c "dokku scheduler-k3s:autoscaling-auth:set --replace $TEST_APP datadog --metadata apiKey=secret-4"
+  assert_success
+
+  run /bin/bash -c "dokku scheduler-k3s:autoscaling-auth:report $TEST_APP --format json | jq -r 'keys | sort | join(\",\")'"
+  assert_success
+  assert_output "datadog.apiKey"
+
+  run /bin/bash -c "dokku scheduler-k3s:autoscaling-auth:report $TEST_APP --format json | jq -r '.\"datadog.apiKey\"'"
+  assert_success
+  assert_output "secret-4"
+}
+
+@test "(scheduler-k3s:autoscaling-auth:set) --replace requires metadata and leaves other triggers alone" {
+  run /bin/bash -c "dokku scheduler-k3s:autoscaling-auth:set $TEST_APP datadog --metadata apiKey=secret-1"
+  assert_success
+  run /bin/bash -c "dokku scheduler-k3s:autoscaling-auth:set $TEST_APP memory --metadata some-key=some-value"
+  assert_success
+
+  run /bin/bash -c "dokku scheduler-k3s:autoscaling-auth:set --replace $TEST_APP datadog"
+  assert_failure
+  assert_output_contains "Must specify at least one --metadata flag, omit --replace to remove all metadata for the trigger"
+
+  run /bin/bash -c "dokku scheduler-k3s:autoscaling-auth:set --replace $TEST_APP datadog --metadata appKey=secret-2"
+  assert_success
+
+  run /bin/bash -c "dokku scheduler-k3s:autoscaling-auth:report $TEST_APP --format json | jq -r 'keys | sort | join(\",\")'"
+  assert_success
+  assert_output "datadog.appKey,memory.some-key"
+}
