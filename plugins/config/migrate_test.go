@@ -11,9 +11,9 @@ import (
 
 // setupIsolatedEnv points the dokku env at temporary directories and tells the
 // permission helpers to chown files to the current user (a no-op) so the test
-// works without root. The package-level paths in config_test.go are captured at
-// init against the real dokku directories, so a test using this helper must not
-// use them.
+// works without root and without a dokku user existing. Every test in this
+// package goes through it, directly or via setupTestApp, so none of them touch
+// a real dokku installation.
 func setupIsolatedEnv(t *testing.T) (dokkuRoot string, libRoot string) {
 	t.Helper()
 

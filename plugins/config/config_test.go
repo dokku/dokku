@@ -6,68 +6,47 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/dokku/dokku/plugins/common"
-
 	. "github.com/onsi/gomega"
 )
 
-var (
-	testAppName      = "test-app-1"
-	dokkuRoot        = common.MustGetEnv("DOKKU_ROOT")
-	dokkuLibRoot     = common.MustGetEnv("DOKKU_LIB_ROOT")
-	testAppRoot      = filepath.Join(dokkuRoot, testAppName)
-	testAppDir       = filepath.Join(dokkuLibRoot, "config", testAppName)
-	globalConfigFile = filepath.Join(dokkuLibRoot, "config", "--global", "ENV")
-)
+const testAppName = "test-app-1"
 
-func setupTests() (err error) {
-	if err := os.Setenv("PLUGIN_PATH", "/var/lib/dokku/plugins"); err != nil {
-		return err
-	}
+// setupTestApp points the dokku environment at temporary directories and seeds
+// the app and global config the tests read, returning the app's config
+// directory. Nothing is written to a real dokku installation and no dokku user
+// needs to exist, which matters now that a failure to apply ownership is
+// reported rather than discarded. The directories are removed with the test.
+func setupTestApp(t *testing.T) (testAppDir string) {
+	t.Helper()
 
-	if err := os.Setenv("PLUGIN_ENABLED_PATH", "/var/lib/dokku/plugins/enabled"); err != nil {
-		return err
-	}
+	dokkuRoot, libRoot := setupIsolatedEnv(t)
+	t.Setenv("PLUGIN_ENABLED_PATH", filepath.Join(libRoot, "plugins", "enabled"))
+	t.Setenv("PLUGIN_CORE_AVAILABLE_PATH", filepath.Join(libRoot, "core-plugins", "available"))
 
-	return os.Setenv("PLUGIN_CORE_AVAILABLE_PATH", "/var/lib/dokku/core-plugins/available")
-}
+	Expect(os.MkdirAll(filepath.Join(dokkuRoot, testAppName), 0755)).To(Succeed())
 
-func setupTestApp() (err error) {
-	Expect(os.MkdirAll(testAppRoot, 0766)).To(Succeed())
-	Expect(os.MkdirAll(testAppDir, 0766)).To(Succeed())
-	b := []byte("export testKey=TESTING\n")
-	if err = os.WriteFile(strings.Join([]string{testAppDir, "/ENV"}, ""), b, 0644); err != nil {
-		return
-	}
+	testAppDir = filepath.Join(libRoot, "config", testAppName)
+	Expect(os.MkdirAll(testAppDir, 0755)).To(Succeed())
+	Expect(os.WriteFile(filepath.Join(testAppDir, "ENV"), []byte("export testKey=TESTING\n"), 0600)).To(Succeed())
 
-	Expect(os.MkdirAll(filepath.Dir(globalConfigFile), 0766)).To(Succeed())
-	b = []byte("export testKey=GLOBAL_TESTING\nexport globalKey=GLOBAL_VALUE")
-	if err = os.WriteFile(globalConfigFile, b, 0644); err != nil {
-		return
-	}
-	return
-}
+	globalConfigFile := filepath.Join(libRoot, "config", "--global", "ENV")
+	Expect(os.MkdirAll(filepath.Dir(globalConfigFile), 0755)).To(Succeed())
+	Expect(os.WriteFile(globalConfigFile, []byte("export testKey=GLOBAL_TESTING\nexport globalKey=GLOBAL_VALUE"), 0600)).To(Succeed())
 
-func teardownTestApp() {
-	os.RemoveAll(testAppRoot)
-	os.RemoveAll(testAppDir)
+	return testAppDir
 }
 
 func TestConfigGetWithDefault(t *testing.T) {
 	RegisterTestingT(t)
-	Expect(setupTests()).To(Succeed())
-	Expect(setupTestApp()).To(Succeed())
+	setupTestApp(t)
 	Expect(GetWithDefault(testAppName, "unknownKey", "UNKNOWN")).To(Equal("UNKNOWN"))
 	Expect(GetWithDefault(testAppName, "testKey", "testKey")).To(Equal("TESTING"))
 	Expect(GetWithDefault(testAppName+"-nonexistent", "testKey", "default")).To(Equal("default"))
-	teardownTestApp()
 }
 
 func TestConfigGet(t *testing.T) {
 	RegisterTestingT(t)
-	Expect(setupTests()).To(Succeed())
-	Expect(setupTestApp()).To(Succeed())
-	defer teardownTestApp()
+	setupTestApp(t)
 
 	expectValue(testAppName, "testKey", "TESTING")
 	expectValue("", "testKey", "GLOBAL_TESTING")
@@ -78,9 +57,7 @@ func TestConfigGet(t *testing.T) {
 
 func TestConfigSetMany(t *testing.T) {
 	RegisterTestingT(t)
-	Expect(setupTests()).To(Succeed())
-	Expect(setupTestApp()).To(Succeed())
-	defer teardownTestApp()
+	setupTestApp(t)
 
 	expectValue(testAppName, "testKey", "TESTING")
 
@@ -102,9 +79,7 @@ func TestConfigSetMany(t *testing.T) {
 
 func TestConfigUnsetAll(t *testing.T) {
 	RegisterTestingT(t)
-	Expect(setupTests()).To(Succeed())
-	Expect(setupTestApp()).To(Succeed())
-	defer teardownTestApp()
+	setupTestApp(t)
 
 	expectValue(testAppName, "testKey", "TESTING")
 	expectValue("", "testKey", "GLOBAL_TESTING")
@@ -119,9 +94,7 @@ func TestConfigUnsetAll(t *testing.T) {
 
 func TestConfigUnsetMany(t *testing.T) {
 	RegisterTestingT(t)
-	Expect(setupTests()).To(Succeed())
-	Expect(setupTestApp()).To(Succeed())
-	defer teardownTestApp()
+	setupTestApp(t)
 
 	expectValue(testAppName, "testKey", "TESTING")
 	expectValue("", "testKey", "GLOBAL_TESTING")
@@ -140,9 +113,7 @@ func TestConfigUnsetMany(t *testing.T) {
 
 func TestConfigImport(t *testing.T) {
 	RegisterTestingT(t)
-	Expect(setupTests()).To(Succeed())
-	Expect(setupTestApp()).To(Succeed())
-	defer teardownTestApp()
+	setupTestApp(t)
 
 	tempFile, err := os.CreateTemp("", "test-config-import-*.env")
 	Expect(err).To(Succeed())
@@ -179,9 +150,7 @@ testKey2=TESTING-updated2
 
 func TestConfigImportJSON(t *testing.T) {
 	RegisterTestingT(t)
-	Expect(setupTests()).To(Succeed())
-	Expect(setupTestApp()).To(Succeed())
-	defer teardownTestApp()
+	setupTestApp(t)
 
 	tempFile, err := os.CreateTemp("", "test-config-import-*.json")
 	Expect(err).To(Succeed())
@@ -216,9 +185,7 @@ func TestConfigImportJSON(t *testing.T) {
 
 func TestEnvironmentLoading(t *testing.T) {
 	RegisterTestingT(t)
-	Expect(setupTests()).To(Succeed())
-	Expect(setupTestApp()).To(Succeed())
-	defer teardownTestApp()
+	setupTestApp(t)
 
 	env, err := LoadMergedAppEnv(testAppName)
 	Expect(err).To(Succeed())
@@ -241,9 +208,7 @@ func TestEnvironmentLoading(t *testing.T) {
 
 func TestInvalidKeys(t *testing.T) {
 	RegisterTestingT(t)
-	Expect(setupTests()).To(Succeed())
-	Expect(setupTestApp()).To(Succeed())
-	defer teardownTestApp()
+	setupTestApp(t)
 
 	invalidKeys := []string{"0invalidKey", "invalid:key", "invalid=Key", "!invalidKey"}
 	for _, key := range invalidKeys {
@@ -259,11 +224,9 @@ func TestInvalidKeys(t *testing.T) {
 
 func TestInvalidEnvOnDisk(t *testing.T) {
 	RegisterTestingT(t)
-	Expect(setupTests()).To(Succeed())
-	Expect(setupTestApp()).To(Succeed())
-	defer teardownTestApp()
+	testAppDir := setupTestApp(t)
 
-	appConfigFile := strings.Join([]string{testAppDir, "/ENV"}, "")
+	appConfigFile := filepath.Join(testAppDir, "ENV")
 	b := []byte("export --invalid-key=TESTING\nexport valid_key=value\n")
 	if err := os.WriteFile(appConfigFile, b, 0644); err != nil {
 		return
