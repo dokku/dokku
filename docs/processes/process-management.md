@@ -248,6 +248,9 @@ Multiple process types can be scaled at once:
 dokku ps:scale node-js-app web=1 worker=1
 ```
 
+> [!NOTE]
+> Each argument must name a process type, and process counts must be zero or greater. Scaling a process type to `0` stops all of its containers, while a negative count is rejected.
+
 If desired, the corresponding deploy will be skipped by using the `--skip-deploy` flag:
 
 ```shell

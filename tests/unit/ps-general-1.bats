@@ -357,6 +357,77 @@ worker=1" >/var/lib/dokku/config/ps/$TEST_APP/scale
   assert_output_contains "The --clear and --replace flags cannot be specified together"
 }
 
+@test "(ps:scale) invalid process counts" {
+  run /bin/bash -c "dokku ps:scale $TEST_APP web=-1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Invalid count for process type web: value must be zero or greater"
+
+  run /bin/bash -c "dokku ps:scale --replace $TEST_APP web=1 worker=-2"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Invalid count for process type worker: value must be zero or greater"
+
+  run /bin/bash -c "dokku ps:scale $TEST_APP =1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Missing process type for count 1"
+
+  run_plugn_trigger ps-set-scale $TEST_APP true false web=-1
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Invalid count for process type web: value must be zero or greater"
+
+  run /bin/bash -c "dokku --quiet ps:scale $TEST_APP"
+  output=$(echo "$output" | tr -s " ")
+  echo "output: ($output)"
+  echo "status: $status"
+  assert_output "web: 1"
+
+  run /bin/bash -c "dokku ps:scale --skip-deploy $TEST_APP web=0"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku --quiet ps:scale $TEST_APP"
+  output=$(echo "$output" | tr -s " ")
+  echo "output: ($output)"
+  echo "status: $status"
+  assert_output "web: 0"
+}
+
+@test "(ps:scale) repairing a negative process count" {
+  echo "web=-1
+worker=2" >/var/lib/dokku/config/ps/$TEST_APP/scale
+
+  run /bin/bash -c "dokku --quiet ps:scale $TEST_APP"
+  output=$(echo "$output" | tr -s " ")
+  echo "output: ($output)"
+  echo "status: $status"
+  assert_success
+  assert_output $'web: -1\nworker: 2'
+
+  run_plugn_trigger ps-current-scale $TEST_APP
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:scale --skip-deploy $TEST_APP web=1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku --quiet ps:scale $TEST_APP"
+  output=$(echo "$output" | tr -s " ")
+  echo "output: ($output)"
+  echo "status: $status"
+  assert_output $'web: 1\nworker: 2'
+}
+
 @test "(ps) handle windows newlines in procfile" {
   run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP procfile_line_endings_to_windows
   echo "output: $output"

@@ -158,7 +158,7 @@ On subsequent deploys:
 
 - `autoscaling` (map of string to object, optional) autoscaling rules. See the autoscaling section for more details
 - `max_parallel`: (int, optional) number of instances to deploy in parallel at a given time
-- `quantity`: (int, optional) number of processes to maintain. Default 1 for web processes, 0 for all others.
+- `quantity`: (int, optional) number of processes to maintain. Must be zero or greater. Default 1 for web processes, 0 for all others.
 - `service`: (map of string to oject, optional) governs how non-web processes are exposed as services on the network
 
 ### Autoscaling

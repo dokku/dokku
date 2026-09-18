@@ -196,7 +196,7 @@ func parseProcessTuples(processTuples []string) (FormationSlice, error) {
 		processType := strings.TrimSpace(s[0])
 		quantity, err := strconv.Atoi(strings.TrimSpace(s[1]))
 		if err != nil {
-			return formations, fmt.Errorf("Invalid count for process type %s", s[0])
+			return formations, fmt.Errorf("Invalid count for process type %s", processType)
 		}
 
 		if foundFormations[processType] {
@@ -351,6 +351,10 @@ func scaleSet(input scaleSetInput) error {
 		return err
 	}
 
+	if err := validateFormations(formations); err != nil {
+		return err
+	}
+
 	if input.clearExisting {
 		formations = appendClearedFormations(formations, existingFormations)
 	}
@@ -483,4 +487,21 @@ func updateScale(appName string, clearExisting bool, formationUpdates FormationS
 	}
 
 	return common.PropertyListWrite("ps", appName, "scale", values)
+}
+
+// validateFormations returns an error when a user specified formation cannot be scaled to.
+// Formations read back from the scale property are deliberately not validated so that a value
+// persisted by an older dokku version remains visible and repairable via ps:scale.
+func validateFormations(formations FormationSlice) error {
+	for _, formation := range formations {
+		if formation.ProcessType == "" {
+			return fmt.Errorf("Missing process type for count %d", formation.Quantity)
+		}
+
+		if formation.Quantity < 0 {
+			return fmt.Errorf("Invalid count for process type %s: value must be zero or greater", formation.ProcessType)
+		}
+	}
+
+	return nil
 }

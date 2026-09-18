@@ -431,6 +431,10 @@ func setScale(appName string) error {
 	args := []string{appName, strconv.FormatBool(skipDeploy), strconv.FormatBool(clearExisting)}
 	for processType, formation := range appJSON.Formation {
 		if formation.Quantity != nil {
+			if *formation.Quantity < 0 {
+				return fmt.Errorf("Invalid quantity for process type %s in app.json: value must be zero or greater", processType)
+			}
+
 			args = append(args, fmt.Sprintf("%s=%d", processType, *formation.Quantity))
 		}
 	}
