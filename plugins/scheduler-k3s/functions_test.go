@@ -723,3 +723,131 @@ func TestAttachExitError(t *testing.T) {
 		t.Errorf("attachExitError(zero code error) = %v, want the original error", err)
 	}
 }
+
+func TestChartInstallDecision(t *testing.T) {
+	traefik := HelmChart{ChartPath: "traefik", ReleaseName: "traefik", Version: "26.0.0"}
+	ingressNginx := HelmChart{ChartPath: "ingress-nginx", ReleaseName: "ingress-nginx", Version: "4.15.1"}
+	installed := Release{Name: "traefik", Version: "26.0.0"}
+
+	cases := []struct {
+		name        string
+		input       ChartInstallDecisionInput
+		wantInstall bool
+		wantReason  string
+	}{
+		{
+			name: "traefik is skipped when the ingress class is nginx",
+			input: ChartInstallDecisionInput{
+				Chart:        traefik,
+				ForceInstall: true,
+				IngressClass: "nginx",
+			},
+			wantInstall: false,
+			wantReason:  "Skipping chart due to ingress-class mismatch",
+		},
+		{
+			name: "ingress-nginx is skipped when the ingress class is traefik",
+			input: ChartInstallDecisionInput{
+				Chart:        ingressNginx,
+				ForceInstall: true,
+				IngressClass: "traefik",
+			},
+			wantInstall: false,
+			wantReason:  "Skipping chart due to ingress-class mismatch",
+		},
+		{
+			name: "force installs an up to date chart",
+			input: ChartInstallDecisionInput{
+				Chart:             traefik,
+				ForceInstall:      true,
+				IngressClass:      "traefik",
+				InstalledRevision: installed,
+			},
+			wantInstall: true,
+			wantReason:  "Force installing chart",
+		},
+		{
+			name: "a named chart installs even when up to date",
+			input: ChartInstallDecisionInput{
+				Chart:             traefik,
+				ForceChartNames:   []string{"traefik"},
+				IngressClass:      "traefik",
+				InstalledRevision: installed,
+			},
+			wantInstall: true,
+			wantReason:  "Force installing chart due to flag",
+		},
+		{
+			name: "a chart named for another release is left alone",
+			input: ChartInstallDecisionInput{
+				Chart:             traefik,
+				ForceChartNames:   []string{"vector"},
+				IngressClass:      "traefik",
+				InstalledRevision: installed,
+			},
+			wantInstall: false,
+			wantReason:  "Skipping chart: already installed",
+		},
+		{
+			name: "a missing release is installed",
+			input: ChartInstallDecisionInput{
+				Chart:        traefik,
+				IngressClass: "traefik",
+			},
+			wantInstall: true,
+			wantReason:  "Installing missing chart",
+		},
+		{
+			name: "a release behind the pinned version is upgraded",
+			input: ChartInstallDecisionInput{
+				Chart:             traefik,
+				IngressClass:      "traefik",
+				InstalledRevision: Release{Name: "traefik", Version: "25.0.0"},
+			},
+			wantInstall: true,
+			wantReason:  "Installing chart due to version mismatch: 25.0.0 != 26.0.0",
+		},
+		{
+			name: "a release ahead of the pinned version is reconciled back",
+			input: ChartInstallDecisionInput{
+				Chart:             traefik,
+				IngressClass:      "traefik",
+				InstalledRevision: Release{Name: "traefik", Version: "41.6.0"},
+			},
+			wantInstall: true,
+			wantReason:  "Installing chart due to version mismatch: 41.6.0 != 26.0.0",
+		},
+		{
+			name: "the mismatch reason reports the chart version, not the app version",
+			input: ChartInstallDecisionInput{
+				Chart:             traefik,
+				IngressClass:      "traefik",
+				InstalledRevision: Release{Name: "traefik", AppVersion: "v2.11.0", Version: "41.6.0"},
+			},
+			wantInstall: true,
+			wantReason:  "Installing chart due to version mismatch: 41.6.0 != 26.0.0",
+		},
+		{
+			name: "a release at the pinned version is skipped",
+			input: ChartInstallDecisionInput{
+				Chart:             traefik,
+				IngressClass:      "traefik",
+				InstalledRevision: installed,
+			},
+			wantInstall: false,
+			wantReason:  "Skipping chart: already installed",
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := chartInstallDecision(tc.input)
+			if got.Install != tc.wantInstall {
+				t.Errorf("Install = %t, want %t", got.Install, tc.wantInstall)
+			}
+			if got.Reason != tc.wantReason {
+				t.Errorf("Reason = %q, want %q", got.Reason, tc.wantReason)
+			}
+		})
+	}
+}

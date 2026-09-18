@@ -16,8 +16,8 @@ scheduler-k3s:charts:set <chart-name.property> (<value>) # Set or clear a chart-
 scheduler-k3s:cluster:add [--profile PROFILE] [--role ROLE] [--insecure-allow-unknown-hosts] [--server-ip SERVER_IP] [--taint-scheduling] [--kubelet-args KUBELET_ARGS] <ssh://user@host:port> # Adds a server node to a Dokku-managed cluster
 scheduler-k3s:cluster:list [--format json|stdout] # Lists all nodes in a Dokku-managed cluster
 scheduler-k3s:cluster:remove [node-id] # Removes client node to a Dokku-managed cluster
-scheduler-k3s:ensure-charts # Ensures the k3s charts are installed
-scheduler-k3s:initialize [--server-ip SERVER_IP] [--taint-scheduling] [--kubelet-args KUBELET_ARGS] # Initializes a cluster
+scheduler-k3s:ensure-charts [--force] [--charts CHART_NAMES] # Ensures the k3s charts are installed
+scheduler-k3s:initialize [--server-ip SERVER_IP] [--ingress-class INGRESS_CLASS] [--taint-scheduling] [--kubelet-args KUBELET_ARGS] # Initializes a cluster
 scheduler-k3s:labels:clear <app|--global> [--process-type PROCESS_TYPE] [--resource-type RESOURCE_TYPE] # Clear all labels for an app or a single process-type/resource-type scope
 scheduler-k3s:labels:set <app|--global> <property> (<value>) [--process-type PROCESS_TYPE] <--resource-type RESOURCE_TYPE> # Set or clear a label for a given app/process-type/resource-type combination
 scheduler-k3s:labels:set --replace <app|--global> <key=value> [<key=value> ...] [--process-type PROCESS_TYPE] <--resource-type RESOURCE_TYPE> # Replace the entire label map for a given app/process-type/resource-type combination
@@ -1100,18 +1100,20 @@ The default value for the `kube-context` is an empty string, and will result in 
 Dokku includes a number of helm charts by default with settings that are optimized for Dokku. That said, it may be useful to further customize the charts for a given environment. Chart overrides are managed via the `scheduler-k3s:charts:set` command, which takes a `<chart-name>.<property>` argument and a value. Chart overrides are always global because helm charts are not managed on a per-app basis.
 
 ```shell
-dokku scheduler-k3s:charts:set cert-manager.version 1.13.3
+dokku scheduler-k3s:charts:set cert-manager.installCRDs false
 ```
 
 > [!NOTE]
 > Properties follow dot-notation, and are expanded according to Helm's internal logic. See the [Helm documentation](https://helm.sh/docs/helm/helm_install/#helm-install) for `helm install` for further details.
+
+Chart overrides are values passed to a chart, not the version of the chart itself. Dokku pins the version of every chart it manages, and those versions are not user-configurable. The `scheduler-k3s:ensure-charts` command reconciles each installed release back to the pinned version, upgrading or downgrading a release that has drifted away from it.
 
 Property names may contain `/` (e.g. for Kubernetes-style annotation keys such as `service.annotations.prometheus.io/scrape`) and values may span multiple lines; both are preserved verbatim.
 
 To unset a chart property, omit the value from the `scheduler-k3s:charts:set` call:
 
 ```shell
-dokku scheduler-k3s:charts:set cert-manager.version
+dokku scheduler-k3s:charts:set cert-manager.installCRDs
 ```
 
 Configured chart overrides can be inspected with the `scheduler-k3s:charts:report` command. Without an argument, it lists every chart known to Dokku along with any configured overrides; passing a chart name scopes the report to that chart:

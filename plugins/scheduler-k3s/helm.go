@@ -5,7 +5,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"sort"
@@ -15,16 +14,12 @@ import (
 
 	"github.com/dokku/dokku/plugins/common"
 	"github.com/fluxcd/pkg/kustomize/filesys"
-	"github.com/gofrs/flock"
-	"gopkg.in/yaml.v3"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart/loader"
 	"helm.sh/helm/v3/pkg/cli"
-	"helm.sh/helm/v3/pkg/getter"
 	"helm.sh/helm/v3/pkg/kube"
 	"helm.sh/helm/v3/pkg/postrender"
 	"helm.sh/helm/v3/pkg/release"
-	"helm.sh/helm/v3/pkg/repo"
 	"helm.sh/helm/v3/pkg/storage/driver"
 	"sigs.k8s.io/kustomize/api/konfig"
 	"sigs.k8s.io/kustomize/api/krusty"
@@ -93,6 +88,19 @@ type Release struct {
 	Version    string
 }
 
+// applyChartPathOptions pins the repository and the version from input onto the
+// chart path options used to locate a chart. Both the install and the upgrade
+// path must do this, otherwise helm resolves the newest chart published to the
+// repository instead of the version dokku pins.
+func applyChartPathOptions(options *action.ChartPathOptions, input ChartInput) {
+	if input.RepoURL != "" {
+		options.RepoURL = input.RepoURL
+	}
+	if input.Version != "" {
+		options.Version = input.Version
+	}
+}
+
 type HelmAgent struct {
 	Configuration *action.Configuration
 	Namespace     string
@@ -119,69 +127,6 @@ func NewHelmAgent(namespace string, logger action.DebugLog) (*HelmAgent, error) 
 		Namespace:     namespace,
 		Logger:        logger,
 	}, nil
-}
-
-type AddRepositoryInput struct {
-	Name string
-	URL  string
-}
-
-func (h *HelmAgent) AddRepository(ctx context.Context, helmRepo AddRepositoryInput) error {
-	settings := cli.New()
-	repoFile := settings.RepositoryConfig
-
-	err := os.MkdirAll(filepath.Dir(repoFile), os.ModePerm)
-	if err != nil && !os.IsExist(err) {
-		return fmt.Errorf("Error creating repository directory: %w", err)
-	}
-
-	fileLock := flock.New(strings.Replace(repoFile, filepath.Ext(repoFile), ".lock", 1))
-	locked, err := fileLock.TryLockContext(ctx, time.Second)
-	if err != nil {
-		return fmt.Errorf("Error acquiring file lock: %w", err)
-	}
-
-	if !locked {
-		return fmt.Errorf("Could not acquire file lock")
-	}
-
-	defer fileLock.Unlock() // nolint: errcheck
-
-	b, err := os.ReadFile(repoFile)
-	if err != nil && !os.IsNotExist(err) {
-		return fmt.Errorf("Error reading repository file: %w", err)
-	}
-
-	var f repo.File
-	if err := yaml.Unmarshal(b, &f); err != nil {
-		return fmt.Errorf("Error unmarshalling yaml: %w", err)
-	}
-
-	if f.Has(helmRepo.Name) {
-		return nil
-	}
-
-	c := repo.Entry{
-		Name: helmRepo.Name,
-		URL:  helmRepo.URL,
-	}
-
-	r, err := repo.NewChartRepository(&c, getter.All(settings))
-	if err != nil {
-		return fmt.Errorf("Error creating chart repository: %w", err)
-	}
-
-	if _, err := r.DownloadIndexFile(); err != nil {
-		return fmt.Errorf("Specified repository '%q' is not a valid chart repository or cannot be reached: %w", helmRepo.URL, err)
-	}
-
-	f.Update(&c)
-
-	if err := f.WriteFile(repoFile, 0644); err != nil {
-		log.Fatal(err)
-	}
-
-	return nil
 }
 
 func (h *HelmAgent) ChartExists(releaseName string) (bool, error) {
@@ -270,7 +215,6 @@ func (h *HelmAgent) InstallChart(ctx context.Context, input ChartInput) error {
 
 	client := action.NewInstall(h.Configuration)
 	client.Atomic = false
-	client.ChartPathOptions = action.ChartPathOptions{}
 	client.CreateNamespace = true
 	client.DryRun = false
 	if os.Getenv("DOKKU_TRACE") == "1" {
@@ -285,14 +229,9 @@ func (h *HelmAgent) InstallChart(ctx context.Context, input ChartInput) error {
 	client.Timeout = input.Timeout
 	client.Wait = input.Wait
 
-	settings := cli.New()
-	if input.RepoURL != "" {
-		client.ChartPathOptions.RepoURL = input.RepoURL
-	}
-	if input.Version != "" {
-		client.ChartPathOptions.Version = input.Version
-	}
+	applyChartPathOptions(&client.ChartPathOptions, input)
 
+	settings := cli.New()
 	chart, err := client.ChartPathOptions.LocateChart(input.ChartPath, settings)
 	if err != nil {
 		return fmt.Errorf("Error locating chart: %w", err)
@@ -324,7 +263,7 @@ func (h *HelmAgent) InstalledRevision(releaseName string) (Release, error) {
 		return Release{}, nil
 	}
 
-	return revisions[0], nil
+	return revisions[len(revisions)-1], nil
 }
 
 type ListRevisionsInput struct {
@@ -332,11 +271,24 @@ type ListRevisionsInput struct {
 	Max         int
 }
 
+// selectRevisions sorts releases ascending by revision and keeps at most the
+// most recent max entries. A max of zero keeps every revision. helm's history
+// action ignores its own Max field and hands back the entire ledger unsorted,
+// so both the ordering and the truncation happen here.
+func selectRevisions(releases []Release, max int) []Release {
+	sort.Slice(releases, func(i, j int) bool {
+		return releases[i].Revision < releases[j].Revision
+	})
+
+	if max > 0 && len(releases) > max {
+		return releases[len(releases)-max:]
+	}
+
+	return releases
+}
+
 func (h *HelmAgent) ListRevisions(input ListRevisionsInput) ([]Release, error) {
 	client := action.NewHistory(h.Configuration)
-	if input.Max > 0 {
-		client.Max = input.Max
-	}
 
 	releases := []Release{}
 	response, err := client.Run(input.ReleaseName)
@@ -364,11 +316,7 @@ func (h *HelmAgent) ListRevisions(input ListRevisionsInput) ([]Release, error) {
 		})
 	}
 
-	sort.Slice(releases, func(i, j int) bool {
-		return releases[i].Revision < releases[j].Revision
-	})
-
-	return releases, nil
+	return selectRevisions(releases, input.Max), nil
 }
 
 func (h *HelmAgent) UpgradeChart(ctx context.Context, input ChartInput) error {
@@ -394,7 +342,6 @@ func (h *HelmAgent) UpgradeChart(ctx context.Context, input ChartInput) error {
 
 	client := action.NewUpgrade(h.Configuration)
 	client.Atomic = input.RollbackOnFailure
-	client.ChartPathOptions = action.ChartPathOptions{}
 	client.CleanupOnFail = true
 	client.MaxHistory = 10
 	if os.Getenv("DOKKU_TRACE") == "1" {
@@ -407,9 +354,8 @@ func (h *HelmAgent) UpgradeChart(ctx context.Context, input ChartInput) error {
 	client.Namespace = namespace
 	client.Timeout = input.Timeout
 	client.Wait = input.Wait
-	if input.RepoURL != "" {
-		client.RepoURL = input.RepoURL
-	}
+
+	applyChartPathOptions(&client.ChartPathOptions, input)
 
 	settings := cli.New()
 	chart, err := client.ChartPathOptions.LocateChart(input.ChartPath, settings)

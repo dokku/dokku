@@ -219,26 +219,6 @@ var HelmCharts = []HelmChart{
 	},
 }
 
-type HelmRepository struct {
-	Name string
-	URL  string
-}
-
-var HelmRepositories = []HelmRepository{
-	{
-		Name: "jetstack",
-		URL:  "https://charts.jetstack.io",
-	},
-	{
-		Name: "longhorn",
-		URL:  "https://charts.longhorn.io",
-	},
-	{
-		Name: "traefik",
-		URL:  "https://helm.traefik.io/traefik",
-	},
-}
-
 // NodeProfile is a profile for a node in the k3s cluster
 type NodeProfile struct {
 	// Name is the name of the node profile
