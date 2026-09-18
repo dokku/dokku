@@ -55,11 +55,9 @@ func SetMany(appName string, entries map[string]string, replace bool, restart bo
 		if os.Getenv("DOKKU_QUIET_OUTPUT") == "" {
 			fmt.Println(prettyPrintEnvEntries("       ", entries))
 		}
-		env.Write()
-		common.SetPermissions(common.SetPermissionInput{
-			Filename: env.Filename(),
-			Mode:     os.FileMode(0600),
-		})
+		if err := env.Write(); err != nil {
+			return fmt.Errorf("Unable to write config vars: %s", err.Error())
+		}
 		triggerUpdate(appName, "set", keys)
 	}
 	if !global && restart && shouldRestart(appName) {
@@ -91,11 +89,9 @@ func UnsetMany(appName string, keys []string, restart bool) (err error) {
 		}
 	}
 	if changed {
-		env.Write()
-		common.SetPermissions(common.SetPermissionInput{
-			Filename: env.Filename(),
-			Mode:     os.FileMode(0600),
-		})
+		if err := env.Write(); err != nil {
+			return fmt.Errorf("Unable to write config vars: %s", err.Error())
+		}
 		triggerUpdate(appName, "unset", keys)
 	}
 	if !global && restart && shouldRestart(appName) {
@@ -118,11 +114,9 @@ func UnsetAll(appName string, restart bool) (err error) {
 		changed = true
 	}
 	if changed {
-		env.Write()
-		common.SetPermissions(common.SetPermissionInput{
-			Filename: env.Filename(),
-			Mode:     os.FileMode(0600),
-		})
+		if err := env.Write(); err != nil {
+			return fmt.Errorf("Unable to write config vars: %s", err.Error())
+		}
 		triggerUpdate(appName, "clear", []string{})
 	}
 	if !global && restart && shouldRestart(appName) {

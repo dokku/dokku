@@ -56,8 +56,7 @@ func TriggerConfigSet(appName string, noRestart bool, pairs ...string) error {
 
 // TriggerConfigUnset unsets an app config value by key
 func TriggerConfigUnset(appName string, key string, restart bool) error {
-	UnsetMany(appName, []string{key}, restart)
-	return nil
+	return UnsetMany(appName, []string{key}, restart)
 }
 
 func setupAppConfigDir(appName string) error {

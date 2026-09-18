@@ -164,7 +164,7 @@ testKey2=TESTING-updated2
 	env.Set("testKey", "TESTING-original1")
 	env.Set("testKey2", "TESTING-original2")
 	env.Set("testKey3", "TESTING-original3")
-	env.Write()
+	Expect(env.Write()).To(Succeed())
 
 	Expect(CommandImport(testAppName, false, false, true, "envfile", tempFile.Name())).To(Succeed())
 	expectValue(testAppName, "testKey", "TESTING-updated1")
@@ -201,7 +201,7 @@ func TestConfigImportJSON(t *testing.T) {
 	env.Set("testKey", "TESTING-original1")
 	env.Set("testKey2", "TESTING-original2")
 	env.Set("testKey3", "TESTING-original3")
-	env.Write()
+	Expect(env.Write()).To(Succeed())
 
 	Expect(CommandImport(testAppName, false, false, true, "json", tempFile.Name())).To(Succeed())
 	expectValue(testAppName, "testKey", "TESTING-updated1")
@@ -231,7 +231,7 @@ func TestEnvironmentLoading(t *testing.T) {
 	env, err = LoadAppEnv(testAppName)
 	env.Set("testKey", "TESTING-updated")
 	env.Set("testKey2", "TESTING-'\n'-updated")
-	env.Write()
+	Expect(env.Write()).To(Succeed())
 
 	expectValue(testAppName, "testKey", "TESTING-updated")
 	expectValue(testAppName, "testKey2", "TESTING-'\n'-updated")
@@ -282,6 +282,67 @@ func TestInvalidEnvOnDisk(t *testing.T) {
 	Expect(err).NotTo(HaveOccurred())
 	Expect(strings.Contains(string(content), "--invalid-key")).To(BeFalse())
 
+}
+
+// TestConfigSetManyReportsWriteFailure covers the reported bug: a write that
+// never lands used to print "Setting config vars", fire the update trigger and
+// exit successfully. The app's config directory path is occupied by a regular
+// file so the write fails with ENOTDIR, which root cannot bypass; the read
+// treats the same path as an empty environment and succeeds.
+func TestConfigSetManyReportsWriteFailure(t *testing.T) {
+	RegisterTestingT(t)
+	_, libRoot := setupIsolatedEnv(t)
+
+	Expect(os.MkdirAll(filepath.Join(libRoot, "config"), 0755)).To(Succeed())
+	Expect(os.WriteFile(filepath.Join(libRoot, "config", "alpha"), []byte(""), 0600)).To(Succeed())
+
+	Expect(SetMany("alpha", map[string]string{"testKey": "value"}, false, false)).ToNot(Succeed())
+	expectNoValue("alpha", "testKey")
+}
+
+// TestConfigUnsetManyReportsWriteFailure and its UnsetAll counterpart cover the
+// same bug for the removal paths. No filesystem state lets the read load a
+// non-empty environment and still fail the write for root, because both go
+// through one path resolved once at load, so the permission step inside Write
+// is made to fail instead. That step runs against the staged temporary file, so
+// the environment on disk is left untouched.
+func TestConfigUnsetManyReportsWriteFailure(t *testing.T) {
+	RegisterTestingT(t)
+	setupIsolatedEnv(t)
+	setupIsolatedApp(t, "alpha")
+
+	t.Setenv("DOKKU_SYSTEM_USER", "dokku-no-such-user")
+	Expect(UnsetMany("alpha", []string{"testKey"}, false)).ToNot(Succeed())
+	expectValue("alpha", "testKey", "TESTING")
+}
+
+func TestConfigUnsetAllReportsWriteFailure(t *testing.T) {
+	RegisterTestingT(t)
+	setupIsolatedEnv(t)
+	setupIsolatedApp(t, "alpha")
+
+	t.Setenv("DOKKU_SYSTEM_USER", "dokku-no-such-user")
+	Expect(UnsetAll("alpha", false)).ToNot(Succeed())
+	expectValue("alpha", "testKey", "TESTING")
+}
+
+// TestTriggerConfigUnsetReportsFailure covers the config-unset plugin trigger,
+// which discarded the error it was handed and always exited successfully. An
+// invalid key fails validation before anything is read or written.
+func TestTriggerConfigUnsetReportsFailure(t *testing.T) {
+	RegisterTestingT(t)
+	setupIsolatedEnv(t)
+
+	Expect(TriggerConfigUnset("alpha", "invalid-key", false)).ToNot(Succeed())
+}
+
+// setupIsolatedApp creates the config directory for an app inside an isolated
+// environment and seeds it with a value to remove
+func setupIsolatedApp(t *testing.T, appName string) {
+	t.Helper()
+
+	Expect(setupAppConfigDir(appName)).To(Succeed())
+	Expect(SetMany(appName, map[string]string{"testKey": "TESTING"}, false, false)).To(Succeed())
 }
 
 func expectValue(appName string, key string, expected string) {

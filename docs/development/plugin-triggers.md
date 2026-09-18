@@ -598,7 +598,7 @@ plugn trigger config-migrate-env
 
 ### `config-set`
 
-- Description: Sets one or more config values for an app without restarting (when --no-restart flag is specified)
+- Description: Sets one or more config values for an app without restarting (when --no-restart flag is specified). Exits non-zero without restarting the app when the config cannot be persisted.
 - Invoked by: app-json plugin
 - Arguments: `[--no-restart] $APP $KEY1=VALUE1 [$KEY2=VALUE2 ...]`
 - Example:
@@ -609,6 +609,21 @@ plugn trigger config-migrate-env
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 # TODO
+```
+
+### `config-unset`
+
+- Description: Unsets a single config value for an app. Exits non-zero without restarting the app when the config cannot be persisted.
+- Invoked by: `common` when migrating deprecated config vars to plugin properties
+- Arguments: `$APP $KEY $RESTART`, or `--global $KEY $RESTART` when the `--global` flag is given
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+plugn trigger config-unset node-js-app DEPRECATED_VAR false
 ```
 
 ### `core-post-deploy`

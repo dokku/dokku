@@ -55,6 +55,8 @@ For multi-line values from a file (such as an SSH private key), `cat` and `base6
 dokku config:set --encoded node-js-app KEY="$(cat ~/.ssh/id_rsa | base64 -w 0)"
 ```
 
+If the environment cannot be written to disk, `config:set`, `config:unset` and `config:clear` report the failure and exit non-zero without restarting the application. The previous environment is left intact, so the command can be retried once the underlying problem - a full disk or the wrong permissions on `$DOKKU_LIB_ROOT/config/<app>` being the usual causes - has been dealt with.
+
 When setting or unsetting environment variables, you may wish to avoid an application restart. This is useful when developing plugins or when setting multiple environment variables in a scripted manner. To do so, use the `--no-restart` flag:
 
 ```shell
