@@ -164,12 +164,77 @@ func (e *Env) Merge(other *Env) {
 	}
 }
 
-// Write an Env back to the file it was read from as an exportfile
+// Write an Env back to the file it was read from as an exportfile. The contents
+// are written to a temporary file in the same directory and renamed into place,
+// so a failed write leaves the previous environment intact rather than
+// truncating it. The temporary file is created at 0600, so the values are never
+// on disk in a mode other users can read.
 func (e *Env) Write() error {
 	if e.filename == "" {
 		return errors.New("this Env was created unbound to a file")
 	}
-	return godotenv.Write(e.Map(), e.filename)
+
+	contents, err := godotenv.Marshal(e.Map())
+	if err != nil {
+		return fmt.Errorf("Unable to serialize environment: %s", err.Error())
+	}
+
+	target := resolveEnvPath(e.filename)
+	file, err := os.CreateTemp(filepath.Dir(target), ".ENV-*")
+	if err != nil {
+		return fmt.Errorf("Unable to create temporary environment file: %s", err.Error())
+	}
+	defer os.Remove(file.Name())
+
+	if err := writeEnvFile(file, contents); err != nil {
+		return err
+	}
+
+	if err := common.SetPermissions(common.SetPermissionInput{
+		Filename: file.Name(),
+		Mode:     os.FileMode(0600),
+	}); err != nil {
+		return fmt.Errorf("Unable to set permissions on environment file: %s", err.Error())
+	}
+
+	if err := os.Rename(file.Name(), target); err != nil {
+		return fmt.Errorf("Unable to move environment file into place: %s", err.Error())
+	}
+
+	return nil
+}
+
+// resolveEnvPath follows any symlink at filename so the environment is written
+// through the symlink rather than replacing it with a regular file, and so the
+// temporary file is created on the same filesystem as the real target. A path
+// that cannot be resolved - a file that does not exist yet being the common
+// case - is returned unchanged.
+func resolveEnvPath(filename string) string {
+	resolved, err := filepath.EvalSymlinks(filename)
+	if err != nil {
+		return filename
+	}
+
+	return resolved
+}
+
+// writeEnvFile writes contents to file, flushes it to disk and closes it
+func writeEnvFile(file *os.File, contents string) error {
+	if _, err := file.WriteString(contents + "\n"); err != nil {
+		file.Close()
+		return fmt.Errorf("Unable to write environment file: %s", err.Error())
+	}
+
+	if err := file.Sync(); err != nil {
+		file.Close()
+		return fmt.Errorf("Unable to flush environment file: %s", err.Error())
+	}
+
+	if err := file.Close(); err != nil {
+		return fmt.Errorf("Unable to close environment file: %s", err.Error())
+	}
+
+	return nil
 }
 
 // Export the Env in the given format

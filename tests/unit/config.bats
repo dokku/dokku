@@ -11,6 +11,7 @@ setup() {
 }
 
 teardown() {
+  restore_app_config_dir
   destroy_app
   if [[ -f ${DOKKU_LIB_ROOT}/config/--global/ENV.bak ]]; then
     mv -f ${DOKKU_LIB_ROOT}/config/--global/ENV.bak ${DOKKU_LIB_ROOT}/config/--global/ENV
@@ -702,6 +703,108 @@ teardown() {
   run /bin/bash -c "sudo rm -f $DOKKU_ROOT/$TEST_APP/ENV.migrated"
   echo "status: $status"
   assert_success
+}
+
+@test "(config:set) fails when the config file cannot be written" {
+  run /bin/bash -c "dokku config:set --no-restart $TEST_APP first_key=first_value"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  block_app_config_dir
+
+  run /bin/bash -c "dokku config:set --no-restart $TEST_APP second_key=second_value"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Unable to write config vars"
+
+  restore_app_config_dir
+
+  run /bin/bash -c "dokku config:get $TEST_APP first_key"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "first_value"
+
+  run /bin/bash -c "dokku config:get $TEST_APP second_key"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+}
+
+@test "(config:unset) fails when the config file cannot be written" {
+  run /bin/bash -c "dokku config:set --no-restart $TEST_APP first_key=first_value"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  block_app_config_dir
+
+  run /bin/bash -c "dokku config:unset --no-restart $TEST_APP first_key"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Unable to write config vars"
+
+  restore_app_config_dir
+
+  run /bin/bash -c "dokku config:get $TEST_APP first_key"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "first_value"
+}
+
+@test "(config:clear) fails when the config file cannot be written" {
+  run /bin/bash -c "dokku config:set --no-restart $TEST_APP first_key=first_value"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  block_app_config_dir
+
+  run /bin/bash -c "dokku config:clear --no-restart $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Unable to write config vars"
+
+  restore_app_config_dir
+
+  run /bin/bash -c "dokku config:get $TEST_APP first_key"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "first_value"
+}
+
+@test "(config) config-unset plugin trigger reports a failure" {
+  run_plugn_trigger config-unset "$TEST_APP" invalid-key false
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Invalid key name"
+}
+
+block_app_config_dir() {
+  declare desc="makes the app config directory unwritable for the dokku user"
+
+  run /bin/bash -c "sudo chown root:root ${DOKKU_LIB_ROOT}/config/$TEST_APP && sudo chmod 0555 ${DOKKU_LIB_ROOT}/config/$TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
+restore_app_config_dir() {
+  declare desc="hands the app config directory back to the dokku user"
+
+  if [[ ! -d "${DOKKU_LIB_ROOT}/config/$TEST_APP" ]]; then
+    return 0
+  fi
+
+  sudo chmod 0755 "${DOKKU_LIB_ROOT}/config/$TEST_APP"
+  sudo chown -R dokku:dokku "${DOKKU_LIB_ROOT}/config/$TEST_APP"
 }
 
 stage_stale_env() {

@@ -9,11 +9,12 @@ import (
 	"github.com/dokku/dokku/plugins/common"
 )
 
-// setupMigrateEnv points the dokku env at temporary directories and tells the
+// setupIsolatedEnv points the dokku env at temporary directories and tells the
 // permission helpers to chown files to the current user (a no-op) so the test
-// works without root. The package-level paths in config_test.go are captured at
-// init against the real dokku directories, so these tests must not use them.
-func setupMigrateEnv(t *testing.T) (dokkuRoot string, libRoot string) {
+// works without root and without a dokku user existing. Every test in this
+// package goes through it, directly or via setupTestApp, so none of them touch
+// a real dokku installation.
+func setupIsolatedEnv(t *testing.T) (dokkuRoot string, libRoot string) {
 	t.Helper()
 
 	libRoot = t.TempDir()
@@ -79,7 +80,7 @@ func expectEnvValue(t *testing.T, appName, key, want string) {
 }
 
 func TestMigrateEnvFiles_DrainsAndRemovesAppFile(t *testing.T) {
-	dokkuRoot, _ := setupMigrateEnv(t)
+	dokkuRoot, _ := setupIsolatedEnv(t)
 
 	legacy := writeLegacyAppEnv(t, dokkuRoot, "alpha", "export DOKKU_CHECKS_SKIPPED=worker\nexport MY_VAR=value\n")
 
@@ -99,7 +100,7 @@ func TestMigrateEnvFiles_DrainsAndRemovesAppFile(t *testing.T) {
 }
 
 func TestMigrateEnvFiles_DrainsAndRemovesGlobalFile(t *testing.T) {
-	dokkuRoot, _ := setupMigrateEnv(t)
+	dokkuRoot, _ := setupIsolatedEnv(t)
 
 	legacy := filepath.Join(dokkuRoot, "ENV")
 	if err := os.WriteFile(legacy, []byte("export DOKKU_WAIT_TO_RETIRE=30\n"), 0600); err != nil {
@@ -124,7 +125,7 @@ func TestMigrateEnvFiles_DrainsAndRemovesGlobalFile(t *testing.T) {
 // that is still there once the migration has been recorded. Nothing it holds is
 // imported, and it is moved aside so the values remain recoverable.
 func TestMigrateEnvFiles_PreservesStaleFileWithoutImporting(t *testing.T) {
-	dokkuRoot, _ := setupMigrateEnv(t)
+	dokkuRoot, _ := setupIsolatedEnv(t)
 
 	writeLegacyAppEnv(t, dokkuRoot, "alpha", "export FIRST=one\n")
 	if err := MigrateEnvFiles(); err != nil {
@@ -152,7 +153,7 @@ func TestMigrateEnvFiles_PreservesStaleFileWithoutImporting(t *testing.T) {
 // left the legacy file in place, so draining it a second time replayed the
 // environment as it stood at that upgrade over every config:set made since.
 func TestMigrateEnvFiles_KeepsConfigSetAfterMigration(t *testing.T) {
-	dokkuRoot, _ := setupMigrateEnv(t)
+	dokkuRoot, _ := setupIsolatedEnv(t)
 
 	writeLegacyAppEnv(t, dokkuRoot, "alpha", "export DATABASE_URL=value-A\n")
 	if err := MigrateEnvFiles(); err != nil {
@@ -176,7 +177,7 @@ func TestMigrateEnvFiles_KeepsConfigSetAfterMigration(t *testing.T) {
 // key unset after the migration was recorded came back when the legacy file was
 // drained again, which for a rotated secret meant putting it back into service.
 func TestMigrateEnvFiles_DoesNotResurrectUnsetKeys(t *testing.T) {
-	dokkuRoot, _ := setupMigrateEnv(t)
+	dokkuRoot, _ := setupIsolatedEnv(t)
 
 	writeLegacyAppEnv(t, dokkuRoot, "alpha", "export DOKKU_PROXY_PORT=80\n")
 	if err := MigrateEnvFiles(); err != nil {
@@ -201,7 +202,7 @@ func TestMigrateEnvFiles_DoesNotResurrectUnsetKeys(t *testing.T) {
 // upgrade: the leftover file still agrees with the current config, so there is
 // nothing to preserve and no reason to say anything about it.
 func TestMigrateEnvFiles_RemovesStaleFileMatchingCurrentConfig(t *testing.T) {
-	dokkuRoot, _ := setupMigrateEnv(t)
+	dokkuRoot, _ := setupIsolatedEnv(t)
 
 	writeLegacyAppEnv(t, dokkuRoot, "alpha", "export MY_VAR=value\n")
 	if err := MigrateEnvFiles(); err != nil {
@@ -226,7 +227,7 @@ func TestMigrateEnvFiles_RemovesStaleFileMatchingCurrentConfig(t *testing.T) {
 // releases 0.38.0 through 0.38.25 never removed at all, so every host upgraded
 // through that range still has one.
 func TestMigrateEnvFiles_PreservesStaleGlobalFile(t *testing.T) {
-	dokkuRoot, _ := setupMigrateEnv(t)
+	dokkuRoot, _ := setupIsolatedEnv(t)
 
 	legacy := filepath.Join(dokkuRoot, "ENV")
 	if err := os.WriteFile(legacy, []byte("export DOKKU_WAIT_TO_RETIRE=30\n"), 0600); err != nil {
@@ -255,7 +256,7 @@ func TestMigrateEnvFiles_PreservesStaleGlobalFile(t *testing.T) {
 // that does import: before the migration is recorded the legacy file is the
 // source of truth, so it overwrites the value already held at the config path.
 func TestMigrateEnvFiles_LegacyValueWins(t *testing.T) {
-	dokkuRoot, _ := setupMigrateEnv(t)
+	dokkuRoot, _ := setupIsolatedEnv(t)
 
 	if err := os.MkdirAll(filepath.Join(dokkuRoot, "alpha"), 0755); err != nil {
 		t.Fatalf("MkdirAll: %v", err)
@@ -279,7 +280,7 @@ func TestMigrateEnvFiles_LegacyValueWins(t *testing.T) {
 }
 
 func TestMigrateEnvFiles_MarksAppsWithoutLegacyFile(t *testing.T) {
-	dokkuRoot, _ := setupMigrateEnv(t)
+	dokkuRoot, _ := setupIsolatedEnv(t)
 
 	if err := os.MkdirAll(filepath.Join(dokkuRoot, "alpha"), 0755); err != nil {
 		t.Fatalf("MkdirAll: %v", err)
@@ -297,7 +298,7 @@ func TestMigrateEnvFiles_MarksAppsWithoutLegacyFile(t *testing.T) {
 // TestMigrateEnvFiles_KeepsLegacyFileWhenWriteFails verifies the legacy file
 // survives a failure to write the merged environment, so nothing is lost.
 func TestMigrateEnvFiles_KeepsLegacyFileWhenWriteFails(t *testing.T) {
-	dokkuRoot, libRoot := setupMigrateEnv(t)
+	dokkuRoot, libRoot := setupIsolatedEnv(t)
 
 	legacy := writeLegacyAppEnv(t, dokkuRoot, "alpha", "export MY_VAR=value\n")
 

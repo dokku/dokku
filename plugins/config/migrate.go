@@ -115,13 +115,6 @@ func drainLegacyEnvFile(name string, oldEnvFile string, env *Env) error {
 		return fmt.Errorf("Unable to write environment: %s", err.Error())
 	}
 
-	if err := common.SetPermissions(common.SetPermissionInput{
-		Filename: env.Filename(),
-		Mode:     os.FileMode(0600),
-	}); err != nil {
-		return fmt.Errorf("Unable to set permissions on environment: %s", err.Error())
-	}
-
 	if err := writeEnvMigrated(name); err != nil {
 		return err
 	}
