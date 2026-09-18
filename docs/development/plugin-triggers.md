@@ -1346,6 +1346,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 - Invoked by: `nginx-vhosts#build-config`
 - Arguments: `$APP $TEMPLATE_TYPE`
     - The `TEMPLATE_TYPE` argument can be one of: `[app-config, hsts-config, validate-config]`
+    - The `validate-config` template can make use of the following variables: `$.NGINX_CONF $.NGINX_USER`
 - Example:
 
 ```shell

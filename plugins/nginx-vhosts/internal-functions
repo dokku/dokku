@@ -686,6 +686,58 @@ fn-nginx-vhosts-uses-openresty() {
   return 1
 }
 
+fn-nginx-vhosts-nginx-conf-root() {
+  declare desc="returns the directory holding the main nginx config"
+  local NGINX_CONF_ROOT="/etc/nginx"
+
+  fn-nginx-vhosts-uses-openresty && NGINX_CONF_ROOT="/usr/local/openresty/nginx/conf"
+  echo "$NGINX_CONF_ROOT"
+}
+
+fn-nginx-vhosts-nginx-user() {
+  declare desc="returns the user declared by an nginx config, if any"
+  declare NGINX_CONF_PATH="$1"
+
+  if [[ ! -r "$NGINX_CONF_PATH" ]]; then
+    return 0
+  fi
+
+  awk '
+    { sub(/#.*/, "") }
+    $1 == "user" && NF >= 2 {
+      value = $2
+      sub(/;.*$/, "", value)
+      gsub(/"/, "", value)
+      if (value != "") {
+        print value
+        exit
+      }
+    }
+  ' "$NGINX_CONF_PATH"
+}
+
+fn-nginx-vhosts-validation-user() {
+  declare desc="returns the user to declare in the wrapper config used for nginx -t validation"
+  local NGINX_CONF_PATH NGINX_USER
+
+  NGINX_CONF_PATH="$(fn-nginx-vhosts-nginx-conf-root)/nginx.conf"
+  if [[ -r "$NGINX_CONF_PATH" ]]; then
+    NGINX_USER="$(fn-nginx-vhosts-nginx-user "$NGINX_CONF_PATH")"
+  else
+    NGINX_USER="www-data"
+  fi
+
+  if [[ ! "$NGINX_USER" =~ ^[a-zA-Z_][a-zA-Z0-9_.-]*$ ]]; then
+    return 0
+  fi
+
+  if ! id -u "$NGINX_USER" &>/dev/null; then
+    return 0
+  fi
+
+  echo "$NGINX_USER"
+}
+
 fn-nginx-vhosts-nginx-location() {
   declare desc="check that nginx is at the expected location and return it"
   local NGINX_LOCATION
@@ -839,19 +891,48 @@ nginx_vhosts_validate_single_func() {
   fi
 }
 
-nginx_vhosts_is_valid_nginx_config_func() {
-  declare desc="checks if an app has a valid nginx config"
-  declare APP="$1"
+fn-nginx-vhosts-backfill-validate-user() {
+  declare desc="adds a user directive to a rendered wrapper config that declares none"
+  declare OUTPUT_PATH="$1" NGINX_USER="$2"
+  local WRAPPER_CONTENTS
+
+  if [[ -z "$NGINX_USER" ]]; then
+    return 0
+  fi
+
+  if [[ -n "$(fn-nginx-vhosts-nginx-user "$OUTPUT_PATH")" ]]; then
+    return 0
+  fi
+
+  WRAPPER_CONTENTS="$(cat "$OUTPUT_PATH")"
+  printf 'user %s;\n%s\n' "$NGINX_USER" "$WRAPPER_CONTENTS" >"$OUTPUT_PATH"
+}
+
+fn-nginx-vhosts-render-validate-wrapper() {
+  declare desc="renders the wrapper config used to run nginx -t against an app nginx config"
+  declare APP="$1" NGINX_CONF="$2" OUTPUT_PATH="$3"
   local VALIDATE_TEMPLATE="$PLUGIN_AVAILABLE_PATH/nginx-vhosts/templates/validate.conf.sigil"
-  local TMP_OUTPUT=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
-  trap "rm -rf '$TMP_OUTPUT' >/dev/null" RETURN INT TERM EXIT
+  local CUSTOM_VALIDATE_TEMPLATE NGINX_USER
 
   CUSTOM_VALIDATE_TEMPLATE="$(plugn trigger nginx-app-template-source "$APP" "validate-config")"
   if [[ -n "$CUSTOM_VALIDATE_TEMPLATE" ]]; then
     VALIDATE_TEMPLATE="$CUSTOM_VALIDATE_TEMPLATE"
   fi
 
-  sigil -f "$VALIDATE_TEMPLATE" NGINX_CONF="$DOKKU_ROOT/$APP/nginx.conf" | cat -s >"$TMP_OUTPUT"
+  NGINX_USER="$(fn-nginx-vhosts-validation-user)"
+  sigil -f "$VALIDATE_TEMPLATE" NGINX_CONF="$NGINX_CONF" NGINX_USER="$NGINX_USER" | cat -s >"$OUTPUT_PATH"
+  fn-nginx-vhosts-backfill-validate-user "$OUTPUT_PATH" "$NGINX_USER"
+}
+
+nginx_vhosts_is_valid_nginx_config_func() {
+  declare desc="checks if an app has a valid nginx config"
+  declare APP="$1"
+  local NGINX_LOCATION
+  local TMP_OUTPUT=$(mktemp "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
+  trap "rm -rf '$TMP_OUTPUT' >/dev/null" RETURN INT TERM EXIT
+
+  NGINX_LOCATION="$(fn-nginx-vhosts-nginx-location)"
+  fn-nginx-vhosts-render-validate-wrapper "$APP" "$DOKKU_ROOT/$APP/nginx.conf" "$TMP_OUTPUT"
   sudo "$NGINX_LOCATION" -t -c "$TMP_OUTPUT" 2>/dev/null
 }
 
