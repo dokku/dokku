@@ -123,6 +123,8 @@ App-supplied `nginx.conf.sigil` files are pre-validated automatically at the sta
 
 The wrapper config used for validation does not include the top-level `load_module` directives from the global nginx config, so a `nginx.conf.sigil` that relies on a directive from a dynamically loaded module will fail this validation even when `nginx -t` passes against the real server config. See [Custom nginx modules](/docs/appendices/file-formats/nginx-conf-sigil.md#custom-nginx-modules) for how to supply a custom validation wrapper via the `nginx-app-template-source` trigger's `validate-config` template type.
 
+The wrapper does declare the same `user` directive as the host's main nginx config, so that validating a template which declares a `proxy_cache_path` does not take the running server's cache directory away from the user its workers run as.
+
 It may also be desired to validate an nginx config outside of the deployment process. To do so, run the `nginx:validate-config` command. With no arguments, this will validate all app nginx configs, one at a time. A minimal wrapper nginx config is generated for each app's nginx config, upon which `nginx -t` will be run.
 
 ```shell
