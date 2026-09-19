@@ -32,9 +32,7 @@ func CommandLogin(appName string, server string, username string, password strin
 		return errors.New("Missing password argument")
 	}
 
-	if server == "hub.docker.com" || server == "docker.com" {
-		server = "docker.io"
-	}
+	server = normalizeRegistryServer(server)
 
 	buffer := bytes.Buffer{}
 	buffer.Write([]byte(password + "\n"))
@@ -92,9 +90,10 @@ func CommandLogout(appName string, server string) error {
 		return errors.New("Missing server argument")
 	}
 
-	if server == "hub.docker.com" || server == "docker.com" {
-		server = "docker.io"
-	}
+	// docker only erases the exact auths key it is given, and stores Docker Hub
+	// under the index server address rather than the hostname logged in with, so
+	// a logout for docker.io has to name that address to remove anything
+	server = dockerAuthKey(server)
 
 	env := map[string]string{}
 	if appName != "" {

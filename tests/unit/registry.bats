@@ -90,6 +90,12 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
+
+  run /bin/bash -c "jq -r '.auths | keys | join(\",\")' /var/lib/dokku/config/registry/$TEST_APP/config.json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_contains "index.docker.io"
 }
 
 @test "(registry:logout) global logout" {
@@ -106,6 +112,12 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
+
+  run /bin/bash -c "jq -r '.auths | keys | join(\",\")' $DOKKU_ROOT/.docker/config.json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_contains "index.docker.io"
 }
 
 @test "(registry) per-app credentials deleted on app destroy" {
