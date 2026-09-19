@@ -5,7 +5,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"sort"
@@ -15,16 +14,13 @@ import (
 
 	"github.com/dokku/dokku/plugins/common"
 	"github.com/fluxcd/pkg/kustomize/filesys"
-	"github.com/gofrs/flock"
-	"gopkg.in/yaml.v3"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart/loader"
 	"helm.sh/helm/v3/pkg/cli"
-	"helm.sh/helm/v3/pkg/getter"
+	"helm.sh/helm/v3/pkg/helmpath"
 	"helm.sh/helm/v3/pkg/kube"
 	"helm.sh/helm/v3/pkg/postrender"
 	"helm.sh/helm/v3/pkg/release"
-	"helm.sh/helm/v3/pkg/repo"
 	"helm.sh/helm/v3/pkg/storage/driver"
 	"sigs.k8s.io/kustomize/api/konfig"
 	"sigs.k8s.io/kustomize/api/krusty"
@@ -93,6 +89,73 @@ type Release struct {
 	Version    string
 }
 
+// applyChartPathOptions pins the repository and the version from input onto the
+// chart path options used to locate a chart. Both the install and the upgrade
+// path must do this, otherwise helm resolves the newest chart published to the
+// repository instead of the version dokku pins.
+func applyChartPathOptions(options *action.ChartPathOptions, input ChartInput) {
+	if input.RepoURL != "" {
+		options.RepoURL = input.RepoURL
+	}
+	if input.Version != "" {
+		options.Version = input.Version
+	}
+}
+
+// helmHomeEnvVars are the environment variables helm resolves its cache, config
+// and data homes from, mapped to the scratch subdirectory each one gets.
+var helmHomeEnvVars = map[string]string{
+	helmpath.CacheHomeEnvVar:  "cache",
+	helmpath.ConfigHomeEnvVar: "config",
+	helmpath.DataHomeEnvVar:   "data",
+}
+
+// newHelmSettings returns helm settings backed by a private scratch directory,
+// along with a function that removes it and restores the environment.
+//
+// helm otherwise resolves its cache, config and data homes from $HOME. Dokku
+// runs scheduler-k3s:initialize as root and every other subcommand as the dokku
+// user, so $HOME is not always readable by the user a command ends up as, and
+// helm treats a repositories file it cannot read as a fatal error rather than
+// an absent one. Nothing dokku keeps there needs to outlive a command: every
+// chart carries its own repository url, and helm re-fetches both the repository
+// index and the chart archive on every call.
+func newHelmSettings() (*cli.EnvSettings, func(), error) {
+	directory, err := os.MkdirTemp("", "dokku-helm-")
+	if err != nil {
+		return nil, nil, fmt.Errorf("Error creating helm scratch directory: %w", err)
+	}
+
+	restore := map[string]*string{}
+	cleanup := func() {
+		for envVar, previous := range restore {
+			if previous == nil {
+				os.Unsetenv(envVar) // nolint: errcheck
+				continue
+			}
+
+			os.Setenv(envVar, *previous) // nolint: errcheck
+		}
+
+		os.RemoveAll(directory) // nolint: errcheck
+	}
+
+	for envVar, subdirectory := range helmHomeEnvVars {
+		if previous, ok := os.LookupEnv(envVar); ok {
+			restore[envVar] = &previous
+		} else {
+			restore[envVar] = nil
+		}
+
+		if err := os.Setenv(envVar, filepath.Join(directory, subdirectory)); err != nil {
+			cleanup()
+			return nil, nil, fmt.Errorf("Error setting %s: %w", envVar, err)
+		}
+	}
+
+	return cli.New(), cleanup, nil
+}
+
 type HelmAgent struct {
 	Configuration *action.Configuration
 	Namespace     string
@@ -119,69 +182,6 @@ func NewHelmAgent(namespace string, logger action.DebugLog) (*HelmAgent, error) 
 		Namespace:     namespace,
 		Logger:        logger,
 	}, nil
-}
-
-type AddRepositoryInput struct {
-	Name string
-	URL  string
-}
-
-func (h *HelmAgent) AddRepository(ctx context.Context, helmRepo AddRepositoryInput) error {
-	settings := cli.New()
-	repoFile := settings.RepositoryConfig
-
-	err := os.MkdirAll(filepath.Dir(repoFile), os.ModePerm)
-	if err != nil && !os.IsExist(err) {
-		return fmt.Errorf("Error creating repository directory: %w", err)
-	}
-
-	fileLock := flock.New(strings.Replace(repoFile, filepath.Ext(repoFile), ".lock", 1))
-	locked, err := fileLock.TryLockContext(ctx, time.Second)
-	if err != nil {
-		return fmt.Errorf("Error acquiring file lock: %w", err)
-	}
-
-	if !locked {
-		return fmt.Errorf("Could not acquire file lock")
-	}
-
-	defer fileLock.Unlock() // nolint: errcheck
-
-	b, err := os.ReadFile(repoFile)
-	if err != nil && !os.IsNotExist(err) {
-		return fmt.Errorf("Error reading repository file: %w", err)
-	}
-
-	var f repo.File
-	if err := yaml.Unmarshal(b, &f); err != nil {
-		return fmt.Errorf("Error unmarshalling yaml: %w", err)
-	}
-
-	if f.Has(helmRepo.Name) {
-		return nil
-	}
-
-	c := repo.Entry{
-		Name: helmRepo.Name,
-		URL:  helmRepo.URL,
-	}
-
-	r, err := repo.NewChartRepository(&c, getter.All(settings))
-	if err != nil {
-		return fmt.Errorf("Error creating chart repository: %w", err)
-	}
-
-	if _, err := r.DownloadIndexFile(); err != nil {
-		return fmt.Errorf("Specified repository '%q' is not a valid chart repository or cannot be reached: %w", helmRepo.URL, err)
-	}
-
-	f.Update(&c)
-
-	if err := f.WriteFile(repoFile, 0644); err != nil {
-		log.Fatal(err)
-	}
-
-	return nil
 }
 
 func (h *HelmAgent) ChartExists(releaseName string) (bool, error) {
@@ -270,7 +270,6 @@ func (h *HelmAgent) InstallChart(ctx context.Context, input ChartInput) error {
 
 	client := action.NewInstall(h.Configuration)
 	client.Atomic = false
-	client.ChartPathOptions = action.ChartPathOptions{}
 	client.CreateNamespace = true
 	client.DryRun = false
 	if os.Getenv("DOKKU_TRACE") == "1" {
@@ -285,13 +284,13 @@ func (h *HelmAgent) InstallChart(ctx context.Context, input ChartInput) error {
 	client.Timeout = input.Timeout
 	client.Wait = input.Wait
 
-	settings := cli.New()
-	if input.RepoURL != "" {
-		client.ChartPathOptions.RepoURL = input.RepoURL
+	applyChartPathOptions(&client.ChartPathOptions, input)
+
+	settings, cleanup, err := newHelmSettings()
+	if err != nil {
+		return err
 	}
-	if input.Version != "" {
-		client.ChartPathOptions.Version = input.Version
-	}
+	defer cleanup()
 
 	chart, err := client.ChartPathOptions.LocateChart(input.ChartPath, settings)
 	if err != nil {
@@ -324,7 +323,7 @@ func (h *HelmAgent) InstalledRevision(releaseName string) (Release, error) {
 		return Release{}, nil
 	}
 
-	return revisions[0], nil
+	return revisions[len(revisions)-1], nil
 }
 
 type ListRevisionsInput struct {
@@ -332,11 +331,24 @@ type ListRevisionsInput struct {
 	Max         int
 }
 
+// selectRevisions sorts releases ascending by revision and keeps at most the
+// most recent max entries. A max of zero keeps every revision. helm's history
+// action ignores its own Max field and hands back the entire ledger unsorted,
+// so both the ordering and the truncation happen here.
+func selectRevisions(releases []Release, max int) []Release {
+	sort.Slice(releases, func(i, j int) bool {
+		return releases[i].Revision < releases[j].Revision
+	})
+
+	if max > 0 && len(releases) > max {
+		return releases[len(releases)-max:]
+	}
+
+	return releases
+}
+
 func (h *HelmAgent) ListRevisions(input ListRevisionsInput) ([]Release, error) {
 	client := action.NewHistory(h.Configuration)
-	if input.Max > 0 {
-		client.Max = input.Max
-	}
 
 	releases := []Release{}
 	response, err := client.Run(input.ReleaseName)
@@ -364,11 +376,7 @@ func (h *HelmAgent) ListRevisions(input ListRevisionsInput) ([]Release, error) {
 		})
 	}
 
-	sort.Slice(releases, func(i, j int) bool {
-		return releases[i].Revision < releases[j].Revision
-	})
-
-	return releases, nil
+	return selectRevisions(releases, input.Max), nil
 }
 
 func (h *HelmAgent) UpgradeChart(ctx context.Context, input ChartInput) error {
@@ -394,7 +402,6 @@ func (h *HelmAgent) UpgradeChart(ctx context.Context, input ChartInput) error {
 
 	client := action.NewUpgrade(h.Configuration)
 	client.Atomic = input.RollbackOnFailure
-	client.ChartPathOptions = action.ChartPathOptions{}
 	client.CleanupOnFail = true
 	client.MaxHistory = 10
 	if os.Getenv("DOKKU_TRACE") == "1" {
@@ -407,11 +414,15 @@ func (h *HelmAgent) UpgradeChart(ctx context.Context, input ChartInput) error {
 	client.Namespace = namespace
 	client.Timeout = input.Timeout
 	client.Wait = input.Wait
-	if input.RepoURL != "" {
-		client.RepoURL = input.RepoURL
-	}
 
-	settings := cli.New()
+	applyChartPathOptions(&client.ChartPathOptions, input)
+
+	settings, cleanup, err := newHelmSettings()
+	if err != nil {
+		return err
+	}
+	defer cleanup()
+
 	chart, err := client.ChartPathOptions.LocateChart(input.ChartPath, settings)
 	if err != nil {
 		return fmt.Errorf("Error locating chart: %w", err)

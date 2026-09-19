@@ -9,7 +9,6 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
-	"slices"
 	"sort"
 	"strings"
 	"syscall"
@@ -572,15 +571,11 @@ func CommandInitialize(ingressClass string, serverIP string, taintScheduling boo
 
 	common.LogInfo2Quiet("Installing helm charts")
 	err = installHelmCharts(ctx, clientset, func(chart HelmChart) bool {
-		if chart.ChartPath == "traefik" && ingressClass == "nginx" {
-			return false
-		}
-
-		if chart.ChartPath == "ingress-nginx" && ingressClass == "traefik" {
-			return false
-		}
-
-		return true
+		return chartInstallDecision(ChartInstallDecisionInput{
+			Chart:        chart,
+			ForceInstall: true,
+			IngressClass: ingressClass,
+		}).Install
 	})
 	if err != nil {
 		return fmt.Errorf("Unable to install helm charts: %w", err)
@@ -1269,25 +1264,6 @@ func CommandEnsureCharts(forceInstall bool, forceChartNames []string) error {
 	common.LogInfo2Quiet("Installing helm charts")
 	err = installHelmCharts(ctx, clientset, func(chart HelmChart) bool {
 		common.LogInfo1(fmt.Sprintf("Processing chart %s@%s", chart.ReleaseName, chart.Version))
-		if chart.ChartPath == "traefik" && ingressClass == "nginx" {
-			common.LogVerbose("Skipping chart due to ingress-class mismatch")
-			return false
-		}
-
-		if chart.ChartPath == "ingress-nginx" && ingressClass == "traefik" {
-			common.LogVerbose("Skipping chart due to ingress-class mismatch")
-			return false
-		}
-
-		if forceInstall {
-			common.LogVerbose("Force installing chart")
-			return true
-		}
-
-		if len(forceChartNames) > 0 && slices.Contains(forceChartNames, chart.ReleaseName) {
-			common.LogVerbose("Force installing chart due to flag")
-			return true
-		}
 
 		helmAgent := namespacedHelmAgents[chart.Namespace]
 		latestRevision, err := helmAgent.InstalledRevision(chart.ReleaseName)
@@ -1296,18 +1272,16 @@ func CommandEnsureCharts(forceInstall bool, forceChartNames []string) error {
 			return false
 		}
 
-		if latestRevision.Name == "" {
-			common.LogVerbose("Installing missing chart")
-			return true
-		}
+		decision := chartInstallDecision(ChartInstallDecisionInput{
+			Chart:             chart,
+			ForceChartNames:   forceChartNames,
+			ForceInstall:      forceInstall,
+			IngressClass:      ingressClass,
+			InstalledRevision: latestRevision,
+		})
+		common.LogVerbose(decision.Reason)
 
-		if latestRevision.Version != chart.Version {
-			common.LogVerbose(fmt.Sprintf("Installing chart due to version mismatch: %s != %s", latestRevision.AppVersion, chart.Version))
-			return false
-		}
-
-		common.LogVerbose("Skipping chart: already installed")
-		return false
+		return decision.Install
 	})
 	if err != nil {
 		return fmt.Errorf("Unable to install helm charts: %w", err)

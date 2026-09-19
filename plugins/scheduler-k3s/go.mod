@@ -19,7 +19,6 @@ require (
 	github.com/fluxcd/pkg/kustomize v1.40.0
 	github.com/go-openapi/jsonpointer v1.0.1
 	github.com/go-resty/resty/v2 v2.17.2
-	github.com/gofrs/flock v0.13.1
 	github.com/gosimple/slug v1.15.0
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
 	github.com/kedacore/keda/v2 v2.20.2

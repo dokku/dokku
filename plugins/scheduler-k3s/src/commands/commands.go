@@ -29,8 +29,8 @@ Additional commands:`
     scheduler-k3s:cluster:add [--profile PROFILE] [--role ROLE] [--insecure-allow-unknown-hosts] [--server-ip SERVER_IP] [--taint-scheduling] [--kubelet-args KUBELET_ARGS] <ssh://user@host:port>, Adds a server node to a Dokku-managed cluster
     scheduler-k3s:cluster:list [--format json|stdout], Lists all nodes in a Dokku-managed cluster
     scheduler-k3s:cluster:remove [node-id], Removes client node to a Dokku-managed cluster
-    scheduler-k3s:ensure-charts, Ensures the k3s charts are installed
-    scheduler-k3s:initialize [--server-ip SERVER_IP] [--taint-scheduling] [--kubelet-args KUBELET_ARGS], Initializes a cluster
+    scheduler-k3s:ensure-charts [--force] [--charts CHART_NAMES], Ensures the k3s charts are installed
+    scheduler-k3s:initialize [--server-ip SERVER_IP] [--ingress-class INGRESS_CLASS] [--taint-scheduling] [--kubelet-args KUBELET_ARGS], Initializes a cluster
     scheduler-k3s:labels:clear <app|--global> [--process-type PROCESS_TYPE] [--resource-type RESOURCE_TYPE], Clear all labels for an app or a single process-type/resource-type scope
     scheduler-k3s:labels:set <app|--global> <property> (<value>) [--process-type PROCESS_TYPE] <--resource-type RESOURCE_TYPE>, Set or clear a label for a given app/process-type/resource-type combination
     scheduler-k3s:labels:set --replace <app|--global> <key=value> [<key=value> ...] [--process-type PROCESS_TYPE] <--resource-type RESOURCE_TYPE>, Replace the entire label map for a given app/process-type/resource-type combination

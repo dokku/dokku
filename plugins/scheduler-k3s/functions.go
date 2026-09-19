@@ -12,6 +12,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -2142,19 +2143,68 @@ func hasKustomizeDirectory(appName string) bool {
 	return common.DirectoryExists(directory)
 }
 
-func installHelmCharts(ctx context.Context, clientset KubernetesClient, shouldInstall func(HelmChart) bool) error {
-	for _, repo := range HelmRepositories {
-		helmAgent, err := NewHelmAgent("default", DeployLogPrinter)
-		if err != nil {
-			return fmt.Errorf("Error creating helm agent: %w", err)
-		}
+// ChartInstallDecisionInput is the input for the chartInstallDecision function
+type ChartInstallDecisionInput struct {
+	// Chart is the chart being evaluated
+	Chart HelmChart
 
-		err = helmAgent.AddRepository(ctx, AddRepositoryInput(repo))
-		if err != nil {
-			return fmt.Errorf("Error adding helm repository %s: %w", repo.Name, err)
+	// ForceChartNames is the list of release names to install regardless of state
+	ForceChartNames []string
+
+	// ForceInstall is whether every chart should be installed regardless of state
+	ForceInstall bool
+
+	// IngressClass is the ingress class configured for the cluster
+	IngressClass string
+
+	// InstalledRevision is the helm release currently installed for the chart
+	InstalledRevision Release
+}
+
+// ChartInstallDecision reports whether a chart should be installed and why
+type ChartInstallDecision struct {
+	// Install is whether the chart should be installed
+	Install bool
+
+	// Reason describes why the chart is being installed or skipped
+	Reason string
+}
+
+// chartInstallDecision reports whether a chart should be installed, and why. A
+// chart whose installed release has drifted from the pinned version is
+// reinstalled so that the pinned version is what ends up on the cluster.
+func chartInstallDecision(input ChartInstallDecisionInput) ChartInstallDecision {
+	if input.Chart.ChartPath == "traefik" && input.IngressClass == "nginx" {
+		return ChartInstallDecision{Install: false, Reason: "Skipping chart due to ingress-class mismatch"}
+	}
+
+	if input.Chart.ChartPath == "ingress-nginx" && input.IngressClass == "traefik" {
+		return ChartInstallDecision{Install: false, Reason: "Skipping chart due to ingress-class mismatch"}
+	}
+
+	if input.ForceInstall {
+		return ChartInstallDecision{Install: true, Reason: "Force installing chart"}
+	}
+
+	if slices.Contains(input.ForceChartNames, input.Chart.ReleaseName) {
+		return ChartInstallDecision{Install: true, Reason: "Force installing chart due to flag"}
+	}
+
+	if input.InstalledRevision.Name == "" {
+		return ChartInstallDecision{Install: true, Reason: "Installing missing chart"}
+	}
+
+	if input.InstalledRevision.Version != input.Chart.Version {
+		return ChartInstallDecision{
+			Install: true,
+			Reason:  fmt.Sprintf("Installing chart due to version mismatch: %s != %s", input.InstalledRevision.Version, input.Chart.Version),
 		}
 	}
 
+	return ChartInstallDecision{Install: false, Reason: "Skipping chart: already installed"}
+}
+
+func installHelmCharts(ctx context.Context, clientset KubernetesClient, shouldInstall func(HelmChart) bool) error {
 	for _, chart := range HelmCharts {
 		if !shouldInstall(chart) {
 			continue

@@ -15,7 +15,6 @@ import (
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/chart/loader"
-	"helm.sh/helm/v3/pkg/cli"
 	"helm.sh/helm/v3/pkg/release"
 	"helm.sh/helm/v3/pkg/storage/driver"
 )
@@ -108,7 +107,12 @@ func CommandPreview(appName string, diffContext int, showSecrets bool, showSecre
 }
 
 func loadChartForPreview(chartPath string) (*chart.Chart, error) {
-	settings := cli.New()
+	settings, cleanup, err := newHelmSettings()
+	if err != nil {
+		return nil, err
+	}
+	defer cleanup()
+
 	opts := action.ChartPathOptions{}
 	located, err := opts.LocateChart(chartPath, settings)
 	if err != nil {
