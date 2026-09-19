@@ -19,6 +19,8 @@ storage:list <app> [--format text|json]                # List bind mounts for an
 storage:list-entries [--scheduler s] [--format text|json]  # List registered storage entries
 storage:mount <app> <name> --container-dir <path> [flags]  # Mount a named entry into an app
 storage:mount <app> <host-dir:container-dir>           # [LEGACY] colon-form mount, docker-local only
+storage:mounts:clear <app>                             # Remove every storage attachment from an app
+storage:mounts:set <app> [FILE|-] [--replace]          # Replace the complete set of an app's storage attachments
 storage:report [<app>] [<flag>]                        # Display a storage report for one or more apps
 storage:report --global                                # Display a cluster-wide entry inventory
 storage:set <name> <property> [<value>]                # Update a storage entry in place
@@ -264,6 +266,61 @@ When combined with `--volume-readonly`, the rendered options become `ro,<volume-
 Re-running `storage:mount` against a named entry with the same `--container-dir` and `--process-type` updates the existing attachment's mount-time attributes (`--phase`, `--volume-subpath`, `--volume-readonly`, `--volume-chown`, `--volume-options`) in place rather than appending a duplicate. This is the idempotent equivalent of `storage:set` for entries, and lets declarative tooling change a mount-time attribute without an unmount-then-remount dance that would briefly drop the volume from `storage:report`. Mount-time fields are rewritten wholesale, not merged - omitting a flag on a re-mount clears any previously-set value. The legacy `host:container[:opts]` form still rejects duplicates with `Mount path already exists.`.
 
 Once persistent storage is mounted, the app requires a restart. See the [process scaling documentation](/docs/processes/process-management.md) for more information.
+
+```shell
+dokku ps:restart app-name
+```
+
+### Declaring the complete set of mounts
+
+`storage:mount` and `storage:unmount` change one attachment at a time. Converging an app onto a declared set therefore means reading the current attachments, diffing them, and issuing one command per difference - and a failure partway through leaves the app with a mixture of the old and new mounts.
+
+The `storage:mounts:set` command instead replaces an app's complete set of attachments in a single call. It reads one JSON array describing every attachment the app should have, from a file or from stdin:
+
+```shell
+dokku storage:mounts:set node-js-app mounts.json
+cat mounts.json | dokku storage:mounts:set node-js-app -
+dokku storage:mounts:set node-js-app < mounts.json
+```
+
+```json
+[
+  {
+    "entry_name": "node-js-data",
+    "container_path": "/app/storage",
+    "phases": ["deploy", "run"],
+    "process_type": "_default_",
+    "volume_options": "Z"
+  },
+  {
+    "entry_name": "node-js-cache",
+    "container_path": "/app/cache",
+    "phases": ["run"],
+    "process_type": "worker",
+    "subpath": "exports",
+    "volume_chown": "1000"
+  }
+]
+```
+
+The replacement is complete in both directions: an attachment that is mounted today but absent from the array is unmounted, and an attachment that is present has its mount-time fields rewritten wholesale, exactly as re-running `storage:mount` against the same entry, container path, and process type would. The `--replace` flag is accepted for symmetry with other `:set` commands; this command always replaces the complete set.
+
+Entries referenced by the array must already exist - `storage:mounts:set` binds existing entries into an app, it does not create host directories or volumes. See `storage:create` for that. `entry_name` and `container_path` are required for every item. An omitted `phases` key defaults to both phases, an omitted `process_type` defaults to `_default_`, and any other omitted field is stored empty - so a field that was previously set is cleared when the declaration omits it.
+
+Every attachment is validated before anything is written. If any item names an entry that does not exist, names an entry belonging to a different scheduler, has a `container_path` that is not absolute, has an unknown phase, or repeats another item's `entry_name`, `container_path`, and `process_type` combination, the command exits non-zero and the previously stored attachments are left untouched. Failures carry the array index of the offending item.
+
+An empty array is rejected rather than treated as a request to remove everything, so a generated list that expands to nothing cannot silently drop an app's mounts. Use `storage:mounts:clear` for that case:
+
+```shell
+dokku storage:mounts:clear node-js-app
+```
+
+Clearing removes every attachment from the app. It does not delete the referenced entries, their host directories, or their volumes, and clearing an app that has no attachments succeeds.
+
+> [!WARNING]
+> The JSON emitted by `dokku storage:list <app> --format json` is accepted as input, but it is **not** a complete snapshot of an app's attachments. That output only describes deploy-phase mounts, and it omits `process_type`, `subpath`, and `volume_chown`. Feeding it back into `storage:mounts:set` will drop every run-only attachment and reset the omitted fields to their defaults. Use it to seed an initial declaration, not to round-trip one.
+
+Once the attachments change, the app requires a restart. See the [process scaling documentation](/docs/processes/process-management.md) for more information.
 
 ```shell
 dokku ps:restart app-name

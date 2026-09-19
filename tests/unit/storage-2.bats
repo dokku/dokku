@@ -896,3 +896,397 @@ teardown() {
   run /bin/bash -c "dokku scheduler:set $TEST_APP selected docker-local"
   assert_success
 }
+
+@test "(storage:mounts:set) replaces the complete attachment set" {
+  run /bin/bash -c "dokku storage:create rdmtest-8991-a"
+  assert_success
+  run /bin/bash -c "dokku storage:create rdmtest-8991-b"
+  assert_success
+
+  run /bin/bash -c "dokku storage:mount $TEST_APP rdmtest-8991-a --container-dir /data --volume-options Z"
+  assert_success
+  run /bin/bash -c "dokku storage:mount $TEST_APP rdmtest-8991-b --container-dir /old"
+  assert_success
+
+  # rdmtest-8991-b is omitted from the declared set, so it must disappear while
+  # the retained attachment's mount-time fields are replaced wholesale.
+  run /bin/bash -c "cat > /tmp/rdmtest-8991-set.json <<'EOF'
+[
+  {\"entry_name\":\"rdmtest-8991-a\",\"container_path\":\"/data\",\"volume_options\":\"ro\"},
+  {\"entry_name\":\"rdmtest-8991-a\",\"container_path\":\"/logs\",\"phases\":[\"run\"],\"process_type\":\"worker\",\"subpath\":\"exports\",\"volume_chown\":\"1000\"}
+]
+EOF
+chmod 644 /tmp/rdmtest-8991-set.json
+cat /tmp/rdmtest-8991-set.json | dokku storage:mounts:set --replace $TEST_APP -"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --format json | jq -r '.\"attachment.1.container-path\"'"
+  assert_success
+  assert_output "/data"
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --storage-attachment.1.volume-options"
+  assert_success
+  assert_output "ro"
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --storage-attachment.1.phases"
+  assert_success
+  assert_output "deploy,run"
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --storage-attachment.2.entry-name"
+  assert_success
+  assert_output "rdmtest-8991-a"
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --storage-attachment.2.process-type"
+  assert_success
+  assert_output "worker"
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --storage-attachment.2.subpath"
+  assert_success
+  assert_output "exports"
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --storage-attachment.2.volume-chown"
+  assert_success
+  assert_output "1000"
+
+  # The omitted attachment is gone. storage:list only reads the deploy phase, so
+  # the phase-specific read paths are what prove the run-only mount survived.
+  # /logs is run-only, and /data is deploy+run with its volume options replaced
+  # by "ro", which renders as the third colon-delimited section.
+  run /bin/bash -c "dokku storage:report $TEST_APP --format json | jq -r 'has(\"attachment.3.entry-name\")'"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --format json | jq -r '.\"storage-run-mounts\"'"
+  assert_success
+  assert_output "-v $DOKKU_LIB_ROOT/data/storage/rdmtest-8991-a:/data:ro -v $DOKKU_LIB_ROOT/data/storage/rdmtest-8991-a:/logs"
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --format json | jq -r '.\"storage-deploy-mounts\"'"
+  assert_success
+  assert_output "-v $DOKKU_LIB_ROOT/data/storage/rdmtest-8991-a:/data:ro"
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --format json | jq -r '.\"storage-build-mounts\"'"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku storage:unmount $TEST_APP rdmtest-8991-a --container-dir /data"
+  assert_success
+  run /bin/bash -c "dokku storage:unmount $TEST_APP rdmtest-8991-a --container-dir /logs"
+  assert_success
+  run /bin/bash -c "dokku storage:destroy rdmtest-8991-a --force"
+  assert_success
+  run /bin/bash -c "dokku storage:destroy rdmtest-8991-b --force"
+  assert_success
+}
+
+@test "(storage:mounts:set) reads the desired set from a file argument" {
+  run /bin/bash -c "dokku storage:create rdmtest-8991-file"
+  assert_success
+
+  run /bin/bash -c "cat > /tmp/rdmtest-8991-file.json <<'EOF'
+[{\"entry_name\":\"rdmtest-8991-file\",\"container_path\":\"/data\"}]
+EOF
+chmod 644 /tmp/rdmtest-8991-file.json
+dokku storage:mounts:set $TEST_APP /tmp/rdmtest-8991-file.json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --storage-attachment.1.entry-name"
+  assert_success
+  assert_output "rdmtest-8991-file"
+
+  run /bin/bash -c "dokku storage:unmount $TEST_APP rdmtest-8991-file --container-dir /data"
+  assert_success
+  run /bin/bash -c "dokku storage:destroy rdmtest-8991-file --force"
+  assert_success
+}
+
+@test "(storage:mounts:set) is idempotent" {
+  run /bin/bash -c "dokku storage:create rdmtest-8991-idem"
+  assert_success
+
+  run /bin/bash -c "cat > /tmp/rdmtest-8991-idem.json <<'EOF'
+[{\"entry_name\":\"rdmtest-8991-idem\",\"container_path\":\"/data\",\"volume_options\":\"Z\"}]
+EOF
+chmod 644 /tmp/rdmtest-8991-idem.json
+dokku storage:mounts:set $TEST_APP /tmp/rdmtest-8991-idem.json
+dokku storage:mounts:set $TEST_APP /tmp/rdmtest-8991-idem.json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --format json | jq -r 'has(\"attachment.2.entry-name\")'"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --storage-attachment.1.volume-options"
+  assert_success
+  assert_output "Z"
+
+  run /bin/bash -c "dokku storage:unmount $TEST_APP rdmtest-8991-idem --container-dir /data"
+  assert_success
+  run /bin/bash -c "dokku storage:destroy rdmtest-8991-idem --force"
+  assert_success
+}
+
+@test "(storage:mounts:set) treats a dash-prefixed filename as a file, not stdin" {
+  run /bin/bash -c "dokku storage:create rdmtest-8991-dash"
+  assert_success
+
+  # A name that merely starts with a dash is still a file. Both sources are
+  # supplied with different contents, so reading stdin instead of the named file
+  # would mount the wrong container path.
+  run /bin/bash -c "cd $DOKKU_LIB_ROOT/data/storage && \
+printf '[{\"entry_name\":\"rdmtest-8991-dash\",\"container_path\":\"/from-file\"}]' > ./-rdmtest-8991-dash.json && \
+chmod 644 ./-rdmtest-8991-dash.json && \
+printf '[{\"entry_name\":\"rdmtest-8991-dash\",\"container_path\":\"/from-stdin\"}]' | dokku storage:mounts:set $TEST_APP ./-rdmtest-8991-dash.json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --storage-attachment.1.container-path"
+  assert_success
+  assert_output "/from-file"
+
+  run /bin/bash -c "dokku storage:unmount $TEST_APP rdmtest-8991-dash --container-dir /from-file"
+  assert_success
+  run /bin/bash -c "dokku storage:destroy rdmtest-8991-dash --destroy-host-dir --force"
+  assert_success
+}
+
+@test "(storage:mounts:set) leaves existing attachments untouched when a later item is invalid" {
+  run /bin/bash -c "dokku storage:create rdmtest-8991-keep"
+  assert_success
+
+  run /bin/bash -c "dokku storage:mount $TEST_APP rdmtest-8991-keep --container-dir /keep"
+  assert_success
+
+  run /bin/bash -c "cat > /tmp/rdmtest-8991-partial.json <<'EOF'
+[
+  {\"entry_name\":\"rdmtest-8991-keep\",\"container_path\":\"/replaced\"},
+  {\"entry_name\":\"rdmtest-8991-absent\",\"container_path\":\"/logs\"}
+]
+EOF
+chmod 644 /tmp/rdmtest-8991-partial.json
+dokku storage:mounts:set $TEST_APP /tmp/rdmtest-8991-partial.json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "attachment 1"
+  assert_output_contains "does not exist; create it first with"
+
+  # The valid first item must not have been written.
+  run /bin/bash -c "dokku storage:report $TEST_APP --storage-attachment.1.container-path"
+  assert_success
+  assert_output "/keep"
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --storage-attachment.1.entry-name"
+  assert_success
+  assert_output "rdmtest-8991-keep"
+
+  # Validation reads the registry but must not write to it.
+  run /bin/bash -c "dokku storage:list-entries --format json | jq -r '.[].name' | grep '^rdmtest-8991-absent$' || true"
+  assert_output ""
+
+  run /bin/bash -c "dokku storage:unmount $TEST_APP rdmtest-8991-keep --container-dir /keep"
+  assert_success
+  run /bin/bash -c "dokku storage:destroy rdmtest-8991-keep --force"
+  assert_success
+}
+
+@test "(storage:mounts:set) rejects malformed, empty, and non-array input" {
+  run /bin/bash -c "dokku storage:create rdmtest-8991-err"
+  assert_success
+  run /bin/bash -c "dokku storage:mount $TEST_APP rdmtest-8991-err --container-dir /data"
+  assert_success
+
+  # Empty pipe is the "a generated list expanded to nothing" guard.
+  run /bin/bash -c "printf '' | dokku storage:mounts:set $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Must specify at least one mount"
+  assert_output_contains "storage:mounts:clear"
+
+  run /bin/bash -c "printf '[]' | dokku storage:mounts:set $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Must specify at least one mount, use storage:mounts:clear to remove all mounts"
+
+  run /bin/bash -c "printf 'null' | dokku storage:mounts:set $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Must specify at least one mount, use storage:mounts:clear to remove all mounts"
+
+  run /bin/bash -c "printf '{\"entry_name\":\"rdmtest-8991-err\"}' | dokku storage:mounts:set $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Unable to parse mounts"
+
+  run /bin/bash -c "printf '[{\"entry_name\":' | dokku storage:mounts:set $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Unable to parse mounts"
+
+  run /bin/bash -c "printf '[{\"entry_name\":\"rdmtest-8991-err\",\"container_path\":\"/data\"}] []' | dokku storage:mounts:set $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "unexpected content after the JSON array"
+
+  run /bin/bash -c "printf '[{\"entry_name\":\"rdmtest-8991-err\",\"container_path\":\"/data\",\"phases\":[]}]' | dokku storage:mounts:set $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "must specify at least one phase"
+
+  run /bin/bash -c "printf '[{\"entry_name\":\"rdmtest-8991-err\",\"container_path\":\"data\"}]' | dokku storage:mounts:set $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "must be absolute"
+
+  run /bin/bash -c "printf '[{\"entry_name\":\"rdmtest-8991-err\",\"container_path\":\"/data\"},{\"entry_name\":\"rdmtest-8991-err\",\"container_path\":\"/data\"}]' | dokku storage:mounts:set $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "is declared more than once"
+
+  # Every rejected input above must have left the existing attachment alone.
+  run /bin/bash -c "dokku storage:report $TEST_APP --storage-attachment.1.container-path"
+  assert_success
+  assert_output "/data"
+
+  # Three positionals: an app plus two sources, which is more than the single
+  # optional file argument the command accepts.
+  run /bin/bash -c "printf '[{\"entry_name\":\"rdmtest-8991-err\",\"container_path\":\"/data\"}]' | dokku storage:mounts:set $TEST_APP - extra.json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "optional file argument"
+
+  run /bin/bash -c "dokku storage:unmount $TEST_APP rdmtest-8991-err --container-dir /data"
+  assert_success
+  run /bin/bash -c "dokku storage:destroy rdmtest-8991-err --force"
+  assert_success
+}
+
+@test "(storage:mounts:set) accepts storage:list --format json output" {
+  run /bin/bash -c "dokku storage:create rdmtest-8991-list"
+  assert_success
+  run /bin/bash -c "dokku storage:mount $TEST_APP rdmtest-8991-list --container-dir /data --volume-options Z"
+  assert_success
+
+  run /bin/bash -c "dokku storage:list $TEST_APP --format json | dokku storage:mounts:set $TEST_APP -"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --storage-attachment.1.entry-name"
+  assert_success
+  assert_output "rdmtest-8991-list"
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --storage-attachment.1.volume-options"
+  assert_success
+  assert_output "Z"
+
+  run /bin/bash -c "dokku storage:unmount $TEST_APP rdmtest-8991-list --container-dir /data"
+  assert_success
+  run /bin/bash -c "dokku storage:destroy rdmtest-8991-list --force"
+  assert_success
+}
+
+@test "(storage:mounts:clear) removes every attachment without touching entries" {
+  run /bin/bash -c "dokku storage:create rdmtest-8991-clear"
+  assert_success
+  run /bin/bash -c "dokku storage:mount $TEST_APP rdmtest-8991-clear --container-dir /data"
+  assert_success
+  run /bin/bash -c "dokku storage:mount $TEST_APP rdmtest-8991-clear --container-dir /logs"
+  assert_success
+
+  run /bin/bash -c "dokku storage:mounts:clear $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --format json | jq -r 'has(\"attachment.1.entry-name\")'"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku storage:list $TEST_APP --format json | jq -r 'length'"
+  assert_success
+  assert_output "0"
+
+  # Clearing again is a no-op, and the registry entry survives.
+  run /bin/bash -c "dokku storage:mounts:clear $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku storage:info rdmtest-8991-clear --format json | jq -r '.name'"
+  assert_success
+  assert_output "rdmtest-8991-clear"
+
+  run /bin/bash -c "dokku storage:destroy rdmtest-8991-clear --destroy-host-dir --force"
+  assert_success
+}
+
+@test "(storage:mounts:set) rejects a scheduler-mismatched entry" {
+  entry_path="$DOKKU_LIB_ROOT/data/storage-registry/entries/rdmtest-8991-k3s.json"
+  run /bin/bash -c "echo '{\"name\":\"rdmtest-8991-k3s\",\"scheduler\":\"k3s\",\"size\":\"1Gi\",\"schema_version\":1}' | sudo tee $entry_path >/dev/null"
+  assert_success
+  run /bin/bash -c "sudo chown dokku:dokku $entry_path"
+  assert_success
+
+  run /bin/bash -c "printf '[{\"entry_name\":\"rdmtest-8991-k3s\",\"container_path\":\"/data\"}]' | dokku storage:mounts:set $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "storage entry \"rdmtest-8991-k3s\" is scheduler=k3s but cannot be mounted on a docker-local app"
+
+  run /bin/bash -c "dokku storage:list $TEST_APP --format json | jq -r 'length'"
+  assert_success
+  assert_output "0"
+
+  run /bin/bash -c "sudo rm -f $entry_path"
+  assert_success
+}
+
+@test "(storage:mounts:set) applies the same defaults as storage:mount" {
+  run /bin/bash -c "dokku storage:create rdmtest-8991-defaults"
+  assert_success
+
+  run /bin/bash -c "printf '[{\"entry_name\":\"rdmtest-8991-defaults\",\"container_path\":\"/data\"}]' | dokku storage:mounts:set $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --storage-attachment.1.phases"
+  assert_success
+  assert_output "deploy,run"
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --storage-attachment.1.process-type"
+  assert_success
+  assert_output "_default_"
+
+  # A null phases value means "unspecified", matching an omitted key.
+  run /bin/bash -c "printf '[{\"entry_name\":\"rdmtest-8991-defaults\",\"container_path\":\"/data\",\"phases\":null}]' | dokku storage:mounts:set $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku storage:report $TEST_APP --storage-attachment.1.phases"
+  assert_success
+  assert_output "deploy,run"
+
+  run /bin/bash -c "dokku storage:unmount $TEST_APP rdmtest-8991-defaults --container-dir /data"
+  assert_success
+  run /bin/bash -c "dokku storage:destroy rdmtest-8991-defaults --force"
+  assert_success
+}
