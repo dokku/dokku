@@ -31,6 +31,8 @@ Additional commands:`
     storage:list-entries [--scheduler s] [--format text|json], List registered storage entries
     storage:migrate [<app>|--all], Re-run the legacy -v to attachment migration for an app
     storage:mount <app> <host-dir:container-dir>, Create a new bind mount
+    storage:mounts:clear <app>, Remove every storage attachment from an app
+    storage:mounts:set <app> [FILE|-] [--replace], Replace the complete set of an app's storage attachments from a JSON array
     storage:report [<app>] [<flag>], Displays a storage report for one or more apps
     storage:set <name> <property> [<value>], Update a storage entry in place
     storage:unmount <app> <host-dir:container-dir>, Remove an existing bind mount

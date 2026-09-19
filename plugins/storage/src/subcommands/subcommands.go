@@ -236,6 +236,37 @@ func main() {
 			VolumeChown:   *volumeChown,
 			VolumeOptions: *volumeOptions,
 		})
+	case "mounts:set":
+		args := flag.NewFlagSet("storage:mounts:set", flag.ExitOnError)
+		args.Bool("replace", false, "--replace: replace the complete set of attachments, which is what this command always does")
+		args.Parse(os.Args[2:])
+		appName := args.Arg(0)
+		source := args.Arg(1)
+		if appName == "" {
+			err = fmt.Errorf("storage:mounts:set requires an app name")
+			break
+		}
+		if len(args.Args()) > 2 {
+			err = fmt.Errorf("storage:mounts:set accepts an app name and an optional file argument, got %d arguments", len(args.Args()))
+			break
+		}
+		err = storage.CommandMountsSet(storage.CommandMountsSetInput{
+			AppName:  appName,
+			Filename: source,
+		})
+	case "mounts:clear":
+		args := flag.NewFlagSet("storage:mounts:clear", flag.ExitOnError)
+		args.Parse(os.Args[2:])
+		appName := args.Arg(0)
+		if appName == "" {
+			err = fmt.Errorf("storage:mounts:clear requires an app name")
+			break
+		}
+		if len(args.Args()) > 1 {
+			err = fmt.Errorf("storage:mounts:clear accepts a single app name, got %d arguments", len(args.Args()))
+			break
+		}
+		err = storage.CommandMountsClear(appName)
 	case "report":
 		args := flag.NewFlagSet("storage:report", flag.ExitOnError)
 		format := args.String("format", "stdout", "format: [ stdout | json ]")
