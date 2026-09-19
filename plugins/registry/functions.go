@@ -2,7 +2,6 @@ package registry
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -58,13 +57,12 @@ func HasAppRegistryAuth(appName string) bool {
 		return false
 	}
 
-	var config map[string]interface{}
-	if err := json.Unmarshal(content, &config); err != nil {
+	config, err := parseDockerConfig(content)
+	if err != nil {
 		return false
 	}
 
-	auths, ok := config["auths"].(map[string]interface{})
-	return ok && len(auths) > 0
+	return len(config.Auths) > 0
 }
 
 // GetDockerConfigArgs returns docker --config arguments if per-app config exists
