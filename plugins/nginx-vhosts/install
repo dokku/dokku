@@ -37,12 +37,11 @@ trigger-nginx-vhosts-install() {
   fn-plugin-property-setup "nginx"
 
   NGINX_BIN="$(fn-nginx-vhosts-nginx-location)"
-  NGINX_ROOT="/etc/nginx"
+  NGINX_ROOT="$(fn-nginx-vhosts-nginx-conf-root)"
   NGINX_LOG_ROOT="/var/log/nginx"
   NGINX_INIT_NAME="nginx"
   NGINX_SUDOERS_FILE="/etc/sudoers.d/dokku-nginx"
   if fn-nginx-vhosts-uses-openresty; then
-    NGINX_ROOT="/usr/local/openresty/nginx/conf"
     NGINX_LOG_ROOT="/var/log/openresty"
     NGINX_INIT_NAME="openresty"
     NGINX_SUDOERS_FILE="/etc/sudoers.d/dokku-openresty"

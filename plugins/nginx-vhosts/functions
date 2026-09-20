@@ -409,12 +409,6 @@ fn-nginx-vhosts-pre-validate-custom-template() {
 
   local TMP_RENDERED="$TMP_WORK_DIR/nginx.conf"
   local TMP_WRAPPER="$TMP_WORK_DIR/wrapper.conf"
-  local VALIDATE_TEMPLATE="$PLUGIN_AVAILABLE_PATH/nginx-vhosts/templates/validate.conf.sigil"
-  local CUSTOM_VALIDATE_TEMPLATE
-  CUSTOM_VALIDATE_TEMPLATE="$(plugn trigger nginx-app-template-source "$APP" "validate-config")"
-  if [[ -n "$CUSTOM_VALIDATE_TEMPLATE" ]]; then
-    VALIDATE_TEMPLATE="$CUSTOM_VALIDATE_TEMPLATE"
-  fi
 
   dokku_log_info1 "Pre-validating custom nginx.conf.sigil"
 
@@ -424,7 +418,7 @@ fn-nginx-vhosts-pre-validate-custom-template() {
     dokku_log_fail "Custom nginx.conf.sigil failed to render via sigil"
   fi
 
-  sigil -f "$VALIDATE_TEMPLATE" NGINX_CONF="$TMP_RENDERED" | cat -s >"$TMP_WRAPPER"
+  fn-nginx-vhosts-render-validate-wrapper "$APP" "$TMP_RENDERED" "$TMP_WRAPPER"
 
   if ! sudo "$NGINX_LOCATION" -t -c "$TMP_WRAPPER" 2>/dev/null; then
     dokku_log_warn "Failed to validate custom nginx.conf.sigil. Rendered output below..."

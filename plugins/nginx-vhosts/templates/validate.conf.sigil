@@ -1,3 +1,4 @@
+{{ if $.NGINX_USER }}user {{ $.NGINX_USER }};{{ end }}
 events { worker_connections 768; }
 http {
   access_log off;
