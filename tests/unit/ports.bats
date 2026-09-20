@@ -7,19 +7,19 @@ setup() {
   [[ -f "$DOKKU_ROOT/VHOST" ]] && cp -fp "$DOKKU_ROOT/VHOST" "$DOKKU_ROOT/VHOST.bak"
   create_app
 
-  dokku --force postgres:destroy $TEST_APP 2>/dev/null || true
-  dokku --force redis:destroy $TEST_APP 2>/dev/null || true
-  dokku --force postgres:destroy $TEST_APP-other 2>/dev/null || true
-  dokku --force redis:destroy $TEST_APP-other 2>/dev/null || true
+  dokku postgres:destroy $TEST_APP --force 2>/dev/null || true
+  dokku redis:destroy $TEST_APP --force 2>/dev/null || true
+  dokku postgres:destroy $TEST_APP-other --force 2>/dev/null || true
+  dokku redis:destroy $TEST_APP-other --force 2>/dev/null || true
 }
 
 teardown() {
   destroy_app
 
-  dokku --force postgres:destroy $TEST_APP 2>/dev/null || true
-  dokku --force redis:destroy $TEST_APP 2>/dev/null || true
-  dokku --force postgres:destroy $TEST_APP-other 2>/dev/null || true
-  dokku --force redis:destroy $TEST_APP-other 2>/dev/null || true
+  dokku postgres:destroy $TEST_APP --force 2>/dev/null || true
+  dokku redis:destroy $TEST_APP --force 2>/dev/null || true
+  dokku postgres:destroy $TEST_APP-other --force 2>/dev/null || true
+  dokku redis:destroy $TEST_APP-other --force 2>/dev/null || true
 
   [[ -f "$DOKKU_ROOT/VHOST.bak" ]] && mv "$DOKKU_ROOT/VHOST.bak" "$DOKKU_ROOT/VHOST" && chown dokku:dokku "$DOKKU_ROOT/VHOST"
   global_teardown

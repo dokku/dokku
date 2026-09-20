@@ -179,12 +179,12 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku --force postgres:destroy $TEST_APP"
+  run /bin/bash -c "dokku postgres:destroy $TEST_APP --force"
   echo "output: $output"
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku --force redis:destroy $TEST_APP"
+  run /bin/bash -c "dokku redis:destroy $TEST_APP --force"
   echo "output: $output"
   echo "status: $status"
   assert_success
