@@ -274,7 +274,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku postgres:create $TEST_APP $TEST_APP"
+  run /bin/bash -c "dokku postgres:create $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -284,7 +284,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "dokku redis:create $TEST_APP $TEST_APP"
+  run /bin/bash -c "dokku redis:create $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
