@@ -110,14 +110,14 @@ install-dokku() {
     elif [[ "$use_plugin" == "true" ]]; then
       install-dokku-from-package "$DOKKU_SEMVER"
       echo "--> Running post-install dependency installation"
-      sudo -E dokku plugin:install-dependencies --core
+      sudo dokku plugin:install-dependencies --core
     else
       install-dokku-from-source "$DOKKU_TAG"
     fi
   else
     install-dokku-from-package
     echo "--> Running post-install dependency installation"
-    sudo -E dokku plugin:install-dependencies --core
+    sudo dokku plugin:install-dependencies --core
   fi
 }
 

@@ -1,13 +1,22 @@
 #!/usr/bin/env bash
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 cmd-plugin-trigger() {
   declare desc="trigger an arbitrary plugin hook"
   declare cmd="plugin:trigger"
   [[ "$1" == "$cmd" ]] && shift 1
 
-  sudo -u dokku -E -H plugn trigger "$@"
+  local sudo_args=(-u dokku)
+  local preserve_env_flag
+  preserve_env_flag="$(fn-sudo-preserve-env-flag)"
+  if [[ -n "$preserve_env_flag" ]]; then
+    sudo_args+=("$preserve_env_flag")
+  fi
+  sudo_args+=(-H)
+
+  sudo "${sudo_args[@]}" plugn trigger "$@"
 }
 
 cmd-plugin-trigger "$@"

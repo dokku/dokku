@@ -116,7 +116,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "sudo -E -u nobody dokku plugin:uninstall $TEST_PLUGIN_NAME"
+  run /bin/bash -c "sudo -u nobody dokku plugin:uninstall $TEST_PLUGIN_NAME"
   echo "output: $output"
   echo "status: $status"
   assert_failure
@@ -158,7 +158,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "sudo -E -u nobody dokku plugin:uninstall $TEST_PLUGIN_NAME"
+  run /bin/bash -c "sudo -u nobody dokku plugin:uninstall $TEST_PLUGIN_NAME"
   echo "output: $output"
   echo "status: $status"
   assert_failure
@@ -212,7 +212,7 @@ teardown() {
 }
 
 @test "(plugin) plugin:install, plugin:disable, plugin:uninstall as non-root user failure" {
-  run /bin/bash -c "sudo -E -u nobody dokku plugin:install $TEST_PLUGIN_GIT_REPO"
+  run /bin/bash -c "sudo -u nobody dokku plugin:install $TEST_PLUGIN_GIT_REPO"
   echo "output: $output"
   echo "status: $status"
   assert_failure
@@ -227,7 +227,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "sudo -E -u nobody dokku plugin:disable $TEST_PLUGIN_NAME"
+  run /bin/bash -c "sudo -u nobody dokku plugin:disable $TEST_PLUGIN_NAME"
   echo "output: $output"
   echo "status: $status"
   assert_failure
@@ -371,4 +371,11 @@ teardown() {
   assert_success
   assert_output_contains "root" "0"
   assert_output_contains "dokku" "3"
+}
+
+@test "(plugin:trigger) forwards the caller environment across the privilege drop" {
+  run /bin/bash -c "DOKKU_TEST_CROSSING=1 DOKKU_TRACE=1 dokku plugin:trigger app-list 2>&1 >/dev/null | grep -q -- '--preserve-env=[^ ]*DOKKU_TEST_CROSSING'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 }

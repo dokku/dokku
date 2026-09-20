@@ -67,6 +67,9 @@ export DOKKU_GLOBAL_RUN_ARGS="--label=org.label-schema.schema-version=1.0 --labe
 
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
+# the original argv is kept so the re-exec as the dokku user can replay it verbatim
+# and let the child re-parse the global flags for itself. parse_args and the
+# flag-stripping loop below must therefore stay pure functions of argv.
 parse_args "$@"
 args=("$@")
 skip_arg=false
@@ -91,7 +94,9 @@ if [[ $(id -un) != "dokku" ]]; then
   if [[ ! $1 =~ plugin:* ]] && [[ $1 != "ssh-keys:add" ]] && [[ $1 != "ssh-keys:remove" ]] && [[ $1 != "scheduler-k3s:initialize" ]] && [[ $1 != "scheduler-k3s:uninstall" ]]; then
     unset DOKKU_PID TMP TMPDIR TEMP TEMPDIR
     export SSH_USER=$(id -un)
-    sudo -u dokku -E -H "$0" "$@"
+    read -ra preserved_env_names <<<"$(fn-cli-preserved-env-names)"
+    preserve_env_flag="$(fn-sudo-preserve-env-flag "${preserved_env_names[@]}")"
+    sudo -u dokku "$preserve_env_flag" -H "$0" "${args[@]}"
     exit $?
   fi
 fi

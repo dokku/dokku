@@ -219,6 +219,19 @@ jobs:
           name: coverage.${{ matrix.index }}
           path: test-results/coverage
 
+  sudo-preserve-env:
+    name: sudo-preserve-env
+    runs-on: ubuntu-26.04
+    needs: check-commit
+    if: ${{ needs.check-commit.outputs.skip != 'true' }}
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: check that the preserved environment survives sudo-rs
+        run: ./tests/ci/sudo_preserve_env.sh
+
   publish-test-results:
     name: publish-test-results
     needs: unit-tests
