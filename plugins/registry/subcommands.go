@@ -11,15 +11,92 @@ import (
 	"github.com/dokku/dokku/plugins/common"
 )
 
+// readPasswordFromStdin reads a registry password from stdin
+func readPasswordFromStdin() (string, error) {
+	stdin, err := io.ReadAll(os.Stdin)
+	if err != nil {
+		return "", err
+	}
+
+	return strings.TrimSpace(string(stdin)), nil
+}
+
+// CommandAuthStatus reports whether the stored registry credential matches the
+// requested state, communicating the result via the exit code alone
+func CommandAuthStatus(appName string, server string, username string, password string, passwordStdin bool) error {
+	if passwordStdin {
+		if username == "" {
+			return InvalidAuthStatusArguments("Missing username argument")
+		}
+
+		stdin, err := readPasswordFromStdin()
+		if err != nil {
+			return InvalidAuthStatusArguments(err.Error())
+		}
+
+		password = stdin
+	}
+
+	if server == "" {
+		return InvalidAuthStatusArguments("Missing server argument")
+	}
+	if username != "" && password == "" {
+		return InvalidAuthStatusArguments("Missing password argument")
+	}
+	if username == "" && password != "" {
+		return InvalidAuthStatusArguments("Missing username argument")
+	}
+
+	configPath := GetGlobalRegistryConfigPath()
+	if appName != "" {
+		if err := common.VerifyAppName(appName); err != nil {
+			// a missing app carries its own exit code, while an invalid name is
+			// a malformed call and must not be reported as a missing credential
+			if _, ok := err.(common.ErrWithExitCode); ok {
+				return err
+			}
+
+			return InvalidAuthStatusArguments(err.Error())
+		}
+
+		configPath = GetAppRegistryConfigPath(appName)
+	}
+
+	contents, err := os.ReadFile(configPath)
+	if err != nil && !os.IsNotExist(err) {
+		return &common.ExitCodeError{
+			Code:    authStatusUnknown,
+			Message: fmt.Sprintf("Unable to read the docker config: %s", err.Error()),
+		}
+	}
+
+	code, message := checkAuthStatus(authStatusInput{
+		ConfigBytes: contents,
+		Server:      server,
+		Username:    username,
+		Password:    password,
+	})
+	if code == authStatusMatch {
+		return nil
+	}
+
+	return &common.ExitCodeError{Code: code, Message: message}
+}
+
+// InvalidAuthStatusArguments reports a registry:auth-status call that could not be checked
+func InvalidAuthStatusArguments(message string) error {
+	return &common.ExitCodeError{Code: authStatusInvalidArguments, Message: message}
+}
+
 // CommandLogin logs a user into the specified server
 func CommandLogin(appName string, server string, username string, password string, passwordStdin bool) error {
 	if passwordStdin {
-		stdin, err := io.ReadAll(os.Stdin)
+		stdin, err := readPasswordFromStdin()
 		if err != nil {
 			return err
 		}
 
-		password = strings.TrimSpace(string(stdin))
+		password = stdin
 	}
 
 	if server == "" {
@@ -32,9 +109,7 @@ func CommandLogin(appName string, server string, username string, password strin
 		return errors.New("Missing password argument")
 	}
 
-	if server == "hub.docker.com" || server == "docker.com" {
-		server = "docker.io"
-	}
+	server = normalizeRegistryServer(server)
 
 	buffer := bytes.Buffer{}
 	buffer.Write([]byte(password + "\n"))
@@ -92,9 +167,10 @@ func CommandLogout(appName string, server string) error {
 		return errors.New("Missing server argument")
 	}
 
-	if server == "hub.docker.com" || server == "docker.com" {
-		server = "docker.io"
-	}
+	// docker only erases the exact auths key it is given, and stores Docker Hub
+	// under the index server address rather than the hostname logged in with, so
+	// a logout for docker.io has to name that address to remove anything
+	server = dockerAuthKey(server)
 
 	env := map[string]string{}
 	if appName != "" {

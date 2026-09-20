@@ -90,6 +90,12 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
+
+  run /bin/bash -c "jq -r '.auths | keys | join(\",\")' /var/lib/dokku/config/registry/$TEST_APP/config.json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_contains "index.docker.io"
 }
 
 @test "(registry:logout) global logout" {
@@ -106,6 +112,55 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
+
+  run /bin/bash -c "jq -r '.auths | keys | join(\",\")' $DOKKU_ROOT/.docker/config.json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_contains "index.docker.io"
+}
+
+@test "(registry:auth-status) matches a credential written by registry:login" {
+  if [[ -z "$DOCKERHUB_USERNAME" ]] || [[ -z "$DOCKERHUB_TOKEN" ]]; then
+    skip "skipping due to missing docker.io credentials DOCKERHUB_USERNAME:DOCKERHUB_TOKEN"
+  fi
+
+  run /bin/bash -c "dokku registry:login --global docker.io $DOCKERHUB_USERNAME $DOCKERHUB_TOKEN"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku registry:auth-status --global docker.io $DOCKERHUB_USERNAME $DOCKERHUB_TOKEN"
+  echo "output: $output"
+  echo "status: $status"
+  assert_exit_status 0
+  assert_output ""
+
+  run /bin/bash -c "dokku registry:auth-status --global docker.io $DOCKERHUB_USERNAME wrong-password"
+  echo "output: $output"
+  echo "status: $status"
+  assert_exit_status 2
+
+  run /bin/bash -c "dokku registry:report --global --format json | jq -r '.\"global-auth-servers\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "docker.io"
+
+  run /bin/bash -c "dokku registry:logout --global docker.io"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku registry:auth-status --global docker.io $DOCKERHUB_USERNAME $DOCKERHUB_TOKEN"
+  echo "output: $output"
+  echo "status: $status"
+  assert_exit_status 1
+
+  run /bin/bash -c "dokku registry:auth-status --global docker.io"
+  echo "output: $output"
+  echo "status: $status"
+  assert_exit_status 0
 }
 
 @test "(registry) per-app credentials deleted on app destroy" {
@@ -567,6 +622,13 @@ teardown() {
     skip "skipping due to missing docker.io credentials DOCKERHUB_USERNAME:DOCKERHUB_TOKEN"
   fi
 
+  # this test pushes to the registry, so it establishes its own credentials
+  # rather than relying on a login left behind by an earlier test
+  run /bin/bash -c "dokku registry:login --global docker.io $DOCKERHUB_USERNAME $DOCKERHUB_TOKEN"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku registry:set $TEST_APP push-on-release true"
   echo "output: $output"
   echo "status: $status"
@@ -696,6 +758,13 @@ teardown() {
     skip "skipping due to missing docker.io credentials DOCKERHUB_USERNAME:DOCKERHUB_TOKEN"
   fi
 
+  # this test pushes to the registry, so it establishes its own credentials
+  # rather than relying on a login left behind by an earlier test
+  run /bin/bash -c "dokku registry:login --global docker.io $DOCKERHUB_USERNAME $DOCKERHUB_TOKEN"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku registry:set $TEST_APP push-on-release true"
   echo "output: $output"
   echo "status: $status"
@@ -742,4 +811,215 @@ teardown() {
   run /bin/bash -c "dokku registry:report --global --format json | jq -r 'has(\"global-image-repo-template\") and has(\"registry-global-image-repo-template\")'"
   assert_success
   assert_output "true"
+}
+
+@test "(registry:auth-status) validates arguments" {
+  run /bin/bash -c "dokku registry:auth-status"
+  echo "output: $output"
+  echo "status: $status"
+  assert_exit_status 3
+  assert_output_contains "Please specify an app or the --global flag"
+
+  run /bin/bash -c "dokku registry:auth-status --global"
+  echo "output: $output"
+  echo "status: $status"
+  assert_exit_status 3
+  assert_output_contains "Missing server argument"
+
+  run /bin/bash -c "dokku registry:auth-status $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_exit_status 3
+  assert_output_contains "Missing server argument"
+
+  run /bin/bash -c "dokku registry:auth-status $TEST_APP docker.io username"
+  echo "output: $output"
+  echo "status: $status"
+  assert_exit_status 3
+  assert_output_contains "Missing password argument"
+
+  # an unknown flag must not be reported as a differing credential, which is
+  # what pflag would exit with if it handled the error itself
+  run /bin/bash -c "dokku registry:auth-status --nonsense --global docker.io"
+  echo "output: $output"
+  echo "status: $status"
+  assert_exit_status 3
+
+  run /bin/bash -c "dokku registry:auth-status --help"
+  echo "output: $output"
+  echo "status: $status"
+  assert_exit_status 3
+
+  run /bin/bash -c "dokku registry:auth-status nonexistent-app-name docker.io username password"
+  echo "output: $output"
+  echo "status: $status"
+  assert_exit_status 20
+
+  # a malformed app name must not be reported as a missing credential
+  run /bin/bash -c "dokku registry:auth-status 'BAD NAME' docker.io username password"
+  echo "output: $output"
+  echo "status: $status"
+  assert_exit_status 3
+}
+
+@test "(registry:auth-status) reports per-app credential state" {
+  run /bin/bash -c "dokku registry:auth-status $TEST_APP docker.io fakeuser fakepass"
+  echo "output: $output"
+  echo "status: $status"
+  assert_exit_status 1
+  assert_output ""
+
+  run /bin/bash -c "dokku registry:auth-status $TEST_APP docker.io"
+  echo "output: $output"
+  echo "status: $status"
+  assert_exit_status 0
+  assert_output ""
+
+  write_registry_auth_config "$TEST_APP" "{\"auths\":{\"https://index.docker.io/v1/\":{\"auth\":\"$(fake_registry_auth fakeuser fakepass)\"}}}"
+
+  run /bin/bash -c "dokku registry:auth-status $TEST_APP docker.io fakeuser fakepass"
+  echo "output: $output"
+  echo "status: $status"
+  assert_exit_status 0
+  assert_output ""
+
+  run /bin/bash -c "dokku registry:auth-status $TEST_APP docker.io fakeuser wrongpass"
+  echo "output: $output"
+  echo "status: $status"
+  assert_exit_status 2
+  assert_output ""
+
+  run /bin/bash -c "dokku registry:auth-status $TEST_APP docker.io otheruser fakepass"
+  echo "output: $output"
+  echo "status: $status"
+  assert_exit_status 2
+
+  run /bin/bash -c "dokku registry:auth-status $TEST_APP docker.io"
+  echo "output: $output"
+  echo "status: $status"
+  assert_exit_status 2
+
+  run /bin/bash -c "dokku registry:auth-status $TEST_APP ghcr.io fakeuser fakepass"
+  echo "output: $output"
+  echo "status: $status"
+  assert_exit_status 1
+
+  run /bin/bash -c "printf 'fakepass' | dokku registry:auth-status --password-stdin $TEST_APP docker.io fakeuser"
+  echo "output: $output"
+  echo "status: $status"
+  assert_exit_status 0
+
+  run /bin/bash -c "printf 'wrongpass' | dokku registry:auth-status --password-stdin $TEST_APP docker.io fakeuser"
+  echo "output: $output"
+  echo "status: $status"
+  assert_exit_status 2
+
+  run /bin/bash -c "dokku --app $TEST_APP registry:auth-status docker.io fakeuser fakepass"
+  echo "output: $output"
+  echo "status: $status"
+  assert_exit_status 0
+}
+
+@test "(registry:auth-status) normalizes server names and reports unreadable credentials" {
+  write_registry_auth_config "$TEST_APP" "{\"auths\":{\"https://index.docker.io/v1/\":{\"auth\":\"$(fake_registry_auth fakeuser fakepass)\"}}}"
+
+  for server in docker.io hub.docker.com docker.com index.docker.io; do
+    run /bin/bash -c "dokku registry:auth-status $TEST_APP $server fakeuser fakepass"
+    echo "server: $server"
+    echo "output: $output"
+    echo "status: $status"
+    assert_exit_status 0
+  done
+
+  # docker stores registry-1.docker.io under a key of its own rather than the
+  # index server, so a docker hub credential does not cover it
+  run /bin/bash -c "dokku registry:auth-status $TEST_APP registry-1.docker.io fakeuser fakepass"
+  echo "output: $output"
+  echo "status: $status"
+  assert_exit_status 1
+
+  write_registry_auth_config "$TEST_APP" '{"auths":{"ghcr.io":{}},"credsStore":"secretservice"}'
+
+  run /bin/bash -c "dokku registry:auth-status $TEST_APP ghcr.io fakeuser fakepass"
+  echo "output: $output"
+  echo "status: $status"
+  assert_exit_status 4
+  assert_output_contains "credential helper"
+  assert_output_not_contains "fakepass"
+
+  # knowing a credential exists needs no access to the secret
+  run /bin/bash -c "dokku registry:auth-status $TEST_APP ghcr.io"
+  echo "output: $output"
+  echo "status: $status"
+  assert_exit_status 2
+
+  write_registry_auth_config "$TEST_APP" "{\"auths\":{\"ghcr.io\":{\"auth\":\"$(fake_registry_auth fakeuser '')\",\"identitytoken\":\"token\"}}}"
+
+  run /bin/bash -c "dokku registry:auth-status $TEST_APP ghcr.io fakeuser fakepass"
+  echo "output: $output"
+  echo "status: $status"
+  assert_exit_status 4
+  assert_output_contains "identity token"
+
+  # a username that differs settles the comparison without reading the secret
+  run /bin/bash -c "dokku registry:auth-status $TEST_APP ghcr.io otheruser fakepass"
+  echo "output: $output"
+  echo "status: $status"
+  assert_exit_status 2
+}
+
+@test "(registry:report) auth-servers raw vs computed vs global" {
+  run /bin/bash -c "dokku registry:report $TEST_APP --format json | jq -r '.\"auth-servers\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku registry:report $TEST_APP --format json | jq -r '.\"computed-auth-servers\" == .\"global-auth-servers\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  write_registry_auth_config "$TEST_APP" "{\"auths\":{\"https://index.docker.io/v1/\":{\"auth\":\"$(fake_registry_auth fakeuser fakepass)\"},\"ghcr.io\":{\"auth\":\"$(fake_registry_auth fakeuser fakepass)\"}}}"
+
+  run /bin/bash -c "dokku registry:report $TEST_APP --format json | jq -r '.\"auth-servers\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "docker.io,ghcr.io"
+
+  # a per-app config shadows the global one entirely rather than merging
+  run /bin/bash -c "dokku registry:report $TEST_APP --format json | jq -r '.\"computed-auth-servers\"'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "docker.io,ghcr.io"
+
+  run /bin/bash -c "dokku registry:report $TEST_APP --format json | jq -r 'has(\"auth-servers\") and has(\"registry-auth-servers\")'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku registry:report --global --format json | jq -r 'has(\"global-auth-servers\") and has(\"computed-auth-servers\")'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+}
+
+fake_registry_auth() {
+  declare desc="base64 encodes a username and password as docker stores them"
+  declare USERNAME="$1" PASSWORD="$2"
+  printf '%s:%s' "$USERNAME" "$PASSWORD" | base64 -w0
+}
+
+write_registry_auth_config() {
+  declare desc="writes a docker config.json for an app without contacting a registry"
+  declare APP="$1" CONTENTS="$2"
+  mkdir -p "/var/lib/dokku/config/registry/$APP"
+  echo "$CONTENTS" >"/var/lib/dokku/config/registry/$APP/config.json"
+  chown -R dokku:dokku "/var/lib/dokku/config/registry/$APP"
+  chmod 600 "/var/lib/dokku/config/registry/$APP/config.json"
 }

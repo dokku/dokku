@@ -2,7 +2,6 @@ package registry
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -14,6 +13,9 @@ import (
 )
 
 const registryConfigDir = "/var/lib/dokku/config/registry"
+
+// dockerIndexServer is the auths key docker stores Docker Hub credentials under
+const dockerIndexServer = "https://index.docker.io/v1/"
 
 // GetAppRegistryConfigDir returns the per-app registry config directory
 func GetAppRegistryConfigDir(appName string) string {
@@ -30,7 +32,17 @@ func GetComputedAppRegistryConfigDir(appName string) string {
 		return GetAppRegistryConfigDir(appName)
 	}
 
+	return GetGlobalRegistryConfigDir()
+}
+
+// GetGlobalRegistryConfigDir returns the docker config directory global logins write to
+func GetGlobalRegistryConfigDir() string {
 	return filepath.Join(os.Getenv("DOKKU_ROOT"), ".docker")
+}
+
+// GetGlobalRegistryConfigPath returns the path to the global docker config.json
+func GetGlobalRegistryConfigPath() string {
+	return filepath.Join(GetGlobalRegistryConfigDir(), "config.json")
 }
 
 // HasAppRegistryAuth checks if an app has registry credentials configured
@@ -45,13 +57,12 @@ func HasAppRegistryAuth(appName string) bool {
 		return false
 	}
 
-	var config map[string]interface{}
-	if err := json.Unmarshal(content, &config); err != nil {
+	config, err := parseDockerConfig(content)
+	if err != nil {
 		return false
 	}
 
-	auths, ok := config["auths"].(map[string]interface{})
-	return ok && len(auths) > 0
+	return len(config.Auths) > 0
 }
 
 // GetDockerConfigArgs returns docker --config arguments if per-app config exists
@@ -244,4 +255,39 @@ func imageCleanup(appName string, imageRepo string, imageTag string, tag int) {
 	imageIDs, _ := common.ListDanglingImages(appName)
 	imagesToRemove = append(imagesToRemove, imageIDs...)
 	common.RemoveImages(imagesToRemove)
+}
+
+// normalizeRegistryServer applies the dokku-level aliases for a registry server
+func normalizeRegistryServer(server string) string {
+	if server == "hub.docker.com" || server == "docker.com" {
+		return "docker.io"
+	}
+
+	return server
+}
+
+// convertToHostname strips any scheme and path from a registry server, matching
+// the rule docker applies before storing or looking up a credential
+func convertToHostname(server string) string {
+	stripped := server
+	if strings.HasPrefix(stripped, "http://") {
+		stripped = strings.TrimPrefix(stripped, "http://")
+	} else if strings.HasPrefix(stripped, "https://") {
+		stripped = strings.TrimPrefix(stripped, "https://")
+	}
+
+	return strings.SplitN(stripped, "/", 2)[0]
+}
+
+// dockerAuthKey returns the key docker uses for a registry server in the auths
+// map of a config.json. Docker Hub is stored under the index server address
+// rather than the hostname the user logged in with, and is also the only server
+// docker treats that way: registry-1.docker.io gets a key of its own.
+func dockerAuthKey(server string) string {
+	hostname := convertToHostname(normalizeRegistryServer(server))
+	if hostname == "" || hostname == "docker.io" || hostname == "index.docker.io" {
+		return dockerIndexServer
+	}
+
+	return hostname
 }

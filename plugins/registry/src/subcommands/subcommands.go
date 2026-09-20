@@ -1,7 +1,9 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 
@@ -18,6 +20,40 @@ func main() {
 
 	var err error
 	switch subcommand {
+	case "auth-status":
+		// the result of this command is its exit code, so parse errors must not
+		// be left to pflag: ExitOnError exits 2 on an unknown flag, which this
+		// command defines as a differing credential, and 0 on --help
+		args := flag.NewFlagSet("registry:auth-status", flag.ContinueOnError)
+		args.SetOutput(io.Discard)
+		passwordStdin := args.Bool("password-stdin", false, "--password-stdin: read password from stdin")
+		global := args.Bool("global", false, "--global: check the global registry credentials")
+		if parseErr := args.Parse(os.Args[2:]); parseErr != nil {
+			message := parseErr.Error()
+			if errors.Is(parseErr, flag.ErrHelp) {
+				message = "Usage: dokku registry:auth-status [--password-stdin] <app>|--global <server> [<username> [<password>]]"
+			}
+
+			common.LogFailWithError(registry.InvalidAuthStatusArguments(message))
+		}
+
+		var appName, server, username, password string
+		offset := 0
+		if !*global {
+			appName = args.Arg(0)
+			offset = 1
+			if appName == "" {
+				common.LogFailWithError(registry.InvalidAuthStatusArguments("Please specify an app or the --global flag"))
+			}
+		}
+
+		server = args.Arg(offset)
+		username = args.Arg(offset + 1)
+		if !*passwordStdin {
+			password = args.Arg(offset + 2)
+		}
+
+		err = registry.CommandAuthStatus(appName, server, username, password, *passwordStdin)
 	case "login":
 		args := flag.NewFlagSet("registry:login", flag.ExitOnError)
 		passwordStdin := args.Bool("password-stdin", false, "--password-stdin: read password from stdin")

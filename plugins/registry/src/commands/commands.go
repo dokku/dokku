@@ -18,6 +18,7 @@ Manage registry settings for an app
 Additional commands:`
 
 	helpContent = `
+    registry:auth-status [--password-stdin] <app>|--global <server> [<username> [<password>]], Reports whether the stored registry credential matches the requested state (exit 0 if matches)
     registry:login [--global|--password-stdin] [<app>] <server> <username> [<password>], Login to a docker registry
     registry:logout [--global] [<app>] <server>, Logout from a docker registry
     registry:report [<app>] [<flag>], Displays a registry report for one or more apps

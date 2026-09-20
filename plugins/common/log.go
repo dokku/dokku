@@ -16,6 +16,30 @@ type ErrWithExitCode interface {
 	ExitCode() int
 }
 
+// ExitCodeError carries an explicit exit code for a command failure. A blank
+// Message exits with the code without printing anything, which suits commands
+// that report their result through the exit code alone.
+type ExitCodeError struct {
+	// Code is the exit code to terminate with
+	Code int
+
+	// Message is the error text printed to stderr, if any
+	Message string
+}
+
+var _ ErrWithExitCode = (*ExitCodeError)(nil)
+
+// Error returns the error text to print to stderr
+func (e *ExitCodeError) Error() string {
+	return e.Message
+}
+
+// ExitCode returns an exit code to use in case this error bubbles
+// up into an os.Exit() call
+func (e *ExitCodeError) ExitCode() int {
+	return e.Code
+}
+
 type writer struct {
 	mu     *sync.Mutex
 	source string

@@ -4,10 +4,11 @@
 > New as of 0.25.0
 
 ```
-registry:login [--global|--password-stdin] [<app>] <server> <username> [<password>] # Login to a docker registry
-registry:logout [--global] [<app>] <server>                                         # Logout from a docker registry
-registry:report [<app>] [<flag>]                                                    # Displays a registry report for one or more apps
-registry:set <app>|--global <key> (<value>)                                         # Set or clear a registry property for an app
+registry:auth-status [--password-stdin] <app>|--global <server> [<username> [<password>]] # Reports whether the stored registry credential matches the requested state
+registry:login [--global|--password-stdin] [<app>] <server> <username> [<password>]       # Login to a docker registry
+registry:logout [--global] [<app>] <server>                                               # Logout from a docker registry
+registry:report [<app>] [<flag>]                                                          # Displays a registry report for one or more apps
+registry:set <app>|--global <key> (<value>)                                               # Set or clear a registry property for an app
 ```
 
 The registry plugin enables interacting with remote registries, which is useful when either deploying images via `git:from-image` or when interacting with custom schedulers to deploy built image artifacts.
@@ -84,6 +85,52 @@ dokku registry:logout node-js-app docker.io
 ```
 
 When an app is destroyed, any per-app registry credentials are automatically removed.
+
+### Checking the configured auth state
+
+> [!IMPORTANT]
+> New as of 0.38.29
+
+The `registry:auth-status` command reports whether a stored registry credential matches a desired state without exposing it. This allows external tooling such as configuration management systems to converge idempotently, rather than re-running `registry:login` on every pass to discover that nothing needed to change.
+
+```shell
+# check whether an app is configured with the expected credentials
+dokku registry:auth-status node-js-app ghcr.io $USERNAME $REGISTRY_PAT_TOKEN
+
+# check whether the global credentials match
+dokku registry:auth-status --global docker.io $USERNAME $PASSWORD
+
+# check whether any credential is configured for a server
+dokku registry:auth-status node-js-app ghcr.io
+```
+
+As with `registry:login`, the password may be provided via `STDIN`. This is the preferred form, as it keeps the password out of the process list:
+
+```shell
+echo "$PASSWORD" | dokku registry:auth-status --password-stdin node-js-app ghcr.io $USERNAME
+```
+
+The result is reported via the exit code, and nothing is printed when the state could be determined:
+
+| Exit code | Description |
+| --------- | ----------- |
+| `0` | The stored credential matches the requested state. |
+| `1` | There is no stored credential for the specified server. |
+| `2` | There is a stored credential for the specified server, but it does not match the requested state. |
+| `3` | The command was called with invalid arguments and the state could not be checked. |
+| `4` | A credential is stored for the specified server, but it cannot be compared. |
+| `20` | The specified app does not exist. |
+
+The distinction between `1` and `2` allows a caller to tell a server that needs a credential created apart from a server whose existing credential would be replaced, without issuing a second call.
+
+When called without a username, the requested state is that no credential exists for the server. An existing credential is therefore reported as `2`, and `1` is never returned. This is the check to perform before deciding whether a `registry:logout` is necessary.
+
+Exit code `4` is returned when a credential exists but Dokku cannot read the secret it holds - either because a docker credential helper is configured for that server and stores the secret outside of `config.json`, or because the registry issued an identity token in place of a password. In both cases a username that differs from the one supplied is still reported as `2`, so `4` means only that an otherwise matching credential could not be confirmed. Callers should treat `4` as "unknown" rather than retrying the login indefinitely.
+
+Unlike `registry:login`, the `--global` flag is required in order to check the global credentials - the deprecated implicit-global form is not accepted. A per-app check reads only the credentials created by `registry:login <app>` and does not fall back to the global credentials, so an app configured with a credential identical to the global one is still reported as needing one of its own. To see which credentials would actually be used for an app, read the `computed-auth-servers` field of `registry:report`.
+
+> [!WARNING]
+> A `0` exit code means the stored credential matches the one supplied, not that it still authenticates against the registry. A password that has been revoked upstream compares equal here and fails at push or pull time.
 
 ### Setting a remote server
 
@@ -241,3 +288,20 @@ dokku registry:set --global push-extra-tags
 | `push-extra-tags` | app + global | none | `--registry-push-extra-tags`, `--registry-global-push-extra-tags`, `--registry-computed-push-extra-tags` | Comma-separated list of additional tags pushed alongside the deploy tag |
 | `push-on-release` | app + global | `false` | `--registry-push-on-release`, `--registry-global-push-on-release`, `--registry-computed-push-on-release` | When `true`, pushes the image to the registry on every successful build |
 | `server` | app + global | none | `--registry-server`, `--registry-global-server`, `--registry-computed-server` | Registry server host (e.g. `ghcr.io`) used when pushing images |
+
+### Read-only report fields
+
+> [!IMPORTANT]
+> New as of 0.38.29
+
+The following `registry:report` fields describe credentials created by `registry:login` and are not settable via `registry:set`.
+
+| Report flag | Scope | Description |
+|---|---|---|
+| `--registry-auth-servers` | app only | Comma-separated list of servers the app has its own credentials for |
+| `--registry-global-auth-servers` | app + global | Comma-separated list of servers the global credentials cover |
+| `--registry-computed-auth-servers` | app + global | Comma-separated list of servers whose credentials would be used for the app |
+
+Servers are listed under the name they would be passed to `registry:login`, so a Docker Hub credential is reported as `docker.io` rather than the index server address docker stores it under. Only the server names are reported; no part of a credential is ever emitted.
+
+Docker is pointed at one config directory or the other rather than a merge of the two, so an app with any credential of its own shadows the global credentials entirely. The computed value is therefore the app's own list when it has one and the global list otherwise, rather than a per-server merge of the two.

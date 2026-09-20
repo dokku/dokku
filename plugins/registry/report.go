@@ -1,6 +1,8 @@
 package registry
 
 import (
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
@@ -17,6 +19,8 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 	var flags map[string]common.ReportFunc
 	if appName == "--global" {
 		flags = map[string]common.ReportFunc{
+			"--registry-computed-auth-servers":        reportComputedAuthServers,
+			"--registry-global-auth-servers":          reportGlobalAuthServers,
 			"--registry-computed-push-on-release":     reportComputedPushOnRelease,
 			"--registry-global-push-on-release":       reportGlobalPushOnRelease,
 			"--registry-computed-server":              reportComputedServer,
@@ -28,6 +32,9 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 		}
 	} else {
 		flags = map[string]common.ReportFunc{
+			"--registry-auth-servers":                 reportAuthServers,
+			"--registry-computed-auth-servers":        reportComputedAuthServers,
+			"--registry-global-auth-servers":          reportGlobalAuthServers,
 			"--registry-computed-image-repo":          reportComputedImageRepo,
 			"--registry-image-repo":                   reportImageRepo,
 			"--registry-computed-push-on-release":     reportComputedPushOnRelease,
@@ -155,4 +162,37 @@ func reportComputedPushExtraTags(appName string) string {
 		value = DefaultProperties["push-extra-tags"]
 	}
 	return value
+}
+
+// reportAuthServers lists the servers the app has its own credentials for
+func reportAuthServers(appName string) string {
+	return authServersFromConfigPath(GetAppRegistryConfigPath(appName))
+}
+
+// reportGlobalAuthServers lists the servers the global config has credentials for
+func reportGlobalAuthServers(appName string) string {
+	return authServersFromConfigPath(GetGlobalRegistryConfigPath())
+}
+
+// reportComputedAuthServers lists the servers whose credentials dokku would use
+// for the app. Docker is pointed at one config directory or the other rather
+// than a merge of both, so an app with any credential of its own shadows the
+// global config entirely.
+func reportComputedAuthServers(appName string) string {
+	return authServersFromConfigPath(filepath.Join(GetComputedAppRegistryConfigDir(appName), "config.json"))
+}
+
+// authServersFromConfigPath lists the servers a docker config holds credentials for
+func authServersFromConfigPath(configPath string) string {
+	contents, err := os.ReadFile(configPath)
+	if err != nil {
+		return ""
+	}
+
+	config, err := parseDockerConfig(contents)
+	if err != nil {
+		return ""
+	}
+
+	return strings.Join(authServersFromConfig(config), ",")
 }
