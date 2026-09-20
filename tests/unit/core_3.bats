@@ -80,20 +80,20 @@ teardown() {
 }
 
 @test "(core) [global-flags] an unlisted variable only crosses when DOKKU_PRESERVE_ENV names it" {
-  # DOKKU_IMAGE is not carried across the re-exec and is re-derived by the child, so the
-  # traced value shows whether the caller's value survived. The flag form of --trace is
-  # used deliberately: DOKKU_TRACE=1 would trace the parent as well as the child.
-  run /bin/bash -c "DOKKU_IMAGE=probe/image dokku --trace apps:list 2>&1 >/dev/null | grep -m1 'export DOKKU_IMAGE'"
+  # DOKKU_TRACE is set in the environment rather than passed as --trace so that the
+  # parent traces too: the sudo line naming the forwarded variables is only emitted there
+  run /bin/bash -c "DOKKU_TRACE=1 DOKKU_TEST_CROSSING=1 dokku apps:list 2>&1 >/dev/null | grep -o -- '--preserve-env=[^ ]*' | head -1"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_not_contains "probe/image"
+  assert_output_contains "--preserve-env="
+  assert_output_not_contains "DOKKU_TEST_CROSSING"
 
-  run /bin/bash -c "DOKKU_PRESERVE_ENV=DOKKU_IMAGE DOKKU_IMAGE=probe/image dokku --trace apps:list 2>&1 >/dev/null | grep -m1 'export DOKKU_IMAGE'"
+  run /bin/bash -c "DOKKU_TRACE=1 DOKKU_PRESERVE_ENV=DOKKU_TEST_CROSSING DOKKU_TEST_CROSSING=1 dokku apps:list 2>&1 >/dev/null | grep -o -- '--preserve-env=[^ ]*' | head -1"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "probe/image"
+  assert_output_contains "DOKKU_TEST_CROSSING"
 }
 
 @test "(core) [global-flags] the system sudo supports a named preserve-env list" {
