@@ -164,6 +164,29 @@ teardown() {
   assert_output "7"
 }
 
+@test "(common) [preserve-env] fn-cli-preserved-env-names covers the docker image build variables" {
+  # neither is read by the dokku script itself, so the derivation test below does not
+  # catch them. both exist only in the environment while the docker image is built
+  run /bin/bash -c "source '$PLUGIN_CORE_AVAILABLE_PATH/common/functions'; fn-cli-preserved-env-names | tr ' ' '\\n' | grep -cxE 'DOKKU_INIT_SYSTEM|DOKKU_LIB_HOST_ROOT'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "2"
+}
+
+@test "(common) [preserve-env] every environment-overridable dokku variable is preserved" {
+  # test_helper leaves these unexported, so the single-quoted script below cannot see
+  # them without this
+  export PLUGIN_CORE_AVAILABLE_PATH
+  export DOKKU_SOURCE="${BATS_TEST_DIRNAME}/../../dokku"
+  run /bin/bash -c 'source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"; comm -23 <(grep -oE "[{][A-Z_]+:=" "$DOKKU_SOURCE" | tr -cd "A-Z_\n" | sort -u | grep -vx DOKKU_PID) <(fn-cli-preserved-env-names | tr " " "\n" | sort -u)'
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+  unset DOKKU_SOURCE
+}
+
 @test "(common) [preserve-env] parse_args records global flags for replay" {
   run /bin/bash -c "source '$PLUGIN_CORE_AVAILABLE_PATH/common/functions'; parse_args --label=a=b run foo env; echo \"\$DOKKU_GLOBAL_FLAGS\""
   echo "output: $output"

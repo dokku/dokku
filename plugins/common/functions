@@ -479,11 +479,18 @@ is_abs_path() {
 fn-cli-preserved-env-names() {
   declare desc="names the environment variables the re-exec as the dokku user must carry"
 
-  # anything sourced from /etc/default/dokku or ~dokku/.dokkurc/* is re-read by the
-  # child and does not belong here; DOKKU_PRESERVE_ENV carries anything else
+  # every variable dokku honours from the environment has to be listed, or the child
+  # derives different values than the parent - during the docker image build these only
+  # ever exist in the environment. DOKKU_PID is the one exclusion: it is unset above so
+  # the child gets its own. DOKKU_PRESERVE_ENV carries anything else
   echo "DOKKU_APP_NAME DOKKU_APPS_FORCE_DELETE DOKKU_DISABLE_TTY DOKKU_FORCE_TTY" \
     "DOKKU_GLOBAL_FLAGS DOKKU_PRESERVE_ENV DOKKU_QUIET_OUTPUT DOKKU_TRACE" \
-    "FINGERPRINT NAME SSH_NAME SSH_ORIGINAL_COMMAND SSH_USER"
+    "FINGERPRINT NAME SSH_NAME SSH_ORIGINAL_COMMAND SSH_USER" \
+    "DOCKER_BIN DOKKU_CNB_BUILDER DOKKU_EVENTS_LOGFILE DOKKU_HOST_ROOT DOKKU_IMAGE" \
+    "DOKKU_INIT_SYSTEM DOKKU_LIB_HOST_ROOT DOKKU_LIB_PATH DOKKU_LOGS_DIR" \
+    "DOKKU_LOGS_HOST_DIR DOKKU_ROOT DOKKU_SYSTEM_GROUP DOKKU_SYSTEM_USER" \
+    "PLUGIN_AVAILABLE_PATH PLUGIN_CORE_AVAILABLE_PATH PLUGIN_CORE_ENABLED_PATH" \
+    "PLUGIN_CORE_PATH PLUGIN_ENABLED_PATH PLUGIN_PATH"
 }
 
 fn-sudo-preserve-env-flag() {

@@ -165,6 +165,11 @@ named explicitly and forwarded:
 | `DOKKU_DISABLE_TTY`, `DOKKU_FORCE_TTY` | the `dokku run` tty flags, or the environment |
 | `DOKKU_PRESERVE_ENV` | the list below |
 | `SSH_USER`, `SSH_NAME`, `NAME`, `FINGERPRINT`, `SSH_ORIGINAL_COMMAND` | the ssh session the command arrived on |
+| `DOCKER_BIN`, `DOKKU_CNB_BUILDER`, `DOKKU_EVENTS_LOGFILE`, `DOKKU_HOST_ROOT`, `DOKKU_IMAGE`, `DOKKU_LIB_PATH`, `DOKKU_LOGS_DIR`, `DOKKU_LOGS_HOST_DIR`, `DOKKU_ROOT`, `DOKKU_SYSTEM_GROUP`, `DOKKU_SYSTEM_USER`, `PLUGIN_PATH`, `PLUGIN_AVAILABLE_PATH`, `PLUGIN_ENABLED_PATH`, `PLUGIN_CORE_PATH`, `PLUGIN_CORE_AVAILABLE_PATH`, `PLUGIN_CORE_ENABLED_PATH` | the environment, so the re-executed process derives the same paths as the caller |
+| `DOKKU_INIT_SYSTEM`, `DOKKU_LIB_HOST_ROOT` | the environment, which is where they live while a Docker image is being built |
+
+`DOKKU_PID` is deliberately not forwarded: it is unset before the privilege drop so the re-executed
+process gets its own.
 
 To forward anything else - a variable read by a third-party plugin, or a one-off override of a
 setting that normally lives in `/etc/default/dokku` - name it in `DOKKU_PRESERVE_ENV`:
