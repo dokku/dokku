@@ -135,3 +135,9 @@ Use `visudo /etc/sudoers.d/dokku-users`, or `visudo /etc/sudoers` to add the fol
 ```
 %dokku ALL=(ALL:ALL) NOPASSWD:SETENV: /usr/bin/dokku
 ```
+
+The `SETENV:` tag is required. When a user other than `dokku` runs the `dokku` binary, it re-executes
+itself as the `dokku` user and names the environment variables that have to survive that step via
+`sudo --preserve-env=`. Without `SETENV:` those variables are filtered out, and global flags such as
+`--quiet`, `--trace` and `--force` stop taking effect. See
+[Forwarding environment variables](/docs/configuration/environment-variables.md#forwarding-environment-variables).

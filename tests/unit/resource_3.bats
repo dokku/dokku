@@ -101,6 +101,8 @@ teardown() {
   echo "status: $status"
   assert_success
 
+  # DOKKU_OMIT_RESOURCE_ARGS has to survive the privilege drop in
+  # plugins/plugin/subcommands/trigger, so this also covers that forwarding
   run_plugn_trigger DOKKU_OMIT_RESOURCE_ARGS=1 docker-args-process-build "$TEST_APP" herokuish
   echo "output: $output"
   echo "status: $status"

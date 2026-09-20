@@ -120,3 +120,54 @@ teardown() {
   assert_line 0 "--label"
   assert_line 1 "a b"
 }
+
+@test "(common) [preserve-env] fn-sudo-preserve-env-flag emits only the requested names" {
+  run /bin/bash -c "source '$PLUGIN_CORE_AVAILABLE_PATH/common/functions'; fn-sudo-preserve-env-flag DOKKU_TRACE DOKKU_APP_NAME"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "--preserve-env=DOKKU_TRACE,DOKKU_APP_NAME"
+}
+
+@test "(common) [preserve-env] fn-sudo-preserve-env-flag omits sudo managed names" {
+  run /bin/bash -c "source '$PLUGIN_CORE_AVAILABLE_PATH/common/functions'; export DOKKU_TEST_CROSSING=1; fn-sudo-preserve-env-flag | sed 's/^--preserve-env=//' | tr ',' '\\n' | grep -cx DOKKU_TEST_CROSSING"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "1"
+
+  run /bin/bash -c "source '$PLUGIN_CORE_AVAILABLE_PATH/common/functions'; fn-sudo-preserve-env-flag | sed 's/^--preserve-env=//' | tr ',' '\\n' | grep -cxE 'HOME|LOGNAME|MAIL|PATH|SHELL|USER|_|SUDO_.*'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "0"
+}
+
+@test "(common) [preserve-env] fn-sudo-preserve-env-flag honors DOKKU_PRESERVE_ENV" {
+  run /bin/bash -c "source '$PLUGIN_CORE_AVAILABLE_PATH/common/functions'; DOKKU_PRESERVE_ENV=ALPHA,BETA fn-sudo-preserve-env-flag DOKKU_TRACE"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "--preserve-env=DOKKU_TRACE,ALPHA,BETA"
+
+  run /bin/bash -c "source '$PLUGIN_CORE_AVAILABLE_PATH/common/functions'; DOKKU_PRESERVE_ENV=ALPHA fn-sudo-preserve-env-flag | sed 's/^--preserve-env=//' | tr ',' '\\n' | grep -cx ALPHA"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "1"
+}
+
+@test "(common) [preserve-env] fn-cli-preserved-env-names covers every parse_args export" {
+  run /bin/bash -c "source '$PLUGIN_CORE_AVAILABLE_PATH/common/functions'; fn-cli-preserved-env-names | tr ' ' '\\n' | grep -cxE 'DOKKU_APP_NAME|DOKKU_APPS_FORCE_DELETE|DOKKU_GLOBAL_FLAGS|DOKKU_PRESERVE_ENV|DOKKU_QUIET_OUTPUT|DOKKU_TRACE|SSH_USER'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "7"
+}
+
+@test "(common) [preserve-env] parse_args records global flags for replay" {
+  run /bin/bash -c "source '$PLUGIN_CORE_AVAILABLE_PATH/common/functions'; parse_args --label=a=b run foo env; echo \"\$DOKKU_GLOBAL_FLAGS\""
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "--label=a=b"
+}

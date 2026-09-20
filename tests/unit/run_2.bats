@@ -35,6 +35,9 @@ teardown() {
   echo "status: $status"
   assert_success
 
+  # the leading --label is replayed out of DOKKU_GLOBAL_FLAGS by
+  # plugins/scheduler-docker-local/scheduler-run, so this also covers that variable
+  # surviving the re-exec as the dokku user
   RANDOM_RUN_CID="$(dokku --label=com.dokku.test-label=value run:detached $TEST_APP sleep 300)"
   run /bin/bash -c "docker inspect -f '{{ .State.Status }}' $RANDOM_RUN_CID"
   echo "output: $output"

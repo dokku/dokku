@@ -138,12 +138,49 @@ The following config variables have special meanings and can be set in a variety
 | `DOKKU_EVENTS_LOGFILE`         | `$DOKKU_LOGS_DIR/events.log`    | `/etc/environment` <br /> `~dokku/.dokkurc` <br /> `~dokku/.dokkurc/*`                                                                           | Where the events log file is written to. |
 | `DOKKU_APP_NAME`               | none                            | `--app APP` flag                                                                                                                                 | Name of application to work on. Respected by core plugins. |
 | `DOKKU_APPS_FORCE_DELETE`      | none                            | `--force` flag                                                                                                                                   | Whether to force delete an application. Also used by other plugins for destructive actions. |
+| `DOKKU_DISABLE_TTY`            | none                            | `dokku run --no-tty` <br /> environment                                                                                                          | Forces `dokku run` to treat the session as non-interactive. |
+| `DOKKU_FORCE_TTY`              | none                            | `dokku run --force-tty` <br /> environment                                                                                                       | Forces `dokku run` to treat the session as interactive. |
+| `DOKKU_PRESERVE_ENV`           | none                            | `/etc/default/dokku` <br /> `~dokku/.dokkurc` <br /> `~dokku/.dokkurc/*` <br /> environment                                                       | Comma-separated list of extra environment variable names to carry across the privilege drop to the `dokku` user. See [Forwarding environment variables](#forwarding-environment-variables). |
 | `DOKKU_CHECKS_URL`             | `https://dokku.com/docs/deployment/zero-downtime-deploys/` | `/etc/environment` <br /> `~dokku/.dokkurc` <br /> `~dokku/.dokkurc/*`                                                | Url displayed during deployment when no CHECKS file exists. |
 | `DOKKU_QUIET_OUTPUT`           | none                            | `--quiet` flag                                                                                                                                   | Silences certain header output for `dokku` commands. |
 | `DOKKU_RM_CONTAINER`           | none                            | `dokku config:set` <br />                                                                                                                        | Deprecated: Whether to keep `dokku run` containers around or not. |
 | `DOKKU_TRACE`                  | none                            | `dokku trace:on`   <br /> `dokku trace:off` <br /> `--trace` flag                                                                                | Turn on very verbose debugging. |
 | `DOKKU_SYSTEM_GROUP`           | `dokku`                         | `/etc/environment` <br /> `~dokku/.dokkurc` <br /> `~dokku/.dokkurc/*`                                                                           | System group to chown files as. |
 | `DOKKU_SYSTEM_USER`            | `dokku`                         | `/etc/environment` <br /> `~dokku/.dokkurc` <br /> `~dokku/.dokkurc/*`                                                                           | System user to chown files as. |
+
+## Forwarding environment variables
+
+When `dokku` is invoked by any user other than `dokku` - `root`, or a member of the `sudo` group - it
+re-executes itself as the `dokku` user. Most configuration does not need to survive that step, since
+`/etc/default/dokku`, `~dokku/dokkurc` and `~dokku/.dokkurc/*` are read again by the re-executed
+process, and `/etc/environment` is applied by PAM.
+
+What cannot be recomputed is state that belongs to the invocation itself, so those variables are
+named explicitly and forwarded:
+
+| Variable | Source |
+| --- | --- |
+| `DOKKU_APP_NAME`, `DOKKU_APPS_FORCE_DELETE`, `DOKKU_QUIET_OUTPUT`, `DOKKU_TRACE` | the `--app`, `--force`, `--quiet` and `--trace` global flags, or the environment |
+| `DOKKU_GLOBAL_FLAGS` | every global flag as given, replayed by plugins that need them |
+| `DOKKU_DISABLE_TTY`, `DOKKU_FORCE_TTY` | the `dokku run` tty flags, or the environment |
+| `DOKKU_PRESERVE_ENV` | the list below |
+| `SSH_USER`, `SSH_NAME`, `NAME`, `FINGERPRINT`, `SSH_ORIGINAL_COMMAND` | the ssh session the command arrived on |
+
+To forward anything else - a variable read by a third-party plugin, or a one-off override of a
+setting that normally lives in `/etc/default/dokku` - name it in `DOKKU_PRESERVE_ENV`:
+
+```shell
+DOKKU_PRESERVE_ENV=DOCKER_BUILDKIT DOCKER_BUILDKIT=0 dokku ps:rebuild node-js-app
+```
+
+Set it persistently to forward a variable for every invocation:
+
+```shell
+echo "export DOKKU_PRESERVE_ENV=MY_PLUGIN_DEBUG" | sudo tee -a /etc/default/dokku
+```
+
+Variables sudo manages for the target user - `HOME`, `PATH`, `SHELL`, `USER`, `LOGNAME`, `MAIL` and
+`SUDO_*` - are never forwarded, and naming them in `DOKKU_PRESERVE_ENV` is not supported.
 
 ## Properties
 

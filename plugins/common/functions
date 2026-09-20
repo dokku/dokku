@@ -476,6 +476,49 @@ is_abs_path() {
   fi
 }
 
+fn-cli-preserved-env-names() {
+  declare desc="names the environment variables the re-exec as the dokku user must carry"
+
+  # anything sourced from /etc/default/dokku or ~dokku/.dokkurc/* is re-read by the
+  # child and does not belong here; DOKKU_PRESERVE_ENV carries anything else
+  echo "DOKKU_APP_NAME DOKKU_APPS_FORCE_DELETE DOKKU_DISABLE_TTY DOKKU_FORCE_TTY" \
+    "DOKKU_GLOBAL_FLAGS DOKKU_PRESERVE_ENV DOKKU_QUIET_OUTPUT DOKKU_TRACE" \
+    "FINGERPRINT NAME SSH_NAME SSH_ORIGINAL_COMMAND SSH_USER"
+}
+
+fn-sudo-preserve-env-flag() {
+  declare desc="prints the sudo flag that carries environment variables across a privilege drop"
+  local names=("$@")
+  local extra_names=()
+  local joined name
+
+  # sudo-rs, the default sudo on ubuntu 25.10 and later, ignores -E and bare
+  # --preserve-env, so every variable that has to survive must be named
+  if [[ "${#names[@]}" -eq 0 ]]; then
+    for name in $(compgen -e); do
+      # preserving these would defeat -H and override the sudoers secure_path
+      case "$name" in
+        HOME | LOGNAME | MAIL | PATH | SHELL | USER | _ | SUDO_*)
+          continue
+          ;;
+      esac
+      names+=("$name")
+    done
+  fi
+
+  if [[ -n "$DOKKU_PRESERVE_ENV" ]]; then
+    read -ra extra_names <<<"${DOKKU_PRESERVE_ENV//,/ }"
+    names+=("${extra_names[@]}")
+  fi
+
+  if [[ "${#names[@]}" -eq 0 ]]; then
+    return 0
+  fi
+
+  printf -v joined "%s," "${names[@]}"
+  echo "--preserve-env=${joined%,}"
+}
+
 parse_args() {
   declare desc="top-level cli arg parser"
   local next_index=1

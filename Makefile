@@ -126,10 +126,10 @@ else
 endif
 
 plugin-dependencies: plugn procfile-util
-	sudo -E dokku plugin:install-dependencies --core
+	sudo dokku plugin:install-dependencies --core
 
 plugins: plugn procfile-util docker
-	sudo -E dokku plugin:install --core
+	sudo dokku plugin:install --core
 
 dependencies: apt-update jq docker-image-labeler docker-container-healthchecker lambda-builder netrc sshcommand plugn procfile-util docker help2man man-db sigil dos2unix parallel
 	$(MAKE) -e stack
