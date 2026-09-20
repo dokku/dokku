@@ -224,10 +224,10 @@ func main() {
 		readonly := args.Bool("volume-readonly", false, "--volume-readonly: mount the volume read-only")
 		volumeChown := args.String("volume-chown", "", "--volume-chown: chown option applied at mount time")
 		volumeOptions := args.String("volume-options", "", "--volume-options: comma-separated mount options (e.g. Z, noexec,nosuid)")
+		replace := args.Bool("replace", false, "--replace: replace the entire mount set for the process type")
 		args.Parse(os.Args[2:])
-		err = storage.CommandMount(storage.CommandMountInput{
+		input := storage.CommandMountInput{
 			AppName:       args.Arg(0),
-			NameOrPath:    args.Arg(1),
 			ContainerDir:  *containerDir,
 			Phases:        *phases,
 			ProcessType:   *processType,
@@ -235,7 +235,16 @@ func main() {
 			Readonly:      *readonly,
 			VolumeChown:   *volumeChown,
 			VolumeOptions: *volumeOptions,
-		})
+			Replace:       *replace,
+		}
+
+		if *replace {
+			input.Specs = common.VarArgs(args.Args(), 1)
+		} else {
+			input.NameOrPath = args.Arg(1)
+		}
+
+		err = storage.CommandMount(input)
 	case "report":
 		args := flag.NewFlagSet("storage:report", flag.ExitOnError)
 		format := args.String("format", "stdout", "format: [ stdout | json ]")
@@ -251,11 +260,15 @@ func main() {
 	case "unmount":
 		args := flag.NewFlagSet("storage:unmount", flag.ExitOnError)
 		containerDir := args.String("container-dir", "", "--container-dir: container path (named-entry form, disambiguates duplicates)")
+		all := args.Bool("all", false, "--all: remove every mount for the app or the specified process type")
+		processType := args.String("process-type", "", "--process-type: process type to remove mounts for (requires --all)")
 		args.Parse(os.Args[2:])
 		err = storage.CommandUnmount(storage.CommandUnmountInput{
 			AppName:      args.Arg(0),
-			NameOrPath:   args.Arg(1),
+			Mounts:       common.VarArgs(args.Args(), 1),
 			ContainerDir: *containerDir,
+			All:          *all,
+			ProcessType:  *processType,
 		})
 	default:
 		err = fmt.Errorf("Invalid plugin subcommand call: %s", subcommand)

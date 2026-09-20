@@ -6,24 +6,23 @@
 The preferred method to attach persistent storage to a Dokku-managed container is the Dokku storage plugin.
 
 ```
-storage:annotations:report [<name>] [<flag>]           # Display annotations for one or more storage entries
-storage:annotations:set <name> <key> [<value>]         # Set or clear a single annotation on a storage entry
-storage:create <name> [<path>] [flags]                 # Register a named storage entry
-storage:destroy <name> [--force] [--destroy-host-dir]  # Remove a named storage entry (must be unmounted from every app first)
-storage:ensure-directory [--chown option] <directory>  # [DEPRECATED] use storage:create instead
-storage:exec <name> [-- <cmd>...]                      # Run a command (or shell) in a temporary container that mounts the entry
-storage:info <name> [--format text|json]               # Show details for one storage entry
-storage:labels:report [<name>] [<flag>]                # Display labels for one or more storage entries
-storage:labels:set <name> <key> [<value>]              # Set or clear a single label on a storage entry
-storage:list <app> [--format text|json]                # List bind mounts for an app's container(s) (legacy host:container view)
-storage:list-entries [--scheduler s] [--format text|json]  # List registered storage entries
-storage:mount <app> <name> --container-dir <path> [flags]  # Mount a named entry into an app
-storage:mount <app> <host-dir:container-dir>           # [LEGACY] colon-form mount, docker-local only
-storage:report [<app>] [<flag>]                        # Display a storage report for one or more apps
-storage:report --global                                # Display a cluster-wide entry inventory
-storage:set <name> <property> [<value>]                # Update a storage entry in place
-storage:unmount <app> <name> [--container-dir <path>]  # Remove an attachment
-storage:wait <name>                                    # Block until a k3s entry's PVC is bound
+storage:annotations:report [<name>] [<flag>]                         # Displays annotations for one or more storage entries
+storage:annotations:set <name> <key> [<value>]                       # Set or clear a single annotation on a storage entry
+storage:create <name> [<path>] [flags]                               # Register a named storage entry
+storage:destroy <name> [--force] [--destroy-host-dir]                # Remove a named storage entry (must be unmounted from every app first)
+storage:ensure-directory [--chown option] <directory>                # [DEPRECATED] use storage:create instead
+storage:exec <name> [-- <cmd>...]                                    # Run a command (or shell) in a temporary container that mounts the entry
+storage:info <name> [--format text|json]                             # Show details for one storage entry
+storage:labels:report [<name>] [<flag>]                              # Displays labels for one or more storage entries
+storage:labels:set <name> <key> [<value>]                            # Set or clear a single label on a storage entry
+storage:list <app> [--format text|json]                              # List bind mounts for an app's container(s) (legacy host:container view)
+storage:list-entries [--scheduler s] [--format text|json]            # List registered storage entries
+storage:migrate [<app>|--all]                                        # Re-run the legacy -v to attachment migration for an app
+storage:mount [--replace] <app> <host-dir:container-dir>... [flags]  # Create or replace bind mounts
+storage:report [<app>|--global] [<flag>]                             # Displays a storage report for one or more apps
+storage:set <name> <property> [<value>]                              # Update a storage entry in place
+storage:unmount [--all] <app> [<host-dir:container-dir>...] [flags]  # Remove one or all bind mounts
+storage:wait <name>                                                  # Wait for a storage entry's PVC to be bound (k3s)
 ```
 
 A storage entry is the source of truth for the underlying volume - a host directory on docker-local, or a PersistentVolumeClaim on k3s. Multiple apps can mount the same entry, and an attachment carries the per-app details (container path, phases, subpath, readonly, process type). Names are globally unique across the install and must be DNS-1123 labels (lowercase letters, digits, dashes) of 45 characters or less so they can be used verbatim as Helm release and PVC names.
@@ -269,9 +268,50 @@ Once persistent storage is mounted, the app requires a restart. See the [process
 dokku ps:restart app-name
 ```
 
+#### Replacing the entire mount set
+
+> [!IMPORTANT]
+> New as of 0.38.28
+
+The form above mounts one entry at a time, so matching an app's mounts to a declared set means reading `storage:list`, computing the difference in both directions and issuing one `storage:mount` or `storage:unmount` per addition and removal - with a failure partway through leaving the app holding a mixture of the two sets. The `--replace` flag writes the whole set in a single call, taking `name:container-dir` pairs instead of a single entry and a `--container-dir` flag.
+
+```shell
+dokku storage:mount --replace node-js-app node-js-data:/app/storage node-js-cache:/cache
+```
+
+Anything previously mounted and not named in the call is unmounted. Each pair takes the same optional third field as the legacy colon form, so `ro` and other mount options can vary between mounts:
+
+```shell
+dokku storage:mount --replace node-js-app node-js-data:/app/storage:Z node-js-cache:/cache:ro,noexec
+```
+
+A pair whose first field starts with `/` is a legacy host path rather than an entry name, and registers its `legacy-<hash>` entry the same way the colon form does. Any other first field must name a registered entry, so a mistyped name is rejected rather than taken for a docker volume. A docker volume already mounted through the colon form is named here by the `legacy-<hash>` entry that `storage:list-entries` shows.
+
+The remaining mount-time flags scope the whole call rather than a single pair, so every mount in the replacement shares them:
+
+```shell
+dokku storage:mount --replace node-js-app node-js-data:/app/storage --phase deploy --volume-subpath uploads --volume-chown herokuish
+```
+
+This means `--volume-subpath` and `--volume-chown` cannot differ between mounts declared in one call. Mounts needing different values for either are declared under a different `--process-type`, or set individually with the single-entry form.
+
+`--process-type` scopes the replacement the same way it scopes a single mount. Omitting it replaces the `_default_` process type, leaving mounts scoped to a named process type in place:
+
+```shell
+dokku storage:mount --replace node-js-app node-js-data:/app/storage
+dokku storage:mount --replace node-js-app node-js-cache:/cache --process-type web
+```
+
+Every pair is parsed and validated before anything is written, so a rejected pair leaves the stored mounts untouched. A pair without a container directory, a container directory that is not absolute, an entry that is not registered, an entry whose scheduler does not match the app's, and a container directory named more than once in one call are all rejected.
+
+> [!NOTE]
+> An empty pair list is rejected rather than treated as a request to unmount everything, so a generated list that expands to nothing cannot silently drop an app's storage. Use `storage:unmount --all` for that.
+
+As with a single mount, the app requires a restart afterward.
+
 ### Unmounting storage
 
-If an app no longer requires a mounted volume or directory, the `storage:unmount` command can be called. This takes the same arguments as the `storage:mount` command, an app name and a `host-path:container-path` or `docker-volume:container-path` combination.
+If an app no longer requires a mounted volume or directory, the `storage:unmount` command can be called. This takes the same arguments as the `storage:mount` command, an app name and a `host-path:container-path` or `docker-volume:container-path` combination, or a registered entry name.
 
 ```shell
 # unmount the directory from your container's /app/storage directory, relative to the container root (/)
@@ -279,6 +319,39 @@ dokku storage:unmount node-js-app /var/lib/dokku/data/storage/node-js-app:/app/s
 
 # unmount the docker volume from your container's /app/storage directory, relative to the container root (/)
 dokku storage:unmount node-js-app some-docker-volume:/app/storage
+```
+
+> [!IMPORTANT]
+> Removing more than one attachment at a time is new as of 0.38.28
+
+More than one attachment can be removed in a single call, naming each by entry name or by the colon form. Every argument is resolved against the app's attachments before any of them is removed, so an argument naming an attachment the app does not have removes none of them:
+
+```shell
+dokku storage:unmount node-js-app node-js-data node-js-cache
+```
+
+An entry mounted at several container directories is disambiguated with `--container-dir`, which therefore applies only when a single entry is named. Naming the container directory in the argument itself works with any number of attachments:
+
+```shell
+dokku storage:unmount node-js-app node-js-data --container-dir /app/storage
+dokku storage:unmount node-js-app node-js-data:/app/storage node-js-data:/app/uploads
+```
+
+#### Removing every mount
+
+> [!IMPORTANT]
+> New as of 0.38.28
+
+The `--all` flag removes every attachment on an app. This is the empty case `storage:mount --replace` refuses to handle, and it takes no entry arguments:
+
+```shell
+dokku storage:unmount --all node-js-app
+```
+
+`--process-type` narrows what is removed to a single scope, filtering the same way it scopes a replacement. Omitting it removes every scope, and a scope that matches nothing is a no-op rather than an error, so the command is safe to re-run:
+
+```shell
+dokku storage:unmount --all node-js-app --process-type web
 ```
 
 Once persistent storage is unmounted, the app requires a restart. See the [process scaling documentation](/docs/processes/process-management.md) for more information.
@@ -434,6 +507,8 @@ dokku storage:report node-js-app --format json | jq '. | with_entries(select(.ke
   "attachment.1.volume-options": "Z"
 }
 ```
+
+Indices are assigned in stored order, so `storage:mount --replace` renumbers them: the attachments it leaves in place keep their relative order and the declared ones follow.
 
 A single attachment field can be fetched directly via the info-flag form:
 

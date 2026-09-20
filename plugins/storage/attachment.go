@@ -172,6 +172,19 @@ func RemoveAttachment(appName string, entryName string, containerPath string) er
 		return err
 	}
 
+	keep, err := removeMatchingAttachments(attachments, appName, entryName, containerPath)
+	if err != nil {
+		return err
+	}
+
+	return SaveAttachments(appName, keep)
+}
+
+// removeMatchingAttachments returns the given list with the attachments
+// matching the entry and optional container path dropped. Working against an
+// in-memory list lets storage:unmount resolve several mounts before any of
+// them is written, so one unresolvable mount removes none of them.
+func removeMatchingAttachments(attachments []*Attachment, appName string, entryName string, containerPath string) ([]*Attachment, error) {
 	matches := []*Attachment{}
 	keep := []*Attachment{}
 	for _, attachment := range attachments {
@@ -184,9 +197,9 @@ func RemoveAttachment(appName string, entryName string, containerPath string) er
 
 	if len(matches) == 0 {
 		if containerPath == "" {
-			return fmt.Errorf("storage entry %q is not mounted on app %q", entryName, appName)
+			return nil, fmt.Errorf("storage entry %q is not mounted on app %q", entryName, appName)
 		}
-		return fmt.Errorf("storage entry %q is not mounted at %q on app %q", entryName, containerPath, appName)
+		return nil, fmt.Errorf("storage entry %q is not mounted at %q on app %q", entryName, containerPath, appName)
 	}
 	if len(matches) > 1 && containerPath == "" {
 		paths := []string{}
@@ -194,11 +207,11 @@ func RemoveAttachment(appName string, entryName string, containerPath string) er
 			paths = append(paths, attachment.ContainerPath)
 		}
 		sort.Strings(paths)
-		return fmt.Errorf("storage entry %q is mounted at multiple paths on app %q (%s); pass --container-dir to disambiguate",
+		return nil, fmt.Errorf("storage entry %q is mounted at multiple paths on app %q (%s); pass --container-dir to disambiguate",
 			entryName, appName, strings.Join(paths, ", "))
 	}
 
-	return SaveAttachments(appName, keep)
+	return keep, nil
 }
 
 // AttachmentsForPhase returns the subset of an app's attachments that
