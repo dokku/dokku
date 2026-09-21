@@ -16,7 +16,7 @@ require (
 	github.com/dokku/dokku/plugins/registry v0.0.0-00010101000000-000000000000
 	github.com/dokku/dokku/plugins/storage v0.0.0-00010101000000-000000000000
 	github.com/fatih/color v1.19.0
-	github.com/fluxcd/pkg/kustomize v1.40.0
+	github.com/fluxcd/pkg/kustomize v1.41.0
 	github.com/go-openapi/jsonpointer v1.0.1
 	github.com/go-resty/resty/v2 v2.17.2
 	github.com/gosimple/slug v1.15.0
@@ -172,7 +172,7 @@ require (
 	k8s.io/kube-openapi v0.0.0-20260721132016-d427ff9ee9ad // indirect
 	k8s.io/streaming v0.37.0 // indirect
 	oras.land/oras-go/v2 v2.6.2 // indirect
-	sigs.k8s.io/controller-runtime v0.24.1 // indirect
+	sigs.k8s.io/controller-runtime v0.25.0 // indirect
 	sigs.k8s.io/gateway-api v1.6.0 // indirect
 	sigs.k8s.io/json v0.0.0-20250730193827-2d320260d730 // indirect
 	sigs.k8s.io/kustomize/kyaml v0.21.1 // indirect
