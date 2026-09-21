@@ -16,6 +16,7 @@ import (
 	"github.com/dokku/dokku/plugins/config"
 	"github.com/dokku/dokku/plugins/cron"
 	"github.com/dokku/dokku/plugins/registry"
+	"github.com/dokku/dokku/plugins/storage"
 	"github.com/kballard/go-shellquote"
 )
 
@@ -335,9 +336,12 @@ func BuildAppChart(ctx context.Context, appName, imageTag string, opts BuildOpti
 		}
 	}
 
-	processVolumes := []ProcessVolume{}
+	// Volumes every workload in the app receives, whichever process type it
+	// belongs to. Storage attachments are layered on top per process type
+	// inside the loops below.
+	baseVolumes := []ProcessVolume{}
 	if shmSize := getComputedShmSize(appName); shmSize != "" {
-		processVolumes = append(processVolumes, ProcessVolume{
+		baseVolumes = append(baseVolumes, ProcessVolume{
 			Name:      "shmem",
 			MountPath: "/dev/shm",
 			EmptyDir: &ProcessVolumeEmptyDir{
@@ -351,11 +355,9 @@ func BuildAppChart(ctx context.Context, appName, imageTag string, opts BuildOpti
 	if err != nil {
 		return cleanup(fmt.Errorf("error loading storage app mounts: %w", err))
 	}
-	deployVolumes, err := ToProcessVolumes(deployMountPairs)
-	if err != nil {
+	if err := ValidateMountPairs(deployMountPairs); err != nil {
 		return cleanup(err)
 	}
-	processVolumes = append(processVolumes, deployVolumes...)
 
 	for processType, processCount := range processes {
 		healthchecks, ok := appJSON.Healthchecks[processType]
@@ -411,7 +413,7 @@ func BuildAppChart(ctx context.Context, appName, imageTag string, opts BuildOpti
 			ProcessType:  ProcessType_Worker,
 			Replicas:     int32(processCount),
 			Resources:    processResources,
-			Volumes:      processVolumes,
+			Volumes:      processVolumesFor(baseVolumes, deployMountPairs, processType),
 		}
 
 		if processType == "web" {
@@ -589,7 +591,11 @@ func BuildAppChart(ctx context.Context, appName, imageTag string, opts BuildOpti
 			ProcessType: ProcessType_Cron,
 			Replicas:    1,
 			Resources:   processResources,
-			Volumes:     processVolumes,
+			// A cron ID is a hash of the app name, command and schedule, so it
+			// is not something an operator can name in --process-type and it
+			// churns whenever the task changes. Cron jobs therefore sit with
+			// `dokku run` and app.json tasks: default-scoped mounts only.
+			Volumes: processVolumesFor(baseVolumes, deployMountPairs, storage.DefaultProcessType),
 		}
 		values.Processes[cronTask.ID] = processValues
 	}

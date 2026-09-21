@@ -247,7 +247,7 @@ dokku storage:mount node-js-app /var/lib/dokku/data/storage/node-js-app:/app/sto
 dokku storage:mount node-js-app some-docker-volume:/app/storage
 ```
 
-In the first example, Dokku will then mount the shared contents of `/var/lib/dokku/data/storage/node-js-app` to `/app/storage` inside the container.  The mount point is *not* relative to your app's working directory, and is instead relative to the root (`/`) of the container. Mounts are only available for containers created via `run` and by the deploy process, and not during the build process. In addition, the host path is never auto-created by either Dokku or Docker, and should be an explicit path, not one relative to the current working directory.
+In the first example, Dokku will then mount the shared contents of `/var/lib/dokku/data/storage/node-js-app` to `/app/storage` inside the container.  The mount point is *not* relative to your app's working directory, and is instead relative to the root (`/`) of the container. Mounts are only available for containers created via `run` and by the deploy process, and not during the build process. A mount is bound into every process type unless `--process-type` narrows it - see [scoping a mount to a process type](#scoping-a-mount-to-a-process-type). In addition, the host path is never auto-created by either Dokku or Docker, and should be an explicit path, not one relative to the current working directory.
 
 > If the `/storage` path within the container had pre-existing content, the container files will be over-written. This may be an issue for users that create assets at build time but then mount a directory at the same place during runtime. Files are not merged.
 
@@ -266,6 +266,40 @@ Once persistent storage is mounted, the app requires a restart. See the [process
 
 ```shell
 dokku ps:restart app-name
+```
+
+#### Scoping a mount to a process type
+
+> [!IMPORTANT]
+> New as of 0.38.28
+
+By default a mount is bound into every one of an app's containers. `--process-type` narrows it to a single Procfile process type, which is how a worker gets a scratch volume the web process has no business seeing:
+
+```shell
+dokku storage:create node-js-scratch
+dokku storage:mount node-js-app node-js-scratch --container-dir /scratch --process-type worker
+```
+
+The magic `_default_` process type is the unscoped case, and it is what a mount gets when `--process-type` is omitted. Default-scoped mounts are bound into every process; a mount scoped to a named process type is bound only into that one.
+
+Some containers belong to no process type at all - a `dokku run` one-off, the ephemeral containers that run `app.json` deploy tasks, and k3s cron jobs. Those receive default-scoped mounts only, since there is no process type for a named scope to match. On k3s this applies to the deploy phase; `--phase run` attachments are not mounted there at all.
+
+A container path can be claimed by only one mount per process type, so `storage:mount` rejects a container path that an overlapping scope already holds. The default scope overlaps every named one:
+
+```shell
+dokku storage:create node-js-data
+dokku storage:create node-js-cache
+
+dokku storage:mount node-js-app node-js-data --container-dir /app/storage
+# fails: the default-scoped mount above also applies to web
+dokku storage:mount node-js-app node-js-cache --container-dir /app/storage --process-type web
+```
+
+Two *named* scopes never apply to the same container, so they may each bind a different entry at the same container path:
+
+```shell
+dokku storage:mount node-js-app node-js-data --container-dir /app/storage --process-type web
+dokku storage:mount node-js-app node-js-cache --container-dir /app/storage --process-type worker
 ```
 
 #### Replacing the entire mount set

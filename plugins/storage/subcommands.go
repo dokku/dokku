@@ -320,17 +320,6 @@ func resolveMountSpecEntry(appName string, appScheduler string, spec string, par
 	return entry, false, nil
 }
 
-// attachmentProcessType returns the process type an attachment is scoped to,
-// treating an unset value as the default scope so attachments written before
-// the field existed still sort into a scope.
-func attachmentProcessType(attachment *Attachment) string {
-	if attachment.ProcessType == "" {
-		return DefaultProcessType
-	}
-
-	return attachment.ProcessType
-}
-
 // replaceMounts swaps one process type's entire mount set for the declared one
 // in a single write, so a caller converging an app onto a declared set no
 // longer issues one storage:mount or storage:unmount per difference and can no
@@ -417,13 +406,24 @@ func replaceMounts(input CommandMountInput) error {
 		return err
 	}
 
-	attachments := []*Attachment{}
+	retained := []*Attachment{}
 	for _, attachment := range existing {
-		if attachmentProcessType(attachment) != processType {
-			attachments = append(attachments, attachment)
+		if attachment.EffectiveProcessType() != processType {
+			retained = append(retained, attachment)
 		}
 	}
-	attachments = append(attachments, declared...)
+
+	// The declared set is already unique on container path within its own
+	// scope; what is left to check is the scopes this call does not replace,
+	// so a declared path cannot collide with one held by another process type.
+	// Checking before the write keeps the all-or-nothing contract.
+	for _, attachment := range declared {
+		if err := ensureContainerPathFree(input.AppName, retained, attachment); err != nil {
+			return err
+		}
+	}
+
+	attachments := append(retained, declared...)
 
 	if err := SaveAttachments(input.AppName, attachments); err != nil {
 		return err
@@ -578,7 +578,7 @@ func unmountAll(input CommandUnmountInput) error {
 
 	keep := []*Attachment{}
 	for _, attachment := range attachments {
-		if attachmentProcessType(attachment) != input.ProcessType {
+		if attachment.EffectiveProcessType() != input.ProcessType {
 			keep = append(keep, attachment)
 		}
 	}

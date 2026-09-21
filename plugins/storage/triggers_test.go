@@ -78,7 +78,85 @@ func TestTriggerDockerArgsRejectsSchedulerMismatch(t *testing.T) {
 		},
 	})
 
-	err := TriggerDockerArgs("demo", PhaseDeploy)
+	err := TriggerDockerArgs("demo", PhaseDeploy, "web")
 	Expect(err).To(HaveOccurred())
 	Expect(err.Error()).To(Equal(`storage entry "demo-pvc" is scheduler=k3s but is mounted on a docker-local app; recreate it with --scheduler docker-local`))
+}
+
+// TestTriggerDockerArgsRejectsSchedulerMismatchOutOfScope pins that the
+// scheduler check runs over every attachment in the phase, not just the ones
+// the process type being deployed would actually mount. An entry created for
+// the wrong scheduler has to fail the deploy whichever process starts first.
+func TestTriggerDockerArgsRejectsSchedulerMismatchOutOfScope(t *testing.T) {
+	RegisterTestingT(t)
+	root := withTempLibRoot(t)
+
+	Expect(SaveEntry(&Entry{
+		Name:      "demo-pvc",
+		Scheduler: SchedulerK3s,
+	})).To(Succeed())
+
+	writeAttachmentsFile(t, root, "demo", []*Attachment{
+		{
+			EntryName:     "demo-pvc",
+			ContainerPath: "/data",
+			Phases:        []string{PhaseDeploy},
+			ProcessType:   "worker",
+		},
+	})
+
+	_, err := dockerVFlagsForProcess("demo", PhaseDeploy, "web")
+	Expect(err).To(HaveOccurred())
+}
+
+// TestDockerVFlagsForProcessScopes is the docker-local half of #9059. An
+// attachment scoped to a named process type reaches that process only; the
+// default scope reaches every process, including containers that belong to no
+// process at all - the app.json deploy-task path passes an empty process type.
+func TestDockerVFlagsForProcessScopes(t *testing.T) {
+	RegisterTestingT(t)
+	root := withTempLibRoot(t)
+
+	for _, name := range []string{"shared", "web-only", "legacy"} {
+		Expect(SaveEntry(&Entry{
+			Name:      name,
+			Scheduler: SchedulerDockerLocal,
+			HostPath:  "/host/" + name,
+		})).To(Succeed())
+	}
+
+	writeAttachmentsFile(t, root, "demo", []*Attachment{
+		{
+			EntryName:     "shared",
+			ContainerPath: "/shared",
+			Phases:        []string{PhaseDeploy},
+			ProcessType:   DefaultProcessType,
+		},
+		{
+			EntryName:     "web-only",
+			ContainerPath: "/web",
+			Phases:        []string{PhaseDeploy},
+			ProcessType:   "web",
+		},
+		{
+			// Written before the process-type field existed.
+			EntryName:     "legacy",
+			ContainerPath: "/legacy",
+			Phases:        []string{PhaseDeploy},
+		},
+	})
+
+	for _, testCase := range []struct {
+		processType string
+		expected    []string
+	}{
+		{processType: "web", expected: []string{"-v /host/legacy:/legacy", "-v /host/shared:/shared", "-v /host/web-only:/web"}},
+		{processType: "worker", expected: []string{"-v /host/legacy:/legacy", "-v /host/shared:/shared"}},
+		{processType: "", expected: []string{"-v /host/legacy:/legacy", "-v /host/shared:/shared"}},
+		{processType: DefaultProcessType, expected: []string{"-v /host/legacy:/legacy", "-v /host/shared:/shared"}},
+	} {
+		flags, err := dockerVFlagsForProcess("demo", PhaseDeploy, testCase.processType)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(flags).To(Equal(testCase.expected), "process type %q", testCase.processType)
+	}
 }

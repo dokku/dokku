@@ -302,19 +302,135 @@ func TestUpsertAttachmentDistinctIdentity(t *testing.T) {
 	Expect(err).NotTo(HaveOccurred())
 	Expect(created).To(BeTrue())
 
-	// Different process type on the same (entry, container_path) is also distinct.
+	// Two named scopes never apply to the same container, so they can each
+	// claim one container path.
 	created, err = UpsertAttachment("demo", &Attachment{
 		EntryName:     "demo-data",
-		ContainerPath: "/data",
+		ContainerPath: "/scoped",
 		Phases:        []string{PhaseDeploy},
 		ProcessType:   "web",
 	})
 	Expect(err).NotTo(HaveOccurred())
 	Expect(created).To(BeTrue())
 
+	created, err = UpsertAttachment("demo", &Attachment{
+		EntryName:     "demo-data",
+		ContainerPath: "/scoped",
+		Phases:        []string{PhaseDeploy},
+		ProcessType:   "worker",
+	})
+	Expect(err).NotTo(HaveOccurred())
+	Expect(created).To(BeTrue())
+
 	attachments, err := LoadAttachments("demo")
 	Expect(err).NotTo(HaveOccurred())
-	Expect(attachments).To(HaveLen(3))
+	Expect(attachments).To(HaveLen(4))
+}
+
+// TestUpsertAttachmentRejectsOverlappingContainerPath covers the conflict the
+// process-type scoping makes reachable: the default scope also applies to
+// "web", so both attachments would emit a -v flag for /data on the same
+// container and Docker would decide which one wins.
+func TestUpsertAttachmentRejectsOverlappingContainerPath(t *testing.T) {
+	RegisterTestingT(t)
+	withTempLibRoot(t)
+
+	created, err := UpsertAttachment("demo", &Attachment{
+		EntryName:     "demo-data",
+		ContainerPath: "/data",
+		Phases:        []string{PhaseDeploy},
+		ProcessType:   DefaultProcessType,
+	})
+	Expect(err).NotTo(HaveOccurred())
+	Expect(created).To(BeTrue())
+
+	_, err = UpsertAttachment("demo", &Attachment{
+		EntryName:     "demo-cache",
+		ContainerPath: "/data",
+		Phases:        []string{PhaseDeploy},
+		ProcessType:   "web",
+	})
+	Expect(err).To(HaveOccurred())
+	Expect(err.Error()).To(ContainSubstring("Container path /data on app demo is already mounted by storage entry demo-data for process type _default_"))
+
+	// The rejected write leaves the stored set exactly as it was.
+	attachments, err := LoadAttachments("demo")
+	Expect(err).NotTo(HaveOccurred())
+	Expect(attachments).To(HaveLen(1))
+
+	// The same collision the other way round: a default-scoped mount cannot
+	// claim a path a named scope already holds.
+	_, err = UpsertAttachment("demo", &Attachment{
+		EntryName:     "demo-cache",
+		ContainerPath: "/cache",
+		Phases:        []string{PhaseDeploy},
+		ProcessType:   "worker",
+	})
+	Expect(err).NotTo(HaveOccurred())
+
+	_, err = UpsertAttachment("demo", &Attachment{
+		EntryName:     "demo-logs",
+		ContainerPath: "/cache",
+		Phases:        []string{PhaseDeploy},
+		ProcessType:   DefaultProcessType,
+	})
+	Expect(err).To(HaveOccurred())
+	Expect(err.Error()).To(ContainSubstring("for process type worker"))
+}
+
+// TestAttachmentAppliesToProcessType pins the scoping rule every deploy-time
+// caller shares: the default scope reaches every process, a named scope reaches
+// only itself, and a container with no process type of its own - a `dokku run`
+// one-off, an app.json deploy task, a k3s cron job - sees the default scope.
+func TestAttachmentAppliesToProcessType(t *testing.T) {
+	RegisterTestingT(t)
+
+	defaultScoped := &Attachment{ProcessType: DefaultProcessType}
+	legacyScoped := &Attachment{}
+	webScoped := &Attachment{ProcessType: "web"}
+
+	Expect(defaultScoped.EffectiveProcessType()).To(Equal(DefaultProcessType))
+	Expect(legacyScoped.EffectiveProcessType()).To(Equal(DefaultProcessType))
+	Expect(webScoped.EffectiveProcessType()).To(Equal("web"))
+
+	for _, processType := range []string{"web", "worker", "", DefaultProcessType} {
+		Expect(defaultScoped.AppliesToProcessType(processType)).To(BeTrue(), "default scope, process type %q", processType)
+		Expect(legacyScoped.AppliesToProcessType(processType)).To(BeTrue(), "legacy scope, process type %q", processType)
+	}
+
+	Expect(webScoped.AppliesToProcessType("web")).To(BeTrue())
+	Expect(webScoped.AppliesToProcessType("worker")).To(BeFalse())
+	Expect(webScoped.AppliesToProcessType("")).To(BeFalse())
+	Expect(webScoped.AppliesToProcessType(DefaultProcessType)).To(BeFalse())
+}
+
+// TestAddAttachmentTreatsLegacyScopeAsDefault covers attachments written before
+// the process-type field existed: an empty value and an explicit _default_ name
+// the same scope, so the pair is a duplicate rather than two mounts.
+func TestAddAttachmentTreatsLegacyScopeAsDefault(t *testing.T) {
+	RegisterTestingT(t)
+	root := withTempLibRoot(t)
+
+	writeAttachmentsFile(t, root, "demo", []*Attachment{
+		{
+			EntryName:     "demo-data",
+			ContainerPath: "/data",
+			Phases:        []string{PhaseDeploy},
+		},
+	})
+
+	err := AddAttachment("demo", &Attachment{
+		EntryName:     "demo-data",
+		ContainerPath: "/data",
+		Phases:        []string{PhaseDeploy},
+		ProcessType:   DefaultProcessType,
+	})
+	Expect(err).To(HaveOccurred())
+	Expect(err.Error()).To(ContainSubstring("is already mounted at"))
+
+	attachments, err := LoadAttachments("demo")
+	Expect(err).NotTo(HaveOccurred())
+	Expect(attachments).To(HaveLen(1))
 }
 
 func TestUpsertAttachmentValidationFailureLeavesStoreUntouched(t *testing.T) {

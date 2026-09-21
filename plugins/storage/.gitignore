@@ -1,4 +1,7 @@
 /commands
+/docker-args-deploy
+/docker-args-process-deploy
+/docker-args-run
 /subcommands/*
 /triggers/*
 /triggers

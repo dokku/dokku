@@ -275,18 +275,37 @@ func LoadAppMounts(appName string, phase string) ([]AppMountPair, error) {
 	return pairs, nil
 }
 
-// ToProcessVolumes converts each AppMountPair into a ProcessVolume. K3s
-// app deployments reference the PVC by name; the PVC itself is owned by
-// the storage entry's separate helm release. Any docker-local entries
-// found here are an error - they cannot be mounted on a k3s app.
-func ToProcessVolumes(pairs []AppMountPair) ([]ProcessVolume, error) {
-	volumes := []ProcessVolume{}
+// ValidateMountPairs rejects any pair whose entry belongs to another
+// scheduler. Kept separate from ToProcessVolumes so the chart builder can run
+// it once over the whole set: folding it into the per-process conversion would
+// make it reachable only for apps that have at least one scaled process or
+// cron task, and an app scaled to zero would stop reporting the mismatch.
+func ValidateMountPairs(pairs []AppMountPair) error {
 	for _, pair := range pairs {
 		if pair.Entry == nil || pair.Attachment == nil {
 			continue
 		}
 		if pair.Entry.Scheduler != storage.SchedulerK3s {
-			return nil, fmt.Errorf("storage entry %q is scheduler=%s but is mounted on a k3s app; recreate it with --scheduler k3s", pair.Entry.Name, pair.Entry.Scheduler)
+			return fmt.Errorf("storage entry %q is scheduler=%s but is mounted on a k3s app; recreate it with --scheduler k3s", pair.Entry.Name, pair.Entry.Scheduler)
+		}
+	}
+	return nil
+}
+
+// ToProcessVolumes converts the AppMountPairs that apply to processType into
+// ProcessVolumes. K3s app deployments reference the PVC by name; the PVC
+// itself is owned by the storage entry's separate helm release.
+//
+// An empty processType names a workload that belongs to no process type - a
+// cron job - and so receives default-scoped attachments only.
+func ToProcessVolumes(pairs []AppMountPair, processType string) []ProcessVolume {
+	volumes := []ProcessVolume{}
+	for _, pair := range pairs {
+		if pair.Entry == nil || pair.Attachment == nil {
+			continue
+		}
+		if !pair.Attachment.AppliesToProcessType(processType) {
+			continue
 		}
 		volumes = append(volumes, ProcessVolume{
 			Name:      pair.Entry.Name,
@@ -298,7 +317,19 @@ func ToProcessVolumes(pairs []AppMountPair) ([]ProcessVolume, error) {
 			},
 		})
 	}
-	return volumes, nil
+	return volumes
+}
+
+// processVolumesFor returns the volumes one process type's pods receive: the
+// volumes every workload in the app gets, plus the storage attachments scoped
+// to that process type. The slice is freshly allocated rather than appended
+// onto base, so one workload's volumes can never alias another's.
+func processVolumesFor(base []ProcessVolume, pairs []AppMountPair, processType string) []ProcessVolume {
+	scoped := ToProcessVolumes(pairs, processType)
+	volumes := make([]ProcessVolume, 0, len(base)+len(scoped))
+	volumes = append(volumes, base...)
+	volumes = append(volumes, scoped...)
+	return volumes
 }
 
 // asK8sVolumeMount is a small helper used by tests / other callers that

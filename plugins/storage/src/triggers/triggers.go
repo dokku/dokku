@@ -28,12 +28,22 @@ func main() {
 		appName := flag.Arg(0)
 		phase := flag.Arg(1)
 		err = storage.TriggerStorageAppMounts(appName, phase)
+	case "docker-args-process-deploy":
+		appName := flag.Arg(0)
+		processType := flag.Arg(3)
+		err = storage.TriggerDockerArgs(appName, storage.PhaseDeploy, processType)
 	case "docker-args-deploy":
-		appName := flag.Arg(0)
-		err = storage.TriggerDockerArgs(appName, storage.PhaseDeploy)
+		// No longer registered in the plugin Makefile; storage emits its
+		// deploy-phase flags through docker-args-process-deploy, which every
+		// caller of this trigger also invokes. The case remains so a symlink
+		// left behind by an older build resolves to a no-op rather than
+		// falling through to the error below and failing the deploy.
+		err = nil
 	case "docker-args-run":
+		// A `dokku run` container belongs to no process type, so only
+		// default-scoped attachments apply.
 		appName := flag.Arg(0)
-		err = storage.TriggerDockerArgs(appName, storage.PhaseRun)
+		err = storage.TriggerDockerArgs(appName, storage.PhaseRun, storage.DefaultProcessType)
 	case "post-delete":
 		appName := flag.Arg(0)
 		err = storage.TriggerPostDelete(appName)

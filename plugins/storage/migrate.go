@@ -19,6 +19,12 @@ import (
 // filesystem flag file at `data/storage-registry/migrations/<app>`.
 const MigratedProperty = "legacy-mounts-migrated"
 
+// MigratedPropertyVersion is the value MigratedProperty carries once an app
+// has been through the current migration. Earlier releases wrote "true" and
+// drained only the default process-type scope, so an app still holding that
+// value is rescanned once to pick up its process-scoped `-v` lines.
+const MigratedPropertyVersion = "2"
+
 // migrationFlagDir / migrationFlagFile remain for one release cycle so
 // the upgrade-cycle helper convertLegacyMigrationFlag can drain any
 // leftover flag files into the new property.
@@ -43,7 +49,7 @@ func MigrateApp(appName string) error {
 	if err := convertLegacyMigrationFlag(appName); err != nil {
 		return err
 	}
-	if err := migrateApp(appName); err != nil {
+	if err := migrateApp(appName, true); err != nil {
 		return fmt.Errorf("storage migration failed for app %q: %w", appName, err)
 	}
 	return nil
@@ -66,10 +72,7 @@ func MigrateLegacyMounts() error {
 		if err := convertLegacyMigrationFlag(app); err != nil {
 			return err
 		}
-		if common.PropertyExists(PluginName, app, MigratedProperty) {
-			continue
-		}
-		if err := migrateApp(app); err != nil {
+		if err := migrateApp(app, false); err != nil {
 			return fmt.Errorf("storage migration failed for app %q: %w", app, err)
 		}
 	}
@@ -97,18 +100,57 @@ func convertLegacyMigrationFlag(appName string) error {
 	return os.Remove(path)
 }
 
-// migrateApp performs the per-app migration. Order is intentional: write
-// the entry, write the attachment, drain the docker-options line. Any
-// step failing aborts before drain, so the original behavior is
-// preserved on partial failure.
-func migrateApp(appName string) error {
-	deployLines, err := dockeroptions.GetDockerOptionsForPhase(appName, PhaseDeploy)
+// migrateApp performs the per-app migration across every process-type scope
+// docker-options holds options for. The default scope is migrated first: the
+// per-scope drain skips a named-scope mount that the default scope already
+// covers, which only works once the default scope's attachments exist.
+//
+// force bypasses the version gate, which is what `dokku storage:migrate <app>`
+// wants - it exists so an operator can rescan an app whose docker-options
+// state changed after the bulk install-time pass.
+func migrateApp(appName string, force bool) error {
+	migrated := common.PropertyGet(PluginName, appName, MigratedProperty)
+	if !force && migrated == MigratedPropertyVersion {
+		return nil
+	}
+
+	processTypes := []string{DefaultProcessType}
+	named, err := dockeroptions.ListProcessTypesWithOptions(appName)
 	if err != nil {
 		return err
 	}
-	runLines, err := dockeroptions.GetDockerOptionsForPhase(appName, PhaseRun)
+	processTypes = append(processTypes, named...)
+
+	drained := false
+	for _, processType := range processTypes {
+		scopeDrained, err := migrateProcessScope(appName, processType)
+		if err != nil {
+			return err
+		}
+		drained = drained || scopeDrained
+	}
+
+	// An app that never had legacy state keeps no marker at all, so
+	// `storage:report` (and future tooling) can still tell it apart from one
+	// that did and was drained. An app already carrying an older marker keeps
+	// one, advanced to the current version so it stops being rescanned.
+	if !drained && migrated == "" {
+		return nil
+	}
+
+	return common.PropertyWrite(PluginName, appName, MigratedProperty, MigratedPropertyVersion)
+}
+
+// migrateProcessScope drains one process-type scope's legacy `-v` lines into
+// attachments. Reports whether anything was drained.
+func migrateProcessScope(appName string, processType string) (bool, error) {
+	deployLines, err := dockeroptions.GetDockerOptionsForProcessPhase(appName, processType, PhaseDeploy)
 	if err != nil {
-		return err
+		return false, err
+	}
+	runLines, err := dockeroptions.GetDockerOptionsForProcessPhase(appName, processType, PhaseRun)
+	if err != nil {
+		return false, err
 	}
 
 	deployMounts := filterMountLines(deployLines)
@@ -130,22 +172,19 @@ func migrateApp(appName string) error {
 	sort.Strings(mounts)
 
 	if len(mounts) == 0 {
-		// No legacy `-v` lines for this app. Leave the marker unset so
-		// `storage:report` (and future tooling) distinguishes apps that
-		// never had legacy state from apps that did and were drained.
-		return nil
+		return false, nil
 	}
 
 	for _, mount := range mounts {
-		if err := migrateMount(appName, mount, phaseMap[mount]); err != nil {
-			return err
+		if err := migrateMount(appName, processType, mount, phaseMap[mount]); err != nil {
+			return false, err
 		}
 	}
 
-	return common.PropertyWrite(PluginName, appName, MigratedProperty, "true")
+	return true, nil
 }
 
-func migrateMount(appName string, mount string, phases []string) error {
+func migrateMount(appName string, processType string, mount string, phases []string) error {
 	parsed := ParseMountPath(mount)
 	entry := LegacyMountToEntry(mount)
 
@@ -173,7 +212,7 @@ func migrateMount(appName string, mount string, phases []string) error {
 		EntryName:     entry.Name,
 		ContainerPath: containerPath,
 		Phases:        phases,
-		ProcessType:   DefaultProcessType,
+		ProcessType:   processType,
 		Readonly:      parsed.Readonly,
 		VolumeOptions: parsed.VolumeOptions,
 	}
@@ -182,7 +221,11 @@ func migrateMount(appName string, mount string, phases []string) error {
 	if err != nil {
 		return err
 	}
-	if !attachmentExists(existing, attachment) {
+	// A named scope whose mount the default scope already covers needs no
+	// attachment of its own - the default one reaches that process anyway, and
+	// recording both would manufacture two -v flags for one container path.
+	// The docker-options line is still drained so it stops being emitted twice.
+	if !attachmentExists(existing, attachment) && !coveredByDefaultScope(existing, attachment) {
 		existing = append(existing, attachment)
 		if err := SaveAttachments(appName, existing); err != nil {
 			return err
@@ -193,10 +236,29 @@ func migrateMount(appName string, mount string, phases []string) error {
 	for _, phase := range phases {
 		mountedPhases = append(mountedPhases, phase)
 	}
-	if err := dockeroptions.RemoveDockerOptionFromPhases(appName, mountedPhases, fmt.Sprintf("-v %s", mount)); err != nil {
+	if err := dockeroptions.RemoveDockerOptionFromProcessPhases(appName, []string{processType}, mountedPhases, fmt.Sprintf("-v %s", mount)); err != nil {
 		return err
 	}
 	return nil
+}
+
+// coveredByDefaultScope reports whether a named-scope candidate binds the same
+// entry at the same container path as an attachment already in the default
+// scope. Always false for a default-scope candidate, which is its own cover.
+func coveredByDefaultScope(attachments []*Attachment, candidate *Attachment) bool {
+	if candidate.EffectiveProcessType() == DefaultProcessType {
+		return false
+	}
+
+	for _, existing := range attachments {
+		if existing.EffectiveProcessType() != DefaultProcessType {
+			continue
+		}
+		if existing.EntryName == candidate.EntryName && existing.ContainerPath == candidate.ContainerPath {
+			return true
+		}
+	}
+	return false
 }
 
 func filterMountLines(lines []string) []string {
@@ -222,7 +284,7 @@ func attachmentExists(attachments []*Attachment, candidate *Attachment) bool {
 	for _, existing := range attachments {
 		if existing.EntryName == candidate.EntryName &&
 			existing.ContainerPath == candidate.ContainerPath &&
-			existing.ProcessType == candidate.ProcessType {
+			existing.EffectiveProcessType() == candidate.EffectiveProcessType() {
 			return true
 		}
 	}

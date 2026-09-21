@@ -1158,6 +1158,8 @@ git push dokku master
 
 For a hostPath-backed PV (no StorageClass), pass `<path>` as the second positional argument and omit `--storage-class-name`. The plugin renders both the PV and the PVC into the entry's helm release. The `--reclaim-policy` flag (`Retain` or `Delete`) controls whether the underlying PV survives `storage:destroy`. Annotations and labels set via `storage:annotations:set` and `storage:labels:set` propagate to both the PVC and the PV so backup tools (Velero, Longhorn snapshots) can find them.
 
+`storage:mount --process-type <proc>` scopes a volume to a single process type, so only that deployment's pods mount the PVC; a mount left in the default `_default_` scope is mounted by every deployment. Cron jobs are keyed by a generated cron ID rather than a Procfile process type, so they mount default-scoped volumes only. Only deploy-phase attachments are mounted on k3s - `--phase run` has no effect here.
+
 The legacy `storage:mount <app> <host>:<container>` colon form is rejected on k3s apps; create a named entry instead. See [Persistent Storage](/docs/advanced-usage/persistent-storage.md) for the full command reference.
 
 ### Chart upgrade callbacks
