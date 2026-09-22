@@ -72,7 +72,7 @@ func TestMigrateAppSinglePhase(t *testing.T) {
 		"deploy": {"-v /var/log:/log", "--restart=on-failure:5"},
 	})
 
-	if err := migrateApp("alpha"); err != nil {
+	if err := migrateApp("alpha", false); err != nil {
 		t.Fatalf("migrateApp: %v", err)
 	}
 
@@ -126,7 +126,7 @@ func TestMigrateAppCrossPhaseGroupsIntoOneAttachment(t *testing.T) {
 		"run":    {"-v /data:/d"},
 	})
 
-	if err := migrateApp("alpha"); err != nil {
+	if err := migrateApp("alpha", false); err != nil {
 		t.Fatalf("migrateApp: %v", err)
 	}
 
@@ -158,7 +158,7 @@ func TestMigrateAppPreservesVolumeOptions(t *testing.T) {
 		"deploy": {"-v /ro:/r:ro", "-v /label:/l:Z"},
 	})
 
-	if err := migrateApp("alpha"); err != nil {
+	if err := migrateApp("alpha", false); err != nil {
 		t.Fatalf("migrateApp: %v", err)
 	}
 
@@ -190,7 +190,7 @@ func TestMigrateAppIdempotent(t *testing.T) {
 		"deploy": {"-v /var/log:/log"},
 	})
 
-	if err := migrateApp("alpha"); err != nil {
+	if err := migrateApp("alpha", false); err != nil {
 		t.Fatalf("first migrateApp: %v", err)
 	}
 
@@ -202,7 +202,7 @@ func TestMigrateAppIdempotent(t *testing.T) {
 	if err := common.PropertyListWrite("docker-options", "alpha", "_default_.deploy", []string{"-v /var/log:/log"}); err != nil {
 		t.Fatalf("re-stage: %v", err)
 	}
-	if err := migrateApp("alpha"); err != nil {
+	if err := migrateApp("alpha", false); err != nil {
 		t.Fatalf("second migrateApp: %v", err)
 	}
 
@@ -280,7 +280,7 @@ func TestMigrateAppRefusesEntryNameCollision(t *testing.T) {
 		"deploy": {"-v /var/log:/log"},
 	})
 
-	if err := migrateApp("alpha"); err == nil {
+	if err := migrateApp("alpha", false); err == nil {
 		t.Fatalf("expected migrateApp to error on entry name collision")
 	}
 
@@ -301,7 +301,7 @@ func TestMigrateAppChownsLegacyEntryFiles(t *testing.T) {
 		"deploy": {"-v /var/log:/log"},
 	})
 
-	if err := migrateApp("alpha"); err != nil {
+	if err := migrateApp("alpha", false); err != nil {
 		t.Fatalf("migrateApp: %v", err)
 	}
 
@@ -334,7 +334,7 @@ func TestMigrateAppNoMountsDoesNotMarkMigrated(t *testing.T) {
 		"deploy": {"--restart=on-failure:5"},
 	})
 
-	if err := migrateApp("alpha"); err != nil {
+	if err := migrateApp("alpha", false); err != nil {
 		t.Fatalf("migrateApp: %v", err)
 	}
 
@@ -370,25 +370,28 @@ func TestMigrateLegacyMountsConvertsLegacyFlagFile(t *testing.T) {
 		t.Fatalf("MigrateLegacyMounts: %v", err)
 	}
 
+	// The flag file converts to the old "true" value, which the version gate
+	// then treats as stale and rescans, leaving the marker at the current
+	// version rather than at the value the flag file carried.
 	got := common.PropertyGetDefault(PluginName, "alpha", MigratedProperty, "")
-	if got != "true" {
-		t.Errorf("legacy-mounts-migrated = %q, want %q", got, "true")
+	if got != MigratedPropertyVersion {
+		t.Errorf("legacy-mounts-migrated = %q, want %q", got, MigratedPropertyVersion)
 	}
 	if _, err := os.Stat(flagPath); !os.IsNotExist(err) {
 		t.Errorf("expected flag file gone, got err=%v", err)
 	}
 }
 
-// TestMigrateLegacyMountsRespectsExistingProperty confirms that the
-// property is the gate: an app with a `-v` line is skipped when the
-// property is already set, leaving the legacy line in docker-options.
-func TestMigrateLegacyMountsRespectsExistingProperty(t *testing.T) {
+// TestMigrateLegacyMountsRespectsCurrentMarker confirms that the marker is the
+// gate: an app with a `-v` line is skipped when it already carries the current
+// version, leaving the legacy line in docker-options.
+func TestMigrateLegacyMountsRespectsCurrentMarker(t *testing.T) {
 	_, dokkuRoot := setupMigrationEnv(t)
 	stageApp(t, dokkuRoot, "alpha", map[string][]string{
 		"deploy": {"-v /var/log:/log"},
 	})
 
-	if err := common.PropertyWrite(PluginName, "alpha", MigratedProperty, "true"); err != nil {
+	if err := common.PropertyWrite(PluginName, "alpha", MigratedProperty, MigratedPropertyVersion); err != nil {
 		t.Fatalf("seed property: %v", err)
 	}
 
@@ -405,7 +408,40 @@ func TestMigrateLegacyMountsRespectsExistingProperty(t *testing.T) {
 		t.Fatalf("LoadAttachments: %v", err)
 	}
 	if len(atts) != 0 {
-		t.Errorf("expected 0 attachments (property gated migration), got %d", len(atts))
+		t.Errorf("expected 0 attachments (marker gated migration), got %d", len(atts))
+	}
+}
+
+// TestMigrateLegacyMountsRescansStaleMarker is the other half of that gate.
+// Releases before process-scoped migration wrote "true" and drained only the
+// default scope, so an app still holding that value has to be rescanned once
+// rather than skipped forever.
+func TestMigrateLegacyMountsRescansStaleMarker(t *testing.T) {
+	_, dokkuRoot := setupMigrationEnv(t)
+	stageApp(t, dokkuRoot, "alpha", map[string][]string{
+		"deploy": {"-v /var/log:/log"},
+	})
+
+	if err := common.PropertyWrite(PluginName, "alpha", MigratedProperty, "true"); err != nil {
+		t.Fatalf("seed property: %v", err)
+	}
+
+	if err := MigrateLegacyMounts(); err != nil {
+		t.Fatalf("MigrateLegacyMounts: %v", err)
+	}
+
+	if got := phaseOptions(t, "alpha", "deploy"); len(got) != 0 {
+		t.Errorf("expected -v line drained, got %v", got)
+	}
+	atts, err := LoadAttachments("alpha")
+	if err != nil {
+		t.Fatalf("LoadAttachments: %v", err)
+	}
+	if len(atts) != 1 {
+		t.Fatalf("expected 1 attachment, got %d", len(atts))
+	}
+	if got := common.PropertyGetDefault(PluginName, "alpha", MigratedProperty, ""); got != MigratedPropertyVersion {
+		t.Errorf("legacy-mounts-migrated = %q, want %q", got, MigratedPropertyVersion)
 	}
 }
 
@@ -423,4 +459,99 @@ func equalSorted(a, b []string) bool {
 		}
 	}
 	return true
+}
+
+// stageProcessOptions seeds a named process-type scope's docker-options
+// property file for one phase, the shape `docker-options:add --process worker`
+// leaves behind.
+func stageProcessOptions(t *testing.T, app string, processType string, phase string, lines []string) {
+	t.Helper()
+	key := processType + "." + phase
+	if err := common.PropertyListWrite("docker-options", app, key, lines); err != nil {
+		t.Fatalf("PropertyListWrite: %v", err)
+	}
+}
+
+func processPhaseOptions(t *testing.T, app string, processType string, phase string) []string {
+	t.Helper()
+	got, err := dockeroptions.GetDockerOptionsForProcessPhase(app, processType, phase)
+	if err != nil {
+		t.Fatalf("GetDockerOptionsForProcessPhase %s/%s/%s: %v", app, processType, phase, err)
+	}
+	return got
+}
+
+// TestMigrateAppDrainsProcessScopedMounts is the migration half of #9059. A
+// `-v` line registered under `docker-options:add --process worker` used to be
+// invisible to storage forever, because the drain only read the default scope.
+func TestMigrateAppDrainsProcessScopedMounts(t *testing.T) {
+	_, dokkuRoot := setupMigrationEnv(t)
+	stageApp(t, dokkuRoot, "alpha", map[string][]string{
+		"deploy": {"-v /var/log:/log"},
+	})
+	stageProcessOptions(t, "alpha", "worker", "deploy", []string{"-v /var/spool:/spool", "--restart=on-failure:5"})
+
+	if err := migrateApp("alpha", false); err != nil {
+		t.Fatalf("migrateApp: %v", err)
+	}
+
+	attachments, err := LoadAttachments("alpha")
+	if err != nil {
+		t.Fatalf("LoadAttachments: %v", err)
+	}
+	if len(attachments) != 2 {
+		t.Fatalf("expected 2 attachments, got %d", len(attachments))
+	}
+
+	scopes := map[string]string{}
+	for _, attachment := range attachments {
+		scopes[attachment.ContainerPath] = attachment.EffectiveProcessType()
+	}
+	if scopes["/log"] != DefaultProcessType {
+		t.Errorf("expected /log in the default scope, got %q", scopes["/log"])
+	}
+	if scopes["/spool"] != "worker" {
+		t.Errorf("expected /spool scoped to worker, got %q", scopes["/spool"])
+	}
+
+	// The drained line goes, the non-mount option in the same scope stays.
+	if got := processPhaseOptions(t, "alpha", "worker", "deploy"); !equalSorted(got, []string{"--restart=on-failure:5"}) {
+		t.Errorf("expected only the non-mount option left, got %v", got)
+	}
+}
+
+// TestMigrateAppSkipsProcessScopeCoveredByDefault covers an app that declared
+// the same mount twice, once globally and once for a process. The default
+// attachment already reaches that process, so recording the second one would
+// emit two -v flags for one container path.
+func TestMigrateAppSkipsProcessScopeCoveredByDefault(t *testing.T) {
+	_, dokkuRoot := setupMigrationEnv(t)
+	stageApp(t, dokkuRoot, "alpha", map[string][]string{
+		"deploy": {"-v /var/log:/log"},
+	})
+	stageProcessOptions(t, "alpha", "worker", "deploy", []string{"-v /var/log:/log"})
+
+	if err := migrateApp("alpha", false); err != nil {
+		t.Fatalf("migrateApp: %v", err)
+	}
+
+	attachments, err := LoadAttachments("alpha")
+	if err != nil {
+		t.Fatalf("LoadAttachments: %v", err)
+	}
+	if len(attachments) != 1 {
+		t.Fatalf("expected 1 attachment, got %d", len(attachments))
+	}
+	if attachments[0].EffectiveProcessType() != DefaultProcessType {
+		t.Errorf("expected the surviving attachment in the default scope, got %q", attachments[0].EffectiveProcessType())
+	}
+
+	// Both lines are still drained, so docker-options stops emitting the
+	// duplicate alongside the storage attachment.
+	if got := processPhaseOptions(t, "alpha", "worker", "deploy"); len(got) != 0 {
+		t.Errorf("expected the worker scope drained, got %v", got)
+	}
+	if got := phaseOptions(t, "alpha", "deploy"); len(got) != 0 {
+		t.Errorf("expected the default scope drained, got %v", got)
+	}
 }

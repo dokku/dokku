@@ -275,18 +275,38 @@ func LoadAppMounts(appName string, phase string) ([]AppMountPair, error) {
 	return pairs, nil
 }
 
-// ToProcessVolumes converts each AppMountPair into a ProcessVolume. K3s
-// app deployments reference the PVC by name; the PVC itself is owned by
-// the storage entry's separate helm release. Any docker-local entries
-// found here are an error - they cannot be mounted on a k3s app.
-func ToProcessVolumes(pairs []AppMountPair) ([]ProcessVolume, error) {
-	volumes := []ProcessVolume{}
+// ValidateMountPairs rejects any pair whose entry belongs to another
+// scheduler. Kept separate from ToProcessVolumes so the chart builder can run
+// it once over the whole set: folding it into the per-process conversion would
+// make it reachable only for apps that have at least one scaled process or
+// cron task, and an app scaled to zero would stop reporting the mismatch.
+func ValidateMountPairs(pairs []AppMountPair) error {
 	for _, pair := range pairs {
 		if pair.Entry == nil || pair.Attachment == nil {
 			continue
 		}
 		if pair.Entry.Scheduler != storage.SchedulerK3s {
-			return nil, fmt.Errorf("storage entry %q is scheduler=%s but is mounted on a k3s app; recreate it with --scheduler k3s", pair.Entry.Name, pair.Entry.Scheduler)
+			return fmt.Errorf("storage entry %q is scheduler=%s but is mounted on a k3s app; recreate it with --scheduler k3s", pair.Entry.Name, pair.Entry.Scheduler)
+		}
+	}
+	return nil
+}
+
+// ToProcessVolumes converts the AppMountPairs that apply to processType into
+// ProcessVolumes, one per container mount. K3s app deployments reference the
+// PVC by name; the PVC itself is owned by the storage entry's separate helm
+// release.
+//
+// An empty processType names a workload that belongs to no process type - a
+// cron job - and so receives default-scoped attachments only.
+func ToProcessVolumes(pairs []AppMountPair, processType string) []ProcessVolume {
+	volumes := []ProcessVolume{}
+	for _, pair := range pairs {
+		if pair.Entry == nil || pair.Attachment == nil {
+			continue
+		}
+		if !pair.Attachment.AppliesToProcessType(processType) {
+			continue
 		}
 		volumes = append(volumes, ProcessVolume{
 			Name:      pair.Entry.Name,
@@ -298,11 +318,57 @@ func ToProcessVolumes(pairs []AppMountPair) ([]ProcessVolume, error) {
 			},
 		})
 	}
+	return volumes
+}
+
+// processVolumesFor returns the volumes one process type's pods receive: what
+// every workload in the app gets, plus the storage attachments scoped to that
+// process type. The slice is freshly allocated rather than appended onto base,
+// so one workload's volumes can never alias another's.
+//
+// Entries repeat a Name once per container path, which is what the chart wants:
+// it renders a volumeMounts entry per element and a pod volume per distinct
+// Name. Two different sources claiming one Name cannot be rendered that way, so
+// they are rejected rather than silently collapsed to whichever came first.
+func processVolumesFor(base []ProcessVolume, pairs []AppMountPair, processType string) ([]ProcessVolume, error) {
+	scoped := ToProcessVolumes(pairs, processType)
+
+	volumes := make([]ProcessVolume, 0, len(base)+len(scoped))
+	volumes = append(volumes, base...)
+	volumes = append(volumes, scoped...)
+
+	sources := map[string]ProcessVolume{}
+	for _, volume := range volumes {
+		existing, seen := sources[volume.Name]
+		if seen && !sameVolumeSource(existing, volume) {
+			return nil, fmt.Errorf("volume name %q is claimed by two different sources in one pod", volume.Name)
+		}
+		sources[volume.Name] = volume
+	}
+
 	return volumes, nil
 }
 
-// asK8sVolumeMount is a small helper used by tests / other callers that
-// want a corev1.VolumeMount from a ProcessVolume.
+// sameVolumeSource reports whether two same-named volumes resolve to the same
+// backing source and can therefore share one pod volume.
+func sameVolumeSource(first ProcessVolume, second ProcessVolume) bool {
+	if (first.PersistentClaim == nil) != (second.PersistentClaim == nil) {
+		return false
+	}
+	if first.PersistentClaim != nil && *first.PersistentClaim != *second.PersistentClaim {
+		return false
+	}
+	if (first.EmptyDir == nil) != (second.EmptyDir == nil) {
+		return false
+	}
+	if first.EmptyDir != nil && *first.EmptyDir != *second.EmptyDir {
+		return false
+	}
+	return true
+}
+
+// asK8sVolumeMount converts a ProcessVolume into the corev1 mount shape for
+// callers that work against the Kubernetes API types directly.
 func asK8sVolumeMount(v ProcessVolume) corev1.VolumeMount {
 	return corev1.VolumeMount{
 		Name:      v.Name,

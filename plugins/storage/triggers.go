@@ -236,32 +236,74 @@ func TriggerStorageAppMounts(appName string, phase string) error {
 	return nil
 }
 
-// TriggerDockerArgs emits `-v` flags for each docker-local attachment in
-// the requested phase. Plugn concatenates this with docker-options'
-// equivalent trigger output, so docker-local apps continue to receive
-// their bind mounts through the standard pipeline.
-func TriggerDockerArgs(appName string, phase string) error {
-	attachments, err := AttachmentsForPhase(appName, phase)
+// TriggerDockerArgs emits `-v` flags for the docker-local attachments in the
+// requested phase that apply to the given process type. Plugn concatenates
+// this with docker-options' equivalent trigger output, so docker-local apps
+// continue to receive their bind mounts through the standard pipeline.
+//
+// An empty processType names a container that belongs to no process - the
+// app.json deploy-task path invokes the trigger without one - and so receives
+// the default scope. Unlike docker-options, which emits its default scope from
+// a separate docker-args-deploy handler, this is storage's only deploy-time
+// emitter: returning early on an empty process type would drop every mount.
+func TriggerDockerArgs(appName string, phase string, processType string) error {
+	flags, err := dockerVFlagsForProcess(appName, phase, processType)
 	if err != nil {
 		return err
 	}
 
+	for _, flag := range flags {
+		fmt.Printf(" %s", flag)
+	}
+	return nil
+}
+
+// dockerVFlagsForProcess returns the `-v` flags a single process type's
+// container receives for the given phase.
+//
+// Every attachment in the phase is resolved and scheduler-checked, not just
+// the ones in scope, so an entry created for the wrong scheduler still fails
+// the deploy no matter which process type happens to be starting.
+//
+// Apps on another scheduler emit nothing rather than failing: the docker-args
+// triggers are invoked for every app, whatever its scheduler, because the
+// app.json deploy-task path builds its ephemeral container with docker
+// directly. A k3s app's volumes are PersistentVolumeClaims mounted by its own
+// scheduler and there is nothing to bind-mount here.
+func dockerVFlagsForProcess(appName string, phase string, processType string) ([]string, error) {
+	if appSchedulerFor(appName) != SchedulerDockerLocal {
+		return nil, nil
+	}
+
+	attachments, err := AttachmentsForPhase(appName, phase)
+	if err != nil {
+		return nil, err
+	}
+
+	flags := []string{}
 	for _, attachment := range attachments {
 		entry, err := LoadEntry(attachment.EntryName)
 		if err != nil {
-			return fmt.Errorf("attachment on %q references missing entry %q: %w", appName, attachment.EntryName, err)
+			return nil, fmt.Errorf("attachment on %q references missing entry %q: %w", appName, attachment.EntryName, err)
 		}
 		if entry.Scheduler != SchedulerDockerLocal {
-			return fmt.Errorf("storage entry %q is scheduler=%s but is mounted on a docker-local app; recreate it with --scheduler docker-local", entry.Name, entry.Scheduler)
+			return nil, fmt.Errorf("storage entry %q is scheduler=%s but is mounted on a docker-local app; recreate it with --scheduler docker-local", entry.Name, entry.Scheduler)
+		}
+		if !attachment.AppliesToProcessType(processType) {
+			continue
 		}
 		flag := buildDockerVFlag(entry, attachment)
 		if flag == "" {
 			continue
 		}
-		fmt.Printf(" %s", flag)
+		flags = append(flags, flag)
 	}
-	return nil
+	return flags, nil
 }
+
+// appSchedulerFor resolves the scheduler an app deploys with. It is a variable
+// so tests can exercise the non-docker-local path without a plugn install.
+var appSchedulerFor = common.GetAppScheduler
 
 // buildDockerVFlag formats the Docker -v argument for a docker-local
 // attachment.

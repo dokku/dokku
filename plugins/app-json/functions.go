@@ -182,34 +182,39 @@ func executeScript(appName string, image string, imageTag string, phase string) 
 		imageSourceType = "pack"
 	}
 
+	// Both triggers are fatal here, the same way they are on the scheduler's
+	// own deploy path. Swallowing the error meant a plugin refusing to describe
+	// the container - a storage entry belonging to another scheduler, say -
+	// silently produced a deploy task running without the arguments it asked
+	// for, while the identical failure aborted the deploy a moment later.
 	var dockerArgs []string
 	results, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
 		Trigger: "docker-args-deploy",
 		Args:    []string{appName, imageTag},
 		Stdin:   strings.NewReader(""),
 	})
-	if err == nil {
-		words, err := shellquote.Split(results.StdoutContents())
-		if err != nil {
-			return err
-		}
-
-		dockerArgs = append(dockerArgs, words...)
+	if err != nil {
+		return fmt.Errorf("Error getting deploy docker args for %s task: %w", phase, err)
 	}
+	words, err := shellquote.Split(results.StdoutContents())
+	if err != nil {
+		return err
+	}
+	dockerArgs = append(dockerArgs, words...)
 
 	results, err = common.CallPlugnTrigger(common.PlugnTriggerInput{
 		Trigger: "docker-args-process-deploy",
 		Args:    []string{appName, imageSourceType, imageTag},
 		Stdin:   strings.NewReader(""),
 	})
-	if err == nil {
-		words, err := shellquote.Split(results.StdoutContents())
-		if err != nil {
-			return err
-		}
-
-		dockerArgs = append(dockerArgs, words...)
+	if err != nil {
+		return fmt.Errorf("Error getting process deploy docker args for %s task: %w", phase, err)
 	}
+	words, err = shellquote.Split(results.StdoutContents())
+	if err != nil {
+		return err
+	}
+	dockerArgs = append(dockerArgs, words...)
 
 	filteredArgs := []string{
 		"--cpus",

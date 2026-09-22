@@ -72,7 +72,9 @@ func reportRunMounts(appName string) string {
 // registerAttachmentFlags adds one report flag per Attachment field for the
 // given 1-based index. Host path is resolved from the referenced Entry
 // (falling back to entry.Name when the entry has no host path, matching
-// ListAppMountEntries).
+// ListAppMountEntries). Process type is reported as the scope the attachment
+// actually deploys under, so a row written before the field existed reads as
+// _default_ rather than blank.
 func registerAttachmentFlags(flags map[string]common.ReportFunc, index int, att *Attachment, entry *Entry) {
 	prefix := fmt.Sprintf("--storage-attachment.%d.", index)
 	captured := att
@@ -84,7 +86,7 @@ func registerAttachmentFlags(flags map[string]common.ReportFunc, index int, att 
 	flags[prefix+"host-path"] = func(string) string { return host }
 	flags[prefix+"container-path"] = func(string) string { return captured.ContainerPath }
 	flags[prefix+"phases"] = func(string) string { return strings.Join(captured.Phases, ",") }
-	flags[prefix+"process-type"] = func(string) string { return captured.ProcessType }
+	flags[prefix+"process-type"] = func(string) string { return captured.EffectiveProcessType() }
 	flags[prefix+"subpath"] = func(string) string { return captured.Subpath }
 	flags[prefix+"readonly"] = func(string) string { return strconv.FormatBool(captured.Readonly) }
 	flags[prefix+"volume-options"] = func(string) string { return captured.VolumeOptions }

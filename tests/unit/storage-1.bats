@@ -670,12 +670,14 @@ teardown() {
   assert_success
   assert_output "1"
 
-  # Property marker is set after a successful migration with mounts.
+  # Property marker is set after a successful migration with mounts. It
+  # carries the migration version rather than a bare "true" so an app
+  # migrated by an older release is rescanned once for process-scoped mounts.
   run /bin/bash -c "sudo test -f /var/lib/dokku/config/storage/$TEST_APP/legacy-mounts-migrated"
   assert_success
   run /bin/bash -c "sudo cat /var/lib/dokku/config/storage/$TEST_APP/legacy-mounts-migrated"
   assert_success
-  assert_output "true"
+  assert_output "2"
 
   # Cleanup: unmount + destroy the synthesized legacy entry. We need
   # the entry name from list-entries since legacy-<hash> is content-derived.
@@ -727,11 +729,13 @@ teardown() {
   echo "status: $status"
   assert_success
 
+  # The flag file drains into the property, which the version gate then
+  # treats as stale and advances to the current migration version.
   run /bin/bash -c "sudo test -f /var/lib/dokku/config/storage/$TEST_APP/legacy-mounts-migrated"
   assert_success
   run /bin/bash -c "sudo cat /var/lib/dokku/config/storage/$TEST_APP/legacy-mounts-migrated"
   assert_success
-  assert_output "true"
+  assert_output "2"
 
   run /bin/bash -c "sudo test -e $flag_dir/$TEST_APP"
   assert_failure

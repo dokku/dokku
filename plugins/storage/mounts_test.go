@@ -178,6 +178,66 @@ func TestCommandMountReplaceReadonlyFlagAppliesToEverySpec(t *testing.T) {
 	Expect(attachments[1].Readonly).To(BeTrue())
 }
 
+// TestCommandMountReplaceRejectsPathHeldByAnotherScope covers the scopes a
+// --replace call does not replace. The declared set is already unique on
+// container path within its own scope, but a path held by a different process
+// type would still collide at deploy time.
+func TestCommandMountReplaceRejectsPathHeldByAnotherScope(t *testing.T) {
+	RegisterTestingT(t)
+	setupTestApp(t, "demo")
+	stageDockerLocalEntry(t, "demo-data")
+	stageDockerLocalEntry(t, "demo-cache")
+
+	Expect(CommandMount(CommandMountInput{
+		AppName:      "demo",
+		NameOrPath:   "demo-data",
+		ContainerDir: "/app/storage",
+		ProcessType:  "web",
+	})).To(Succeed())
+
+	err := CommandMount(CommandMountInput{
+		AppName: "demo",
+		Replace: true,
+		Specs:   []string{"demo-cache:/app/storage"},
+	})
+	Expect(err).To(HaveOccurred())
+	Expect(err.Error()).To(ContainSubstring("Container path /app/storage on app demo is already mounted by storage entry demo-data for process type web"))
+
+	// The rejected call leaves the stored set exactly as it was.
+	attachments, err := LoadAttachments("demo")
+	Expect(err).NotTo(HaveOccurred())
+	Expect(attachments).To(HaveLen(1))
+	Expect(attachments[0].EntryName).To(Equal("demo-data"))
+	Expect(attachments[0].ProcessType).To(Equal("web"))
+}
+
+// TestCommandMountReplaceAllowsPathInAReplacedScope is the other side of it:
+// the scope being replaced is dropped before the check, so re-declaring a path
+// that scope already held is the ordinary idempotent case, not a conflict.
+func TestCommandMountReplaceAllowsPathInAReplacedScope(t *testing.T) {
+	RegisterTestingT(t)
+	setupTestApp(t, "demo")
+	stageDockerLocalEntry(t, "demo-data")
+	stageDockerLocalEntry(t, "demo-cache")
+
+	Expect(CommandMount(CommandMountInput{
+		AppName:      "demo",
+		NameOrPath:   "demo-data",
+		ContainerDir: "/app/storage",
+	})).To(Succeed())
+
+	Expect(CommandMount(CommandMountInput{
+		AppName: "demo",
+		Replace: true,
+		Specs:   []string{"demo-cache:/app/storage"},
+	})).To(Succeed())
+
+	attachments, err := LoadAttachments("demo")
+	Expect(err).NotTo(HaveOccurred())
+	Expect(attachments).To(HaveLen(1))
+	Expect(attachments[0].EntryName).To(Equal("demo-cache"))
+}
+
 func TestCommandMountReplaceIsIdempotent(t *testing.T) {
 	RegisterTestingT(t)
 	setupTestApp(t, "demo")

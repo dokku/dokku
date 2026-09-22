@@ -66,6 +66,38 @@ func (a *Attachment) Validate() error {
 	return nil
 }
 
+// EffectiveProcessType returns the process type an attachment is scoped to,
+// treating an unset value as the default scope so attachments written before
+// the field existed still sort into a scope.
+func (a *Attachment) EffectiveProcessType() string {
+	if a == nil || a.ProcessType == "" {
+		return DefaultProcessType
+	}
+
+	return a.ProcessType
+}
+
+// AppliesToProcessType reports whether an attachment is mounted into the
+// container being built for the given process type. The default scope applies
+// to every process; a named scope applies only to itself. An empty processType
+// names a container that belongs to no process at all - a `dokku run` one-off,
+// an app.json deploy task, a k3s cron job - and so sees the default scope only.
+func (a *Attachment) AppliesToProcessType(processType string) bool {
+	if processType == "" {
+		processType = DefaultProcessType
+	}
+
+	scope := a.EffectiveProcessType()
+	return scope == DefaultProcessType || scope == processType
+}
+
+// scopesOverlap reports whether two process-type scopes can both apply to one
+// container. The default scope overlaps every named scope; two named scopes
+// overlap only when they are equal.
+func scopesOverlap(first string, second string) bool {
+	return first == DefaultProcessType || second == DefaultProcessType || first == second
+}
+
 // LoadAttachments returns every attachment registered against an app.
 func LoadAttachments(appName string) ([]*Attachment, error) {
 	lines, err := common.PropertyListGet(PluginName, appName, AttachmentsProperty)
@@ -101,8 +133,29 @@ func SaveAttachments(appName string, attachments []*Attachment) error {
 	return common.PropertyListWrite(PluginName, appName, AttachmentsProperty, lines)
 }
 
+// ensureContainerPathFree rejects a candidate whose container path is already
+// claimed by an attachment in an overlapping scope. Two attachments bound at
+// one container path in overlapping scopes emit two -v flags for the same
+// target, leaving which volume the process actually sees up to Docker.
+func ensureContainerPathFree(appName string, attachments []*Attachment, candidate *Attachment) error {
+	for _, existing := range attachments {
+		if existing.ContainerPath != candidate.ContainerPath {
+			continue
+		}
+		if !scopesOverlap(existing.EffectiveProcessType(), candidate.EffectiveProcessType()) {
+			continue
+		}
+
+		return fmt.Errorf("Container path %s on app %s is already mounted by storage entry %s for process type %s",
+			candidate.ContainerPath, appName, existing.EntryName, existing.EffectiveProcessType())
+	}
+
+	return nil
+}
+
 // AddAttachment appends an attachment, rejecting duplicates of the same
-// (entry_name, container_path, process_type) tuple.
+// (entry_name, container_path, process_type) tuple as well as container paths
+// already claimed by an attachment in an overlapping scope.
 func AddAttachment(appName string, attachment *Attachment) error {
 	if err := attachment.Validate(); err != nil {
 		return err
@@ -116,10 +169,14 @@ func AddAttachment(appName string, attachment *Attachment) error {
 	for _, existing := range attachments {
 		if existing.EntryName == attachment.EntryName &&
 			existing.ContainerPath == attachment.ContainerPath &&
-			existing.ProcessType == attachment.ProcessType {
+			existing.EffectiveProcessType() == attachment.EffectiveProcessType() {
 			return fmt.Errorf("storage entry %q is already mounted at %q for process type %q on app %q",
-				attachment.EntryName, attachment.ContainerPath, attachment.ProcessType, appName)
+				attachment.EntryName, attachment.ContainerPath, attachment.EffectiveProcessType(), appName)
 		}
+	}
+
+	if err := ensureContainerPathFree(appName, attachments, attachment); err != nil {
+		return err
 	}
 
 	attachments = append(attachments, attachment)
@@ -136,6 +193,9 @@ func AddAttachment(appName string, attachment *Attachment) error {
 // false Readonly clears any previously-set value, mirroring the operator's
 // "set the flags as I just typed them" intent and the same idempotent
 // contract storage:create offers for entries.
+//
+// A new attachment is rejected when its container path is already claimed by
+// an attachment in an overlapping scope.
 func UpsertAttachment(appName string, attachment *Attachment) (bool, error) {
 	if err := attachment.Validate(); err != nil {
 		return false, err
@@ -149,7 +209,7 @@ func UpsertAttachment(appName string, attachment *Attachment) (bool, error) {
 	for _, existing := range attachments {
 		if existing.EntryName == attachment.EntryName &&
 			existing.ContainerPath == attachment.ContainerPath &&
-			existing.ProcessType == attachment.ProcessType {
+			existing.EffectiveProcessType() == attachment.EffectiveProcessType() {
 			existing.Phases = attachment.Phases
 			existing.Subpath = attachment.Subpath
 			existing.Readonly = attachment.Readonly
@@ -157,6 +217,12 @@ func UpsertAttachment(appName string, attachment *Attachment) (bool, error) {
 			existing.VolumeChown = attachment.VolumeChown
 			return false, SaveAttachments(appName, attachments)
 		}
+	}
+
+	// Only the append branch needs the overlap check: rewriting an existing
+	// tuple in place would otherwise trip over the attachment it is updating.
+	if err := ensureContainerPathFree(appName, attachments, attachment); err != nil {
+		return false, err
 	}
 
 	attachments = append(attachments, attachment)
