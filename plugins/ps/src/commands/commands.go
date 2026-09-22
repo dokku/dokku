@@ -28,8 +28,7 @@ Additional commands:`
     ps:scale --clear [--skip-deploy] <app>, Reset the formation to the default scale
     ps:set <app> <key> <value>, Set or clear a ps property for an app
     ps:start [--parallel count] [--all|<app>], Start an app
-    ps:stop [--parallel count] [--all|<app>], Stop an app
-`
+    ps:stop [--parallel count] [--all|<app>], Stop an app`
 )
 
 func main() {
