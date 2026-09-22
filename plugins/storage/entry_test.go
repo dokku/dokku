@@ -20,6 +20,10 @@ func withTempLibRoot(t *testing.T) string {
 	t.Helper()
 	dir := t.TempDir()
 	t.Setenv("DOKKU_LIB_ROOT", dir)
+	// Point plugn at an empty tree so anything resolving a plugin trigger in
+	// these tests falls back to its default instead of reading the host's
+	// real dokku install.
+	t.Setenv("PLUGIN_PATH", filepath.Join(dir, "plugins"))
 
 	current, err := user.Current()
 	if err != nil {

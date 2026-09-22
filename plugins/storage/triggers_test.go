@@ -109,6 +109,38 @@ func TestTriggerDockerArgsRejectsSchedulerMismatchOutOfScope(t *testing.T) {
 	Expect(err).To(HaveOccurred())
 }
 
+// TestDockerVFlagsForProcessSkipsOtherSchedulers covers apps that do not
+// deploy with docker-local. The docker-args triggers are fired for every app -
+// the app.json deploy-task path builds its ephemeral container with docker
+// whatever the app's scheduler is - so a k3s app reaches this code with k3s
+// entries attached. Those are PersistentVolumeClaims its own scheduler mounts,
+// so the right answer is no flags, not an error.
+func TestDockerVFlagsForProcessSkipsOtherSchedulers(t *testing.T) {
+	RegisterTestingT(t)
+	root := withTempLibRoot(t)
+
+	previous := appSchedulerFor
+	appSchedulerFor = func(string) string { return SchedulerK3s }
+	t.Cleanup(func() { appSchedulerFor = previous })
+
+	Expect(SaveEntry(&Entry{
+		Name:      "demo-pvc",
+		Scheduler: SchedulerK3s,
+	})).To(Succeed())
+
+	writeAttachmentsFile(t, root, "demo", []*Attachment{
+		{
+			EntryName:     "demo-pvc",
+			ContainerPath: "/data",
+			Phases:        []string{PhaseDeploy},
+		},
+	})
+
+	flags, err := dockerVFlagsForProcess("demo", PhaseDeploy, "web")
+	Expect(err).NotTo(HaveOccurred())
+	Expect(flags).To(BeEmpty())
+}
+
 // TestDockerVFlagsForProcessScopes is the docker-local half of #9059. An
 // attachment scoped to a named process type reaches that process only; the
 // default scope reaches every process, including containers that belong to no

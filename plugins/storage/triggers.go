@@ -264,7 +264,17 @@ func TriggerDockerArgs(appName string, phase string, processType string) error {
 // Every attachment in the phase is resolved and scheduler-checked, not just
 // the ones in scope, so an entry created for the wrong scheduler still fails
 // the deploy no matter which process type happens to be starting.
+//
+// Apps on another scheduler emit nothing rather than failing: the docker-args
+// triggers are invoked for every app, whatever its scheduler, because the
+// app.json deploy-task path builds its ephemeral container with docker
+// directly. A k3s app's volumes are PersistentVolumeClaims mounted by its own
+// scheduler and there is nothing to bind-mount here.
 func dockerVFlagsForProcess(appName string, phase string, processType string) ([]string, error) {
+	if appSchedulerFor(appName) != SchedulerDockerLocal {
+		return nil, nil
+	}
+
 	attachments, err := AttachmentsForPhase(appName, phase)
 	if err != nil {
 		return nil, err
@@ -290,6 +300,10 @@ func dockerVFlagsForProcess(appName string, phase string, processType string) ([
 	}
 	return flags, nil
 }
+
+// appSchedulerFor resolves the scheduler an app deploys with. It is a variable
+// so tests can exercise the non-docker-local path without a plugn install.
+var appSchedulerFor = common.GetAppScheduler
 
 // buildDockerVFlag formats the Docker -v argument for a docker-local
 // attachment.
