@@ -13,7 +13,7 @@ require (
 	github.com/alexellis/go-execute/v2 v2.2.1 // indirect
 	github.com/fatih/color v1.19.0 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
-	github.com/hashicorp/errwrap v1.0.0 // indirect
+	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/kr/fs v0.1.0 // indirect
@@ -32,7 +32,7 @@ require (
 	golang.org/x/sync v0.23.0 // indirect
 	golang.org/x/sys v0.48.0 // indirect
 	golang.org/x/text v0.42.0 // indirect
-	k8s.io/utils v0.0.0-20240102154912-e7106e64919e // indirect
+	k8s.io/utils v0.0.0-20260626114624-be93311217bd // indirect
 )
 
 replace github.com/dokku/dokku/plugins/app-json => ../app-json

@@ -8,13 +8,13 @@ require (
 	github.com/mattn/go-isatty v0.0.24
 	github.com/spf13/pflag v1.0.10
 	github.com/tailscale/hujson v0.0.0-20250605163823-992244df8c5a
-	k8s.io/utils v0.0.0-20240102154912-e7106e64919e
+	k8s.io/utils v0.0.0-20260626114624-be93311217bd
 )
 
 require (
 	github.com/alexellis/go-execute/v2 v2.2.1 // indirect
 	github.com/fatih/color v1.19.0 // indirect
-	github.com/hashicorp/errwrap v1.0.0 // indirect
+	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/kr/fs v0.1.0 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
