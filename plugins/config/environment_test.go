@@ -46,14 +46,16 @@ func TestMerge(t *testing.T) {
 	e.Merge(e2)
 	Expect(e.Map()).To(Equal(pairs("BAR", "baz", "FOO", "bar")))
 
-	e3, _ := newEnvFromString("FOO='ba \\nz'")
+	e3, err := newEnvFromString("FOO=\"ba \\nz\"")
+	Expect(err).NotTo(HaveOccurred())
 	e.Merge(e3)
 	Expect(e.Map()).To(Equal(pairs("BAR", "baz", "FOO", "ba \nz")))
 }
 
 func TestExport(t *testing.T) {
 	RegisterTestingT(t)
-	e, _ := newEnvFromString("BAR='BAZ'\nFOO='b'ar '\nBAZ='a\\nb'")
+	e, err := newEnvFromString("BAR='BAZ'\nFOO=\"b'ar \"\nBAZ=\"a\\nb\"")
+	Expect(err).NotTo(HaveOccurred())
 	Expect(e.Export(ExportFormatEnvfile)).To(Equal("BAR=\"BAZ\"\nBAZ=\"a\\nb\"\nFOO=\"b'ar \""))
 	Expect(e.Export(ExportFormatDockerArgs)).To(Equal("--env=BAR='BAZ' --env=BAZ='a\nb' --env=FOO='b'\\''ar '"))
 	Expect(e.Export(ExportFormatDockerArgsKeys)).To(Equal("--env=BAR --env=BAZ --env=FOO"))
