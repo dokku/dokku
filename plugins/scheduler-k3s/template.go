@@ -115,9 +115,18 @@ type ProcessValues struct {
 	Replicas     int32               `yaml:"replicas"`
 	Resources    ProcessResourcesMap `yaml:"resources,omitempty"`
 	Web          ProcessWeb          `yaml:"web,omitempty"`
-	Volumes      []ProcessVolume     `yaml:"volumes,omitempty"`
+
+	// Volumes holds one entry per container mount. The chart renders a
+	// volumeMounts entry for each of them and a pod volume for each distinct
+	// Name, so mounting one storage entry at two container paths belongs here
+	// twice: Kubernetes allows repeated volumeMounts names but requires pod
+	// volume names to be unique.
+	Volumes []ProcessVolume `yaml:"volumes,omitempty"`
 }
 
+// ProcessVolume is one container mount together with the source backing it.
+// Entries sharing a Name must agree on their source - they describe one pod
+// volume bound at several paths.
 type ProcessVolume struct {
 	Name            string                        `yaml:"name"`
 	MountPath       string                        `yaml:"mount_path"`

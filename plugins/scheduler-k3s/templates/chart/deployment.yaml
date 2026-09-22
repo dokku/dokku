@@ -179,7 +179,10 @@ spec:
       serviceAccountName: {{ $.Values.global.app_name }}
       {{- if $config.volumes }}
       volumes:
+        {{- $seen := dict }}
         {{- range $volume := $config.volumes }}
+        {{- if not (hasKey $seen $volume.name) }}
+        {{- $_ := set $seen $volume.name true }}
         - name: {{ $volume.name }}
           {{- if $volume.empty_dir }}
           emptyDir:
@@ -194,6 +197,7 @@ spec:
           persistentVolumeClaim:
             claimName: {{ $volume.persistent_claim.claim_name }}
           {{- end }}
+        {{- end }}
         {{- end }}
       {{- end }}
 {{- end }}

@@ -111,6 +111,63 @@ func TestToProcessVolumesAcceptsK3sEntry(t *testing.T) {
 	}
 }
 
+// TestToProcessVolumesCollapsesOneEntryMountedTwice covers the pod-volume
+// uniqueness rule: mounting one storage entry at two container paths has to
+// produce two volumeMounts and a single volume, or the API server rejects the
+// chart with a duplicate volume name.
+func TestToProcessVolumesCollapsesOneEntryMountedTwice(t *testing.T) {
+	pairs := []AppMountPair{
+		{
+			Entry:      &storage.Entry{Name: "demo-pvc", Scheduler: storage.SchedulerK3s},
+			Attachment: &storage.Attachment{ContainerPath: "/one", Subpath: "one"},
+		},
+		{
+			Entry:      &storage.Entry{Name: "demo-pvc", Scheduler: storage.SchedulerK3s},
+			Attachment: &storage.Attachment{ContainerPath: "/two", Subpath: "two", Readonly: true},
+		},
+	}
+
+	volumes := ToProcessVolumes(pairs, "web")
+	if len(volumes) != 2 {
+		t.Fatalf("expected 2 entries, got %d", len(volumes))
+	}
+	if volumes[0].Name != volumes[1].Name {
+		t.Fatalf("expected both entries to name one volume, got %q and %q", volumes[0].Name, volumes[1].Name)
+	}
+	if volumes[0].MountPath != "/one" || volumes[1].MountPath != "/two" {
+		t.Fatalf("expected mounts at /one and /two, got %q and %q", volumes[0].MountPath, volumes[1].MountPath)
+	}
+	if !volumes[1].ReadOnly || volumes[0].ReadOnly {
+		t.Errorf("expected only the second mount to be read only")
+	}
+}
+
+// TestProcessVolumesForRejectsSameNameDifferentSource guards the name collapse
+// the chart performs: the pod volume is emitted from the first entry with a
+// given name, so two different sources sharing one name would silently mount
+// whichever came first. An app with a storage entry called "shmem" alongside a
+// configured shm size is the way to reach it.
+func TestProcessVolumesForRejectsSameNameDifferentSource(t *testing.T) {
+	base := []ProcessVolume{
+		{
+			Name:      "shmem",
+			MountPath: "/dev/shm",
+			EmptyDir:  &ProcessVolumeEmptyDir{Medium: "Memory", SizeLimit: "64Mi"},
+		},
+	}
+
+	pairs := []AppMountPair{
+		{
+			Entry:      &storage.Entry{Name: "shmem", Scheduler: storage.SchedulerK3s},
+			Attachment: &storage.Attachment{ContainerPath: "/data"},
+		},
+	}
+
+	if _, err := processVolumesFor(base, pairs, "web"); err == nil {
+		t.Fatal("expected an error for two sources claiming one volume name, got nil")
+	}
+}
+
 func TestToProcessVolumesSkipsNilPairs(t *testing.T) {
 	pairs := []AppMountPair{
 		{Entry: nil, Attachment: nil},
@@ -150,9 +207,8 @@ func TestToProcessVolumesScopesToProcessType(t *testing.T) {
 		{processType: "worker", expected: []string{"shared", "legacy"}},
 		{processType: "", expected: []string{"shared", "legacy"}},
 	} {
-		volumes := ToProcessVolumes(pairs, tc.processType)
 		names := []string{}
-		for _, volume := range volumes {
+		for _, volume := range ToProcessVolumes(pairs, tc.processType) {
 			names = append(names, volume.Name)
 		}
 		if len(names) != len(tc.expected) {
@@ -171,7 +227,7 @@ func TestToProcessVolumesScopesToProcessType(t *testing.T) {
 // storage mounts into another's pod spec.
 func TestProcessVolumesForDoesNotAliasBase(t *testing.T) {
 	base := make([]ProcessVolume, 0, 8)
-	base = append(base, ProcessVolume{Name: "shmem", MountPath: "/dev/shm"})
+	base = append(base, ProcessVolume{Name: "shmem", MountPath: "/dev/shm", EmptyDir: &ProcessVolumeEmptyDir{Medium: "Memory"}})
 
 	pairs := []AppMountPair{
 		{
@@ -180,8 +236,14 @@ func TestProcessVolumesForDoesNotAliasBase(t *testing.T) {
 		},
 	}
 
-	web := processVolumesFor(base, pairs, "web")
-	worker := processVolumesFor(base, pairs, "worker")
+	web, err := processVolumesFor(base, pairs, "web")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	worker, err := processVolumesFor(base, pairs, "worker")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 
 	if len(web) != 2 {
 		t.Fatalf("expected web to get 2 volumes, got %d", len(web))

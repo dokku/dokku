@@ -359,6 +359,15 @@ func BuildAppChart(ctx context.Context, appName, imageTag string, opts BuildOpti
 		return cleanup(err)
 	}
 
+	// Every cron job gets the same volumes: a cron ID is a hash of the app
+	// name, command and schedule, so it is not something an operator can name
+	// in --process-type and it churns whenever the task changes. Cron jobs
+	// therefore sit with `dokku run` and app.json tasks: default scope only.
+	cronVolumes, err := processVolumesFor(baseVolumes, deployMountPairs, storage.DefaultProcessType)
+	if err != nil {
+		return cleanup(fmt.Errorf("Error building volumes for cron tasks: %w", err))
+	}
+
 	for processType, processCount := range processes {
 		healthchecks, ok := appJSON.Healthchecks[processType]
 		if !ok {
@@ -403,6 +412,11 @@ func BuildAppChart(ctx context.Context, appName, imageTag string, opts BuildOpti
 			return cleanup(fmt.Errorf("Error getting autoscaling: %w", err))
 		}
 
+		processVolumes, err := processVolumesFor(baseVolumes, deployMountPairs, processType)
+		if err != nil {
+			return cleanup(fmt.Errorf("Error building volumes for process type %s: %w", processType, err))
+		}
+
 		processValues := ProcessValues{
 			Annotations:  annotations,
 			Autoscaling:  autoscaling,
@@ -413,7 +427,7 @@ func BuildAppChart(ctx context.Context, appName, imageTag string, opts BuildOpti
 			ProcessType:  ProcessType_Worker,
 			Replicas:     int32(processCount),
 			Resources:    processResources,
-			Volumes:      processVolumesFor(baseVolumes, deployMountPairs, processType),
+			Volumes:      processVolumes,
 		}
 
 		if processType == "web" {
@@ -591,11 +605,7 @@ func BuildAppChart(ctx context.Context, appName, imageTag string, opts BuildOpti
 			ProcessType: ProcessType_Cron,
 			Replicas:    1,
 			Resources:   processResources,
-			// A cron ID is a hash of the app name, command and schedule, so it
-			// is not something an operator can name in --process-type and it
-			// churns whenever the task changes. Cron jobs therefore sit with
-			// `dokku run` and app.json tasks: default-scoped mounts only.
-			Volumes: processVolumesFor(baseVolumes, deployMountPairs, storage.DefaultProcessType),
+			Volumes:     cronVolumes,
 		}
 		values.Processes[cronTask.ID] = processValues
 	}
