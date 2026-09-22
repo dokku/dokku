@@ -396,20 +396,28 @@ func prettyPrintEnvEntries(prefix string, entries map[string]string) string {
 
 func loadFromFile(name string, filename string) (env *Env, err error) {
 	envMap := make(map[string]string)
+	dirty := false
 	if filename == "-" {
 		envMap, err = godotenv.Parse(os.Stdin)
 		if err != nil {
 			return nil, err
 		}
 	}
-	if _, err := os.Stat(filename); err == nil {
-		envMap, err = godotenv.Read(filename)
-		if err != nil {
-			return nil, err
+	if _, statErr := os.Stat(filename); statErr == nil {
+		contents, readErr := os.ReadFile(filename)
+		if readErr != nil {
+			return nil, readErr
 		}
+
+		parsed, parseErr := godotenv.Unmarshal(string(contents))
+		if parseErr != nil {
+			common.LogInfo1(fmt.Sprintf("Discarding unparseable entries from config for %s: %s", name, parseErr))
+			parsed = parseLineByLine(string(contents))
+			dirty = true
+		}
+		envMap = parsed
 	}
 
-	dirty := false
 	for k := range envMap {
 		if err := validateKey(k); err != nil {
 			common.LogInfo1(fmt.Sprintf("Deleting invalid key %s from config for %s", k, name))
@@ -429,6 +437,23 @@ func loadFromFile(name string, filename string) (env *Env, err error) {
 		env:      envMap,
 	}
 	return
+}
+
+// parseLineByLine parses ENVFILE contents a line at a time, discarding the
+// lines the parser rejects, so that a single malformed entry does not make the
+// rest of the environment unreadable
+func parseLineByLine(contents string) map[string]string {
+	envMap := make(map[string]string)
+	for _, line := range strings.Split(contents, "\n") {
+		lineMap, err := godotenv.Unmarshal(line)
+		if err != nil {
+			continue
+		}
+		for key, value := range lineMap {
+			envMap[key] = value
+		}
+	}
+	return envMap
 }
 
 func loadFromFileJSON(name string, filename string) (env *Env, err error) {
