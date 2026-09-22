@@ -200,6 +200,4 @@ replace github.com/dokku/dokku/plugins/registry => ../registry
 
 replace github.com/dokku/dokku/plugins/storage => ../storage
 
-replace github.com/joho/godotenv => github.com/joho/godotenv v1.2.0
-
 replace github.com/imdario/mergo => github.com/imdario/mergo v0.3.16
