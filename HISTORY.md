@@ -1,5 +1,51 @@
 # History
 
+## 0.38.29
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.38.29/bootstrap.sh
+sudo DOKKU_TAG=v0.38.29 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #9060: @josegonzalez Preserve global flags when sudo is sudo-rs
+- #9055: @josegonzalez Validate nginx templates as the running nginx user
+- #9054: @josegonzalez Honor the pinned chart version when upgrading
+- #9049: @josegonzalez Report config write failures instead of exiting 0
+- #9050: @josegonzalez Reject negative process counts when scaling
+
+### New Features
+
+- #9058: @josegonzalez Add a whole-set form for an app's storage mounts
+- #9057: @josegonzalez Add a way to read back registry login state
+- #9051: @josegonzalez Add a whole-set form for scheduler-k3s metadata
+
+### Documentation
+
+- #9070: @s01ipsist Document Ubuntu 26.04 as a supported installation target
+
+### Tests
+
+- #9062: @josegonzalez Pass force to the datastore command that owns it
+- #9061: @josegonzalez Call the datastore create command the way it is documented
+
+### Dependencies
+
+- #9064: @dependabot[bot] chore: group gomod dependabot updates across all plugins
+- #9066: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.43.0 to 1.43.1 in /plugins/buildpacks
+- #9067: @dependabot[bot] chore(deps): bump github.com/fluxcd/pkg/kustomize from 1.40.0 to 1.41.0 in /plugins/scheduler-k3s
+- #9063: @dependabot[bot] chore(deps): bump pymdown-extensions from 12.0 to 12.0.1 in /docs/_build
+- #9068: @dependabot[bot] chore(deps): bump github.com/onsi/gomega from 1.43.0 to 1.43.1 in /plugins/scheduler-k3s
+- #9052: @dependabot[bot] chore(deps): bump pymdown-extensions from 11.0.2 to 12.0 in /docs/_build
+
+### Other
+
+- #9069: @josegonzalez Honor storage attachment process types at deploy time
+- #9011: @visheshgubrani Propagate command exit code on dokku run
+
 ## 0.38.28
 
 Install/update via the bootstrap script:
