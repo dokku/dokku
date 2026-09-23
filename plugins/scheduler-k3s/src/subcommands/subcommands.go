@@ -257,8 +257,21 @@ func main() {
 	case "node-sysctls:report":
 		args := flag.NewFlagSet("scheduler-k3s:node-sysctls:report", flag.ExitOnError)
 		format := args.String("format", "stdout", "format: [ stdout | json ]")
+		global := args.Bool("global", false, "--global: report only on all nodes without a node profile")
+		profileName := args.String("profile", "", "--profile: report only on a node profile instead of every scope")
+		stored := args.Bool("stored", false, "--stored: report the sysctls each scope stores itself rather than the resolved set it applies")
 		args.Parse(os.Args[2:])
-		err = scheduler_k3s.CommandNodeSysctlsReport(*format)
+		if *global && *profileName != "" {
+			err = fmt.Errorf("Only one of --global and --profile may be specified")
+			break
+		}
+
+		err = scheduler_k3s.CommandNodeSysctlsReport(scheduler_k3s.NodeSysctlsReportInput{
+			Format:      *format,
+			Global:      *global,
+			ProfileName: *profileName,
+			Stored:      *stored,
+		})
 	case "preview":
 		args := flag.NewFlagSet("scheduler-k3s:preview", flag.ExitOnError)
 		context := args.Int("context", 3, "--context: number of unchanged lines of context around each change (-1 for full output)")

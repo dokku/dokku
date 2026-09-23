@@ -152,10 +152,29 @@ func warnUnmanagedSysctls(names []string) {
 	}
 }
 
-// CommandNodeSysctlsReport displays the configured node-level kernel sysctls
-func CommandNodeSysctlsReport(format string) error {
-	if format != "stdout" && format != "json" {
-		return fmt.Errorf("Invalid format: %s", format)
+// NodeSysctlsReportInput captures the inputs accepted by node-sysctls:report.
+// Global and ProfileName are mutually exclusive, and naming neither reports every
+// scope rather than the global one.
+type NodeSysctlsReportInput struct {
+	Format      string
+	Global      bool
+	ProfileName string
+	Stored      bool
+}
+
+// CommandNodeSysctlsReport displays the configured node-level kernel sysctls. A named
+// profile only has to exist to be reported on, unlike one being written to: a profile
+// whose legacy name cannot back a helm release still resolves to a scope, and the map
+// it stores is worth reading back even though nothing applies it.
+func CommandNodeSysctlsReport(input NodeSysctlsReportInput) error {
+	if input.Format != "stdout" && input.Format != "json" {
+		return fmt.Errorf("Invalid format: %s", input.Format)
+	}
+
+	if input.ProfileName != "" {
+		if err := verifyNodeProfileExists(input.ProfileName); err != nil {
+			return err
+		}
 	}
 
 	scopes, err := resolveNodeSysctlScopes()
@@ -163,19 +182,16 @@ func CommandNodeSysctlsReport(format string) error {
 		return err
 	}
 
-	if format == "json" {
+	scopes = filterNodeSysctlScopes(scopes, input.Global, input.ProfileName)
+
+	if input.Format == "json" {
 		output := map[string]map[string]string{}
 		for _, scope := range scopes {
-			key := scope.ProfileName
-			if key == "" {
-				key = "--global"
-			}
-
 			entries := map[string]string{}
-			for _, sysctl := range scope.Sysctls {
+			for _, sysctl := range scope.reportSysctls(input.Stored) {
 				entries[sysctl.Name] = sysctl.Value
 			}
-			output[key] = entries
+			output[nodeSysctlsScopeKey(scope.ProfileName)] = entries
 		}
 
 		b, err := json.Marshal(output)
@@ -189,12 +205,8 @@ func CommandNodeSysctlsReport(format string) error {
 
 	lines := []string{"scope|sysctl|value"}
 	for _, scope := range scopes {
-		scopeName := scope.ProfileName
-		if scopeName == "" {
-			scopeName = "--global"
-		}
-
-		for _, sysctl := range scope.Sysctls {
+		scopeName := nodeSysctlsScopeKey(scope.ProfileName)
+		for _, sysctl := range scope.reportSysctls(input.Stored) {
 			lines = append(lines, fmt.Sprintf("%s|%s|%s", scopeName, sysctl.Name, sysctl.Value))
 		}
 	}
