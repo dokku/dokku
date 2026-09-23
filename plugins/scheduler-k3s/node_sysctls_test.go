@@ -303,3 +303,122 @@ func TestMergeNodeSysctlsDoesNotMutateInputs(t *testing.T) {
 		t.Errorf("mergeNodeSysctls() mutated the profile map: %v", profile)
 	}
 }
+
+func TestNodeSysctlsScopeKey(t *testing.T) {
+	if got := nodeSysctlsScopeKey(""); got != "--global" {
+		t.Errorf("nodeSysctlsScopeKey(\"\") = %q, want --global", got)
+	}
+	if got := nodeSysctlsScopeKey("edge-workers"); got != "edge-workers" {
+		t.Errorf("nodeSysctlsScopeKey(\"edge-workers\") = %q, want edge-workers", got)
+	}
+}
+
+// TestNodeSysctlScopeReportSysctls asserts a report can read back the map a scope
+// stores. A profile storing nothing of its own still resolves to every global sysctl,
+// so the resolved set alone cannot tell a stored value from an inherited one.
+func TestNodeSysctlScopeReportSysctls(t *testing.T) {
+	global := []Sysctl{{Name: "vm.max_map_count", Value: "262144"}}
+	profile := nodeSysctlScope{
+		ProfileName: "edge-workers",
+		Sysctls: []Sysctl{
+			{Name: "vm.max_map_count", Value: "262144"},
+			{Name: "vm.swappiness", Value: "10"},
+		},
+		StoredSysctls: []Sysctl{{Name: "vm.swappiness", Value: "10"}},
+	}
+
+	cases := []struct {
+		name   string
+		scope  nodeSysctlScope
+		stored bool
+		want   []Sysctl
+	}{
+		{
+			name:   "profile resolved set includes inherited sysctls",
+			scope:  profile,
+			stored: false,
+			want:   profile.Sysctls,
+		},
+		{
+			name:   "profile stored map excludes inherited sysctls",
+			scope:  profile,
+			stored: true,
+			want:   profile.StoredSysctls,
+		},
+		{
+			name:   "global scope resolves to what it stores",
+			scope:  nodeSysctlScope{Sysctls: global, StoredSysctls: global},
+			stored: true,
+			want:   global,
+		},
+		{
+			name:   "profile storing nothing reports an empty map",
+			scope:  nodeSysctlScope{ProfileName: "edge-workers", Sysctls: global, StoredSysctls: []Sysctl{}},
+			stored: true,
+			want:   []Sysctl{},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := tc.scope.reportSysctls(tc.stored)
+			if len(got) != len(tc.want) {
+				t.Fatalf("reportSysctls(%t) = %v, want %v", tc.stored, got, tc.want)
+			}
+			for i := range got {
+				if got[i] != tc.want[i] {
+					t.Errorf("reportSysctls(%t)[%d] = %v, want %v", tc.stored, i, got[i], tc.want[i])
+				}
+			}
+		})
+	}
+}
+
+func TestFilterNodeSysctlScopes(t *testing.T) {
+	scopes := []nodeSysctlScope{
+		{ReleaseName: "dokku-node-sysctls-global"},
+		{ProfileName: "edge-workers", ReleaseName: "dokku-node-sysctls-profile-edge-workers"},
+		{ProfileName: "gpu-workers", ReleaseName: "dokku-node-sysctls-profile-gpu-workers"},
+	}
+
+	cases := []struct {
+		name        string
+		global      bool
+		profileName string
+		want        []string
+	}{
+		{
+			name: "no filter keeps every scope",
+			want: []string{"", "edge-workers", "gpu-workers"},
+		},
+		{
+			name:   "global keeps only the unprofiled scope",
+			global: true,
+			want:   []string{""},
+		},
+		{
+			name:        "profile keeps only its own scope",
+			profileName: "edge-workers",
+			want:        []string{"edge-workers"},
+		},
+		{
+			name:        "unknown profile keeps nothing",
+			profileName: "missing-profile",
+			want:        []string{},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := filterNodeSysctlScopes(scopes, tc.global, tc.profileName)
+			if len(got) != len(tc.want) {
+				t.Fatalf("filterNodeSysctlScopes() returned %d scopes, want %d", len(got), len(tc.want))
+			}
+			for i := range got {
+				if got[i].ProfileName != tc.want[i] {
+					t.Errorf("filterNodeSysctlScopes()[%d].ProfileName = %q, want %q", i, got[i].ProfileName, tc.want[i])
+				}
+			}
+		})
+	}
+}

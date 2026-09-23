@@ -25,7 +25,7 @@ scheduler-k3s:labels:report [<app>|--global] [--format stdout|json] [--process-t
 scheduler-k3s:node-sysctls:clear [--global|--profile PROFILE] # Clear all node-level kernel sysctls for unprofiled nodes or a single node profile
 scheduler-k3s:node-sysctls:set <sysctl> (<value>) [--global|--profile PROFILE] # Set or clear a node-level kernel sysctl for unprofiled nodes or a single node profile
 scheduler-k3s:node-sysctls:set --replace <sysctl=value> [<sysctl=value> ...] [--global|--profile PROFILE] # Replace the entire node-level kernel sysctl map for unprofiled nodes or a single node profile
-scheduler-k3s:node-sysctls:report [--format stdout|json] # Displays the node-level kernel sysctls applied to each scope
+scheduler-k3s:node-sysctls:report [--format stdout|json] [--stored] [--global|--profile PROFILE] # Displays the node-level kernel sysctls for each scope
 scheduler-k3s:preview <app> [--context N] [--show-secrets] [--show-secrets-decoded] # Displays a diff between the current and next deployment for an app
 scheduler-k3s:profiles:add <profile> [--role ROLE] [--insecure-allow-unknown-hosts] [--taint-scheduling] [--kubelet-args KUBELET_ARGS] # Adds a node profile to the k3s cluster
 scheduler-k3s:profiles:list [--format json|stdout] # Lists all node profiles in the k3s cluster
@@ -1008,14 +1008,49 @@ dokku scheduler-k3s:node-sysctls:clear --profile edge-workers
 
 Clearing a scope removes its DaemonSet. As with clearing a single sysctl, the values it last wrote stay in place on affected nodes until they reboot.
 
-Use `node-sysctls:report` to see the resolved set for every scope.
+Use `node-sysctls:report` to see the resolved set every scope's DaemonSet applies. A profile's entry therefore includes everything it inherits from the global scope.
 
 ```shell
 dokku scheduler-k3s:node-sysctls:report
 ```
 
+```
+scope         sysctl                value
+--global      vm.overcommit_memory  1
+--global      vm.swappiness         20
+edge-workers  vm.overcommit_memory  1
+edge-workers  vm.swappiness         60
+```
+
 ```shell
 dokku scheduler-k3s:node-sysctls:report --format json
+```
+
+Because that report resolves each scope, a profile's entry does not distinguish a sysctl the profile sets itself from one it inherits. To report only the map each scope stores - the map its own `node-sysctls:set` and `node-sysctls:clear` calls write - add the `--stored` flag:
+
+```shell
+dokku scheduler-k3s:node-sysctls:report --stored
+```
+
+```
+scope         sysctl                value
+--global      vm.overcommit_memory  1
+--global      vm.swappiness         20
+edge-workers  vm.swappiness         60
+```
+
+The global scope stores exactly what it applies, so `--stored` reports the same thing for `--global` either way.
+
+A configuration tool holding a declared map for a scope should compare it against `--stored`. Comparing against the resolved set never converges a profile, since a profile that stores nothing of its own still reports every globally-set sysctl.
+
+The report covers every scope unless `--global` or `--profile` narrows it to one, the same way those flags scope `node-sysctls:set` and `node-sysctls:clear`. Only one of the two may be given.
+
+```shell
+dokku scheduler-k3s:node-sysctls:report --stored --profile edge-workers --format json
+```
+
+```json
+{"edge-workers":{"vm.swappiness":"60"}}
 ```
 
 The DaemonSet pulls `busybox` and `registry.k8s.io/pause` by default. On an air-gapped cluster or one behind a registry mirror, point them elsewhere:

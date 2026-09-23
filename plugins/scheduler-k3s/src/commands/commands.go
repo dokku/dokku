@@ -38,7 +38,7 @@ Additional commands:`
     scheduler-k3s:node-sysctls:clear [--global|--profile PROFILE], Clear all node-level kernel sysctls for unprofiled nodes or a single node profile
     scheduler-k3s:node-sysctls:set <sysctl> (<value>) [--global|--profile PROFILE], Set or clear a node-level kernel sysctl for unprofiled nodes or a single node profile
     scheduler-k3s:node-sysctls:set --replace <sysctl=value> [<sysctl=value> ...] [--global|--profile PROFILE], Replace the entire node-level kernel sysctl map for unprofiled nodes or a single node profile
-    scheduler-k3s:node-sysctls:report [--format stdout|json], Displays the node-level kernel sysctls applied to each scope
+    scheduler-k3s:node-sysctls:report [--format stdout|json] [--stored] [--global|--profile PROFILE], Displays the node-level kernel sysctls for each scope
     scheduler-k3s:preview <app> [--context N] [--show-secrets] [--show-secrets-decoded], Displays a diff between the current and next deployment for an app
     scheduler-k3s:profiles:add <profile> [--role ROLE] [--insecure-allow-unknown-hosts] [--taint-scheduling] [--kubelet-args KUBELET_ARGS], Adds a node profile to the k3s cluster
     scheduler-k3s:profiles:list [--format json|stdout], Lists all node profiles in the k3s cluster

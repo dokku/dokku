@@ -35,6 +35,9 @@ type nodeSysctlScope struct {
 	ReleaseName string
 	// Sysctls are the fully resolved sysctls for this scope
 	Sysctls []Sysctl
+	// StoredSysctls are only the sysctls this scope stores itself, with nothing
+	// inherited from the global scope
+	StoredSysctls []Sysctl
 }
 
 // getNodeSysctlsProperty returns the property name backing a node sysctls scope
@@ -130,17 +133,20 @@ func mergeNodeSysctls(global map[string]string, profile map[string]string) []Sys
 // profile scopes carrying the global sysctls merged underneath their own. Every
 // node matches exactly one scope: profiled nodes match their profile's DaemonSet,
 // and unprofiled nodes match the global one, so no two DaemonSets ever write the
-// same sysctl on the same node.
+// same sysctl on the same node. Each scope also carries the map it stores on its
+// own, which is what that scope's set and clear commands write.
 func resolveNodeSysctlScopes() ([]nodeSysctlScope, error) {
 	globalSysctls, err := getNodeSysctls("")
 	if err != nil {
 		return nil, err
 	}
 
+	global := sortedSysctls(globalSysctls)
 	scopes := []nodeSysctlScope{
 		{
-			ReleaseName: getNodeSysctlsReleaseName(""),
-			Sysctls:     sortedSysctls(globalSysctls),
+			ReleaseName:   getNodeSysctlsReleaseName(""),
+			Sysctls:       global,
+			StoredSysctls: global,
 		},
 	}
 
@@ -156,13 +162,43 @@ func resolveNodeSysctlScopes() ([]nodeSysctlScope, error) {
 		}
 
 		scopes = append(scopes, nodeSysctlScope{
-			ProfileName: profileName,
-			ReleaseName: getNodeSysctlsReleaseName(profileName),
-			Sysctls:     mergeNodeSysctls(globalSysctls, profileSysctls),
+			ProfileName:   profileName,
+			ReleaseName:   getNodeSysctlsReleaseName(profileName),
+			Sysctls:       mergeNodeSysctls(globalSysctls, profileSysctls),
+			StoredSysctls: sortedSysctls(profileSysctls),
 		})
 	}
 
 	return scopes, nil
+}
+
+// reportSysctls returns the sysctls a report should render for this scope: the map
+// the scope stores on its own when stored is set, and otherwise the resolved set its
+// DaemonSet applies.
+func (scope nodeSysctlScope) reportSysctls(stored bool) []Sysctl {
+	if stored {
+		return scope.StoredSysctls
+	}
+
+	return scope.Sysctls
+}
+
+// filterNodeSysctlScopes narrows resolved scopes to the single scope a report asked
+// for, with global selecting the scope no profile owns. A report naming neither gets
+// every scope.
+func filterNodeSysctlScopes(scopes []nodeSysctlScope, global bool, profileName string) []nodeSysctlScope {
+	if !global && profileName == "" {
+		return scopes
+	}
+
+	filtered := []nodeSysctlScope{}
+	for _, scope := range scopes {
+		if scope.ProfileName == profileName {
+			filtered = append(filtered, scope)
+		}
+	}
+
+	return filtered
 }
 
 // CreateOrUpdateNodeSysctls reconciles every node sysctls DaemonSet against the
@@ -328,6 +364,16 @@ func DeleteNodeSysctls(ctx context.Context, profileName string) error {
 	}
 
 	return deleteNodeSysctlsRelease(getNodeSysctlsReleaseName(profileName))
+}
+
+// nodeSysctlsScopeKey returns the key a report addresses a node sysctls scope by,
+// matching the flag that scope is set and cleared with
+func nodeSysctlsScopeKey(profileName string) string {
+	if profileName == "" {
+		return "--global"
+	}
+
+	return profileName
 }
 
 // nodeSysctlsScopeLabel returns a human readable name for a node sysctls scope
