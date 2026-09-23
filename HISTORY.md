@@ -1,5 +1,23 @@
 # History
 
+## 0.38.30
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.38.30/bootstrap.sh
+sudo DOKKU_TAG=v0.38.30 bash bootstrap.sh
+```
+
+### New Features
+
+- #9074: @josegonzalez Allow storage:mount --replace to vary fields per mount
+- #9075: @josegonzalez Report each node-sysctls scope's stored map
+
+### Tests
+
+- #9071: @dependabot[bot] chore(deps): bump google.golang.org/grpc from 1.83.2 to 1.84.0 in /tests/apps/gogrpc
+
 ## 0.38.29
 
 Install/update via the bootstrap script:
