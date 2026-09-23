@@ -218,12 +218,12 @@ func main() {
 	case "mount":
 		args := flag.NewFlagSet("storage:mount", flag.ExitOnError)
 		containerDir := args.String("container-dir", "", "--container-dir: container path (named-entry form)")
-		phases := args.StringSlice("phase", nil, "--phase: phase to mount in (deploy, run; default both)")
+		phases := args.StringSlice("phase", nil, "--phase: phase to mount in (deploy, run; default both); not valid with --replace")
 		processType := args.String("process-type", "", "--process-type: process type to mount for")
-		subpath := args.String("volume-subpath", "", "--volume-subpath: subpath within the entry")
-		readonly := args.Bool("volume-readonly", false, "--volume-readonly: mount the volume read-only")
-		volumeChown := args.String("volume-chown", "", "--volume-chown: chown option applied at mount time")
-		volumeOptions := args.String("volume-options", "", "--volume-options: comma-separated mount options (e.g. Z, noexec,nosuid)")
+		subpath := args.String("volume-subpath", "", "--volume-subpath: subpath within the entry; not valid with --replace")
+		readonly := args.Bool("volume-readonly", false, "--volume-readonly: mount the volume read-only; not valid with --replace")
+		volumeChown := args.String("volume-chown", "", "--volume-chown: chown option applied at mount time; not valid with --replace")
+		volumeOptions := args.String("volume-options", "", "--volume-options: comma-separated mount options (e.g. Z, noexec,nosuid); not valid with --replace")
 		replace := args.Bool("replace", false, "--replace: replace the entire mount set for the process type")
 		args.Parse(os.Args[2:])
 		input := storage.CommandMountInput{
