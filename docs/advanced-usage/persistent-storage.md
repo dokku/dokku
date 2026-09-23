@@ -271,7 +271,7 @@ dokku ps:restart app-name
 #### Scoping a mount to a process type
 
 > [!IMPORTANT]
-> New as of 0.38.28
+> New as of 0.38.29
 
 By default a mount is bound into every one of an app's containers. `--process-type` narrows it to a single Procfile process type, which is how a worker gets a scratch volume the web process has no business seeing:
 
@@ -305,7 +305,7 @@ dokku storage:mount node-js-app node-js-cache --container-dir /app/storage --pro
 #### Replacing the entire mount set
 
 > [!IMPORTANT]
-> New as of 0.38.28
+> New as of 0.38.29. Per-mount attributes in the option list new as of 0.38.30.
 
 The form above mounts one entry at a time, so matching an app's mounts to a declared set means reading `storage:list`, computing the difference in both directions and issuing one `storage:mount` or `storage:unmount` per addition and removal - with a failure partway through leaving the app holding a mixture of the two sets. The `--replace` flag writes the whole set in a single call, taking `name:container-dir` pairs instead of a single entry and a `--container-dir` flag.
 
@@ -313,30 +313,47 @@ The form above mounts one entry at a time, so matching an app's mounts to a decl
 dokku storage:mount --replace node-js-app node-js-data:/app/storage node-js-cache:/cache
 ```
 
-Anything previously mounted and not named in the call is unmounted. Each pair takes the same optional third field as the legacy colon form, so `ro` and other mount options can vary between mounts:
+Anything previously mounted and not named in the call is unmounted. Each pair takes the same optional third field as the legacy colon form, a comma-separated list, and that list carries every mount-time attribute the mount needs, so two mounts declared in one call can differ in all of them:
 
 ```shell
-dokku storage:mount --replace node-js-app node-js-data:/app/storage:Z node-js-cache:/cache:ro,noexec
+dokku storage:mount --replace node-js-app \
+  node-js-data:/app/storage:ro,Z,volume-subpath=uploads,volume-chown=herokuish \
+  node-js-cache:/cache:phase=deploy,phase=run,noexec
 ```
 
-A pair whose first field starts with `/` is a legacy host path rather than an entry name, and registers its `legacy-<hash>` entry the same way the colon form does. Any other first field must name a registered entry, so a mistyped name is rejected rather than taken for a docker volume. A docker volume already mounted through the colon form is named here by the `legacy-<hash>` entry that `storage:list-entries` shows.
+| Token | Meaning |
+|---|---|
+| `ro` | Mount the volume read-only |
+| `rw` | Mount it read-write, the explicit opposite of `ro` and the default |
+| `volume-subpath=<path>` | Subpath within the entry |
+| `volume-chown=<option>` | Chown option applied at mount time |
+| `phase=<deploy\|run>` | Phase to mount in, repeated once per phase; both phases when omitted |
+| anything else | A Docker mount option, passed through verbatim in the order given |
 
-The remaining mount-time flags scope the whole call rather than a single pair, so every mount in the replacement shares them:
+Order within the list does not matter, and the keys mirror the flags the single-entry form uses so each attribute has exactly one spelling. Phases are stored in `deploy,run` order however they were written, so re-issuing an equivalent call converges rather than registering a change. A token value cannot contain a comma, since the comma is what separates tokens; a subpath needing one is set with the single-entry form. Note that `storage:list` renders the Docker `-v` view and omits the subpath, chown and phases, so its output does not round-trip into `--replace` - `storage:report` shows every field.
+
+A pair whose first field starts with `/` is a legacy host path rather than an entry name, and registers its `legacy-<hash>` entry the same way the colon form does. Any other first field must name a registered entry, so a mistyped name is rejected rather than taken for a docker volume. A docker volume already mounted through the colon form is named here by the `legacy-<hash>` entry that `storage:list-entries` shows. Only the first field decides which entry a host path resolves to, so adding tokens to a pair never moves it onto a different one.
+
+Because each attribute has exactly one spelling in this form, `--phase`, `--volume-subpath`, `--volume-readonly`, `--volume-chown` and `--volume-options` are rejected with `--replace` rather than acting as call-level defaults a token overrides:
 
 ```shell
-dokku storage:mount --replace node-js-app node-js-data:/app/storage --phase deploy --volume-subpath uploads --volume-chown herokuish
+dokku storage:mount --replace node-js-app node-js-data:/app/storage --volume-subpath uploads
 ```
 
-This means `--volume-subpath` and `--volume-chown` cannot differ between mounts declared in one call. Mounts needing different values for either are declared under a different `--process-type`, or set individually with the single-entry form.
+```
+ !     The --volume-subpath flag cannot be used with --replace; set volume-subpath=<path> in the mount spec instead
+```
 
-`--process-type` scopes the replacement the same way it scopes a single mount. Omitting it replaces the `_default_` process type, leaving mounts scoped to a named process type in place:
+The single-entry form keeps all five flags.
+
+`--process-type` is the exception and scopes the replacement the same way it scopes a single mount, since it selects which mounts the call is authoritative over rather than describing any one of them. Omitting it replaces the `_default_` process type, leaving mounts scoped to a named process type in place:
 
 ```shell
 dokku storage:mount --replace node-js-app node-js-data:/app/storage
 dokku storage:mount --replace node-js-app node-js-cache:/cache --process-type web
 ```
 
-Every pair is parsed and validated before anything is written, so a rejected pair leaves the stored mounts untouched. A pair without a container directory, a container directory that is not absolute, an entry that is not registered, an entry whose scheduler does not match the app's, and a container directory named more than once in one call are all rejected.
+Every pair is parsed and validated before anything is written, so a rejected pair leaves the stored mounts untouched. A pair without a container directory, a container directory that is not absolute, an entry that is not registered, an entry whose scheduler does not match the app's, and a container directory named more than once in one call are all rejected. So are the option list's own mistakes: an unknown key, a key given more than once, an empty value, an empty option, `ro` and `rw` together, a phase that is neither `deploy` nor `run`, and a chown value the plugin does not understand. Rejecting an unknown key is what catches a typo like `volume-subpth=uploads`, which would otherwise be stored as a Docker mount option and surface only when the next deploy failed.
 
 > [!NOTE]
 > An empty pair list is rejected rather than treated as a request to unmount everything, so a generated list that expands to nothing cannot silently drop an app's storage. Use `storage:unmount --all` for that.
@@ -356,7 +373,7 @@ dokku storage:unmount node-js-app some-docker-volume:/app/storage
 ```
 
 > [!IMPORTANT]
-> Removing more than one attachment at a time is new as of 0.38.28
+> Removing more than one attachment at a time is new as of 0.38.29
 
 More than one attachment can be removed in a single call, naming each by entry name or by the colon form. Every argument is resolved against the app's attachments before any of them is removed, so an argument naming an attachment the app does not have removes none of them:
 
@@ -374,7 +391,7 @@ dokku storage:unmount node-js-app node-js-data:/app/storage node-js-data:/app/up
 #### Removing every mount
 
 > [!IMPORTANT]
-> New as of 0.38.28
+> New as of 0.38.29
 
 The `--all` flag removes every attachment on an app. This is the empty case `storage:mount --replace` refuses to handle, and it takes no entry arguments:
 
