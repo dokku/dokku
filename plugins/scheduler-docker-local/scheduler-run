@@ -111,7 +111,11 @@ trigger-scheduler-docker-local-scheduler-run() {
     if [[ -n "$PROC_CMD" ]]; then
       dokku_log_info1_quiet "Found '$POTENTIAL_PROCFILE_KEY' in Procfile, running that command"
       DOCKER_ARGS+=" --label=com.dokku.process-type=$POTENTIAL_PROCFILE_KEY"
-      read -ra proc_array <<<"$PROC_CMD"
+      fn-split-command "$PROC_CMD" >/dev/null
+      local -a proc_array=()
+      while IFS= read -r -d '' arg; do
+        proc_array+=("$arg")
+      done < <(fn-split-command "$PROC_CMD")
       set -- "${proc_array[@]}" "${@:2}"
     fi
   fi

@@ -483,3 +483,71 @@ teardown() {
   echo "status: $status"
   assert_output "running"
 }
+
+@test "(scheduler-docker-local) procfile quoted arguments on deploy" {
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP quoted_procfile_callback
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker inspect --format '{{json .Config.Cmd}}' $TEST_APP.web.1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output '["python3","-u","web.py","double quoted","single quoted","escaped \"quote\"","literal`tick`","5000"]'
+}
+
+@test "(scheduler-docker-local) procfile quoted arguments on run" {
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP quoted_procfile_callback
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku run $TEST_APP args"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "['double quoted', 'single quoted', 'escaped \"quote\"', 'literal\`tick\`', '5000']"
+}
+
+@test "(scheduler-docker-local) procfile with shell operators fails deploy" {
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP operator_procfile_callback
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Unable to parse command"
+}
+
+quoted_procfile_callback() {
+  local APP="$1"
+  local APP_REPO_DIR="$2"
+  mv "$APP_REPO_DIR/dockerfile.Dockerfile" "$APP_REPO_DIR/Dockerfile"
+  cat >"$APP_REPO_DIR/Procfile" <<'PROCFILE'
+web: python3 -u web.py "double quoted" 'single quoted' "escaped \"quote\"" literal\`tick\` "$PORT"
+args: python3 -c "import sys; print(sys.argv[1:])" "double quoted" 'single quoted' "escaped \"quote\"" literal\`tick\` "$PORT"
+PROCFILE
+}
+
+operator_procfile_callback() {
+  local APP="$1"
+  local APP_REPO_DIR="$2"
+  mv "$APP_REPO_DIR/dockerfile.Dockerfile" "$APP_REPO_DIR/Dockerfile"
+  cat >"$APP_REPO_DIR/Procfile" <<'PROCFILE'
+web: python3 -u web.py && echo done
+PROCFILE
+}

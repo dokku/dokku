@@ -5,7 +5,6 @@ go 1.26.2
 require (
 	github.com/dokku/dokku/plugins/common v0.0.0-00010101000000-000000000000
 	github.com/spf13/pflag v1.0.10
-	mvdan.cc/sh/v3 v3.14.1
 )
 
 require (
@@ -25,6 +24,7 @@ require (
 	golang.org/x/crypto v0.57.0 // indirect
 	golang.org/x/sync v0.23.0 // indirect
 	golang.org/x/sys v0.48.0 // indirect
+	mvdan.cc/sh/v3 v3.14.1 // indirect
 )
 
 replace github.com/dokku/dokku/plugins/common => ../common

@@ -13,6 +13,7 @@ require (
 	github.com/spf13/pflag v1.0.10
 	golang.org/x/crypto v0.57.0
 	golang.org/x/sync v0.23.0
+	mvdan.cc/sh/v3 v3.14.1
 )
 
 require (

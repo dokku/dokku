@@ -52,6 +52,8 @@ console: bundle exec racksh
 dokku run my-app console
 ```
 
+The Procfile command is split into arguments using the same shell quoting rules used when deploying the app. See the [Procfile documentation](/docs/processes/process-management.md#procfile) for more details.
+
 #### Specifying container labels
 
 Containers may have specific labels attached. In order to avoid issues with dokku internals, do not use any labels beginning with either `com.dokku` or `org.label-schema`.
