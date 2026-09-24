@@ -22,6 +22,10 @@ func main() {
 		appName := flag.Arg(0)
 		processType := flag.Arg(1)
 		err = appjson.TriggerAppJSONProcessDeployParallelism(appName, processType)
+	case "app-json-is-valid":
+		appName := flag.Arg(0)
+		appJSONPath := flag.Arg(1)
+		err = appjson.TriggerAppJSONIsValid(appName, appJSONPath)
 	case "app-json-get-content":
 		appName := flag.Arg(0)
 		err = appjson.TriggerAppJSONGetContent(appName)
