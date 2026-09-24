@@ -14,6 +14,11 @@ func appExists(appName string) error {
 	return common.VerifyAppName(appName)
 }
 
+// checks if an app directory already exists, regardless of app visibility
+func appNameTaken(appName string) bool {
+	return common.DirectoryExists(common.AppRoot(appName))
+}
+
 // checks if an app is locked
 func appIsLocked(appName string) bool {
 	lockPath := getLockPath(appName)
@@ -27,7 +32,7 @@ func createApp(appName string) error {
 		return err
 	}
 
-	if err := appExists(appName); err == nil {
+	if appNameTaken(appName) {
 		return errors.New("Name is already taken")
 	}
 
