@@ -65,12 +65,15 @@ main() {
 
   START_CMD=$(fn-scheduler-docker-local-extract-start-cmd "$APP" "$PROC_TYPE" "$START_CMD" "$DOKKU_HEROKUISH" "$DOKKU_PORT")
   DOCKER_ARGS+=" $IMAGE"
-  DOCKER_ARGS+=" $START_CMD"
+  fn-split-command "$START_CMD" >/dev/null
 
   declare -a ARG_ARRAY=()
   while IFS= read -r -d '' arg; do
     ARG_ARRAY+=("$arg")
   done < <(fn-docker-args-split "$DOCKER_ARGS")
+  while IFS= read -r -d '' arg; do
+    ARG_ARRAY+=("$arg")
+  done < <(fn-split-command "$START_CMD")
   cid=$(fn-scheduler-docker-local-start-app-container "$APP" "${ARG_ARRAY[@]}")
 
   plugn trigger post-container-create "app" "$cid" "$APP" "deploy" "$PROC_TYPE"

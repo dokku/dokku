@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/dokku/dokku/plugins/common"
+	"github.com/dokku/dokku/plugins/common/shellwords"
 	flag "github.com/spf13/pflag"
 )
 
@@ -92,6 +93,16 @@ func main() {
 	case "is-valid-app-name-old":
 		appName := flag.Arg(1)
 		err = common.IsValidAppNameOld(appName)
+	case "split-command":
+		var fields []string
+		fields, err = shellwords.Split(flag.Arg(1))
+		if err != nil {
+			err = fmt.Errorf("Unable to parse command %q: %w", flag.Arg(1), err)
+			break
+		}
+		for _, field := range fields {
+			fmt.Printf("%s\x00", field)
+		}
 	case "verify-app-name":
 		appName := flag.Arg(1)
 		err = common.VerifyAppName(appName)

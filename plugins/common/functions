@@ -251,6 +251,12 @@ fn-docker-args-split() {
   printf "%s" "$DOCKER_ARGS" | xargs -r printf "%s\0"
 }
 
+fn-split-command() {
+  declare desc="tokenizes a command string into NUL-delimited fields using shell quoting rules without shell expansion"
+  declare COMMAND="$1"
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/common" split-command -- "$COMMAND"
+}
+
 is_valid_app_name() {
   declare desc="verify that the app name matches naming restrictions"
   local APP="$1"

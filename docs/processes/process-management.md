@@ -179,6 +179,12 @@ importantworker:  env QUEUE=important bundle exec rake resque:work
 
 If the app build declares an `ENTRYPOINT`, the command defined in the `Procfile` is passed as an argument to that entrypoint. This is the case for all Dockerfile-based, Docker Image, and Cloud Native Buildpack deployments.
 
+When deploying via the `docker-local` scheduler, for all builders other than Herokuish, the command is split into arguments using shell quoting rules, but is not otherwise interpreted by a shell. Environment variable references such as `$PORT` are substituted before the command is split. Single quotes, double quotes, and backslash escapes then group and escape arguments, and any other special characters are passed to the container verbatim. Shell operators such as `&&`, `|`, `;`, and redirections are not supported and will fail the deploy, and a trailing `#` comment is ignored. If shell features are required, invoke a shell explicitly:
+
+```Procfile
+web: sh -c "bin/migrate && exec bin/server --port $PORT"
+```
+
 The `web` process type holds some significance in that it is the only process type that is automatically scaled to `1` on the initial application deploy. See the [web process scaling documentation](/docs/processes/process-management.md#the-web-process) for more details around scaling individual processes.
 
 See the [Procfile location documentation](/docs/processes/process-management.md#changing-the-procfile-location) for more information on where to place your `Procfile` file.
