@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strings"
+	"unicode"
 
 	"github.com/dokku/dokku/plugins/common"
 	"github.com/tailscale/hujson"
@@ -233,6 +235,67 @@ const (
 	// HealthcheckType_Startup is a healthcheck type that represents a startup check
 	HealthcheckType_Startup HealthcheckType = "startup"
 )
+
+// validateHealthchecks ensures healthcheck fields that are passed to schedulers and proxies are well-formed
+func validateHealthchecks(appJSON AppJSON) error {
+	processTypes := make([]string, 0, len(appJSON.Healthchecks))
+	for processType := range appJSON.Healthchecks {
+		processTypes = append(processTypes, processType)
+	}
+	sort.Strings(processTypes)
+
+	for _, processType := range processTypes {
+		for index, healthcheck := range appJSON.Healthchecks[processType] {
+			name := healthcheck.Name
+			if name == "" {
+				name = fmt.Sprintf("#%d", index+1)
+			}
+
+			if err := validateHealthcheckScheme(healthcheck.Scheme); err != nil {
+				return fmt.Errorf("Invalid app.json healthcheck %s for process type %s: %w", name, processType, err)
+			}
+
+			if err := validateHealthcheckPath(healthcheck.Path); err != nil {
+				return fmt.Errorf("Invalid app.json healthcheck %s for process type %s: %w", name, processType, err)
+			}
+		}
+	}
+
+	return nil
+}
+
+// validateHealthcheckPath ensures a healthcheck path is absolute and contains no whitespace, control, or quote characters
+func validateHealthcheckPath(path string) error {
+	if path == "" {
+		return nil
+	}
+
+	if !strings.HasPrefix(path, "/") {
+		return fmt.Errorf("path %q must start with a /", path)
+	}
+
+	for _, r := range path {
+		if unicode.IsSpace(r) || unicode.IsControl(r) || strings.ContainsRune(`"'\`, r) {
+			return fmt.Errorf("path %q must not contain whitespace, control characters, quotes, or backslashes", path)
+		}
+	}
+
+	return nil
+}
+
+// validateHealthcheckScheme ensures a healthcheck scheme is either http or https
+func validateHealthcheckScheme(scheme string) error {
+	if scheme == "" {
+		return nil
+	}
+
+	switch strings.ToLower(scheme) {
+	case "http", "https":
+		return nil
+	}
+
+	return fmt.Errorf("scheme %q must be one of http or https", scheme)
+}
 
 // HTTPHeader is a struct that represents a single HTTP header associated with a healthcheck
 type HTTPHeader struct {

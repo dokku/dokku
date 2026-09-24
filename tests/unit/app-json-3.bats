@@ -75,6 +75,20 @@ teardown() {
   assert_output "web: 1"
 }
 
+@test "(app-json) healthcheck path with whitespace fails deploy" {
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP whitespace_healthcheck_path_callback
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains 'Invalid app.json healthcheck web readiness check for process type web: path "/health check" must not contain whitespace, control characters, quotes, or backslashes' 2
+
+  run /bin/bash -c "docker ps -a -q --filter label=com.dokku.app-name=$TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_exists
+}
+
 persist_scale_callback_a() {
   local APP="$1"
   local APP_REPO_DIR="$2"
@@ -110,6 +124,26 @@ negative_formation_callback() {
     "web": {
       "quantity": -1
     }
+  }
+}
+EOF
+}
+
+whitespace_healthcheck_path_callback() {
+  local APP="$1"
+  local APP_REPO_DIR="$2"
+  [[ -z "$APP" ]] && local APP="$TEST_APP"
+
+  cat >"$APP_REPO_DIR/app.json" <<EOF
+{
+  "healthchecks": {
+    "web": [
+      {
+        "name": "web readiness check",
+        "path": "/health check",
+        "type": "readiness"
+      }
+    ]
   }
 }
 EOF

@@ -140,17 +140,25 @@ trigger-traefik-vhosts-docker-args-process-deploy() {
       hc_timeout=$(echo "$app_json" | jq -r "$hc_filter | .timeout // empty")
       hc_interval=$(echo "$app_json" | jq -r "$hc_filter | .wait // empty")
 
+      if ! fn-traefik-healthcheck-path-is-valid "$hc_path"; then
+        dokku_log_fail "Invalid app.json healthcheck path for traefik: path must start with a / and must not contain whitespace, control characters, quotes, or backslashes"
+      fi
+
+      if ! fn-traefik-healthcheck-scheme-is-valid "$hc_scheme"; then
+        dokku_log_fail "Invalid app.json healthcheck scheme for traefik: scheme must be one of http or https"
+      fi
+
       if [[ -n "$proxy_container_http_port" ]]; then
-        output="$output --label traefik.http.services.$APP-$PROC_TYPE-http.loadbalancer.healthcheck.path=$hc_path"
-        [[ -n "$hc_scheme" ]] && output="$output --label traefik.http.services.$APP-$PROC_TYPE-http.loadbalancer.healthcheck.scheme=$hc_scheme"
+        output="$output --label \"traefik.http.services.$APP-$PROC_TYPE-http.loadbalancer.healthcheck.path=$hc_path\""
+        [[ -n "$hc_scheme" ]] && output="$output --label \"traefik.http.services.$APP-$PROC_TYPE-http.loadbalancer.healthcheck.scheme=$hc_scheme\""
         [[ -n "$hc_port" ]] && output="$output --label traefik.http.services.$APP-$PROC_TYPE-http.loadbalancer.healthcheck.port=$hc_port"
         [[ -n "$hc_timeout" ]] && output="$output --label traefik.http.services.$APP-$PROC_TYPE-http.loadbalancer.healthcheck.timeout=${hc_timeout}s"
         [[ -n "$hc_interval" ]] && output="$output --label traefik.http.services.$APP-$PROC_TYPE-http.loadbalancer.healthcheck.interval=${hc_interval}s"
       fi
 
       if [[ -n "$proxy_container_https_port" ]]; then
-        output="$output --label traefik.http.services.$APP-$PROC_TYPE-https.loadbalancer.healthcheck.path=$hc_path"
-        [[ -n "$hc_scheme" ]] && output="$output --label traefik.http.services.$APP-$PROC_TYPE-https.loadbalancer.healthcheck.scheme=$hc_scheme"
+        output="$output --label \"traefik.http.services.$APP-$PROC_TYPE-https.loadbalancer.healthcheck.path=$hc_path\""
+        [[ -n "$hc_scheme" ]] && output="$output --label \"traefik.http.services.$APP-$PROC_TYPE-https.loadbalancer.healthcheck.scheme=$hc_scheme\""
         [[ -n "$hc_port" ]] && output="$output --label traefik.http.services.$APP-$PROC_TYPE-https.loadbalancer.healthcheck.port=$hc_port"
         [[ -n "$hc_timeout" ]] && output="$output --label traefik.http.services.$APP-$PROC_TYPE-https.loadbalancer.healthcheck.timeout=${hc_timeout}s"
         [[ -n "$hc_interval" ]] && output="$output --label traefik.http.services.$APP-$PROC_TYPE-https.loadbalancer.healthcheck.interval=${hc_interval}s"

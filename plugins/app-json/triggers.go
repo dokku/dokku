@@ -35,6 +35,20 @@ func TriggerAppJSONProcessDeployParallelism(appName string, processType string) 
 	return nil
 }
 
+// TriggerAppJSONIsValid validates the healthchecks in an extracted app.json file
+func TriggerAppJSONIsValid(appName string, appJSONPath string) error {
+	if !common.FileExists(appJSONPath) {
+		return nil
+	}
+
+	appJSON, err := ReadAppJSON(appJSONPath)
+	if err != nil {
+		return err
+	}
+
+	return validateHealthchecks(appJSON)
+}
+
 // TriggerAppJSONGetContent outputs the contents of the app-json file, if any
 func TriggerAppJSONGetContent(appName string) error {
 	if !hasAppJSON(appName) {

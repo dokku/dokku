@@ -882,6 +882,61 @@ teardown() {
   assert_output_not_exists
 }
 
+@test "(traefik) healthcheck path with whitespace fails deploy" {
+  run /bin/bash -c "dokku proxy:set $TEST_APP traefik"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP setup_traefik_healthcheck_whitespace_path
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains 'path "/health check" must not contain whitespace, control characters, quotes, or backslashes' 2
+
+  run /bin/bash -c "docker ps -a -q --filter label=com.dokku.app-name=$TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_exists
+}
+
+@test "(traefik) healthcheck invalid scheme fails deploy" {
+  run /bin/bash -c "dokku proxy:set $TEST_APP traefik"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP setup_traefik_healthcheck_invalid_scheme
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains 'scheme "tcp" must be one of http or https' 2
+}
+
+@test "(traefik) invalid stored healthcheck path fails restart" {
+  run /bin/bash -c "dokku proxy:set $TEST_APP traefik"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP setup_traefik_healthcheck
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "jq '.healthchecks.web[0].path = \"/health check\"' /var/lib/dokku/data/app-json/$TEST_APP/app.json > /var/lib/dokku/data/app-json/$TEST_APP/app.json.tmp && mv /var/lib/dokku/data/app-json/$TEST_APP/app.json.tmp /var/lib/dokku/data/app-json/$TEST_APP/app.json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:restart $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Invalid app.json healthcheck path for traefik" 2
+}
+
 setup_traefik_healthcheck() {
   local APP="$1"
   local APP_REPO_DIR="$2"
@@ -889,4 +944,22 @@ setup_traefik_healthcheck() {
   APP_REPO_DIR="$(realpath "$APP_REPO_DIR")"
 
   mv "$APP_REPO_DIR/app-traefik.json" "$APP_REPO_DIR/app.json"
+}
+
+setup_traefik_healthcheck_whitespace_path() {
+  local APP="$1"
+  local APP_REPO_DIR="$2"
+  [[ -z "$APP" ]] && local APP="$TEST_APP"
+  APP_REPO_DIR="$(realpath "$APP_REPO_DIR")"
+
+  jq '.healthchecks.web[0].path = "/health check"' "$APP_REPO_DIR/app-traefik.json" >"$APP_REPO_DIR/app.json"
+}
+
+setup_traefik_healthcheck_invalid_scheme() {
+  local APP="$1"
+  local APP_REPO_DIR="$2"
+  [[ -z "$APP" ]] && local APP="$TEST_APP"
+  APP_REPO_DIR="$(realpath "$APP_REPO_DIR")"
+
+  jq '.healthchecks.web[0].scheme = "tcp"' "$APP_REPO_DIR/app-traefik.json" >"$APP_REPO_DIR/app.json"
 }
