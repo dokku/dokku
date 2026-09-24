@@ -50,7 +50,7 @@ func main() {
 		args := flag.NewFlagSet("network:rebuild", flag.ExitOnError)
 		args.Parse(os.Args[2:])
 		appName := args.Arg(0)
-		err = network.BuildConfig(appName)
+		err = network.CommandRebuild(appName)
 	case "rebuildall":
 		args := flag.NewFlagSet("network:rebuildall", flag.ExitOnError)
 		args.Parse(os.Args[2:])

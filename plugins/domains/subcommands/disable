@@ -10,7 +10,7 @@ cmd-domains-disable() {
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1"
 
-  [[ "$APP" == "--all" ]] && verify_app_name "$APP"
+  [[ "$APP" == "--all" ]] || verify_app_name "$APP"
   fn-domains-disable "$APP"
 }
 

@@ -107,3 +107,16 @@ assert_nginx_property_set_get() {
   assert_nginx_property_set_get "nginx-conf-sigil-path" "custom.sigil" "global.sigil"
   assert_nginx_property_set_get "nginx-service-command" "/usr/sbin/nginx-app" "/usr/sbin/nginx-global"
 }
+
+@test "(nginx:set) missing app" {
+  run /bin/bash -c "dokku nginx:set missing-app hsts false"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "App missing-app does not exist"
+
+  run /bin/bash -c "test -e $DOKKU_LIB_ROOT/config/nginx/missing-app"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+}

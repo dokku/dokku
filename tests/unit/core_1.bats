@@ -194,3 +194,11 @@ teardown() {
   assert_success
   assert_output "--label=a=b"
 }
+
+@test "(core) cleanup missing app" {
+  run /bin/bash -c "dokku cleanup missing-app"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "App missing-app does not exist"
+}

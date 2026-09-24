@@ -92,3 +92,11 @@ teardown() {
   echo "status: $status"
   assert_output "console: 0"
 }
+
+@test "(ps:retire) missing app" {
+  run /bin/bash -c "dokku ps:retire missing-app"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "App missing-app does not exist"
+}

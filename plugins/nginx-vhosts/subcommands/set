@@ -18,12 +18,11 @@ cmd-nginx-set() {
     dokku_log_fail "Invalid key specified, valid keys include: access-log-format, access-log-path, bind-address-ipv4, bind-address-ipv6, client-body-timeout, client-header-timeout, client-max-body-size, disable-custom-config, error-log-path, hsts, hsts-include-subdomains, hsts-preload, hsts-max-age, keepalive-timeout, lingering-timeout, nginx-conf-sigil-path, nginx-service-command, proxy-buffer-size, proxy-buffering, proxy-buffers, proxy-busy-buffers-size, proxy-connect-timeout, proxy-read-timeout, proxy-send-timeout, proxy-keepalive, send-timeout, underscore-in-headers, x-forwarded-for-value, x-forwarded-port-value, x-forwarded-proto-value, x-forwarded-ssl"
   fi
 
-  if ! fn-in-array "$KEY" "${GLOBAL_KEYS[@]}"; then
-    if [[ "$APP" == "--global" ]]; then
-      dokku_log_fail "The key '$KEY' cannot be set globally"
-    fi
-    verify_app_name "$APP"
+  if ! fn-in-array "$KEY" "${GLOBAL_KEYS[@]}" && [[ "$APP" == "--global" ]]; then
+    dokku_log_fail "The key '$KEY' cannot be set globally"
   fi
+
+  [[ "$APP" == "--global" ]] || verify_app_name "$APP"
 
   if [[ "$KEY" == "proxy-keepalive" ]] && [[ -n "$VALUE" ]]; then
     if ! is_number "$VALUE"; then

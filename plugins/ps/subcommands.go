@@ -121,6 +121,9 @@ func CommandRetire(appName string) error {
 	if appName == "" {
 		scheduler = common.GetGlobalScheduler()
 	} else {
+		if err := common.VerifyAppName(appName); err != nil {
+			return err
+		}
 		scheduler = common.GetAppScheduler(appName)
 	}
 

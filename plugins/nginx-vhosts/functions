@@ -37,7 +37,7 @@ validate_nginx() {
     verify_app_name "$APP"
     nginx_vhosts_validate_single_func "$APP" "$FLAG"
   else
-    for app in $(dokku_apps "false"); do
+    for app in $(dokku_apps); do
       nginx_vhosts_validate_single_func "$app" "$FLAG"
     done
   fi

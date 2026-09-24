@@ -269,6 +269,19 @@ cmd-run-stop() {
     esac
   done
 
+  if [[ -n "$CONTAINER_NAME" ]]; then
+    local CONTAINER_APP="$(echo "$CONTAINER_NAME" | cut -d'.' -f1)"
+    if [[ -n "$APP" ]] && [[ "$APP" != "$CONTAINER_APP" ]]; then
+      dokku_log_fail "Specified app does not match app in container name"
+    fi
+    APP="$CONTAINER_APP"
+  fi
+
+  if [[ -z "$APP" ]]; then
+    dokku_log_fail "No container or app specified"
+  fi
+
+  verify_app_name "$APP"
   local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
   plugn trigger scheduler-run-stop "$DOKKU_SCHEDULER" "$APP" "$CONTAINER_NAME"
 }

@@ -698,3 +698,16 @@ teardown() {
   assert_output_contains "Attempting pre-flight checks" 0
   assert_output_contains "Application deployed"
 }
+
+@test "(network:rebuild) missing app" {
+  run /bin/bash -c "dokku network:rebuild missing-app"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "App missing-app does not exist"
+
+  run /bin/bash -c "test -e $DOKKU_LIB_ROOT/config/common/missing-app"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+}

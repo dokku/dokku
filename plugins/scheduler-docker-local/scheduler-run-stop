@@ -25,6 +25,21 @@ fn-scheduler-docker-local-stop-container() {
   return 1
 }
 
+fn-scheduler-docker-local-stop-app-run-container() {
+  declare desc="stops a named run container belonging to an app"
+  declare APP="$1" CONTAINER_NAME="$2" DOCKER_STOP_TIMEOUT="$3"
+  local NAME
+
+  while IFS= read -r NAME; do
+    if [[ "$NAME" == "$CONTAINER_NAME" ]]; then
+      fn-scheduler-docker-local-stop-container "$CONTAINER_NAME" "$DOCKER_STOP_TIMEOUT"
+      return $?
+    fi
+  done < <("$DOCKER_BIN" container ls --filter "label=com.dokku.app-name=$APP" --filter "label=com.dokku.container-type=run" --format '{{ .Names }}')
+
+  dokku_log_warn "Specified container does not exist"
+}
+
 trigger-scheduler-docker-local-scheduler-run-stop() {
   declare desc="stops an app run container"
   declare trigger="scheduler-run-stop"
@@ -34,15 +49,21 @@ trigger-scheduler-docker-local-scheduler-run-stop() {
     return
   fi
 
-  if [[ -z "$APP" ]]; then
-    if [[ -z "$CONTAINER_NAME" ]]; then
-      dokku_log_fail "No container or app specified"
-    fi
+  if [[ -z "$APP" ]] && [[ -z "$CONTAINER_NAME" ]]; then
+    dokku_log_fail "No container or app specified"
+  fi
+
+  if [[ -n "$CONTAINER_NAME" ]]; then
     if [[ "$(echo "$CONTAINER_NAME" | grep -o '\.' | wc -l)" -ne 2 ]]; then
       dokku_log_fail "Invalid container name specified: $CONTAINER_NAME"
     fi
 
-    APP="$(echo "$CONTAINER_NAME" | cut -d'.' -f1)"
+    local CONTAINER_APP="$(echo "$CONTAINER_NAME" | cut -d'.' -f1)"
+    if [[ -n "$APP" ]] && [[ "$APP" != "$CONTAINER_APP" ]]; then
+      dokku_log_fail "Specified app does not match app in container name"
+    fi
+
+    APP="$CONTAINER_APP"
     STATE="$(echo "$CONTAINER_NAME" | cut -d'.' -f2)"
     if [[ "$STATE" != "run" ]]; then
       dokku_log_fail "Specified container must be a run container"
@@ -53,7 +74,7 @@ trigger-scheduler-docker-local-scheduler-run-stop() {
 
   DOKKU_DOCKER_STOP_TIMEOUT="$(plugn trigger ps-get-property "$APP" stop-timeout-seconds || true)"
   if [[ -n "$CONTAINER_NAME" ]]; then
-    fn-scheduler-docker-local-stop-container "$CONTAINER_NAME" "$DOKKU_DOCKER_STOP_TIMEOUT"
+    fn-scheduler-docker-local-stop-app-run-container "$APP" "$CONTAINER_NAME" "$DOKKU_DOCKER_STOP_TIMEOUT"
     return $?
   fi
 
