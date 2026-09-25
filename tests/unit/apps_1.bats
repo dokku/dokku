@@ -2,11 +2,15 @@
 
 load test_helper
 
+APP_FILTER_PLUGIN_NAME="app-filter-test"
+
 setup() {
   global_setup
 }
 
 teardown() {
+  rm -rf "${PLUGIN_ENABLED_PATH:?}/$APP_FILTER_PLUGIN_NAME" "${PLUGIN_AVAILABLE_PATH:?}/$APP_FILTER_PLUGIN_NAME"
+  dokku --force apps:destroy "$TEST_APP-source" &>/dev/null || true
   global_teardown
 }
 
@@ -488,4 +492,60 @@ teardown() {
   assert_output_contains "Property can only be specified globally"
 
   destroy_app
+}
+
+@test "(apps) apps:create, apps:clone, and apps:rename with an existing filtered app" {
+  create_app
+  create_app "$TEST_APP-source"
+
+  setup_app_filter_plugin "$TEST_APP"
+
+  run /bin/bash -c "dokku apps:create $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Name is already taken"
+  assert_output_not_contains "Creating $TEST_APP"
+
+  run /bin/bash -c "dokku apps:clone $TEST_APP-source $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Name is already taken"
+
+  run /bin/bash -c "dokku apps:rename $TEST_APP-source $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Name is already taken"
+
+  rm -rf "${PLUGIN_ENABLED_PATH:?}/$APP_FILTER_PLUGIN_NAME" "${PLUGIN_AVAILABLE_PATH:?}/$APP_FILTER_PLUGIN_NAME"
+
+  destroy_app 0 "$TEST_APP-source"
+  destroy_app
+}
+
+setup_app_filter_plugin() {
+  declare desc="installs a plugin that filters out a single app"
+  declare FILTERED_APP="$1"
+  local PLUGIN_DIR="$PLUGIN_AVAILABLE_PATH/$APP_FILTER_PLUGIN_NAME"
+  mkdir -p "$PLUGIN_DIR"
+
+  cat <<EOF >"$PLUGIN_DIR/plugin.toml"
+[plugin]
+description = "test plugin filtering out a single app"
+version = "0.1.0"
+[plugin.config]
+EOF
+
+  cat <<EOF >"$PLUGIN_DIR/user-auth-app"
+#!/usr/bin/env bash
+shift 2
+for app in "\$@"; do
+  [[ "\$app" == "$FILTERED_APP" ]] || echo "\$app"
+done
+EOF
+  chmod +x "$PLUGIN_DIR/user-auth-app"
+
+  dokku plugin:enable "$APP_FILTER_PLUGIN_NAME"
 }

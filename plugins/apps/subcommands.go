@@ -27,7 +27,7 @@ func CommandClone(oldAppName string, newAppName string, skipDeploy bool, ignoreE
 		return err
 	}
 
-	if err := appExists(newAppName); err == nil {
+	if appNameTaken(newAppName) {
 		if ignoreExisting {
 			common.LogWarn("Name is already taken")
 			return nil
@@ -178,7 +178,7 @@ func CommandRename(oldAppName string, newAppName string, skipDeploy bool) error 
 		return err
 	}
 
-	if err := appExists(newAppName); err == nil {
+	if appNameTaken(newAppName) {
 		return errors.New("Name is already taken")
 	}
 
