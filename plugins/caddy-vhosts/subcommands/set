@@ -19,16 +19,15 @@ cmd-caddy-set() {
     dokku_log_fail "Invalid key specified, valid keys include: image letsencrypt-email letsencrypt-server log-level polling-interval tls-internal"
   fi
 
-  if ! fn-in-array "$KEY" "${GLOBAL_KEYS[@]}"; then
-    if [[ "$APP" == "--global" ]]; then
-      dokku_log_fail "The key '$KEY' cannot be set globally"
-    fi
-    verify_app_name "$APP"
+  if ! fn-in-array "$KEY" "${GLOBAL_KEYS[@]}" && [[ "$APP" == "--global" ]]; then
+    dokku_log_fail "The key '$KEY' cannot be set globally"
   fi
 
   if fn-in-array "$KEY" "${GLOBAL_ONLY_KEYS[@]}" && [[ "$APP" != "--global" ]]; then
     dokku_log_fail "The key '$KEY' can only be set globally"
   fi
+
+  [[ "$APP" == "--global" ]] || verify_app_name "$APP"
 
   if [[ -n "$VALUE" ]]; then
     dokku_log_info2_quiet "Setting ${KEY} to ${VALUE}"

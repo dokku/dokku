@@ -8,6 +8,7 @@ setup() {
 }
 
 teardown() {
+  docker container rm -f "$TEST_APP.run.9999" >/dev/null 2>&1 || true
   destroy_app
   global_teardown
 }
@@ -155,6 +156,58 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output "2"
+}
+
+@test "(run:stop) only stops run containers for the app" {
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku run:detached $TEST_APP sleep 300"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku run:list $TEST_APP --format json | jq -r '.[0].name'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  local RUN_CONTAINER="$output"
+
+  run /bin/bash -c "docker container run -d --name $TEST_APP.run.9999 --entrypoint sleep dokku/$TEST_APP:latest 300"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku run:stop $TEST_APP --container other-app.run.1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Specified app does not match app in container name"
+
+  run /bin/bash -c "dokku run:stop $TEST_APP --container $TEST_APP.run.9999"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Specified container does not exist"
+
+  run /bin/bash -c "docker container inspect -f '{{.State.Running}}' $TEST_APP.run.9999"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku run:stop $TEST_APP --container $RUN_CONTAINER"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker container ls -q --filter name=^/$RUN_CONTAINER\$ | wc -l"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "0"
 }
 
 @test "(run) docker-options and -e flags are not eval-injected" {

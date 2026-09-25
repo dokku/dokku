@@ -25,11 +25,8 @@ cmd-traefik-set() {
     dokku_log_fail "Invalid key specified, valid keys include: api-enabled api-entry-point api-entry-point-address api-vhost challenge-mode dashboard-enabled basic-auth-username basic-auth-password dns-provider dns-provider-<ENV_VAR> image letsencrypt-email letsencrypt-server log-level http-entry-point https-entry-point"
   fi
 
-  if ! fn-in-array "$KEY" "${GLOBAL_KEYS[@]}" && [[ "$is_dns_provider_env_var" != "true" ]]; then
-    if [[ "$APP" == "--global" ]]; then
-      dokku_log_fail "The key '$KEY' cannot be set globally"
-    fi
-    verify_app_name "$APP"
+  if ! fn-in-array "$KEY" "${GLOBAL_KEYS[@]}" && [[ "$is_dns_provider_env_var" != "true" ]] && [[ "$APP" == "--global" ]]; then
+    dokku_log_fail "The key '$KEY' cannot be set globally"
   fi
 
   # dns-provider-* keys and GLOBAL_ONLY_KEYS can only be set globally
@@ -40,6 +37,8 @@ cmd-traefik-set() {
   if fn-in-array "$KEY" "${GLOBAL_ONLY_KEYS[@]}" && [[ "$APP" != "--global" ]]; then
     dokku_log_fail "The key '$KEY' can only be set globally"
   fi
+
+  [[ "$APP" == "--global" ]] || verify_app_name "$APP"
 
   if [[ -n "$VALUE" ]]; then
     dokku_log_info2_quiet "Setting ${KEY} to ${VALUE}"

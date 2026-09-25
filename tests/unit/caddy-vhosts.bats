@@ -82,3 +82,16 @@ teardown() {
   assert_success
   assert_output "false"
 }
+
+@test "(caddy:set) missing app" {
+  run /bin/bash -c "dokku caddy:set missing-app tls-internal true"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "App missing-app does not exist"
+
+  run /bin/bash -c "test -e $DOKKU_LIB_ROOT/config/caddy/missing-app"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+}

@@ -148,6 +148,15 @@ func CommandList(format string, dokkuManaged bool) error {
 	return nil
 }
 
+// CommandRebuild rebuilds network settings for an app
+func CommandRebuild(appName string) error {
+	if err := common.VerifyAppName(appName); err != nil {
+		return err
+	}
+
+	return BuildConfig(appName)
+}
+
 // CommandRebuildall rebuilds network settings for all apps
 func CommandRebuildall() error {
 	apps, err := common.DokkuApps()

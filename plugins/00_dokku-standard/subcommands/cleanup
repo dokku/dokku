@@ -13,6 +13,8 @@ cmd-cleanup() {
     APP="--global"
   fi
 
+  [[ "$APP" == "--global" ]] || verify_app_name "$APP"
+
   docker_cleanup "$APP" "true"
 }
 

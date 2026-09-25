@@ -82,3 +82,16 @@ teardown() {
   assert_success
   assert_output "5m"
 }
+
+@test "(openresty:set) missing app" {
+  run /bin/bash -c "dokku openresty:set missing-app client-max-body-size 5m"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "App missing-app does not exist"
+
+  run /bin/bash -c "test -e $DOKKU_LIB_ROOT/config/openresty/missing-app"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+}

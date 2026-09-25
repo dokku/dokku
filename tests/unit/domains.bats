@@ -136,6 +136,20 @@ teardown() {
   assert_failure
 }
 
+@test "(domains) domains:enable and domains:disable (missing app)" {
+  run /bin/bash -c "dokku domains:disable missing-app"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "App missing-app does not exist"
+
+  run /bin/bash -c "dokku domains:enable missing-app"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "App missing-app does not exist"
+}
+
 @test "(domains) domains:remove" {
   run /bin/bash -c "dokku domains:add $TEST_APP test.app.${DOKKU_DOMAIN}"
   echo "output: $output"
