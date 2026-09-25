@@ -8,7 +8,7 @@ trigger-scheduler-docker-local-scheduler-logs-failed() {
   declare trigger="scheduler-logs-failed"
   declare DOKKU_SCHEDULER="$1" APP="$2"
   local FAILED_CONTAINERS_FILE="${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP/failed-containers"
-  local DEAD_CONTAINERS=() DOKKU_LOGS_CMD=() RUNNING_CONTAINERS=()
+  local DEAD_CONTAINERS=() RUNNING_CONTAINERS=()
   local CID LINE PREFIX
   shift 2
 
@@ -41,17 +41,16 @@ trigger-scheduler-docker-local-scheduler-logs-failed() {
     return
   fi
 
-  ((MAX_INDEX = ${#RUNNING_CONTAINERS[*]} - 1)) || true
-  for i in ${!RUNNING_CONTAINERS[*]}; do
-    local CID="${RUNNING_CONTAINERS[i]}"
-    DOKKU_LOGS_CMD+="($DOCKER_BIN logs $DOKKU_LOGS_ARGS $CID 2>&1)"
-    if [[ $i != "$MAX_INDEX" ]]; then
-      local DOKKU_LOGS_CMD+="& "
+  local MAX_INDEX
+  ((MAX_INDEX = ${#RUNNING_CONTAINERS[@]} - 1)) || true
+  for i in "${!RUNNING_CONTAINERS[@]}"; do
+    if [[ "$i" != "$MAX_INDEX" ]]; then
+      "$DOCKER_BIN" logs "${RUNNING_CONTAINERS[i]}" 2>&1 &
     else
-      local DOKKU_LOGS_CMD+="; "
+      "$DOCKER_BIN" logs "${RUNNING_CONTAINERS[i]}" 2>&1
     fi
   done
-  bash -c "($DOKKU_LOGS_CMD)"
+  wait
 }
 
 trigger-scheduler-docker-local-scheduler-logs-failed "$@"

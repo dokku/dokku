@@ -206,13 +206,17 @@ cmd-run-logs() {
     dokku_log_fail "No container or app specified"
   fi
 
+  if ! is_number "$NUM"; then
+    dokku_log_fail "Invalid value for num: must be an integer"
+  fi
+
   if [[ -n "$CONTAINER_NAME" ]]; then
     if [[ "$(echo "$CONTAINER_NAME" | grep -o '\.' | wc -l)" -ne 2 ]]; then
       dokku_log_fail "Invalid container name specified: $CONTAINER_NAME"
     fi
 
     if [[ -n "$APP" ]] && [[ "$APP" != "$(echo "$CONTAINER_NAME" | cut -d'.' -f1)" ]]; then
-      dokku_log_fail "Specified app does not app in container name"
+      dokku_log_fail "Specified app does not match app in container name"
     fi
 
     APP="$(echo "$CONTAINER_NAME" | cut -d'.' -f1)"

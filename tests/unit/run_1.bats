@@ -140,3 +140,65 @@ teardown() {
   assert_success
   assert_output_not_contains "$container_id"
 }
+
+@test "(run:logs) run:logs" {
+  run deploy_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku run:detached $TEST_APP worker"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku run:list $TEST_APP --format json | jq -r '.[0].name'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  local RUN_CONTAINER="$output"
+  sleep 5
+
+  run /bin/bash -c "dokku run:logs $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "sleeping for 60 seconds"
+
+  run /bin/bash -c "dokku run:logs $TEST_APP -n 1 -q"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "sleeping for 60 seconds"
+
+  run /bin/bash -c "dokku run:logs --container $RUN_CONTAINER -q"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "sleeping for 60 seconds"
+
+  run /bin/bash -c "dokku run:stop $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
+@test "(run:logs) invalid arguments" {
+  run /bin/bash -c "dokku run:logs $TEST_APP -n abc"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Invalid value for num: must be an integer"
+
+  run /bin/bash -c "dokku run:logs $TEST_APP --container other-app.run.1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Specified app does not match app in container name"
+
+  run /bin/bash -c "dokku run:logs --container $TEST_APP.run.1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Specified container does not exist"
+}
