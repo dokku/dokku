@@ -35,6 +35,45 @@ fn-proxy-healthcheck-path-is-valid() {
   return 0
 }
 
+fn-proxy-healthcheck-header-is-valid() {
+  declare desc="checks that an app.json healthcheck header name is a token and its value is free of control, quote, and backslash characters"
+  declare NAME="$1" VALUE="$2"
+
+  [[ "$NAME" =~ ^[A-Za-z0-9!#$%\&*+.^_\`\|~-]+$ ]] || return 1
+  [[ "$VALUE" =~ [[:cntrl:]\"\'\\] ]] && return 1
+  return 0
+}
+
+fn-proxy-get-healthcheck-host() {
+  declare desc="outputs the host header for a healthcheck, preferring an app.json Host header over the first app domain"
+  declare APP="$1" HEALTHCHECK="$2"
+  local domain hc_host
+  local -a domains
+
+  hc_host="$(echo "$HEALTHCHECK" | jq -r '.httpHeaders // [] | map(select((.name | ascii_downcase) == "host")) | .[0].value // empty')"
+  if [[ -n "$hc_host" ]]; then
+    echo "$hc_host"
+    return
+  fi
+
+  read -r -d '' -a domains <<<"$(plugn trigger domains-list "$APP")" || true
+  for domain in "${domains[@]}"; do
+    if [[ "$domain" == "localhost" ]] || [[ "$domain" == '*' ]]; then
+      continue
+    fi
+
+    echo "$domain"
+    return
+  done
+}
+
+fn-proxy-get-healthcheck-headers() {
+  declare desc="outputs the tab-separated name and value of each non-Host app.json healthcheck header"
+  declare HEALTHCHECK="$1"
+
+  echo "$HEALTHCHECK" | jq -r '.httpHeaders // [] | map(select((.name | ascii_downcase) != "host")) | .[] | [.name, .value] | @tsv'
+}
+
 fn-proxy-healthcheck-scheme-is-valid() {
   declare desc="checks that an app.json healthcheck scheme is either http or https"
   declare HC_SCHEME="$1"
