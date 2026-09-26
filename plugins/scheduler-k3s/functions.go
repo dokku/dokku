@@ -1646,8 +1646,12 @@ func getComputedKustomizeRootPath(appName string) string {
 	return kustomizeRootPath
 }
 
+func getGlobalNodeSysctlsImage() string {
+	return common.PropertyGet("scheduler-k3s", "--global", "node-sysctls-image")
+}
+
 func getComputedNodeSysctlsImage() string {
-	image := common.PropertyGet("scheduler-k3s", "--global", "node-sysctls-image")
+	image := getGlobalNodeSysctlsImage()
 	if image == "" {
 		image = DefaultNodeSysctlsImage
 	}
@@ -1655,8 +1659,12 @@ func getComputedNodeSysctlsImage() string {
 	return image
 }
 
+func getGlobalNodeSysctlsPauseImage() string {
+	return common.PropertyGet("scheduler-k3s", "--global", "node-sysctls-pause-image")
+}
+
 func getComputedNodeSysctlsPauseImage() string {
-	image := common.PropertyGet("scheduler-k3s", "--global", "node-sysctls-pause-image")
+	image := getGlobalNodeSysctlsPauseImage()
 	if image == "" {
 		image = DefaultNodeSysctlsPauseImage
 	}
