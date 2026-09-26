@@ -1,5 +1,28 @@
 # History
 
+## 0.38.31
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.38.31/bootstrap.sh
+sudo DOKKU_TAG=v0.38.31 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #9084: @josegonzalez Report stored node-sysctls images globally
+- #9082: @josegonzalez Verify existing apps in git commands
+- #9081: @josegonzalez Validate run:logs arguments
+- #9080: @josegonzalez Check app directory when creating a new app
+- #9079: @josegonzalez Validate app name in app-scoped commands
+- #9077: @josegonzalez Respect quoting in procfile commands and remove support for bare shell operators
+- #9076: @josegonzalez Validate app.json healthcheck path and scheme
+
+### Dependencies
+
+- #9078: @dependabot[bot] chore(deps): bump pyparsing from 3.3.2 to 3.3.3 in /docs/_build
+
 ## 0.38.30
 
 Install/update via the bootstrap script:
