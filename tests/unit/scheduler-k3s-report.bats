@@ -7,7 +7,7 @@ setup() {
 }
 
 teardown() {
-  for prop in cert-issuer-kind cert-issuer-name deploy-timeout image-pull-secrets ingress-class kubeconfig-path kube-context kustomize-root-path namespace network-interface rollback-on-failure shm-size token; do
+  for prop in cert-issuer-kind cert-issuer-name deploy-timeout image-pull-secrets ingress-class kubeconfig-path kube-context kustomize-root-path namespace network-interface node-sysctls-image node-sysctls-pause-image rollback-on-failure shm-size token; do
     dokku scheduler-k3s:set --global "$prop" >/dev/null 2>/dev/null || true
   done
   global_teardown
@@ -56,6 +56,8 @@ assert_k3s_global_unset_set() {
   assert_k3s_global_unset_set "network-interface" "eth0" "eth1"
   assert_k3s_global_unset_set "kubeconfig-path" "/etc/rancher/k3s/k3s.yaml" "/tmp/custom-kubeconfig.yaml"
   assert_k3s_global_unset_set "cert-issuer-kind" "ClusterIssuer" "Issuer"
+  assert_k3s_global_unset_set "node-sysctls-image" "busybox:1.36" "registry.internal/busybox:1.36"
+  assert_k3s_global_unset_set "node-sysctls-pause-image" "registry.k8s.io/pause:3.9" "registry.internal/pause:3.9"
 }
 
 @test "(scheduler-k3s:report --global) empty-default properties expose computed sibling" {
