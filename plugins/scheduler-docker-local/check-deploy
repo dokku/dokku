@@ -145,9 +145,11 @@ trigger-scheduler-docker-local-check-deploy() {
     ARG_ARRAY+=("$DOKKU_APP_LISTEN_PORT")
   fi
 
-  local app_vhosts="$(plugn trigger domains-list "$APP")"
-  if [[ -n "$app_vhosts" ]]; then
-    for app_vhost in $app_vhosts; do
+  local app_vhost
+  local -a app_vhosts
+  read -r -d '' -a app_vhosts <<<"$(plugn trigger domains-list "$APP")" || true
+  if [[ "${#app_vhosts[@]}" -gt 0 ]]; then
+    for app_vhost in "${app_vhosts[@]}"; do
       if [[ "$app_vhost" == "localhost" ]] || [[ "$app_vhost" == '*' ]]; then
         continue
       fi
