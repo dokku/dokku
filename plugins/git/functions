@@ -56,6 +56,17 @@ git_trigger_build() {
   dokku_receive "$APP" "$BUILDER" "$TMP_WORK_DIR"
 }
 
+fn-git-verify-app() {
+  declare desc="verifies an existing app, or validates the name of a new app"
+  declare APP="$1"
+
+  if [[ -d "$DOKKU_ROOT/$APP" ]]; then
+    verify_app_name "$APP"
+  else
+    is_valid_app_name "$APP"
+  fi
+}
+
 cmd-git-hook() {
   declare desc="kick off receive-app trigger from git prereceive hook"
   declare cmd="git-hook"
@@ -63,7 +74,7 @@ cmd-git-hook() {
   declare APP="$1"
   local DOKKU_DEPLOY_BRANCH
 
-  plugn trigger app-exists "$APP" 2>/dev/null || is_valid_app_name "$APP"
+  fn-git-verify-app "$APP"
 
   DOKKU_DEPLOY_BRANCH="$(fn-git-computed-deploy-branch "$APP")"
   if ! git check-ref-format --branch "$DOKKU_DEPLOY_BRANCH" &>/dev/null; then
@@ -154,7 +165,7 @@ cmd-git-upload-pack() {
   declare APP="$1"
 
   APP="$(echo "$APP" | perl -pe 's/(?<!\\)'\''//g' | sed 's/\\'\''/'\''/g' | sed 's/^\///g')"
-  is_valid_app_name "$APP"
+  fn-git-verify-app "$APP"
   ! plugn trigger app-exists "$APP" &>/dev/null && plugn trigger app-maybe-create "$APP"
 
   plugn trigger git-pre-pull "$APP"
@@ -168,7 +179,7 @@ cmd-git-glob() {
   local APP="$(echo "$2" | perl -pe 's/(?<!\\)'\''//g' | sed 's/\\'\''/'\''/g' | sed 's/^\///g')"
   local APP_PATH=$DOKKU_ROOT/$APP
 
-  plugn trigger app-exists "$APP" 2>/dev/null || is_valid_app_name "$APP"
+  fn-git-verify-app "$APP"
   if [[ $1 == "git-receive-pack" && ! -d "$APP_PATH/refs" ]]; then
     ! plugn trigger app-exists "$APP" &>/dev/null && plugn trigger app-maybe-create "$APP"
 
