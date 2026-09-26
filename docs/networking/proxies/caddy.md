@@ -46,12 +46,14 @@ The following `app.json` healthcheck properties are mapped to Caddy labels:
 | `port`            | `caddy.reverse_proxy.health_port`     | The port to check |
 | `timeout`         | `caddy.reverse_proxy.health_timeout`  | Timeout in seconds (formatted as `Xs`, defaults to `5s`) |
 | `wait`            | `caddy.reverse_proxy.health_interval` | Interval between checks in seconds (formatted as `Xs`, defaults to `5s`) |
+| `attempts`        | `caddy.reverse_proxy.health_fails`    | Number of successive failed checks before a container is taken out of rotation (defaults to `3`) |
+| `httpHeaders`     | `caddy.reverse_proxy.health_headers.<name>` | Headers to send with the check |
 
 Additionally, the following labels are generated:
 
 | Caddy Label | Value | Description |
 |-------------|-------|-------------|
-| `caddy.reverse_proxy.health_headers.Host` | the first app domain | The `Host` header sent with the healthcheck, matching the header Dokku sends during deploy checks |
+| `caddy.reverse_proxy.health_headers.Host` | the first app domain | The `Host` header sent with the healthcheck, matching the header Dokku sends during deploy checks. A `Host` header in `httpHeaders` takes precedence |
 | `caddy.reverse_proxy.lb_try_duration` | `5s` | How long a request that fails to connect is retried against other containers |
 | `caddy.reverse_proxy.lb_try_interval` | `250ms` | How long to wait between retries |
 
@@ -75,7 +77,7 @@ Example `app.json` configuration:
 
 Caddy considers a new container healthy until its first check fails. The first check runs as soon as Caddy picks up the new container, and requests that reach the container before then and fail to connect are retried against the still-running old container.
 
-The `scheme` property is not mapped, as Caddy uses the same transport for healthchecks as for proxied requests. Any of the generated labels may be overridden via the `caddy:labels:add` command.
+Headers with values containing quotes, backslashes, or control characters are skipped, as are headers whose names contain a `.` or end in an `_<number>` suffix, as these cannot be represented as Caddy labels. The `scheme` property is not mapped, as Caddy uses the same transport for healthchecks as for proxied requests. Any of the generated labels may be overridden via the `caddy:labels:add` command.
 
 > [!NOTE]
 > Only the first readiness healthcheck with a `path` property is used. Apps without one are routed as soon as the container is running. See the [zero downtime deploys documentation](/docs/deployment/zero-downtime-deploys.md#healthchecks-and-label-based-proxies) for more information.
@@ -242,6 +244,8 @@ To switch to Caddy's internal TLS server for certificate provisioning, set the `
 ```shell
 dokku caddy:set node-js-app tls-internal true
 ```
+
+As Caddy only serves https when the `letsencrypt-email` property is set, the internal TLS server is only used for apps when that property is also set. Apps will need to be rebuilt after changing this property.
 
 The default value may also be configured globally with the `--global` flag. Per-app values take precedence over the global value when set.
 

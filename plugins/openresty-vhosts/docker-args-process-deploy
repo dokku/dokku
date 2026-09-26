@@ -222,8 +222,7 @@ trigger-openresty-vhosts-docker-args-process-deploy() {
 fn-openresty-healthcheck-labels() {
   declare desc="outputs openresty upstream healthcheck and failover labels derived from the app's web readiness healthcheck"
   declare APP="$1"
-  local healthcheck hc_path hc_port hc_scheme hc_timeout hc_interval hc_attempts hc_host domain name value
-  local -a domains
+  local healthcheck hc_path hc_port hc_scheme hc_timeout hc_interval hc_attempts hc_host name value
 
   healthcheck="$(fn-proxy-get-readiness-healthcheck "$APP")"
   if [[ -z "$healthcheck" ]]; then
@@ -245,18 +244,7 @@ fn-openresty-healthcheck-labels() {
     dokku_log_fail "Invalid app.json healthcheck scheme for openresty: scheme must be one of http or https"
   fi
 
-  hc_host="$(echo "$healthcheck" | jq -r '.httpHeaders // [] | map(select((.name | ascii_downcase) == "host")) | .[0].value // empty')"
-  if [[ -z "$hc_host" ]]; then
-    read -r -d '' -a domains <<<"$(plugn trigger domains-list "$APP")" || true
-    for domain in "${domains[@]}"; do
-      if [[ "$domain" == "localhost" ]] || [[ "$domain" == '*' ]]; then
-        continue
-      fi
-
-      hc_host="$domain"
-      break
-    done
-  fi
+  hc_host="$(fn-proxy-get-healthcheck-host "$APP" "$healthcheck")"
 
   echo -n " '--label=openresty.upstream-max-fails=1'"
   echo -n " '--label=openresty.upstream-fail-timeout=${hc_interval}s'"
@@ -267,28 +255,19 @@ fn-openresty-healthcheck-labels() {
   echo -n " '--label=openresty.healthcheck-timeout=$hc_timeout'"
   echo -n " '--label=openresty.healthcheck-interval=$hc_interval'"
   echo -n " '--label=openresty.healthcheck-fall=$hc_attempts'"
-  if [[ -n "$hc_host" ]] && fn-openresty-healthcheck-header-is-valid "Host" "$hc_host"; then
+  if [[ -n "$hc_host" ]] && fn-proxy-healthcheck-header-is-valid "Host" "$hc_host"; then
     echo -n " '--label=openresty.healthcheck-host=$hc_host'"
   fi
 
   while IFS=$'\t' read -r name value; do
     [[ -z "$name" ]] && continue
-    if ! fn-openresty-healthcheck-header-is-valid "$name" "$value"; then
+    if ! fn-proxy-healthcheck-header-is-valid "$name" "$value"; then
       dokku_log_warn "Skipping invalid app.json healthcheck header for openresty: $name"
       continue
     fi
 
     echo -n " '--label=openresty.healthcheck-header.$name=$value'"
-  done < <(echo "$healthcheck" | jq -r '.httpHeaders // [] | map(select((.name | ascii_downcase) != "host")) | .[] | [.name, .value] | @tsv')
-}
-
-fn-openresty-healthcheck-header-is-valid() {
-  declare desc="checks that a healthcheck header name is a token and its value is free of control, quote, and backslash characters"
-  declare NAME="$1" VALUE="$2"
-
-  [[ "$NAME" =~ ^[A-Za-z0-9!#$%\&*+.^_\`\|~-]+$ ]] || return 1
-  [[ "$VALUE" =~ [[:cntrl:]\"\'\\] ]] && return 1
-  return 0
+  done < <(fn-proxy-get-healthcheck-headers "$healthcheck")
 }
 
 trigger-openresty-vhosts-docker-args-process-deploy "$@"

@@ -237,3 +237,75 @@ invoke_caddy_docker_args() {
   assert_failure
   assert_output_contains "Invalid app.json healthcheck path for caddy"
 }
+
+@test "(caddy-vhosts) readiness healthcheck maps attempts and headers" {
+  STUB_DOMAINS="example.com"
+  STUB_PORTS="http:80:5000"
+  STUB_APP_JSON='{"healthchecks":{"web":[{"type":"readiness","path":"/","attempts":4,"httpHeaders":[{"name":"X-Check","value":"dokku check"},{"name":"host","value":"check.example.com"}]}]}}'
+
+  run invoke_caddy_docker_args
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "--label caddy.reverse_proxy.health_fails=4"
+  assert_output_contains "--label 'caddy.reverse_proxy.health_headers.X-Check=\"dokku check\"'"
+  assert_output_contains "--label caddy.reverse_proxy.health_headers.Host=check.example.com"
+  assert_output_contains "health_headers.Host=example.com" 0
+  assert_output_contains "health_headers.host" 0
+}
+
+@test "(caddy-vhosts) readiness healthcheck defaults attempts to 3" {
+  STUB_DOMAINS="example.com"
+  STUB_PORTS="http:80:5000"
+  STUB_APP_JSON='{"healthchecks":{"web":[{"type":"readiness","path":"/"}]}}'
+
+  run invoke_caddy_docker_args
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "--label caddy.reverse_proxy.health_fails=3"
+}
+
+@test "(caddy-vhosts) invalid healthcheck headers are skipped" {
+  STUB_DOMAINS="example.com"
+  STUB_PORTS="http:80:5000"
+  STUB_APP_JSON='{"healthchecks":{"web":[{"type":"readiness","path":"/","httpHeaders":[{"name":"X.Dotted","value":"a"},{"name":"X-Order_1","value":"a"},{"name":"X-Quote","value":"it'"'"'s"},{"name":"Bad Name","value":"a"},{"name":"X-Good","value":"ok"}]}]}}'
+
+  run invoke_caddy_docker_args
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Skipping invalid app.json healthcheck header for caddy" 4
+  assert_output_contains "health_headers.X-Good=" 1
+  assert_output_contains "health_headers.X.Dotted" 0
+  assert_output_contains "health_headers.X-Order_1" 0
+  assert_output_contains "health_headers.X-Quote" 0
+}
+
+@test "(caddy-vhosts) tls-internal emits caddy.tls=internal alongside https site labels" {
+  STUB_DOMAINS="example.com"
+  STUB_PORTS="$(printf 'http:80:5000\nhttps:443:5000')"
+  STUB_LETSENCRYPT_EMAIL="admin@example.com"
+  STUB_TLS_INTERNAL="true"
+
+  run invoke_caddy_docker_args
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "--label 'caddy=example.com'"
+  assert_output_contains "--label caddy.tls=internal"
+  assert_output_contains "caddy.reverse_proxy="
+}
+
+@test "(caddy-vhosts) tls-internal does not emit caddy.tls=internal for http-only sites" {
+  STUB_DOMAINS="example.com"
+  STUB_PORTS="http:80:5000"
+  STUB_TLS_INTERNAL="true"
+
+  run invoke_caddy_docker_args
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "--label 'caddy=example.com:80'"
+  assert_output_contains "caddy.tls=internal" 0
+}
