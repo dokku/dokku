@@ -584,7 +584,7 @@ teardown() {
 
   sleep 5
 
-  run /bin/bash -c "docker exec caddy-caddy-1 cat /config/caddy/Caddyfile.autosave"
+  run /bin/bash -c "docker cp caddy-caddy-1:/config/caddy/Caddyfile.autosave - | tar -xO"
   echo "output: $output"
   echo "status: $status"
   assert_success
