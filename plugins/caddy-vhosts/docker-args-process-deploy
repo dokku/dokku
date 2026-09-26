@@ -127,6 +127,10 @@ trigger-caddy-vhosts-docker-args-process-deploy() {
 
       output="$output --label \"caddy.reverse_proxy={{ upstreams $proxy_container_http_port }}\""
     fi
+
+    if [[ "$output" == *"caddy.reverse_proxy="* ]]; then
+      output="$output$(fn-caddy-healthcheck-labels "$APP" "$app_domains")"
+    fi
   fi
 
   local proxy_labels_file_path=$(fn-proxy-get-labels-file-path "caddy" "$APP")
@@ -138,6 +142,45 @@ trigger-caddy-vhosts-docker-args-process-deploy() {
   fi
 
   echo -n "$STDIN $output"
+}
+
+fn-caddy-healthcheck-labels() {
+  declare desc="outputs caddy reverse_proxy health check and retry labels derived from the app's web readiness healthcheck"
+  declare APP="$1" APP_DOMAINS="$2"
+  local healthcheck hc_path hc_port hc_timeout hc_interval hc_host domain
+  local -a domains
+
+  healthcheck="$(fn-proxy-get-readiness-healthcheck "$APP")"
+  if [[ -z "$healthcheck" ]]; then
+    return
+  fi
+
+  hc_path="$(echo "$healthcheck" | jq -r ".path // empty")"
+  hc_port="$(echo "$healthcheck" | jq -r ".port // empty")"
+  hc_timeout="$(echo "$healthcheck" | jq -r ".timeout // 5")"
+  hc_interval="$(echo "$healthcheck" | jq -r ".wait // 5")"
+
+  if ! fn-proxy-healthcheck-path-is-valid "$hc_path"; then
+    dokku_log_fail "Invalid app.json healthcheck path for caddy: path must start with a / and must not contain whitespace, control characters, quotes, or backslashes"
+  fi
+
+  read -r -d '' -a domains <<<"$APP_DOMAINS" || true
+  for domain in "${domains[@]}"; do
+    if [[ "$domain" == "localhost" ]] || [[ "$domain" == '*' ]]; then
+      continue
+    fi
+
+    hc_host="$domain"
+    break
+  done
+
+  echo -n " --label \"caddy.reverse_proxy.health_uri=$hc_path\""
+  [[ -n "$hc_port" ]] && echo -n " --label caddy.reverse_proxy.health_port=$hc_port"
+  echo -n " --label caddy.reverse_proxy.health_interval=${hc_interval}s"
+  echo -n " --label caddy.reverse_proxy.health_timeout=${hc_timeout}s"
+  [[ -n "$hc_host" ]] && echo -n " --label caddy.reverse_proxy.health_headers.Host=$hc_host"
+  echo -n " --label caddy.reverse_proxy.lb_try_duration=5s"
+  echo -n " --label caddy.reverse_proxy.lb_try_interval=250ms"
 }
 
 trigger-caddy-vhosts-docker-args-process-deploy "$@"

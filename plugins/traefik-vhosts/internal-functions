@@ -243,20 +243,3 @@ fn-traefik-dns-provider-env-vars() {
   declare desc="returns all dns-provider-* environment variables"
   fn-plugin-property-get-all-by-prefix "traefik" "--global" "dns-provider-"
 }
-
-fn-traefik-healthcheck-path-is-valid() {
-  declare desc="checks that an app.json healthcheck path is absolute and free of whitespace, control, quote, and backslash characters"
-  declare HC_PATH="$1"
-
-  [[ "$HC_PATH" == /* ]] || return 1
-  [[ "$HC_PATH" =~ [[:space:][:cntrl:]\"\'\\] ]] && return 1
-  return 0
-}
-
-fn-traefik-healthcheck-scheme-is-valid() {
-  declare desc="checks that an app.json healthcheck scheme is either http or https"
-  declare HC_SCHEME="$1"
-
-  [[ -z "$HC_SCHEME" ]] && return 0
-  [[ "${HC_SCHEME,,}" == "http" ]] || [[ "${HC_SCHEME,,}" == "https" ]]
-}
