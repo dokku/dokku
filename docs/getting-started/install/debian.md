@@ -37,4 +37,14 @@ After setting the desired options, proceed with the installation as described ab
 | dokku/hostname     | string  | dokku.me              | Hostname, used as vhost domain and for showing app URL after deploy      |
 | dokku/skip_key_file| boolean | false                 | Don't check for the existence of the dokku/key_file. Warning: Setting this to true, will require you to manually add an SSH key later on. |
 | dokku/key_file     | string  | /root/.ssh/id_rsa.pub | Path on disk to an SSH key to add to the Dokku user (Will be ignored on `dpkg-reconfigure`) |
-| dokku/nginx_enable | boolean | true                  | Enable nginx-vhosts plugin |
+| dokku/nginx_enable | boolean | true                  | Enable nginx-vhosts plugin. When `false`, the plugin is installed but left disabled, and the `nginx:*` commands are unavailable. |
+| dokku/install_default_site | boolean | true          | Install a catch-all nginx default site on fresh install |
+
+### Enabling the nginx-vhosts plugin after installation
+
+If Dokku was installed with `dokku/nginx_enable` set to `false`, the nginx-vhosts plugin can be enabled later. The `plugin:install --core` call runs the plugin's install trigger, which sets up the nginx configuration required by Dokku.
+
+```shell
+sudo dokku plugin:enable nginx-vhosts
+sudo dokku plugin:install --core
+```

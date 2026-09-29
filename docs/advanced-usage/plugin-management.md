@@ -249,6 +249,8 @@ dokku plugin:enable postgres
 -----> Plugin postgres enabled
 ```
 
+Core plugins that were not enabled at install time - such as the nginx-vhosts plugin when the `dokku/nginx_enable` debconf option is set to `false` - can also be enabled this way. Run `dokku plugin:install --core` afterwards so the plugin's install trigger is executed.
+
 ### Triggering a plugin trigger
 
 The `plugin:trigger` can be used to call any internal plugin trigger. This may have unintended consequences, and thus should only be called for development or debugging purposes.
