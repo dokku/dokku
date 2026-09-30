@@ -132,6 +132,13 @@ EOF
   assert_output_contains "MAILTO=ops@example.com"
   assert_output_contains "@hourly /bin/false 2>&1 | tee -a /var/log/dokku/log.log"
 
+  # the global MAILTO is restored for every task after the one with its own
+  run /bin/bash -c "grep -A1 -F 'tee -a /var/log/dokku/log.log' /var/spool/cron/crontabs/dokku | tail -n 1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "MAILTO=global@example.com"
+
   run /bin/bash -c "dokku cron:list --global --format json | jq -r '.[] | select(.schedule == \"@hourly\") | .mailto'"
   echo "output: $output"
   echo "status: $status"

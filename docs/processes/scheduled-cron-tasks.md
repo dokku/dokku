@@ -56,7 +56,7 @@ When running scheduled cron tasks, there are a few items to be aware of:
 - At this time, only the `PATH` and `SHELL` environment variables are specified in the cron template.
     - A `MAILTO` value can be set via the `cron:set` command.
     - A `MAILFROM` value can be set via the `cron:set` command.
-    - Tasks injected by plugins via the [`cron-entries` trigger](/docs/development/plugin-triggers.md#cron-entries) may set a `MAILTO` value of their own, which is used for that task instead of the global value. The output of such a task is mailed to that address as well as appended to the task's log file.
+    - Tasks injected by plugins via the [`cron-entries` trigger](/docs/development/plugin-triggers.md#cron-entries) may set a `MAILTO` value of their own, which is used for that task instead of the global value. `MAILTO` is reset after the task to the global value, or to the `dokku` user when no global value is set, so no other task is mailed to that address. The output of such a task is mailed to that address as well as appended to the task's log file.
 - Each scheduled task is executed within a one-off `run` container, and thus inherit any docker-options specified for `run` containers. Resources are never shared between scheduled tasks.
 - Scheduled cron tasks are supported on a per-scheduler basis. Schedulers that use the host crontab - such as `docker-local` - have their `app.json` cron tasks written to the `dokku` user crontab, while schedulers that manage their own cron backend - such as `k3s` - schedule them natively.
 - Tasks for _all_ apps managed by a host-crontab scheduler such as `docker-local` are written to a single crontab file owned by the `dokku` user. The `dokku` user's crontab should be considered reserved for this purpose.

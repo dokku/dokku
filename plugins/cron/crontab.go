@@ -4,9 +4,7 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
-	"maps"
 	"os"
-	"slices"
 	"strings"
 	"text/template"
 
@@ -18,6 +16,9 @@ import (
 
 //go:embed templates/cron.tmpl
 var cronTemplate string
+
+// crontabUser is the user whose crontab the host-cron tasks are written to
+const crontabUser = "dokku"
 
 // usesHostCron reports whether the given scheduler writes its cron tasks to the
 // host crontab (as opposed to managing its own cron backend). An empty scheduler
@@ -281,7 +282,7 @@ func writeCronTab() error {
 
 	result, err := common.CallExecCommand(common.ExecCommandInput{
 		Command: "crontab",
-		Args:    []string{"-u", "dokku", tmpFile.Name()},
+		Args:    []string{"-u", crontabUser, tmpFile.Name()},
 	})
 	if err != nil {
 		return fmt.Errorf("Unable to update schedule file: %w", err)
@@ -295,43 +296,22 @@ func writeCronTab() error {
 	return nil
 }
 
-// cronMailtoGroup is the set of tasks written to the crontab under a MAILTO of
-// their own
-type cronMailtoGroup struct {
-	// Mailto is the MAILTO value the tasks are written under
-	Mailto string
-
-	// Tasks are the tasks written under the MAILTO value
-	Tasks []CronTask
-}
-
-// cronTemplateData builds the data the cron template is executed with. Tasks
-// that set their own MAILTO are grouped by it and written after every other
-// task, so the global MAILTO applies to all of the tasks before them.
+// cronTemplateData builds the data the cron template is executed with. A task
+// that sets its own MAILTO is written between a MAILTO line of its own and one
+// resetting it, so every task after it goes back to the global MAILTO. Without
+// a global MAILTO it is reset to the crontab's owner, which is who cron mails
+// when MAILTO is unset - an empty MAILTO would stop cron mailing anyone.
 func cronTemplateData(tasks []CronTask, mailfrom string, mailto string) map[string]interface{} {
-	globalTasks := []CronTask{}
-	groups := map[string][]CronTask{}
-	for _, task := range tasks {
-		if task.Mailto == "" {
-			globalTasks = append(globalTasks, task)
-			continue
-		}
-		groups[task.Mailto] = append(groups[task.Mailto], task)
-	}
-
-	mailtoGroups := []cronMailtoGroup{}
-	for _, groupMailto := range slices.Sorted(maps.Keys(groups)) {
-		mailtoGroups = append(mailtoGroups, cronMailtoGroup{
-			Mailto: groupMailto,
-			Tasks:  groups[groupMailto],
-		})
+	resetMailto := mailto
+	if resetMailto == "" {
+		resetMailto = crontabUser
 	}
 
 	return map[string]interface{}{
-		"Tasks":        globalTasks,
-		"MailtoGroups": mailtoGroups,
-		"Mailfrom":     mailfrom,
-		"Mailto":       mailto,
+		"Tasks":       tasks,
+		"Mailfrom":    mailfrom,
+		"Mailto":      mailto,
+		"ResetMailto": resetMailto,
 	}
 }
 
@@ -339,7 +319,7 @@ func cronTemplateData(tasks []CronTask, mailfrom string, mailto string) map[stri
 func deleteCrontab() error {
 	result, err := common.CallExecCommand(common.ExecCommandInput{
 		Command: "crontab",
-		Args:    []string{"-l", "-u", "dokku"},
+		Args:    []string{"-l", "-u", crontabUser},
 	})
 	if err != nil || result.ExitCode != 0 {
 		return nil
@@ -347,7 +327,7 @@ func deleteCrontab() error {
 
 	result, err = common.CallExecCommand(common.ExecCommandInput{
 		Command: "crontab",
-		Args:    []string{"-r", "-u", "dokku"},
+		Args:    []string{"-r", "-u", crontabUser},
 	})
 	if err != nil {
 		return fmt.Errorf("Unable to remove schedule file: %w", err)

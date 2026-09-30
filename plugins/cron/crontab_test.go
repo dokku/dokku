@@ -153,16 +153,10 @@ func TestParseInjectedCronEntriesKeepsTextIDs(t *testing.T) {
 	}
 }
 
-// TestCronTemplateGroupsTasksByMailto pins that tasks with their own MAILTO are
-// written after every task that uses the global MAILTO, grouped under a MAILTO
-// line per recipient.
-func TestCronTemplateGroupsTasksByMailto(t *testing.T) {
-	tasks := []CronTask{
-		{Schedule: "@daily", AltCommand: "/bin/zeta", LogFile: "/var/log/dokku/zeta.log", Mailto: "zeta@example.com"},
-		{Schedule: "@daily", AltCommand: "/bin/true", LogFile: "/var/log/dokku/log.log"},
-		{Schedule: "@hourly", AltCommand: "/bin/alpha", LogFile: "/var/log/dokku/alpha.log", Mailto: "alpha@example.com"},
-		{Schedule: "@weekly", AltCommand: "/bin/zeta-weekly", Mailto: "zeta@example.com"},
-	}
+// renderCronTemplate renders the cron template for the given tasks and global
+// MAILTO
+func renderCronTemplate(t *testing.T, tasks []CronTask, mailto string) string {
+	t.Helper()
 
 	tmpl, err := getCronTemplate()
 	if err != nil {
@@ -170,8 +164,23 @@ func TestCronTemplateGroupsTasksByMailto(t *testing.T) {
 	}
 
 	var got bytes.Buffer
-	if err := tmpl.Execute(&got, cronTemplateData(tasks, "", "global@example.com")); err != nil {
+	if err := tmpl.Execute(&got, cronTemplateData(tasks, "", mailto)); err != nil {
 		t.Fatalf("Execute() returned an error: %v", err)
+	}
+
+	return got.String()
+}
+
+// TestCronTemplateResetsMailtoAfterATaskWithItsOwn pins that a task with its own
+// MAILTO is written in place between a MAILTO line of its own and one resetting
+// it to the global MAILTO, so no task after it is mailed to its recipient.
+func TestCronTemplateResetsMailtoAfterATaskWithItsOwn(t *testing.T) {
+	tasks := []CronTask{
+		{Schedule: "@daily", AltCommand: "/bin/true", LogFile: "/var/log/dokku/log.log"},
+		{Schedule: "@hourly", AltCommand: "/bin/alpha", LogFile: "/var/log/dokku/alpha.log", Mailto: "alpha@example.com"},
+		{Schedule: "@daily", AltCommand: "/bin/false"},
+		{Schedule: "@daily", AltCommand: "/bin/zeta", LogFile: "/var/log/dokku/zeta.log", Mailto: "zeta@example.com"},
+		{Schedule: "@weekly", AltCommand: "/bin/zeta-weekly", Mailto: "zeta@example.com"},
 	}
 
 	want := strings.Join([]string{
@@ -180,36 +189,56 @@ func TestCronTemplateGroupsTasksByMailto(t *testing.T) {
 		"SHELL=/bin/bash",
 		"",
 		"@daily /bin/true &>> /var/log/dokku/log.log",
-		"",
 		"MAILTO=alpha@example.com",
 		"@hourly /bin/alpha 2>&1 | tee -a /var/log/dokku/alpha.log",
-		"",
+		"MAILTO=global@example.com",
+		"@daily /bin/false",
 		"MAILTO=zeta@example.com",
 		"@daily /bin/zeta 2>&1 | tee -a /var/log/dokku/zeta.log",
+		"MAILTO=global@example.com",
+		"MAILTO=zeta@example.com",
 		"@weekly /bin/zeta-weekly",
+		"MAILTO=global@example.com",
 		"",
 	}, "\n")
-	if got.String() != want {
-		t.Errorf("rendered crontab =\n%s\nwant\n%s", got.String(), want)
+	if got := renderCronTemplate(t, tasks, "global@example.com"); got != want {
+		t.Errorf("rendered crontab =\n%s\nwant\n%s", got, want)
 	}
 }
 
-// TestCronTemplateWithoutMailtoGroups pins that a crontab without tasks that set
+// TestCronTemplateResetsMailtoToTheCrontabOwner pins that without a global
+// MAILTO, a task with its own is followed by a MAILTO naming the crontab's
+// owner, who cron mails when MAILTO is unset. An empty MAILTO would stop cron
+// mailing anyone about the tasks after it.
+func TestCronTemplateResetsMailtoToTheCrontabOwner(t *testing.T) {
+	tasks := []CronTask{
+		{Schedule: "@hourly", AltCommand: "/bin/alpha", LogFile: "/var/log/dokku/alpha.log", Mailto: "alpha@example.com"},
+		{Schedule: "@daily", AltCommand: "/bin/true", LogFile: "/var/log/dokku/log.log"},
+	}
+
+	want := strings.Join([]string{
+		"PATH=/usr/local/bin:/usr/bin:/bin",
+		"SHELL=/bin/bash",
+		"",
+		"MAILTO=alpha@example.com",
+		"@hourly /bin/alpha 2>&1 | tee -a /var/log/dokku/alpha.log",
+		"MAILTO=dokku",
+		"@daily /bin/true &>> /var/log/dokku/log.log",
+		"",
+	}, "\n")
+	if got := renderCronTemplate(t, tasks, ""); got != want {
+		t.Errorf("rendered crontab =\n%s\nwant\n%s", got, want)
+	}
+}
+
+// TestCronTemplateWithoutTaskMailto pins that a crontab without tasks that set
 // their own MAILTO renders as it did before per-task MAILTO values existed.
-func TestCronTemplateWithoutMailtoGroups(t *testing.T) {
+func TestCronTemplateWithoutTaskMailto(t *testing.T) {
 	tasks := []CronTask{
 		{Schedule: "@daily", AltCommand: "/bin/true", LogFile: "/var/log/dokku/log.log"},
 	}
 
-	tmpl, err := getCronTemplate()
-	if err != nil {
-		t.Fatalf("getCronTemplate() returned an error: %v", err)
-	}
-
-	var got bytes.Buffer
-	if err := tmpl.Execute(&got, cronTemplateData(tasks, "", "")); err != nil {
-		t.Fatalf("Execute() returned an error: %v", err)
-	}
+	got := renderCronTemplate(t, tasks, "")
 
 	want := strings.Join([]string{
 		"PATH=/usr/local/bin:/usr/bin:/bin",
@@ -218,7 +247,7 @@ func TestCronTemplateWithoutMailtoGroups(t *testing.T) {
 		"@daily /bin/true &>> /var/log/dokku/log.log",
 		"",
 	}, "\n")
-	if got.String() != want {
-		t.Errorf("rendered crontab =\n%s\nwant\n%s", got.String(), want)
+	if got != want {
+		t.Errorf("rendered crontab =\n%s\nwant\n%s", got, want)
 	}
 }

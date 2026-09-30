@@ -8,11 +8,11 @@ PATH=/usr/local/bin:/usr/bin:/bin
 SHELL=/bin/bash
 
 {{ range $task := .Tasks -}}
-{{ $task.Schedule }} {{ $task.DokkuRunCommand }}
+{{ if $task.Mailto -}}
+MAILTO={{ $task.Mailto }}
 {{ end -}}
-{{ range $group := .MailtoGroups }}
-MAILTO={{ $group.Mailto }}
-{{ range $task := $group.Tasks -}}
 {{ $task.Schedule }} {{ $task.DokkuRunCommand }}
+{{ if $task.Mailto -}}
+MAILTO={{ $.ResetMailto }}
 {{ end -}}
 {{ end -}}
