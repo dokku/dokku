@@ -345,6 +345,55 @@ EOF
   assert_output "['task.py', 'some', 'cron', 'task']"
 }
 
+@test "(builder-dockerfile) failed build restores previous image" {
+  local CUSTOM_TMP=$(mktemp -d "/tmp/${DOKKU_DOMAIN}.XXXXX")
+  trap 'popd &>/dev/null || true; rm -rf "$CUSTOM_TMP"' INT TERM
+
+  CUSTOM_TMP="$CUSTOM_TMP" run deploy_app python "dokku@$DOKKU_DOMAIN:$TEST_APP" convert_to_dockerfile
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  local previous_image
+  previous_image="$(docker container inspect "$TEST_APP.web.1" --format '{{.Image}}')"
+  [[ -n "$previous_image" ]]
+
+  run failing_build_callback "$TEST_APP" "$CUSTOM_TMP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run git -C "$CUSTOM_TMP" add Dockerfile
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run git -C "$CUSTOM_TMP" commit -m 'Break the build'
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run git -C "$CUSTOM_TMP" push target master:master
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "App build failed"
+  assert_output_contains "Removing invalid image tag" 0
+
+  run /bin/bash -c "docker image inspect dokku/$TEST_APP:latest --format '{{.Id}}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "$previous_image"
+
+  run /bin/bash -c "dokku ps:restart $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  rm -rf "$CUSTOM_TMP"
+}
+
 cron_run_wrapper() {
   local APP="$1"
   local APP_REPO_DIR="$2"
@@ -353,4 +402,10 @@ cron_run_wrapper() {
 
   convert_to_dockerfile "$APP" "$APP_REPO_DIR"
   mv -f "$APP_REPO_DIR/app-cron.json" "$APP_REPO_DIR/app.json"
+}
+
+failing_build_callback() {
+  local APP="$1"
+  local APP_REPO_DIR="$2"
+  echo "RUN exit 1" >>"$APP_REPO_DIR/Dockerfile"
 }

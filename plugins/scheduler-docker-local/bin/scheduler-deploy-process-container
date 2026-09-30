@@ -83,7 +83,7 @@ main() {
 
   kill_new() {
     declare desc="wrapper function to kill newly started app container"
-    declare CID="$1" PROC_TYPE="$2" CONTAINER_INDEX="$3"
+    declare APP="$1" CID="$2" PROC_TYPE="$3" CONTAINER_INDEX="$4"
 
     plugn trigger scheduler-register-retired "$APP" "$CID" "$DOKKU_WAIT_TO_RETIRE"
     mkdir -p "${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP"
@@ -98,7 +98,7 @@ main() {
   }
 
   # run checks first, then post-deploy hooks, which switches proxy traffic
-  trap "kill_new $cid $PROC_TYPE $CONTAINER_INDEX" INT TERM EXIT
+  trap "kill_new $APP $cid $PROC_TYPE $CONTAINER_INDEX" INT TERM EXIT
   if [[ "$DOKKU_CHECKS_DISABLED" == "false" ]]; then
     dokku_log_verbose "Attempting pre-flight checks ($PROC_TYPE.$CONTAINER_INDEX)"
     plugn trigger check-deploy "$APP" "$cid" "$PROC_TYPE" "$DOKKU_PORT" "$ipaddr" "$CONTAINER_INDEX"
