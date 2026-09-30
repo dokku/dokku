@@ -10,3 +10,9 @@ SHELL=/bin/bash
 {{ range $task := .Tasks -}}
 {{ $task.Schedule }} {{ $task.DokkuRunCommand }}
 {{ end -}}
+{{ range $group := .MailtoGroups }}
+MAILTO={{ $group.Mailto }}
+{{ range $task := $group.Tasks -}}
+{{ $task.Schedule }} {{ $task.DokkuRunCommand }}
+{{ end -}}
+{{ end -}}

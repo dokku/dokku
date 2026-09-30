@@ -688,8 +688,10 @@ APP="$1"; PROPERTY="$2"
 ### `cron-entries`
 
 - Description: Allows injecting cron tasks into the written out scheduled cron task list. Each entry is newline delimited, and individual tasks come in the form `$SCHEDULE;$FULL_COMMAND;$ARBITRARY_DATA`. Individual implementations of cron writing can decide whether and how to include these cron tasks. The `ARBITRARY_DATA` includes the log file path for the basic `docker-local` cron implementation.
-- Invoked by:
-- Arguments: `$DOKKU_SCHEDULER`
+
+    When `$CRON_ENTRY_FORMAT` is `json`, each entry may instead be printed as a json object on its own line, with the keys `schedule`, `command`, `log-file` and `mailto`. Only `schedule` and `command` are required. A task with a `mailto` value is written to the crontab under a `MAILTO` of its own rather than the global `MAILTO`, and its output is mailed to that address in addition to being appended to its `log-file`. Json entries and `;` delimited entries may be printed together. Older versions of Dokku do not pass `$CRON_ENTRY_FORMAT`, and fail to write the crontab if a json entry is printed, so a json entry should only be printed when the argument is `json`.
+- Invoked by: `dokku cron:list --global`, and when the `dokku` user crontab is written
+- Arguments: `$DOKKU_SCHEDULER $CRON_ENTRY_FORMAT`
 - Example:
 
 ```shell
@@ -699,8 +701,13 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 
 DOKKU_SCHEDULER="$1"
+CRON_ENTRY_FORMAT="$2"
 
-# TODO
+if [[ "$CRON_ENTRY_FORMAT" == "json" ]]; then
+  echo '{"schedule":"@daily","command":"/usr/local/bin/some-task","log-file":"/var/log/dokku/some-task.log","mailto":"ops@example.com"}'
+else
+  echo "@daily;/usr/local/bin/some-task;/var/log/dokku/some-task.log"
+fi
 ```
 
 ### `dependencies`
