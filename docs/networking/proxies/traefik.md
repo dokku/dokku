@@ -31,12 +31,12 @@ The Traefik plugin has specific rules for routing requests:
 - If no `http:80` mapping is found, the first `http` port mapping is used for http requests.
 - If no `https:443` mapping is found, the first `https` port mapping is used for https requests.
 - If no `https` mapping is found, the container port from `http:80` will be used for https requests.
-- Requests are routed as soon as the container is running and passing healthchecks.
+- Requests are routed as soon as the container is running, before Dokku's healthchecks have passed.
 - Readiness healthchecks defined in `app.json` with a `path` property are automatically transformed into Traefik healthcheck labels.
 
 ### Healthchecks
 
-When an app has a readiness healthcheck defined in its `app.json` file with a `path` property, Dokku automatically generates Traefik healthcheck labels. These labels configure Traefik to perform health checks on the container before routing traffic to it.
+When an app has a readiness healthcheck defined in its `app.json` file with a `path` property, Dokku automatically generates Traefik healthcheck labels. These labels configure Traefik to periodically check each container and stop routing traffic to containers that fail the check. Traefik considers a new container healthy until its first check fails, so requests may reach a container before its first check runs.
 
 The following `app.json` healthcheck properties are mapped to Traefik labels:
 
@@ -67,7 +67,7 @@ Example `app.json` configuration:
 ```
 
 > [!NOTE]
-> Only the first readiness healthcheck with a `path` property is used. Liveness, startup, and command-based healthchecks are not transformed into Traefik labels.
+> Only the first readiness healthcheck with a `path` property is used. Liveness, startup, and command-based healthchecks are not transformed into Traefik labels. See the [zero downtime deploys documentation](/docs/deployment/zero-downtime-deploys.md#healthchecks-and-label-based-proxies) for more information.
 
 ### Switching to Traefik
 

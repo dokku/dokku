@@ -943,7 +943,7 @@ setup_traefik_healthcheck() {
   [[ -z "$APP" ]] && local APP="$TEST_APP"
   APP_REPO_DIR="$(realpath "$APP_REPO_DIR")"
 
-  mv "$APP_REPO_DIR/app-traefik.json" "$APP_REPO_DIR/app.json"
+  mv "$APP_REPO_DIR/app-readiness.json" "$APP_REPO_DIR/app.json"
 }
 
 setup_traefik_healthcheck_whitespace_path() {
@@ -952,7 +952,7 @@ setup_traefik_healthcheck_whitespace_path() {
   [[ -z "$APP" ]] && local APP="$TEST_APP"
   APP_REPO_DIR="$(realpath "$APP_REPO_DIR")"
 
-  jq '.healthchecks.web[0].path = "/health check"' "$APP_REPO_DIR/app-traefik.json" >"$APP_REPO_DIR/app.json"
+  jq '.healthchecks.web[0].path = "/health check"' "$APP_REPO_DIR/app-readiness.json" >"$APP_REPO_DIR/app.json"
 }
 
 setup_traefik_healthcheck_invalid_scheme() {
@@ -961,5 +961,5 @@ setup_traefik_healthcheck_invalid_scheme() {
   [[ -z "$APP" ]] && local APP="$TEST_APP"
   APP_REPO_DIR="$(realpath "$APP_REPO_DIR")"
 
-  jq '.healthchecks.web[0].scheme = "tcp"' "$APP_REPO_DIR/app-traefik.json" >"$APP_REPO_DIR/app.json"
+  jq '.healthchecks.web[0].scheme = "tcp"' "$APP_REPO_DIR/app-readiness.json" >"$APP_REPO_DIR/app.json"
 }

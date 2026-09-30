@@ -533,3 +533,28 @@ teardown() {
   assert_success
   assert_output "http:2019:2019 http:80:80 https:443:443 udp:443:443"
 }
+
+@test "(domains) urls do not glob expand a catch-all domain" {
+  local tmp_dir
+  tmp_dir="$(mktemp -d)"
+  touch "$tmp_dir/glob-canary"
+  chmod 755 "$tmp_dir"
+
+  run /bin/bash -c "dokku proxy:set $TEST_APP caddy"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku domains:set $TEST_APP '*'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "cd $tmp_dir && dokku urls $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  rm -rf "$tmp_dir"
+  assert_success
+  assert_output_contains "glob-canary" 0
+  assert_output_contains "http://*"
+}

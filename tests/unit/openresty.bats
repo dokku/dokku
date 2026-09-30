@@ -760,6 +760,175 @@ teardown() {
   assert_output_not_exists
 }
 
+@test "(openresty) healthcheck labels from app.json" {
+  run /bin/bash -c "dokku proxy:set $TEST_APP openresty"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP setup_openresty_readiness_healthcheck
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"openresty.upstream-max-fails\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "1"
+
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"openresty.upstream-fail-timeout\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "2s"
+
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"openresty.proxy-next-upstream-timeout\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "5s"
+
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"openresty.healthcheck-path\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "/"
+
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"openresty.healthcheck-interval\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "2"
+
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"openresty.healthcheck-timeout\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "5"
+
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"openresty.healthcheck-fall\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "3"
+
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"openresty.healthcheck-host\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "$TEST_APP.dokku.me"
+
+  run /bin/bash -c "docker exec openresty-openresty-1 /usr/local/openresty/nginx/sbin/nginx -t"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker exec openresty-openresty-1 cat /etc/nginx/sites-enabled/sites.conf"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "max_fails=1 fail_timeout=2s;"
+  assert_output_contains "proxy_next_upstream_timeout 5s;"
+
+  sleep 5
+
+  run /bin/bash -c "docker exec openresty-openresty-1 wget -qO- http://127.0.0.1:8999/upstream-healthcheck-status"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Upstream $TEST_APP-web-5000"
+  assert_output_contains " UP"
+  assert_output_contains "(NO checkers)" 0
+
+  assert_http_localhost_response "http" "$TEST_APP.dokku.me" "80" "" "python/http.server"
+}
+
+@test "(openresty) no healthcheck labels without readiness check" {
+  run /bin/bash -c "dokku proxy:set $TEST_APP openresty"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP convert_to_dockerfile
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"openresty.upstream-max-fails\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"openresty.proxy-next-upstream-timeout\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"openresty.healthcheck-path\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_exists
+}
+
+@test "(openresty) healthcheck headers from app.json" {
+  run /bin/bash -c "dokku proxy:set $TEST_APP openresty"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP setup_openresty_readiness_healthcheck_headers
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"openresty.healthcheck-header.X-Check\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "dokku"
+
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"openresty.healthcheck-host\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "check.dokku.me"
+
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"openresty.healthcheck-header.Host\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_exists
+
+  assert_http_localhost_response "http" "$TEST_APP.dokku.me" "80" "" "python/http.server"
+}
+
+@test "(openresty) invalid stored healthcheck path fails restart" {
+  run /bin/bash -c "dokku proxy:set $TEST_APP openresty"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP setup_openresty_readiness_healthcheck
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "jq '.healthchecks.web[0].path = \"/health check\"' /var/lib/dokku/data/app-json/$TEST_APP/app.json > /var/lib/dokku/data/app-json/$TEST_APP/app.json.tmp && mv /var/lib/dokku/data/app-json/$TEST_APP/app.json.tmp /var/lib/dokku/data/app-json/$TEST_APP/app.json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:restart $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Invalid app.json healthcheck path for openresty" -1
+}
+
 add_openresty_include() {
   local APP="$1"
   local APP_REPO_DIR="$2"
@@ -785,4 +954,24 @@ add_openresty_include_unsafe() {
 
   mkdir -p "$APP_REPO_DIR/openresty/http-location-includes"
   printf '# location\n' >"$APP_REPO_DIR/openresty/http-location-includes/unsafe filename.conf"
+}
+
+setup_openresty_readiness_healthcheck() {
+  local APP="$1"
+  local APP_REPO_DIR="$2"
+  [[ -z "$APP" ]] && local APP="$TEST_APP"
+  APP_REPO_DIR="$(realpath "$APP_REPO_DIR")"
+
+  convert_to_dockerfile "$APP" "$APP_REPO_DIR"
+  mv "$APP_REPO_DIR/app-readiness.json" "$APP_REPO_DIR/app.json"
+}
+
+setup_openresty_readiness_healthcheck_headers() {
+  local APP="$1"
+  local APP_REPO_DIR="$2"
+  [[ -z "$APP" ]] && local APP="$TEST_APP"
+  APP_REPO_DIR="$(realpath "$APP_REPO_DIR")"
+
+  convert_to_dockerfile "$APP" "$APP_REPO_DIR"
+  jq '.healthchecks.web[0].httpHeaders = [{"name": "X-Check", "value": "dokku"}, {"name": "Host", "value": "check.dokku.me"}]' "$APP_REPO_DIR/app-readiness.json" >"$APP_REPO_DIR/app.json"
 }

@@ -180,6 +180,18 @@ A healthcheck entry takes the following properties:
 
 See the [docker-container-healthchecker](https://github.com/dokku/docker-container-healthchecker) documentation for more details on how healthchecks are interpreted.
 
+### Healthchecks and label-based proxies
+
+When using the `docker-local` scheduler, the `nginx` proxy only routes traffic to new containers once healthchecks have passed. The `caddy`, `haproxy`, `openresty`, and `traefik` proxies instead discover containers via docker labels, which are attached when a container is created, and will route requests to a new container as soon as it is running. As Dokku's healthchecks are run from the host, these proxies are not aware of their result.
+
+To reduce the number of requests routed to a container that is not yet ready, the first `readiness` healthcheck with a `path` for the `web` process is translated into proxy-specific configuration:
+
+- [Caddy](/docs/networking/proxies/caddy.md#healthchecks): Active healthchecks against the `path`, and retries of failed requests against other containers.
+- [OpenResty](/docs/networking/proxies/openresty.md#healthchecks): Active healthchecks against the `path`, and retries of failed requests against other containers.
+- [Traefik](/docs/networking/proxies/traefik.md#healthchecks): Active healthchecks against the `path`.
+
+Haproxy does not support this configuration. Healthchecks of other types are not translated, as proxy healthchecks run for the lifetime of a container. Translating a `startup` healthcheck would turn it into a `readiness` healthcheck.
+
 ## Manually invoking checks
 
 Checks can also be manually invoked via the `checks:run` command. This can be used to check the status of an application via cron to provide integration with external healthchecking software.
