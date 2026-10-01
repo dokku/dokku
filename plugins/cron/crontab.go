@@ -2,6 +2,7 @@ package cron
 
 import (
 	_ "embed"
+	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
@@ -15,6 +16,9 @@ import (
 
 //go:embed templates/cron.tmpl
 var cronTemplate string
+
+// crontabUser is the user whose crontab the host-cron tasks are written to
+const crontabUser = "dokku"
 
 // usesHostCron reports whether the given scheduler writes its cron tasks to the
 // host crontab (as opposed to managing its own cron backend). An empty scheduler
@@ -50,36 +54,114 @@ func hostCronSchedulers(appSchedulers []string) map[string]bool {
 	return schedulers
 }
 
-// injectedCronTasks parses the tasks injected via the cron-entries trigger for a
-// given scheduler. Each entry is newline delimited in the form
-// $SCHEDULE;$COMMAND[;$LOGFILE].
-func injectedCronTasks(scheduler string) ([]CronTask, error) {
+// CronEntryFormat is passed to the cron-entries trigger to signal that each
+// entry may be printed as a json object on its own line. Implementations that
+// do not know it keep printing $SCHEDULE;$COMMAND[;$LOGFILE] lines, which are
+// still read.
+const CronEntryFormat = "json"
+
+// injectedCronEntry is a task printed as a json line by the cron-entries trigger
+type injectedCronEntry struct {
+	// Schedule is the cron schedule
+	Schedule string `json:"schedule"`
+
+	// Command is the command to run
+	Command string `json:"command"`
+
+	// LogFile is the log file the command's output is appended to
+	LogFile string `json:"log-file"`
+
+	// Mailto is the MAILTO value cron uses for the task instead of the global one
+	Mailto string `json:"mailto"`
+}
+
+// parseInjectedCronEntry parses a single line printed by the cron-entries
+// trigger, either a json object or in the form $SCHEDULE;$COMMAND[;$LOGFILE].
+// The fields the task id is generated from are returned alongside the task.
+func parseInjectedCronEntry(line string) (injectedCronEntry, []string, bool) {
+	if strings.HasPrefix(strings.TrimSpace(line), "{") {
+		entry := injectedCronEntry{}
+		if err := json.Unmarshal([]byte(line), &entry); err != nil {
+			return injectedCronEntry{}, nil, false
+		}
+		if entry.Schedule == "" || entry.Command == "" {
+			return injectedCronEntry{}, nil, false
+		}
+
+		// json can encode a newline, which would add a line to the crontab
+		fields := []string{entry.Schedule, entry.Command, entry.LogFile, entry.Mailto}
+		for _, field := range fields {
+			if strings.ContainsAny(field, "\r\n") {
+				return injectedCronEntry{}, nil, false
+			}
+		}
+
+		fields = []string{entry.Schedule, entry.Command}
+		if entry.LogFile != "" {
+			fields = append(fields, entry.LogFile)
+		}
+		if entry.Mailto != "" {
+			fields = append(fields, entry.Mailto)
+		}
+		return entry, fields, true
+	}
+
+	parts := strings.Split(line, ";")
+	if len(parts) != 2 && len(parts) != 3 {
+		return injectedCronEntry{}, nil, false
+	}
+
+	entry := injectedCronEntry{
+		Schedule: parts[0],
+		Command:  parts[1],
+	}
+	if len(parts) == 3 {
+		entry.LogFile = parts[2]
+	}
+	return entry, parts, true
+}
+
+// parseInjectedCronEntries parses the newline delimited output of the
+// cron-entries trigger, returning the tasks and any lines that are not valid
+// entries
+func parseInjectedCronEntries(output string) ([]CronTask, []string) {
 	tasks := []CronTask{}
+	invalid := []string{}
+	for _, line := range strings.Split(output, "\n") {
+		if strings.TrimSpace(line) == "" {
+			continue
+		}
+
+		entry, fields, ok := parseInjectedCronEntry(line)
+		if !ok {
+			invalid = append(invalid, line)
+			continue
+		}
+
+		tasks = append(tasks, CronTask{
+			ID:          base36.EncodeToStringLc([]byte(strings.Join(fields, ";;;"))),
+			Schedule:    entry.Schedule,
+			Command:     entry.Command,
+			AltCommand:  entry.Command,
+			LogFile:     entry.LogFile,
+			Mailto:      entry.Mailto,
+			Maintenance: false,
+		})
+	}
+	return tasks, invalid
+}
+
+// injectedCronTasks parses the tasks injected via the cron-entries trigger for a
+// given scheduler
+func injectedCronTasks(scheduler string) ([]CronTask, error) {
 	response, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
 		Trigger: "cron-entries",
-		Args:    []string{scheduler},
+		Args:    []string{scheduler, CronEntryFormat},
 	})
-	for _, line := range strings.Split(response.StdoutContents(), "\n") {
-		if strings.TrimSpace(line) == "" {
-			return []CronTask{}, nil
-		}
 
-		parts := strings.Split(line, ";")
-		if len(parts) != 2 && len(parts) != 3 {
-			return []CronTask{}, fmt.Errorf("Invalid injected cron task: %v", line)
-		}
-
-		id := base36.EncodeToStringLc([]byte(strings.Join(parts, ";;;")))
-		task := CronTask{
-			ID:          id,
-			Schedule:    parts[0],
-			AltCommand:  parts[1],
-			Maintenance: false,
-		}
-		if len(parts) == 3 {
-			task.LogFile = parts[2]
-		}
-		tasks = append(tasks, task)
+	tasks, invalid := parseInjectedCronEntries(response.StdoutContents())
+	if len(invalid) > 0 {
+		return []CronTask{}, fmt.Errorf("Invalid injected cron task: %v", invalid[0])
 	}
 	return tasks, nil
 }
@@ -179,12 +261,7 @@ func writeCronTab() error {
 
 	mailfrom := common.PropertyGetDefault("cron", "--global", "mailfrom", DefaultProperties["mailfrom"])
 	mailto := common.PropertyGetDefault("cron", "--global", "mailto", DefaultProperties["mailto"])
-
-	data := map[string]interface{}{
-		"Tasks":    tasks,
-		"Mailfrom": mailfrom,
-		"Mailto":   mailto,
-	}
+	data := cronTemplateData(tasks, mailfrom, mailto)
 
 	t, err := getCronTemplate()
 	if err != nil {
@@ -205,7 +282,7 @@ func writeCronTab() error {
 
 	result, err := common.CallExecCommand(common.ExecCommandInput{
 		Command: "crontab",
-		Args:    []string{"-u", "dokku", tmpFile.Name()},
+		Args:    []string{"-u", crontabUser, tmpFile.Name()},
 	})
 	if err != nil {
 		return fmt.Errorf("Unable to update schedule file: %w", err)
@@ -219,11 +296,30 @@ func writeCronTab() error {
 	return nil
 }
 
+// cronTemplateData builds the data the cron template is executed with. A task
+// that sets its own MAILTO is written between a MAILTO line of its own and one
+// resetting it, so every task after it goes back to the global MAILTO. Without
+// a global MAILTO it is reset to the crontab's owner, which is who cron mails
+// when MAILTO is unset - an empty MAILTO would stop cron mailing anyone.
+func cronTemplateData(tasks []CronTask, mailfrom string, mailto string) map[string]interface{} {
+	resetMailto := mailto
+	if resetMailto == "" {
+		resetMailto = crontabUser
+	}
+
+	return map[string]interface{}{
+		"Tasks":       tasks,
+		"Mailfrom":    mailfrom,
+		"Mailto":      mailto,
+		"ResetMailto": resetMailto,
+	}
+}
+
 // deleteCrontab removes the dokku user crontab
 func deleteCrontab() error {
 	result, err := common.CallExecCommand(common.ExecCommandInput{
 		Command: "crontab",
-		Args:    []string{"-l", "-u", "dokku"},
+		Args:    []string{"-l", "-u", crontabUser},
 	})
 	if err != nil || result.ExitCode != 0 {
 		return nil
@@ -231,7 +327,7 @@ func deleteCrontab() error {
 
 	result, err = common.CallExecCommand(common.ExecCommandInput{
 		Command: "crontab",
-		Args:    []string{"-r", "-u", "dokku"},
+		Args:    []string{"-r", "-u", crontabUser},
 	})
 	if err != nil {
 		return fmt.Errorf("Unable to remove schedule file: %w", err)
