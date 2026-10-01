@@ -127,7 +127,8 @@ EOF
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "MAILTO=global@example.com"
+  # once in the header, and once to reset it after the task with its own
+  assert_output_contains "MAILTO=global@example.com" 2
   assert_output_contains "@daily /bin/true"
   assert_output_contains "MAILTO=ops@example.com"
   assert_output_contains "@hourly /bin/false 2>&1 | tee -a /var/log/dokku/log.log"
