@@ -154,6 +154,7 @@ The following plugins are available and provided by Dokku maintainers.  Please f
 | ------------------------------------------------------------------------------------------------- | --------------------- | --------------------- |
 | [Chef cookbook](https://github.com/nickcharlton/dokku-cookbook)                                   | [nickcharlton][]      |                       |
 | [Discourse](https://github.com/badsyntax/dokku-discourse)                                         | [badsyntax][]         | 0.21.4+               |
+| [LibreDB Studio (database GUI)](https://github.com/libredb/dokku-libredb-studio)                  | [libredb][]           | 0.35.20+              |
 | [Tailscale](https://github.com/andrew-womeldorf/dokku-tailscale)                                  | [andrew-womeldorf][]  | 0.34.4+               |
 | [Wordpress](https://github.com/dokku-community/dokku-wordpress)                                   | [dokku-community][]   | 0.4.0+                |
 
@@ -336,3 +337,4 @@ The following plugins are no longer maintained by their developers.
 [ollej]: https://github.com/ollej
 [ignisda]: https://github.com/IgnisDa
 [meteozond]: https://github.com/meteozond
+[libredb]: https://github.com/libredb
