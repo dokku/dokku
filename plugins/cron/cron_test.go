@@ -101,6 +101,38 @@ func TestDokkuRunCommandAltCommandWithLogFile(t *testing.T) {
 	}
 }
 
+// TestDokkuRunCommandAltCommandWithMailto pins that an injected task with its
+// own MAILTO keeps its output on stdout, where cron mails it from, while still
+// appending it to the log file.
+func TestDokkuRunCommandAltCommandWithMailto(t *testing.T) {
+	task := CronTask{
+		ID:         "abc123",
+		AltCommand: "/usr/bin/some-internal-task",
+		LogFile:    "/var/log/dokku/internal-task.log",
+		Mailto:     "ops@example.com",
+	}
+
+	got := task.DokkuRunCommand()
+	want := "/usr/bin/some-internal-task 2>&1 | tee -a /var/log/dokku/internal-task.log"
+	if got != want {
+		t.Errorf("DokkuRunCommand() = %q, want %q", got, want)
+	}
+}
+
+func TestDokkuRunCommandAltCommandWithMailtoAndNoLogFile(t *testing.T) {
+	task := CronTask{
+		ID:         "abc123",
+		AltCommand: "/usr/bin/some-internal-task",
+		Mailto:     "ops@example.com",
+	}
+
+	got := task.DokkuRunCommand()
+	want := "/usr/bin/some-internal-task"
+	if got != want {
+		t.Errorf("DokkuRunCommand() = %q, want %q", got, want)
+	}
+}
+
 // TestDokkuRunCommandAppTaskIgnoresLogFile pins that LogFile is honored only
 // for internally injected tasks from the cron-entries trigger. App tasks never
 // interpolate a path into the crontab line - their output is shipped by the

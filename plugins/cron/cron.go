@@ -3,7 +3,6 @@ package cron
 import (
 	"fmt"
 	"strconv"
-	"strings"
 
 	appjson "github.com/dokku/dokku/plugins/app-json"
 	"github.com/dokku/dokku/plugins/common"
@@ -85,6 +84,9 @@ type CronTask struct {
 	// LogFile is the log file to write to
 	LogFile string `json:"-"`
 
+	// Mailto is the MAILTO value cron uses for this task instead of the global one
+	Mailto string `json:"mailto,omitempty"`
+
 	// AppInMaintenance is whether the app's cron is in maintenance mode
 	AppInMaintenance bool `json:"app-in-maintenance"`
 
@@ -98,6 +100,10 @@ type CronTask struct {
 // DokkuRunCommand returns the dokku run command to execute for a given cron task
 func (t CronTask) DokkuRunCommand() string {
 	if t.AltCommand != "" {
+		if t.LogFile != "" && t.Mailto != "" {
+			// keep the output on stdout so cron mails it to the task's MAILTO
+			return fmt.Sprintf("%s 2>&1 | tee -a %s", t.AltCommand, t.LogFile)
+		}
 		if t.LogFile != "" {
 			return fmt.Sprintf("%s &>> %s", t.AltCommand, t.LogFile)
 		}
@@ -210,37 +216,17 @@ func FetchCronTasks(input FetchCronTasksInput) ([]CronTask, error) {
 // This function should only be used for the cron:list --global command
 // and not internally by the cron plugin
 func FetchGlobalCronTasks() ([]CronTask, error) {
-	tasks := []CronTask{}
 	response, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
 		Trigger: "cron-entries",
-		Args:    []string{"docker-local"},
+		Args:    []string{"docker-local", CronEntryFormat},
 	})
-	for _, line := range strings.Split(response.StdoutContents(), "\n") {
-		if strings.TrimSpace(line) == "" {
-			continue
-		}
 
-		parts := strings.Split(line, ";")
-		if len(parts) != 2 && len(parts) != 3 {
-			common.LogWarn(fmt.Sprintf("Invalid injected cron task: %v", line))
-			continue
-		}
-
-		id := base36.EncodeToStringLc([]byte(strings.Join(parts, ";;;")))
-		task := CronTask{
-			ID:                id,
-			Schedule:          parts[0],
-			Command:           parts[1],
-			AltCommand:        parts[1],
-			Global:            true,
-			Maintenance:       false,
-			TaskInMaintenance: false,
-			AppInMaintenance:  false,
-		}
-		if len(parts) == 3 {
-			task.LogFile = parts[2]
-		}
-		tasks = append(tasks, task)
+	tasks, invalid := parseInjectedCronEntries(response.StdoutContents())
+	for _, line := range invalid {
+		common.LogWarn(fmt.Sprintf("Invalid injected cron task: %v", line))
+	}
+	for i := range tasks {
+		tasks[i].Global = true
 	}
 	return tasks, nil
 }

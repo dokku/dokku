@@ -104,6 +104,54 @@ teardown() {
   assert_failure
 }
 
+@test "(cron) injected json entries" {
+  cat >/var/lib/dokku/plugins/enabled/cron-entries/cron-entries <<'EOF'
+#!/usr/bin/env bash
+[[ "$2" == "json" ]] || exit 0
+echo '@daily;/bin/true'
+echo '{"schedule":"@hourly","command":"/bin/false","log-file":"/var/log/dokku/log.log","mailto":"ops@example.com"}'
+EOF
+  chmod +x /var/lib/dokku/plugins/enabled/cron-entries/cron-entries
+
+  run /bin/bash -c "dokku cron:set --global mailto global@example.com"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku plugin:trigger scheduler-cron-write"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "cat /var/spool/cron/crontabs/dokku"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  # once in the header, and once to reset it after the task with its own
+  assert_output_contains "MAILTO=global@example.com" 2
+  assert_output_contains "@daily /bin/true"
+  assert_output_contains "MAILTO=ops@example.com"
+  assert_output_contains "@hourly /bin/false 2>&1 | tee -a /var/log/dokku/log.log"
+
+  # the global MAILTO is restored for every task after the one with its own
+  run /bin/bash -c "grep -A1 -F 'tee -a /var/log/dokku/log.log' /var/spool/cron/crontabs/dokku | tail -n 1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "MAILTO=global@example.com"
+
+  run /bin/bash -c "dokku cron:list --global --format json | jq -r '.[] | select(.schedule == \"@hourly\") | .mailto'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "ops@example.com"
+
+  run /bin/bash -c "dokku cron:set --global mailto"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
 @test "(cron) invalid [command]" {
   run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP template_cron_file_injection
   echo "output: $output"
