@@ -123,7 +123,7 @@ At this time, the following dokku commands are used to implement a complete sche
     - triggers: post-app-clone-setup
 - `cron`: generates cron tasks for the app
     - triggers: scheduler-uses-host-cron, scheduler-cron-write
-- `deploy`: deploys app proceses and checks the status of a deploy
+- `deploy`: deploys app processes and checks the status of a deploy
     - triggers: scheduler-app-status, scheduler-deploy, scheduler-is-deployed, scheduler-logs-failed
 - `enter`: enters a running container
     - triggers: scheduler-enter

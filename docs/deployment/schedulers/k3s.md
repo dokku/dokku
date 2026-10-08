@@ -1090,7 +1090,7 @@ See the [Kustomize](https://kustomize.io/) website for more details on how to us
 ### Using kubectl remotely
 
 > [!WARNING]
-> Certain ports must be open for interacting with the remote kubernets api. Refer to the [K3s networking documentation](https://docs.k3s.io/installation/requirements?os=debian#networking) for the required open ports between servers prior to running the command.
+> Certain ports must be open for interacting with the remote kubernetes api. Refer to the [K3s networking documentation](https://docs.k3s.io/installation/requirements?os=debian#networking) for the required open ports between servers prior to running the command.
 
 By default, Dokku assumes that all it controls all actions on the cluster, and thus does not expose the `kubectl` binary for administrators. To interact with kubectl, you will need to retrieve the `kubeconfig` for the cluster and configure your client to use that configuration.
 
