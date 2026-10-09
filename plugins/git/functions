@@ -152,7 +152,8 @@ git_receive_app() {
   else
     local exit_code=0
     acquire_app_deploy_lock "$APP" "exclusive"
-    git_build "$APP" "$REV" || exit_code="$?"
+    # Build helpers may exit on failure. Keep lock cleanup in the parent shell.
+    (git_build "$APP" "$REV") || exit_code="$?"
     release_app_deploy_lock "$APP" "$exit_code"
     return "$exit_code"
   fi
