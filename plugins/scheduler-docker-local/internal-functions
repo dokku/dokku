@@ -209,6 +209,11 @@ fn-scheduler-docker-local-retire-images() {
       continue
     fi
 
+    if fn-scheduler-docker-local-image-is-app-latest "$RETIRE_APP" "$STATE"; then
+      dokku_log_warn "Image ${IMAGE_ID} is the current image for ${RETIRE_APP}, skipping rm"
+      continue
+    fi
+
     dokku_log_verbose_quiet "Attempting to retire $RETIRE_APP image $IMAGE_ID"
     if RM_OUTPUT="$("$DOCKER_BIN" image remove "$IMAGE_ID" 2>&1)"; then
       DEAD_IMAGES+=("$IMAGE_ID")
@@ -245,6 +250,15 @@ fn-scheduler-docker-local-retire-images() {
   done
 
   sort -o "$DEAD_IMAGE_FILE" -r "$DEAD_IMAGE_FILE"
+}
+
+fn-scheduler-docker-local-image-is-app-latest() {
+  declare desc="returns 0 if IMAGE_ID is the image currently tagged as the app's latest image"
+  declare APP="$1" IMAGE_ID="$2"
+  local LATEST_IMAGE_ID
+
+  LATEST_IMAGE_ID="$("$DOCKER_BIN" image inspect --format "{{ .Id }}" "$(get_app_image_repo "$APP"):latest" 2>/dev/null || true)"
+  [[ -n "$LATEST_IMAGE_ID" ]] && [[ "$LATEST_IMAGE_ID" == "$IMAGE_ID" ]]
 }
 
 fn-scheduler-docker-local-register-retired() {
