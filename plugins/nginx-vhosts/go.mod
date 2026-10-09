@@ -33,7 +33,7 @@ require (
 	github.com/rogpeppe/go-internal v1.15.0 // indirect
 	github.com/ryanuber/columnize v2.1.2+incompatible // indirect
 	golang.org/x/crypto v0.57.0 // indirect
-	golang.org/x/sync v0.23.0 // indirect
+	golang.org/x/sync v0.24.0 // indirect
 	golang.org/x/sys v0.48.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
