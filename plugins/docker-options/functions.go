@@ -51,19 +51,20 @@ func CommandAdd(appName string, processes []string, phasesArg string, option str
 		WarnIfProcessNotInProcfile(appName, processType)
 	}
 
-	for _, opt := range options {
-		if len(processes) == 0 {
-			if err := AddDockerOptionToPhases(appName, phases, opt); err != nil {
+	return withAppLock(appName, func() error {
+		for _, opt := range options {
+			if len(processes) == 0 {
+				if err := addDockerOptionToProcessPhases(appName, []string{DefaultProcessType}, phases, opt); err != nil {
+					return err
+				}
+				continue
+			}
+			if err := addDockerOptionToProcessPhases(appName, processes, phases, opt); err != nil {
 				return err
 			}
-			continue
 		}
-		if err := AddDockerOptionToProcessPhases(appName, processes, phases, opt); err != nil {
-			return err
-		}
-	}
-
-	return nil
+		return nil
+	})
 }
 
 // CommandRemove removes a docker option from the specified phases for an app.
@@ -94,19 +95,20 @@ func CommandRemove(appName string, processes []string, phasesArg string, option 
 		return err
 	}
 
-	for _, opt := range options {
-		if len(processes) == 0 {
-			if err := RemoveDockerOptionFromPhases(appName, phases, opt); err != nil {
+	return withAppLock(appName, func() error {
+		for _, opt := range options {
+			if len(processes) == 0 {
+				if err := removeDockerOptionFromProcessPhases(appName, []string{DefaultProcessType}, phases, opt); err != nil {
+					return err
+				}
+				continue
+			}
+			if err := removeDockerOptionFromProcessPhases(appName, processes, phases, opt); err != nil {
 				return err
 			}
-			continue
 		}
-		if err := RemoveDockerOptionFromProcessPhases(appName, processes, phases, opt); err != nil {
-			return err
-		}
-	}
-
-	return nil
+		return nil
+	})
 }
 
 // dedupeProcesses preserves order while collapsing repeated process names,
@@ -134,33 +136,35 @@ func CommandClear(appName string, processes []string, phasesArg string) error {
 		return err
 	}
 
-	if len(processes) == 0 {
-		return clearDefaultScope(appName, phasesArg)
-	}
+	return withAppLock(appName, func() error {
+		if len(processes) == 0 {
+			return clearDefaultScope(appName, phasesArg)
+		}
 
-	phases, err := parsePhases(phasesArg)
-	if err != nil {
-		return err
-	}
+		phases, err := parsePhases(phasesArg)
+		if err != nil {
+			return err
+		}
 
-	if len(phases) == 0 {
-		phases = []string{"deploy"}
-	}
+		if len(phases) == 0 {
+			phases = []string{"deploy"}
+		}
 
-	if err := ValidateProcessFlag(processes, phases); err != nil {
-		return err
-	}
+		if err := ValidateProcessFlag(processes, phases); err != nil {
+			return err
+		}
 
-	for _, processType := range processes {
-		for _, phase := range phases {
-			common.LogInfo1(fmt.Sprintf("Clearing docker-options for %s on phase %s for process %s", appName, phase, processType))
-			if err := common.PropertyDelete("docker-options", appName, propertyKey(processType, phase)); err != nil {
-				return err
+		for _, processType := range processes {
+			for _, phase := range phases {
+				common.LogInfo1(fmt.Sprintf("Clearing docker-options for %s on phase %s for process %s", appName, phase, processType))
+				if err := common.PropertyDelete("docker-options", appName, propertyKey(processType, phase)); err != nil {
+					return err
+				}
 			}
 		}
-	}
 
-	return nil
+		return nil
+	})
 }
 
 func clearDefaultScope(appName string, phasesArg string) error {
