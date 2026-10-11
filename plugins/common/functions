@@ -789,7 +789,7 @@ docker_cleanup() {
   declare APP="$1" FORCE_CLEANUP="$2"
   local DOKKU_APP_SKIP_CLEANUP
 
-  "$PLUGIN_CORE_AVAILABLE_PATH/common/common" --quiet docker-cleanup "$APP"
+  "$PLUGIN_CORE_AVAILABLE_PATH/common/common" --quiet docker-cleanup "$APP" "$FORCE_CLEANUP"
 }
 
 dokku_auth() {
