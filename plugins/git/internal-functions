@@ -279,31 +279,57 @@ cmd-git-sync() {
   fi
 
   local APP_ROOT="$DOKKU_ROOT/$APP"
-  DOKKU_DEPLOY_BRANCH="$(fn-git-computed-deploy-branch "$APP")"
-  CURRENT_REF="$(fn-git-cmd "$APP_ROOT" rev-parse "$DOKKU_DEPLOY_BRANCH" 2>/dev/null || true)"
+  local APP_DEPLOY_LOCK_FILE="$DOKKU_LIB_ROOT/data/apps/$APP/.deploy.lock"
+  local fetch_exit_code=0
 
   dokku_setup_build_capture "$APP" "git:sync"
 
-  if ! fn-git-cmd "$APP_ROOT" rev-parse "$DOKKU_DEPLOY_BRANCH" &>/dev/null; then
-    dokku_log_info1_quiet "Cloning $APP from $GIT_REMOTE#$GIT_REF"
-    fn-git-clone "$APP" "$GIT_REMOTE" "$GIT_REF" "$SKIP_DEPLOY_BRANCH"
-  else
-    dokku_log_verbose "Fetching remote code for $APP from $GIT_REMOTE#$GIT_REF"
-    fn-git-fetch "$APP" "$GIT_REMOTE" "$GIT_REF"
+  # acquire_app_deploy_lock is not used as releasing it would finalize the
+  # build record before the build starts
+  acquire_advisory_lock "$APP_DEPLOY_LOCK_FILE" "exclusive" "$APP currently has a deploy lock in place. Waiting..." "$APP currently has a deploy lock in place. Exiting..."
+
+  DOKKU_DEPLOY_BRANCH="$(fn-git-computed-deploy-branch "$APP")"
+  CURRENT_REF="$(fn-git-cmd "$APP_ROOT" rev-parse "$DOKKU_DEPLOY_BRANCH" 2>/dev/null || true)"
+
+  # the subshell keeps set -e active and ensures the lock is released on failure
+  set +e
+  (
+    set -e
+    if ! fn-git-cmd "$APP_ROOT" rev-parse "$DOKKU_DEPLOY_BRANCH" &>/dev/null; then
+      dokku_log_info1_quiet "Cloning $APP from $GIT_REMOTE#$GIT_REF"
+      fn-git-clone "$APP" "$GIT_REMOTE" "$GIT_REF" "$SKIP_DEPLOY_BRANCH"
+    else
+      dokku_log_verbose "Fetching remote code for $APP from $GIT_REMOTE#$GIT_REF"
+      fn-git-fetch "$APP" "$GIT_REMOTE" "$GIT_REF"
+    fi
+  )
+  fetch_exit_code="$?"
+  set -e
+
+  if [[ "$fetch_exit_code" -ne 0 ]]; then
+    release_advisory_lock "$APP_DEPLOY_LOCK_FILE"
+    return "$fetch_exit_code"
   fi
 
   UPDATED_REF="$(fn-git-cmd "$APP_ROOT" rev-parse "$DOKKU_DEPLOY_BRANCH" 2>/dev/null || true)"
   local SHOULD_BUILD=false
   if [[ "$FLAG" == "--build" ]]; then
     SHOULD_BUILD=true
-  elif [[ "$FLAG" == "--build-if-changes" ]]; then
-    if [[ "$CURRENT_REF" == "$UPDATED_REF" ]]; then
-      dokku_log_verbose "Skipping build as no changes were detected"
-      dokku_discard_build_capture "$APP"
-      return
-    fi
-
+  elif [[ "$FLAG" == "--build-if-changes" ]] && [[ "$CURRENT_REF" != "$UPDATED_REF" ]]; then
     SHOULD_BUILD=true
+  fi
+
+  # the synced code is kept even if the build fails, so the source-image is
+  # cleared rather than restored on failure
+  if [[ "$CURRENT_REF" != "$UPDATED_REF" ]] || [[ "$SHOULD_BUILD" == "true" ]]; then
+    fn-plugin-property-write "git" "$APP" "source-image"
+  fi
+  release_advisory_lock "$APP_DEPLOY_LOCK_FILE"
+
+  if [[ "$FLAG" == "--build-if-changes" ]] && [[ "$SHOULD_BUILD" == "false" ]]; then
+    dokku_log_verbose "Skipping build as no changes were detected"
+    dokku_discard_build_capture "$APP"
+    return
   fi
 
   if [[ "$SHOULD_BUILD" == "true" ]]; then

@@ -60,7 +60,8 @@ trigger-git-git-from-directory() {
   fi
 
   rm -rf "$TMP_WORK_DIR" "$TMP_WORK_DIR_2" >/dev/null
-  if git_receive_app "$APP" "$REV"; then
+  # run in a subshell so a failure to acquire the deploy lock still reaches the rollback
+  if (git_receive_app "$APP" "$REV"); then
     return
   else
     local exit_code=$?

@@ -10,9 +10,72 @@ setup() {
 }
 
 teardown() {
+  release_deploy_lock
+  docker image rm "dokku-test/$TEST_APP:second-procfile" "dokku-test/$TEST_APP:default-procfile" &>/dev/null || true
   rm -f /home/dokku/.ssh/id_rsa.pub || true
   destroy_app
   global_teardown
+}
+
+build_python_image() {
+  declare TAG="$1" PROCFILE="$2"
+  local TMP_IMAGE_DIR exit_code=0
+  TMP_IMAGE_DIR="$(mktemp -d "/tmp/${DOKKU_DOMAIN}.XXXXX")"
+  cp -r "${BATS_TEST_DIRNAME}/../../tests/apps/python/." "$TMP_IMAGE_DIR"
+  if [[ -n "$PROCFILE" ]]; then
+    cp "$TMP_IMAGE_DIR/$PROCFILE" "$TMP_IMAGE_DIR/Procfile"
+  fi
+
+  docker image build -t "dokku-test/$TEST_APP:$TAG" -f "$TMP_IMAGE_DIR/alt.Dockerfile" "$TMP_IMAGE_DIR" || exit_code="$?"
+  rm -rf "$TMP_IMAGE_DIR"
+  return "$exit_code"
+}
+
+deploy_second_procfile_image() {
+  run build_python_image second-procfile second.Procfile
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:from-image $TEST_APP dokku-test/$TEST_APP:second-procfile"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku plugin:trigger procfile-get-command $TEST_APP web 5001"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "second.Procfile"
+}
+
+hold_deploy_lock() {
+  DEPLOY_LOCK_FILE="$DOKKU_LIB_ROOT/data/apps/$TEST_APP/.deploy.lock"
+  sudo -u dokku flock -o "$DEPLOY_LOCK_FILE" sleep 120 >/dev/null 2>&1 3>&- &
+  DEPLOY_LOCK_HOLDER_PID="$!"
+
+  local i
+  for i in $(seq 1 20); do
+    if ! flock -n "$DEPLOY_LOCK_FILE" true; then
+      return 0
+    fi
+    sleep 0.5
+  done
+
+  echo "unable to acquire the deploy lock for $TEST_APP"
+  return 1
+}
+
+release_deploy_lock() {
+  if [[ -z "$DEPLOY_LOCK_HOLDER_PID" ]]; then
+    return 0
+  fi
+
+  kill "$DEPLOY_LOCK_HOLDER_PID" &>/dev/null || true
+  wait "$DEPLOY_LOCK_HOLDER_PID" &>/dev/null || true
+  pkill -u dokku -f "flock -o $DEPLOY_LOCK_FILE" &>/dev/null || true
+  rm -f "$DEPLOY_LOCK_FILE"
+  DEPLOY_LOCK_HOLDER_PID=""
 }
 
 @test "(git) git:from-image [missing]" {
@@ -141,6 +204,12 @@ teardown() {
   assert_failure
   assert_output "fatal: this operation must be run in a work tree"
 
+  run /bin/bash -c "dokku git:report $TEST_APP --git-source-image"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
   run /bin/bash -c "dokku config:set --no-restart $TEST_APP FAIL_ON_STARTUP=false"
   echo "output: $output"
   echo "status: $status"
@@ -150,6 +219,12 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-source-image"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "dokku-test/$TEST_APP:latest"
 
   run /bin/bash -c "dokku config:set --no-restart $TEST_APP FAIL_ON_STARTUP=true"
   echo "output: $output"
@@ -161,6 +236,12 @@ teardown() {
   echo "status: $status"
   assert_failure
 
+  run /bin/bash -c "dokku git:report $TEST_APP --git-source-image"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "dokku-test/$TEST_APP:latest"
+
   run /bin/bash -c "dokku config:set --no-restart $TEST_APP FAIL_ON_STARTUP=false"
   echo "output: $output"
   echo "status: $status"
@@ -171,6 +252,12 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_contains "No changes detected, skipping git commit" 0
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-source-image"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "dokku-test/$TEST_APP:v2"
 
   run /bin/bash -c "docker image rm dokku-test/$TEST_APP:latest dokku-test/$TEST_APP:v2"
   echo "output: $output"
@@ -248,4 +335,208 @@ EOF
   echo "status: $status"
   assert_success
   assert_output_contains "linuxserver/foldingathome:7.6.21"
+}
+
+@test "(git) git:from-image source-image after failed deploy and ps:rebuild" {
+  deploy_second_procfile_image
+
+  run build_python_image default-procfile
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku config:set --no-restart $TEST_APP FAIL_ON_STARTUP=true"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:from-image $TEST_APP dokku-test/$TEST_APP:default-procfile"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-source-image"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "dokku-test/$TEST_APP:second-procfile"
+
+  run /bin/bash -c "dokku config:set --no-restart $TEST_APP FAIL_ON_STARTUP=false"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-source-image"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "dokku-test/$TEST_APP:second-procfile"
+
+  run /bin/bash -c "dokku plugin:trigger procfile-get-command $TEST_APP web 5001"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "second.Procfile"
+  assert_output_contains "first.Procfile" 0
+}
+
+@test "(git) git:from-image then git:from-archive ignores the previous source-image" {
+  deploy_second_procfile_image
+
+  run /bin/bash -c "dokku config:set --no-restart $TEST_APP FAIL_ON_STARTUP=true"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "tar -C ${BATS_TEST_DIRNAME}/../../tests/apps -cf - python | dokku git:from-archive $TEST_APP --"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-source-image"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "dokku-test/$TEST_APP:second-procfile"
+
+  run /bin/bash -c "dokku config:set --no-restart $TEST_APP FAIL_ON_STARTUP=false"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "tar -C ${BATS_TEST_DIRNAME}/../../tests/apps -cf - python | dokku git:from-archive $TEST_APP --"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-source-image"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku plugin:trigger procfile-get-command $TEST_APP web 5001"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "first.Procfile"
+  assert_output_contains "second.Procfile" 0
+}
+
+@test "(git) git:from-image then git push ignores the previous source-image" {
+  local TMP=$(mktemp -d "/tmp/${DOKKU_DOMAIN}.XXXXX")
+  trap 'rm -rf "$TMP"' INT TERM
+
+  deploy_second_procfile_image
+
+  rmdir "$TMP" && cp -r "${BATS_TEST_DIRNAME}/../../tests/apps/python" "$TMP"
+  run /bin/bash -c "cd $TMP && git init -q && git checkout -q -b master && git config user.email 'robot@example.com' && git config user.name 'Test Robot' && git add . && git commit -q -m 'initial commit' && git push --force dokku@${DOKKU_DOMAIN}:$TEST_APP master:master"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  rm -rf "$TMP"
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-source-image"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku plugin:trigger procfile-get-command $TEST_APP web 5001"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "first.Procfile"
+  assert_output_contains "second.Procfile" 0
+}
+
+@test "(git) git:from-image then git:sync clears the source-image" {
+  deploy_second_procfile_image
+
+  run /bin/bash -c "dokku git:sync $TEST_APP https://github.com/dokku/smoke-test-app.git 2.0.0"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-source-image"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
+  run /bin/bash -c "dokku git:from-image $TEST_APP dokku-test/$TEST_APP:second-procfile"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-source-image"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "dokku-test/$TEST_APP:second-procfile"
+
+  run /bin/bash -c "dokku git:sync --build $TEST_APP https://github.com/dokku/smoke-test-app.git 2.0.0"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-source-image"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+}
+
+@test "(git) source-image is unchanged when the deploy lock is held" {
+  deploy_second_procfile_image
+
+  run build_python_image default-procfile
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  hold_deploy_lock
+
+  run /bin/bash -c "dokku git:from-image $TEST_APP dokku-test/$TEST_APP:default-procfile"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "currently has a deploy lock in place"
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-source-image"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "dokku-test/$TEST_APP:second-procfile"
+
+  run /bin/bash -c "dokku git:sync $TEST_APP https://github.com/dokku/smoke-test-app.git 2.0.0"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "currently has a deploy lock in place"
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-source-image"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "dokku-test/$TEST_APP:second-procfile"
+
+  release_deploy_lock
+
+  run /bin/bash -c "dokku git:from-image $TEST_APP dokku-test/$TEST_APP:default-procfile"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "No changes detected, skipping git commit" 0
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-source-image"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "dokku-test/$TEST_APP:default-procfile"
 }

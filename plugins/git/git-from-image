@@ -44,8 +44,7 @@ trigger-git-git-from-image() {
     dokku_log_info1 "Image exists on host, skipping pull"
   fi
 
-  fn-plugin-property-write "git" "$APP" "source-image" "$DOCKER_IMAGE"
-  plugn trigger git-from-directory "$APP" "$TMP_WORK_DIR" "$USER_NAME" "$USER_EMAIL"
+  DOKKU_GIT_SOURCE_IMAGE="$DOCKER_IMAGE" plugn trigger git-from-directory "$APP" "$TMP_WORK_DIR" "$USER_NAME" "$USER_EMAIL"
 }
 
 trigger-git-git-from-image "$@"
