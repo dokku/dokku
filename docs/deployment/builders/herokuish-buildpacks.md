@@ -177,7 +177,7 @@ dokku config:set --global CURL_CONNECT_TIMEOUT=180
 
 ### Clearing buildpack cache
 
-See the [repository management documentation](/docs/advanced-usage/repository-management.md#clearing-app-cache) for more information on how to clear buildpack build cache for an application.
+See the [repository management documentation](/docs/advanced-usage/repository-management.md#clearing-application-cache) for more information on how to clear buildpack build cache for an application.
 
 ### Specifying commands via Procfile
 

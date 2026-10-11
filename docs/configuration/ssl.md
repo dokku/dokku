@@ -155,7 +155,7 @@ If an `https:443:*` port mapping already exists when a certificate is installed 
 
 ### Running behind a proxy (`X-Forwarded-Ssl`, etc.)
 
-See the [running behind another proxy documentation](/docs/networking/proxies/nginx.md#running-behind-another-proxy--configuring-x-forwarded--headers) for more information on how to configure your Nginx config when your server is running behind a proxy (e.g. load balancer, etc.).
+See the [running behind another proxy documentation](/docs/networking/proxies/nginx.md#running-behind-another-proxy-configuring-x-forwarded-headers) for more information on how to configure your Nginx config when your server is running behind a proxy (e.g. load balancer, etc.).
 
 ## Properties
 
