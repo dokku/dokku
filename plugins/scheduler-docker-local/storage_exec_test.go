@@ -116,3 +116,25 @@ func TestBuildDockerExecArgsMountsHostPath(t *testing.T) {
 		t.Fatalf("expected -v /srv/demo:/data, got: %s", joined)
 	}
 }
+
+func TestBuildDockerExecArgsRewritesLibHostRoot(t *testing.T) {
+	t.Setenv("DOKKU_LIB_ROOT", "/var/lib/dokku")
+	t.Setenv("DOKKU_LIB_HOST_ROOT", "/host/var/lib/dokku")
+
+	entry := &storage.Entry{
+		Name:      "demo-data",
+		Scheduler: storage.SchedulerDockerLocal,
+		HostPath:  "/var/lib/dokku/data/storage/demo-data",
+	}
+	args, err := buildDockerExecArgs(entry, StorageExecInput{
+		Image:   "alpine:3",
+		Command: []string{"ls"},
+	})
+	if err != nil {
+		t.Fatalf("err: %v", err)
+	}
+	joined := strings.Join(args, " ")
+	if !strings.Contains(joined, "-v /host/var/lib/dokku/data/storage/demo-data:/data") {
+		t.Fatalf("expected rewritten -v host path, got: %s", joined)
+	}
+}

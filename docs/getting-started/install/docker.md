@@ -87,8 +87,9 @@ Dokku is run in the following configuration:
 - Data within the container is stored on the host within the `/var/lib/dokku` directory.
 - Image build cache is set to the data dir + `/home/dokku`.
 - The docker socket is mounted into container.
+- `DOKKU_HOST_ROOT` and `DOKKU_LIB_HOST_ROOT` tell Dokku how the host Docker daemon sees those same trees when creating bind mounts (app repos and plugin data such as named storage).
 
-Application repositories, plugin config, as well as plugin data are persisted to disk within the specified host directory for `/var/lib/dokku`.
+Application repositories, plugin config, as well as plugin data are persisted to disk within the specified host directory for `/var/lib/dokku`. `DOKKU_LIB_HOST_ROOT` must point at that host path's `var/lib/dokku` subtree so Docker `-v` mounts resolve under the data volume rather than under the host's own `/var/lib/dokku`.
 
 Other docker container options can also be used when running Dokku, though the specific outcome will depend upon the specified options. For example, the Dokku container's nginx port can be bound to a specific host ip by specifying `--publish $HOST_IP:8080:80`, where `$HOST_IP` is the IP desired. Please see the [docker container run documentation](https://docs.docker.com/engine/reference/commandline/run/) for further explanation for various docker arguments.
 

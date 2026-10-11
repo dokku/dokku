@@ -107,3 +107,46 @@ func TestGetStorageDirectory(t *testing.T) {
 	dir := GetStorageDirectory()
 	Expect(dir).To(ContainSubstring("data/storage"))
 }
+
+func TestHostPathForDocker(t *testing.T) {
+	RegisterTestingT(t)
+
+	t.Setenv("DOKKU_LIB_ROOT", "/var/lib/dokku")
+
+	t.Run("unset host root leaves path unchanged", func(t *testing.T) {
+		RegisterTestingT(t)
+		t.Setenv("DOKKU_LIB_HOST_ROOT", "")
+		Expect(HostPathForDocker("/var/lib/dokku/data/storage/foo")).To(Equal("/var/lib/dokku/data/storage/foo"))
+	})
+
+	t.Run("equal host root leaves path unchanged", func(t *testing.T) {
+		RegisterTestingT(t)
+		t.Setenv("DOKKU_LIB_HOST_ROOT", "/var/lib/dokku")
+		Expect(HostPathForDocker("/var/lib/dokku/data/storage/foo")).To(Equal("/var/lib/dokku/data/storage/foo"))
+	})
+
+	t.Run("rewrites paths under lib root", func(t *testing.T) {
+		RegisterTestingT(t)
+		t.Setenv("DOKKU_LIB_HOST_ROOT", "/host/var/lib/dokku")
+		Expect(HostPathForDocker("/var/lib/dokku/data/storage/foo")).To(Equal("/host/var/lib/dokku/data/storage/foo"))
+		Expect(HostPathForDocker("/var/lib/dokku")).To(Equal("/host/var/lib/dokku"))
+	})
+
+	t.Run("leaves named volumes unchanged", func(t *testing.T) {
+		RegisterTestingT(t)
+		t.Setenv("DOKKU_LIB_HOST_ROOT", "/host/var/lib/dokku")
+		Expect(HostPathForDocker("myvolume")).To(Equal("myvolume"))
+	})
+
+	t.Run("leaves custom absolute paths unchanged", func(t *testing.T) {
+		RegisterTestingT(t)
+		t.Setenv("DOKKU_LIB_HOST_ROOT", "/host/var/lib/dokku")
+		Expect(HostPathForDocker("/srv/demo")).To(Equal("/srv/demo"))
+	})
+
+	t.Run("does not false-match similar prefixes", func(t *testing.T) {
+		RegisterTestingT(t)
+		t.Setenv("DOKKU_LIB_HOST_ROOT", "/host/var/lib/dokku")
+		Expect(HostPathForDocker("/var/lib/dokku-extra/data")).To(Equal("/var/lib/dokku-extra/data"))
+	})
+}

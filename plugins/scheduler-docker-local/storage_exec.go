@@ -137,7 +137,7 @@ func buildDockerExecArgs(entry *storage.Entry, input StorageExecInput) ([]string
 		args = append(args, "--user", user)
 	}
 
-	args = append(args, "-v", fmt.Sprintf("%s:/data", entry.HostPath))
+	args = append(args, "-v", fmt.Sprintf("%s:/data", storage.HostPathForDocker(entry.HostPath)))
 	args = append(args, input.Image)
 	args = append(args, cmd...)
 	return args, nil
