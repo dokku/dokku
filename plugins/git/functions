@@ -150,26 +150,34 @@ git_receive_app() {
   if [[ ! -d "$DOKKU_ROOT/$APP/refs" ]]; then
     true
   else
-    local exit_code=0 has_source_image=false source_image previous_source_image
+    local exit_code=0
     acquire_app_deploy_lock "$APP" "exclusive"
-
-    # DOKKU_GIT_SOURCE_IMAGE is only applied while the deploy lock is held. An
-    # empty value clears the property, while an unset variable leaves it as-is.
-    if [[ -n "${DOKKU_GIT_SOURCE_IMAGE+x}" ]]; then
-      has_source_image=true
-      source_image="$DOKKU_GIT_SOURCE_IMAGE"
-      unset DOKKU_GIT_SOURCE_IMAGE
-      previous_source_image="$(fn-git-source-image "$APP")"
-      fn-plugin-property-write "git" "$APP" "source-image" "$source_image"
-    fi
-
-    (git_build "$APP" "$REV") || exit_code="$?"
-    if [[ "$exit_code" -ne 0 ]] && [[ "$has_source_image" == "true" ]]; then
-      fn-plugin-property-write "git" "$APP" "source-image" "$previous_source_image"
-    fi
+    fn-git-build-with-lock-held "$APP" "$REV" || exit_code="$?"
     release_app_deploy_lock "$APP" "$exit_code"
     return "$exit_code"
   fi
+}
+
+fn-git-build-with-lock-held() {
+  declare desc="builds an app at a revision, expecting the caller to hold the app deploy lock"
+  declare APP="$1" REV="$2"
+  local exit_code=0 has_source_image=false source_image previous_source_image
+
+  # DOKKU_GIT_SOURCE_IMAGE is only applied while the deploy lock is held. An
+  # empty value clears the property, while an unset variable leaves it as-is.
+  if [[ -n "${DOKKU_GIT_SOURCE_IMAGE+x}" ]]; then
+    has_source_image=true
+    source_image="$DOKKU_GIT_SOURCE_IMAGE"
+    unset DOKKU_GIT_SOURCE_IMAGE
+    previous_source_image="$(fn-git-source-image "$APP")"
+    fn-plugin-property-write "git" "$APP" "source-image" "$source_image"
+  fi
+
+  (git_build "$APP" "$REV") || exit_code="$?"
+  if [[ "$exit_code" -ne 0 ]] && [[ "$has_source_image" == "true" ]]; then
+    fn-plugin-property-write "git" "$APP" "source-image" "$previous_source_image"
+  fi
+  return "$exit_code"
 }
 
 cmd-git-upload-pack() {

@@ -51,12 +51,16 @@ deploy_second_procfile_image() {
 
 hold_deploy_lock() {
   DEPLOY_LOCK_FILE="$DOKKU_LIB_ROOT/data/apps/$TEST_APP/.deploy.lock"
-  sudo -u dokku flock -o "$DEPLOY_LOCK_FILE" sleep 120 >/dev/null 2>&1 3>&- &
-  DEPLOY_LOCK_HOLDER_PID="$!"
+  DEPLOY_LOCK_HOLDER_PID_FILE="$(mktemp "/tmp/${DOKKU_DOMAIN}.XXXXX")"
+  chown dokku:dokku "$DEPLOY_LOCK_HOLDER_PID_FILE"
+
+  # the holder writes a build id like a deploy would, then becomes the sleep
+  # process so that killing its pid releases the lock
+  sudo -u dokku bash -c "exec 200>>'$DEPLOY_LOCK_FILE'; flock -n 200 || exit 1; echo test-lock-holder >'$DEPLOY_LOCK_FILE'; echo \$\$ >'$DEPLOY_LOCK_HOLDER_PID_FILE'; exec sleep 120" >/dev/null 2>&1 3>&- &
 
   local i
   for i in $(seq 1 20); do
-    if ! flock -n "$DEPLOY_LOCK_FILE" true; then
+    if [[ -s "$DEPLOY_LOCK_HOLDER_PID_FILE" ]] && ! flock -n "$DEPLOY_LOCK_FILE" true; then
       return 0
     fi
     sleep 0.5
@@ -67,15 +71,25 @@ hold_deploy_lock() {
 }
 
 release_deploy_lock() {
-  if [[ -z "$DEPLOY_LOCK_HOLDER_PID" ]]; then
+  if [[ -z "$DEPLOY_LOCK_HOLDER_PID_FILE" ]]; then
     return 0
   fi
 
-  kill "$DEPLOY_LOCK_HOLDER_PID" &>/dev/null || true
-  wait "$DEPLOY_LOCK_HOLDER_PID" &>/dev/null || true
-  pkill -u dokku -f "flock -o $DEPLOY_LOCK_FILE" &>/dev/null || true
-  rm -f "$DEPLOY_LOCK_FILE"
-  DEPLOY_LOCK_HOLDER_PID=""
+  local holder_pid i
+  if [[ -s "$DEPLOY_LOCK_HOLDER_PID_FILE" ]]; then
+    holder_pid="$(cat "$DEPLOY_LOCK_HOLDER_PID_FILE")"
+    kill "$holder_pid" &>/dev/null || true
+    for i in $(seq 1 20); do
+      kill -0 "$holder_pid" &>/dev/null || break
+      sleep 0.5
+    done
+  fi
+  rm -f "$DEPLOY_LOCK_FILE" "$DEPLOY_LOCK_HOLDER_PID_FILE"
+  DEPLOY_LOCK_HOLDER_PID_FILE=""
+}
+
+deploy_branch_rev() {
+  sudo -u dokku git -C "/home/dokku/$TEST_APP" rev-parse master
 }
 
 @test "(git) git:from-image [missing]" {
@@ -113,11 +127,21 @@ release_deploy_lock() {
   assert_output_contains "Image exists on host, skipping pull"
   assert_output_contains "No changes detected, skipping git commit"
 
+  run /bin/bash -c "dokku apps:locked $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
   run /bin/bash -c "dokku git:from-image --force $TEST_APP linuxserver/foldingathome:7.6.21"
   echo "output: $output"
   echo "status: $status"
   assert_output_contains "Force pulling image"
   assert_output_contains "No changes detected, skipping git commit"
+
+  run /bin/bash -c "dokku apps:locked $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
 }
 
 @test "(git) git:from-image [normal-custom-branch]" {
@@ -210,6 +234,11 @@ release_deploy_lock() {
   assert_success
   assert_output ""
 
+  run /bin/bash -c "dokku apps:locked $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
   run /bin/bash -c "dokku config:set --no-restart $TEST_APP FAIL_ON_STARTUP=false"
   echo "output: $output"
   echo "status: $status"
@@ -232,6 +261,11 @@ release_deploy_lock() {
   assert_success
 
   run /bin/bash -c "dokku git:from-image $TEST_APP dokku-test/$TEST_APP:v2"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku apps:locked $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_failure
@@ -500,6 +534,10 @@ EOF
   echo "status: $status"
   assert_success
 
+  local DEPLOY_REV
+  DEPLOY_REV="$(deploy_branch_rev)"
+  echo "deploy branch rev: $DEPLOY_REV"
+
   hold_deploy_lock
 
   run /bin/bash -c "dokku git:from-image $TEST_APP dokku-test/$TEST_APP:default-procfile"
@@ -514,6 +552,18 @@ EOF
   assert_success
   assert_output "dokku-test/$TEST_APP:second-procfile"
 
+  run deploy_branch_rev
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "$DEPLOY_REV"
+
+  run /bin/bash -c "cat $DEPLOY_LOCK_FILE"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "test-lock-holder"
+
   run /bin/bash -c "dokku git:sync $TEST_APP https://github.com/dokku/smoke-test-app.git 2.0.0"
   echo "output: $output"
   echo "status: $status"
@@ -525,6 +575,18 @@ EOF
   echo "status: $status"
   assert_success
   assert_output "dokku-test/$TEST_APP:second-procfile"
+
+  run deploy_branch_rev
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "$DEPLOY_REV"
+
+  run /bin/bash -c "cat $DEPLOY_LOCK_FILE"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "test-lock-holder"
 
   release_deploy_lock
 
