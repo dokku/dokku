@@ -36,11 +36,11 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run /bin/bash -c "ssh dokku@$DOKKU_DOMAIN run $TEST_APP /bin/echo --version 2>/dev/null"
+  run /bin/bash -c "ssh dokku@$DOKKU_DOMAIN run $TEST_APP /bin/echo --version --help 2>/dev/null"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "--version"
+  assert_output "--version --help"
 
   # bats strips trailing newlines from $output, so count bytes to verify -n was honored
   run /bin/bash -c "ssh dokku@$DOKKU_DOMAIN run $TEST_APP /bin/echo -n hello 2>/dev/null | wc -c"
