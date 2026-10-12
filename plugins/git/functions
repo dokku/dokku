@@ -88,12 +88,12 @@ cmd-git-hook() {
     # Only run this script for the master branch. You can remove this
     # if block if you wish to run it for others as well.
     if [[ $refname == "refs/heads/${DOKKU_DEPLOY_BRANCH}" ]] || [[ $refname == "refs/tags/${DOKKU_DEPLOY_BRANCH}" ]]; then
-      git_receive_app "$APP" "$newrev"
+      DOKKU_GIT_SOURCE_IMAGE="" git_receive_app "$APP" "$newrev"
       plugn trigger deploy-source-set "$APP" "git-push" "$newrev"
     else
       # broken out into plugin so we might support other methods to receive an app
       if [[ $(find "$PLUGIN_PATH"/enabled/*/receive-branch 2>/dev/null | wc -l) != 1 ]]; then
-        plugn trigger receive-branch "$APP" "$newrev" "$refname"
+        DOKKU_GIT_SOURCE_IMAGE="" plugn trigger receive-branch "$APP" "$newrev" "$refname"
         plugn trigger deploy-source-set "$APP" "git-push" "$newrev"
       elif [[ -z "$(fn-git-computed-deploy-branch "$APP" "")" ]]; then
         local deploy_branch="${refname/refs\/heads\//}"
@@ -101,7 +101,7 @@ cmd-git-hook() {
 
         echo $'\e[1G\e[K'"-----> Set ${deploy_branch} as deploy-branch"
         fn-plugin-property-write "git" "$APP" "deploy-branch" "${deploy_branch}"
-        git_receive_app "$APP" "$newrev"
+        DOKKU_GIT_SOURCE_IMAGE="" git_receive_app "$APP" "$newrev"
         plugn trigger deploy-source-set "$APP" "git-push" "$newrev"
       else
         echo $'\e[1G\e[K'"-----> WARNING: deploy did not complete, you must push to ${DOKKU_DEPLOY_BRANCH}."
@@ -152,10 +152,32 @@ git_receive_app() {
   else
     local exit_code=0
     acquire_app_deploy_lock "$APP" "exclusive"
-    git_build "$APP" "$REV" || exit_code="$?"
+    fn-git-build-with-lock-held "$APP" "$REV" || exit_code="$?"
     release_app_deploy_lock "$APP" "$exit_code"
     return "$exit_code"
   fi
+}
+
+fn-git-build-with-lock-held() {
+  declare desc="builds an app at a revision, expecting the caller to hold the app deploy lock"
+  declare APP="$1" REV="$2"
+  local exit_code=0 has_source_image=false source_image previous_source_image
+
+  # DOKKU_GIT_SOURCE_IMAGE is only applied while the deploy lock is held. An
+  # empty value clears the property, while an unset variable leaves it as-is.
+  if [[ -n "${DOKKU_GIT_SOURCE_IMAGE+x}" ]]; then
+    has_source_image=true
+    source_image="$DOKKU_GIT_SOURCE_IMAGE"
+    unset DOKKU_GIT_SOURCE_IMAGE
+    previous_source_image="$(fn-git-source-image "$APP")"
+    fn-plugin-property-write "git" "$APP" "source-image" "$source_image"
+  fi
+
+  (git_build "$APP" "$REV") || exit_code="$?"
+  if [[ "$exit_code" -ne 0 ]] && [[ "$has_source_image" == "true" ]]; then
+    fn-plugin-property-write "git" "$APP" "source-image" "$previous_source_image"
+  fi
+  return "$exit_code"
 }
 
 cmd-git-upload-pack() {

@@ -51,7 +51,7 @@ trigger-git-git-from-archive() {
     popd &>/dev/null || pushd "/tmp" >/dev/null
   fi
 
-  plugn trigger git-from-directory "$APP" "$TMP_WORK_DIR" "$USER_NAME" "$USER_EMAIL"
+  DOKKU_GIT_SOURCE_IMAGE="" plugn trigger git-from-directory "$APP" "$TMP_WORK_DIR" "$USER_NAME" "$USER_EMAIL"
 }
 
 trigger-git-git-from-archive "$@"
