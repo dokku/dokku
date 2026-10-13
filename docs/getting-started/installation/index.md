@@ -23,7 +23,7 @@ Please see the [dns documentation](/docs/networking/dns.md) and [domains documen
 
 ## Installing the latest stable version
 
-This is the simple method of installing Dokku. For alternative methods of installation, see the [advanced install guide](/docs/getting-started/advanced-installation.md#configuring).
+This is the simple method of installing Dokku. For alternative methods of installation, see the [advanced install guide](/docs/getting-started/advanced-installation.md#installing-via-other-methods).
 
 ### 1. Install Dokku
 

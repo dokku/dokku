@@ -23,7 +23,7 @@ dokku apps:create ruby-getting-started
 
 ### Create the backing services
 
-Dokku by default **does not** provide datastores (e.g. MySQL, PostgreSQL) on a newly created app. You can add datastore support by installing plugins, and the Dokku project [provides official plugins](/docs/community/plugins.md#official-plugins-beta) for common datastores.
+Dokku by default **does not** provide datastores (e.g. MySQL, PostgreSQL) on a newly created app. You can add datastore support by installing plugins, and the Dokku project [provides official plugins](/docs/community/plugins.md#official-plugins) for common datastores.
 
 The Getting Started app requires a PostgreSQL service, so install the plugin and create the related service as follows:
 
@@ -108,7 +108,7 @@ Dokku supports deploying applications in a few ways:
 - [Heroku buildpacks](https://devcenter.heroku.com/articles/buildpacks) via [Herokuish](https://github.com/gliderlabs/herokuish#buildpacks): See the [herokuish buildpacks documentation](/docs/deployment/builders/herokuish-buildpacks.md) to learn about the different ways to specify a buildpack.
     - This is the default method used by Dokku.
 - [Dockerfile](https://docs.docker.com/reference/builder/): See the [dockerfile documentation](/docs/deployment/builders/dockerfiles.md) to learn about the different ways to configure Dockerfile-based deploys.
-- [Docker Image](https://docs.docker.com/get-started/overview/#docker-objects): See the [docker image documentation](/docs/deployment/methods/git.md#initializing-an-app-repository-from-a-docker-image) to learn about how to deploy a Docker Image.
+- [Docker Image](https://docs.docker.com/get-started/overview/#docker-objects): See the [docker image documentation](/docs/deployment/methods/image.md#initializing-an-app-repository-from-a-docker-image) to learn about how to deploy a Docker Image.
 
 ### Setting up SSL
 
@@ -246,7 +246,7 @@ See the [Dockerfile documentation](/docs/deployment/builders/dockerfiles.md) for
 
 ## Image tagging
 
-See the [image tagging documentation](/docs/deployment/methods/git.md#initializing-an-app-repository-from-a-docker-image) for more information on how Docker images can be tagged and deployed for a given application.
+See the [image tagging documentation](/docs/deployment/methods/image.md#initializing-an-app-repository-from-a-docker-image) for more information on how Docker images can be tagged and deployed for a given application.
 
 ## Specifying a custom buildpack
 

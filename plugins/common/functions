@@ -980,11 +980,17 @@ dokku_discard_build_capture() {
   unset DOKKU_BUILD_ID DOKKU_BUILD_LOG_FILE DOKKU_BUILD_SOURCE
 }
 
+app_deploy_lock_file() {
+  declare desc="outputs the path to the deploy lock file for an app"
+  declare APP="$1"
+  echo "$DOKKU_LIB_ROOT/data/apps/$APP/.deploy.lock"
+}
+
 acquire_app_deploy_lock() {
   declare desc="acquire advisory lock for use in deploys"
   local APP="$1"
   local LOCK_TYPE="${2:-waiting}"
-  local APP_DEPLOY_LOCK_FILE="$DOKKU_LIB_ROOT/data/apps/$APP/.deploy.lock"
+  local APP_DEPLOY_LOCK_FILE="$(app_deploy_lock_file "$APP")"
   local LOCK_WAITING_MSG="$APP currently has a deploy lock in place. Waiting..."
   local LOCK_FAILED_MSG="$APP currently has a deploy lock in place. Exiting..."
 
@@ -1003,7 +1009,7 @@ release_app_deploy_lock() {
   declare desc="release advisory lock used in deploys"
   local APP="$1"
   local EXIT_CODE="${2:-0}"
-  local APP_DEPLOY_LOCK_FILE="$DOKKU_LIB_ROOT/data/apps/$APP/.deploy.lock"
+  local APP_DEPLOY_LOCK_FILE="$(app_deploy_lock_file "$APP")"
 
   if [[ -n "$DOKKU_BUILD_ID" ]]; then
     plugn trigger builds-record-finalize "$APP" "$DOKKU_BUILD_ID" "$EXIT_CODE" || true
@@ -1018,24 +1024,35 @@ acquire_advisory_lock() {
   local LOCK_FD="200"
   local SHOW_MSG=true
 
-  eval "exec $LOCK_FD>$LOCK_FILE"
-  if [[ "$LOCK_TYPE" == "waiting" ]]; then
-    while [[ $(
-      flock -n "$LOCK_FD" &>/dev/null
-      echo $?
-    ) -ne 0 ]]; do
-      if [[ "$SHOW_MSG" == "true" ]]; then
-        echo "$LOCK_WAITING_MSG"
-        SHOW_MSG=false
+  while true; do
+    # opened for appending so a failed attempt does not truncate the build id
+    # written by the current lock holder
+    eval "exec $LOCK_FD>>$LOCK_FILE"
+    if [[ "$LOCK_TYPE" == "waiting" ]]; then
+      while [[ $(
+        flock -n "$LOCK_FD" &>/dev/null
+        echo $?
+      ) -ne 0 ]]; do
+        if [[ "$SHOW_MSG" == "true" ]]; then
+          echo "$LOCK_WAITING_MSG"
+          SHOW_MSG=false
+        fi
+        sleep 1
+      done
+    else
+      if ! flock -n "$LOCK_FD" &>/dev/null; then
+        dokku_log_warn "$LOCK_FAILED_MSG"
+        dokku_log_fail "Run 'apps:unlock' to release the existing deploy lock"
       fi
-      sleep 1
-    done
-  else
-    if ! flock -n "$LOCK_FD" &>/dev/null; then
-      dokku_log_warn "$LOCK_FAILED_MSG"
-      dokku_log_fail "Run 'apps:unlock' to release the existing deploy lock"
     fi
-  fi
+
+    # the previous holder removes the lock file on release, so the file locked
+    # above may no longer be the one at the lock path
+    if [[ "/proc/self/fd/$LOCK_FD" -ef "$LOCK_FILE" ]]; then
+      break
+    fi
+    eval "exec $LOCK_FD>&-"
+  done
   echo "${DOKKU_BUILD_ID:-$DOKKU_PID}" >"$LOCK_FILE"
 }
 
@@ -1044,7 +1061,13 @@ release_advisory_lock() {
   local LOCK_FILE="$1"
   local LOCK_FD="200"
 
-  flock -u "$LOCK_FD" && rm -f "$LOCK_FILE" &>/dev/null
+  # the file is removed before unlocking so a waiter that locks it afterwards
+  # can tell that its lock is stale. It is only removed if it is still the file
+  # this process locked, as apps:unlock may have handed the path to another deploy
+  if [[ "/proc/self/fd/$LOCK_FD" -ef "$LOCK_FILE" ]]; then
+    rm -f "$LOCK_FILE" &>/dev/null
+  fi
+  flock -u "$LOCK_FD"
 }
 
 suppress_output() {

@@ -137,8 +137,13 @@ func CommandLock(appName string) error {
 		return err
 	}
 
+	// the file is not truncated as it may hold the build id of an in-progress deploy
 	lockPath := getLockPath(appName)
-	if _, err := os.Create(lockPath); err != nil {
+	lockFile, err := os.OpenFile(lockPath, os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return errors.New("Unable to create deploy lock")
+	}
+	if err := lockFile.Close(); err != nil {
 		return errors.New("Unable to create deploy lock")
 	}
 

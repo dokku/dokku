@@ -154,6 +154,12 @@ teardown() {
   assert_failure
   assert_output "fatal: this operation must be run in a work tree"
 
+  run /bin/bash -c "dokku git:report $TEST_APP --git-source-image"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output ""
+
   run /bin/bash -c "dokku config:set --no-restart $TEST_APP FAIL_ON_STARTUP=false"
   echo "output: $output"
   echo "status: $status"
@@ -163,6 +169,12 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-source-image"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "dokku-test/$TEST_APP:latest"
 
   run /bin/bash -c "dokku config:set --no-restart $TEST_APP FAIL_ON_STARTUP=true"
   echo "output: $output"
@@ -174,6 +186,12 @@ teardown() {
   echo "status: $status"
   assert_failure
 
+  run /bin/bash -c "dokku git:report $TEST_APP --git-source-image"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "dokku-test/$TEST_APP:latest"
+
   run /bin/bash -c "dokku config:set --no-restart $TEST_APP FAIL_ON_STARTUP=false"
   echo "output: $output"
   echo "status: $status"
@@ -184,6 +202,12 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_contains "No changes detected, skipping git commit" 0
+
+  run /bin/bash -c "dokku git:report $TEST_APP --git-source-image"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "dokku-test/$TEST_APP:v2"
 }
 
 @test "(git) git:load-image [onbuild]" {

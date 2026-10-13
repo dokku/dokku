@@ -5,20 +5,19 @@ source "$PLUGIN_AVAILABLE_PATH/git/internal-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
-trigger-git-git-from-directory() {
-  declare desc="updates a repository from a directory"
-  declare trigger="git-from-directory"
-  declare APP="$1" SOURCECODE_WORK_DIR="$2" USER_NAME="${3:-Dokku}" USER_EMAIL="${4:-automated@dokku.sh}"
+fn-git-from-directory-with-lock-held() {
+  declare desc="updates a repository from a directory and builds it, expecting the caller to hold the app deploy lock"
+  declare APP="$1" SOURCECODE_WORK_DIR="$2" USER_NAME="$3" USER_EMAIL="$4"
 
   local APP_ROOT="$DOKKU_ROOT/$APP"
   local DOKKU_DEPLOY_BRANCH="$(fn-git-computed-deploy-branch "$APP")"
-  local REV
+  local REV PREVIOUS_REV
   local TMP_WORK_DIR=$(mktemp -d "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
   local TMP_WORK_DIR_2=$(mktemp -d "/tmp/dokku-${DOKKU_PID}-${FUNCNAME[0]}.XXXXXX")
   trap "rm -rf '$TMP_WORK_DIR' '$TMP_WORK_DIR_2' >/dev/null" RETURN INT TERM EXIT
 
   local has_code=false
-  if fn-git-cmd "$APP_ROOT" rev-parse "$DOKKU_DEPLOY_BRANCH" &>/dev/null; then
+  if PREVIOUS_REV="$(fn-git-cmd "$APP_ROOT" rev-parse "$DOKKU_DEPLOY_BRANCH" 2>/dev/null)"; then
     has_code=true
   fi
 
@@ -60,18 +59,39 @@ trigger-git-git-from-directory() {
   fi
 
   rm -rf "$TMP_WORK_DIR" "$TMP_WORK_DIR_2" >/dev/null
-  if git_receive_app "$APP" "$REV"; then
+  if fn-git-build-with-lock-held "$APP" "$REV"; then
     return
   else
     local exit_code=$?
     local DOKKU_DEPLOY_BRANCH="$(fn-git-computed-deploy-branch "$APP")"
+    # only roll back the deploy branch if it still points at the commit created above
     if [[ "$has_code" == "false" ]]; then
-      fn-git-cmd "$APP_ROOT" update-ref -d HEAD
+      fn-git-cmd "$APP_ROOT" update-ref -d "refs/heads/$DOKKU_DEPLOY_BRANCH" "$REV" || dokku_log_warn "Unable to roll back the $DOKKU_DEPLOY_BRANCH branch"
     else
-      fn-git-cmd "$APP_ROOT" update-ref "refs/heads/$DOKKU_DEPLOY_BRANCH" "$DOKKU_DEPLOY_BRANCH^"
+      fn-git-cmd "$APP_ROOT" update-ref "refs/heads/$DOKKU_DEPLOY_BRANCH" "$PREVIOUS_REV" "$REV" || dokku_log_warn "Unable to roll back the $DOKKU_DEPLOY_BRANCH branch"
     fi
     return "$exit_code"
   fi
+}
+
+trigger-git-git-from-directory() {
+  declare desc="updates a repository from a directory"
+  declare trigger="git-from-directory"
+  declare APP="$1" SOURCECODE_WORK_DIR="$2" USER_NAME="${3:-Dokku}" USER_EMAIL="${4:-automated@dokku.sh}"
+  local exit_code=0
+
+  # the lock is held from before the deploy branch is updated until after it is
+  # rolled back, and the subshell ensures it is released on any failure
+  acquire_app_deploy_lock "$APP" "exclusive"
+  set +e
+  (
+    set -e
+    fn-git-from-directory-with-lock-held "$APP" "$SOURCECODE_WORK_DIR" "$USER_NAME" "$USER_EMAIL"
+  )
+  exit_code="$?"
+  set -e
+  release_app_deploy_lock "$APP" "$exit_code"
+  return "$exit_code"
 }
 
 trigger-git-git-from-directory "$@"

@@ -402,6 +402,36 @@ teardown() {
   destroy_app
 }
 
+@test "(apps) apps:lock does not truncate an existing lock file" {
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "echo holder-id >$DOKKU_LIB_ROOT/data/apps/$TEST_APP/.deploy.lock && chown dokku:dokku $DOKKU_LIB_ROOT/data/apps/$TEST_APP/.deploy.lock"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku apps:lock $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "cat $DOKKU_LIB_ROOT/data/apps/$TEST_APP/.deploy.lock"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "holder-id"
+
+  run /bin/bash -c "dokku apps:unlock $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  destroy_app
+}
+
 @test "(apps:report) emits new stripped JSON keys alongside legacy" {
   create_app
 

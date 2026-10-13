@@ -59,6 +59,8 @@ dokku git:from-image --build-dir path/to/build node-js-app domy-registrykku/node
 
 See the [dockerfile documentation](/docs/deployment/builders/dockerfiles.md) to learn about the different ways to configure Dockerfile-based deploys.
 
+The image used for a `git:from-image` or `git:load-image` deploy is stored in the `source-image` git property, which can be viewed via `dokku git:report node-js-app --git-source-image`. This property is only changed while the app's deploy lock is held. If the deploy fails, the deploy branch is rolled back and the property is restored to its previous value, so it always refers to the image the repository was last successfully deployed from. Deploying via other methods - such as `git push`, `git:from-archive`, or `git:sync` - clears the property.
+
 ## Initializing an app repository from a remote image without a registry
 
 > [!IMPORTANT]
