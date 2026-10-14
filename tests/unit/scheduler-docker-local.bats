@@ -520,7 +520,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run deploy_app
+  run /bin/bash -c "tar -C ${BATS_TEST_DIRNAME}/../../tests/apps -cf - python | dokku git:from-archive $TEST_APP --"
   echo "output: $output"
   echo "status: $status"
   assert_success
