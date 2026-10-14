@@ -187,6 +187,15 @@ fn-scheduler-docker-local-retire-images() {
     return
   fi
 
+  local -A SOURCE_IMAGE_APPS=()
+  local source_app source_image source_image_id
+  for source_app in $(dokku_apps "false" 2>/dev/null); do
+    source_image="$(plugn trigger git-get-property "$source_app" "source-image" 2>/dev/null || true)"
+    [[ -z "$source_image" ]] && continue
+    source_image_id="$("$DOCKER_BIN" image inspect --format '{{ .Id }}' "$source_image" 2>/dev/null | cut -d: -f2 || true)"
+    [[ -n "$source_image_id" ]] && SOURCE_IMAGE_APPS["$source_image_id"]="$source_app"
+  done
+
   DEAD_IMAGES=()
   while read line; do
     [[ -z "$line" ]] && continue
@@ -205,6 +214,12 @@ fn-scheduler-docker-local-retire-images() {
 
     STATE="$("$DOCKER_BIN" image inspect --format "{{ .Id }}" "$IMAGE_ID" 2>/dev/null || true)"
     if [[ -z "$STATE" ]]; then
+      DEAD_IMAGES+=("$IMAGE_ID")
+      continue
+    fi
+
+    if [[ -n "${SOURCE_IMAGE_APPS[$IMAGE_ID]}" ]]; then
+      dokku_log_warn "Image ${IMAGE_ID} is the source image for ${SOURCE_IMAGE_APPS[$IMAGE_ID]}, removing from retire list"
       DEAD_IMAGES+=("$IMAGE_ID")
       continue
     fi
