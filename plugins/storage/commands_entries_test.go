@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -217,4 +218,48 @@ func TestCommandSetPersistsAndValidates(t *testing.T) {
 	})
 	Expect(err).To(HaveOccurred())
 	Expect(err.Error()).To(ContainSubstring("does not exist"))
+}
+
+// TestStdinModesDevNullIsNotTTY guards the CI / docker-exec path: stdin is
+// often /dev/null, which is a character device but not a terminal. ModeCharDevice
+// alone would request docker run -it and fail attach.
+func TestStdinModesDevNullIsNotTTY(t *testing.T) {
+	devNull, err := os.Open(os.DevNull)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer devNull.Close()
+
+	old := os.Stdin
+	os.Stdin = devNull
+	t.Cleanup(func() { os.Stdin = old })
+
+	interactive, tty := stdinModes()
+	if tty {
+		t.Fatalf("expected tty=false for /dev/null, got tty=true interactive=%v", interactive)
+	}
+	if interactive {
+		t.Fatalf("expected interactive=false for /dev/null, got interactive=true")
+	}
+}
+
+func TestStdinModesNamedPipeIsInteractiveWithoutTTY(t *testing.T) {
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer r.Close()
+	defer w.Close()
+
+	old := os.Stdin
+	os.Stdin = r
+	t.Cleanup(func() { os.Stdin = old })
+
+	interactive, tty := stdinModes()
+	if tty {
+		t.Fatalf("expected tty=false for a pipe, got tty=true")
+	}
+	if !interactive {
+		t.Fatalf("expected interactive=true for a named pipe")
+	}
 }
