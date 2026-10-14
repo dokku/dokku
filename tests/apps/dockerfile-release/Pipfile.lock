@@ -44,12 +44,12 @@
         },
         "djangorestframework": {
             "hashes": [
-                "sha256:605d79fa2ec2f02905492e5ea13d903c2d842d0b4c915a57f7bf02ab9f3c91dd",
-                "sha256:f1409d698967aaf82d5d98d76b549c8fba8bd92ebd0d83d24454508f72168dc2"
+                "sha256:446a9b352e7eff630421ab3f2328bd2401b109a9470afa4a31189994911ed030",
+                "sha256:8544bb674846731b1e3c9b309236ee1dc412905a0aa725be2ec193ca950a7d12"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.10'",
-            "version": "==3.18.1"
+            "version": "==3.18.3"
         },
         "gunicorn": {
             "hashes": [
