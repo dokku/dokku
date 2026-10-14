@@ -8,6 +8,7 @@ setup() {
 
 teardown() {
   global_teardown
+  docker image rm "dokku-test/$TEST_APP:shared" &>/dev/null || true
 }
 
 @test "(scheduler-docker-local:report) --global raw and computed keys" {
@@ -482,6 +483,60 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_output "running"
+}
+
+@test "(scheduler-docker-local) ps:retire keeps an image that is another app's source image" {
+  local SECOND_APP="$TEST_APP-2" TMP_IMAGE_DIR
+  TMP_IMAGE_DIR="$(mktemp -d "/tmp/${DOKKU_DOMAIN}.XXXXX")"
+  cp -r "${BATS_TEST_DIRNAME}/../../tests/apps/python/." "$TMP_IMAGE_DIR"
+  run /bin/bash -c "docker image build -t dokku-test/$TEST_APP:shared -f $TMP_IMAGE_DIR/alt.Dockerfile $TMP_IMAGE_DIR"
+  echo "output: $output"
+  echo "status: $status"
+  rm -rf "$TMP_IMAGE_DIR"
+  assert_success
+
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run create_app "$SECOND_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku checks:set $TEST_APP wait-to-retire 1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:from-image $TEST_APP dokku-test/$TEST_APP:shared"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku git:from-image $SECOND_APP dokku-test/$TEST_APP:shared"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "tar -C ${BATS_TEST_DIRNAME}/../../tests/apps -cf - python | dokku git:from-archive $TEST_APP --"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  sleep 3
+
+  run /bin/bash -c "dokku ps:retire"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "is the source image for $SECOND_APP"
+
+  run /bin/bash -c "docker image inspect dokku-test/$TEST_APP:shared --format '{{.Id}}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 }
 
 @test "(scheduler-docker-local) procfile quoted arguments on deploy" {

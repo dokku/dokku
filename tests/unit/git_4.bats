@@ -26,7 +26,7 @@ build_python_image() {
     cp "$TMP_IMAGE_DIR/$PROCFILE" "$TMP_IMAGE_DIR/Procfile"
   fi
 
-  docker image build -t "dokku-test/$TEST_APP:$TAG" -f "$TMP_IMAGE_DIR/alt.Dockerfile" "$TMP_IMAGE_DIR" || exit_code="$?"
+  docker image build --label "com.dokku.test-app=$TEST_APP" -t "dokku-test/$TEST_APP:$TAG" -f "$TMP_IMAGE_DIR/alt.Dockerfile" "$TMP_IMAGE_DIR" || exit_code="$?"
   rm -rf "$TMP_IMAGE_DIR"
   return "$exit_code"
 }
