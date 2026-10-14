@@ -533,6 +533,150 @@ teardown() {
   assert_output_contains "Unable to parse command"
 }
 
+@test "(scheduler-docker-local) failed deploy restores previous image" {
+  local CUSTOM_TMP=$(mktemp -d "/tmp/${DOKKU_DOMAIN}.XXXXX")
+  trap 'popd &>/dev/null || true; rm -rf "$CUSTOM_TMP"' INT TERM
+
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku checks:set $TEST_APP wait-to-retire 1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  CUSTOM_TMP="$CUSTOM_TMP" run deploy_app python "dokku@$DOKKU_DOMAIN:$TEST_APP" dockerfile_callback
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  local previous_image
+  previous_image="$(docker container inspect "$TEST_APP.web.1" --format '{{.Image}}')"
+  [[ -n "$previous_image" ]]
+
+  run failing_check_callback "$TEST_APP" "$CUSTOM_TMP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run git -C "$CUSTOM_TMP" add app.json
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run git -C "$CUSTOM_TMP" commit -m 'Add a failing healthcheck'
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run git -C "$CUSTOM_TMP" push target master:master
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Retagging old image $previous_image as dokku/$TEST_APP:latest"
+
+  run /bin/bash -c "docker image inspect dokku/$TEST_APP:latest --format '{{.Id}}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "$previous_image"
+
+  sleep 3
+
+  run /bin/bash -c "dokku ps:retire"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker image inspect dokku/$TEST_APP:latest --format '{{.Id}}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "$previous_image"
+
+  run /bin/bash -c "dokku ps:restart $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker container inspect $TEST_APP.web.1 --format '{{.Image}}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "$previous_image"
+
+  rm -rf "$CUSTOM_TMP"
+}
+
+@test "(scheduler-docker-local) retire keeps image tagged as the app latest" {
+  local CUSTOM_TMP=$(mktemp -d "/tmp/${DOKKU_DOMAIN}.XXXXX")
+  trap 'popd &>/dev/null || true; rm -rf "$CUSTOM_TMP"' INT TERM
+
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku checks:set $TEST_APP wait-to-retire 1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  rmdir "$CUSTOM_TMP"
+  cp -r "${BATS_TEST_DIRNAME}/../../tests/apps/python" "$CUSTOM_TMP"
+  dockerfile_callback "$TEST_APP" "$CUSTOM_TMP"
+  failing_check_callback "$TEST_APP" "$CUSTOM_TMP"
+
+  run git -C "$CUSTOM_TMP" init -b master
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run git -C "$CUSTOM_TMP" config user.email "robot@example.com"
+  assert_success
+  run git -C "$CUSTOM_TMP" config user.name "Test Robot"
+  assert_success
+  run git -C "$CUSTOM_TMP" remote add target "dokku@$DOKKU_DOMAIN:$TEST_APP"
+  assert_success
+
+  run git -C "$CUSTOM_TMP" add .
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run git -C "$CUSTOM_TMP" commit -m 'initial commit'
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run git -C "$CUSTOM_TMP" push target master:master
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  local failed_image
+  failed_image="$(docker image inspect "dokku/$TEST_APP:latest" --format '{{.Id}}')"
+  [[ -n "$failed_image" ]]
+
+  sleep 3
+
+  run /bin/bash -c "dokku ps:retire"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "is the current image for $TEST_APP, skipping rm"
+
+  run /bin/bash -c "docker image inspect dokku/$TEST_APP:latest --format '{{.Id}}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "$failed_image"
+
+  rm -rf "$CUSTOM_TMP"
+}
+
 quoted_procfile_callback() {
   local APP="$1"
   local APP_REPO_DIR="$2"
@@ -550,4 +694,16 @@ operator_procfile_callback() {
   cat >"$APP_REPO_DIR/Procfile" <<'PROCFILE'
 web: python3 -u web.py && echo done
 PROCFILE
+}
+
+dockerfile_callback() {
+  local APP="$1"
+  local APP_REPO_DIR="$2"
+  mv "$APP_REPO_DIR/dockerfile.Dockerfile" "$APP_REPO_DIR/Dockerfile"
+}
+
+failing_check_callback() {
+  local APP="$1"
+  local APP_REPO_DIR="$2"
+  mv "$APP_REPO_DIR/app-failing-check.json" "$APP_REPO_DIR/app.json"
 }

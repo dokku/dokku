@@ -60,6 +60,16 @@ dokku scheduler-docker-local:set --global init-process
 
 All image containers with the label `org.opencontainers.image.vendor=linuxserver.io` will have the automatic init process injection force-disabled without further intervention when neither an app-level nor a global value is set.
 
+### Failed deploys
+
+When a deploy fails - for example, because a new container does not pass its [zero downtime checks](/docs/deployment/zero-downtime-deploys.md) - the previously running containers are left in place. The app's `latest` image tag is restored to the image the previously running containers use, so commands such as `ps:restart`, `ps:start`, and `ps:restore` bring back the previous release instead of the failed one. The image of the failed release is then removed by `ps:retire`.
+
+To support this, the image an app is running is tagged as `dokku/<app>:dokku-previous` while a build and deploy are in progress. This tag is removed once the deploy completes.
+
+The image currently tagged as the app's `latest` image is never removed by `ps:retire`. This allows an app whose first deploy failed to be started once the cause of the failure has been corrected without requiring a rebuild.
+
+When the `registry` plugin's `push-on-release` property is enabled, the incremented image tag is kept after a failed deploy, and restarting the app will deploy that tag.
+
 ### Deploying Process Types in Parallel
 
 > [!IMPORTANT]
