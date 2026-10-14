@@ -37,6 +37,14 @@ teardown() {
   assert_success
 }
 
+@test "(core) ssh arguments are passed through unchanged" {
+  run ssh "dokku@$DOKKU_DOMAIN" fakecommand --version --help -n -e -E
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains '`fakecommand --version --help -n -e -E` is not a dokku command.'
+}
+
 @test "(core) urls (non-ssl)" {
   assert_urls "http://${TEST_APP}.${DOKKU_DOMAIN}"
 
