@@ -429,3 +429,193 @@ teardown() {
   assert_success
   assert_output_not_exists
 }
+
+@test "(caddy) healthcheck labels from app.json" {
+  run /bin/bash -c "dokku proxy:set $TEST_APP caddy"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP setup_caddy_readiness_healthcheck
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"caddy.reverse_proxy.health_uri\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "/"
+
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"caddy.reverse_proxy.health_interval\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "2s"
+
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"caddy.reverse_proxy.health_timeout\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "5s"
+
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"caddy.reverse_proxy.health_headers.Host\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "$TEST_APP.$DOKKU_DOMAIN"
+
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"caddy.reverse_proxy.lb_try_duration\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "5s"
+
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"caddy.reverse_proxy.lb_try_interval\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "250ms"
+
+  assert_http_localhost_response "http" "$TEST_APP.dokku.me" "80" "" "python/http.server"
+
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  assert_http_localhost_response "http" "$TEST_APP.dokku.me" "80" "" "python/http.server"
+}
+
+@test "(caddy) healthcheck labels can be overridden" {
+  run /bin/bash -c "dokku proxy:set $TEST_APP caddy"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku caddy:labels:add $TEST_APP caddy.reverse_proxy.lb_try_duration 10s"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP setup_caddy_readiness_healthcheck
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"caddy.reverse_proxy.lb_try_duration\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "10s"
+
+  assert_http_localhost_response "http" "$TEST_APP.dokku.me" "80" "" "python/http.server"
+}
+
+@test "(caddy) no healthcheck labels without readiness check" {
+  run /bin/bash -c "dokku proxy:set $TEST_APP caddy"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP convert_to_dockerfile
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"caddy.reverse_proxy.health_uri\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_exists
+
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"caddy.reverse_proxy.lb_try_duration\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_exists
+}
+
+@test "(caddy) invalid stored healthcheck path fails restart" {
+  run /bin/bash -c "dokku proxy:set $TEST_APP caddy"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP setup_caddy_readiness_healthcheck
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "jq '.healthchecks.web[0].path = \"/health check\"' /var/lib/dokku/data/app-json/$TEST_APP/app.json > /var/lib/dokku/data/app-json/$TEST_APP/app.json.tmp && mv /var/lib/dokku/data/app-json/$TEST_APP/app.json.tmp /var/lib/dokku/data/app-json/$TEST_APP/app.json"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:restart $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Invalid app.json healthcheck path for caddy" -1
+}
+
+@test "(caddy) healthcheck headers from app.json" {
+  run /bin/bash -c "dokku proxy:set $TEST_APP caddy"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP setup_caddy_readiness_healthcheck_headers
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"caddy.reverse_proxy.health_headers.X-Check\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output '"dokku check"'
+
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"caddy.reverse_proxy.health_fails\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "2"
+
+  sleep 5
+
+  run /bin/bash -c "docker cp caddy-caddy-1:/config/caddy/Caddyfile.autosave - | tar -xO"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains 'X-Check "dokku check"'
+  assert_output_contains "health_fails 2"
+
+  run /bin/bash -c "docker logs caddy-caddy-1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Failed to convert caddyfile" 0
+
+  assert_http_localhost_response "http" "$TEST_APP.dokku.me" "80" "" "python/http.server"
+}
+
+setup_caddy_readiness_healthcheck() {
+  local APP="$1"
+  local APP_REPO_DIR="$2"
+  [[ -z "$APP" ]] && local APP="$TEST_APP"
+  APP_REPO_DIR="$(realpath "$APP_REPO_DIR")"
+
+  convert_to_dockerfile "$APP" "$APP_REPO_DIR"
+  mv "$APP_REPO_DIR/app-readiness.json" "$APP_REPO_DIR/app.json"
+}
+
+setup_caddy_readiness_healthcheck_headers() {
+  local APP="$1"
+  local APP_REPO_DIR="$2"
+  [[ -z "$APP" ]] && local APP="$TEST_APP"
+  APP_REPO_DIR="$(realpath "$APP_REPO_DIR")"
+
+  convert_to_dockerfile "$APP" "$APP_REPO_DIR"
+  jq '.healthchecks.web[0].attempts = 2 | .healthchecks.web[0].httpHeaders = [{"name": "X-Check", "value": "dokku check"}]' "$APP_REPO_DIR/app-readiness.json" >"$APP_REPO_DIR/app.json"
+}

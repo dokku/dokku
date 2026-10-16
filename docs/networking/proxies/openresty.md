@@ -28,7 +28,44 @@ The OpenResty plugin has specific rules for routing requests:
 - OpenResty integration is exposed via docker labels attached to containers. Changes in labels require either app deploys or rebuilds.
 - While OpenResty will respect labels associated with other containers, only `web` containers have OpenResty labels injected by the plugin.
 - Only `http:80` and `https:443` port mappings are supported at this time.
-- Requests are routed as soon as the container is running and passing healthchecks.
+- Requests are routed as soon as the container is running, before Dokku's healthchecks have passed. See the [healthchecks](#healthchecks) section for how failed requests to a container that is not yet listening are handled.
+
+### Healthchecks
+
+When an app has a readiness healthcheck defined in its `app.json` file with a `path` property, Dokku automatically generates OpenResty healthcheck labels. These configure OpenResty to periodically check each container and stop routing traffic to containers that fail the check until they pass again.
+
+The following `app.json` healthcheck properties are mapped to OpenResty labels:
+
+| app.json Property | OpenResty Label | Description |
+|-------------------|-----------------|-------------|
+| `path`            | `openresty.healthcheck-path`      | The HTTP path to check (required) |
+| `port`            | `openresty.healthcheck-port`      | The port to check |
+| `scheme`          | `openresty.healthcheck-scheme`    | The scheme to use (`http` or `https`) |
+| `timeout`         | `openresty.healthcheck-timeout`   | Timeout in seconds (defaults to `5`) |
+| `wait`            | `openresty.healthcheck-interval`  | Interval between checks in seconds (defaults to `5`) |
+| `attempts`        | `openresty.healthcheck-fall`      | Number of successive failed checks before a container is taken out of rotation (defaults to `3`) |
+| `httpHeaders`     | `openresty.healthcheck-header.<name>` | Headers to send with the check. A `Host` header is set via `openresty.healthcheck-host` instead |
+
+If no `Host` header is specified, the first app domain is used, matching the header Dokku sends during deploy checks. Headers with invalid names or values containing quotes, backslashes, or control characters are skipped.
+
+Additionally, the following labels are generated so that a request that fails to connect to a container is retried against another container, and the failing container is immediately taken out of rotation:
+
+| OpenResty Label | Value | Description |
+|-----------------|-------|-------------|
+| `openresty.upstream-max-fails` | `1` | Number of failed requests before a container is taken out of rotation |
+| `openresty.upstream-fail-timeout` | the healthcheck `wait` value, or `5s` | How long a container is taken out of rotation after a failed request |
+| `openresty.proxy-next-upstream-timeout` | `5s` | How long a failed request may be retried against other containers |
+
+OpenResty considers a new container healthy until it fails a check or a request to it fails to connect, and healthcheck state is reset whenever the OpenResty configuration is reloaded. Responses with a `2xx` or `3xx` status are considered healthy, and the `content` property is not supported.
+
+The status of all checked upstreams can be viewed from within the OpenResty container:
+
+```shell
+docker exec openresty-openresty-1 wget -qO- http://127.0.0.1:8999/upstream-healthcheck-status
+```
+
+> [!NOTE]
+> Only the first readiness healthcheck with a `path` property is used. Apps without one are routed as soon as the container is running, though requests that fail to connect to a container are still retried against other containers. See the [zero downtime deploys documentation](/docs/deployment/zero-downtime-deploys.md#healthchecks-and-label-based-proxies) for more information.
 
 ### Switching to OpenResty
 
