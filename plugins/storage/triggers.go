@@ -308,7 +308,7 @@ var appSchedulerFor = common.GetAppScheduler
 // buildDockerVFlag formats the Docker -v argument for a docker-local
 // attachment.
 func buildDockerVFlag(entry *Entry, attachment *Attachment) string {
-	host := entry.HostPath
+	host := HostPathForDocker(entry.HostPath)
 	container := attachment.ContainerPath
 	if host == "" || container == "" {
 		return ""

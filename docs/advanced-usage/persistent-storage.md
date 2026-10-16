@@ -88,6 +88,8 @@ Each entry mirrors the underlying attachment. `readonly` (boolean) and `volume_o
 
 A storage directory can be created with the `storage:ensure-directory` command. This command will create a subdirectory in the recommended `/var/lib/dokku/data/storage` path - created during Dokku installation - and prepare it for use with an app.
 
+When Dokku itself runs in a container with a shared Docker socket, default named storage is still created under `DOKKU_LIB_ROOT` (typically `/var/lib/dokku`) inside the Dokku container. Docker `-v` mounts for `storage:exec` and app deploys rewrite that path to `DOKKU_LIB_HOST_ROOT` so the host Docker daemon binds the directory from the host-visible data volume. See the [Docker installation notes](/docs/getting-started/install/docker.md) for setting `DOKKU_LIB_HOST_ROOT`.
+
 ```shell
 dokku storage:ensure-directory node-js-app
 ```

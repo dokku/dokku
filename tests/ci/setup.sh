@@ -123,8 +123,13 @@ build_dokku_docker_image() {
 run_dokku_container() {
   echo "=====> run_dokku_container on CIRCLE_NODE_INDEX: $CIRCLE_NODE_INDEX"
   echo "redirect: https://github.com/dokku/dokku-redirect.git" | sudo tee /var/lib/dokku/plugin-list
+  # DOKKU_HOST_ROOT / DOKKU_LIB_HOST_ROOT match the install docs: the host
+  # mounts /var/lib/dokku at /mnt/dokku, and in-container /var/lib/dokku/{home,data}
+  # are symlinks into that volume.
   docker run -d \
     --env DOKKU_HOSTNAME=dokku.me \
+    --env DOKKU_HOST_ROOT=/var/lib/dokku/home/dokku \
+    --env DOKKU_LIB_HOST_ROOT=/var/lib/dokku/var/lib/dokku \
     --name dokku \
     --publish 3022:22 \
     --publish 80:80 \

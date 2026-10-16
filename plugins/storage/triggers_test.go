@@ -61,6 +61,17 @@ func TestBuildDockerVFlagVolumeOptions(t *testing.T) {
 	Expect(roOpts).To(Equal("-v /host:/container:ro,noexec,nosuid"))
 }
 
+func TestBuildDockerVFlagRewritesLibHostRoot(t *testing.T) {
+	RegisterTestingT(t)
+
+	t.Setenv("DOKKU_LIB_ROOT", "/var/lib/dokku")
+	t.Setenv("DOKKU_LIB_HOST_ROOT", "/host/var/lib/dokku")
+
+	entry := &Entry{HostPath: "/var/lib/dokku/data/storage/demo"}
+	flag := buildDockerVFlag(entry, &Attachment{ContainerPath: "/app/data"})
+	Expect(flag).To(Equal("-v /host/var/lib/dokku/data/storage/demo:/app/data"))
+}
+
 func TestTriggerDockerArgsRejectsSchedulerMismatch(t *testing.T) {
 	RegisterTestingT(t)
 	root := withTempLibRoot(t)

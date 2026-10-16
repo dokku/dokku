@@ -3,6 +3,7 @@ package storage
 import (
 	"errors"
 	"fmt"
+	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -188,6 +189,26 @@ func ParseMountPath(mountPath string) StorageListEntry {
 func GetStorageDirectory() string {
 	dokkuLibRoot := common.GetenvWithDefault("DOKKU_LIB_ROOT", "/var/lib/dokku")
 	return fmt.Sprintf("%s/data/storage", dokkuLibRoot)
+}
+
+// HostPathForDocker rewrites a path under DOKKU_LIB_ROOT to the
+// DOKKU_LIB_HOST_ROOT view used by the host Docker daemon. Named
+// volumes and paths outside DOKKU_LIB_ROOT are returned unchanged.
+//
+// When Dokku runs in a container with a shared Docker socket, filesystem
+// operations must use DOKKU_LIB_ROOT (visible inside the Dokku container)
+// while Docker -v host paths must use DOKKU_LIB_HOST_ROOT (visible to the
+// daemon on the real host).
+func HostPathForDocker(path string) string {
+	libRoot := common.GetenvWithDefault("DOKKU_LIB_ROOT", "/var/lib/dokku")
+	libHost := os.Getenv("DOKKU_LIB_HOST_ROOT")
+	if libHost == "" || libHost == libRoot {
+		return path
+	}
+	if path == libRoot || strings.HasPrefix(path, libRoot+"/") {
+		return libHost + strings.TrimPrefix(path, libRoot)
+	}
+	return path
 }
 
 // storageDirScriptNames lists the sudo helpers shipped in the plugin's bin
