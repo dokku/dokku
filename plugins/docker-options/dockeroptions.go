@@ -1,13 +1,17 @@
 package dockeroptions
 
 import (
+	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
 	"slices"
 	"sort"
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
 	"github.com/dokku/dokku/plugins/common/shellwords"
+	"github.com/gofrs/flock"
 )
 
 // DefaultProcessType is the sentinel process-type key used for options that
@@ -186,6 +190,34 @@ func propertyKey(processType, phase string) string {
 	return fmt.Sprintf("%s.%s", processType, phase)
 }
 
+func getAppLock(appName string) (*flock.Flock, error) {
+	if appName == "" {
+		return nil, errors.New("App name cannot be empty")
+	}
+
+	dataDir := common.GetDataDirectory("docker-options")
+	if err := os.MkdirAll(dataDir, 0755); err != nil {
+		return nil, fmt.Errorf("Unable to create docker-options data directory: %w", err)
+	}
+
+	lockFile := filepath.Join(dataDir, fmt.Sprintf("%s.lock", appName))
+	return flock.New(lockFile), nil
+}
+
+func withAppLock(appName string, fn func() error) error {
+	fileLock, err := getAppLock(appName)
+	if err != nil {
+		return err
+	}
+
+	if err := fileLock.Lock(); err != nil {
+		return fmt.Errorf("Unable to acquire docker-options lock for %s: %w", appName, err)
+	}
+	defer fileLock.Unlock()
+
+	return fn()
+}
+
 // SetDockerOptionForPhases sets a `--name=value` option in the default scope
 // for the specified phases, replacing any existing entry with the same name.
 func SetDockerOptionForPhases(appName string, phases []string, name string, value string) error {
@@ -195,6 +227,12 @@ func SetDockerOptionForPhases(appName string, phases []string, name string, valu
 // SetDockerOptionForProcessPhases sets a `--name=value` option for the specified
 // process types and phases, replacing any existing entry with the same name.
 func SetDockerOptionForProcessPhases(appName string, processTypes []string, phases []string, name string, value string) error {
+	return withAppLock(appName, func() error {
+		return setDockerOptionForProcessPhases(appName, processTypes, phases, name, value)
+	})
+}
+
+func setDockerOptionForProcessPhases(appName string, processTypes []string, phases []string, name string, value string) error {
 	if len(processTypes) == 0 {
 		processTypes = []string{DefaultProcessType}
 	}
@@ -230,6 +268,12 @@ func AddDockerOptionToPhases(appName string, phases []string, option string) err
 
 // AddDockerOptionToProcessPhases adds an option to the specified process types and phases.
 func AddDockerOptionToProcessPhases(appName string, processTypes []string, phases []string, option string) error {
+	return withAppLock(appName, func() error {
+		return addDockerOptionToProcessPhases(appName, processTypes, phases, option)
+	})
+}
+
+func addDockerOptionToProcessPhases(appName string, processTypes []string, phases []string, option string) error {
 	if len(processTypes) == 0 {
 		processTypes = []string{DefaultProcessType}
 	}
@@ -287,6 +331,12 @@ func RemoveDockerOptionFromPhases(appName string, phases []string, option string
 // non-canonical form still matches the canonically re-serialized string the
 // CLI hands down.
 func RemoveDockerOptionFromProcessPhases(appName string, processTypes []string, phases []string, option string) error {
+	return withAppLock(appName, func() error {
+		return removeDockerOptionFromProcessPhases(appName, processTypes, phases, option)
+	})
+}
+
+func removeDockerOptionFromProcessPhases(appName string, processTypes []string, phases []string, option string) error {
 	if len(processTypes) == 0 {
 		processTypes = []string{DefaultProcessType}
 	}

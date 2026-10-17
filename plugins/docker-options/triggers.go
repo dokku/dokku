@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
@@ -12,6 +13,10 @@ import (
 // TriggerInstall sets up the docker-options property directory and migrates
 // any pre-existing DOCKER_OPTIONS_* files into property lists.
 func TriggerInstall() error {
+	if err := common.CreateDataDirectory("docker-options"); err != nil {
+		return fmt.Errorf("Unable to create docker-options data directory: %v", err)
+	}
+
 	if err := common.PropertySetup("docker-options"); err != nil {
 		return fmt.Errorf("Unable to install the docker-options plugin: %v", err)
 	}
@@ -43,6 +48,8 @@ func TriggerPostAppRenameSetup(oldAppName string, newAppName string) error {
 	if err := common.PropertyClone("docker-options", oldAppName, newAppName); err != nil {
 		return err
 	}
+	lockFile := filepath.Join(common.GetDataDirectory("docker-options"), fmt.Sprintf("%s.lock", oldAppName))
+	_ = os.Remove(lockFile)
 	return common.PropertyDestroy("docker-options", oldAppName)
 }
 
@@ -52,6 +59,8 @@ func TriggerPostDelete(appName string) error {
 	if err := common.PropertyDestroy("docker-options", appName); err != nil {
 		return err
 	}
+	lockFile := filepath.Join(common.GetDataDirectory("docker-options"), fmt.Sprintf("%s.lock", appName))
+	_ = os.Remove(lockFile)
 	return nil
 }
 
