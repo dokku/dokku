@@ -103,6 +103,7 @@ assert_nginx_property_set_get() {
 @test "(nginx:report) misc properties raw/global/computed" {
   assert_nginx_property_set_get "disable-custom-config" "false" "true"
   assert_nginx_property_set_get "underscore-in-headers" "on" "off"
+  assert_nginx_property_set_get "proxy-http-version" "2" "1.1"
   assert_nginx_property_set_get "proxy-keepalive" "8" "16"
   assert_nginx_property_set_get "nginx-conf-sigil-path" "custom.sigil" "global.sigil"
   assert_nginx_property_set_get "nginx-service-command" "/usr/sbin/nginx-app" "/usr/sbin/nginx-global"

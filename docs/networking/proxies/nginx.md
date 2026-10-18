@@ -455,6 +455,8 @@ Changing these value globally or on a per-app basis will require rebuilding the 
 | proxy-buffering           | `on`                                  | string  | Enables or disables buffering of responses from the proxied server                  |
 | proxy-buffers             | `8 8k`                                | string  | Number and size of the buffers used for reading the proxied server response, for a single connection |
 | proxy-busy-buffers-size   | `16k`                                 | string  | Limits the total size of buffers that can be busy sending a response to the client while the response is not yet fully read. |
+| proxy-http-version     | `1.1`                                 | string  | The HTTP version to use for establishing a connection to your backend server. Ensure that your backend server supports this.           |
+
 | proxy-connect-timeout     | `60s`                                 | string  | Timeout (with units) for establishing a connection to your backend server           |
 | proxy-keepalive           | empty (disabled)                      | integer | Number of idle keepalive connections to upstream servers (disabled by default)      |
 | proxy-read-timeout        | `60s`                                 | string  | Timeout (with units) for reading response from your backend server                  |
@@ -654,6 +656,7 @@ All nginx-vhosts properties are settable at both the app and global scope.
 | `proxy-buffering` | app + global | `on` | `--nginx-proxy-buffering`, `--nginx-global-proxy-buffering`, `--nginx-computed-proxy-buffering` | Whether nginx buffers upstream responses (`on` or `off`) |
 | `proxy-buffers` | app + global | _`8 {pagesize}`_ | `--nginx-proxy-buffers`, `--nginx-global-proxy-buffers`, `--nginx-computed-proxy-buffers` | Number and size of buffers used for an upstream response |
 | `proxy-busy-buffers-size` | app + global | _`2 * pagesize`_ | `--nginx-proxy-busy-buffers-size`, `--nginx-global-proxy-busy-buffers-size`, `--nginx-computed-proxy-busy-buffers-size` | Maximum buffer size that can be busy sending a response to the client |
+| `proxy-http-version` | app + global | `1.1` | `--nginx-proxy-http-version`, `--nginx-global-proxy-http-version`, `--nginx-computed-proxy-http-version` | HTTP version to use for a connection to the upstream |
 | `proxy-connect-timeout` | app + global | `60s` | `--nginx-proxy-connect-timeout`, `--nginx-global-proxy-connect-timeout`, `--nginx-computed-proxy-connect-timeout` | Time to establish a connection to the upstream |
 | `proxy-keepalive` | app + global | none | `--nginx-proxy-keepalive`, `--nginx-global-proxy-keepalive`, `--nginx-computed-proxy-keepalive` | Number of idle keep-alive connections to upstream servers held open per worker |
 | `proxy-read-timeout` | app + global | `60s` | `--nginx-proxy-read-timeout`, `--nginx-global-proxy-read-timeout`, `--nginx-computed-proxy-read-timeout` | Time to read a response from the upstream |

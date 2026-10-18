@@ -1044,6 +1044,10 @@ func getIngressAnnotations(appName string, processType string) (map[string]strin
 				return fmt.Sprintf("proxy_busy_buffers_size %s;", value)
 			},
 		},
+		"proxy-http-version": {
+			annotation: "nginx.ingress.kubernetes.io/proxy-http-version",
+			getter:     nginxvhosts.ComputedProxyHttpVersion,
+		},
 		"proxy-connect-timeout": {
 			annotation: "nginx.ingress.kubernetes.io/proxy-connect-timeout",
 			getter:     nginxvhosts.ComputedProxyConnectTimeout,
