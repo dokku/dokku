@@ -439,7 +439,7 @@ fn-nginx-computed-proxy-http-version() {
   fn-get-property --app "$APP" --computed "proxy-http-version"
 }
 
-fn-nginx-global-proxy-connect-timeout() {
+fn-nginx-global-proxy-http-version() {
   declare desc="get the global proxy http version"
   declare APP="$1"
 
