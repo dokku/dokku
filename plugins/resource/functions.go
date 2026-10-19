@@ -2,21 +2,16 @@ package resource
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
 )
 
 func addMemorySuffixForDocker(key string, value string) string {
-	if key == "memory" {
-		hasSuffix := false
-		suffixes := []string{"b", "k", "m", "g", "KB", "MB", "GB", "B"}
-		for _, suffix := range suffixes {
-			if strings.HasSuffix(value, suffix) {
-				hasSuffix = true
-			}
-		}
-		if !hasSuffix {
+	if key == "memory" && value != "" {
+		// docker accepts any unit such as 512M, 1G or 1Gi, so only a bare
+		// number is treated as megabytes
+		last := value[len(value)-1]
+		if last >= '0' && last <= '9' {
 			value = value + "m"
 		}
 	}
