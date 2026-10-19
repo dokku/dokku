@@ -1,6 +1,6 @@
 module github.com/dokku/dokku/plugins/scheduler-k3s
 
-go 1.26.2
+go 1.27.0
 
 require (
 	github.com/Masterminds/semver/v3 v3.5.0
@@ -16,7 +16,7 @@ require (
 	github.com/dokku/dokku/plugins/registry v0.0.0-00010101000000-000000000000
 	github.com/dokku/dokku/plugins/storage v0.0.0-00010101000000-000000000000
 	github.com/fatih/color v1.19.0
-	github.com/fluxcd/pkg/kustomize v1.41.0
+	github.com/fluxcd/pkg/kustomize v1.43.0
 	github.com/go-openapi/jsonpointer v1.0.2
 	github.com/go-resty/resty/v2 v2.17.2
 	github.com/gosimple/slug v1.15.0
@@ -153,7 +153,7 @@ require (
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
 	golang.org/x/crypto v0.58.0 // indirect
 	golang.org/x/mod v0.41.0 // indirect
-	golang.org/x/net v0.60.0 // indirect
+	golang.org/x/net v0.61.0 // indirect
 	golang.org/x/oauth2 v0.37.0 // indirect
 	golang.org/x/sys v0.49.0 // indirect
 	golang.org/x/term v0.47.0 // indirect
@@ -164,15 +164,15 @@ require (
 	google.golang.org/protobuf v1.36.12 // indirect
 	gopkg.in/evanphx/json-patch.v4 v4.13.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
-	k8s.io/apiextensions-apiserver v0.37.0 // indirect
-	k8s.io/apiserver v0.37.0 // indirect
+	k8s.io/apiextensions-apiserver v0.37.1 // indirect
+	k8s.io/apiserver v0.37.1 // indirect
 	k8s.io/cli-runtime v0.37.1 // indirect
 	k8s.io/component-base v0.37.1 // indirect
 	k8s.io/klog/v2 v2.140.0 // indirect
 	k8s.io/kube-openapi v0.0.0-20260821135717-be32def86098 // indirect
 	k8s.io/streaming v0.37.1 // indirect
 	oras.land/oras-go/v2 v2.6.2 // indirect
-	sigs.k8s.io/controller-runtime v0.25.0 // indirect
+	sigs.k8s.io/controller-runtime v0.25.2 // indirect
 	sigs.k8s.io/gateway-api v1.6.0 // indirect
 	sigs.k8s.io/json v0.0.0-20250730193827-2d320260d730 // indirect
 	sigs.k8s.io/kustomize/kyaml v0.21.2 // indirect
