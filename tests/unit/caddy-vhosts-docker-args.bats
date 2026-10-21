@@ -6,7 +6,8 @@ load test_helper
 # Stubs plugn and plugin sources so the trigger can run without a Dokku install.
 
 setup() {
-  TRIGGER="$(cd "$BATS_TEST_DIRNAME/../.." && pwd)/plugins/caddy-vhosts/docker-args-process-deploy"
+  REPO_ROOT="$(cd "$BATS_TEST_DIRNAME/../.." && pwd)"
+  TRIGGER="$REPO_ROOT/plugins/caddy-vhosts/docker-args-process-deploy"
   STUB_ROOT="$BATS_TEST_TMPDIR/stub"
   mkdir -p "$STUB_ROOT/bin" \
     "$STUB_ROOT/core/common" \
@@ -16,10 +17,17 @@ setup() {
   cat >"$STUB_ROOT/core/common/functions" <<'EOF'
 #!/usr/bin/env bash
 dokku_log_warn() { echo "WARN: $*" >&2; }
+dokku_log_fail() {
+  echo "FAIL: $*" >&2
+  exit 1
+}
 EOF
 
-  cat >"$STUB_ROOT/plugins/proxy/functions" <<'EOF'
+  cat >"$STUB_ROOT/plugins/proxy/functions" <<EOF
 #!/usr/bin/env bash
+source "$REPO_ROOT/plugins/proxy/functions"
+EOF
+  cat >>"$STUB_ROOT/plugins/proxy/functions" <<'EOF'
 fn-proxy-get-labels-file-path() {
   echo "${STUB_LABELS_FILE:-/nonexistent}"
 }
@@ -67,6 +75,9 @@ case "$cmd" in
       printf '%s\n' "$STUB_DOMAINS"
     fi
     ;;
+  app-json-get-content)
+    echo "${STUB_APP_JSON:-{\}}"
+    ;;
   *)
     echo "unexpected plugn trigger: $cmd $*" >&2
     exit 1
@@ -89,6 +100,7 @@ invoke_caddy_docker_args() {
     STUB_PROXY_ENABLED="${STUB_PROXY_ENABLED:-true}" \
     STUB_VHOST_ENABLED="${STUB_VHOST_ENABLED:-true}" \
     STUB_LABELS_FILE="${STUB_LABELS_FILE:-/nonexistent}" \
+    STUB_APP_JSON="${STUB_APP_JSON:-}" \
     bash "$TRIGGER" "${APP_NAME:-testapp}" "dockerfile" "latest" "${PROC_TYPE:-web}" "1" <<<"${STDIN_DATA:-}"
 }
 
@@ -129,4 +141,171 @@ invoke_caddy_docker_args() {
   echo "status: $status"
   assert_success
   assert_output_contains "caddy.reverse_proxy"
+}
+
+@test "(caddy-vhosts) readiness healthcheck emits health and retry labels" {
+  STUB_DOMAINS="example.com"
+  STUB_PORTS="http:80:5000"
+  STUB_APP_JSON='{"healthchecks":{"web":[{"type":"readiness","path":"/health","timeout":3,"wait":2}]}}'
+
+  run invoke_caddy_docker_args
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains '--label "caddy.reverse_proxy.health_uri=/health"'
+  assert_output_contains "--label caddy.reverse_proxy.health_interval=2s"
+  assert_output_contains "--label caddy.reverse_proxy.health_timeout=3s"
+  assert_output_contains "--label caddy.reverse_proxy.health_headers.Host=example.com"
+  assert_output_contains "--label caddy.reverse_proxy.lb_try_duration=5s"
+  assert_output_contains "--label caddy.reverse_proxy.lb_try_interval=250ms"
+  assert_output_contains "health_port" 0
+}
+
+@test "(caddy-vhosts) readiness healthcheck defaults and port" {
+  STUB_DOMAINS="example.com"
+  STUB_PORTS="http:80:5000"
+  STUB_APP_JSON='{"healthchecks":{"web":[{"type":"readiness","path":"/","port":5001}]}}'
+
+  run invoke_caddy_docker_args
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "--label caddy.reverse_proxy.health_port=5001"
+  assert_output_contains "--label caddy.reverse_proxy.health_interval=5s"
+  assert_output_contains "--label caddy.reverse_proxy.health_timeout=5s"
+}
+
+@test "(caddy-vhosts) healthcheck host header skips localhost and catch-all domains" {
+  STUB_DOMAINS="localhost * app.example.com other.example.com"
+  STUB_PORTS="http:80:5000"
+  STUB_APP_JSON='{"healthchecks":{"web":[{"type":"readiness","path":"/"}]}}'
+
+  run invoke_caddy_docker_args
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "--label caddy.reverse_proxy.health_headers.Host=app.example.com"
+}
+
+@test "(caddy-vhosts) startup healthcheck emits no health or retry labels" {
+  STUB_DOMAINS="example.com"
+  STUB_PORTS="http:80:5000"
+  STUB_APP_JSON='{"healthchecks":{"web":[{"type":"startup","path":"/"}]}}'
+
+  run invoke_caddy_docker_args
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "caddy.reverse_proxy="
+  assert_output_contains "health_" 0
+  assert_output_contains "lb_try_" 0
+}
+
+@test "(caddy-vhosts) missing app.json emits no health or retry labels" {
+  STUB_DOMAINS="example.com"
+  STUB_PORTS="http:80:5000"
+
+  run invoke_caddy_docker_args
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "caddy.reverse_proxy="
+  assert_output_contains "health_" 0
+  assert_output_contains "lb_try_" 0
+}
+
+@test "(caddy-vhosts) readiness healthcheck without routing labels emits no health labels" {
+  STUB_DOMAINS="example.com"
+  STUB_PORTS=""
+  STUB_APP_JSON='{"healthchecks":{"web":[{"type":"readiness","path":"/"}]}}'
+
+  run invoke_caddy_docker_args
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "health_" 0
+}
+
+@test "(caddy-vhosts) invalid readiness healthcheck path fails" {
+  STUB_DOMAINS="example.com"
+  STUB_PORTS="http:80:5000"
+  STUB_APP_JSON='{"healthchecks":{"web":[{"type":"readiness","path":"/has space"}]}}'
+
+  run invoke_caddy_docker_args
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Invalid app.json healthcheck path for caddy"
+}
+
+@test "(caddy-vhosts) readiness healthcheck maps attempts and headers" {
+  STUB_DOMAINS="example.com"
+  STUB_PORTS="http:80:5000"
+  STUB_APP_JSON='{"healthchecks":{"web":[{"type":"readiness","path":"/","attempts":4,"httpHeaders":[{"name":"X-Check","value":"dokku check"},{"name":"host","value":"check.example.com"}]}]}}'
+
+  run invoke_caddy_docker_args
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "--label caddy.reverse_proxy.health_fails=4"
+  assert_output_contains "--label 'caddy.reverse_proxy.health_headers.X-Check=\"dokku check\"'"
+  assert_output_contains "--label caddy.reverse_proxy.health_headers.Host=check.example.com"
+  assert_output_contains "health_headers.Host=example.com" 0
+  assert_output_contains "health_headers.host" 0
+}
+
+@test "(caddy-vhosts) readiness healthcheck defaults attempts to 3" {
+  STUB_DOMAINS="example.com"
+  STUB_PORTS="http:80:5000"
+  STUB_APP_JSON='{"healthchecks":{"web":[{"type":"readiness","path":"/"}]}}'
+
+  run invoke_caddy_docker_args
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "--label caddy.reverse_proxy.health_fails=3"
+}
+
+@test "(caddy-vhosts) invalid healthcheck headers are skipped" {
+  STUB_DOMAINS="example.com"
+  STUB_PORTS="http:80:5000"
+  STUB_APP_JSON='{"healthchecks":{"web":[{"type":"readiness","path":"/","httpHeaders":[{"name":"X.Dotted","value":"a"},{"name":"X-Order_1","value":"a"},{"name":"X-Quote","value":"it'"'"'s"},{"name":"Bad Name","value":"a"},{"name":"X-Good","value":"ok"}]}]}}'
+
+  run invoke_caddy_docker_args
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Skipping invalid app.json healthcheck header for caddy" 4
+  assert_output_contains "health_headers.X-Good=" 1
+  assert_output_contains "health_headers.X.Dotted" 0
+  assert_output_contains "health_headers.X-Order_1" 0
+  assert_output_contains "health_headers.X-Quote" 0
+}
+
+@test "(caddy-vhosts) tls-internal emits caddy.tls=internal alongside https site labels" {
+  STUB_DOMAINS="example.com"
+  STUB_PORTS="$(printf 'http:80:5000\nhttps:443:5000')"
+  STUB_LETSENCRYPT_EMAIL="admin@example.com"
+  STUB_TLS_INTERNAL="true"
+
+  run invoke_caddy_docker_args
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "--label 'caddy=example.com'"
+  assert_output_contains "--label caddy.tls=internal"
+  assert_output_contains "caddy.reverse_proxy="
+}
+
+@test "(caddy-vhosts) tls-internal does not emit caddy.tls=internal for http-only sites" {
+  STUB_DOMAINS="example.com"
+  STUB_PORTS="http:80:5000"
+  STUB_TLS_INTERNAL="true"
+
+  run invoke_caddy_docker_args
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "--label 'caddy=example.com:80'"
+  assert_output_contains "caddy.tls=internal" 0
 }

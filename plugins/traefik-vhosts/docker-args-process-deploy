@@ -130,21 +130,20 @@ trigger-traefik-vhosts-docker-args-process-deploy() {
       fi
     fi
 
-    local app_json hc_path hc_scheme hc_port hc_timeout hc_interval hc_filter
-    app_json="$(plugn trigger app-json-get-content "$APP" 2>/dev/null || echo "{}")"
-    hc_filter='.healthchecks.web // [] | map(select(.type == "readiness" and .path != null and .path != "")) | .[0]'
-    hc_path=$(echo "$app_json" | jq -r "$hc_filter | .path // empty")
-    if [[ -n "$hc_path" ]]; then
-      hc_scheme=$(echo "$app_json" | jq -r "$hc_filter | .scheme // empty")
-      hc_port=$(echo "$app_json" | jq -r "$hc_filter | .port // empty")
-      hc_timeout=$(echo "$app_json" | jq -r "$hc_filter | .timeout // empty")
-      hc_interval=$(echo "$app_json" | jq -r "$hc_filter | .wait // empty")
+    local healthcheck hc_path hc_scheme hc_port hc_timeout hc_interval
+    healthcheck="$(fn-proxy-get-readiness-healthcheck "$APP")"
+    if [[ -n "$healthcheck" ]]; then
+      hc_path=$(echo "$healthcheck" | jq -r ".path // empty")
+      hc_scheme=$(echo "$healthcheck" | jq -r ".scheme // empty")
+      hc_port=$(echo "$healthcheck" | jq -r ".port // empty")
+      hc_timeout=$(echo "$healthcheck" | jq -r ".timeout // empty")
+      hc_interval=$(echo "$healthcheck" | jq -r ".wait // empty")
 
-      if ! fn-traefik-healthcheck-path-is-valid "$hc_path"; then
+      if ! fn-proxy-healthcheck-path-is-valid "$hc_path"; then
         dokku_log_fail "Invalid app.json healthcheck path for traefik: path must start with a / and must not contain whitespace, control characters, quotes, or backslashes"
       fi
 
-      if ! fn-traefik-healthcheck-scheme-is-valid "$hc_scheme"; then
+      if ! fn-proxy-healthcheck-scheme-is-valid "$hc_scheme"; then
         dokku_log_fail "Invalid app.json healthcheck scheme for traefik: scheme must be one of http or https"
       fi
 

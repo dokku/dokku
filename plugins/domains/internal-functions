@@ -38,9 +38,11 @@ fn-domains-global-vhosts() {
 fn-domains-generate-urls() {
   declare APP="$1" DEFAULT_SCHEME="$2" DEFAULT_LISTEN_PORT="$3"
 
-  local app_vhosts="$(plugn trigger domains-list "$APP")"
-  if [[ -n "$app_vhosts" ]]; then
-    for app_vhost in $app_vhosts; do
+  local app_vhost
+  local -a app_vhosts
+  read -r -d '' -a app_vhosts <<<"$(plugn trigger domains-list "$APP")" || true
+  if [[ "${#app_vhosts[@]}" -gt 0 ]]; then
+    for app_vhost in "${app_vhosts[@]}"; do
       fn-domains-generate-urls-from-config "$APP" "$DEFAULT_SCHEME" "$app_vhost" "$DEFAULT_LISTEN_PORT"
     done
   else

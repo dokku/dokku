@@ -28,7 +28,7 @@ The Haproxy plugin has specific rules for routing requests:
 - Haproxy integration is exposed via docker labels attached to containers. Changes in labels require either app deploys or rebuilds.
 - While Haproxy will respect labels associated with other containers, only `web` containers have Haproxy labels injected by the plugin.
 - Only `http:80` and `https:443` port mappings are supported at this time.
-- Requests are routed as soon as the container is running and passing healthchecks.
+- Requests are routed as soon as the container is running, before Dokku's healthchecks have passed. Haproxy does not support healthcheck configuration via container labels, so `app.json` healthchecks are not used for routing.
 
 ### Switching to Haproxy
 
