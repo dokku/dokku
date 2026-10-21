@@ -957,7 +957,7 @@ dokku docker-options:add node-js-app deploy "--sysctl net.ipv4.ip_unprivileged_p
 
 Passing a non-namespaced sysctl this way fails the deploy rather than silently dropping the value, since it provably cannot take effect within a pod. Note this differs from the `docker-local` scheduler, where such an option is passed straight through to `docker run`.
 
-Kubernetes further splits namespaced sysctls into a *safe* list that any pod may set, and everything else. A sysctl outside the safe list - `net.core.somaxconn`, for example - is rejected at pod admission unless the node's kubelet was started with a matching `allowed-unsafe-sysctls` value, which can be supplied at cluster initialization or when joining a node.
+Kubernetes further splits namespaced sysctls into a _safe_ list that any pod may set, and everything else. A sysctl outside the safe list - `net.core.somaxconn`, for example - is rejected at pod admission unless the node's kubelet was started with a matching `allowed-unsafe-sysctls` value, which can be supplied at cluster initialization or when joining a node.
 
 ```shell
 dokku scheduler-k3s:initialize --kubelet-args allowed-unsafe-sysctls=net.core.somaxconn

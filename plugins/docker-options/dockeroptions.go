@@ -154,9 +154,12 @@ func joinShellTokens(tokens []string) string {
 // quoteShellArg returns s wrapped in single quotes when it contains characters
 // the shell would otherwise interpret (whitespace, quotes, expansion sigils,
 // globs, redirections, etc.). Embedded single quotes are escaped with the
-// standard `'\''` close-escape-open sequence. Tokens free of such characters
-// are returned verbatim so the stored representation stays human-readable for
-// the common case.
+// standard close-escape-open sequence:
+//
+//	'\''
+//
+// Tokens free of such characters are returned verbatim so the stored
+// representation stays human-readable for the common case.
 func quoteShellArg(s string) string {
 	if s == "" {
 		return "''"

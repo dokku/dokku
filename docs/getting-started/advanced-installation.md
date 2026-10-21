@@ -97,6 +97,7 @@ free
 
 echo "/var/swap.img    none    swap    sw    0    0" >> /etc/fstab
 ```
+
 Note: it may be necessary to call swapoff, mkswap and swapon explicitly: `sudo /sbin/swapoff /var/swap.img`, etc.
 
 [Reference](https://www.digitalocean.com/community/tutorials/how-to-configure-virtual-memory-swap-file-on-a-vps)
