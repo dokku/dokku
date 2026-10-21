@@ -188,6 +188,7 @@ go-tests:
 	@$(MAKE) go-test-plugin PLUGIN_NAME=nginx-vhosts
 	@$(MAKE) go-test-plugin PLUGIN_NAME=ps
 	@$(MAKE) go-test-plugin PLUGIN_NAME=registry
+	@$(MAKE) go-test-plugin PLUGIN_NAME=resource
 	@$(MAKE) go-test-plugin PLUGIN_NAME=buildpacks
 	@$(MAKE) go-test-plugin PLUGIN_NAME=scheduler-k3s
 	@$(MAKE) go-test-plugin PLUGIN_NAME=storage

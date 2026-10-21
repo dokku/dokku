@@ -487,6 +487,47 @@ func TestDomainSlug(t *testing.T) {
 	}
 }
 
+func TestParseMemoryQuantity(t *testing.T) {
+	cases := []struct {
+		name    string
+		input   string
+		want    string
+		wantErr bool
+	}{
+		{name: "unitless value defaults to megabytes", input: "512", want: "512Mi"},
+		{name: "lowercase megabytes are not millibytes", input: "256m", want: "256Mi"},
+		{name: "uppercase gigabytes are binary", input: "1G", want: "1Gi"},
+		{name: "lowercase gigabytes", input: "1g", want: "1Gi"},
+		{name: "kubernetes binary unit", input: "1Gi", want: "1Gi"},
+		{name: "two letter unit", input: "512MB", want: "512Mi"},
+		{name: "decimal value", input: "1.5g", want: "1536Mi"},
+		{name: "bytes", input: "100b", want: "100"},
+		{name: "zero", input: "0Mi", want: "0"},
+		{name: "invalid unit", input: "1x", wantErr: true},
+		{name: "kubernetes exponent", input: "1e9", wantErr: true},
+	}
+
+	for _, tc := range cases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			got, err := parseMemoryQuantity(tc.input)
+			if tc.wantErr {
+				if err == nil {
+					t.Fatalf("parseMemoryQuantity(%q) = %q, want error", tc.input, got)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatalf("parseMemoryQuantity(%q) unexpected error: %v", tc.input, err)
+			}
+			if got != tc.want {
+				t.Errorf("parseMemoryQuantity(%q) = %q, want %q", tc.input, got, tc.want)
+			}
+		})
+	}
+}
+
 func TestDomainSlugDistinguishesWildcardFromApex(t *testing.T) {
 	// A kubernetes wildcard host matches exactly one label, so *.example.com does not
 	// cover example.com and both are commonly added to the same app. The generated
