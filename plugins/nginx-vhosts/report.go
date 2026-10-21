@@ -43,6 +43,7 @@ func nginxReportProps() []nginxReportProp {
 		{"proxy-buffers", AppProxyBuffers, ComputedProxyBuffers, wrapGlobal(GlobalProxyBuffers)},
 		{"proxy-busy-buffers-size", AppProxyBusyBuffersSize, ComputedProxyBusyBuffersSize, wrapGlobal(GlobalProxyBusyBuffersSize)},
 		{"proxy-connect-timeout", AppProxyConnectTimeout, ComputedProxyConnectTimeout, wrapGlobal(GlobalProxyConnectTimeout)},
+		{"proxy-http-version", AppProxyHttpVersion, ComputedProxyHttpVersion, wrapGlobal(GlobalProxyHttpVersion)},
 		{"proxy-keepalive", AppProxyKeepalive, ComputedProxyKeepalive, wrapGlobal(GlobalProxyKeepalive)},
 		{"proxy-read-timeout", AppProxyReadTimeout, ComputedProxyReadTimeout, wrapGlobal(GlobalProxyReadTimeout)},
 		{"proxy-send-timeout", AppProxySendTimeout, ComputedProxySendTimeout, wrapGlobal(GlobalProxySendTimeout)},
