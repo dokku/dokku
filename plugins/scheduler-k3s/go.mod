@@ -1,6 +1,6 @@
 module github.com/dokku/dokku/plugins/scheduler-k3s
 
-go 1.27.0
+go 1.27.1
 
 require (
 	github.com/Masterminds/semver/v3 v3.5.0
