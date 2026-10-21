@@ -27,6 +27,7 @@ global_setup() {
   free -m
   cleanup_apps
   cleanup_containers
+  dokku buildpacks:set-property --global stack nerg4l/herokuish:v0.11.21
 }
 
 global_teardown() {
@@ -34,6 +35,7 @@ global_teardown() {
   rm -f "${BATS_PARENT_TMPNAME}.skip" || true
   cleanup_apps
   cleanup_containers
+  dokku buildpacks:set-property --global stack
 }
 
 cleanup_apps() {
