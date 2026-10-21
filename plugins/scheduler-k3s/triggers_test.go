@@ -88,7 +88,7 @@ func TestMigrateChartPropertiesToMapFormatPreservesExistingNonOverlappingKeys(t 
 	setupChartMigrationTest(t)
 
 	Expect(common.PropertyMapWrite("scheduler-k3s", "--global", "chart-overrides.cert-manager", map[string]string{
-		"installCRDs":                              "true",
+		"installCRDs": "true",
 		"service.annotations.prometheus.io/scrape": "true",
 	})).To(Succeed())
 	Expect(common.PropertyWrite("scheduler-k3s", "--global", "chart.cert-manager.installCRDs", "false")).To(Succeed())
@@ -99,9 +99,9 @@ func TestMigrateChartPropertiesToMapFormatPreservesExistingNonOverlappingKeys(t 
 	got, err := common.PropertyMapGet("scheduler-k3s", "--global", "chart-overrides.cert-manager")
 	Expect(err).NotTo(HaveOccurred())
 	Expect(got).To(Equal(map[string]string{
-		"installCRDs":                              "false",
+		"installCRDs": "false",
 		"service.annotations.prometheus.io/scrape": "true",
-		"version":                                  "1.13.3",
+		"version": "1.13.3",
 	}))
 }
 

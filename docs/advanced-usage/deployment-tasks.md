@@ -67,7 +67,7 @@ Sometimes it may be desirable to set a different path for a given app, e.g. when
 dokku app-json:set node-js-app appjson-path .dokku/app.json
 ```
 
-The value is the path to the desired file *relative* to the base search directory, and will never be treated as absolute paths in any context. If that file does not exist within the repository, Dokku will continue the build process as if the repository has no `app.json`.
+The value is the path to the desired file _relative_ to the base search directory, and will never be treated as absolute paths in any context. If that file does not exist within the repository, Dokku will continue the build process as if the repository has no `app.json`.
 
 The default value may be set by passing an empty value for the option:
 

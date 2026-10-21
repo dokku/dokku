@@ -36,7 +36,7 @@ func main() {
 		args.Parse(os.Args[2:])
 		appName := args.Arg(0)
 		if *branch == "" {
-            *branch = common.PropertyGet("git", appName, "deploy-branch")
+			*branch = common.PropertyGet("git", appName, "deploy-branch")
 		}
 		err = buildpacks.CommandDetect(appName, *branch)
 	case "list":

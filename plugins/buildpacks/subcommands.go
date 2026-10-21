@@ -39,9 +39,9 @@ func CommandDetect(appName string, branch string) (err error) {
 
 	workDir := common.AppRoot(appName)
 	checkedOutDir, err := checkoutBareGitRepo(workDir, branch)
-    if err != nil {
-        return err
-    }
+	if err != nil {
+		return err
+	}
 	defer func() {
 		if err := os.RemoveAll(checkedOutDir); err != nil {
 			common.LogWarn(fmt.Sprintf("Failed to remove temporary directory %s: %v", checkedOutDir, err))

@@ -41,11 +41,11 @@ func TestGetLowestNodeVersion(t *testing.T) {
 	}
 
 	cases := []struct {
-		name        string
-		nodes       []*corev1.Node
-		selector    string
-		want        string
-		wantErr     string
+		name     string
+		nodes    []*corev1.Node
+		selector string
+		want     string
+		wantErr  string
 	}{
 		{
 			name: "single control-plane node returns its kubelet version",

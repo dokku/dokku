@@ -40,7 +40,6 @@ A cron task takes the following properties:
 - `schedule`: A [cron-compatible](https://en.wikipedia.org/wiki/Cron#Overview) scheduling definition upon which to run the command. Seconds are generally not supported.
 - `concurrency_policy`: A string (default: `allow`), that controls whether the cron task can be run concurrently with another invocation of itself. Valid options are `allow` (allow concurrency), `forbid` (exit the new cron task if there is an existing one), `replace` (delete any existing cron task and start the new one).
 
-
 Zero or more cron tasks can be specified per app. Cron tasks are validated after the build artifact is created but before the app is deployed, and the cron schedule is updated during the post-deploy phase.
 
 Cron tasks can run for a maximum of 24 hours, after which they are reaped from the system. The `docker-local` scheduler reaps expired tasks via the `dokku ps:retire` pass that runs every 5 minutes, so a task may overrun its deadline by up to 5 minutes. The `k3s` scheduler enforces the deadline directly through the job's `activeDeadlineSeconds`.

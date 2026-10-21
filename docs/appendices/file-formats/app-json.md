@@ -90,6 +90,7 @@ Environment variables from `app.json` are processed during the first deploy, bef
 4. **Optional variables without a value**: Skipped silently if no TTY is available
 
 On subsequent deploys:
+
 - Variables are NOT re-set unless `sync: true` is specified
 - Variables with `sync: true` are always set to their configured value, overwriting any manual changes
 - Variables that already have values are not modified
@@ -97,6 +98,7 @@ On subsequent deploys:
 ### Examples
 
 **Simple default value:**
+
 ```json
 {
   "env": {
@@ -106,6 +108,7 @@ On subsequent deploys:
 ```
 
 **Generated secret (recommended for API keys, tokens, etc.):**
+
 ```json
 {
   "env": {
@@ -118,6 +121,7 @@ On subsequent deploys:
 ```
 
 **Required variable that must be provided:**
+
 ```json
 {
   "env": {
@@ -130,6 +134,7 @@ On subsequent deploys:
 ```
 
 **Variable that stays in sync with app.json:**
+
 ```json
 {
   "env": {

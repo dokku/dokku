@@ -208,8 +208,8 @@ func TestReportSingleAppJSONNonPluginPrefixKey(t *testing.T) {
 	// Keys that don't start with --<reportType>- should pass through with
 	// only the leading "--" stripped, regardless of TrimPrefix.
 	infoFlags := map[string]string{
-		"--build-id":          "abc123",
-		"--builds-retention":  "5",
+		"--build-id":         "abc123",
+		"--builds-retention": "5",
 	}
 
 	out := captureStdout(t, func() {

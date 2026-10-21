@@ -241,22 +241,22 @@ By default, Traefik uses TLS-ALPN-01 challenge for obtaining certificates. To sw
 
 1. Set the challenge mode to `dns`:
 
-```shell
-dokku traefik:set --global challenge-mode dns
-```
+    ```shell
+    dokku traefik:set --global challenge-mode dns
+    ```
 
 2. Set your DNS provider:
 
-```shell
-dokku traefik:set --global dns-provider cloudflare
-```
+    ```shell
+    dokku traefik:set --global dns-provider cloudflare
+    ```
 
 3. Configure the required environment variables for your DNS provider. Each DNS provider requires specific environment variables. The variable names should be prefixed with `dns-provider-`:
 
-```shell
-dokku traefik:set --global dns-provider-cf_api_email user@example.com
-dokku traefik:set --global dns-provider-cf_api_key your-api-key
-```
+    ```shell
+    dokku traefik:set --global dns-provider-cf_api_email user@example.com
+    dokku traefik:set --global dns-provider-cf_api_key your-api-key
+    ```
 
 The `dns-provider-` prefix will be stripped and the variable name will be uppercased when passed to the Traefik container. For example, `dns-provider-cf_api_email` becomes `CF_API_EMAIL`.
 
