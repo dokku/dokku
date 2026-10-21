@@ -30,6 +30,8 @@ Valid resource options include:
 - `--network-egress`
 - `--nvidia-gpu`
 
+Values for `--memory` and `--memory-swap` are validated when set, and invalid values are rejected.
+
 See the [Supported Resource Management Properties](/docs/deployment/schedulers/docker-local.md#supported-resource-management-properties) section of the docker local scheduler documentation for more information on how each resource limit maps to Docker.
 
 Resource reservations are applied only during the `run` and `deploy` phases of an application. Resource limits also apply during the `build` phase when explicitly configured against the `build` process type - see [Build-time Resource Limits](#build-time-resource-limits) below.

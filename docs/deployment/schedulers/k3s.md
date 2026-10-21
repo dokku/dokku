@@ -1293,7 +1293,7 @@ Two differences are worth noting:
 The `k3s` scheduler supports a minimal list of resource _limits_ and _reservations_:
 
 - cpu: is specified in number of CPUs a process can access.
-- memory: should be specified with a suffix of `b` (bytes), `Ki` (kilobytes), `Mi` (megabytes), `Gi` (gigabytes). Default unit is `Mi` (megabytes).
+- memory: should be specified with a suffix of `b` (bytes), `k` (kilobytes), `m` (megabytes), `g` (gigabytes), `t` (terabytes) or `p` (petabytes). Suffixes are case-insensitive and may be followed by `i` and/or `b`, such as `512Mi`, `1G`, or `1GiB`. Units are binary, so `1G` and `1Gi` are equivalent. Default unit is `Mi` (megabytes).
 
 If unspecified for any task, the default reservation will be `.1` CPU and `128Mi` RAM, with no limit set for either CPU or RAM. This is to avoid issues with overscheduling pods on a cluster. To avoid issues, set more specific values for at least resource reservations. If unbounded utilization is desired, set CPU and Memory to `0m` and `0Mi`, respectively.
 

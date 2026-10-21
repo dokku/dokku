@@ -1946,7 +1946,7 @@ func getProcessResources(appName string, processType string) (ProcessResourcesMa
 		if err != nil {
 			return ProcessResourcesMap{}, fmt.Errorf("Error parsing memory limit: %w", err)
 		}
-		if quantity != "0Mi" {
+		if quantity != "0" {
 			processResources.Limits.Memory = quantity
 		} else {
 			processResources.Limits.Memory = ""
@@ -1977,7 +1977,7 @@ func getProcessResources(appName string, processType string) (ProcessResourcesMa
 		if err != nil {
 			return ProcessResourcesMap{}, fmt.Errorf("Error parsing memory request: %w", err)
 		}
-		if quantity != "0Mi" {
+		if quantity != "0" {
 			processResources.Requests.Memory = quantity
 		} else {
 			processResources.Requests.Memory = ""
@@ -2720,17 +2720,14 @@ func cronIDLabelValue(cronID string) string {
 	return hex.EncodeToString(sum[:])
 }
 
-// parseMemoryQuantity parses a string into a valid memory quantity
+// parseMemoryQuantity parses a docker-compatible memory value into a binary memory quantity
 func parseMemoryQuantity(input string) (string, error) {
-	if _, err := strconv.ParseInt(input, 10, 64); err == nil {
-		input = fmt.Sprintf("%sMi", input)
-	}
-	quantity, err := resource.ParseQuantity(input)
+	bytes, err := common.ParseMemoryBytes(input)
 	if err != nil {
 		return "", err
 	}
 
-	return quantity.String(), nil
+	return resource.NewQuantity(bytes, resource.BinarySI).String(), nil
 }
 
 func uninstallHelperCommands(ctx context.Context) error {
