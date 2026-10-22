@@ -390,31 +390,27 @@ func replaceMounts(input CommandMountInput) error {
 		}
 	}
 
-	existing, err := LoadAttachments(input.AppName)
+	err := UpdateAttachments(input.AppName, func(existing []*Attachment) ([]*Attachment, error) {
+		retained := []*Attachment{}
+		for _, attachment := range existing {
+			if attachment.EffectiveProcessType() != processType {
+				retained = append(retained, attachment)
+			}
+		}
+
+		// The declared set is already unique on container path within its own
+		// scope; what is left to check is the scopes this call does not replace,
+		// so a declared path cannot collide with one held by another process type.
+		// Checking before the write keeps the all-or-nothing contract.
+		for _, attachment := range declared {
+			if err := ensureContainerPathFree(input.AppName, retained, attachment); err != nil {
+				return nil, err
+			}
+		}
+
+		return append(retained, declared...), nil
+	})
 	if err != nil {
-		return err
-	}
-
-	retained := []*Attachment{}
-	for _, attachment := range existing {
-		if attachment.EffectiveProcessType() != processType {
-			retained = append(retained, attachment)
-		}
-	}
-
-	// The declared set is already unique on container path within its own
-	// scope; what is left to check is the scopes this call does not replace,
-	// so a declared path cannot collide with one held by another process type.
-	// Checking before the write keeps the all-or-nothing contract.
-	for _, attachment := range declared {
-		if err := ensureContainerPathFree(input.AppName, retained, attachment); err != nil {
-			return err
-		}
-	}
-
-	attachments := append(retained, declared...)
-
-	if err := SaveAttachments(input.AppName, attachments); err != nil {
 		return err
 	}
 
@@ -510,30 +506,27 @@ func resolveUnmountTarget(mount string, containerDir string) (unmountTarget, err
 // written, so an argument naming a mount the app does not have leaves the rest
 // of the set in place rather than removing a prefix of it.
 func unmountMounts(input CommandUnmountInput) error {
-	attachments, err := LoadAttachments(input.AppName)
-	if err != nil {
-		return err
-	}
-
-	for _, mount := range input.Mounts {
-		target, err := resolveUnmountTarget(mount, input.ContainerDir)
-		if err != nil {
-			return err
-		}
-
-		attachments, err = removeMatchingAttachments(attachments, input.AppName, target.EntryName, target.ContainerPath)
-		if err != nil {
-			// The legacy form historically said "Mount path does not
-			// exist." - preserve that exact wording so existing automation
-			// and the bats suite keep matching.
-			if target.Legacy && strings.Contains(err.Error(), "is not mounted") {
-				return errors.New("Mount path does not exist.")
+	return UpdateAttachments(input.AppName, func(attachments []*Attachment) ([]*Attachment, error) {
+		for _, mount := range input.Mounts {
+			target, err := resolveUnmountTarget(mount, input.ContainerDir)
+			if err != nil {
+				return nil, err
 			}
-			return err
-		}
-	}
 
-	return SaveAttachments(input.AppName, attachments)
+			attachments, err = removeMatchingAttachments(attachments, input.AppName, target.EntryName, target.ContainerPath)
+			if err != nil {
+				// The legacy form historically said "Mount path does not
+				// exist." - preserve that exact wording so existing automation
+				// and the bats suite keep matching.
+				if target.Legacy && strings.Contains(err.Error(), "is not mounted") {
+					return nil, errors.New("Mount path does not exist.")
+				}
+				return nil, err
+			}
+		}
+
+		return attachments, nil
+	})
 }
 
 // unmountAll removes every attachment on an app, or every attachment for one
@@ -560,19 +553,16 @@ func unmountAll(input CommandUnmountInput) error {
 		return nil
 	}
 
-	attachments, err := LoadAttachments(input.AppName)
-	if err != nil {
-		return err
-	}
-
-	keep := []*Attachment{}
-	for _, attachment := range attachments {
-		if attachment.EffectiveProcessType() != input.ProcessType {
-			keep = append(keep, attachment)
+	err := UpdateAttachments(input.AppName, func(attachments []*Attachment) ([]*Attachment, error) {
+		keep := []*Attachment{}
+		for _, attachment := range attachments {
+			if attachment.EffectiveProcessType() != input.ProcessType {
+				keep = append(keep, attachment)
+			}
 		}
-	}
-
-	if err := SaveAttachments(input.AppName, keep); err != nil {
+		return keep, nil
+	})
+	if err != nil {
 		return err
 	}
 

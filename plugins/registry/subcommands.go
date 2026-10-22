@@ -126,7 +126,7 @@ func CommandLogin(appName string, server string, username string, password strin
 		env["DOCKER_CONFIG"] = GetAppRegistryConfigDir(appName)
 	}
 
-	result, err := common.CallExecCommand(common.ExecCommandInput{
+	result, err := execDockerConfigCommand(env["DOCKER_CONFIG"], common.ExecCommandInput{
 		Command: common.DockerBin(),
 		Args:    []string{"login", "--username", username, "--password-stdin", server},
 		Env:     env,
@@ -184,7 +184,7 @@ func CommandLogout(appName string, server string) error {
 		env["DOCKER_CONFIG"] = GetAppRegistryConfigDir(appName)
 	}
 
-	result, err := common.CallExecCommand(common.ExecCommandInput{
+	result, err := execDockerConfigCommand(env["DOCKER_CONFIG"], common.ExecCommandInput{
 		Command: common.DockerBin(),
 		Args:    []string{"logout", server},
 		Env:     env,
@@ -225,4 +225,23 @@ func CommandReport(appName string, format string, infoFlag string) error {
 func CommandSet(appName string, property string, value string) error {
 	common.CommandPropertySet("registry", appName, property, value, DefaultProperties, GlobalProperties)
 	return nil
+}
+
+// execDockerConfigCommand runs a docker command that rewrites the credentials
+// file in configDir. docker merges the file it reads with the change it makes,
+// so the directory stays locked for the whole command to keep concurrent logins
+// and logouts for one app from dropping each other's credentials. An empty
+// configDir means docker's own config, which is left unlocked.
+func execDockerConfigCommand(configDir string, input common.ExecCommandInput) (common.ExecCommandResponse, error) {
+	if configDir == "" {
+		return common.CallExecCommand(input)
+	}
+
+	var result common.ExecCommandResponse
+	err := common.LockDirectory(configDir, func() error {
+		var err error
+		result, err = common.CallExecCommand(input)
+		return err
+	})
+	return result, err
 }

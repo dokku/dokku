@@ -116,3 +116,43 @@ fn-plugin-property-setup-app() {
   declare PLUGIN="$1" APP="$2"
   "$PLUGIN_CORE_AVAILABLE_PATH/common/prop" "setup-app" "$PLUGIN" "$APP"
 }
+
+fn-plugin-property-lock() {
+  declare desc="runs a callback while holding the exclusive property lock for an app"
+  declare PLUGIN="$1" APP="$2" CALLBACK="$3"
+  shift 3
+  local lock_dir="${DOKKU_LIB_ROOT}/config/${PLUGIN}/${APP}"
+  local lock_fd previous_locked_directories="$DOKKU_LOCKED_DIRECTORIES"
+
+  if fn-plugin-property-lock-held "$lock_dir"; then
+    "$CALLBACK" "$@"
+    return
+  fi
+
+  fn-plugin-property-setup-app "$PLUGIN" "$APP"
+  exec {lock_fd}<"$lock_dir"
+  flock "$lock_fd"
+
+  export DOKKU_LOCKED_DIRECTORIES="${previous_locked_directories:+$previous_locked_directories$'\n'}$lock_dir"
+  "$CALLBACK" "$@"
+  local status=$?
+
+  if [[ -n "$previous_locked_directories" ]]; then
+    export DOKKU_LOCKED_DIRECTORIES="$previous_locked_directories"
+  else
+    unset DOKKU_LOCKED_DIRECTORIES
+  fi
+  exec {lock_fd}<&-
+  return "$status"
+}
+
+fn-plugin-property-lock-held() {
+  declare desc="returns whether a property lock directory is already held by a parent process"
+  declare LOCK_DIR="$1"
+  local held
+
+  while IFS= read -r held; do
+    [[ -n "$held" ]] && [[ "$held" == "$LOCK_DIR" ]] && return 0
+  done <<<"$DOKKU_LOCKED_DIRECTORIES"
+  return 1
+}

@@ -54,12 +54,14 @@ func migrateGlobalEnv() error {
 	}
 
 	oldGlobalEnvFile := filepath.Join(common.MustGetEnv("DOKKU_ROOT"), "ENV")
-	globalEnv, err := LoadGlobalEnv()
-	if err != nil {
-		return fmt.Errorf("Unable to load global environment: %s", err.Error())
-	}
+	return common.LockDirectory(filepath.Dir(getGlobalFile()), func() error {
+		globalEnv, err := LoadGlobalEnv()
+		if err != nil {
+			return fmt.Errorf("Unable to load global environment: %s", err.Error())
+		}
 
-	return drainLegacyEnvFile("--global", oldGlobalEnvFile, globalEnv)
+		return drainLegacyEnvFile("--global", oldGlobalEnvFile, globalEnv)
+	})
 }
 
 // migrateAppEnv drains $DOKKU_ROOT/<app>/ENV into the app's config property path.
@@ -72,13 +74,20 @@ func migrateAppEnv(appName string) error {
 		return fmt.Errorf("Unable to setup app config directory: %s", err.Error())
 	}
 
-	env, err := LoadAppEnv(appName)
+	appFile, err := getAppFile(appName)
 	if err != nil {
-		return fmt.Errorf("Unable to load app environment: %s", err.Error())
+		return err
 	}
 
 	oldEnvFile := filepath.Join(common.AppRoot(appName), "ENV")
-	return drainLegacyEnvFile(appName, oldEnvFile, env)
+	return common.LockDirectory(filepath.Dir(appFile), func() error {
+		env, err := LoadAppEnv(appName)
+		if err != nil {
+			return fmt.Errorf("Unable to load app environment: %s", err.Error())
+		}
+
+		return drainLegacyEnvFile(appName, oldEnvFile, env)
+	})
 }
 
 // drainLegacyEnvFile merges the legacy ENV file at oldEnvFile into env, records

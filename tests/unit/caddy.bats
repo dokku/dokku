@@ -429,3 +429,26 @@ teardown() {
   assert_success
   assert_output_not_exists
 }
+
+@test "(caddy:labels:add) concurrent calls for the same app keep every label" {
+  run run_concurrently 20 /bin/bash -c 'dokku caddy:labels:add "$1" "caddy.race$2" value' _ "$TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku caddy:labels:show $TEST_APP | grep -c 'caddy\.race[0-9]*=value'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "20"
+
+  run run_concurrently 20 /bin/bash -c 'dokku caddy:labels:remove "$1" "caddy.race$2"' _ "$TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku caddy:labels:show $TEST_APP 2>/dev/null | grep -c 'caddy\.race[0-9]*=value'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "0"
+}

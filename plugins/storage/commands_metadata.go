@@ -76,32 +76,27 @@ func setEntryMapKey(field entryMapField, name string, key string, value string) 
 		return fmt.Errorf("storage entry %q does not exist", name)
 	}
 
-	entry, err := LoadEntry(name)
-	if err != nil {
-		return err
-	}
-
-	values := field.Get(entry)
-	if value == "" {
-		delete(values, key)
-		common.LogInfo2Quiet(fmt.Sprintf("Unsetting %s %s", field.Singular, key))
-	} else {
-		if values == nil {
-			values = map[string]string{}
+	entry, err := UpdateEntry(name, func(entry *Entry) error {
+		values := field.Get(entry)
+		if value == "" {
+			delete(values, key)
+			common.LogInfo2Quiet(fmt.Sprintf("Unsetting %s %s", field.Singular, key))
+		} else {
+			if values == nil {
+				values = map[string]string{}
+			}
+			values[key] = value
+			common.LogInfo2Quiet(fmt.Sprintf("Setting %s %s to %s", field.Singular, key, value))
 		}
-		values[key] = value
-		common.LogInfo2Quiet(fmt.Sprintf("Setting %s %s to %s", field.Singular, key, value))
-	}
-	if len(values) == 0 {
-		// Drop the empty map so the omitempty tag keeps it out of the JSON.
-		values = nil
-	}
-	field.Set(entry, values)
+		if len(values) == 0 {
+			// Drop the empty map so the omitempty tag keeps it out of the JSON.
+			values = nil
+		}
+		field.Set(entry, values)
 
-	if err := entry.Validate(); err != nil {
-		return err
-	}
-	if err := SaveEntry(entry); err != nil {
+		return entry.Validate()
+	})
+	if err != nil {
 		return err
 	}
 

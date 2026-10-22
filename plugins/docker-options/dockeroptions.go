@@ -198,32 +198,17 @@ func SetDockerOptionForPhases(appName string, phases []string, name string, valu
 // SetDockerOptionForProcessPhases sets a `--name=value` option for the specified
 // process types and phases, replacing any existing entry with the same name.
 func SetDockerOptionForProcessPhases(appName string, processTypes []string, phases []string, name string, value string) error {
-	if len(processTypes) == 0 {
-		processTypes = []string{DefaultProcessType}
-	}
-	for _, processType := range processTypes {
-		for _, phase := range phases {
-			options, err := GetDockerOptionsForProcessPhase(appName, processType, phase)
-			if err != nil {
-				return err
+	return updateDockerOptionsForProcessPhases(appName, processTypes, phases, func(options []string) []string {
+		newOptions := []string{}
+		for _, option := range options {
+			if strings.HasPrefix(option, fmt.Sprintf("--%s=", name)) {
+				continue
 			}
-
-			newOptions := []string{}
-			for _, option := range options {
-				if strings.HasPrefix(option, fmt.Sprintf("--%s=", name)) {
-					continue
-				}
-				newOptions = append(newOptions, option)
-			}
-
-			newOptions = append(newOptions, fmt.Sprintf("--%s=%s", name, value))
-			sort.Strings(newOptions)
-			if err := writeDockerOptionsForProcessPhase(appName, processType, phase, newOptions); err != nil {
-				return err
-			}
+			newOptions = append(newOptions, option)
 		}
-	}
-	return nil
+
+		return append(newOptions, fmt.Sprintf("--%s=%s", name, value))
+	})
 }
 
 // AddDockerOptionToPhases adds an option to the default scope for the specified phases.
@@ -233,24 +218,9 @@ func AddDockerOptionToPhases(appName string, phases []string, option string) err
 
 // AddDockerOptionToProcessPhases adds an option to the specified process types and phases.
 func AddDockerOptionToProcessPhases(appName string, processTypes []string, phases []string, option string) error {
-	if len(processTypes) == 0 {
-		processTypes = []string{DefaultProcessType}
-	}
-	for _, processType := range processTypes {
-		for _, phase := range phases {
-			options, err := GetDockerOptionsForProcessPhase(appName, processType, phase)
-			if err != nil {
-				return err
-			}
-
-			options = append(options, option)
-			sort.Strings(options)
-			if err := writeDockerOptionsForProcessPhase(appName, processType, phase, options); err != nil {
-				return err
-			}
-		}
-	}
-	return nil
+	return updateDockerOptionsForProcessPhases(appName, processTypes, phases, func(options []string) []string {
+		return append(options, option)
+	})
 }
 
 // GetDockerOptionsForPhase returns the docker options stored under the default
@@ -290,30 +260,15 @@ func RemoveDockerOptionFromPhases(appName string, phases []string, option string
 // non-canonical form still matches the canonically re-serialized string the
 // CLI hands down.
 func RemoveDockerOptionFromProcessPhases(appName string, processTypes []string, phases []string, option string) error {
-	if len(processTypes) == 0 {
-		processTypes = []string{DefaultProcessType}
-	}
-	for _, processType := range processTypes {
-		for _, phase := range phases {
-			options, err := GetDockerOptionsForProcessPhase(appName, processType, phase)
-			if err != nil {
-				return err
-			}
-
-			newOptions := []string{}
-			for _, opt := range options {
-				if !optionsEqual(opt, option) {
-					newOptions = append(newOptions, opt)
-				}
-			}
-
-			sort.Strings(newOptions)
-			if err := writeDockerOptionsForProcessPhase(appName, processType, phase, newOptions); err != nil {
-				return err
+	return updateDockerOptionsForProcessPhases(appName, processTypes, phases, func(options []string) []string {
+		newOptions := []string{}
+		for _, opt := range options {
+			if !optionsEqual(opt, option) {
+				newOptions = append(newOptions, opt)
 			}
 		}
-	}
-	return nil
+		return newOptions
+	})
 }
 
 // GetSpecifiedDockerOptionsForPhase returns the docker options for the specified
@@ -410,6 +365,31 @@ func splitPropertyKey(key string) (processType, phase string, ok bool) {
 	return processType, phase, true
 }
 
-func writeDockerOptionsForProcessPhase(appName, processType, phase string, options []string) error {
-	return common.PropertyListWrite("docker-options", appName, propertyKey(processType, phase), options)
+// updateDockerOptionsForProcessPhases rewrites the stored options of every
+// process type and phase combination with the sorted result of update, holding
+// the app's docker-options property lock across every read and write so
+// concurrent updates to the same app cannot drop each other's options. An
+// empty processTypes list is treated as the default scope.
+func updateDockerOptionsForProcessPhases(appName string, processTypes []string, phases []string, update func(options []string) []string) error {
+	if len(processTypes) == 0 {
+		processTypes = []string{DefaultProcessType}
+	}
+
+	return common.PropertyLock("docker-options", appName, func(p *common.LockedProperties) error {
+		for _, processType := range processTypes {
+			for _, phase := range phases {
+				options, err := GetDockerOptionsForProcessPhase(appName, processType, phase)
+				if err != nil {
+					return err
+				}
+
+				options = update(options)
+				sort.Strings(options)
+				if err := p.ListWrite(propertyKey(processType, phase), options); err != nil {
+					return err
+				}
+			}
+		}
+		return nil
+	})
 }

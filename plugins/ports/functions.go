@@ -15,10 +15,18 @@ import (
 
 // addPortMaps adds port mappings to an app
 func addPortMaps(appName string, portMaps []PortMap) error {
+	return common.PropertyLock("ports", appName, func(p *common.LockedProperties) error {
+		return addPortMapsWithLock(p, appName, portMaps)
+	})
+}
+
+// addPortMapsWithLock adds port mappings to an app. The caller must hold the
+// app's ports property lock.
+func addPortMapsWithLock(p *common.LockedProperties, appName string, portMaps []PortMap) error {
 	allPortMaps := getPortMaps(appName)
 	allPortMaps = append(allPortMaps, portMaps...)
 
-	return setPortMaps(appName, allPortMaps)
+	return writePortMaps(p, allPortMaps)
 }
 
 // clearPorts clears all port mappings for an app
@@ -365,6 +373,14 @@ func parsePortMapString(stringPortMap string) ([]PortMap, error) {
 
 // removePortMaps removes specific port mappings from an app
 func removePortMaps(appName string, portMaps []PortMap) error {
+	return common.PropertyLock("ports", appName, func(p *common.LockedProperties) error {
+		return removePortMapsWithLock(p, appName, portMaps)
+	})
+}
+
+// removePortMapsWithLock removes specific port mappings from an app. The caller
+// must hold the app's ports property lock.
+func removePortMapsWithLock(p *common.LockedProperties, appName string, portMaps []PortMap) error {
 	toRemove := map[string]bool{}
 	toRemoveByPort := map[int]bool{}
 
@@ -390,10 +406,10 @@ func removePortMaps(appName string, portMaps []PortMap) error {
 	}
 
 	if len(toSet) == 0 {
-		return common.PropertyDelete("ports", appName, "map")
+		return p.Delete("map")
 	}
 
-	return setPortMaps(appName, toSet)
+	return writePortMaps(p, toSet)
 }
 
 // reusesSchemeHostPort returns true if the port maps reuse the same scheme:host-port
@@ -413,6 +429,14 @@ func reusesSchemeHostPort(portMaps []PortMap) error {
 
 // setPortMaps sets the port maps for an app
 func setPortMaps(appName string, portMaps []PortMap) error {
+	return common.PropertyLock("ports", appName, func(p *common.LockedProperties) error {
+		return writePortMaps(p, portMaps)
+	})
+}
+
+// writePortMaps writes the port maps for an app. The caller must hold the
+// app's ports property lock.
+func writePortMaps(p *common.LockedProperties, portMaps []PortMap) error {
 	if err := reusesSchemeHostPort(portMaps); err != nil {
 		return fmt.Errorf("Error validating port mappings: %s", err)
 	}
@@ -427,7 +451,7 @@ func setPortMaps(appName string, portMaps []PortMap) error {
 	}
 
 	sort.Strings(value)
-	return common.PropertyListWrite("ports", appName, "map", value)
+	return p.ListWrite("map", value)
 }
 
 // setProxyPort sets the proxy port for an app

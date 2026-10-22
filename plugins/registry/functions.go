@@ -123,21 +123,28 @@ func isPushEnabled(appName string) bool {
 	return reportComputedPushOnRelease(appName) == "true"
 }
 
+// incrementTagVersion bumps the app's tag version and returns the new value,
+// holding the app's registry property lock across the read and the write so
+// concurrent releases never hand out the same version.
 func incrementTagVersion(appName string) (int, error) {
-	tag := common.PropertyGet("registry", appName, "tag-version")
-	if tag == "" {
-		tag = "0"
-	}
+	version := 0
+	err := common.PropertyLock("registry", appName, func(p *common.LockedProperties) error {
+		tag := common.PropertyGet("registry", appName, "tag-version")
+		if tag == "" {
+			tag = "0"
+		}
 
-	tag = strings.TrimSpace(tag)
-	version, err := strconv.Atoi(tag)
+		tag = strings.TrimSpace(tag)
+		current, err := strconv.Atoi(tag)
+		if err != nil {
+			return fmt.Errorf("Unable to convert existing tag version (%s) to integer: %v", tag, err)
+		}
+
+		version = current + 1
+		common.LogVerboseQuiet(fmt.Sprintf("Bumping tag to %d", version))
+		return p.Write("tag-version", strconv.Itoa(version))
+	})
 	if err != nil {
-		return 0, fmt.Errorf("Unable to convert existing tag version (%s) to integer: %v", tag, err)
-	}
-
-	version++
-	common.LogVerboseQuiet(fmt.Sprintf("Bumping tag to %d", version))
-	if err = common.PropertyWrite("registry", appName, "tag-version", strconv.Itoa(version)); err != nil {
 		return 0, err
 	}
 

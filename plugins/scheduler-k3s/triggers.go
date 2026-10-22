@@ -103,36 +103,38 @@ func TriggerInstall() error {
 // chart, and legacy values take precedence over any partial pre-existing
 // entries on re-runs.
 func migrateChartPropertiesToMapFormat() error {
-	for _, chart := range HelmCharts {
-		prefix := "chart." + chart.ReleaseName + "."
-		legacy, err := common.PropertyGetAllByPrefix("scheduler-k3s", "--global", prefix)
-		if err != nil {
-			return fmt.Errorf("Unable to read legacy chart properties for %s: %w", chart.ReleaseName, err)
-		}
-		if len(legacy) == 0 {
-			continue
-		}
+	return common.PropertyLock("scheduler-k3s", "--global", func(p *common.LockedProperties) error {
+		for _, chart := range HelmCharts {
+			prefix := "chart." + chart.ReleaseName + "."
+			legacy, err := common.PropertyGetAllByPrefix("scheduler-k3s", "--global", prefix)
+			if err != nil {
+				return fmt.Errorf("Unable to read legacy chart properties for %s: %w", chart.ReleaseName, err)
+			}
+			if len(legacy) == 0 {
+				continue
+			}
 
-		mapProperty := "chart-overrides." + chart.ReleaseName
-		merged, err := common.PropertyMapGet("scheduler-k3s", "--global", mapProperty)
-		if err != nil {
-			return fmt.Errorf("Unable to read existing chart-overrides for %s: %w", chart.ReleaseName, err)
-		}
-		for fullKey, value := range legacy {
-			merged[strings.TrimPrefix(fullKey, prefix)] = value
-		}
+			mapProperty := "chart-overrides." + chart.ReleaseName
+			merged, err := common.PropertyMapGet("scheduler-k3s", "--global", mapProperty)
+			if err != nil {
+				return fmt.Errorf("Unable to read existing chart-overrides for %s: %w", chart.ReleaseName, err)
+			}
+			for fullKey, value := range legacy {
+				merged[strings.TrimPrefix(fullKey, prefix)] = value
+			}
 
-		if err := common.PropertyMapWrite("scheduler-k3s", "--global", mapProperty, merged); err != nil {
-			return fmt.Errorf("Unable to write chart-overrides for %s: %w", chart.ReleaseName, err)
-		}
+			if err := p.MapWrite(mapProperty, merged); err != nil {
+				return fmt.Errorf("Unable to write chart-overrides for %s: %w", chart.ReleaseName, err)
+			}
 
-		for fullKey := range legacy {
-			if err := common.PropertyDelete("scheduler-k3s", "--global", fullKey); err != nil {
-				return fmt.Errorf("Unable to remove legacy chart property %s: %w", fullKey, err)
+			for fullKey := range legacy {
+				if err := p.Delete(fullKey); err != nil {
+					return fmt.Errorf("Unable to remove legacy chart property %s: %w", fullKey, err)
+				}
 			}
 		}
-	}
-	return nil
+		return nil
+	})
 }
 
 // migrateAnnotationsLabelsToMapFormat converts the legacy line-formatted
@@ -207,31 +209,33 @@ func migrateAnnotationsLabelsToMapFormat() error {
 // file as a JSON map. It is a no-op when the file is already valid JSON or
 // empty (idempotent).
 func migrateAnnotationLabelProperty(scope string, propertyName string) error {
-	if _, err := common.PropertyMapGet("scheduler-k3s", scope, propertyName); err == nil {
+	return common.PropertyLock("scheduler-k3s", scope, func(p *common.LockedProperties) error {
+		if _, err := common.PropertyMapGet("scheduler-k3s", scope, propertyName); err == nil {
+			return nil
+		}
+
+		lines, err := common.PropertyListGet("scheduler-k3s", scope, propertyName)
+		if err != nil {
+			return fmt.Errorf("Unable to read legacy property %s/%s: %w", scope, propertyName, err)
+		}
+
+		m := map[string]string{}
+		for _, line := range lines {
+			if line == "" {
+				continue
+			}
+			parts := strings.SplitN(line, ": ", 2)
+			if len(parts) != 2 {
+				return fmt.Errorf("Invalid legacy entry in %s/%s: %s", scope, propertyName, line)
+			}
+			m[parts[0]] = parts[1]
+		}
+
+		if err := p.MapWrite(propertyName, m); err != nil {
+			return fmt.Errorf("Unable to write %s/%s as map: %w", scope, propertyName, err)
+		}
 		return nil
-	}
-
-	lines, err := common.PropertyListGet("scheduler-k3s", scope, propertyName)
-	if err != nil {
-		return fmt.Errorf("Unable to read legacy property %s/%s: %w", scope, propertyName, err)
-	}
-
-	m := map[string]string{}
-	for _, line := range lines {
-		if line == "" {
-			continue
-		}
-		parts := strings.SplitN(line, ": ", 2)
-		if len(parts) != 2 {
-			return fmt.Errorf("Invalid legacy entry in %s/%s: %s", scope, propertyName, line)
-		}
-		m[parts[0]] = parts[1]
-	}
-
-	if err := common.PropertyMapWrite("scheduler-k3s", scope, propertyName, m); err != nil {
-		return fmt.Errorf("Unable to write %s/%s as map: %w", scope, propertyName, err)
-	}
-	return nil
+	})
 }
 
 // TriggerPostCertsUpdate handles post-certs-update trigger

@@ -129,7 +129,7 @@ func PropertyGetAll(pluginName string, appName string) (map[string]string, error
 	}
 
 	for _, file := range files {
-		if file.IsDir() {
+		if file.IsDir() || strings.HasPrefix(file.Name(), ".") {
 			continue
 		}
 		property := file.Name()
@@ -159,7 +159,7 @@ func PropertyGetAllByPrefix(pluginName string, appName string, prefix string) (m
 	}
 
 	for _, file := range files {
-		if file.IsDir() {
+		if file.IsDir() || strings.HasPrefix(file.Name(), ".") {
 			continue
 		}
 		property := file.Name()
@@ -192,64 +192,49 @@ func PropertyGetDefault(pluginName, appName, property, defaultValue string) (val
 
 // PropertyListAdd adds a property to a list at an optionally specified index
 func PropertyListAdd(pluginName string, appName string, property string, value string, index int) error {
-	if err := propertyTouch(pluginName, appName, property); err != nil {
-		return err
-	}
-
-	scannedLines, err := PropertyListGet(pluginName, appName, property)
-	if err != nil {
-		return err
-	}
-
 	value = strings.TrimSpace(value)
+	return PropertyListUpdate(pluginName, appName, property, func(scannedLines []string) ([]string, error) {
+		var lines []string
+		for i, line := range scannedLines {
+			if index != 0 && i == (index-1) {
+				lines = append(lines, value)
+			}
+			lines = append(lines, line)
+		}
 
-	var lines []string
-	for i, line := range scannedLines {
-		if index != 0 && i == (index-1) {
+		if index == 0 || index > len(scannedLines) {
 			lines = append(lines, value)
 		}
-		lines = append(lines, line)
-	}
 
-	if index == 0 || index > len(scannedLines) {
-		lines = append(lines, value)
-	}
+		return lines, nil
+	})
+}
 
-	return PropertyListWrite(pluginName, appName, property, lines)
+// PropertyListUpdate reads a list property, passes it to fn and writes back the
+// list fn returns, holding the plugin/app property lock throughout so a
+// concurrent update cannot be lost between the read and the write. Nothing is
+// written when fn returns an error.
+func PropertyListUpdate(pluginName string, appName string, property string, fn func(lines []string) ([]string, error)) error {
+	return PropertyLock(pluginName, appName, func(p *LockedProperties) error {
+		lines, err := PropertyListGet(pluginName, appName, property)
+		if err != nil {
+			return err
+		}
+
+		lines, err = fn(lines)
+		if err != nil {
+			return err
+		}
+
+		return p.ListWrite(property, lines)
+	})
 }
 
 // PropertyListWrite completely rewrites a list property
 func PropertyListWrite(pluginName string, appName string, property string, values []string) error {
-	if err := propertyTouch(pluginName, appName, property); err != nil {
-		return err
-	}
-
-	propertyPath := getPropertyPath(pluginName, appName, property)
-	file, err := os.OpenFile(propertyPath, os.O_RDWR|os.O_TRUNC, 0600)
-	if err != nil {
-		return err
-	}
-
-	w := bufio.NewWriter(file)
-	for _, line := range values {
-		fmt.Fprintln(w, line)
-	}
-	if err = w.Flush(); err != nil {
-		return fmt.Errorf("Unable to write %s config value %s.%s: %s", pluginName, appName, property, err.Error())
-	}
-
-	if err := file.Close(); err != nil {
-		return fmt.Errorf("Unable to close %s config value %s.%s: %s", pluginName, appName, property, err.Error())
-	}
-
-	if err := SetPermissions(SetPermissionInput{
-		Filename: propertyPath,
-		Mode:     os.FileMode(0600),
-	}); err != nil {
-		return fmt.Errorf("Unable to set permissions for %s config value %s.%s: %s", pluginName, appName, property, err.Error())
-	}
-
-	return nil
+	return PropertyLock(pluginName, appName, func(p *LockedProperties) error {
+		return p.ListWrite(property, values)
+	})
 }
 
 // PropertyListGet returns a property list
@@ -350,71 +335,142 @@ func PropertyListGetByValue(pluginName string, appName string, property string, 
 
 // PropertyListRemove removes a value from a property list
 func PropertyListRemove(pluginName string, appName string, property string, value string) error {
-	lines, err := PropertyListGet(pluginName, appName, property)
-	if err != nil {
-		return err
-	}
-
-	propertyPath := getPropertyPath(pluginName, appName, property)
-	file, err := os.OpenFile(propertyPath, os.O_RDWR|os.O_TRUNC, 0600)
-	if err != nil {
-		return err
-	}
-
-	found := false
-	w := bufio.NewWriter(file)
-	for _, line := range lines {
-		if line == value {
-			found = true
-			continue
-		}
-		fmt.Fprintln(w, line)
-	}
-	if err = w.Flush(); err != nil {
-		return fmt.Errorf("Unable to write %s config value %s.%s: %s", pluginName, appName, property, err.Error())
-	}
-
-	if err := file.Close(); err != nil {
-		return fmt.Errorf("Unable to close %s config value %s.%s: %s", pluginName, appName, property, err.Error())
-	}
-
-	if err := SetPermissions(SetPermissionInput{
-		Filename: propertyPath,
-		Mode:     os.FileMode(0600),
-	}); err != nil {
-		return fmt.Errorf("Unable to set permissions for %s config value %s.%s: %s", pluginName, appName, property, err.Error())
-	}
-
-	if !found {
-		return errors.New("Property not found, nothing was removed")
-	}
-
-	return nil
+	return propertyListRemoveMatching(pluginName, appName, property, func(line string) bool {
+		return line == value
+	})
 }
 
 // PropertyListRemoveByPrefix removes a value by prefix from a property list
 func PropertyListRemoveByPrefix(pluginName string, appName string, property string, prefix string) error {
-	lines, err := PropertyListGet(pluginName, appName, property)
-	if err != nil {
-		return err
+	return propertyListRemoveMatching(pluginName, appName, property, func(line string) bool {
+		return strings.HasPrefix(line, prefix)
+	})
+}
+
+// propertyListRemoveMatching drops every line of a list property that matches,
+// returning an error when nothing matched. A missing property is reported as
+// not found without taking the lock, so removing from an app with no
+// properties does not create its property directory.
+func propertyListRemoveMatching(pluginName string, appName string, property string, matches func(line string) bool) error {
+	errNotFound := errors.New("Property not found, nothing was removed")
+	if !PropertyExists(pluginName, appName, property) {
+		return errNotFound
 	}
 
-	propertyPath := getPropertyPath(pluginName, appName, property)
-	file, err := os.OpenFile(propertyPath, os.O_RDWR|os.O_TRUNC, 0600)
-	if err != nil {
-		return err
-	}
-
-	found := false
-	w := bufio.NewWriter(file)
-	for _, line := range lines {
-		if strings.HasPrefix(line, prefix) {
-			found = true
-			continue
+	return PropertyListUpdate(pluginName, appName, property, func(lines []string) ([]string, error) {
+		found := false
+		kept := []string{}
+		for _, line := range lines {
+			if matches(line) {
+				found = true
+				continue
+			}
+			kept = append(kept, line)
 		}
-		fmt.Fprintln(w, line)
+
+		if !found {
+			return nil, errNotFound
+		}
+		return kept, nil
+	})
+}
+
+// PropertyListSet sets a value within a property list at a specified index
+func PropertyListSet(pluginName string, appName string, property string, value string, index int) error {
+	value = strings.TrimSpace(value)
+	return PropertyListUpdate(pluginName, appName, property, func(scannedLines []string) ([]string, error) {
+		var lines []string
+		if index >= len(scannedLines) {
+			lines = append(lines, scannedLines...)
+			lines = append(lines, value)
+		} else {
+			for i, line := range scannedLines {
+				if i == index {
+					lines = append(lines, value)
+				} else {
+					lines = append(lines, line)
+				}
+			}
+		}
+
+		return lines, nil
+	})
+}
+
+// LockedProperties writes the properties of one plugin/app pair while the
+// caller holds that pair's property lock. It is handed to the PropertyLock
+// callback and is only valid until the callback returns.
+type LockedProperties struct {
+	pluginName string
+	appName    string
+}
+
+// Write writes a value for a property
+func (p *LockedProperties) Write(property string, value string) error {
+	return writePropertyFile(p.pluginName, p.appName, property, []byte(value))
+}
+
+// Delete deletes a property
+func (p *LockedProperties) Delete(property string) error {
+	return PropertyDelete(p.pluginName, p.appName, property)
+}
+
+// ListWrite completely rewrites a list property
+func (p *LockedProperties) ListWrite(property string, values []string) error {
+	var b strings.Builder
+	for _, line := range values {
+		b.WriteString(line)
+		b.WriteString("\n")
 	}
-	if err = w.Flush(); err != nil {
+	return writePropertyFile(p.pluginName, p.appName, property, []byte(b.String()))
+}
+
+// MapWrite persists a string→string map for a property as a single JSON file.
+// A nil map is persisted as "{}".
+func (p *LockedProperties) MapWrite(property string, m map[string]string) error {
+	if m == nil {
+		m = map[string]string{}
+	}
+
+	b, err := json.Marshal(m)
+	if err != nil {
+		return fmt.Errorf("Unable to marshal %s map property %s.%s: %w", p.pluginName, p.appName, property, err)
+	}
+
+	return writePropertyFile(p.pluginName, p.appName, property, b)
+}
+
+// PropertyLock runs fn while holding an exclusive lock on the properties of a
+// plugin/app pair, creating the property directory when it does not exist yet.
+// Use it to read properties and write values derived from them without a
+// concurrent writer slipping in between. Reads inside fn go through the normal
+// getters; writes must go through the LockedProperties handle, since the public
+// writers take this same lock and would block forever. Locks for other
+// plugin/app pairs may be taken inside fn.
+func PropertyLock(pluginName string, appName string, fn func(p *LockedProperties) error) error {
+	if err := makePluginAppPropertyPath(pluginName, appName); err != nil {
+		return fmt.Errorf("Unable to create %s config directory for %s: %s", pluginName, appName, err.Error())
+	}
+
+	return LockDirectory(getPluginAppPropertyPath(pluginName, appName), func() error {
+		return fn(&LockedProperties{pluginName: pluginName, appName: appName})
+	})
+}
+
+// writePropertyFile atomically replaces a property's contents. The data is
+// written to a hidden temporary file in the property directory and renamed
+// into place, so a concurrent reader sees either the old or the new contents
+// and never a truncated file.
+func writePropertyFile(pluginName string, appName string, property string, data []byte) error {
+	propertyPath := getPropertyPath(pluginName, appName, property)
+	file, err := os.CreateTemp(filepath.Dir(propertyPath), fmt.Sprintf(".%s.tmp-*", property))
+	if err != nil {
+		return fmt.Errorf("Unable to write %s config value %s.%s: %s", pluginName, appName, property, err.Error())
+	}
+	defer os.Remove(file.Name())
+
+	if _, err := file.Write(data); err != nil {
+		file.Close()
 		return fmt.Errorf("Unable to write %s config value %s.%s: %s", pluginName, appName, property, err.Error())
 	}
 
@@ -423,96 +479,24 @@ func PropertyListRemoveByPrefix(pluginName string, appName string, property stri
 	}
 
 	if err := SetPermissions(SetPermissionInput{
-		Filename: propertyPath,
+		Filename: file.Name(),
 		Mode:     os.FileMode(0600),
 	}); err != nil {
 		return fmt.Errorf("Unable to set permissions for %s config value %s.%s: %s", pluginName, appName, property, err.Error())
 	}
 
-	if !found {
-		return errors.New("Property not found, nothing was removed")
-	}
-
-	return nil
-}
-
-// PropertyListSet sets a value within a property list at a specified index
-func PropertyListSet(pluginName string, appName string, property string, value string, index int) error {
-	if err := propertyTouch(pluginName, appName, property); err != nil {
-		return err
-	}
-
-	scannedLines, err := PropertyListGet(pluginName, appName, property)
-	if err != nil {
-		return err
-	}
-
-	value = strings.TrimSpace(value)
-
-	var lines []string
-	if index >= len(scannedLines) {
-		lines = append(lines, scannedLines...)
-		lines = append(lines, value)
-	} else {
-		for i, line := range scannedLines {
-			if i == index {
-				lines = append(lines, value)
-			} else {
-				lines = append(lines, line)
-			}
-		}
-	}
-
-	return PropertyListWrite(pluginName, appName, property, lines)
-}
-
-// propertyTouch ensures a given application property file exists
-func propertyTouch(pluginName string, appName string, property string) error {
-	if err := makePluginAppPropertyPath(pluginName, appName); err != nil {
-		return fmt.Errorf("Unable to create %s config directory for %s: %s", pluginName, appName, err.Error())
-	}
-
-	propertyPath := getPropertyPath(pluginName, appName, property)
-	if PropertyExists(pluginName, appName, property) {
-		return nil
-	}
-
-	file, err := os.Create(propertyPath)
-	if err != nil {
+	if err := os.Rename(file.Name(), propertyPath); err != nil {
 		return fmt.Errorf("Unable to write %s config value %s.%s: %s", pluginName, appName, property, err.Error())
 	}
-	defer file.Close()
 
 	return nil
 }
 
 // PropertyWrite writes a value for a given application property
 func PropertyWrite(pluginName string, appName string, property string, value string) error {
-	if err := propertyTouch(pluginName, appName, property); err != nil {
-		return err
-	}
-
-	propertyPath := getPropertyPath(pluginName, appName, property)
-	file, err := os.Create(propertyPath)
-	if err != nil {
-		return fmt.Errorf("Unable to write %s config value %s.%s: %s", pluginName, appName, property, err.Error())
-	}
-	defer file.Close()
-
-	fmt.Fprint(file, value)
-
-	if err := file.Close(); err != nil {
-		return fmt.Errorf("Unable to close %s config value %s.%s: %s", pluginName, appName, property, err.Error())
-	}
-
-	if err := SetPermissions(SetPermissionInput{
-		Filename: propertyPath,
-		Mode:     os.FileMode(0600),
-	}); err != nil {
-		return fmt.Errorf("Unable to set permissions for %s config value %s.%s: %s", pluginName, appName, property, err.Error())
-	}
-
-	return nil
+	return PropertyLock(pluginName, appName, func(p *LockedProperties) error {
+		return p.Write(property, value)
+	})
 }
 
 // PropertyMapWrite persists a string→string map for a given property as a single
@@ -520,32 +504,9 @@ func PropertyWrite(pluginName string, appName string, property string, value str
 // bytes (including '/' or '\n') because they live inside file content rather
 // than in the on-disk filename. A nil map is persisted as "{}".
 func PropertyMapWrite(pluginName string, appName string, property string, m map[string]string) error {
-	if err := propertyTouch(pluginName, appName, property); err != nil {
-		return err
-	}
-
-	if m == nil {
-		m = map[string]string{}
-	}
-
-	b, err := json.Marshal(m)
-	if err != nil {
-		return fmt.Errorf("Unable to marshal %s map property %s.%s: %w", pluginName, appName, property, err)
-	}
-
-	propertyPath := getPropertyPath(pluginName, appName, property)
-	if err := os.WriteFile(propertyPath, b, 0600); err != nil {
-		return fmt.Errorf("Unable to write %s map property %s.%s: %w", pluginName, appName, property, err)
-	}
-
-	if err := SetPermissions(SetPermissionInput{
-		Filename: propertyPath,
-		Mode:     os.FileMode(0600),
-	}); err != nil {
-		return fmt.Errorf("Unable to set permissions for %s map property %s.%s: %w", pluginName, appName, property, err)
-	}
-
-	return nil
+	return PropertyLock(pluginName, appName, func(p *LockedProperties) error {
+		return p.MapWrite(property, m)
+	})
 }
 
 // PropertyMapGet returns the string→string map persisted for a property. A
@@ -573,12 +534,14 @@ func PropertyMapGet(pluginName string, appName string, property string) (map[str
 
 // PropertyMapSet reads the current map, sets one key, and writes the map back.
 func PropertyMapSet(pluginName string, appName string, property string, key string, value string) error {
-	m, err := PropertyMapGet(pluginName, appName, property)
-	if err != nil {
-		return err
-	}
-	m[key] = value
-	return PropertyMapWrite(pluginName, appName, property, m)
+	return PropertyLock(pluginName, appName, func(p *LockedProperties) error {
+		m, err := PropertyMapGet(pluginName, appName, property)
+		if err != nil {
+			return err
+		}
+		m[key] = value
+		return p.MapWrite(property, m)
+	})
 }
 
 // PropertyMapDelete reads the current map, removes one key, and writes the map
@@ -587,15 +550,17 @@ func PropertyMapDelete(pluginName string, appName string, property string, key s
 	if !PropertyExists(pluginName, appName, property) {
 		return nil
 	}
-	m, err := PropertyMapGet(pluginName, appName, property)
-	if err != nil {
-		return err
-	}
-	if _, ok := m[key]; !ok {
-		return nil
-	}
-	delete(m, key)
-	return PropertyMapWrite(pluginName, appName, property, m)
+	return PropertyLock(pluginName, appName, func(p *LockedProperties) error {
+		m, err := PropertyMapGet(pluginName, appName, property)
+		if err != nil {
+			return err
+		}
+		if _, ok := m[key]; !ok {
+			return nil
+		}
+		delete(m, key)
+		return p.MapWrite(property, m)
+	})
 }
 
 // PropertyMapLength returns the number of entries in the map persisted for a

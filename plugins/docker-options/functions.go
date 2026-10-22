@@ -390,36 +390,42 @@ func migrateTraefikLabelBackticks() error {
 	}
 
 	for _, appName := range apps {
-		properties, err := common.PropertyGetAll("docker-options", appName)
-		if err != nil {
-			return err
-		}
-
-		for key := range properties {
-			processType, phase, ok := splitPropertyKey(key)
-			if !ok {
-				continue
-			}
-
-			options, err := GetDockerOptionsForProcessPhase(appName, processType, phase)
+		err := common.PropertyLock("docker-options", appName, func(p *common.LockedProperties) error {
+			properties, err := common.PropertyGetAll("docker-options", appName)
 			if err != nil {
 				return err
 			}
 
-			changed := false
-			for i, option := range options {
-				if fixed, ok := repairTraefikLabelBackticks(option); ok {
-					options[i] = fixed
-					changed = true
+			for key := range properties {
+				processType, phase, ok := splitPropertyKey(key)
+				if !ok {
+					continue
 				}
-			}
 
-			if changed {
-				if err := writeDockerOptionsForProcessPhase(appName, processType, phase, options); err != nil {
+				options, err := GetDockerOptionsForProcessPhase(appName, processType, phase)
+				if err != nil {
 					return err
 				}
-				common.LogInfo1(fmt.Sprintf("Repaired docker-options label backticks for %s (%s %s)", appName, processType, phase))
+
+				changed := false
+				for i, option := range options {
+					if fixed, ok := repairTraefikLabelBackticks(option); ok {
+						options[i] = fixed
+						changed = true
+					}
+				}
+
+				if changed {
+					if err := p.ListWrite(key, options); err != nil {
+						return err
+					}
+					common.LogInfo1(fmt.Sprintf("Repaired docker-options label backticks for %s (%s %s)", appName, processType, phase))
+				}
 			}
+			return nil
+		})
+		if err != nil {
+			return err
 		}
 	}
 
@@ -494,31 +500,37 @@ func migrateNonCanonicalOptions() error {
 	}
 
 	for _, appName := range apps {
-		properties, err := common.PropertyGetAll("docker-options", appName)
-		if err != nil {
-			return err
-		}
-
-		for key := range properties {
-			processType, phase, ok := splitPropertyKey(key)
-			if !ok {
-				continue
-			}
-
-			options, err := GetDockerOptionsForProcessPhase(appName, processType, phase)
+		err := common.PropertyLock("docker-options", appName, func(p *common.LockedProperties) error {
+			properties, err := common.PropertyGetAll("docker-options", appName)
 			if err != nil {
 				return err
 			}
 
-			canonical := canonicalizeOptionLines(options)
-			if slices.Equal(canonical, options) {
-				continue
-			}
+			for key := range properties {
+				processType, phase, ok := splitPropertyKey(key)
+				if !ok {
+					continue
+				}
 
-			if err := writeDockerOptionsForProcessPhase(appName, processType, phase, canonical); err != nil {
-				return err
+				options, err := GetDockerOptionsForProcessPhase(appName, processType, phase)
+				if err != nil {
+					return err
+				}
+
+				canonical := canonicalizeOptionLines(options)
+				if slices.Equal(canonical, options) {
+					continue
+				}
+
+				if err := p.ListWrite(key, canonical); err != nil {
+					return err
+				}
+				common.LogInfo1(fmt.Sprintf("Rewrote docker-options into canonical form for %s (%s %s)", appName, processType, phase))
 			}
-			common.LogInfo1(fmt.Sprintf("Rewrote docker-options into canonical form for %s (%s %s)", appName, processType, phase))
+			return nil
+		})
+		if err != nil {
+			return err
 		}
 	}
 

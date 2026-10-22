@@ -428,6 +428,20 @@ fn-nginx-vhosts-pre-validate-custom-template() {
   fi
 }
 
+fn-nginx-vhosts-install-config() {
+  declare desc="atomically replaces the nginx.conf for an app with a rendered config"
+  declare APP="$1" RENDERED_CONF="$2"
+  local STAGED_CONF
+
+  STAGED_CONF="$(mktemp "$DOKKU_ROOT/$APP/.nginx.conf.XXXXXX")"
+  if ! cat "$RENDERED_CONF" >"$STAGED_CONF"; then
+    rm -f "$STAGED_CONF"
+    return 1
+  fi
+  mv -f "$STAGED_CONF" "$DOKKU_ROOT/$APP/nginx.conf"
+  rm -f "$RENDERED_CONF"
+}
+
 nginx_build_config() {
   declare desc="build nginx config to proxy app containers using sigil"
   declare APP="$1" DOKKU_APP_LISTEN_PORT="$2" DOKKU_APP_LISTEN_IP="$3"
@@ -545,7 +559,7 @@ nginx_build_config() {
 
       dokku_log_info1 "Creating $SCHEME nginx.conf"
       mkdir -p "$DOKKU_ROOT/$APP/nginx.conf.d"
-      mv "$NGINX_CONF" "$DOKKU_ROOT/$APP/nginx.conf"
+      fn-nginx-vhosts-install-config "$APP" "$NGINX_CONF"
 
       if [[ "$IS_DEPLOYED_WITH_LISTENERS" == "true" ]]; then
         fn-nginx-vhosts-manage-hsts "$APP" "$SSL_INUSE"

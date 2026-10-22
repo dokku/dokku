@@ -374,3 +374,26 @@ teardown() {
   assert_output_contains "Failure in name='port listening check': container listening on expected IPv4 interface with an unexpected port: expected=5000 actual=5001"
   assert_output_contains "Running healthcheck name='port listening check' attempts=3 port=5000 retries=2 timeout=5 type='listening' wait=5"
 }
+
+@test "(checks:disable) concurrent calls for the same app keep every process type" {
+  run run_concurrently 20 /bin/bash -c 'dokku checks:disable "$1" "worker$2"' _ "$TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku checks:report $TEST_APP --checks-disabled-list | tr ',' '\n' | grep -cx 'worker[0-9]*'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "20"
+
+  run run_concurrently 20 /bin/bash -c 'dokku checks:enable "$1" "worker$2"' _ "$TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku checks:report $TEST_APP --checks-disabled-list | tr ',' '\n' | grep -cx 'worker[0-9]*'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "0"
+}

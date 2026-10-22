@@ -217,19 +217,18 @@ func migrateMount(appName string, processType string, mount string, phases []str
 		VolumeOptions: parsed.VolumeOptions,
 	}
 
-	existing, err := LoadAttachments(appName)
-	if err != nil {
-		return err
-	}
 	// A named scope whose mount the default scope already covers needs no
 	// attachment of its own - the default one reaches that process anyway, and
 	// recording both would manufacture two -v flags for one container path.
 	// The docker-options line is still drained so it stops being emitted twice.
-	if !attachmentExists(existing, attachment) && !coveredByDefaultScope(existing, attachment) {
-		existing = append(existing, attachment)
-		if err := SaveAttachments(appName, existing); err != nil {
-			return err
+	err := UpdateAttachments(appName, func(existing []*Attachment) ([]*Attachment, error) {
+		if attachmentExists(existing, attachment) || coveredByDefaultScope(existing, attachment) {
+			return existing, nil
 		}
+		return append(existing, attachment), nil
+	})
+	if err != nil {
+		return err
 	}
 
 	mountedPhases := []string{}

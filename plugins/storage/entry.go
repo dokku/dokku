@@ -67,7 +67,7 @@ var (
 )
 
 // Entry is the source of truth for a storage volume. One file per entry
-// lives at $DOKKU_LIB_ROOT/config/storage/entries/<name>.json.
+// lives at $DOKKU_LIB_ROOT/data/storage-registry/entries/<name>.json.
 type Entry struct {
 	Name          string            `json:"name"`
 	Scheduler     string            `json:"scheduler"`
@@ -160,6 +160,39 @@ func SaveEntry(entry *Entry) error {
 		return fmt.Errorf("unable to write storage entry %q: %w", entry.Name, err)
 	}
 	return nil
+}
+
+// UpdateEntry loads a registered entry, passes it to fn and saves it, holding
+// the entries directory lock across the read and the write so concurrent
+// edits to one entry cannot drop each other's changes. Nothing is saved when
+// fn returns an error. The saved entry is returned.
+func UpdateEntry(name string, fn func(entry *Entry) error) (*Entry, error) {
+	if err := EnsureEntriesDirectory(); err != nil {
+		return nil, err
+	}
+
+	var updated *Entry
+	err := common.LockDirectory(EntriesDirectory(), func() error {
+		entry, err := LoadEntry(name)
+		if err != nil {
+			return err
+		}
+
+		if err := fn(entry); err != nil {
+			return err
+		}
+
+		if err := SaveEntry(entry); err != nil {
+			return err
+		}
+
+		updated = entry
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return updated, nil
 }
 
 // DeleteEntry removes the on-disk record for an entry.

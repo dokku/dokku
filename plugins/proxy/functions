@@ -56,3 +56,57 @@ fn-proxy-show-label() {
 
   echo "$proxy_label_value"
 }
+
+fn-proxy-labels-add() {
+  declare desc="adds a container label for the specified proxy, expecting the caller to hold the proxy property lock"
+  declare PROXY="$1" APP="$2" LABEL_NAME="$3" LABEL_VALUE="$4"
+  local proxy_labels_file_path="$(fn-proxy-get-labels-file-path "$PROXY" "$APP")"
+  local all_proxy_labels=""
+
+  if [[ -s "$proxy_labels_file_path" ]]; then
+    all_proxy_labels="$(fn-proxy-labels-without "$proxy_labels_file_path" "$LABEL_NAME")"
+  fi
+
+  all_proxy_labels="${all_proxy_labels}"$'\n'"${LABEL_NAME}=${LABEL_VALUE}"
+  echo -e "${all_proxy_labels}" | sed '/^$/d' | sort -u | fn-proxy-write-labels-file "$proxy_labels_file_path"
+}
+
+fn-proxy-labels-remove() {
+  declare desc="removes a container label for the specified proxy, expecting the caller to hold the proxy property lock"
+  declare PROXY="$1" APP="$2" LABEL_NAME="$3"
+  local proxy_labels_file_path="$(fn-proxy-get-labels-file-path "$PROXY" "$APP")"
+
+  if [[ ! -s "$proxy_labels_file_path" ]]; then
+    return
+  fi
+
+  fn-proxy-labels-without "$proxy_labels_file_path" "$LABEL_NAME" | fn-proxy-write-labels-file "$proxy_labels_file_path"
+}
+
+fn-proxy-labels-without() {
+  declare desc="prints the sorted labels in a proxy labels file without the named label"
+  declare LABELS_FILE="$1" LABEL_NAME="$2"
+  local all_proxy_labels="$(<"$LABELS_FILE")"
+  local escaped_label_name="$(fn-proxy-escape-extended-sed "$LABEL_NAME")"
+
+  echo -e "${all_proxy_labels}" | sed -E "s/^${escaped_label_name}=.*\$//" | sed '/^$/d' | sort -u
+}
+
+fn-proxy-write-labels-file() {
+  declare desc="atomically replaces a proxy labels file with the contents of stdin"
+  declare LABELS_FILE="$1"
+  local tmp_file
+
+  tmp_file="$(mktemp "$(dirname "$LABELS_FILE")/.labels.XXXXXX")"
+  if ! cat >"$tmp_file"; then
+    rm -f "$tmp_file"
+    return 1
+  fi
+
+  if [[ -f "$LABELS_FILE" ]]; then
+    chmod --reference="$LABELS_FILE" "$tmp_file"
+  else
+    chmod 0644 "$tmp_file"
+  fi
+  mv -f "$tmp_file" "$LABELS_FILE"
+}

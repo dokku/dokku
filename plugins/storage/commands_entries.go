@@ -274,32 +274,27 @@ func CommandSet(input CommandSetInput) error {
 	if !EntryExists(input.Name) {
 		return fmt.Errorf("storage entry %q does not exist", input.Name)
 	}
-	entry, err := LoadEntry(input.Name)
-	if err != nil {
-		return err
-	}
-
 	touchesDirectory := false
-	for _, change := range input.Changes {
-		if err := applyPropertyChange(entry, change); err != nil {
-			return err
+	entry, err := UpdateEntry(input.Name, func(entry *Entry) error {
+		for _, change := range input.Changes {
+			if err := applyPropertyChange(entry, change); err != nil {
+				return err
+			}
+			if change.Property == "chown" || change.Property == "mode" {
+				touchesDirectory = true
+			}
 		}
-		if change.Property == "chown" || change.Property == "mode" {
-			touchesDirectory = true
+
+		if input.Annotations != nil {
+			entry.Annotations = input.Annotations
 		}
-	}
+		if input.Labels != nil {
+			entry.Labels = input.Labels
+		}
 
-	if input.Annotations != nil {
-		entry.Annotations = input.Annotations
-	}
-	if input.Labels != nil {
-		entry.Labels = input.Labels
-	}
-
-	if err := entry.Validate(); err != nil {
-		return err
-	}
-	if err := SaveEntry(entry); err != nil {
+		return entry.Validate()
+	})
+	if err != nil {
 		return err
 	}
 	// Only converge the directory when the caller actually asked to change
