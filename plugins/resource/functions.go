@@ -2,6 +2,7 @@ package resource
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
 )
@@ -36,6 +37,17 @@ func formatResourceValueForDocker(key string, value string) (string, error) {
 	return value, nil
 }
 
+// isResourceTypeKey returns true if the property key is a `<process>.<resource-type>.<resource>` key
+// for the given resource type. The process type may contain dots, so the key is matched from the right
+func isResourceTypeKey(key string, resourceType string) bool {
+	parts := strings.Split(key, ".")
+	if len(parts) < 3 {
+		return false
+	}
+
+	return parts[len(parts)-2] == resourceType
+}
+
 func clearByResourceType(appName string, processType string, resourceType string) {
 	noun := "limits"
 	if resourceType == "reserve" {
@@ -54,6 +66,9 @@ func clearByResourceType(appName string, processType string, resourceType string
 			return
 		}
 		for key := range resources {
+			if !isResourceTypeKey(key, resourceType) {
+				continue
+			}
 			common.PropertyDelete("resource", appName, key)
 		}
 	} else {

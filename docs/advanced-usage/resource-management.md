@@ -5,10 +5,10 @@
 
 ```
 resource:limit [--process-type <process-type>] [RESOURCE_OPTS...] <app>    # Limit resources for a given app/process-type combination
-resource:limit-clear [--process-type <process-type>] <app>                 # Limit resources for a given app/process-type combination
+resource:limit-clear [--process-type <process-type>] <app>                 # Clear resource limits for a given app/process-type combination
 resource:report [<app>] [<flag>]                                           # Displays a resource report for one or more apps
 resource:reserve [--process-type <process-type>] [RESOURCE_OPTS...] <app>  # Reserve resources for a given app/process-type combination
-resource:reserve-clear [--process-type <process-type>] <app>               # Reserve resources for a given app/process-type combination
+resource:reserve-clear [--process-type <process-type>] <app>               # Clear resource reservations for a given app/process-type combination
 ```
 
 The resource plugin is meant to allow users to limit or reserve resources for a given app/process-type combination.
@@ -158,24 +158,24 @@ Resource keys outside the supported set for a builder are silently ignored. Rese
 
 #### Clearing Resource Limits
 
-In cases where the values are incorrect - or there is no desire to limit resources - resource limits may be cleared using the `resource:limit-clear` command.
+In cases where the values are incorrect - or there is no desire to limit resources - resource limits may be cleared using the `resource:limit-clear` command. When no process type is specified, resource limits are cleared for all process types. Resource reservations are left untouched.
 
 ```shell
 dokku resource:limit-clear node-js-app
 ```
 
 ```
------> Clearing resource limit for node-js-app
+=====> clearing node-js-app limits
 ```
 
-Defaults can also be cleared by leaving the app unspecified.
+Resource limits for a single process type can be cleared by specifying the `--process-type` flag.
 
 ```shell
-dokku resource:limit-clear
+dokku resource:limit-clear --process-type worker node-js-app
 ```
 
 ```
------> Clearing default resource limits
+=====> clearing node-js-app limits (worker)
 ```
 
 ### Resource Reservations
@@ -266,24 +266,24 @@ dokku resource:reserve --process-type web node-js-app
 
 #### Clearing Resource Reservations
 
-In cases where the values are incorrect - or there is no desire to reserve resources - resource reservations may be cleared using the `resource:reserve-clear` command.
+In cases where the values are incorrect - or there is no desire to reserve resources - resource reservations may be cleared using the `resource:reserve-clear` command. When no process type is specified, resource reservations are cleared for all process types. Resource limits are left untouched.
 
 ```shell
 dokku resource:reserve-clear node-js-app
 ```
 
 ```
------> Clearing resource reservation for node-js-app
+=====> clearing node-js-app reservation
 ```
 
-Defaults can also be cleared by leaving the app unspecified.
+Resource reservations for a single process type can be cleared by specifying the `--process-type` flag.
 
 ```shell
-dokku resource:reserve-clear
+dokku resource:reserve-clear --process-type worker node-js-app
 ```
 
 ```
------> Clearing default resource reservation
+=====> clearing node-js-app reservation (worker)
 ```
 
 ### Displaying resource reports for an app
