@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
@@ -32,12 +33,7 @@ cmd-proxy-labels-add() {
   [[ -z "$PASSED_LABEL_VALUE" ]] && dokku_log_fail "Please specify a value for the container label"
   verify_app_name "$APP"
 
-  local proxy_labels_file_path="$(fn-proxy-get-labels-file-path "$PROXY" "$APP")"
-  touch "$proxy_labels_file_path"
-  cmd-proxy-labels-remove "$PROXY" "$APP" "$PASSED_LABEL_NAME" >/dev/null
-  echo "${PASSED_LABEL_NAME}=${PASSED_LABEL_VALUE}" >>"$proxy_labels_file_path"
-  local all_proxy_labels="$(<"$proxy_labels_file_path")"
-  echo -e "${all_proxy_labels}" | sed '/^$/d' | sort -u >"$proxy_labels_file_path"
+  fn-plugin-property-lock "$PROXY" "$APP" fn-proxy-labels-add "$PROXY" "$APP" "$PASSED_LABEL_NAME" "$PASSED_LABEL_VALUE"
 }
 
 cmd-proxy-labels-remove() {
@@ -55,8 +51,5 @@ cmd-proxy-labels-remove() {
     return
   fi
 
-  local all_proxy_labels="$(<"$proxy_labels_file_path")"
-  local escaped_label_name="$(fn-proxy-escape-extended-sed "$PASSED_LABEL_NAME")"
-  local all_proxy_labels="$(echo -e "${all_proxy_labels}" | sed -E "s/^${escaped_label_name}=.*\$//")"
-  echo -e "${all_proxy_labels}" | sed '/^$/d' | sort -u >"$proxy_labels_file_path"
+  fn-plugin-property-lock "$PROXY" "$APP" fn-proxy-labels-remove "$PROXY" "$APP" "$PASSED_LABEL_NAME"
 }

@@ -415,3 +415,26 @@ teardown() {
   assert_success
   assert_output "true"
 }
+
+@test "(ports:add) concurrent calls for the same app keep every port mapping" {
+  run run_concurrently 20 /bin/bash -c 'dokku ports:add "$1" "http:$((8000 + $2)):5000"' _ "$TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku --quiet ports:report $TEST_APP --ports-map | tr ' ' '\n' | grep -cx 'http:80[0-9][0-9]:5000'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "20"
+
+  run run_concurrently 20 /bin/bash -c 'dokku ports:remove "$1" "http:$((8000 + $2)):5000"' _ "$TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku --quiet ports:report $TEST_APP --ports-map | tr ' ' '\n' | grep -cx 'http:80[0-9][0-9]:5000'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "0"
+}

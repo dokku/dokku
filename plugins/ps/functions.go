@@ -411,7 +411,18 @@ func scaleSet(input scaleSetInput) error {
 	return nil
 }
 
+// updateScale merges formationUpdates into the stored formation, holding the
+// app's ps property lock from the read of the stored formation to the write of
+// the merged one so concurrent scale changes cannot drop each other.
 func updateScale(appName string, clearExisting bool, formationUpdates FormationSlice) error {
+	return common.PropertyLock("ps", appName, func(p *common.LockedProperties) error {
+		return updateScaleWithLock(p, appName, clearExisting, formationUpdates)
+	})
+}
+
+// updateScaleWithLock merges formationUpdates into the stored formation. The
+// caller must hold the app's ps property lock.
+func updateScaleWithLock(p *common.LockedProperties, appName string, clearExisting bool, formationUpdates FormationSlice) error {
 	formations := FormationSlice{}
 	if !clearExisting {
 		processTuples, err := common.PropertyListGet("ps", appName, "scale")
@@ -482,11 +493,11 @@ func updateScale(appName string, clearExisting bool, formationUpdates FormationS
 		values = append(values, fmt.Sprintf("%s=%d", formation.ProcessType, formation.Quantity))
 	}
 
-	if err := common.PropertyListWrite("ps", appName, "scale.old", oldValues); err != nil {
+	if err := p.ListWrite("scale.old", oldValues); err != nil {
 		return err
 	}
 
-	return common.PropertyListWrite("ps", appName, "scale", values)
+	return p.ListWrite("scale", values)
 }
 
 // validateFormations returns an error when a user specified formation cannot be scaled to.

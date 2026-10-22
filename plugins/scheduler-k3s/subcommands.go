@@ -256,10 +256,22 @@ func CommandAutoscalingAuthSet(appName string, trigger string, metadata map[stri
 		return fmt.Errorf("Must specify at least one --metadata flag, omit --replace to remove all metadata for the trigger")
 	}
 
-	if len(metadata) == 0 || replace {
-		if err := deleteTriggerAuthProperties(appName, trigger); err != nil {
-			return err
+	err := common.PropertyLock("scheduler-k3s", appName, func(p *common.LockedProperties) error {
+		if len(metadata) == 0 || replace {
+			if err := deleteTriggerAuthProperties(p, appName, trigger); err != nil {
+				return err
+			}
 		}
+
+		for key, value := range metadata {
+			if err := p.Write(fmt.Sprintf("%s%s.%s", TriggerAuthPropertyPrefix, trigger, key), value); err != nil {
+				return fmt.Errorf("Unable to set property: %w", err)
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		return err
 	}
 
 	if len(metadata) == 0 {
@@ -278,12 +290,6 @@ func CommandAutoscalingAuthSet(appName string, trigger string, metadata map[stri
 		return nil
 	}
 
-	for key, value := range metadata {
-		if err := common.PropertyWrite("scheduler-k3s", appName, fmt.Sprintf("%s%s.%s", TriggerAuthPropertyPrefix, trigger, key), value); err != nil {
-			return fmt.Errorf("Unable to set property: %w", err)
-		}
-	}
-
 	common.LogInfo1("Trigger authentication settings saved")
 	common.LogVerbose("Resources will be created or updated on next deploy")
 
@@ -297,15 +303,16 @@ func CommandAutoscalingAuthSet(appName string, trigger string, metadata map[stri
 	return nil
 }
 
-// deleteTriggerAuthProperties removes every stored metadata key for one trigger.
-func deleteTriggerAuthProperties(appName string, trigger string) error {
+// deleteTriggerAuthProperties removes every stored metadata key for one
+// trigger. The caller must hold the app's scheduler-k3s property lock.
+func deleteTriggerAuthProperties(p *common.LockedProperties, appName string, trigger string) error {
 	properties, err := common.PropertyGetAllByPrefix("scheduler-k3s", appName, fmt.Sprintf("%s%s.", TriggerAuthPropertyPrefix, trigger))
 	if err != nil {
 		return fmt.Errorf("Unable to get property list: %w", err)
 	}
 
 	for key := range properties {
-		if err := common.PropertyDelete("scheduler-k3s", appName, key); err != nil {
+		if err := p.Delete(key); err != nil {
 			return fmt.Errorf("Unable to delete property: %w", err)
 		}
 	}

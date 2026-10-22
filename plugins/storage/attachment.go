@@ -105,6 +105,11 @@ func LoadAttachments(appName string) ([]*Attachment, error) {
 		return nil, fmt.Errorf("unable to read storage attachments for %q: %w", appName, err)
 	}
 
+	return decodeAttachments(appName, lines)
+}
+
+// decodeAttachments parses the stored attachment lines of an app.
+func decodeAttachments(appName string, lines []string) ([]*Attachment, error) {
 	attachments := []*Attachment{}
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
@@ -122,15 +127,44 @@ func LoadAttachments(appName string) ([]*Attachment, error) {
 
 // SaveAttachments overwrites the entire attachment list for an app.
 func SaveAttachments(appName string, attachments []*Attachment) error {
+	lines, err := encodeAttachments(appName, attachments)
+	if err != nil {
+		return err
+	}
+	return common.PropertyListWrite(PluginName, appName, AttachmentsProperty, lines)
+}
+
+// UpdateAttachments loads the attachment list for an app, passes it to fn and
+// saves the list fn returns, holding the app's storage property lock across
+// the read and the write so concurrent mounts and unmounts cannot drop each
+// other's changes. Nothing is saved when fn returns an error.
+func UpdateAttachments(appName string, fn func(attachments []*Attachment) ([]*Attachment, error)) error {
+	return common.PropertyListUpdate(PluginName, appName, AttachmentsProperty, func(lines []string) ([]string, error) {
+		attachments, err := decodeAttachments(appName, lines)
+		if err != nil {
+			return nil, err
+		}
+
+		attachments, err = fn(attachments)
+		if err != nil {
+			return nil, err
+		}
+
+		return encodeAttachments(appName, attachments)
+	})
+}
+
+// encodeAttachments serializes attachments into stored attachment lines.
+func encodeAttachments(appName string, attachments []*Attachment) ([]string, error) {
 	lines := make([]string, 0, len(attachments))
 	for _, attachment := range attachments {
 		data, err := json.Marshal(attachment)
 		if err != nil {
-			return fmt.Errorf("unable to encode storage attachment for %q: %w", appName, err)
+			return nil, fmt.Errorf("unable to encode storage attachment for %q: %w", appName, err)
 		}
 		lines = append(lines, string(data))
 	}
-	return common.PropertyListWrite(PluginName, appName, AttachmentsProperty, lines)
+	return lines, nil
 }
 
 // ensureContainerPathFree rejects a candidate whose container path is already
@@ -161,26 +195,22 @@ func AddAttachment(appName string, attachment *Attachment) error {
 		return err
 	}
 
-	attachments, err := LoadAttachments(appName)
-	if err != nil {
-		return err
-	}
-
-	for _, existing := range attachments {
-		if existing.EntryName == attachment.EntryName &&
-			existing.ContainerPath == attachment.ContainerPath &&
-			existing.EffectiveProcessType() == attachment.EffectiveProcessType() {
-			return fmt.Errorf("storage entry %q is already mounted at %q for process type %q on app %q",
-				attachment.EntryName, attachment.ContainerPath, attachment.EffectiveProcessType(), appName)
+	return UpdateAttachments(appName, func(attachments []*Attachment) ([]*Attachment, error) {
+		for _, existing := range attachments {
+			if existing.EntryName == attachment.EntryName &&
+				existing.ContainerPath == attachment.ContainerPath &&
+				existing.EffectiveProcessType() == attachment.EffectiveProcessType() {
+				return nil, fmt.Errorf("storage entry %q is already mounted at %q for process type %q on app %q",
+					attachment.EntryName, attachment.ContainerPath, attachment.EffectiveProcessType(), appName)
+			}
 		}
-	}
 
-	if err := ensureContainerPathFree(appName, attachments, attachment); err != nil {
-		return err
-	}
+		if err := ensureContainerPathFree(appName, attachments, attachment); err != nil {
+			return nil, err
+		}
 
-	attachments = append(attachments, attachment)
-	return SaveAttachments(appName, attachments)
+		return append(attachments, attachment), nil
+	})
 }
 
 // UpsertAttachment inserts an attachment, or updates the mount-time fields
@@ -201,49 +231,43 @@ func UpsertAttachment(appName string, attachment *Attachment) (bool, error) {
 		return false, err
 	}
 
-	attachments, err := LoadAttachments(appName)
+	created := false
+	err := UpdateAttachments(appName, func(attachments []*Attachment) ([]*Attachment, error) {
+		for _, existing := range attachments {
+			if existing.EntryName == attachment.EntryName &&
+				existing.ContainerPath == attachment.ContainerPath &&
+				existing.EffectiveProcessType() == attachment.EffectiveProcessType() {
+				existing.Phases = attachment.Phases
+				existing.Subpath = attachment.Subpath
+				existing.Readonly = attachment.Readonly
+				existing.VolumeOptions = attachment.VolumeOptions
+				existing.VolumeChown = attachment.VolumeChown
+				return attachments, nil
+			}
+		}
+
+		// Only the append branch needs the overlap check: rewriting an existing
+		// tuple in place would otherwise trip over the attachment it is updating.
+		if err := ensureContainerPathFree(appName, attachments, attachment); err != nil {
+			return nil, err
+		}
+
+		created = true
+		return append(attachments, attachment), nil
+	})
 	if err != nil {
 		return false, err
 	}
-
-	for _, existing := range attachments {
-		if existing.EntryName == attachment.EntryName &&
-			existing.ContainerPath == attachment.ContainerPath &&
-			existing.EffectiveProcessType() == attachment.EffectiveProcessType() {
-			existing.Phases = attachment.Phases
-			existing.Subpath = attachment.Subpath
-			existing.Readonly = attachment.Readonly
-			existing.VolumeOptions = attachment.VolumeOptions
-			existing.VolumeChown = attachment.VolumeChown
-			return false, SaveAttachments(appName, attachments)
-		}
-	}
-
-	// Only the append branch needs the overlap check: rewriting an existing
-	// tuple in place would otherwise trip over the attachment it is updating.
-	if err := ensureContainerPathFree(appName, attachments, attachment); err != nil {
-		return false, err
-	}
-
-	attachments = append(attachments, attachment)
-	return true, SaveAttachments(appName, attachments)
+	return created, nil
 }
 
 // RemoveAttachment removes the attachment matching the given entry and
 // optional container path. If containerPath is empty and there is more
 // than one match, returns an error.
 func RemoveAttachment(appName string, entryName string, containerPath string) error {
-	attachments, err := LoadAttachments(appName)
-	if err != nil {
-		return err
-	}
-
-	keep, err := removeMatchingAttachments(attachments, appName, entryName, containerPath)
-	if err != nil {
-		return err
-	}
-
-	return SaveAttachments(appName, keep)
+	return UpdateAttachments(appName, func(attachments []*Attachment) ([]*Attachment, error) {
+		return removeMatchingAttachments(attachments, appName, entryName, containerPath)
+	})
 }
 
 // removeMatchingAttachments returns the given list with the attachments

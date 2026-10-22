@@ -787,6 +787,29 @@ teardown() {
   assert_output_contains "Invalid key name"
 }
 
+@test "(config:set) concurrent calls for the same app keep every key" {
+  run run_concurrently 20 /bin/bash -c 'dokku config:set --no-restart "$1" "RACE_KEY_$2=value"' _ "$TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku config:keys $TEST_APP | grep -cx 'RACE_KEY_[0-9]*'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "20"
+
+  run run_concurrently 20 /bin/bash -c 'dokku config:unset --no-restart "$1" "RACE_KEY_$2"' _ "$TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku config:keys $TEST_APP | grep -cx 'RACE_KEY_[0-9]*'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "0"
+}
+
 block_app_config_dir() {
   declare desc="makes the app config directory unwritable for the dokku user"
 

@@ -756,3 +756,23 @@ uninstall_k3s() {
   echo "status: $status"
   assert_success
 }
+
+run_concurrently() {
+  declare desc="runs a command COUNT times in parallel, appending the run number as the last argument, and fails if any run fails"
+  declare COUNT="$1"
+  shift 1
+  local i pid failed=0
+  local pids=()
+
+  for i in $(seq 1 "$COUNT"); do
+    "$@" "$i" &
+    pids+=("$!")
+  done
+
+  for pid in "${pids[@]}"; do
+    wait "$pid" || failed=$((failed + 1))
+  done
+
+  echo "failed runs: $failed"
+  [[ "$failed" -eq 0 ]]
+}

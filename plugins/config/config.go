@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"regexp"
 
 	"github.com/dokku/dokku/plugins/common"
@@ -32,10 +33,6 @@ func GetWithDefault(appName string, key string, defaultValue string) (value stri
 // SetMany variables in the environment. If appName is empty the global config is used. If restart is true the app is restarted.
 func SetMany(appName string, entries map[string]string, replace bool, restart bool) (err error) {
 	global := appName == "" || appName == "--global"
-	env, err := loadAppOrGlobalEnv(appName)
-	if err != nil {
-		return
-	}
 	keys := make([]string, 0, len(entries))
 	for k := range entries {
 		if err = validateKey(k); err != nil {
@@ -43,21 +40,28 @@ func SetMany(appName string, entries map[string]string, replace bool, restart bo
 		}
 	}
 
-	if replace {
-		env.Clear()
-	}
-	for k, v := range entries {
-		env.Set(k, v)
-		keys = append(keys, k)
-	}
-	if len(entries) != 0 {
+	changed, err := updateAppOrGlobalEnv(appName, func(env *Env) bool {
+		if replace {
+			env.Clear()
+		}
+		for k, v := range entries {
+			env.Set(k, v)
+			keys = append(keys, k)
+		}
+		if len(entries) == 0 {
+			return false
+		}
+
 		common.LogInfo1Quiet("Setting config vars")
 		if os.Getenv("DOKKU_QUIET_OUTPUT") == "" {
 			fmt.Println(prettyPrintEnvEntries("       ", entries))
 		}
-		if err := env.Write(); err != nil {
-			return fmt.Errorf("Unable to write config vars: %s", err.Error())
-		}
+		return true
+	})
+	if err != nil {
+		return err
+	}
+	if changed {
 		triggerUpdate(appName, "set", keys)
 	}
 	if !global && restart && shouldRestart(appName) {
@@ -69,29 +73,28 @@ func SetMany(appName string, entries map[string]string, replace bool, restart bo
 // UnsetMany a value in a config. If appName is empty the global config is used. If restart is true the app is restarted.
 func UnsetMany(appName string, keys []string, restart bool) (err error) {
 	global := appName == "" || appName == "--global"
-	env, err := loadAppOrGlobalEnv(appName)
-	if err != nil {
-		return
-	}
-	var changed = false
 	for _, k := range keys {
 		if err = validateKey(k); err != nil {
 			return
 		}
 	}
-	for _, k := range keys {
-		if _, hasKey := env.Map()[k]; hasKey {
-			common.LogInfo1Quiet(fmt.Sprintf("Unsetting %s", k))
-			env.Unset(k)
-			changed = true
-		} else {
-			common.LogInfo1Quiet(fmt.Sprintf("Skipping %s, it is not set in the environment", k))
+	changed, err := updateAppOrGlobalEnv(appName, func(env *Env) bool {
+		changed := false
+		for _, k := range keys {
+			if _, hasKey := env.Map()[k]; hasKey {
+				common.LogInfo1Quiet(fmt.Sprintf("Unsetting %s", k))
+				env.Unset(k)
+				changed = true
+			} else {
+				common.LogInfo1Quiet(fmt.Sprintf("Skipping %s, it is not set in the environment", k))
+			}
 		}
+		return changed
+	})
+	if err != nil {
+		return err
 	}
 	if changed {
-		if err := env.Write(); err != nil {
-			return fmt.Errorf("Unable to write config vars: %s", err.Error())
-		}
 		triggerUpdate(appName, "unset", keys)
 	}
 	if !global && restart && shouldRestart(appName) {
@@ -103,26 +106,67 @@ func UnsetMany(appName string, keys []string, restart bool) (err error) {
 // UnsetAll removes all config keys
 func UnsetAll(appName string, restart bool) (err error) {
 	global := appName == "" || appName == "--global"
-	env, err := loadAppOrGlobalEnv(appName)
+	changed, err := updateAppOrGlobalEnv(appName, func(env *Env) bool {
+		changed := false
+		for k := range env.Map() {
+			common.LogInfo1Quiet(fmt.Sprintf("Unsetting %s", k))
+			env.Unset(k)
+			changed = true
+		}
+		return changed
+	})
 	if err != nil {
-		return
-	}
-	var changed = false
-	for k := range env.Map() {
-		common.LogInfo1Quiet(fmt.Sprintf("Unsetting %s", k))
-		env.Unset(k)
-		changed = true
+		return err
 	}
 	if changed {
-		if err := env.Write(); err != nil {
-			return fmt.Errorf("Unable to write config vars: %s", err.Error())
-		}
 		triggerUpdate(appName, "clear", []string{})
 	}
 	if !global && restart && shouldRestart(appName) {
 		triggerRestart(appName)
 	}
 	return
+}
+
+// updateAppOrGlobalEnv loads the app or global environment, passes it to
+// update and writes it back when update reports a change, returning whether it
+// did. The directory holding the environment file stays locked from the load
+// to the write, so concurrent config changes cannot drop each other's keys.
+// Triggers reacting to the change must run after this returns, as a trigger
+// that changes the same environment would otherwise wait on the lock forever.
+func updateAppOrGlobalEnv(appName string, update func(env *Env) bool) (bool, error) {
+	filename := getGlobalFile()
+	if appName != "" && appName != "--global" {
+		var err error
+		if filename, err = getAppFile(appName); err != nil {
+			return false, err
+		}
+	}
+
+	changed := false
+	apply := func() error {
+		env, err := loadAppOrGlobalEnv(appName)
+		if err != nil {
+			return err
+		}
+
+		if !update(env) {
+			return nil
+		}
+
+		if err := env.Write(); err != nil {
+			return fmt.Errorf("Unable to write config vars: %s", err.Error())
+		}
+		changed = true
+		return nil
+	}
+
+	dir := filepath.Dir(filename)
+	if !common.DirectoryExists(dir) {
+		return changed, apply()
+	}
+
+	err := common.LockDirectory(dir, apply)
+	return changed, err
 }
 
 func shouldRestart(appName string) bool {

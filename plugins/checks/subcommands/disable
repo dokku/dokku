@@ -12,6 +12,12 @@ cmd-checks-disable() {
 
   verify_app_name "$APP"
   local PROCTYPES="${2:-_all_}"
+  fn-plugin-property-lock "checks" "$APP" fn-checks-disable "$APP" "$PROCTYPES"
+}
+
+fn-checks-disable() {
+  declare desc="disables zero-downtime checks for app/proctypes, expecting the caller to hold the checks property lock"
+  declare APP="$1" PROCTYPES="$2"
   local DOKKU_CHECKS_DISABLED=$(fn-plugin-property-get-default "checks" "$APP" "disabled" "")
   local DOKKU_CHECKS_SKIPPED=$(fn-plugin-property-get-default "checks" "$APP" "skipped" "")
 

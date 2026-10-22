@@ -316,6 +316,29 @@ teardown() {
   assert_output_contains "running"
 }
 
+@test "(docker-options:add) concurrent calls for the same app keep every option" {
+  run run_concurrently 20 /bin/bash -c 'dokku docker-options:add "$1" deploy "--label=race$2"' _ "$TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku docker-options:list $TEST_APP --phase deploy | grep -cx -- '--label=race[0-9]*'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "20"
+
+  run run_concurrently 20 /bin/bash -c 'dokku docker-options:remove "$1" deploy "--label=race$2"' _ "$TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku docker-options:list $TEST_APP --phase deploy | grep -cx -- '--label=race[0-9]*'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "0"
+}
+
 web_worker_callback() {
   local APP="$1"
   local APP_REPO_DIR="$2"

@@ -488,3 +488,53 @@ teardown() {
   run /bin/bash -c "dokku storage:destroy rdmtest-cache --force"
   assert_success
 }
+
+@test "(storage:mount) concurrent calls for the same app keep every mount" {
+  run run_concurrently 20 /bin/bash -c 'dokku storage:create "rdmtest-race$1"' _
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run run_concurrently 20 /bin/bash -c 'dokku storage:mount "$1" "rdmtest-race$2" --container-dir "/race/$2"' _ "$TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku storage:list $TEST_APP --format json | jq -r '. | length'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "20"
+
+  run run_concurrently 20 /bin/bash -c 'dokku storage:unmount "$1" "rdmtest-race$2"' _ "$TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku storage:list $TEST_APP --format json | jq -r '. | length'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "0"
+
+  run run_concurrently 20 /bin/bash -c 'dokku storage:destroy "rdmtest-race$1" --force' _
+  assert_success
+}
+
+@test "(storage:labels:set) concurrent calls for the same entry keep every label" {
+  run /bin/bash -c "dokku storage:create rdmtest-race-label"
+  assert_success
+
+  run run_concurrently 20 /bin/bash -c 'dokku storage:labels:set rdmtest-race-label "example.com/race$1" value' _
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku storage:info rdmtest-race-label --format json | jq -r '.labels | length'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "20"
+
+  run /bin/bash -c "dokku storage:destroy rdmtest-race-label --force"
+  assert_success
+}

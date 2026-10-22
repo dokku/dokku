@@ -476,6 +476,29 @@ teardown() {
   assert_output_contains "heroku-buildpack-python"
 }
 
+@test "(buildpacks:add) concurrent calls for the same app keep every buildpack" {
+  run run_concurrently 20 /bin/bash -c 'dokku buildpacks:add "$1" "https://github.com/dokku/buildpack-race$2.git"' _ "$TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku --quiet buildpacks:list $TEST_APP | grep -cE '^ *https://github.com/dokku/buildpack-race[0-9]+\.git$'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "20"
+
+  run run_concurrently 20 /bin/bash -c 'dokku buildpacks:remove "$1" "https://github.com/dokku/buildpack-race$2.git"' _ "$TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku --quiet buildpacks:list $TEST_APP | grep -cE '^ *https://github.com/dokku/buildpack-race[0-9]+\.git$'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "0"
+}
+
 template_buildpacks_appjson() {
   local APP="$1"
   local APP_REPO_DIR="$2"

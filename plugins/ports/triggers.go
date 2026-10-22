@@ -160,11 +160,21 @@ func TriggerPostCertsRemove(appName string) error {
 		return err
 	}
 
-	return removePortMaps(appName, filterAppPortMaps(appName, "https", 443))
+	return common.PropertyLock("ports", appName, func(p *common.LockedProperties) error {
+		return removePortMapsWithLock(p, appName, filterAppPortMaps(appName, "https", 443))
+	})
 }
 
 // TriggerPostCertsUpdate sets port properties after SSL cert is added
 func TriggerPostCertsUpdate(appName string) error {
+	return common.PropertyLock("ports", appName, func(p *common.LockedProperties) error {
+		return postCertsUpdateWithLock(p, appName)
+	})
+}
+
+// postCertsUpdateWithLock adds https:443 port maps mirroring the app's http:80
+// port maps. The caller must hold the app's ports property lock.
+func postCertsUpdateWithLock(p *common.LockedProperties, appName string) error {
 	port := common.PropertyGet("proxy", appName, "proxy-port")
 	sslPort := common.PropertyGet("proxy", appName, "proxy-ssl-port")
 	portMaps := getPortMaps(appName)
@@ -201,7 +211,7 @@ func TriggerPostCertsUpdate(appName string) error {
 			})
 		}
 
-		if err := addPortMaps(appName, toAdd); err != nil {
+		if err := addPortMapsWithLock(p, appName, toAdd); err != nil {
 			return err
 		}
 	}
