@@ -127,7 +127,7 @@ The `ps` plugin provides a number of settings that can be used to managed deploy
 
 | Name                  | Description                                       | Global Default     |
 |-----------------------|---------------------------------------------------|--------------------|
-| `stop-timeout`        | Configurable grace period given to the `docker stop` command. If a container has not stopped by this time, a `kill -9` signal or equivalent is sent in order to force-terminate the container. Both the `ps:stop` and `apps:destroy` commands *also* respect this value. If not specified, the Docker defaults for the [`docker stop` command](https://docs.docker.com/engine/reference/commandline/stop/) will be used. | `30`             |
+| `stop-timeout`        | Configurable grace period given to the `docker stop` command. If a container has not stopped by this time, a `kill -9` signal or equivalent is sent in order to force-terminate the container. Both the `ps:stop` and `apps:destroy` commands _also_ respect this value. If not specified, the Docker defaults for the [`docker stop` command](https://docs.docker.com/engine/reference/commandline/stop/) will be used. | `30`             |
 
 All settings can be set via the `ps:set` command. Using `stop-timeout` as an example:
 
@@ -216,7 +216,7 @@ Sometimes it may be desirable to set a different path for a given app, e.g. when
 dokku ps:set node-js-app procfile-path .dokku/Procfile
 ```
 
-The value is the path to the desired file *relative* to the base search directory, and will never be treated as absolute paths in any context. If that file does not exist within the repository, Dokku will continue the build process as if the repository has no `Procfile`.
+The value is the path to the desired file _relative_ to the base search directory, and will never be treated as absolute paths in any context. If that file does not exist within the repository, Dokku will continue the build process as if the repository has no `Procfile`.
 
 The default value may be set by passing an empty value for the option:
 

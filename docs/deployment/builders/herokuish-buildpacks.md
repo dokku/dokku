@@ -207,7 +207,6 @@ See the [buildpack management documentation](/docs/deployment/builders/buildpack
 
 See the [buildpack management documentation](/docs/deployment/builders/buildpack-management.md#using-a-specific-buildpack-version) for more information on how to using a specific buildpack version
 
-
 ### Displaying buildpack reports for an app
 
 See the [buildpack management documentation](/docs/deployment/builders/buildpack-management.md#displaying-buildpack-reports-for-an-app) for more information on how to display buildpack reports for an app.

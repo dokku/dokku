@@ -31,7 +31,6 @@ One off containers are removed at the end of process execution.
 
 In addition, one-off containers also run for a max of 24 hours (86400 seconds) by default, after which they are reaped. This can be changed by setting the `--ttl-seconds` argument:
 
-
 ```shell
 # runs for 10 minutes
 dokku run --ttl-seconds 600 node-js-app npm run mytask

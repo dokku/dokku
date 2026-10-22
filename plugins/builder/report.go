@@ -15,10 +15,10 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 	var flags map[string]common.ReportFunc
 	if appName == "--global" {
 		flags = map[string]common.ReportFunc{
-			"--builder-global-selected":        reportGlobalSelected,
-			"--builder-global-build-dir":       reportGlobalBuildDir,
-			"--builder-global-skip-cleanup":    reportGlobalSkipCleanup,
-			"--builder-computed-skip-cleanup":  reportComputedSkipCleanup,
+			"--builder-global-selected":       reportGlobalSelected,
+			"--builder-global-build-dir":      reportGlobalBuildDir,
+			"--builder-global-skip-cleanup":   reportGlobalSkipCleanup,
+			"--builder-computed-skip-cleanup": reportComputedSkipCleanup,
 		}
 	} else {
 		flags = map[string]common.ReportFunc{

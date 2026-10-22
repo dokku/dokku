@@ -131,3 +131,80 @@ teardown() {
   echo "status: $status"
   assert_failure
 }
+
+@test "(resource) resource:limit uppercase memory units" {
+  run /bin/bash -c "dokku resource:limit --memory 1G --memory-swap 2G $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku resource:reserve --memory 512M $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run_plugin_script resource docker-args-process-deploy "$TEST_APP" herokuish "dokku/$TEST_APP:latest" web "< /dev/null"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "--memory=1G "
+  assert_output_contains "--memory-swap=2G "
+  assert_output_contains "--memory-reservation=512M "
+  assert_output_not_contains "1Gm"
+  assert_output_not_contains "512Mm"
+
+  run /bin/bash -c "dokku resource:limit --memory 1G --process-type build $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run_plugn_trigger docker-args-process-build "$TEST_APP" herokuish
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "--memory=1G "
+  assert_output_not_contains "1Gm"
+}
+
+@test "(resource) resource:limit rejects invalid memory values" {
+  run /bin/bash -c "dokku resource:limit --memory '100G --foo' $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku resource:limit --memory 1x $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku resource:limit --memory-swap 1x $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku resource:reserve --memory 1Gm $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku resource:report --resource-_default_.limit.memory $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku resource:report --resource-_default_.reserve.memory $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku resource:limit --memory-swap -1 $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku resource:report --resource-_default_.limit.memory-swap $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "-1"
+}

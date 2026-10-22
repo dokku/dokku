@@ -71,22 +71,30 @@ func TriggerDockerArgsProcessDeploy(appName string, processType string) error {
 		}
 	}
 
+	var args strings.Builder
 	for key, value := range limits {
 		if value == "" {
 			continue
 		}
-		value = addMemorySuffixForDocker(key, value)
-		fmt.Printf(" --%s=%s ", key, value)
+		value, err := formatResourceValueForDocker(key, value)
+		if err != nil {
+			return fmt.Errorf("Unable to apply resource limits for %s: %w", appName, err)
+		}
+		fmt.Fprintf(&args, " --%s=%s ", key, value)
 	}
 
 	for key, value := range reservations {
 		if value == "" {
 			continue
 		}
-		value = addMemorySuffixForDocker(key, value)
-		fmt.Printf(" --%s-reservation=%s ", key, value)
+		value, err := formatResourceValueForDocker(key, value)
+		if err != nil {
+			return fmt.Errorf("Unable to apply resource reservations for %s: %w", appName, err)
+		}
+		fmt.Fprintf(&args, " --%s-reservation=%s ", key, value)
 	}
 
+	fmt.Print(args.String())
 	fmt.Print(string(stdin))
 	return nil
 }
@@ -136,14 +144,19 @@ func TriggerDockerArgsProcessBuild(appName string, builderType string) error {
 		limits[flagName] = value
 	}
 
+	var args strings.Builder
 	for key, value := range limits {
 		if value == "" {
 			continue
 		}
-		value = addMemorySuffixForDocker(key, value)
-		fmt.Printf(" --%s=%s ", key, value)
+		value, err := formatResourceValueForDocker(key, value)
+		if err != nil {
+			return fmt.Errorf("Unable to apply build resource limits for %s: %w", appName, err)
+		}
+		fmt.Fprintf(&args, " --%s=%s ", key, value)
 	}
 
+	fmt.Print(args.String())
 	fmt.Print(string(stdin))
 	return nil
 }

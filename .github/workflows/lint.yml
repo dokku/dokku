@@ -40,7 +40,7 @@ jobs:
       - name: Install markdownlint-cli
         run: npm install -g markdownlint-cli@0.35.0
       - name: Run markdown-lint
-        run: markdownlint -c .github/linters/.markdown-lint.yml *.md **/*.md
+        run: markdownlint -c .github/linters/.markdown-lint.yml --ignore tests/apps '**/*.md'
 
   packer:
     name: packer

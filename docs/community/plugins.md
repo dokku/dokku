@@ -268,7 +268,6 @@ The following plugins are no longer maintained by their developers.
 [calyhre]: https://github.com/calyhre
 [cameron-martin]: https://github.com/cameron-martin
 [candlewaster]: https://notabug.org/candlewaster
-[cedricziel]: https://github.com/cedricziel
 [cef]: https://github.com/cef
 [cheif]: https://github.com/cheif
 [cjblomqvist]: https://github.com/cjblomqvist
