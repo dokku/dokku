@@ -425,6 +425,27 @@ fn-nginx-global-proxy-busy-buffers-size() {
   fn-get-property --app "$APP" --global "proxy-busy-buffers-size"
 }
 
+fn-nginx-proxy-http-version() {
+  declare desc="get the configured proxy http version"
+  declare APP="$1"
+
+  fn-get-property --app "$APP" "proxy-http-version"
+}
+
+fn-nginx-computed-proxy-http-version() {
+  declare desc="get the computed proxy http version"
+  declare APP="$1"
+
+  fn-get-property --app "$APP" --computed "proxy-http-version"
+}
+
+fn-nginx-global-proxy-http-version() {
+  declare desc="get the global proxy http version"
+  declare APP="$1"
+
+  fn-get-property --app "$APP" --global "proxy-http-version"
+}
+
 fn-nginx-proxy-connect-timeout() {
   declare desc="get the configured proxy connect timeout"
   declare APP="$1"

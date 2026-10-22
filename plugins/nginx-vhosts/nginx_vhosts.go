@@ -436,6 +436,27 @@ func GlobalProxyBusyBuffersSize() string {
 	return common.PropertyGet("nginx", "--global", "proxy-busy-buffers-size")
 }
 
+func AppProxyHttpVersion(appName string) string {
+	return common.PropertyGet("nginx", appName, "proxy-http-version")
+}
+
+func ComputedProxyHttpVersion(appName string) string {
+	appValue := AppProxyHttpVersion(appName)
+	if appValue != "" {
+		return appValue
+	}
+
+	value := GlobalProxyHttpVersion()
+	if value == "" {
+		value = "1.1"
+	}
+	return value
+}
+
+func GlobalProxyHttpVersion() string {
+	return common.PropertyGet("nginx", "--global", "proxy-http-version")
+}
+
 func AppProxyConnectTimeout(appName string) string {
 	return common.PropertyGet("nginx", appName, "proxy-connect-timeout")
 }

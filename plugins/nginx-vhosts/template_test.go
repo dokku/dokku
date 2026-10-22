@@ -47,6 +47,7 @@ func defaultVars() map[string]interface{} {
 		"KEEPALIVE_TIMEOUT":           "75s",
 		"LINGERING_TIMEOUT":           "5s",
 		"SEND_TIMEOUT":                "60s",
+		"PROXY_HTTP_VERSION":          "1.1",
 		"PROXY_CONNECT_TIMEOUT":       "60s",
 		"PROXY_READ_TIMEOUT":          "60s",
 		"PROXY_SEND_TIMEOUT":          "60s",

@@ -77,6 +77,8 @@ func appValue(appName string, property string) string {
 		value = nginx_vhosts.AppProxyBuffers(appName)
 	case "proxy-busy-buffers-size":
 		value = nginx_vhosts.AppProxyBusyBuffersSize(appName)
+	case "proxy-http-version":
+		value = nginx_vhosts.AppProxyHttpVersion(appName)
 	case "proxy-connect-timeout":
 		value = nginx_vhosts.AppProxyConnectTimeout(appName)
 	case "proxy-read-timeout":
@@ -147,6 +149,8 @@ func computedValue(appName string, property string) string {
 		value = nginx_vhosts.ComputedProxyBuffers(appName)
 	case "proxy-busy-buffers-size":
 		value = nginx_vhosts.ComputedProxyBusyBuffersSize(appName)
+	case "proxy-http-version":
+		value = nginx_vhosts.ComputedProxyHttpVersion(appName)
 	case "proxy-connect-timeout":
 		value = nginx_vhosts.ComputedProxyConnectTimeout(appName)
 	case "proxy-read-timeout":
@@ -217,6 +221,8 @@ func globalValue(appName string, property string) string {
 		value = nginx_vhosts.GlobalProxyBuffers()
 	case "proxy-busy-buffers-size":
 		value = nginx_vhosts.GlobalProxyBusyBuffersSize()
+	case "proxy-http-version":
+		value = nginx_vhosts.GlobalProxyHttpVersion()
 	case "proxy-connect-timeout":
 		value = nginx_vhosts.GlobalProxyConnectTimeout()
 	case "proxy-read-timeout":
