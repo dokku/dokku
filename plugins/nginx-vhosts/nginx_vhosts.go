@@ -454,7 +454,7 @@ func ComputedProxyHttpVersion(appName string) string {
 }
 
 func GlobalProxyHttpVersion() string {
-	return common.PropertyGet("nginx", "--global", "proxy-connect-timeout")
+	return common.PropertyGet("nginx", "--global", "proxy-http-version")
 }
 
 func AppProxyConnectTimeout(appName string) string {
