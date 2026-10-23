@@ -45,18 +45,15 @@ fn-openresty-vhosts-copy-from-image() {
   local CONF_PATH="openresty/http-includes"
   local LOCATION_CONF_PATH="openresty/http-location-includes"
 
-  mkdir -p "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP"
-  find "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/" -maxdepth 1 -name 'openresty-http-includes.*' -type d -exec rm -r {} +
   copy_dir_from_image "$IMAGE_NAME" "$CONF_PATH" "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-http-includes.$DOKKU_PID" 2>/dev/null || true
   fn-openresty-vhosts-sanitize-extracted-includes "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-http-includes.$DOKKU_PID"
-  if [[ ! -f "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-http-includes.$DOKKU_PID" ]]; then
+  if [[ ! -d "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-http-includes.$DOKKU_PID" ]]; then
     touch "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-http-includes.$DOKKU_PID.missing"
   fi
 
-  find "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/" -maxdepth 1 -name 'openresty-location-includes.*' -type d -exec rm -r {} +
   copy_dir_from_image "$IMAGE_NAME" "$LOCATION_CONF_PATH" "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-location-includes.$DOKKU_PID" 2>/dev/null || true
   fn-openresty-vhosts-sanitize-extracted-includes "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-location-includes.$DOKKU_PID"
-  if [[ ! -f "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-location-includes.$DOKKU_PID" ]]; then
+  if [[ ! -d "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-location-includes.$DOKKU_PID" ]]; then
     touch "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-location-includes.$DOKKU_PID.missing"
   fi
 }
@@ -66,25 +63,21 @@ fn-openresty-vhosts-copy-from-directory() {
   local CONF_PATH="openresty/http-includes"
   local LOCATION_CONF_PATH="openresty/http-location-includes"
 
+  pushd "$SOURCECODE_WORK_DIR" >/dev/null
   if [[ -d "$CONF_PATH" ]]; then
-    pushd "$SOURCECODE_WORK_DIR" >/dev/null
-    find "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/" -maxdepth 1 -name 'openresty-http-includes.*' -type d -exec rm -r {} +
     mkdir -p "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-http-includes.$DOKKU_PID/"
     fn-openresty-vhosts-copy-includes-from-source "$CONF_PATH" "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-http-includes.$DOKKU_PID"
-    popd &>/dev/null || pushd "/tmp" >/dev/null
   else
     touch "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-http-includes.$DOKKU_PID.missing"
   fi
 
   if [[ -d "$LOCATION_CONF_PATH" ]]; then
-    pushd "$SOURCECODE_WORK_DIR" >/dev/null
-    find "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/" -maxdepth 1 -name 'openresty-location-includes.*' -type d -exec rm -r {} +
     mkdir -p "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-location-includes.$DOKKU_PID/"
     fn-openresty-vhosts-copy-includes-from-source "$LOCATION_CONF_PATH" "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-location-includes.$DOKKU_PID"
-    popd &>/dev/null || pushd "/tmp" >/dev/null
   else
     touch "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-location-includes.$DOKKU_PID.missing"
   fi
+  popd &>/dev/null || pushd "/tmp" >/dev/null
 }
 
 trigger-openresty-vhosts-core-post-extract() {
@@ -94,6 +87,7 @@ trigger-openresty-vhosts-core-post-extract() {
   local app_source_image
 
   mkdir -p "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP"
+  find "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/" -maxdepth 1 \( -name 'openresty-http-includes.*' -o -name 'openresty-location-includes.*' \) -exec rm -rf {} +
 
   app_source_image="$(plugn trigger git-get-property "$APP" "source-image")"
   if [[ -n "$app_source_image" ]]; then

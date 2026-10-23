@@ -153,8 +153,8 @@ func CorePostDeploy(input CorePostDeployInput) error {
 				if err := os.Rename(processSpecificPath, existingPath); err != nil {
 					return err
 				}
-			} else if DirectoryExists(fmt.Sprintf("%s.missing", processSpecificPath)) {
-				if err := os.RemoveAll(fmt.Sprintf("%s.missing", processSpecificPath)); err != nil {
+			} else if FileExists(fmt.Sprintf("%s.missing", processSpecificPath)) {
+				if err := os.Remove(fmt.Sprintf("%s.missing", processSpecificPath)); err != nil {
 					return err
 				}
 
@@ -306,7 +306,7 @@ func CorePostExtract(input CorePostExtractInput) error {
 			return err
 		}
 		for _, f := range files {
-			if err := os.Remove(f); err != nil {
+			if err := os.RemoveAll(f); err != nil {
 				return err
 			}
 		}
@@ -371,13 +371,18 @@ func CorePostExtract(input CorePostExtractInput) error {
 			}
 		} else {
 			if toExtract.IsDirectory {
-
 				if err := CopyDirFromImage(input.AppName, sourceImage, imageSourcePath, processSpecificDestination); err != nil {
-					return TouchFile(missingDestination)
+					if err := TouchFile(missingDestination); err != nil {
+						return err
+					}
+					continue
 				}
 			} else {
 				if err := CopyFromImage(input.AppName, sourceImage, imageSourcePath, processSpecificDestination); err != nil {
-					return TouchFile(missingDestination)
+					if err := TouchFile(missingDestination); err != nil {
+						return err
+					}
+					continue
 				}
 			}
 		}

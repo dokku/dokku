@@ -10,11 +10,6 @@ trigger-scheduler-docker-local-core-post-deploy() {
   declare APP="$1"
   local APP_ROOT="$DOKKU_ROOT/$APP"
 
-  local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
-  if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
-    return
-  fi
-
   # move over the checks file appropriately
   checks_file="${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP/CHECKS"
   process_specific_checks_file="${DOKKU_LIB_ROOT}/data/scheduler-docker-local/$APP/CHECKS.$DOKKU_PID"
@@ -25,6 +20,11 @@ trigger-scheduler-docker-local-core-post-deploy() {
     if [[ -f "$checks_file" ]]; then
       rm -f "$checks_file"
     fi
+  fi
+
+  local DOKKU_SCHEDULER=$(get_app_scheduler "$APP")
+  if [[ "$DOKKU_SCHEDULER" != "docker-local" ]]; then
+    return
   fi
 
   dokku_log_info1 "Renaming containers"

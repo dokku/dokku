@@ -221,7 +221,7 @@ fn-openresty-get-http-includes-dir() {
   declare desc="get any include dir if available"
   declare APP="$1"
 
-  if [[ -d "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-http-includes.$DOKKU_PID.missing" ]]; then
+  if [[ -f "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-http-includes.$DOKKU_PID.missing" ]]; then
     return
   fi
 
@@ -236,7 +236,7 @@ fn-openresty-get-location-includes-dir() {
   declare desc="get any include dir if available"
   declare APP="$1"
 
-  if [[ -d "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-location-includes.$DOKKU_PID.missing" ]]; then
+  if [[ -f "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-location-includes.$DOKKU_PID.missing" ]]; then
     return
   fi
 

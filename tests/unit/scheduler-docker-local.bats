@@ -588,6 +588,31 @@ teardown() {
   assert_output_contains "Unable to parse command"
 }
 
+@test "(scheduler-docker-local) deploy removes stale CHECKS files" {
+  local DATA_DIR="/var/lib/dokku/data/scheduler-docker-local/$TEST_APP"
+
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  mkdir -p "$DATA_DIR"
+  echo "/ python/http.server" >"$DATA_DIR/CHECKS.99999999"
+  touch "$DATA_DIR/CHECKS.99999998.missing"
+  chown -R dokku:dokku "$DATA_DIR"
+
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "find $DATA_DIR -maxdepth 1 -name 'CHECKS.*'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_exists
+}
+
 quoted_procfile_callback() {
   local APP="$1"
   local APP_REPO_DIR="$2"
