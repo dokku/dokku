@@ -4,25 +4,34 @@ source "$PLUGIN_AVAILABLE_PATH/openresty-vhosts/internal-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
+fn-openresty-vhosts-promote-includes-dir() {
+  declare desc="moves the process-specific includes dir into place or removes the stored one"
+  declare APP="$1" INCLUDES_NAME="$2"
+  local includes_dir="${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/$INCLUDES_NAME"
+
+  if [[ -d "$includes_dir.$DOKKU_PID" ]]; then
+    rm -rf "$includes_dir"
+    mv "$includes_dir.$DOKKU_PID" "$includes_dir"
+  elif [[ -f "$includes_dir.$DOKKU_PID.missing" ]]; then
+    rm -f "$includes_dir.$DOKKU_PID.missing"
+    rm -rf "$includes_dir"
+  fi
+}
+
 trigger-openresty-vhosts-core-post-deploy() {
   declare desc="openresty-vhosts core-post-deploy plugin trigger"
   declare trigger="core-post-deploy"
   declare APP="$1"
   local tls_internal
 
+  fn-openresty-vhosts-promote-includes-dir "$APP" "openresty-http-includes"
+  fn-openresty-vhosts-promote-includes-dir "$APP" "openresty-location-includes"
+
   if [[ "$(plugn trigger proxy-type "$APP")" != "openresty" ]]; then
     return
   fi
 
   dokku_log_info1 "Routing app via openresty"
-  if [[ -f "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-http-includes.$DOKKU_PID.missing" ]]; then
-    rm -f "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-http-includes.$DOKKU_PID.missing"
-    rm -f "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-http-includes"
-  fi
-  if [[ -f "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-location-includes.$DOKKU_PID.missing" ]]; then
-    rm -f "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-location-includes.$DOKKU_PID.missing"
-    rm -f "${DOKKU_LIB_ROOT}/data/openresty-vhosts/app-$APP/openresty-location-includes"
-  fi
 }
 
 trigger-openresty-vhosts-core-post-deploy "$@"

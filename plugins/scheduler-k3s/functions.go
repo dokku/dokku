@@ -2144,7 +2144,7 @@ func getProcessSpecificKustomizeRootPath(appName string) string {
 func hasKustomizeDirectory(appName string) bool {
 	directory := getKustomizeDirectory(appName)
 
-	if common.DirectoryExists(fmt.Sprintf("%s.%s.missing", directory, os.Getenv("DOKKU_PID"))) {
+	if common.FileExists(fmt.Sprintf("%s.%s.missing", directory, os.Getenv("DOKKU_PID"))) {
 		return false
 	}
 

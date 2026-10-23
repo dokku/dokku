@@ -129,3 +129,22 @@ teardown() {
 
   docker image rm dokku-test/$TEST_APP:latest dokku-test/$TEST_APP:v2 || true
 }
+
+@test "(nginx-vhosts) deploy removes stale nginx.conf.sigil files" {
+  local DATA_DIR="/var/lib/dokku/data/nginx-vhosts/app-$TEST_APP"
+  mkdir -p "$DATA_DIR"
+  echo "# stale" >"$DATA_DIR/nginx.conf.sigil.99999999"
+  touch "$DATA_DIR/nginx.conf.sigil.99999998.missing"
+  chown -R dokku:dokku "$DATA_DIR"
+
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "find $DATA_DIR -maxdepth 1 -name 'nginx.conf.sigil.*'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_exists
+}
