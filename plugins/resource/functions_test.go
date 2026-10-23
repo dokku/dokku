@@ -53,3 +53,30 @@ func TestFormatResourceValueForDocker(t *testing.T) {
 		})
 	}
 }
+
+func TestIsResourceTypeKey(t *testing.T) {
+	testCases := []struct {
+		name         string
+		key          string
+		resourceType string
+		expected     bool
+	}{
+		{name: "default limit key", key: "_default_.limit.memory", resourceType: "limit", expected: true},
+		{name: "process limit key", key: "web.limit.cpu", resourceType: "limit", expected: true},
+		{name: "process reserve key", key: "web.reserve.memory", resourceType: "reserve", expected: true},
+		{name: "dotted process type", key: "foo.bar.limit.memory", resourceType: "limit", expected: true},
+		{name: "reserve key does not match limit", key: "_default_.reserve.memory", resourceType: "limit", expected: false},
+		{name: "limit key does not match reserve", key: "web.limit.memory", resourceType: "reserve", expected: false},
+		{name: "key without process type", key: "limit.memory", resourceType: "limit", expected: false},
+		{name: "key with a single part", key: "limit", resourceType: "limit", expected: false},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			value := isResourceTypeKey(testCase.key, testCase.resourceType)
+			if value != testCase.expected {
+				t.Fatalf("expected %v for %s/%s, got %v", testCase.expected, testCase.key, testCase.resourceType, value)
+			}
+		})
+	}
+}

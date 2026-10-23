@@ -190,3 +190,52 @@ teardown() {
   echo "status: $status"
   assert_failure
 }
+
+@test "(resource) resource:limit-clear preserves reservations" {
+  run /bin/bash -c "dokku resource:limit --memory 512m $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku resource:limit --memory 384m --process-type web $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku resource:reserve --memory 256m $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku resource:reserve --memory 128m --process-type web $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku resource:limit-clear $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku resource:report --resource-_default_.limit.memory $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku resource:report --resource-web.limit.memory $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku resource:report --resource-_default_.reserve.memory $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "256m"
+
+  run /bin/bash -c "dokku resource:report --resource-web.reserve.memory $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "128m"
+}
