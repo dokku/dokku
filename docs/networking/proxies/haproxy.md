@@ -185,6 +185,8 @@ dokku haproxy:set --global letsencrypt-email automated@dokku.sh
 
 After enabling, the Haproxy container will need to be restarted and apps will need to be rebuilt. All http requests will then be redirected to https.
 
+Certificates are requested over http-01 on port 80, so each domain must resolve to the server. They are kept in `/var/lib/dokku/data/haproxy` and renewed automatically.
+
 #### Customizing the letsencrypt server
 
 The letsencrypt integration is set to the production letsencrypt server by default. To change this, set the `letsencrypt-server` property with the `--global` flag:

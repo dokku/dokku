@@ -103,22 +103,11 @@ trigger-haproxy-vhosts-docker-args-process-deploy() {
       fi
     fi
 
-    if [[ -n "$proxy_container_https_port" ]] || [[ -n "$proxy_container_https_port_candidate" ]]; then
-      if [[ -z "$proxy_container_https_port" ]]; then
-        dokku_log_warn "Warning: https:443 port mapping not found"
-        dokku_log_warn "Utilizing first https port mapping, http:$proxy_host_https_port_candidate:$proxy_container_https_port_candidate"
-        proxy_container_https_port="$proxy_container_https_port_candidate"
-      fi
-
+    # EasyHAProxy serves https itself: it requests the certificate (certbot), terminates
+    # TLS on 443 and forwards to the same container port as http
+    if [[ -n "$letsencrypt_email" ]] && { [[ -n "$proxy_container_https_port" ]] || [[ -n "$proxy_container_https_port_candidate" ]]; }; then
       output="$output --label haproxy.$APP-$PROC_TYPE.redirect_ssl=true"
-      output="$output --label haproxy.$APP-$PROC_TYPE-https.localport=$proxy_container_https_port"
-      output="$output --label haproxy.$APP-$PROC_TYPE-https.letsencrypt=true"
-      output="$output --label haproxy.$APP-$PROC_TYPE-https.mode=http"
-      output="$output --label haproxy.$APP-$PROC_TYPE-https.port=443"
-
-      if [[ -n "$haproxy_domains" ]]; then
-        output="$output --label haproxy.$APP-$PROC_TYPE-https.host=$haproxy_domains"
-      fi
+      output="$output --label haproxy.$APP-$PROC_TYPE.certbot=true"
     else
       output="$output --label haproxy.$APP-$PROC_TYPE.redirect_ssl=false"
     fi

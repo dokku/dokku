@@ -11,10 +11,10 @@ services:
       - CERTBOT_LOG_LEVEL={{ $.HAPROXY_LOG_LEVEL }}
       - HAPROXY_LOG_LEVEL={{ $.HAPROXY_LOG_LEVEL }}
       {{ if $.HAPROXY_LETSENCRYPT_EMAIL }}
-      - EASYHAPROXY_LETSENCRYPT_EMAIL={{ $.HAPROXY_LETSENCRYPT_EMAIL }}"
-      - EASYHAPROXY_LETSENCRYPT_SERVER={{ $.HAPROXY_LETSENCRYPT_SERVER }}
+      - EASYHAPROXY_CERTBOT_EMAIL={{ $.HAPROXY_LETSENCRYPT_EMAIL }}
+      - EASYHAPROXY_CERTBOT_SERVER={{ $.HAPROXY_LETSENCRYPT_SERVER }}
       {{ end }}
-      - HAPROXY_STATS_PORT=false
+      - HAPROXY_STATS_ENABLE=false
 
     network_mode: bridge
 
@@ -28,3 +28,4 @@ services:
 
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "{{ $.HAPROXY_DATA_DIR }}:/etc/easyhaproxy/certs/certbot"

@@ -39,7 +39,8 @@ fn-haproxy-template-compose-file() {
   HAPROXY_LOG_LEVEL="$(fn-haproxy-computed-log-level)"
   HAPROXY_LETSENCRYPT_EMAIL="$(fn-haproxy-computed-letsencrypt-email)"
   HAPROXY_LETSENCRYPT_SERVER="$(fn-haproxy-computed-letsencrypt-server)"
-  HAPROXY_REFRESH_CONF="$(fn-haproxy-computed-refresh-conf)")
+  HAPROXY_REFRESH_CONF="$(fn-haproxy-computed-refresh-conf)"
+  HAPROXY_DATA_DIR="${DOKKU_LIB_ROOT}/data/haproxy")
 
   sigil -f "$COMPOSE_TEMPLATE" "${SIGIL_PARAMS[@]}" | cat -s >"$OUTPUT_PATH"
 }

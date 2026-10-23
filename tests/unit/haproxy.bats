@@ -246,6 +246,12 @@ teardown() {
   assert_success
   assert_output "true"
 
+  run /bin/bash -c "docker inspect $TEST_APP.web.1 --format '{{ index .Config.Labels \"haproxy.$TEST_APP-web.certbot\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
   run /bin/bash -c "dokku ports:report $TEST_APP --ports-map"
   echo "output: $output"
   echo "status: $status"
