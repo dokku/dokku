@@ -19,7 +19,7 @@ trigger-scheduler-docker-local-scheduler-register-retired() {
   fn-scheduler-docker-local-register-retired "container" "$APP" "$CONTAINER_ID" "$WAIT"
 
   if [[ -n "$IMAGE_ID" ]] && [[ -z "$DOKKU_SKIP_IMAGE_CLEANUP_REGISTRATION" ]]; then
-    ALT_IMAGE_TAGS="$("$DOCKER_BIN" image inspect --format '{{ index .Config.Labels "com.dokku.docker-image-labeler/alternate-tags" }}' "$IMAGE_ID" 2>/dev/null || true)"
+    ALT_IMAGE_TAGS="$("$DOCKER_BIN" container inspect --format '{{ index .Config.Labels "com.dokku.docker-image-labeler/alternate-tags" }}' "$CONTAINER_ID" 2>/dev/null || true)"
 
     if ! fn-scheduler-docker-local-image-in-use-by-app "$APP" "$IMAGE_ID" "$CONTAINER_ID"; then
       fn-scheduler-docker-local-register-retired "image" "$APP" "$IMAGE_ID" "$WAIT"
