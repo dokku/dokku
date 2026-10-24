@@ -15,6 +15,11 @@ updates:
       interval: daily
     open-pull-requests-limit: 10
     groups:
+      kubernetes:
+        patterns:
+          - "k8s.io/*"
+          - "sigs.k8s.io/*"
+          - "helm.sh/*"
       plugins:
         group-by: dependency-name
     labels:
