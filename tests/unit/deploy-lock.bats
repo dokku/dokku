@@ -90,6 +90,30 @@ wait_for() {
   assert_output_contains "lock held"
 }
 
+@test "(deploy-lock) the lock file is removed when the holder exits without releasing it" {
+  run /bin/bash -c "$(lock_script "holder-a" "acquire_advisory_lock '$LOCK_FILE' exclusive 'waiting' 'lock held'; exit 1")"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "[[ ! -e '$LOCK_FILE' ]]"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
+@test "(deploy-lock) the lock file is removed when the holder is terminated" {
+  start_lock_holder "holder-a"
+
+  kill -TERM "${LOCK_PIDS[0]}"
+  wait_for "! kill -0 ${LOCK_PIDS[0]} 2>/dev/null"
+
+  run /bin/bash -c "[[ ! -e '$LOCK_FILE' ]]"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
 @test "(deploy-lock) release only removes the lock file it holds" {
   start_lock_holder "holder-a"
 

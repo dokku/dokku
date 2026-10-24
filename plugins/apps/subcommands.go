@@ -137,9 +137,7 @@ func CommandLock(appName string) error {
 		return err
 	}
 
-	// the file is not truncated as it may hold the build id of an in-progress deploy
-	lockPath := getLockPath(appName)
-	lockFile, err := os.OpenFile(lockPath, os.O_CREATE|os.O_WRONLY, 0644)
+	lockFile, err := os.OpenFile(getManualLockPath(appName), os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return errors.New("Unable to create deploy lock")
 	}
@@ -185,6 +183,10 @@ func CommandRename(oldAppName string, newAppName string, skipDeploy bool) error 
 
 	if appNameTaken(newAppName) {
 		return errors.New("Name is already taken")
+	}
+
+	if appIsManuallyLocked(oldAppName) {
+		return errors.New("Unable to rename a locked app, run apps:unlock first")
 	}
 
 	common.LogInfo1Quiet(fmt.Sprintf("Renaming %s to %s", oldAppName, newAppName))
@@ -264,13 +266,12 @@ func CommandUnlock(appName string) error {
 		return err
 	}
 
-	lockfilePath := getLockPath(appName)
-	if _, err := os.Stat(lockfilePath); !os.IsNotExist(err) {
+	if deployLockHeld(appName) {
 		common.LogWarn("A deploy may be in progress.")
 		common.LogWarn("Removing the app lock will not stop in progress deploys.")
 	}
 
-	if err := os.Remove(lockfilePath); err != nil {
+	if err := removeLockFiles(getManualLockPath(appName), getLockPath(appName)); err != nil {
 		return errors.New("Unable to remove deploy lock")
 	}
 

@@ -9,6 +9,7 @@ setup() {
 }
 
 teardown() {
+  release_deploy_lock
   rm -rf "${PLUGIN_ENABLED_PATH:?}/$APP_FILTER_PLUGIN_NAME" "${PLUGIN_AVAILABLE_PATH:?}/$APP_FILTER_PLUGIN_NAME"
   dokku --force apps:destroy "$TEST_APP-source" &>/dev/null || true
   global_teardown
@@ -402,7 +403,7 @@ teardown() {
   destroy_app
 }
 
-@test "(apps) apps:lock does not truncate an existing lock file" {
+@test "(apps) apps:lock does not modify the deploy lock file" {
   run create_app
   echo "output: $output"
   echo "status: $status"
@@ -425,6 +426,132 @@ teardown() {
   assert_output "holder-id"
 
   run /bin/bash -c "dokku apps:unlock $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  destroy_app
+}
+
+@test "(apps:locked) ignores a deploy lock file that no deploy holds" {
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "echo stale-id >$DOKKU_LIB_ROOT/data/apps/$TEST_APP/.deploy.lock && chown dokku:dokku $DOKKU_LIB_ROOT/data/apps/$TEST_APP/.deploy.lock"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku apps:locked $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku apps:report $TEST_APP --app-locked"
+  echo "output: $output"
+  echo "status: $status"
+  assert_output "false"
+
+  destroy_app
+}
+
+@test "(apps:locked) reports a deploy lock held by a running deploy" {
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  hold_deploy_lock
+
+  run /bin/bash -c "dokku apps:locked $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku apps:unlock $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "A deploy may be in progress."
+
+  release_deploy_lock
+  destroy_app
+}
+
+@test "(apps:unlock) succeeds for an app that is not locked" {
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku apps:unlock $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_contains "A deploy may be in progress."
+
+  destroy_app
+}
+
+@test "(apps:rename) fails for a locked app" {
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku apps:lock $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku apps:rename $TEST_APP great-test-name"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Unable to rename a locked app"
+
+  run /bin/bash -c "dokku apps:exists great-test-name"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku apps:locked $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  destroy_app
+}
+
+@test "(apps) [install] converts a lock created by apps:lock in older versions" {
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "sudo -u dokku touch $DOKKU_LIB_ROOT/data/apps/$TEST_APP/.deploy.lock"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "DOKKU_ROOT=$DOKKU_ROOT PLUGIN_PATH=$PLUGIN_PATH PLUGIN_AVAILABLE_PATH=$PLUGIN_AVAILABLE_PATH PLUGIN_ENABLED_PATH=$PLUGIN_ENABLED_PATH PLUGIN_CORE_AVAILABLE_PATH=$PLUGIN_CORE_AVAILABLE_PATH DOKKU_LIB_ROOT=$DOKKU_LIB_ROOT $PLUGIN_ENABLED_PATH/apps/install"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "[[ ! -e $DOKKU_LIB_ROOT/data/apps/$TEST_APP/.deploy.lock ]]"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "[[ -f $DOKKU_LIB_ROOT/data/apps/$TEST_APP/.manual-deploy.lock ]]"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku apps:locked $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success

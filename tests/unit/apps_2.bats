@@ -33,6 +33,38 @@ teardown() {
   assert_success
 }
 
+@test "(apps:clone) does not copy the lock of a locked app" {
+  run /bin/bash -c "dokku apps:create $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku apps:lock $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku apps:clone --skip-deploy $TEST_APP great-test-name"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku apps:locked great-test-name"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku apps:locked $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku --force apps:destroy great-test-name"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
 @test "(apps) apps:clone (no app)" {
   run /bin/bash -c "dokku apps:create $TEST_APP"
   echo "output: $output"

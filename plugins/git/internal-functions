@@ -286,7 +286,7 @@ cmd-git-sync() {
 
   # acquire_app_deploy_lock is not used as releasing it would finalize the
   # build record before the build starts
-  acquire_advisory_lock "$APP_DEPLOY_LOCK_FILE" "exclusive" "$APP currently has a deploy lock in place. Waiting..." "$APP currently has a deploy lock in place. Exiting..."
+  acquire_app_advisory_lock "$APP" "exclusive"
 
   DOKKU_DEPLOY_BRANCH="$(fn-git-computed-deploy-branch "$APP")"
   CURRENT_REF="$(fn-git-cmd "$APP_ROOT" rev-parse "$DOKKU_DEPLOY_BRANCH" 2>/dev/null || true)"

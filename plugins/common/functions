@@ -986,13 +986,34 @@ app_deploy_lock_file() {
   echo "$DOKKU_LIB_ROOT/data/apps/$APP/.deploy.lock"
 }
 
-acquire_app_deploy_lock() {
-  declare desc="acquire advisory lock for use in deploys"
-  local APP="$1"
-  local LOCK_TYPE="${2:-waiting}"
+app_manual_lock_file() {
+  declare desc="outputs the path to the manual lock file created by apps:lock for an app"
+  declare APP="$1"
+  echo "$DOKKU_LIB_ROOT/data/apps/$APP/.manual-deploy.lock"
+}
+
+acquire_app_advisory_lock() {
+  declare desc="acquire the advisory lock for an app's deploys, failing if the app was locked via apps:lock"
+  declare APP="$1" LOCK_TYPE="${2:-waiting}"
   local APP_DEPLOY_LOCK_FILE="$(app_deploy_lock_file "$APP")"
   local LOCK_WAITING_MSG="$APP currently has a deploy lock in place. Waiting..."
   local LOCK_FAILED_MSG="$APP currently has a deploy lock in place. Exiting..."
+
+  acquire_advisory_lock "$APP_DEPLOY_LOCK_FILE" "$LOCK_TYPE" "$LOCK_WAITING_MSG" "$LOCK_FAILED_MSG"
+  if [[ ! -f "$(app_manual_lock_file "$APP")" ]]; then
+    return 0
+  fi
+
+  release_advisory_lock "$APP_DEPLOY_LOCK_FILE"
+  dokku_discard_build_capture "$APP"
+  dokku_log_warn "$APP has been locked via apps:lock"
+  dokku_log_fail "Run 'apps:unlock' to allow deploys"
+}
+
+acquire_app_deploy_lock() {
+  declare desc="acquire advisory lock for use in deploys, releasing it and finalizing the build record when the shell exits"
+  local APP="$1"
+  local LOCK_TYPE="${2:-waiting}"
 
   if [[ -z "$DOKKU_BUILD_ID" ]]; then
     DOKKU_BUILD_ID="$(plugn trigger builds-generate-id 2>/dev/null)"
@@ -1002,7 +1023,8 @@ acquire_app_deploy_lock() {
     export DOKKU_BUILD_ID
   fi
 
-  acquire_advisory_lock "$APP_DEPLOY_LOCK_FILE" "$LOCK_TYPE" "$LOCK_WAITING_MSG" "$LOCK_FAILED_MSG"
+  acquire_app_advisory_lock "$APP" "$LOCK_TYPE"
+  trap "release_app_deploy_lock '$APP' \"\$?\"" EXIT
 }
 
 release_app_deploy_lock() {
@@ -1040,7 +1062,9 @@ acquire_advisory_lock() {
         sleep 1
       done
     else
-      if ! flock -n "$LOCK_FD" &>/dev/null; then
+      # the short wait lets an apps:locked check that briefly takes the lock
+      # finish instead of failing the deploy
+      if ! flock -w 1 "$LOCK_FD" &>/dev/null; then
         dokku_log_warn "$LOCK_FAILED_MSG"
         dokku_log_fail "Run 'apps:unlock' to release the existing deploy lock"
       fi
@@ -1054,12 +1078,15 @@ acquire_advisory_lock() {
     eval "exec $LOCK_FD>&-"
   done
   echo "${DOKKU_BUILD_ID:-$DOKKU_PID}" >"$LOCK_FILE"
+  trap "release_advisory_lock '$LOCK_FILE'" EXIT
 }
 
 release_advisory_lock() {
   declare desc="release advisory lock"
   local LOCK_FILE="$1"
   local LOCK_FD="200"
+
+  trap - EXIT
 
   # the file is removed before unlocking so a waiter that locks it afterwards
   # can tell that its lock is stale. It is only removed if it is still the file

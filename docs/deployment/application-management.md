@@ -238,6 +238,12 @@ dokku apps:lock node-js-app
 -----> Deploy lock created
 ```
 
+While an app is locked, deploys that build the app - `git push`, `ps:rebuild`, `git:sync`, `git:from-archive`, `git:from-image`, and `git:load-image` - fail without building or fetching any code, and leave no build record behind. A deploy that is already in progress when the lock is created is not interrupted. Commands that redeploy an existing image, such as `ps:restart`, `ps:start`, `config:set`, and `deploy`, are not blocked by the lock.
+
+A locked app cannot be renamed via `apps:rename` until it is unlocked, and an app created via `apps:clone` does not inherit the lock of the app it was cloned from.
+
+The deploy lock taken by a deploy is released when the deploy finishes, including when the build fails or the deploy process exits early.
+
 ### Unlocking app deploys
 
 > [!IMPORTANT]
@@ -263,7 +269,7 @@ dokku apps:unlock node-js-app
 > [!IMPORTANT]
 > New as of 0.13.0
 
-In some cases, you may wish to inspect the state of an app lock. To do so, you can issue an `apps:lock` command. This will exit non-zero if there is no app lock in place.
+In some cases, you may wish to inspect the state of an app lock. To do so, you can issue an `apps:locked` command. This will exit non-zero if there is no app lock in place. An app is considered locked if it was locked via `apps:lock` or if a deploy is currently in progress.
 
 ```shell
 dokku apps:locked node-js-app

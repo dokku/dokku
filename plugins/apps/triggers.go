@@ -83,6 +83,40 @@ func TriggerInstall() error {
 		}
 	}
 
+	for _, appName := range apps {
+		if err := migrateManualLock(appName); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// migrateManualLock converts a lock created by apps:lock before manual locks
+// had their own file. Deploys write their build id into the deploy lock file,
+// so an empty one that no deploy holds was created by apps:lock.
+func migrateManualLock(appName string) error {
+	lockPath := getLockPath(appName)
+	fi, err := os.Stat(lockPath)
+	if err != nil || fi.Size() != 0 || deployLockHeld(appName) {
+		return nil
+	}
+
+	if err := os.Rename(lockPath, getManualLockPath(appName)); err != nil {
+		return fmt.Errorf("Unable to migrate the deploy lock for %s: %w", appName, err)
+	}
+
+	return nil
+}
+
+// removeLockFiles removes the given lock files, ignoring ones that do not exist
+func removeLockFiles(lockPaths ...string) error {
+	for _, lockPath := range lockPaths {
+		if err := os.Remove(lockPath); err != nil && !os.IsNotExist(err) {
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -93,7 +127,11 @@ func TriggerPostAppCloneSetup(oldAppName string, newAppName string) error {
 		return err
 	}
 
-	return common.CloneAppData("apps", oldAppName, newAppName)
+	if err := common.CloneAppData("apps", oldAppName, newAppName); err != nil {
+		return err
+	}
+
+	return removeLockFiles(getManualLockPath(newAppName), getLockPath(newAppName))
 }
 
 // TriggerPostAppRename removes the old app data
@@ -111,7 +149,11 @@ func TriggerPostAppRenameSetup(oldAppName string, newAppName string) error {
 		return err
 	}
 
-	return common.CloneAppData("apps", oldAppName, newAppName)
+	if err := common.CloneAppData("apps", oldAppName, newAppName); err != nil {
+		return err
+	}
+
+	return removeLockFiles(getLockPath(newAppName))
 }
 
 // TriggerPostCreate ensures apps have the correct data directory structure
