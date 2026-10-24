@@ -170,7 +170,7 @@ By default, when running `git:sync` with a git branch reference, Dokku will auto
 dokku git:sync --skip-deploy-branch node-js-app https://github.com/heroku/node-js-getting-started.git main
 ```
 
-The `git:sync` command holds the app's deploy lock while fetching, and will fail if a deploy is already in progress. When the fetched code changes the repository or a build is triggered, the `source-image` property set by [image deploys](/docs/deployment/methods/image.md) is cleared. As the synced code is kept even when a build fails, the property is not restored on build failure.
+The `git:sync` command holds the app's deploy lock while fetching, and will fail if a deploy is already in progress or the app has been locked via `apps:lock`. When the fetched code changes the repository or a build is triggered, the `source-image` property set by [image deploys](/docs/deployment/methods/image.md) is cleared. As the synced code is kept even when a build fails, the property is not restored on build failure.
 
 ### Initializing from private repositories
 

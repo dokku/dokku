@@ -49,45 +49,6 @@ deploy_second_procfile_image() {
   assert_output_contains "second.Procfile"
 }
 
-hold_deploy_lock() {
-  DEPLOY_LOCK_FILE="$DOKKU_LIB_ROOT/data/apps/$TEST_APP/.deploy.lock"
-  DEPLOY_LOCK_HOLDER_PID_FILE="$(mktemp "/tmp/${DOKKU_DOMAIN}.XXXXX")"
-  chown dokku:dokku "$DEPLOY_LOCK_HOLDER_PID_FILE"
-
-  # the holder writes a build id like a deploy would, then becomes the sleep
-  # process so that killing its pid releases the lock
-  sudo -u dokku bash -c "exec 200>>'$DEPLOY_LOCK_FILE'; flock -n 200 || exit 1; echo test-lock-holder >'$DEPLOY_LOCK_FILE'; echo \$\$ >'$DEPLOY_LOCK_HOLDER_PID_FILE'; exec sleep 120" >/dev/null 2>&1 3>&- &
-
-  local i
-  for i in $(seq 1 20); do
-    if [[ -s "$DEPLOY_LOCK_HOLDER_PID_FILE" ]] && ! flock -n "$DEPLOY_LOCK_FILE" true; then
-      return 0
-    fi
-    sleep 0.5
-  done
-
-  echo "unable to acquire the deploy lock for $TEST_APP"
-  return 1
-}
-
-release_deploy_lock() {
-  if [[ -z "$DEPLOY_LOCK_HOLDER_PID_FILE" ]]; then
-    return 0
-  fi
-
-  local holder_pid i
-  if [[ -s "$DEPLOY_LOCK_HOLDER_PID_FILE" ]]; then
-    holder_pid="$(cat "$DEPLOY_LOCK_HOLDER_PID_FILE")"
-    kill "$holder_pid" &>/dev/null || true
-    for i in $(seq 1 20); do
-      kill -0 "$holder_pid" &>/dev/null || break
-      sleep 0.5
-    done
-  fi
-  rm -f "$DEPLOY_LOCK_FILE" "$DEPLOY_LOCK_HOLDER_PID_FILE"
-  DEPLOY_LOCK_HOLDER_PID_FILE=""
-}
-
 deploy_branch_rev() {
   sudo -u dokku git -C "/home/dokku/$TEST_APP" rev-parse master
 }

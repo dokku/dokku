@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"syscall"
 	"time"
 
 	"github.com/dokku/dokku/plugins/common"
@@ -19,11 +20,9 @@ func appNameTaken(appName string) bool {
 	return common.DirectoryExists(common.AppRoot(appName))
 }
 
-// checks if an app is locked
+// checks if an app is locked via apps:lock or by an in-progress deploy
 func appIsLocked(appName string) bool {
-	lockPath := getLockPath(appName)
-	_, err := os.Stat(lockPath)
-	return !os.IsNotExist(err)
+	return appIsManuallyLocked(appName) || deployLockHeld(appName)
 }
 
 // verifies app name and creates an app
@@ -129,6 +128,38 @@ func destroyApp(appName string) error {
 // returns the lock path
 func getLockPath(appName string) string {
 	return fmt.Sprintf("%v/.deploy.lock", common.GetAppDataDirectory("apps", appName))
+}
+
+// returns the path of the lock created by apps:lock
+func getManualLockPath(appName string) string {
+	return fmt.Sprintf("%v/.manual-deploy.lock", common.GetAppDataDirectory("apps", appName))
+}
+
+// checks if an app has been locked via apps:lock
+func appIsManuallyLocked(appName string) bool {
+	_, err := os.Stat(getManualLockPath(appName))
+	return err == nil
+}
+
+// checks if a deploy currently holds the flock on the deploy lock file
+//
+// a shared lock is attempted and immediately released. Deploys taking the
+// lock exclusively wait briefly before failing, so this check does not make
+// a concurrent deploy fail.
+func deployLockHeld(appName string) bool {
+	lockFile, err := os.Open(getLockPath(appName))
+	if err != nil {
+		return false
+	}
+	defer lockFile.Close()
+
+	fd := int(lockFile.Fd())
+	if err := syscall.Flock(fd, syscall.LOCK_SH|syscall.LOCK_NB); err != nil {
+		return errors.Is(err, syscall.EWOULDBLOCK)
+	}
+
+	_ = syscall.Flock(fd, syscall.LOCK_UN)
+	return false
 }
 
 // creates an app if allowed

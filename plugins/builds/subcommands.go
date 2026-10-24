@@ -319,15 +319,12 @@ func CommandCancel(appName string) error {
 		if err := WriteBuild(b); err != nil {
 			return err
 		}
-		_ = os.Remove(lockPath)
+		removeLockForBuild(lockPath, buildID)
 		return nil
 	}
 
-	common.LogInfo1("Killing app deploy")
-	if err := killProcessGroup(b.PID); err != nil {
-		common.LogWarn(fmt.Sprintf("Failed to signal process group %d: %s", b.PID, err))
-	}
-
+	// the record is finalized before the signal is sent so that a deploy
+	// finalizing itself on exit leaves it as canceled
 	current, err := ReadBuild(appName, buildID)
 	if err == nil && current.Status == BuildStatusRunning {
 		now := time.Now().UTC()
@@ -340,8 +337,28 @@ func CommandCancel(appName string) error {
 		}
 	}
 
-	_ = os.Remove(lockPath)
+	common.LogInfo1("Killing app deploy")
+	if err := killProcessGroup(b.PID); err != nil {
+		common.LogWarn(fmt.Sprintf("Failed to signal process group %d: %s", b.PID, err))
+	}
+
+	removeLockForBuild(lockPath, buildID)
 	return nil
+}
+
+// removeLockForBuild removes the deploy lock file if it still holds the given
+// build id, leaving a lock taken by a newer deploy in place
+func removeLockForBuild(lockPath string, buildID string) {
+	body, err := os.ReadFile(lockPath)
+	if err != nil {
+		return
+	}
+
+	if strings.TrimSpace(string(body)) != buildID {
+		return
+	}
+
+	_ = os.Remove(lockPath)
 }
 
 func killProcessGroup(pid int) error {
