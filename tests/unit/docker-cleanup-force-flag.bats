@@ -6,7 +6,7 @@ setup() {
   export PLUGIN_CORE_AVAILABLE_PATH="$DOKKU_TEST_TMPDIR/plugin"
 
   mkdir -p "$PLUGIN_CORE_AVAILABLE_PATH/common"
-  cat > "$PLUGIN_CORE_AVAILABLE_PATH/common/common" <<'EOF'
+  cat >"$PLUGIN_CORE_AVAILABLE_PATH/common/common" <<'EOF'
 #!/usr/bin/env bash
 printf '%s\n' "$@" > "$DOKKU_TEST_ARGS_FILE"
 EOF
