@@ -820,6 +820,20 @@ func getComputedDeployTimeout(appName string) string {
 	return deployTimeout
 }
 
+// getHelmChart returns the helm chart managed by dokku with the given release name
+func getHelmChart(chartName string) (HelmChart, error) {
+	knownCharts := []string{}
+	for _, chart := range HelmCharts {
+		if chart.ReleaseName == chartName {
+			return chart, nil
+		}
+		knownCharts = append(knownCharts, chart.ReleaseName)
+	}
+
+	sort.Strings(knownCharts)
+	return HelmChart{}, fmt.Errorf("Invalid chart name %q, valid charts: %s", chartName, strings.Join(knownCharts, ", "))
+}
+
 func getImagePullSecrets(appName string) string {
 	return common.PropertyGet("scheduler-k3s", appName, "image-pull-secrets")
 }

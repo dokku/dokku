@@ -616,8 +616,44 @@ func CommandInitialize(ingressClass string, serverIP string, taintScheduling boo
 	return nil
 }
 
-// CommandChartsSet sets or clears a chart-specific helm value for the scheduler
-func CommandChartsSet(propertyArg string, value string) error {
+// ChartsSetInput captures the inputs accepted by charts:set.
+// Property/Value and ChartName/Pairs are mutually exclusive: ChartName and
+// Pairs are populated only under --replace, where the positional arguments are
+// a chart name followed by property=value pairs rather than a single
+// <chart-name>.<property> argument and value.
+type ChartsSetInput struct {
+	ChartName string
+	Property  string
+	Value     string
+	Pairs     []string
+	Replace   bool
+}
+
+// CommandChartsClear clears every chart-specific helm value for a chart
+func CommandChartsClear(chartName string) error {
+	if chartName == "" {
+		return fmt.Errorf("Missing chart name")
+	}
+
+	chart, err := getHelmChart(chartName)
+	if err != nil {
+		return err
+	}
+
+	common.LogInfo2Quiet(fmt.Sprintf("Clearing chart overrides for %s", chart.ReleaseName))
+	if err := common.PropertyDelete("scheduler-k3s", "--global", "chart-overrides."+chart.ReleaseName); err != nil {
+		return fmt.Errorf("Unable to delete property: %w", err)
+	}
+	return nil
+}
+
+// CommandChartsSet sets, clears or replaces chart-specific helm values for the scheduler
+func CommandChartsSet(input ChartsSetInput) error {
+	if input.Replace {
+		return replaceChartOverrides(input.ChartName, input.Pairs)
+	}
+
+	propertyArg := input.Property
 	if propertyArg == "" {
 		return fmt.Errorf("Invalid property, expected format: <chart-name>.<property>")
 	}
@@ -629,25 +665,15 @@ func CommandChartsSet(propertyArg string, value string) error {
 
 	chartName := propertyArg[:dotIndex]
 	chartProperty := propertyArg[dotIndex+1:]
-
-	knownCharts := []string{}
-	chartFound := false
-	for _, chart := range HelmCharts {
-		knownCharts = append(knownCharts, chart.ReleaseName)
-		if chart.ReleaseName == chartName {
-			chartFound = true
-		}
-	}
-	if !chartFound {
-		sort.Strings(knownCharts)
-		return fmt.Errorf("Invalid chart name %q, valid charts: %s", chartName, strings.Join(knownCharts, ", "))
+	if _, err := getHelmChart(chartName); err != nil {
+		return err
 	}
 
 	key := fmt.Sprintf("chart.%s.%s", chartName, chartProperty)
 	mapProperty := "chart-overrides." + chartName
-	if value != "" {
-		common.LogInfo2Quiet(fmt.Sprintf("Setting %s to %s", key, value))
-		if err := common.PropertyMapSet("scheduler-k3s", "--global", mapProperty, chartProperty, value); err != nil {
+	if input.Value != "" {
+		common.LogInfo2Quiet(fmt.Sprintf("Setting %s to %s", key, input.Value))
+		if err := common.PropertyMapSet("scheduler-k3s", "--global", mapProperty, chartProperty, input.Value); err != nil {
 			return fmt.Errorf("Unable to write property: %w", err)
 		}
 		return nil
@@ -656,6 +682,33 @@ func CommandChartsSet(propertyArg string, value string) error {
 	common.LogInfo2Quiet(fmt.Sprintf("Unsetting %s", key))
 	if err := common.PropertyMapDelete("scheduler-k3s", "--global", mapProperty, chartProperty); err != nil {
 		return fmt.Errorf("Unable to delete property: %w", err)
+	}
+	return nil
+}
+
+// replaceChartOverrides replaces every chart-specific helm value for a chart in a single write
+func replaceChartOverrides(chartName string, pairs []string) error {
+	if chartName == "" {
+		return fmt.Errorf("Missing chart name")
+	}
+
+	chart, err := getHelmChart(chartName)
+	if err != nil {
+		return err
+	}
+
+	if len(pairs) == 0 {
+		return fmt.Errorf("Must specify at least one key=value pair, use scheduler-k3s:charts:clear to remove all chart overrides")
+	}
+
+	parsed, err := parseMetadataPairs(pairs)
+	if err != nil {
+		return err
+	}
+
+	common.LogInfo2Quiet(fmt.Sprintf("Replacing chart overrides for %s", chart.ReleaseName))
+	if err := common.PropertyMapWrite("scheduler-k3s", "--global", "chart-overrides."+chart.ReleaseName, parsed); err != nil {
+		return fmt.Errorf("Unable to write property map: %w", err)
 	}
 	return nil
 }
@@ -672,22 +725,11 @@ func CommandChartsReport(chartName string, format string, infoFlag string) error
 
 	charts := []HelmChart{}
 	if chartName != "" {
-		found := false
-		for _, chart := range HelmCharts {
-			if chart.ReleaseName == chartName {
-				charts = append(charts, chart)
-				found = true
-				break
-			}
+		chart, err := getHelmChart(chartName)
+		if err != nil {
+			return err
 		}
-		if !found {
-			knownCharts := []string{}
-			for _, chart := range HelmCharts {
-				knownCharts = append(knownCharts, chart.ReleaseName)
-			}
-			sort.Strings(knownCharts)
-			return fmt.Errorf("Invalid chart name %q, valid charts: %s", chartName, strings.Join(knownCharts, ", "))
-		}
+		charts = append(charts, chart)
 	} else {
 		charts = append(charts, HelmCharts...)
 	}

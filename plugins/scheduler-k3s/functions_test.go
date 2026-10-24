@@ -433,6 +433,38 @@ func TestValidateCertIssuerName(t *testing.T) {
 	}
 }
 
+func TestGetHelmChart(t *testing.T) {
+	for _, chart := range HelmCharts {
+		got, err := getHelmChart(chart.ReleaseName)
+		if err != nil {
+			t.Fatalf("getHelmChart(%q) unexpected error: %v", chart.ReleaseName, err)
+		}
+		if got.ReleaseName != chart.ReleaseName {
+			t.Fatalf("getHelmChart(%q) returned chart %q", chart.ReleaseName, got.ReleaseName)
+		}
+	}
+
+	for _, name := range []string{"", "not-a-chart", "Traefik"} {
+		_, err := getHelmChart(name)
+		if err == nil {
+			t.Fatalf("getHelmChart(%q) expected an error", name)
+		}
+		if !strings.HasPrefix(err.Error(), fmt.Sprintf("Invalid chart name %q, valid charts: ", name)) {
+			t.Fatalf("getHelmChart(%q) unexpected error: %v", name, err)
+		}
+
+		listed := strings.Split(strings.SplitN(err.Error(), "valid charts: ", 2)[1], ", ")
+		if len(listed) != len(HelmCharts) {
+			t.Fatalf("getHelmChart(%q) listed %d charts, want %d", name, len(listed), len(HelmCharts))
+		}
+		for i := 1; i < len(listed); i++ {
+			if listed[i-1] > listed[i] {
+				t.Fatalf("getHelmChart(%q) listed charts out of order: %v", name, listed)
+			}
+		}
+	}
+}
+
 func TestValidateLetsencryptServer(t *testing.T) {
 	cases := []struct {
 		name    string

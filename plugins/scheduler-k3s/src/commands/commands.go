@@ -24,8 +24,10 @@ Additional commands:`
     scheduler-k3s:autoscaling-auth:set <app|--global> <trigger> [<--metadata key=value>...], Set or clear a scheduler-k3s autoscaling keda trigger authentication resource for an app
     scheduler-k3s:autoscaling-auth:set --replace <app|--global> <trigger> <--metadata key=value> [<--metadata key=value>...], Replace the entire metadata map for a scheduler-k3s autoscaling keda trigger authentication resource
     scheduler-k3s:autoscaling-auth:report [<app>|--global] [--format stdout|json] [--include-metadata], Displays a scheduler-k3s autoscaling auth report for one or more apps
+    scheduler-k3s:charts:clear <chart>, Clear all chart-specific helm values for a chart
     scheduler-k3s:charts:report [<chart>] [--format stdout|json], Displays a scheduler-k3s chart override report
     scheduler-k3s:charts:set <chart-name.property> (<value>), Set or clear a chart-specific helm value
+    scheduler-k3s:charts:set --replace <chart> <property=value> [<property=value> ...], Replace the entire helm value override map for a chart
     scheduler-k3s:cluster:add [--profile PROFILE] [--role ROLE] [--insecure-allow-unknown-hosts] [--server-ip SERVER_IP] [--taint-scheduling] [--kubelet-args KUBELET_ARGS] <ssh://user@host:port>, Adds a server node to a Dokku-managed cluster
     scheduler-k3s:cluster:list [--format json|stdout], Lists all nodes in a Dokku-managed cluster
     scheduler-k3s:cluster:remove [node-id], Removes client node to a Dokku-managed cluster
