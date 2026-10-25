@@ -11,8 +11,10 @@ scheduler-k3s:annotations:report [<app>|--global] [--format stdout|json] [--proc
 scheduler-k3s:autoscaling-auth:set <app|--global> <trigger> [<--metadata key=value>...] # Set or clear a scheduler-k3s autoscaling keda trigger authentication resource for an app
 scheduler-k3s:autoscaling-auth:set --replace <app|--global> <trigger> <--metadata key=value> [<--metadata key=value>...] # Replace the entire metadata map for a scheduler-k3s autoscaling keda trigger authentication resource
 scheduler-k3s:autoscaling-auth:report [<app>|--global] [--format stdout|json] [--include-metadata] # Displays a scheduler-k3s autoscaling auth report for one or more apps
+scheduler-k3s:charts:clear <chart> # Clear all chart-specific helm values for a chart
 scheduler-k3s:charts:report [<chart>] [--format stdout|json] # Displays a scheduler-k3s chart override report
 scheduler-k3s:charts:set <chart-name.property> (<value>) # Set or clear a chart-specific helm value
+scheduler-k3s:charts:set --replace <chart> <property=value> [<property=value> ...] # Replace the entire helm value override map for a chart
 scheduler-k3s:cluster:add [--profile PROFILE] [--role ROLE] [--insecure-allow-unknown-hosts] [--server-ip SERVER_IP] [--taint-scheduling] [--kubelet-args KUBELET_ARGS] <ssh://user@host:port> # Adds a server node to a Dokku-managed cluster
 scheduler-k3s:cluster:list [--format json|stdout] # Lists all nodes in a Dokku-managed cluster
 scheduler-k3s:cluster:remove [node-id] # Removes client node to a Dokku-managed cluster
@@ -1173,6 +1175,37 @@ Alternatively, a comma separated list of chart names can be specified to only fo
 ```shell
 dokku scheduler-k3s:ensure-charts --charts cert-manager
 ```
+
+#### Replacing the entire chart override set
+
+The per-property form above changes one chart override at a time, so matching the stored overrides for a chart to a declared set means computing the difference and issuing one command per added, changed and removed property. The `--replace` flag writes the whole override map for a chart in a single call, taking the chart name followed by `property=value` pairs instead of a single `<chart-name>.<property>` argument and value.
+
+```shell
+dokku scheduler-k3s:charts:set --replace cert-manager installCRDs=false replicaCount=2
+```
+
+Anything previously stored for that chart and not named in the call is removed. Overrides for other charts are left untouched.
+
+Every pair is parsed before anything is written, so a rejected pair leaves the stored overrides untouched. A pair without a `=`, a pair with an empty property, and a property named more than once are all rejected. Only the first `=` in a pair separates the property from the value, so values may themselves contain `=`.
+
+A pair ending in `=` stores an empty value, which the per-property form cannot express - there, an empty value deletes the property instead.
+
+```shell
+dokku scheduler-k3s:charts:set --replace cert-manager installCRDs=
+```
+
+> [!NOTE]
+> An empty pair list is rejected rather than treated as a request to remove everything, so a generated list that expands to nothing cannot silently drop a chart's overrides. Use `scheduler-k3s:charts:clear` for that.
+
+#### Clearing chart overrides
+
+The `scheduler-k3s:charts:clear` command removes every override configured for a chart.
+
+```shell
+dokku scheduler-k3s:charts:clear cert-manager
+```
+
+As with any other chart property change, a `scheduler-k3s:ensure-charts --force` or `scheduler-k3s:ensure-charts --charts <chart>` call is required after replacing or clearing chart overrides in order to have them apply.
 
 ### Persistent storage
 

@@ -7,9 +7,8 @@ setup() {
 }
 
 teardown() {
-  dokku scheduler-k3s:charts:set cert-manager.installCRDs >/dev/null 2>/dev/null || true
-  dokku scheduler-k3s:charts:set cert-manager.version >/dev/null 2>/dev/null || true
-  dokku scheduler-k3s:charts:set traefik.replicas >/dev/null 2>/dev/null || true
+  dokku scheduler-k3s:charts:clear cert-manager >/dev/null 2>/dev/null || true
+  dokku scheduler-k3s:charts:clear traefik >/dev/null 2>/dev/null || true
   global_teardown
 }
 
