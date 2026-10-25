@@ -1,5 +1,114 @@
 # History
 
+## 0.38.32
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.38.32/bootstrap.sh
+sudo DOKKU_TAG=v0.38.32 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #9189: @josegonzalez Release deploy locks on exit and honor apps:lock
+- #9128: @sean0407 Forward forced cleanup flag (#9127)
+- #9182: @josegonzalez Read alternate image tags from the retired container
+- #9180: @josegonzalez Clean up stale extracted files on deploy
+- #9176: @byjg Haproxy letsencrypt integration and upgrade EasyHAProxy to 6.5.1
+- #9175: @josegonzalez Only clear the requested resource type
+- #9172: @josegonzalez Serialize concurrent property updates
+- #9169: @josegonzalez Accept all docker memory units in resource values
+- #9129: @josegonzalez Respect DOKKU_LIB_HOST_ROOT for storage bind mounts
+- #9130: @josegonzalez Preserve arguments such as --version and -n when running commands over SSH
+- #9148: @josegonzalez Do not retire an image that another app uses as its source image
+- #9131: @josegonzalez Keep the git source-image property in sync and harden the deploy lock
+- #9102: @josegonzalez Allow enabling nginx-vhosts when skipped at install
+
+### New Features
+
+- #9190: @josegonzalez Add a whole-set form and clear for chart overrides
+- #9152: @Schlepptop Make nginx-proxy-http-version configurable per app or globally
+- #9104: @josegonzalez Allow cron-entries to set a per-entry MAILTO
+
+### Documentation
+
+- #9132: @SatvikMishra08 Fix broken internal anchors and links
+- #9119: @fmtappendf Fix some typos in comment
+- #9116: @cevheri Add LibreDB Studio plugin to community plugin list
+
+### Tests
+
+- #9186: @dependabot[bot] chore(deps): bump sass from 1.105.2 to 1.106.0 in /tests/apps/multi
+- #9187: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 297 to 298 in /tests/apps/php
+- #9181: @josegonzalez Pause the retire timer during source image test
+- #9170: @josegonzalez Fix pre-existing gofmt and markdown lint issues
+- #9155: @dependabot[bot] chore(deps): bump golang from 1.27.1 to 1.27.2 in /tests/apps/zombies-dockerfile-no-tini
+- #9163: @dependabot[bot] chore(deps): bump sass from 1.105.1 to 1.105.2 in /tests/apps/multi
+- #9161: @dependabot[bot] chore(deps): bump golang from 1.27.1 to 1.27.2 in /tests/apps/gogrpc
+- #9160: @dependabot[bot] chore(deps): bump golang from 1.27.1 to 1.27.2 in /tests/apps/go-fail-predeploy
+- #9159: @dependabot[bot] chore(deps): bump golang from 1.27.1 to 1.27.2 in /tests/apps/zombies-dockerfile-tini
+- #9158: @dependabot[bot] chore(deps): bump golang from 1.27.1 to 1.27.2 in /tests/apps/go-fail-postdeploy
+- #9150: @dependabot[bot] chore(deps): bump python from 3.15.0rc3-bookworm to 3.15.0-bookworm in /tests/apps/dockerfile-release
+- #9145: @dependabot[bot] chore(deps): bump djangorestframework from 3.18.1 to 3.18.3 in /tests/apps/dockerfile-release
+- #9144: @dependabot[bot] chore(deps): bump express from 5.2.1 to 5.3.0 in /tests/apps/nodejs-express-noprocfile
+- #9143: @dependabot[bot] chore(deps): bump express from 5.2.1 to 5.3.0 in /tests/apps/nodejs-express-noappjson
+- #9141: @dependabot[bot] chore(deps): bump express from 5.2.1 to 5.3.0 in /tests/apps/nodejs-express
+- #9140: @dependabot[bot] chore(deps): bump express from 5.2.1 to 5.3.0 in /tests/apps/gitsubmodules
+- #9139: @dependabot[bot] chore(deps): bump python from 3.15.0rc2-bookworm to 3.15.0rc3-bookworm in /tests/apps/dockerfile-release
+- #9138: @dependabot[bot] chore(deps): bump express from 5.2.1 to 5.3.0 in /tests/apps/dockerfile-procfile-bad
+- #9135: @dependabot[bot] chore(deps): bump express from 5.2.1 to 5.3.0 in /tests/apps/checks-root
+- #9134: @dependabot[bot] chore(deps): bump express from 5.2.1 to 5.3.0 in /tests/apps/dockerfile-procfile
+- #9133: @dependabot[bot] chore(deps): bump express from 5.2.1 to 5.3.0 in /tests/apps/dockerfile-app-json-formations
+- #9115: @dependabot[bot] chore(deps): bump django from 5.2.17 to 5.2.18 in /tests/apps/dockerfile-release
+- #9113: @dependabot[bot] chore(deps): bump source-map-js from 1.2.1 to 1.2.2 in /tests/apps/multi in the npm_and_yarn group across 1 directory
+- #9112: @dependabot[bot] chore(deps): bump proxy-addr from 2.0.7 to 2.0.8 in /tests/apps/checks-root in the npm_and_yarn group across 1 directory
+- #9110: @dependabot[bot] chore(deps): bump sass from 1.105.0 to 1.105.1 in /tests/apps/multi
+- #9109: @dependabot[bot] chore(deps): bump monolog/monolog from 3.12.0 to 3.12.1 in /tests/apps/php
+- #9106: @dependabot[bot] chore(deps): bump werkzeug from 3.1.8 to 3.1.9 in /tests/apps/python-flask
+- #9091: @dependabot[bot] chore(deps): bump sass from 1.104.1 to 1.105.0 in /tests/apps/multi
+- #9086: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 295 to 297 in /tests/apps/php
+
+### Dependencies
+
+- #9184: @josegonzalez chore: group kubernetes dependency updates
+- #9183: @dokku-bot chore: bump herokuish to 0.11.21
+- #9177: @dependabot[bot] chore(deps): bump timberio/vector from 0.59.0-debian to 0.60.0-debian in /plugins/logs
+- #9179: @dependabot[bot] chore(deps): bump github.com/traefik/traefik/v2 in /plugins/scheduler-k3s
+- #9178: @dependabot[bot] chore(deps): update markdown requirement from <3.12,>=3.11.1 to >=3.11.2,<3.12 in /docs/_build
+- #9173: @dokku-bot chore: bump herokuish to 0.11.20
+- #9174: @dokku-bot chore: bump pack to 0.40.10
+- #9164: @dependabot[bot] chore(deps): bump github.com/fluxcd/pkg/kustomize in /plugins/scheduler-k3s
+- #9166: @dependabot[bot] chore(deps): bump helm.sh/helm/v3 in /plugins/scheduler-k3s
+- #9157: @dependabot[bot] chore(deps): update markdown requirement from <3.12,>=3.11 to >=3.11.1,<3.12 in /docs/_build
+- #9156: @dependabot[bot] chore(deps): bump pymdown-extensions from 12.2 to 12.3 in /docs/_build
+- #9167: @dependabot[bot] chore(deps): bump python from 3.15.0rc3-alpine to 3.16.0a1-alpine in /docs/_build
+- #9165: @dependabot[bot] chore(deps): bump github.com/traefik/traefik/v2 in /plugins/scheduler-k3s
+- #9162: @dependabot[bot] chore(deps): bump traefik from v3.7.14 to v3.7.15 in /plugins/traefik-vhosts
+- #9149: @dependabot[bot] chore(deps): bump soupsieve from 2.10 to 3.0.3 in /docs/_build
+- #9146: @dependabot[bot] chore(deps): bump golang.org/x/crypto in /plugins/common
+- #9142: @dependabot[bot] chore(deps): bump pymdown-extensions from 12.1 to 12.2 in /docs/_build
+- #9137: @dependabot[bot] chore(deps): bump traefik from v3.7.13 to v3.7.14 in /plugins/traefik-vhosts
+- #9136: @dependabot[bot] chore(deps): bump timberio/vector from 0.58.0-debian to 0.59.0-debian in /plugins/logs
+- #9125: @dokku-bot chore: bump herokuish to 0.11.19
+- #9123: @dependabot[bot] chore(deps): bump python from 3.15.0rc2-alpine to 3.15.0rc3-alpine in /docs/_build
+- #9124: @dependabot[bot] chore(deps): bump golang.org/x/sync in /plugins/common
+- #9121: @dependabot[bot] chore(deps): bump github.com/traefik/traefik/v2 in /plugins/scheduler-k3s
+- #9118: @dependabot[bot] chore(deps): bump zipp from 4.1.0 to 4.1.1 in /docs/_build
+- #9114: @dependabot[bot] chore(deps): bump markupsafe from 3.0.3 to 3.0.4 in /docs/_build
+- #9111: @dependabot[bot] chore(deps): bump sigs.k8s.io/kustomize/api in /plugins/scheduler-k3s
+- #9099: @dependabot[bot] chore(deps): bump k8s.io/kubernetes in /plugins/scheduler-k3s
+- #9098: @dependabot[bot] chore(deps): bump k8s.io/kubectl in /plugins/scheduler-k3s
+- #9094: @dependabot[bot] chore(deps): bump github.com/kedacore/keda/v2 in /plugins/scheduler-k3s
+- #9090: @dependabot[bot] chore(deps): bump soupsieve from 2.9.2 to 2.10 in /docs/_build
+- #9093: @dependabot[bot] chore(deps): bump github.com/go-openapi/jsonpointer in /plugins/scheduler-k3s
+- #9101: @dependabot[bot] chore(deps): bump dokku/openresty-docker-proxy from 0.12.1 to 0.13.0 in /plugins/openresty-vhosts
+- #9092: @dependabot[bot] chore(deps): bump github.com/onsi/gomega in /plugins/buildpacks
+- #9100: @dokku-bot chore: bump herokuish to 0.11.18
+- #9097: @dependabot[bot] chore(deps): bump k8s.io/client-go in /plugins/scheduler-k3s
+- #9089: @dependabot[bot] chore(deps): bump pymdown-extensions from 12.0.1 to 12.1 in /docs/_build
+- #9088: @dependabot[bot] chore(deps): update markdown requirement from <3.11,>=3.10.3 to >=3.11,<3.12 in /docs/_build
+
 ## 0.38.31
 
 Install/update via the bootstrap script:
