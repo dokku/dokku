@@ -1,7 +1,7 @@
 beautifulsoup4==4.15.0
 click==8.5.0
 ghp-import==2.1.0
-importlib-metadata==9.0.1
+importlib-metadata==10.1.0
 Jinja2==3.1.6
 Markdown>=3.11.2,<3.12
 MarkupSafe==3.0.4
