@@ -16,7 +16,7 @@ require (
 	github.com/dokku/dokku/plugins/registry v0.0.0-00010101000000-000000000000
 	github.com/dokku/dokku/plugins/storage v0.0.0-00010101000000-000000000000
 	github.com/fatih/color v1.19.0
-	github.com/fluxcd/pkg/kustomize v1.43.0
+	github.com/fluxcd/pkg/kustomize v1.44.0
 	github.com/go-openapi/jsonpointer v1.0.2
 	github.com/go-resty/resty/v2 v2.17.2
 	github.com/gosimple/slug v1.15.0
