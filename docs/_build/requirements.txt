@@ -14,7 +14,7 @@ packaging==26.3
 Pygments==2.21.0
 pymdown-extensions==12.3
 pyparsing==3.3.3
-python-dateutil==2.9.0.post0
+python-dateutil==3.0.0
 PyYAML==6.0.3
 pyyaml_env_tag==1.1
 six==1.17.0
