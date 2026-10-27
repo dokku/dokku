@@ -196,7 +196,7 @@ ENTRYPOINT ["node"]
 You can do:
 
 ```shell
-dokku ps:set node-js-app dockerfile-start-cmd "--harmony server.js"
+dokku ps:set node-js-app dockerfile-start-cmd -- "--harmony server.js"
 ```
 
 To tell Docker what to run. Pass an empty value to clear the override:
