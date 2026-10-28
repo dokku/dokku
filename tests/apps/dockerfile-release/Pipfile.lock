@@ -142,22 +142,6 @@
             "markers": "python_version >= '3.10'",
             "version": "==2.9.13"
         },
-        "pytz": {
-            "hashes": [
-                "sha256:1d8ce29db189191fb55338ee6d0387d82ab59f3d00eac103412d64e0ebd0c588",
-                "sha256:a151b3abb88eda1d4e34a9814df37de2a80e301e68ba0fd856fb9b46bfbbbffb"
-            ],
-            "version": "==2023.3"
-        },
-        "setuptools": {
-            "hashes": [
-                "sha256:025bccbbf0fa05b6192bc64ae1e7b16e001fd6d6d4d5de03c97b1c1ade523bef",
-                "sha256:29b23c360f22f414dc7336bb39178cc7bcbf6021ed2733cde173f09dba19abb3"
-            ],
-            "index": "pypi",
-            "markers": "python_version >= '3.10'",
-            "version": "==83.0.0"
-        },
         "sqlparse": {
             "hashes": [
                 "sha256:113c35c75365ab9cc9c7231d68c6428fb11c085fc8e9eb1ad659b7ddbf6cd2b9",
