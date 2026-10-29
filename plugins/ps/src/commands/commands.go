@@ -19,7 +19,7 @@ Additional commands:`
 
 	helpContent = `
     ps:inspect <app>, Displays a sanitized version of docker inspect for an app
-    ps:rebuild [--parallel count] [--all|<app>], Rebuilds an app from source
+    ps:rebuild [--parallel count] [--no-cache] [--all|<app>], Rebuilds an app from source
     ps:report [<app>] [<flag>], Displays a process report for one or more apps
     ps:restart [--parallel count] [--all|<app>] [<process-name>], Restart an app
     ps:restore [<app>], Start previously running apps e.g. after reboot

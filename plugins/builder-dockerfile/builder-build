@@ -279,6 +279,10 @@ trigger-builder-dockerfile-builder-build() {
     esac
   done
 
+  if [[ "$DOKKU_BUILD_NO_CACHE" == "true" ]] && ! fn-in-array "--no-cache" "${DOCKERFILE_ARGS[@]}"; then
+    DOCKERFILE_ARGS+=("--no-cache")
+  fi
+
   eval "$(config_export app "$APP")"
   local DOCKER_CONFIG
   DOCKER_CONFIG="$(fn-registry-docker-config-dir "$APP")"

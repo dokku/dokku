@@ -5,7 +5,7 @@
 
 ```
 ps:inspect <app>                                                             # Displays a sanitized version of docker inspect for an app
-ps:rebuild [--parallel count] [--all|<app>]                                  # Rebuilds an app from source
+ps:rebuild [--parallel count] [--no-cache] [--all|<app>]                     # Rebuilds an app from source
 ps:report [<app>] [<flag>]                                                   # Displays a process report for one or more apps
 ps:restart [--parallel count] [--all|<app>]  [<process-name>]                # Restart an app
 ps:restore [<app>]                                                           # Start previously running apps e.g. after reboot
@@ -57,6 +57,29 @@ Finally, the number of parallel workers may be automatically set to the number o
 ```shell
 dokku ps:rebuild --all --parallel -1
 ```
+
+#### Rebuilding without the build cache
+
+> [!IMPORTANT]
+> New as of 0.38.34
+
+An app may be rebuilt without using the build cache by specifying the `--no-cache` flag. This applies only to the triggered rebuild, and no setting is persisted for later deploys.
+
+```shell
+dokku ps:rebuild --no-cache node-js-app
+```
+
+The `--no-cache` flag may also be combined with the `--all` and `--parallel` flags.
+
+```shell
+dokku ps:rebuild --all --no-cache
+```
+
+The effect of the flag depends on the builder in use:
+
+- `dockerfile`, `nixpacks`, and `railpack`: The build is run with `--no-cache`. For the `dockerfile` builder, [BuildKit directory caches](/docs/deployment/builders/dockerfiles.md#buildkit-directory-caching) are not cleared.
+- `pack`: The build is run with `--clear-cache`.
+- `herokuish`: The build cache is purged before the build, in the same way as `repo:purge-cache`.
 
 A missing linked container will result in failure to boot apps. Services should all be started for apps being rebuilt.
 

@@ -167,6 +167,8 @@ To create a custom builder, the following triggers must be implemented:
     - arguments: `BUILDER_TYPE` `APP` `IMAGE_AG`
     - description: A post-build, pre-release trigger that can be used to post-process the image. Usually simply tags and labels the image appropriately.
 
+When an app is rebuilt via `ps:rebuild --no-cache`, the `DOKKU_BUILD_NO_CACHE` environment variable is set to `true` during the `builder-build` trigger. Custom builders should skip any build cache they use when this variable is set.
+
 Custom plugins names _must_ have the prefix `builder-` or builder overriding via `builder:set` may not function as expected.
 
 Builders can use any tools available on the system to build the docker image, and may even be used to schedule building off-server. The only current requirement is that the image must exist on the server at the end of the `builder-build` command, though this requirement may be relaxed in a future release.

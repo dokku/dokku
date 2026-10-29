@@ -91,6 +91,36 @@ EOF
   assert_output_contains "git-hook"
 }
 
+@test "(builds:report) records a ps:rebuild called with flags before the app name" {
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP convert_to_dockerfile
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:rebuild --no-cache $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "builds-record" 0
+
+  run /bin/bash -c "dokku builds:report $TEST_APP --build-source"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "ps:rebuild"
+
+  run /bin/bash -c "dokku builds:report $TEST_APP --build-status"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "succeeded"
+
+  run /bin/bash -c "[[ ! -e $DOKKU_LIB_ROOT/data/builds/--no-cache ]]"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
 @test "(builds:list) shows an abandoned record when the PID is gone but the record is still running" {
   write_running_record "$TEST_APP" "ghost001" 99999 "git-hook"
 

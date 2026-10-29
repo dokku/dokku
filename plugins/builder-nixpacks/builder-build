@@ -244,6 +244,10 @@ trigger-builder-nixpacks-builder-build() {
     esac
   done
 
+  if [[ "$DOKKU_BUILD_NO_CACHE" == "true" ]] && ! fn-in-array "--no-cache" "${NIXPACKS_ARGS[@]}"; then
+    NIXPACKS_ARGS+=("--no-cache")
+  fi
+
   eval "$(config_export app "$APP" --merged)"
 
   local DOCKER_CONFIG

@@ -942,6 +942,30 @@ merge_dedupe_list() {
   echo "$merged_list"
 }
 
+fn-build-capture-app-name() {
+  declare desc="outputs the app name from the arguments of a build-capturing command, skipping any flags"
+  shift 1
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --all)
+        return 0
+        ;;
+      --parallel)
+        shift 1
+        [[ $# -gt 0 ]] && shift 1
+        ;;
+      -*)
+        shift 1
+        ;;
+      *)
+        echo "$1"
+        return 0
+        ;;
+    esac
+  done
+}
+
 dokku_setup_build_capture() {
   declare desc="generate a build-id, write a record, and redirect output to log + journald"
   declare APP="$1" SOURCE="${2:-unknown}"

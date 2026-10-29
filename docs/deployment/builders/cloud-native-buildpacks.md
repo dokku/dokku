@@ -35,7 +35,7 @@ While pack is well-supported in Dokku, there are a number of caveats. Please not
     - A future release will add support for injecting extra arguments during the build process.
 - The default process type is `web`.
 - Build cache is stored in Docker volumes instead of on disk. As such, `repo:purge-cache` currently has no effect.
-    - A future version will add integration with the `repo` plugin.
+    - The build cache may be cleared for a single rebuild via `ps:rebuild --no-cache`. See the [rebuilding without the build cache](/docs/processes/process-management.md#rebuilding-without-the-build-cache) documentation for more information.
 - `pack` is not currently included with Dokku, nor is it added as a package dependency.
     - A future version will include it as a package dependency.
 

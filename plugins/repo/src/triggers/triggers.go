@@ -24,6 +24,9 @@ func main() {
 	case "post-delete":
 		appName := flag.Arg(0)
 		err = repo.PurgeCache(appName)
+	case "repo-purge-cache":
+		appName := flag.Arg(0)
+		err = repo.PurgeCache(appName)
 	default:
 		err = fmt.Errorf("Invalid plugin trigger call: %s", trigger)
 	}

@@ -2490,6 +2490,22 @@ APP="$1";
 # TODO
 ```
 
+### `repo-purge-cache`
+
+- Description: Deletes the contents of the build cache stored in the repository for an app
+- Invoked by: `builder-herokuish` when rebuilding with `ps:rebuild --no-cache`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+APP="$1";
+
+# TODO
+```
+
 ### `report`
 
 - Description: Allows you to report on any custom configuration in use by your application

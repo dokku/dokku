@@ -86,6 +86,8 @@ Disable cache using the [docker-options] plugin:
 dokku docker-options:add node-js-app build "--no-cache"
 ```
 
+To disable the cache for a single rebuild without persisting a setting, see the [rebuilding without the build cache](/docs/processes/process-management.md#rebuilding-without-the-build-cache) documentation.
+
 ### Displaying builder-nixpacks reports for an app
 
 You can get a report about the app's storage status using the `builder-nixpacks:report` command:
