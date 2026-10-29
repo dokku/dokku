@@ -261,7 +261,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "CACHED" 0
+  assert_output_contains "Collecting flask" -1
 }
 
 @test "(builder-railpack) docker-options build --no-cache" {
@@ -284,7 +284,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "CACHED" 0
+  assert_output_contains "Collecting flask" -1
 }
 
 cron_run_wrapper() {

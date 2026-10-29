@@ -250,7 +250,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "CACHED" 0
+  assert_output_contains "unpacking 'https://github.com/NixOS/nixpkgs" -1
 }
 
 cron_run_wrapper() {
