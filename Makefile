@@ -33,7 +33,7 @@ endif
 
 include common.mk
 
-.PHONY: all apt-update install version copyfiles copyplugin man-db plugins dependencies docker-image-labeler lambda-builder netrc sshcommand procfile-util plugn docker aufs stack count vagrant-acl-add vagrant-dokku go-build
+.PHONY: all apt-update install version copyfiles copyplugin man-db plugins dependencies docker-image-labeler lambda-builder netrc sshcommand procfile-util plugn docker aufs stack count vagrant-acl-add vagrant-dokku go-build wget
 
 include docs.mk
 include tests.mk
@@ -131,11 +131,14 @@ plugin-dependencies: plugn procfile-util
 plugins: plugn procfile-util docker
 	sudo dokku plugin:install --core
 
-dependencies: apt-update jq docker-image-labeler docker-container-healthchecker lambda-builder netrc sshcommand plugn procfile-util docker help2man man-db sigil dos2unix parallel
+dependencies: apt-update wget jq docker-image-labeler docker-container-healthchecker lambda-builder netrc sshcommand plugn procfile-util docker help2man man-db sigil dos2unix parallel
 	$(MAKE) -e stack
 
 apt-update:
 	apt-get update -qq
+
+wget:
+	apt-get -qq -y --no-install-recommends install wget
 
 parallel:
 	apt-get -qq -y --no-install-recommends install parallel
@@ -152,7 +155,7 @@ help2man:
 man-db:
 	apt-get -qq -y --no-install-recommends install man-db
 
-docker-image-labeler:
+docker-image-labeler: wget
 	wget -qO /usr/local/bin/docker-image-labeler ${DOCKER_IMAGE_LABELER_URL}
 	chmod +x /usr/local/bin/docker-image-labeler
 
