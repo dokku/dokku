@@ -341,13 +341,15 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "Skipping restore due to clearing cache" 0
+  assert_output_contains "Using cached pip download/wheel cache"
+  assert_output_contains "Skipping buildpack layer analysis" 0
 
   run /bin/bash -c "dokku ps:rebuild --no-cache $TEST_APP"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "Skipping restore due to clearing cache"
+  assert_output_contains "Skipping buildpack layer analysis"
+  assert_output_contains "Using cached pip download/wheel cache" 0
 }
 
 cron_run_wrapper() {
