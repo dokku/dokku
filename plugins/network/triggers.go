@@ -216,7 +216,9 @@ func TriggerPostContainerCreate(containerType string, containerID string, appNam
 			return fmt.Errorf("Network %v does not exist", networkName)
 		}
 
-		return attachAppToNetwork(containerID, networkName, appName, phase, processType)
+		if err := attachAppToNetwork(containerID, networkName, appName, phase, processType); err != nil {
+			return err
+		}
 	}
 
 	return nil
