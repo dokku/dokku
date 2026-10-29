@@ -1,5 +1,49 @@
 # History
 
+## 0.38.33
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.38.33/bootstrap.sh
+sudo DOKKU_TAG=v0.38.33 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #9221: @fatihesergg Add missing wget dependency to Makefile for source installs
+
+### Documentation
+
+- #9212: @zackfern Delimit passed flags in dockerfile-start-cmd example with a double-dash
+
+### Tests
+
+- #9215: @josegonzalez chore(deps): drop unused packages from dockerfile-release lock
+- #9214: @dependabot[bot] chore(deps): bump body-parser from 2.3.0 to 2.4.0 in /tests/apps/checks-root in the npm_and_yarn group across 1 directory
+- #9206: @dependabot[bot] chore(deps): bump ruby from 4.0.7 to 4.0.9 in /tests/apps/dockerfile-entrypoint
+- #9203: @dependabot[bot] chore(deps): bump sass from 1.106.0 to 1.106.1 in /tests/apps/multi
+- #9197: @dependabot[bot] chore(deps): bump golang from 1.27.2 to 1.27.3 in /tests/apps/gogrpc
+- #9193: @dependabot[bot] chore(deps): bump golang from 1.27.2 to 1.27.3 in /tests/apps/go-fail-postdeploy
+- #9195: @dependabot[bot] chore(deps): bump golang from 1.27.2 to 1.27.3 in /tests/apps/go-fail-predeploy
+- #9194: @dependabot[bot] chore(deps): bump golang from 1.27.2 to 1.27.3 in /tests/apps/zombies-dockerfile-no-tini
+- #9192: @dependabot[bot] chore(deps): bump golang from 1.27.2 to 1.27.3 in /tests/apps/zombies-dockerfile-tini
+- #9191: @dependabot[bot] chore(deps-dev): bump heroku/heroku-buildpack-php from 298 to 299 in /tests/apps/php
+
+### Dependencies
+
+- #9220: @dokku-bot chore: bump dokku-update to 0.11.0
+- #9216: @josegonzalez chore(deps): upgrade go-jose to 4.1.6
+- #9210: @dependabot[bot] chore(deps): bump github.com/fluxcd/pkg/kustomize in /plugins/scheduler-k3s
+- #9209: @dependabot[bot] chore(deps): bump mkdocs-material from 9.7.7 to 9.8.0 in /docs/_build
+- #9208: @dependabot[bot] chore(deps): bump importlib-metadata from 9.0.1 to 10.1.0 in /docs/_build
+- #9207: @dependabot[bot] chore(deps): bump dokku/openresty-docker-proxy from 0.13.0 to 0.13.1 in /plugins/openresty-vhosts
+- #9204: @dependabot[bot] chore(deps): bump github.com/cert-manager/cert-manager in /plugins/scheduler-k3s
+- #9199: @dependabot[bot] chore(deps): bump traefik from v3.7.15 to v3.7.16 in /plugins/traefik-vhosts
+- #9202: @dependabot[bot] chore(deps): bump soupsieve from 3.0.3 to 3.0.4 in /docs/_build
+- #9201: @dependabot[bot] chore(deps): bump zipp from 4.1.1 to 4.1.2 in /docs/_build
+- #9198: @dependabot[bot] chore(deps): bump python-dateutil from 2.9.0.post0 to 3.0.0 in /docs/_build
+
 ## 0.38.32
 
 Install/update via the bootstrap script:
