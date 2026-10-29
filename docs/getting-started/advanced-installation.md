@@ -52,6 +52,31 @@ chmod +x bootstrap.sh
 sudo DOKKU_REPO=https://github.com/yourusername/dokku.git DOKKU_BRANCH=master ./bootstrap.sh
 ```
 
+## Bootstrap script output and logs
+
+When run from a terminal, the bootstrap script shows each install step with a spinner and the last few lines of output from the running step. When the output is not a terminal - such as in CI, Vagrant, or when piping to a file - it prints one line when each step starts and one when it finishes.
+
+All command output is written to a log file at `/var/log/dokku/install-<timestamp>.log`, with a timestamp on every line. If a step fails, the full output of the failed step is printed along with the path to the full log.
+
+The following environment variables change the output:
+
+- `DOKKU_VERBOSE=1`: Stream the full output of every command instead of the condensed view.
+- `TRACE=1`: Same as `DOKKU_VERBOSE=1`, and also enables `set -x`.
+- `NO_COLOR=1`: Disable colors.
+
+```shell
+sudo DOKKU_TAG=v0.38.32 DOKKU_VERBOSE=1 bash bootstrap.sh
+```
+
+## Automatic configuration by the bootstrap script
+
+After installing, the bootstrap script fills in configuration that is still missing:
+
+- SSH keys: If no SSH keys have been added to Dokku, `DOKKU_SKIP_KEY_FILE` is not `true`, and `/root/.ssh/authorized_keys` contains keys, each key is added via `dokku ssh-keys:add`. The first key is named `admin`, and any others are named `admin-2`, `admin-3`, and so on.
+- Global domain: If no global domain is set, it is set to the server's primary IPv4 address via `dokku domains:set-global`. On a server behind NAT, this is the private address.
+
+Anything already configured - for example via the `DOKKU_KEY_FILE` or `DOKKU_HOSTNAME` debconf settings - is left as is. The summary at the end of the install shows what was configured, along with the commands to configure anything that was not.
+
 ## Custom Herokuish build
 
 Dokku ships with a pre-built version of the [Herokuish](https://github.com/gliderlabs/herokuish) component by default. If you want to build your own version you can specify that with an environment variable.

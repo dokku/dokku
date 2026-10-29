@@ -39,7 +39,9 @@ The installation process takes about 5-10 minutes, depending upon internet conne
 
 ### 2. Setup SSH key and Virtualhost Settings
 
-Once the installation is complete, you should configure an ssh key and set your global domain.
+The bootstrap script adds the keys in root's `~/.ssh/authorized_keys` and sets the server's IP as the global domain when those are not already configured. The summary at the end of the install shows what was set. See the [advanced installation documentation](/docs/getting-started/advanced-installation.md#automatic-configuration-by-the-bootstrap-script) for details.
+
+Otherwise, once the installation is complete, you should configure an ssh key and set your global domain.
 
 ```shell
 # usually your key is already available under the current user's `~/.ssh/authorized_keys` file
