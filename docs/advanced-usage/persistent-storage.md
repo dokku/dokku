@@ -172,7 +172,7 @@ dokku storage:set node-js-data chown
 The following properties can be set:
 
 | Property | Description | Unsetting it means |
-|---|---|---|
+| --- | --- | --- |
 | `chown` | Ownership preset or numeric uid for the host directory | no chown is performed |
 | `mode` | Octal permissions for the host directory | permissions are left alone |
 | `namespace` | Namespace holding the PVC (k3s) | the `default` namespace |
@@ -324,7 +324,7 @@ dokku storage:mount --replace node-js-app \
 ```
 
 | Token | Meaning |
-|---|---|
+| --- | --- |
 | `ro` | Mount the volume read-only |
 | `rw` | Mount it read-write, the explicit opposite of `ro` and the default |
 | `volume-subpath=<path>` | Subpath within the entry |

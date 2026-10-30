@@ -408,7 +408,7 @@ dokku traefik:report node-js-app --traefik-computed-api-enabled
 All traefik properties are global only. Set with `traefik:set --global <property> <value>`.
 
 | Property | Scope | Default | Report flags | Description |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | `api-enabled` | global only | `false` | `--traefik-global-api-enabled`, `--traefik-computed-api-enabled` | When `true`, enables the Traefik HTTP API |
 | `api-entry-point` | global only | none | `--traefik-global-api-entry-point`, `--traefik-computed-api-entry-point` | Name of the entry point used by the Traefik API |
 | `api-entry-point-address` | global only | none | `--traefik-global-api-entry-point-address`, `--traefik-computed-api-entry-point-address` | Address (`host:port`) the Traefik API listens on |

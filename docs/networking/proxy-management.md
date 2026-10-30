@@ -245,7 +245,7 @@ Finally, proxy implementations _may_ install extra software needed for the proxy
 > The `Report flags` column lists the CLI argument names accepted by `proxy:report`. The JSON keys emitted by `proxy:report --format json` are the same names with the leading `--proxy-` stripped (e.g. `type`, `global-type`, `computed-type`). Legacy keys with the `proxy-` prefix (e.g. `proxy-type`) are also emitted during the 0.38.x deprecation window and will be removed in a future major release.
 
 | Property | Scope | Default | Report flags | Description |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | `disabled` | app only | `false` | `--proxy-disabled`, `--proxy-computed-disabled` (also exposed inverted as `--proxy-enabled`) | When `true`, disables proxy integration for this app (`proxy:enable`/`proxy:disable` write this) |
 | `proxy-port` | app + global | none | `--proxy-proxy-port`, `--proxy-global-proxy-port`, `--proxy-computed-proxy-port` | Override port used for the HTTP listener in the generated proxy config |
 | `proxy-ssl-port` | app + global | none | `--proxy-proxy-ssl-port`, `--proxy-global-proxy-ssl-port`, `--proxy-computed-proxy-ssl-port` | Override port used for the HTTPS listener in the generated proxy config |

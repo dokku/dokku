@@ -254,7 +254,7 @@ dokku haproxy:report node-js-app --haproxy-computed-image
 All haproxy properties are global only. Set with `haproxy:set --global <property> <value>`.
 
 | Property | Scope | Default | Report flags | Description |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | `image` | global only | _parsed from `plugins/haproxy-vhosts/Dockerfile`_ | `--haproxy-global-image`, `--haproxy-computed-image` | Docker image used to run the Haproxy container |
 | `letsencrypt-email` | global only | none | `--haproxy-global-letsencrypt-email`, `--haproxy-computed-letsencrypt-email` | Contact email enabling letsencrypt; empty disables https issuance |
 | `letsencrypt-server` | global only | `https://acme-v02.api.letsencrypt.org/directory` | `--haproxy-global-letsencrypt-server`, `--haproxy-computed-letsencrypt-server` | ACME directory used when requesting certificates |

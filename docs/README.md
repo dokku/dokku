@@ -97,6 +97,7 @@ This documentation covers the installation, configuration, and usage of Dokku - 
 - [Registry Management](advanced-usage/registry-management.md) - Docker registry integration
 - [Repository Management](advanced-usage/repository-management.md) - Git repository settings
 - [Build Tracking](advanced-usage/builds.md) - Inspect, cancel, and manage builds
+- [Datastore Management](advanced-usage/datastore-management.md) - Create and link datastore services
 - [Deployment Tasks](advanced-usage/deployment-tasks.md) - Pre/post deploy hooks
 - [Event Logs](advanced-usage/event-logs.md) - Dokku event history
 - [Backup and Recovery](advanced-usage/backup-recovery.md) - Data backup strategies

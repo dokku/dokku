@@ -534,7 +534,7 @@ dokku network:report node-js-app --network-bind-all-interfaces
 > The `Report flags` column lists the CLI argument names accepted by `network:report`. The JSON keys emitted by `network:report --format json` are the same names with the leading `--network-` stripped (e.g. `attach-post-create`, `global-attach-post-create`, `computed-attach-post-create`). Legacy keys with the `network-` prefix (e.g. `network-attach-post-create`) are also emitted during the 0.38.x deprecation window and will be removed in a future major release.
 
 | Property | Scope | Default | Report flags | Description |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | `attach-post-create` | app + global | none | `--network-attach-post-create`, `--network-global-attach-post-create`, `--network-computed-attach-post-create` | Networks attached to a container immediately after creation, before the deploy phase |
 | `attach-post-deploy` | app + global | none | `--network-attach-post-deploy`, `--network-global-attach-post-deploy`, `--network-computed-attach-post-deploy` | Networks attached to a container after it passes healthchecks |
 | `bind-all-interfaces` | app + global | `false` | `--network-bind-all-interfaces`, `--network-global-bind-all-interfaces`, `--network-computed-bind-all-interfaces` | When `true`, binds containers to `0.0.0.0` instead of the default Docker network address |

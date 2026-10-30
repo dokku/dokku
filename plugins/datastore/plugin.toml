@@ -1,0 +1,4 @@
+[plugin]
+description = "dokku core datastore plugin"
+version = "0.38.33"
+[plugin.config]

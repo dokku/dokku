@@ -18,6 +18,7 @@ use (
 	./plugins/common
 	./plugins/config
 	./plugins/cron
+	./plugins/datastore
 	./plugins/docker-options
 	./plugins/domains
 	./plugins/git

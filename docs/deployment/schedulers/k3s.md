@@ -1341,7 +1341,7 @@ If unspecified for any task, the default reservation will be `.1` CPU and `128Mi
 > The `Report flags` column lists the CLI argument names accepted by `scheduler-k3s:report`. The JSON keys emitted by `scheduler-k3s:report --format json` are the same names with the leading `--scheduler-k3s-` stripped (e.g. `deploy-timeout`, `global-deploy-timeout`, `computed-deploy-timeout`). Legacy keys with the `scheduler-k3s-` prefix are also emitted during the 0.38.x deprecation window and will be removed in a future major release.
 
 | Property | Scope | Default | Report flags | Description |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | `cert-issuer-kind` | app + global | `ClusterIssuer` | `--scheduler-k3s-cert-issuer-kind`, `--scheduler-k3s-global-cert-issuer-kind`, `--scheduler-k3s-computed-cert-issuer-kind` | Kind of the manually managed cert-manager issuer referenced by `cert-issuer-name`, either `Issuer` or `ClusterIssuer` |
 | `cert-issuer-name` | app + global | none | `--scheduler-k3s-cert-issuer-name`, `--scheduler-k3s-global-cert-issuer-name`, `--scheduler-k3s-computed-cert-issuer-name` | Name of a manually managed cert-manager issuer to request certificates from, taking precedence over the letsencrypt integration. Set to `false` to opt an app out of a global value |
 | `deploy-timeout` | app + global | `300s` | `--scheduler-k3s-deploy-timeout`, `--scheduler-k3s-global-deploy-timeout`, `--scheduler-k3s-computed-deploy-timeout` | Timeout for a single helm install/upgrade cycle |
