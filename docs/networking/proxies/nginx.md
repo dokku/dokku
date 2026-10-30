@@ -634,7 +634,7 @@ See the [proxy documentation](/docs/networking/proxy-management.md#regenerating-
 All nginx-vhosts properties are settable at both the app and global scope.
 
 | Property | Scope | Default | Report flags | Description |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | `access-log-format` | app + global | none | `--nginx-access-log-format`, `--nginx-global-access-log-format`, `--nginx-computed-access-log-format` | Custom nginx `log_format` directive used for the access log |
 | `access-log-path` | app + global | _`{nginx-log-root}/{app}-access.log`_ | `--nginx-access-log-path`, `--nginx-global-access-log-path`, `--nginx-computed-access-log-path` | Path inside the nginx container where access logs are written |
 | `bind-address-ipv4` | app + global | none | `--nginx-bind-address-ipv4`, `--nginx-global-bind-address-ipv4`, `--nginx-computed-bind-address-ipv4` | IPv4 address the nginx server block binds to |
@@ -681,6 +681,6 @@ The following flag surfaces in `nginx:report` but is not managed by `nginx:set`:
 The following properties are recorded internally by the plugin and are not exposed via `nginx:report`:
 
 | Property | Description | Source |
-|---|---|---|
+| --- | --- | --- |
 | `proxy-status` | `started`/`stopped` state of the nginx system service | `cmd-nginx-start`/`cmd-nginx-stop` |
 | `nginx-conf-sigil-migrated` | Migration sentinel set the first time a v1 template is rewritten to the current schema | `plugins/nginx-vhosts/install` writes `"true"` once the install-time migration runs |

@@ -272,7 +272,7 @@ dokku ports:report node-js-app --ports-map-detected-json | jq '.[0].container_po
 The following flags surface configured port mappings managed by `ports:set` / `ports:add` / `ports:remove` / `ports:clear`:
 
 | Flag | Description |
-|---|---|
+| --- | --- |
 | `--ports-map` | Configured port mappings as space-separated `scheme:host-port:container-port` values |
 | `--ports-map-json` | Configured port mappings as a JSON array of `{scheme, host_port, container_port}` objects |
 
@@ -281,6 +281,6 @@ The following flags surface configured port mappings managed by `ports:set` / `p
 The following flags surface in `ports:report` but are not managed by `ports:set` - they are derived from the deploy:
 
 | Flag | Description |
-|---|---|
+| --- | --- |
 | `--ports-map-detected` | Port mapping inferred from `EXPOSE` directives or the running container |
 | `--ports-map-detected-json` | Detected port mappings as a JSON array of `{scheme, host_port, container_port}` objects |

@@ -35,3 +35,8 @@ MD024: false
 # The issue template doesn't have one
 # https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md#md041
 MD041: false
+
+# Table column style
+# The docs pad tables loosely rather than aligning every pipe
+# https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md#md060
+MD060: false

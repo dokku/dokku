@@ -8793,7 +8793,7 @@ sudo DOKKU_TAG=v0.13.1 bash bootstrap.sh
 - #3145: @josegonzalez Add report trigger
 - #3144: @josegonzalez Increase curl max timeout to 600 seconds (10 minutes)
 - #3107: @znz Remove unused password in ssl cert generation
-- #3095: @josegonzalez Migrate env for NGINX_* to PROXY_*
+- #3095: @josegonzalez Migrate env for `NGINX_*` to `PROXY_*`
 - #3140: @josegonzalez Add newline to config:get output
 - #3139: @josegonzalez Add ability to initialize a git repository out of band
 - #3111: @josegonzalez Upgrade herokuish to 0.4.0
@@ -9602,7 +9602,7 @@ Release 0.5.5 is mostly a documentation release, further clarifying how our defa
 
 We've also added a small section to the [dokku homepage](https://dokku.com/docs/) that lists the current core team. Feel free to look at their beautiful faces and imagine yourself contributing to Dokku and joining our core team. There are [quite a few ways to contribute](https://github.com/dokku/dokku/blob/master/CONTRIBUTING.md) - even without code/documentation - so feel more than free to jump on the bandwagon!
 
-Finally, we've started an [Official Dokku Blog](https://dokku.github.io/), where we will post about dokku internals, roadmaps, potential use-cases, etc. An rss feed is available [here](https://dokku.github.io/feed.xml).
+Finally, we've started an [Official Dokku Blog](https://dokku.github.io/), where we will post about dokku internals, roadmaps, potential use-cases, etc. An [rss feed](https://dokku.github.io/feed.xml) is available.
 
 Thanks to all the contributors who helped with this release!
 
@@ -9807,7 +9807,7 @@ Thanks to all the contributors who helped with this release!
 
 ## 0.4.12
 
-This is a small bugfix release, which will be the final release before the 0.5.x line. You can follow along on bugs/features we hope to cleanup for 0.5.x [here](https://github.com/dokku/dokku/milestones/v0.5.0).
+This is a small bugfix release, which will be the final release before the 0.5.x line. You can follow along on bugs/features we hope to cleanup in the [0.5.x milestone](https://github.com/dokku/dokku/milestones/v0.5.0).
 
 Thanks to all the contributors who helped with this release!
 
@@ -10306,7 +10306,7 @@ This release is a bugfix release covering dokku packaging.
 
 ## 0.3.23
 
-This release is a bugfix release mostly covering installation and nginx issues. As well, we launched a nicer documentation site [here](https://dokku.com/docs/). Thanks to all of our contributors for making this a great release!
+This release is a bugfix release mostly covering installation and nginx issues. As well, we launched a [nicer documentation site](https://dokku.com/docs/). Thanks to all of our contributors for making this a great release!
 
 ### Bug Fixes
 

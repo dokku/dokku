@@ -316,7 +316,7 @@ dokku logs:set --global vector-cron-sink "console://?encoding[codec]=text"
 Setting a cron sink **moves** cron task output rather than copying it. Vector routes each log line to exactly one of the two sinks:
 
 | Configuration | Where cron output goes | Where all other output goes |
-|---|---|---|
+| --- | --- | --- |
 | `vector-sink` only | `vector-sink` | `vector-sink` |
 | `vector-cron-sink` only | `vector-cron-sink` | nowhere |
 | both | `vector-cron-sink` | `vector-sink` |
@@ -398,7 +398,7 @@ The alias only changes the shipped event. Containers are always discovered by th
 > The `Report flags` column lists the CLI argument names accepted by `logs:report`. The JSON keys emitted by `logs:report --format json` are the same names with the leading `--logs-` stripped (e.g. `max-size`, `global-max-size`, `computed-max-size`). Legacy keys with the `logs-` prefix are also emitted during the 0.38.x deprecation window and will be removed in a future major release.
 
 | Property | Scope | Default | Report flags | Description |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | `app-label-alias` | app + global | `com.dokku.app-name` | `--logs-app-label-alias`, `--logs-global-app-label-alias`, `--logs-computed-app-label-alias` | Field name the app name is shipped under, renamed from `com.dokku.app-name` on the event |
 | `max-size` | app + global | `10m` | `--logs-max-size`, `--logs-global-max-size`, `--logs-computed-max-size` | Maximum size of an individual log file before rotation |
 | `vector-image` | global only | _parsed from `plugins/logs/Dockerfile`_ | `--logs-global-vector-image`, `--logs-computed-vector-image` | Docker image used to run the vector log-shipper container |

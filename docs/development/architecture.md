@@ -141,7 +141,7 @@ Plugins communicate through the **trigger system** powered by [plugn](https://gi
 **Key trigger categories:**
 
 | Category | Examples | Purpose |
-|----------|----------|---------|
+| ---------- | ---------- | --------- |
 | App lifecycle | `post-create`, `pre-delete`, `post-deploy` | React to app events |
 | Build | `builder-detect`, `pre-build`, `builder-build` | Control build process |
 | Deploy | `scheduler-deploy`, `check-deploy` | Manage deployments |
@@ -333,7 +333,7 @@ Global settings can be configured via:
 ## Key Design Decisions
 
 | Decision | Rationale |
-|----------|-----------|
+| ---------- | ----------- |
 | **Plugin-based architecture** | Enables extensibility without modifying core code. Community plugins can add databases, caching, and other services. |
 | **Bash + Go hybrid** | Bash for orchestration and simple commands; Go for performance-critical operations and complex logic. |
 | **Trigger system** | Loose coupling between plugins. Plugins don't need to know about each other; they just fire and respond to events. |

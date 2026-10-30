@@ -38,7 +38,7 @@ jobs:
           cache: 'npm'
           cache-dependency-path: '.github/workflows/lint.yml'
       - name: Install markdownlint-cli
-        run: npm install -g markdownlint-cli@0.35.0
+        run: npm install -g markdownlint-cli@0.50.0
       - name: Run markdown-lint
         run: markdownlint -c .github/linters/.markdown-lint.yml --ignore tests/apps '**/*.md'
 

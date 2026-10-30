@@ -190,7 +190,7 @@ Available flags:
 The following flags surface in `builds:report` but are not managed by `builds:set` - they are derived metadata recorded during the build:
 
 | Flag | Description |
-|---|---|
+| --- | --- |
 | `--build-id` | Unique identifier of the most recent build for the app |
 | `--build-kind` | Whether the record was a `build` or a `deploy` |
 | `--build-status` | Display status (`running`, `succeeded`, `failed`, `canceled`, `abandoned`); computed at read time |

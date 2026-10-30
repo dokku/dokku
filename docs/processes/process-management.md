@@ -543,7 +543,7 @@ dokku ps:set node-js-app restore
 > The `Report flags` column lists the CLI argument names accepted by `ps:report`. The JSON keys emitted by `ps:report --format json` are the same names with the leading `--ps-` stripped (e.g. `procfile-path`, `global-procfile-path`, `computed-procfile-path`). Legacy keys with the `ps-` prefix (e.g. `ps-procfile-path`) are also emitted during the 0.38.x deprecation window and will be removed in a future major release.
 
 | Property | Scope | Default | Report flags | Description |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | `dockerfile-start-cmd` | app only | none | `--ps-dockerfile-start-cmd`, `--ps-computed-dockerfile-start-cmd` | Override `CMD` for Dockerfile-based apps |
 | `procfile-path` | app + global | `Procfile` | `--ps-procfile-path`, `--ps-global-procfile-path`, `--ps-computed-procfile-path` | Path to the app's Procfile, relative to the build root |
 | `restart-policy` | app + global | `on-failure:10` | `--ps-restart-policy`, `--ps-global-restart-policy`, `--ps-computed-restart-policy` | Docker restart policy applied to deployed containers (`no`, `always`, `unless-stopped`, `on-failure[:max-retries]`) |
@@ -557,7 +557,7 @@ dokku ps:set node-js-app restore
 The following flags surface in `ps:report` but are not managed by `ps:set` - they are derived from the running process state:
 
 | Flag | Description |
-|---|---|
+| --- | --- |
 | `--ps-can-scale` | `false` when the app's procfile or builder forbids horizontal scaling |
 | `--deployed` | `true` after the first successful deploy |
 | `--running` | `true` while any container for the app is running |

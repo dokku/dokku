@@ -181,7 +181,7 @@ For a simple example of how to implement this trigger, see `builder-pack`, which
 > The `Report flags` column lists the CLI argument names accepted by `builder:report`. The JSON keys emitted by `builder:report --format json` are the same names with the leading `--builder-` stripped (e.g. `selected`, `global-selected`, `computed-selected`). Legacy keys with the `builder-` prefix are also emitted during the 0.38.x deprecation window and will be removed in a future major release.
 
 | Property | Scope | Default | Report flags | Description |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | `build-dir` | app + global | none | `--builder-build-dir`, `--builder-global-build-dir`, `--builder-computed-build-dir` | Subdirectory within the repository to use as the build context |
 | `selected` | app + global | none | `--builder-selected`, `--builder-global-selected`, `--builder-computed-selected` | Builder plugin to use; overrides automatic detection |
 | `skip-cleanup` | app + global | `false` | `--builder-skip-cleanup`, `--builder-global-skip-cleanup`, `--builder-computed-skip-cleanup` | When `true`, leaves intermediate build artifacts in place after the build |

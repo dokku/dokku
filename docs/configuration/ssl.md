@@ -164,7 +164,7 @@ See the [running behind another proxy documentation](/docs/networking/proxies/ng
 The following flags surface in `certs:report` but are not managed by `certs:set` - they are derived from the on-disk certificate:
 
 | Flag | Description |
-|---|---|
+| --- | --- |
 | `--ssl-enabled` | `true` when an SSL certificate is installed for the app |
 | `--ssl-dir` | Absolute path to the per-app certificate directory |
 | `--ssl-hostnames` | Hostnames the certificate covers (CN plus Subject Alternative Names) |

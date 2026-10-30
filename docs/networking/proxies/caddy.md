@@ -271,7 +271,7 @@ dokku caddy:report node-js-app --caddy-computed-image
 ### Settable properties
 
 | Property | Scope | Default | Report flags | Description |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | `image` | global only | _parsed from `plugins/caddy-vhosts/Dockerfile`_ | `--caddy-global-image`, `--caddy-computed-image` | Docker image used to run the Caddy container |
 | `letsencrypt-email` | global only | none | `--caddy-global-letsencrypt-email`, `--caddy-computed-letsencrypt-email` | Contact email enabling letsencrypt; empty disables https issuance |
 | `letsencrypt-server` | global only | `https://acme-v02.api.letsencrypt.org/directory` | `--caddy-global-letsencrypt-server`, `--caddy-computed-letsencrypt-server` | ACME directory used when requesting certificates |

@@ -291,7 +291,7 @@ Global-only properties expose two report flags: `--openresty-global-<property>` 
 App-or-global properties expose three report flags: `--openresty-<property>` returns the raw per-app value (empty when unset), `--openresty-global-<property>` returns the raw global value (empty when unset), and `--openresty-computed-<property>` returns the effective value, resolving the per-app value first, then the global value, then the built-in default.
 
 | Property | Scope | Default | Report flags | Description |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | `access-log-format` | app or global | none | `--openresty-access-log-format`, `--openresty-global-access-log-format`, `--openresty-computed-access-log-format` | Custom nginx `log_format` directive used for the access log |
 | `access-log-path` | app or global | _`/var/log/nginx/{app}-access.log`_ | `--openresty-access-log-path`, `--openresty-global-access-log-path`, `--openresty-computed-access-log-path` | Path inside the openresty container where access logs are written |
 | `allowed-letsencrypt-domains-func-base64` | global only | _allow-all stub_ | `--openresty-global-allowed-letsencrypt-domains-func-base64`, `--openresty-computed-allowed-letsencrypt-domains-func-base64` | Base64-encoded Lua function deciding which domains may request a letsencrypt certificate |
