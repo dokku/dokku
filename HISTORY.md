@@ -1,5 +1,22 @@
 # History
 
+## 0.38.34
+
+Install/update via the bootstrap script:
+
+```shell
+wget -NP . https://dokku.com/install/v0.38.34/bootstrap.sh
+sudo DOKKU_TAG=v0.38.34 bash bootstrap.sh
+```
+
+### Bug Fixes
+
+- #9223: @josegonzalez Attach every network in attach-post-create
+
+### New Features
+
+- #9225: @josegonzalez Add --no-cache flag to ps:rebuild
+
 ## 0.38.33
 
 Install/update via the bootstrap script:
