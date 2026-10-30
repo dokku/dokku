@@ -229,6 +229,30 @@ teardown() {
   assert_success
 }
 
+@test "(builder-nixpacks) ps:rebuild --no-cache" {
+  run /bin/bash -c "dokku builder:set $TEST_APP selected nixpacks"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP add_requirements_txt
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "CACHED" -1
+
+  run /bin/bash -c "dokku ps:rebuild --no-cache $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "unpacking 'https://github.com/NixOS/nixpkgs" -1
+}
+
 cron_run_wrapper() {
   local APP="$1"
   local APP_REPO_DIR="$2"

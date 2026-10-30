@@ -253,6 +253,50 @@ teardown() {
   assert_output "['task.py', 'some', 'cron', 'task']"
 }
 
+@test "(builder-herokuish) ps:rebuild --no-cache" {
+  run /bin/bash -c "dokku builder-herokuish:set $TEST_APP allowed true"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker volume inspect --format '{{.CreatedAt}}' cache-$TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  cache_created_at="$output"
+
+  sleep 1
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Clearing build cache" 0
+
+  run /bin/bash -c "docker volume inspect --format '{{.CreatedAt}}' cache-$TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "$cache_created_at"
+
+  sleep 1
+  run /bin/bash -c "dokku ps:rebuild --no-cache $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Clearing build cache"
+
+  run /bin/bash -c "docker volume inspect --format '{{.CreatedAt}}' cache-$TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  [[ "$output" != "$cache_created_at" ]]
+}
+
 cron_run_wrapper() {
   local APP="$1"
   local APP_REPO_DIR="$2"

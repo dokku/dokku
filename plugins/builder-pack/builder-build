@@ -282,6 +282,10 @@ trigger-builder-pack-builder-build() {
     esac
   done
 
+  if [[ "$DOKKU_BUILD_NO_CACHE" == "true" ]] && ! fn-in-array "--clear-cache" "${PACK_ARGS[@]}"; then
+    PACK_ARGS+=("--clear-cache")
+  fi
+
   if [ -n "$BUILDPACK_URL" ]; then
     PACK_ARGS+=("--builder")
     PACK_ARGS+=("$BUILDPACK_URL")

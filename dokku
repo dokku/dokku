@@ -194,7 +194,7 @@ execute_dokku_cmd() {
   fi
 
   if [[ "$PLUGIN_NAME" == "git-hook" ]] || [[ "$PLUGIN_NAME" == "ps:rebuild" ]] || [[ "$PLUGIN_NAME" == "ps:restart" ]]; then
-    dokku_setup_build_capture "$2" "$PLUGIN_NAME"
+    dokku_setup_build_capture "$(fn-build-capture-app-name "$@")" "$PLUGIN_NAME"
   fi
 
   if [[ -x $PLUGIN_ENABLED_PATH/$PLUGIN_NAME/subcommands/default ]]; then

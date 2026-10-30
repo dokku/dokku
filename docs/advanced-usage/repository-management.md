@@ -35,3 +35,5 @@ Building containers with buildpacks currently results in a persistent `cache` di
 ```shell
 dokku repo:purge-cache node-js-app
 ```
+
+To purge the cache and rebuild the app in a single command, see the [rebuilding without the build cache](/docs/processes/process-management.md#rebuilding-without-the-build-cache) documentation.

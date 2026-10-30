@@ -77,6 +77,10 @@ trigger-builder-herokuish-builder-build() {
   done < <(fn-docker-args-split "$DOCKER_ARGS")
 
   local DOKKU_CONTAINER_EXIT_CODE=0
+  if [[ "$DOKKU_BUILD_NO_CACHE" == "true" ]]; then
+    dokku_log_info1 "Clearing build cache"
+    plugn trigger repo-purge-cache "$APP"
+  fi
   fn-builder-herokuish-ensure-cache "$APP"
   if ! CID=$("$DOCKER_BIN" container create "${DOCKER_RUN_LABEL_ARGS[@]}" $DOKKU_GLOBAL_RUN_ARGS -v "cache-$APP:/cache" --env=CACHE_PATH=/cache "${ARG_ARRAY[@]}" "$IMAGE" /build); then
     plugn trigger scheduler-register-retired "$APP" "$CID"

@@ -112,7 +112,7 @@ trigger-builder-railpack-builder-build() {
         RAILPACK_ARGS+=("--start-cmd" "${1#--start-cmd=}")
         shift 1
         ;;
-      ---show-plan | --error-missing-start)
+      ---show-plan | --error-missing-start | --no-cache)
         RAILPACK_ARGS+=("$1")
         shift 1
         ;;
@@ -125,6 +125,10 @@ trigger-builder-railpack-builder-build() {
         ;;
     esac
   done
+
+  if [[ "$DOKKU_BUILD_NO_CACHE" == "true" ]] && ! fn-in-array "--no-cache" "${RAILPACK_ARGS[@]}"; then
+    RAILPACK_ARGS+=("--no-cache")
+  fi
 
   eval "$(config_export app "$APP" --merged)"
 

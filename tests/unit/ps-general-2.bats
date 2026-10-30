@@ -196,3 +196,16 @@ teardown() {
   echo "output: ($output)"
   assert_output 'web: 1'
 }
+
+@test "(ps:rebuild) --all --no-cache" {
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP convert_to_dockerfile
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:rebuild --all --no-cache"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "CACHED" 1
+}

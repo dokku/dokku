@@ -27,9 +27,10 @@ func main() {
 		args := flag.NewFlagSet("ps:rebuild", flag.ExitOnError)
 		allApps := args.Bool("all", false, "--all: rebuild all apps")
 		parallelCount := args.Int("parallel", ps.RunInSerial, "--parallel: number of apps to rebuild in parallel, -1 to match cpu count")
+		noCache := args.Bool("no-cache", false, "--no-cache: rebuild without using the build cache")
 		args.Parse(os.Args[2:])
 		appName := args.Arg(0)
-		err = ps.CommandRebuild(appName, *allApps, *parallelCount)
+		err = ps.CommandRebuild(appName, *allApps, *parallelCount, *noCache)
 	case "report":
 		args := flag.NewFlagSet("ps:report", flag.ExitOnError)
 		format := args.String("format", "stdout", "format: [ stdout | json ]")
