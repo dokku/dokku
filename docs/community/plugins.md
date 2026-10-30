@@ -22,6 +22,8 @@ Let's take a quick look at the current Dokku nginx plugin that's shipped with Do
 
 The following plugins are available and provided by Dokku maintainers.  Please file issues against their respective issue trackers.
 
+Every datastore below is also served by the `datastore` plugin Dokku ships, as in `dokku datastore:create postgres lollipop`. See the [datastore management documentation](/docs/advanced-usage/datastore-management.md) for more information.
+
 | Plugin                                                                                            | Author                | Compatibility         |
 | ------------------------------------------------------------------------------------------------- | --------------------- | --------------------- |
 | [Clickhouse](https://github.com/dokku/dokku-clickhouse)                                           | [dokku][]             | 0.4.0+                |

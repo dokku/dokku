@@ -1,0 +1,10 @@
+/commands
+/subcommands/*
+/triggers/*
+/triggers
+/cron-entries
+/install
+/post-*
+/pre-*
+/service-list
+/update
