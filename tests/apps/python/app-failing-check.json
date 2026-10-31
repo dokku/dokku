@@ -1,0 +1,15 @@
+{
+  "healthchecks": {
+    "web": [
+      {
+        "attempts": 1,
+        "content": "this-content-does-not-exist",
+        "name": "failing-check",
+        "path": "/",
+        "timeout": 2,
+        "type": "startup",
+        "wait": 1
+      }
+    ]
+  }
+}
