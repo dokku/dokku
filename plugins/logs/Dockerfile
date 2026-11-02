@@ -1,1 +1,1 @@
-FROM timberio/vector:0.60.0-debian
+FROM timberio/vector:0.61.0-debian
