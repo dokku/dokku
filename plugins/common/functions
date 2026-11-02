@@ -675,24 +675,97 @@ is_container_status() {
   return 1
 }
 
+fn-app-previous-image-id() {
+  declare desc="returns the image id the app is currently running, if it can be unambiguously determined"
+  declare APP="$1"
+  local CID IMAGE_ID
+  local -a IMAGE_IDS=()
+
+  for CID in $(get_app_container_ids "$APP"); do
+    IMAGE_ID="$("$DOCKER_BIN" container inspect --format "{{.Image}}" "$CID" 2>/dev/null || true)"
+    [[ -z "$IMAGE_ID" ]] && continue
+    fn-in-array "$IMAGE_ID" "${IMAGE_IDS[@]}" && continue
+    IMAGE_IDS+=("$IMAGE_ID")
+  done
+
+  if [[ "${#IMAGE_IDS[@]}" -eq 0 ]]; then
+    while read -r IMAGE_ID; do
+      [[ -z "$IMAGE_ID" ]] && continue
+      fn-in-array "$IMAGE_ID" "${IMAGE_IDS[@]}" && continue
+      IMAGE_IDS+=("$IMAGE_ID")
+    done < <("$DOCKER_BIN" image ls --no-trunc --filter "label=com.dokku.image-stage=release" --filter "label=com.dokku.app-name=$APP" --format "{{.ID}}" 2>/dev/null || true)
+  fi
+
+  if [[ "${#IMAGE_IDS[@]}" -eq 1 ]]; then
+    echo "${IMAGE_IDS[0]}"
+  fi
+}
+
+fn-app-previous-image-pin() {
+  declare desc="returns the image tag used to keep the previous app image available during a build and deploy"
+  declare APP="$1"
+
+  echo "$(get_app_image_repo "$APP"):dokku-previous"
+}
+
+fn-app-pin-previous-image() {
+  declare desc="tags the image the app is currently running so it survives the build moving the latest tag"
+  declare APP="$1"
+  local PREVIOUS_IMAGE_ID
+
+  fn-app-unpin-previous-image "$APP"
+  PREVIOUS_IMAGE_ID="$(fn-app-previous-image-id "$APP")"
+  if [[ -z "$PREVIOUS_IMAGE_ID" ]]; then
+    return
+  fi
+
+  "$DOCKER_BIN" image tag "$PREVIOUS_IMAGE_ID" "$(fn-app-previous-image-pin "$APP")" &>/dev/null || true
+}
+
+fn-app-unpin-previous-image() {
+  declare desc="removes the tag keeping the previous app image available"
+  declare APP="$1"
+
+  "$DOCKER_BIN" image remove --force --no-prune "$(fn-app-previous-image-pin "$APP")" &>/dev/null || true
+}
+
+fn-app-restore-previous-image() {
+  declare desc="retags the app image to the pinned previous image, returning 1 if there is no pinned image"
+  declare APP="$1"
+  local IMAGE PIN_IMAGE PREVIOUS_IMAGE_ID CURRENT_IMAGE_ID
+
+  IMAGE="$(get_app_image_repo "$APP"):latest"
+  PIN_IMAGE="$(fn-app-previous-image-pin "$APP")"
+  PREVIOUS_IMAGE_ID="$("$DOCKER_BIN" image inspect --format "{{.Id}}" "$PIN_IMAGE" 2>/dev/null || true)"
+  if [[ -z "$PREVIOUS_IMAGE_ID" ]]; then
+    return 1
+  fi
+
+  CURRENT_IMAGE_ID="$("$DOCKER_BIN" image inspect --format "{{.Id}}" "$IMAGE" 2>/dev/null || true)"
+  if [[ "$CURRENT_IMAGE_ID" == "$PREVIOUS_IMAGE_ID" ]]; then
+    return 0
+  fi
+
+  dokku_log_warn "Retagging old image $PREVIOUS_IMAGE_ID as $IMAGE"
+  "$DOCKER_BIN" image tag "$PIN_IMAGE" "$IMAGE" 2>/dev/null
+}
+
 dokku_build() {
   declare desc="build phase"
   declare APP="$1" IMAGE_SOURCE_TYPE="$2" SOURCECODE_WORK_DIR="$3"
 
   local IMAGE=$(get_app_image_name "$APP")
-  local RELEASED_IMAGE_ID="$(docker image ls --filter "label=com.dokku.image-stage=release" --filter "label=com.dokku.app-name=$APP" --format "{{.ID}}")"
+  fn-app-pin-previous-image "$APP"
   if plugn trigger builder-build "$IMAGE_SOURCE_TYPE" "$APP" "$SOURCECODE_WORK_DIR"; then
     return
   fi
 
-  if [[ -n "$RELEASED_IMAGE_ID" ]]; then
-    dokku_log_warn "Retagging old image $RELEASED_IMAGE_ID as $IMAGE"
-    "$DOCKER_BIN" image tag "$RELEASED_IMAGE_ID" "$IMAGE" 2>/dev/null || true
-  else
+  if ! fn-app-restore-previous-image "$APP"; then
     dokku_log_warn "Removing invalid image tag $IMAGE"
     "$DOCKER_BIN" image remove --force --no-prune "$IMAGE" &>/dev/null || true
   fi
 
+  fn-app-unpin-previous-image "$APP"
   dokku_log_fail "App build failed"
 }
 
@@ -781,7 +854,14 @@ dokku_receive() {
   if ! dokku_build "$APP" "$IMAGE_SOURCE_TYPE" "$TMP_WORK_DIR"; then
     return 1
   fi
-  plugn trigger release-and-deploy "$APP"
+
+  if ! plugn trigger release-and-deploy "$APP"; then
+    fn-app-restore-previous-image "$APP" || true
+    fn-app-unpin-previous-image "$APP"
+    return 1
+  fi
+
+  fn-app-unpin-previous-image "$APP"
 }
 
 docker_cleanup() {
