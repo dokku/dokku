@@ -252,7 +252,9 @@ fn-nginx-vhosts-render-template() {
       SSL_VHOSTS=$(<"$DOKKU_ROOT/VHOST")
     fi
     local host
-    for host in $SSL_VHOSTS; do
+    local -a ssl_vhosts
+    read -r -d '' -a ssl_vhosts <<<"$SSL_VHOSTS" || true
+    for host in "${ssl_vhosts[@]}"; do
       if [[ ! $NOSSL_SERVER_NAME =~ (^|[[:space:]])$host($|[[:space:]]) ]]; then
         SSL_SERVER_NAME="${host}${SSL_SERVER_NAME:+ $SSL_SERVER_NAME}"
       fi
