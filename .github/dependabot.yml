@@ -22,6 +22,10 @@ updates:
           - "helm.sh/*"
       plugins:
         group-by: dependency-name
+        exclude-patterns:
+          - "k8s.io/*"
+          - "sigs.k8s.io/*"
+          - "helm.sh/*"
     labels:
       - "type: dependencies"
   - package-ecosystem: "docker"
