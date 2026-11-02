@@ -5,7 +5,7 @@ BUILD_IMAGE := golang:1.27.1
 GO_BUILD_CACHE ?= /tmp/dokku-go-build-cache
 GO_MOD_CACHE   ?= /tmp/dokku-go-mod-mod
 GO_ROOT_MOUNT  ?= $$PWD/../..:$(GO_REPO_ROOT)
-GOARCH         ?= amd64
+GOARCH         ?= $(shell dpkg --print-architecture 2>/dev/null || echo amd64)
 
 .PHONY: build-in-docker build clean src-clean
 
