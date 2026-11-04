@@ -1,6 +1,8 @@
 package builderpack
 
 import (
+	"os"
+
 	"github.com/dokku/dokku/plugins/common"
 )
 
@@ -17,12 +19,17 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 		flags = map[string]common.ReportFunc{
 			"--builder-pack-computed-projecttoml-path": reportComputedProjecttomlPath,
 			"--builder-pack-global-projecttoml-path":   reportGlobalProjecttomlPath,
+			"--builder-pack-computed-stack":            reportComputedStack,
+			"--builder-pack-global-stack":              reportGlobalStack,
 		}
 	} else {
 		flags = map[string]common.ReportFunc{
 			"--builder-pack-computed-projecttoml-path": reportComputedProjecttomlPath,
 			"--builder-pack-global-projecttoml-path":   reportGlobalProjecttomlPath,
 			"--builder-pack-projecttoml-path":          reportProjecttomlPath,
+			"--builder-pack-computed-stack":            reportComputedStack,
+			"--builder-pack-global-stack":              reportGlobalStack,
+			"--builder-pack-stack":                     reportStack,
 		}
 	}
 
@@ -60,6 +67,29 @@ func reportComputedProjecttomlPath(appName string) string {
 	}
 	if value == "" {
 		value = "project.toml"
+	}
+
+	return value
+}
+
+func reportStack(appName string) string {
+	return common.PropertyGet("builder-pack", appName, "stack")
+}
+
+func reportGlobalStack(appName string) string {
+	return common.PropertyGet("builder-pack", "--global", "stack")
+}
+
+func reportComputedStack(appName string) string {
+	value := reportStack(appName)
+	if value == "" {
+		value = reportGlobalStack(appName)
+	}
+	if value == "" {
+		value = os.Getenv("DOKKU_CNB_BUILDER")
+	}
+	if value == "" {
+		value = "heroku/builder:24"
 	}
 
 	return value

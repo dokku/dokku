@@ -9,13 +9,13 @@ cmd-builder-herokuish-set() {
   declare cmd="builder-herokuish:set"
   [[ "$1" == "$cmd" ]] && shift 1
   declare APP="$1" KEY="$2" VALUE="$3"
-  local VALID_KEYS=("allowed")
+  local VALID_KEYS=("allowed" "stack")
   [[ "$APP" == "--global" ]] || verify_app_name "$APP"
 
   [[ -z "$KEY" ]] && dokku_log_fail "No key specified"
 
   if ! fn-in-array "$KEY" "${VALID_KEYS[@]}"; then
-    dokku_log_fail "Invalid key specified, valid keys include: allowed"
+    dokku_log_fail "Invalid key specified, valid keys include: allowed, stack"
   fi
 
   if [[ -n "$VALUE" ]]; then
@@ -24,6 +24,14 @@ cmd-builder-herokuish-set() {
   else
     dokku_log_info2_quiet "Unsetting ${KEY}"
     fn-plugin-property-delete "builder-herokuish" "$APP" "$KEY"
+  fi
+
+  if [[ "$KEY" == "stack" ]]; then
+    if [[ "$APP" == "--global" ]]; then
+      for app in $(dokku_apps 2>/dev/null || true); do plugn trigger post-stack-set "$app" "$VALUE"; done
+    else
+      plugn trigger post-stack-set "$APP" "$VALUE"
+    fi
   fi
 }
 

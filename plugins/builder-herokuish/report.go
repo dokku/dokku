@@ -1,6 +1,8 @@
 package builderherokuish
 
 import (
+	"os"
+
 	"github.com/dokku/dokku/plugins/common"
 )
 
@@ -17,12 +19,17 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 		flags = map[string]common.ReportFunc{
 			"--builder-herokuish-computed-allowed": reportComputedAllowed,
 			"--builder-herokuish-global-allowed":   reportGlobalAllowed,
+			"--builder-herokuish-computed-stack":   reportComputedStack,
+			"--builder-herokuish-global-stack":     reportGlobalStack,
 		}
 	} else {
 		flags = map[string]common.ReportFunc{
 			"--builder-herokuish-computed-allowed": reportComputedAllowed,
 			"--builder-herokuish-global-allowed":   reportGlobalAllowed,
 			"--builder-herokuish-allowed":          reportAllowed,
+			"--builder-herokuish-computed-stack":   reportComputedStack,
+			"--builder-herokuish-global-stack":     reportGlobalStack,
+			"--builder-herokuish-stack":            reportStack,
 		}
 	}
 
@@ -66,6 +73,29 @@ func reportComputedAllowed(appName string) string {
 	}
 
 	return allowed
+}
+
+func reportStack(appName string) string {
+	return common.PropertyGet("builder-herokuish", appName, "stack")
+}
+
+func reportGlobalStack(appName string) string {
+	return common.PropertyGet("builder-herokuish", "--global", "stack")
+}
+
+func reportComputedStack(appName string) string {
+	stack := reportStack(appName)
+	if stack == "" {
+		stack = reportGlobalStack(appName)
+	}
+	if stack == "" {
+		stack = os.Getenv("DOKKU_IMAGE")
+	}
+	if stack == "" {
+		stack = "gliderlabs/herokuish:latest-24"
+	}
+
+	return stack
 }
 
 // hostArchitecture returns the dpkg architecture of the host, or an empty string

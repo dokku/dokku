@@ -2,6 +2,7 @@
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/builder-herokuish/internal-functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
 
 fn-builder-herokuish-ensure-cache() {
@@ -23,7 +24,8 @@ trigger-builder-herokuish-builder-build() {
     return
   fi
 
-  local stack="$(plugn trigger buildpack-stack-name "$APP")"
+  local stack="$(fn-builder-herokuish-stack "$APP")"
+  [[ -z "$stack" ]] && stack="$(fn-builder-herokuish-global-stack "$APP")"
   if [[ -n "$stack" ]]; then
     dokku_log_info1 "Building $APP from $stack"
     DOKKU_IMAGE="$stack"
