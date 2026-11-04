@@ -570,7 +570,7 @@ dokku ps:set node-js-app restore
 | `dockerfile-start-cmd` | app only | none | `--ps-dockerfile-start-cmd`, `--ps-computed-dockerfile-start-cmd` | Override `CMD` for Dockerfile-based apps |
 | `procfile-path` | app + global | `Procfile` | `--ps-procfile-path`, `--ps-global-procfile-path`, `--ps-computed-procfile-path` | Path to the app's Procfile, relative to the build root |
 | `restart-policy` | app + global | `on-failure:10` | `--ps-restart-policy`, `--ps-global-restart-policy`, `--ps-computed-restart-policy` | Docker restart policy applied to deployed containers (`no`, `always`, `unless-stopped`, `on-failure[:max-retries]`) |
-| `restore` | app only | `true` | `--restore` | When `true`, the app is restarted automatically by `ps:retire` after a host reboot |
+| `restore` | app only | `true` | `--restore` | When `true`, the app is restarted automatically by `ps:restore` after a host reboot |
 | `skip-deploy` | app + global | `false` | `--ps-skip-deploy`, `--ps-global-skip-deploy`, `--ps-computed-skip-deploy` | When `true`, skips the deploy phase after a successful build |
 | `start-cmd` | app only | none | `--ps-start-cmd`, `--ps-computed-start-cmd` | Override start command for buildpack apps |
 | `stop-timeout-seconds` | app + global | `30` | `--ps-stop-timeout-seconds`, `--ps-global-stop-timeout-seconds`, `--ps-computed-stop-timeout-seconds` | Seconds Docker waits before SIGKILLing a container on stop |
