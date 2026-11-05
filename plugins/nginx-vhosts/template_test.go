@@ -60,6 +60,8 @@ func defaultVars() map[string]interface{} {
 		"PROXY_X_FORWARDED_PROTO":     "$scheme",
 		"PROXY_X_FORWARDED_SSL":       "",
 		"HTTP2_DIRECTIVE_SUPPORTED":   "true",
+		"PROXY_ROUTES":                "",
+		"PROXY_ROUTE_LISTENERS":       "",
 	}
 }
 
@@ -263,6 +265,50 @@ func TestTemplate_XForwardedSSL(t *testing.T) {
 	v2 := defaultVars()
 	out2 := renderTemplate(t, v2)
 	mustNotContain(t, out2, "X-Forwarded-Ssl")
+}
+
+func TestTemplate_RouteLocationAndUpstream(t *testing.T) {
+	v := defaultVars()
+	v["PROXY_ROUTES"] = "api|5001|/api/v0|0"
+	v["PROXY_ROUTE_LISTENERS"] = "api|5001|10.0.0.3:5001,10.0.0.4:5001"
+	out := renderTemplate(t, v)
+	mustContain(t, out, "location /api/v0 {")
+	mustContain(t, out, "proxy_pass http://app-api-5001;")
+	mustNotContain(t, out, "proxy_pass http://app-api-5001/;")
+	mustContain(t, out, "upstream app-api-5001 {")
+	mustContain(t, out, "server 10.0.0.3:5001;")
+	mustContain(t, out, "server 10.0.0.4:5001;")
+}
+
+func TestTemplate_RouteStripPrefix(t *testing.T) {
+	v := defaultVars()
+	v["PROXY_ROUTES"] = "api|5001|/api/v0|1"
+	v["PROXY_ROUTE_LISTENERS"] = "api|5001|10.0.0.3:5001"
+	out := renderTemplate(t, v)
+	mustContain(t, out, "proxy_pass http://app-api-5001/;")
+}
+
+func TestTemplate_RouteOmittedOnRedirect(t *testing.T) {
+	v := defaultVars()
+	v["PROXY_PORT_MAP"] = "http:80:5000 https:443:5000"
+	v["SSL_INUSE"] = "true"
+	v["SSL_SERVER_NAME"] = "app.example.com"
+	v["PROXY_ROUTES"] = "api|5001|/api/v0|0"
+	v["PROXY_ROUTE_LISTENERS"] = "api|5001|10.0.0.3:5001"
+	out := renderTemplate(t, v)
+
+	port80, port443, ok := strings.Cut(out, "listen      [::]:443")
+	if !ok {
+		t.Fatalf("expected an https server block in output:\n%s", out)
+	}
+	mustNotContain(t, port80, "location /api/v0")
+	mustContain(t, port443, "location /api/v0 {")
+}
+
+func TestTemplate_NoRoutesRendersNoRouteBlocks(t *testing.T) {
+	out := renderTemplate(t, defaultVars())
+	mustNotContain(t, out, "upstream app-api-")
+	mustNotContain(t, out, "location /api/v0")
 }
 
 func TestTemplate_NginxConfDIncludeAlways(t *testing.T) {

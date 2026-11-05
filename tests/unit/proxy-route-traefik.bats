@@ -39,6 +39,12 @@ teardown() {
   echo "status: $status"
   assert_success
 
+  run /bin/bash -c "docker inspect $TEST_APP.api.1 --format '{{ index .Config.Labels \"traefik.http.routers.$TEST_APP-api-api-v0.rule\" }}'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "(Host(\`$TEST_APP.$DOKKU_DOMAIN\`)) && PathPrefix(\`/api/v0\`)"
+
   # Give the daemon a moment to read the new labels.
   sleep 5
 
