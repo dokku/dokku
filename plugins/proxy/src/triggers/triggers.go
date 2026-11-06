@@ -26,6 +26,9 @@ func main() {
 	case "proxy-type":
 		appName := flag.Arg(0)
 		err = proxy.TriggerProxyType(appName)
+	case "proxy-routes-list":
+		appName := flag.Arg(0)
+		err = proxy.TriggerProxyRoutesList(appName)
 	case "post-app-clone-setup":
 		oldAppName := flag.Arg(0)
 		newAppName := flag.Arg(1)

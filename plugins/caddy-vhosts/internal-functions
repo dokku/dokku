@@ -4,6 +4,90 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
+fn-caddy-route-labels() {
+  declare desc="emits per-route caddy labels for a non-web container"
+  declare APP="$1" PROC_TYPE="$2" STDIN="$3"
+  local caddy_domains app_domains output route_proc route_port route_path route_strip
+  local matcher_name route_index=0
+
+  app_domains="$(plugn trigger domains-list "$APP")"
+  if [[ -n "$app_domains" ]]; then
+    caddy_domains="$(echo "$app_domains" | xargs)"
+    caddy_domains="${caddy_domains// /, }"
+  fi
+
+  output=""
+  if [[ -n "$caddy_domains" ]]; then
+    # Mirror web's site-declarator computation in docker-args-process-deploy so
+    # both containers join the same Caddyfile site block. caddy treats DOMAIN
+    # and DOMAIN:80 as separate sites - if web declares DOMAIN:80 and we
+    # declare DOMAIN, caddy-docker-proxy renders two unrelated site blocks
+    # and the route's handle never sees port-80 traffic.
+    local letsencrypt_email port_map scheme host_port
+    local has_443_mapping=false
+    letsencrypt_email="$(fn-caddy-computed-letsencrypt-email)"
+    while read -r port_map; do
+      scheme="$(awk -F ':' '{ print $1 }' <<<"$port_map")"
+      host_port="$(awk -F ':' '{ print $2 }' <<<"$port_map")"
+      if [[ "$scheme" == "https" ]] || [[ "$host_port" == "443" ]]; then
+        has_443_mapping=true
+      fi
+    done < <(plugn trigger ports-get "$APP")
+
+    if [[ -n "$letsencrypt_email" ]] && [[ "$has_443_mapping" == "true" ]]; then
+      output="--label 'caddy=${caddy_domains}'"
+    else
+      output="--label 'caddy=${caddy_domains//, /:80, }:80'"
+    fi
+  fi
+
+  while IFS='|' read -r route_proc route_port route_path route_strip; do
+    [[ -z "$route_proc" ]] && continue
+    [[ "$route_proc" != "$PROC_TYPE" ]] && continue
+
+    local route_slug
+    route_slug="$(fn-caddy-route-slug "$route_path")"
+    matcher_name="@${route_slug}"
+    # The named matcher accepts both the bare prefix and the prefix-glob form
+    # so requests like /api/v0 and /api/v0/users/42 both match.
+    output="$output --label 'caddy.${matcher_name}.path=${route_path} ${route_path}/*'"
+    # Use handle (not route) so the directive terminates the matched request.
+    # Otherwise web's bare `reverse_proxy` (at default-order ~190) runs before
+    # this route block (~210) and catches everything including /api/v0/*.
+    output="$output --label 'caddy.${route_index}_handle=${matcher_name}'"
+    local sub_index=0
+    if [[ "$route_strip" == "1" ]]; then
+      output="$output --label 'caddy.${route_index}_handle.${sub_index}_uri=strip_prefix ${route_path}'"
+      sub_index=$((sub_index + 1))
+    fi
+    output="$output --label \"caddy.${route_index}_handle.${sub_index}_reverse_proxy={{upstreams ${route_port}}}\""
+    route_index=$((route_index + 1))
+  done < <(plugn trigger proxy-routes-list "$APP")
+
+  local proxy_labels_file_path=$(fn-proxy-get-labels-file-path "caddy" "$APP")
+  if [[ -f "$proxy_labels_file_path" ]]; then
+    while read -r line; do
+      [[ -z "$line" ]] && continue
+      output="$output --label '$line'"
+    done <"$proxy_labels_file_path"
+  fi
+
+  echo -n "$STDIN $output"
+}
+
+fn-caddy-route-slug() {
+  declare desc="returns a deterministic kebab-case slug for a route path"
+  declare ROUTE_PATH="$1"
+  local s="${ROUTE_PATH#/}"
+  s="${s%/}"
+  s="${s//\//-}"
+  s="${s,,}"
+  if [[ -z "$s" ]]; then
+    s="root"
+  fi
+  echo "$s"
+}
+
 fn-caddy-logs() {
   declare desc="shows the logs for the caddy container"
   declare TAIL="$1" NUM="$2"
