@@ -1,4 +1,3 @@
-GOARCH ?= amd64
 BUILD = plugin-list
 PLUGIN_NAME = plugin
 

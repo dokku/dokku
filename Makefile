@@ -1,6 +1,7 @@
 DOKKU_VERSION ?= master
 
-TARGETARCH ?= amd64
+TARGETARCH ?= $(HOST_ARCH)
+GOARCH ?= $(TARGETARCH)
 
 DOCKER_IMAGE_LABELER_URL ?= $(shell jq -r --arg name docker-image-labeler --arg arch $(TARGETARCH) '.dependencies[] | select(.name == $$name) | .urls[$$arch]' contrib/dependencies.json)
 DOCKER_CONTAINER_HEALTHCHECKER_URL ?= $(shell jq -r --arg name docker-container-healthchecker  --arg arch $(TARGETARCH) '.dependencies[] | select(.name == $$name) | .urls[$$arch]' contrib/dependencies.json)

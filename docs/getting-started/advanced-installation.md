@@ -36,6 +36,12 @@ cd dokku
 sudo make install
 ```
 
+The `Makefile` installs dependencies and builds plugins for the architecture of the host it runs on. The `TARGETARCH` environment variable overrides the architecture used for both the downloaded dependencies and the plugin builds, while the `GOARCH` environment variable overrides the architecture used for the plugin builds only. Example:
+
+```shell
+sudo TARGETARCH=arm64 make install
+```
+
 The `Makefile` allows source URLs to be overridden to include customizations from your own repositories. The `DOCKER_URL`, `PLUGN_URL`, `SSHCOMMAND_URL` and `STACK_URL` environment variables may be set to override the defaults (see the `Makefile` for how these apply). Example:
 
 ```shell
