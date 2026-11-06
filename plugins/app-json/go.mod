@@ -6,7 +6,7 @@ require (
 	github.com/dokku/dokku/plugins/common v0.0.0-00010101000000-000000000000
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
 	github.com/mattn/go-isatty v0.0.24
-	github.com/spf13/pflag v1.0.10
+	github.com/spf13/pflag v1.1.0
 	github.com/tailscale/hujson v0.0.0-20250605163823-992244df8c5a
 	k8s.io/utils v0.0.0-20260626114624-be93311217bd
 )

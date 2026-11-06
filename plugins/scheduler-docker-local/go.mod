@@ -5,7 +5,7 @@ go 1.27.1
 require (
 	github.com/dokku/dokku/plugins/common v0.0.0-00010101000000-000000000000
 	github.com/dokku/dokku/plugins/storage v0.0.0-00010101000000-000000000000
-	github.com/spf13/pflag v1.0.10
+	github.com/spf13/pflag v1.1.0
 )
 
 require (
