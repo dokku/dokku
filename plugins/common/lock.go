@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"syscall"
 )
 
 // LockedDirectoriesEnvVar names the environment variable a caller holding a
@@ -37,10 +36,10 @@ func LockDirectory(dir string, fn func() error) error {
 	}
 	defer file.Close()
 
-	if err := syscall.Flock(int(file.Fd()), syscall.LOCK_EX); err != nil {
+	if err := lockFile(file); err != nil {
 		return fmt.Errorf("Unable to lock %s: %w", dir, err)
 	}
-	defer syscall.Flock(int(file.Fd()), syscall.LOCK_UN)
+	defer unlockFile(file)
 
 	return fn()
 }
