@@ -1,7 +1,6 @@
 DOKKU_VERSION ?= master
 
-TARGETARCH ?= $(HOST_ARCH)
-GOARCH ?= $(TARGETARCH)
+include common.mk
 
 DOCKER_IMAGE_LABELER_URL ?= $(shell jq -r --arg name docker-image-labeler --arg arch $(TARGETARCH) '.dependencies[] | select(.name == $$name) | .urls[$$arch]' contrib/dependencies.json)
 DOCKER_CONTAINER_HEALTHCHECKER_URL ?= $(shell jq -r --arg name docker-container-healthchecker  --arg arch $(TARGETARCH) '.dependencies[] | select(.name == $$name) | .urls[$$arch]' contrib/dependencies.json)
@@ -31,8 +30,6 @@ ifeq ($(CIRCLECI),true)
 else
 	BUILD_STACK_TARGETS = build-in-docker
 endif
-
-include common.mk
 
 .PHONY: all apt-update install version copyfiles copyplugin man-db plugins dependencies docker-image-labeler lambda-builder netrc sshcommand procfile-util plugn docker aufs stack count vagrant-acl-add vagrant-dokku go-build wget
 
