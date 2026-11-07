@@ -96,7 +96,7 @@ This path renders the IP that Dokku saw when the config was last built. After a 
 
 ### DNS-based upstream (resolver path)
 
-The new variables (`DOKKU_APP_<PROC>_LISTENER_HOST` + `NGINX_DNS_RESOLVER` + `NGINX_DNS_RESOLVER_TIMEOUT` + `NGINX_DNS_ZONE`) describe a single hostname per process type of the form `<app>.<proctype>.<dns-zone>` (for example, `myapp.web.docker`). The hostname is served by [coredns-docker](https://github.com/dokku/coredns-docker) (>= `0.6.1`), which watches Docker events and collapses every running instance of the process type onto one multi-A record set. Combined with an nginx `resolver` directive and a variable-based `proxy_pass`, the upstream re-resolves at request time honoring DNS TTL - which gives runtime IP refresh on container restarts and DNS round-robin across scaled instances.
+The new variables (`DOKKU_APP_<PROC>_LISTENER_HOST` + `NGINX_DNS_RESOLVER` + `NGINX_DNS_RESOLVER_TIMEOUT` + `NGINX_DNS_ZONE`) describe a single hostname per process type of the form `<app>.<proctype>.<dns-zone>` (for example, `myapp.web.docker`). The hostname is served by [coredns-docker](https://github.com/dokku/coredns-docker) (>= `0.8.0`), which watches Docker events and collapses every running instance of the process type onto one multi-A record set. Combined with an nginx `resolver` directive and a variable-based `proxy_pass`, the upstream re-resolves at request time honoring DNS TTL - which gives runtime IP refresh on container restarts and DNS round-robin across scaled instances.
 
 The bundled template emits this snippet:
 
