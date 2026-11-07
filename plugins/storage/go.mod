@@ -7,7 +7,7 @@ require (
 	github.com/dokku/dokku/plugins/docker-options v0.0.0-00010101000000-000000000000
 	github.com/mattn/go-isatty v0.0.24
 	github.com/onsi/gomega v1.44.0
-	github.com/spf13/pflag v1.0.10
+	github.com/spf13/pflag v1.1.0
 )
 
 require (
