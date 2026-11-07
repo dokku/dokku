@@ -1,7 +1,7 @@
 BUILD_DIRECTORY    ?= /tmp
 DOKKU_DESCRIPTION   = 'Docker powered PaaS that helps you build and manage the lifecycle of applications'
 DOKKU_REPO_NAME    ?= dokku/dokku
-DOKKU_ARCHITECTURE ?= amd64
+DOKKU_ARCHITECTURE ?= $(GOARCH)
 
 ifndef IS_RELEASE
 	IS_RELEASE = true

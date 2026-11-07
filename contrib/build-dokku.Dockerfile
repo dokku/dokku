@@ -35,8 +35,8 @@ RUN PLUGIN_MAKE_TARGET=${PLUGIN_MAKE_TARGET} \
   DOKKU_GIT_REV=${DOKKU_GIT_REV} \
   IS_RELEASE=${IS_RELEASE} \
   SKIP_GO_CLEAN=true \
-  make version copyfiles \
-  && make deb-dokku
+  GOARCH=amd64 make version copyfiles \
+  && DOKKU_ARCHITECTURE=amd64 GOARCH=amd64 make deb-dokku
 
 FROM builder AS arm64
 

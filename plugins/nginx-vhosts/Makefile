@@ -1,4 +1,3 @@
-GOARCH ?= amd64
 TRIGGERS = triggers/report
 BUILD = pagesize nginx-property report-subcommand triggers
 PLUGIN_NAME = nginx-vhosts

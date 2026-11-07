@@ -1,4 +1,3 @@
-GOARCH ?= amd64
 TRIGGERS = triggers/report
 BUILD = report-subcommand triggers
 PLUGIN_NAME = traefik-vhosts
