@@ -164,7 +164,7 @@ func ComputedDnsResolver(appName string) string {
 }
 
 func GlobalDnsResolver() string {
-	return common.PropertyGetDefault("nginx", "--global", "dns-resolver", "127.0.0.1:1053")
+	return common.PropertyGet("nginx", "--global", "dns-resolver")
 }
 
 func AppDnsResolverTimeout(appName string) string {

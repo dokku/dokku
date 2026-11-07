@@ -38,7 +38,7 @@ func defaultVars() map[string]interface{} {
 		"PROXY_KEEPALIVE":             "",
 		"NGINX_BIND_ADDRESS_IP4":      "",
 		"NGINX_BIND_ADDRESS_IP6":      "::",
-		"NGINX_DNS_RESOLVER":          "127.0.0.1:1053",
+		"NGINX_DNS_RESOLVER":          "",
 		"NGINX_DNS_RESOLVER_TIMEOUT":  "5s",
 		"NGINX_DNS_ZONE":              "docker",
 		"NGINX_ACCESS_LOG_PATH":       "/var/log/nginx/app-access.log",
@@ -99,11 +99,10 @@ func mustNotContain(t *testing.T, out, needle string) {
 func TestTemplate_HTTPOnlyBasicProxy(t *testing.T) {
 	out := renderTemplate(t, defaultVars())
 	mustContain(t, out, "listen      [::]:80;")
-	mustContain(t, out, "resolver 127.0.0.1:1053 valid=10s ipv6=off;")
-	mustContain(t, out, "resolver_timeout 5s;")
-	mustContain(t, out, `set $dokku_upstream "app.web.docker:5000";`)
-	mustContain(t, out, "proxy_pass http://$dokku_upstream;")
-	mustNotContain(t, out, "upstream app-5000 {")
+	mustContain(t, out, "proxy_pass  http://app-5000;")
+	mustContain(t, out, "upstream app-5000 {")
+	mustNotContain(t, out, "resolver ")
+	mustNotContain(t, out, "$dokku_upstream")
 	mustContain(t, out, "error_page 500 501 502 503")
 	mustContain(t, out, "server_name app.example.com;")
 	mustNotContain(t, out, "ssl_certificate")
@@ -113,21 +112,23 @@ func TestTemplate_HTTPOnlyBasicProxy(t *testing.T) {
 
 func TestTemplate_ResolverTimeoutOverride(t *testing.T) {
 	v := defaultVars()
+	v["NGINX_DNS_RESOLVER"] = "127.0.0.1:1053"
 	v["NGINX_DNS_RESOLVER_TIMEOUT"] = "2s"
 	out := renderTemplate(t, v)
 	mustContain(t, out, "resolver_timeout 2s;")
 	mustNotContain(t, out, "resolver_timeout 5s;")
 }
 
-func TestTemplate_HTTPOnlyBasicProxyWithResolverOff(t *testing.T) {
+func TestTemplate_HTTPOnlyBasicProxyWithResolver(t *testing.T) {
 	v := defaultVars()
-	v["NGINX_DNS_RESOLVER"] = "off"
+	v["NGINX_DNS_RESOLVER"] = "127.0.0.1:1053"
 	out := renderTemplate(t, v)
 	mustContain(t, out, "listen      [::]:80;")
-	mustContain(t, out, "proxy_pass  http://app-5000;")
-	mustContain(t, out, "upstream app-5000 {")
-	mustNotContain(t, out, "resolver 127.0.0.1:1053")
-	mustNotContain(t, out, "$dokku_upstream")
+	mustContain(t, out, "resolver 127.0.0.1:1053 valid=10s ipv6=off;")
+	mustContain(t, out, "resolver_timeout 5s;")
+	mustContain(t, out, `set $dokku_upstream "app.web.docker:5000";`)
+	mustContain(t, out, "proxy_pass http://$dokku_upstream;")
+	mustNotContain(t, out, "upstream app-5000 {")
 }
 
 func TestTemplate_HTTPSEmitsPushPreloadWhenSupported(t *testing.T) {
@@ -155,7 +156,6 @@ func TestTemplate_HTTPRedirectsToHTTPSWhenSSLInUse(t *testing.T) {
 	v["PROXY_PORT_MAP"] = "http:80:5000 https:443:5000"
 	v["SSL_INUSE"] = "true"
 	v["SSL_SERVER_NAME"] = "app.example.com"
-	v["NGINX_DNS_RESOLVER"] = "off"
 	out := renderTemplate(t, v)
 
 	port80, _, ok := strings.Cut(out, "listen      [::]:443")
@@ -206,7 +206,6 @@ func TestTemplate_GRPCNoSSL(t *testing.T) {
 	v := defaultVars()
 	v["PROXY_PORT_MAP"] = "grpc:50051:50051"
 	v["PROXY_UPSTREAM_PORTS"] = "50051"
-	v["NGINX_DNS_RESOLVER"] = "off"
 	out := renderTemplate(t, v)
 	mustContain(t, out, "grpc_pass  grpc://app-50051;")
 	mustContain(t, out, "http2")
@@ -215,6 +214,7 @@ func TestTemplate_GRPCNoSSL(t *testing.T) {
 
 func TestTemplate_GRPCNoSSLWithResolver(t *testing.T) {
 	v := defaultVars()
+	v["NGINX_DNS_RESOLVER"] = "127.0.0.1:1053"
 	v["PROXY_PORT_MAP"] = "grpc:50051:50051"
 	v["PROXY_UPSTREAM_PORTS"] = "50051"
 	out := renderTemplate(t, v)
@@ -229,7 +229,6 @@ func TestTemplate_GRPCS(t *testing.T) {
 	v["PROXY_UPSTREAM_PORTS"] = "50051"
 	v["SSL_INUSE"] = "true"
 	v["SSL_SERVER_NAME"] = "app.example.com"
-	v["NGINX_DNS_RESOLVER"] = "off"
 	out := renderTemplate(t, v)
 	mustContain(t, out, "ssl_certificate           /home/dokku/app/tls/server.crt;")
 	mustContain(t, out, "grpc_pass  grpc://app-50051;")
@@ -262,7 +261,6 @@ func TestTemplate_UpstreamBlock(t *testing.T) {
 	v["PROXY_PORT_MAP"] = "http:80:5000 http:8080:5001"
 	v["PROXY_UPSTREAM_PORTS"] = "5000 5001"
 	v["DOKKU_APP_WEB_LISTENERS"] = "10.0.0.1:5000 10.0.0.2:5000"
-	v["NGINX_DNS_RESOLVER"] = "off"
 	out := renderTemplate(t, v)
 	mustContain(t, out, "upstream app-5000 {")
 	mustContain(t, out, "upstream app-5001 {")
@@ -274,6 +272,7 @@ func TestTemplate_UpstreamBlock(t *testing.T) {
 
 func TestTemplate_UpstreamBlockOmittedInResolverMode(t *testing.T) {
 	v := defaultVars()
+	v["NGINX_DNS_RESOLVER"] = "127.0.0.1:1053"
 	v["PROXY_PORT_MAP"] = "http:80:5000 http:8080:5001"
 	v["PROXY_UPSTREAM_PORTS"] = "5000 5001"
 	v["DOKKU_APP_WEB_LISTENERS"] = "10.0.0.1:5000 10.0.0.2:5000"
@@ -286,12 +285,10 @@ func TestTemplate_UpstreamBlockOmittedInResolverMode(t *testing.T) {
 func TestTemplate_UpstreamWithKeepalive(t *testing.T) {
 	v := defaultVars()
 	v["PROXY_KEEPALIVE"] = "16"
-	v["NGINX_DNS_RESOLVER"] = "off"
 	out := renderTemplate(t, v)
 	mustContain(t, out, "keepalive 16;")
 
 	v2 := defaultVars()
-	v2["NGINX_DNS_RESOLVER"] = "off"
 	out2 := renderTemplate(t, v2)
 	mustNotContain(t, out2, "keepalive 16;")
 }
@@ -333,6 +330,18 @@ func TestTemplate_RouteLocationAndUpstream(t *testing.T) {
 	mustContain(t, out, "upstream app-api-5001 {")
 	mustContain(t, out, "server 10.0.0.3:5001;")
 	mustContain(t, out, "server 10.0.0.4:5001;")
+}
+
+func TestTemplate_RouteUpstreamRenderedInResolverMode(t *testing.T) {
+	v := defaultVars()
+	v["NGINX_DNS_RESOLVER"] = "127.0.0.1:1053"
+	v["PROXY_ROUTES"] = "api|5001|/api/v0|0"
+	v["PROXY_ROUTE_LISTENERS"] = "api|5001|10.0.0.3:5001"
+	out := renderTemplate(t, v)
+	mustContain(t, out, "proxy_pass http://$dokku_upstream;")
+	mustContain(t, out, "proxy_pass http://app-api-5001;")
+	mustContain(t, out, "upstream app-api-5001 {")
+	mustNotContain(t, out, "upstream app-5000 {")
 }
 
 func TestTemplate_RouteStripPrefix(t *testing.T) {

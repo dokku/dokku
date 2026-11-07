@@ -101,7 +101,7 @@ The new variables (`DOKKU_APP_<PROC>_LISTENER_HOST` + `NGINX_DNS_RESOLVER` + `NG
 The bundled template emits this snippet:
 
 ```nginx
-{{ if ne $.NGINX_DNS_RESOLVER "off" }}
+{{ if $.NGINX_DNS_RESOLVER }}
 resolver {{ $.NGINX_DNS_RESOLVER }} valid=10s ipv6=off;
 resolver_timeout {{ $.NGINX_DNS_RESOLVER_TIMEOUT }};
 set $dokku_upstream "{{ $.DOKKU_APP_WEB_LISTENER_HOST }}:{{ $upstream_port }}";
@@ -113,8 +113,8 @@ proxy_pass http://{{ $.APP }}-{{ $upstream_port }};
 
 The `$dokku_upstream` variable name is intentionally namespaced (rather than `$upstream`) so vendored templates that already define `$upstream` will not collide if they adopt the resolver branch.
 
-`NGINX_DNS_RESOLVER` defaults to `127.0.0.1:1053`, `NGINX_DNS_RESOLVER_TIMEOUT` defaults to `5s`, and `NGINX_DNS_ZONE` defaults to `docker`; all three are configurable via `dokku nginx:set --global dns-resolver ...`, `dokku nginx:set --global dns-resolver-timeout ...`, and `dokku nginx:set --global dns-zone ...`. The literal string `off` is the sentinel for disabling the resolver branch in the bundled template - empty strings are treated as "use the default" because the property is stored on disk and an empty value deletes the property file. The short default `dns-resolver-timeout` keeps clients from waiting on nginx's built-in 30s timeout when coredns-docker is unreachable; nginx returns 502 after the configured interval instead.
+`NGINX_DNS_RESOLVER` is empty by default, `NGINX_DNS_RESOLVER_TIMEOUT` defaults to `5s`, and `NGINX_DNS_ZONE` defaults to `docker`; all three are configurable via `dokku nginx:set --global dns-resolver ...`, `dokku nginx:set --global dns-resolver-timeout ...`, and `dokku nginx:set --global dns-zone ...`. The bundled template only renders the resolver branch when `NGINX_DNS_RESOLVER` is set, for example to `127.0.0.1:1053`. Unsetting `dns-resolver` switches the bundled template back to the IP-based upstream. The short default `dns-resolver-timeout` keeps clients from waiting on nginx's built-in 30s timeout when coredns-docker is unreachable; nginx returns 502 after the configured interval instead.
 
 ### Choosing between the two
 
-The DNS-based path is the default for the bundled template. Vendored templates that have not been updated continue to use `DOKKU_APP_<PROC>_LISTENERS` and are unaffected by the global default. The DNS-based variables are populated regardless of whether `dns-resolver` is `off` or not, so a vendored template can adopt the resolver path on its own schedule by switching its rendering snippet, even if other apps on the host are still using IP-based upstreams.
+The IP-based path is the default for the bundled template, and the DNS-based path is used once `dns-resolver` is set. Vendored templates that have not been updated continue to use `DOKKU_APP_<PROC>_LISTENERS` and are unaffected by the `dns-resolver` setting. The `DOKKU_APP_<PROC>_LISTENER_HOST` and `NGINX_DNS_ZONE` variables are populated regardless of whether `dns-resolver` is set, so a vendored template can adopt the resolver path on its own schedule by switching its rendering snippet, even if other apps on the host are still using IP-based upstreams.

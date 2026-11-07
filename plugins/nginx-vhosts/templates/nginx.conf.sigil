@@ -84,7 +84,7 @@ server {
     gzip_vary on;
     gzip_comp_level  6;
 
-{{ if ne $.NGINX_DNS_RESOLVER "off" }}
+{{ if $.NGINX_DNS_RESOLVER }}
     resolver {{ $.NGINX_DNS_RESOLVER }} valid=10s ipv6=off;
     resolver_timeout {{ $.NGINX_DNS_RESOLVER_TIMEOUT }};
     set $dokku_upstream "{{ $.DOKKU_APP_WEB_LISTENER_HOST }}:{{ $upstream_port }}";
@@ -173,7 +173,7 @@ server {
   {{ end }}
 
   location    / {
-{{ if ne $.NGINX_DNS_RESOLVER "off" }}
+{{ if $.NGINX_DNS_RESOLVER }}
     resolver {{ $.NGINX_DNS_RESOLVER }} valid=10s ipv6=off;
     resolver_timeout {{ $.NGINX_DNS_RESOLVER_TIMEOUT }};
     set $dokku_upstream "{{ $.DOKKU_APP_WEB_LISTENER_HOST }}:{{ $upstream_port }}";
@@ -190,7 +190,7 @@ server {
 {{ end }}
 {{ end }}
 
-{{ if eq $.NGINX_DNS_RESOLVER "off" }}
+{{ if not $.NGINX_DNS_RESOLVER }}
 {{ if $.DOKKU_APP_WEB_LISTENERS }}
 {{ range $upstream_port := $.PROXY_UPSTREAM_PORTS | split " " }}
 upstream {{ $.APP }}-{{ $upstream_port }} {

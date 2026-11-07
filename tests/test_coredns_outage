@@ -12,6 +12,7 @@ cleanup() {
   set +e
   start_coredns_docker
   ssh "$REMOTE" apps:destroy "$APP" --force >/dev/null 2>&1
+  ssh "$REMOTE" nginx:set --global dns-resolver >/dev/null 2>&1
   ssh "$REMOTE" events:off >/dev/null 2>&1
   exit $exit_code
 }
@@ -65,6 +66,7 @@ wait_for_status() {
 trap cleanup INT TERM EXIT
 
 ssh "$REMOTE" events:on
+ssh "$REMOTE" nginx:set --global dns-resolver 127.0.0.1:1053
 
 TMP=$(mktemp -d "/tmp/$TARGET.XXXXX")
 rmdir "$TMP" && cp -r "$(dirname "$SELF")/apps/python" "$TMP"

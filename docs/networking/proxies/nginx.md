@@ -33,27 +33,34 @@ Nginx will proxy the requests in a [round-robin balancing fashion](http://nginx.
 > [!IMPORTANT]
 > New as of 0.39.0
 
-Dokku resolves nginx upstreams through [coredns-docker](https://github.com/dokku/coredns-docker), a CoreDNS plugin that watches the Docker daemon and serves fresh `A` records keyed off container labels. The nginx `resolver` directive points at coredns-docker's local socket (`127.0.0.1:1053`) and the rendered upstream is a variable-based `proxy_pass`, which forces nginx to re-resolve at request time honoring DNS TTL. This is how nginx avoids serving the wrong vhost after a host reboot, after `apt upgrade docker`, or after a single container restarts mid-runtime: the on-disk nginx config no longer pins a stale IP.
+Dokku can resolve nginx upstreams through [coredns-docker](https://github.com/dokku/coredns-docker), a CoreDNS plugin that watches the Docker daemon and serves fresh `A` records keyed off container labels. When enabled, the nginx `resolver` directive points at coredns-docker's local socket (`127.0.0.1:1053`) and the rendered upstream is a variable-based `proxy_pass`, which forces nginx to re-resolve at request time honoring DNS TTL. This is how nginx avoids serving the wrong vhost after a host reboot, after `apt upgrade docker`, or after a single container restarts mid-runtime: the on-disk nginx config no longer pins a stale IP. This behavior is opt-in, and nginx uses IP-based `upstream` blocks by default.
 
 `coredns-docker` (>= `0.6.0`) is installed automatically as a transitive `Depends:` of the `dokku` Debian package, so `apt install dokku` and `apt upgrade dokku` pull it in without operator action. The shipped `/etc/coredns/Corefile` already binds `127.0.0.1:1053`, serves the `docker.` zone, and synthesizes `<app>.<process-type>.docker` and `<app>.docker` `A` records from Dokku's existing `com.dokku.app-name` and `com.dokku.process-type` container labels. Multiple containers for the same process type collapse onto one multi-A record set, so scaled apps load-balance across instances via DNS without any per-container configuration. The bundled Docker image of Dokku ships coredns-docker preinstalled and runs it under runit on the same port.
 
 No `systemd-resolved` or `/etc/resolv.conf` change is required - nginx talks to `coredns-docker` directly via the `resolver` directive in each app's `nginx.conf`.
 
-The behavior is controlled by three global nginx properties:
-
-- `dns-resolver` (default: `127.0.0.1:1053`) - the resolver address nginx talks to.
-- `dns-resolver-timeout` (default: `5s`) - how long nginx waits for a DNS response before giving up and returning 502. The default is short so requests fail fast when coredns-docker is unreachable rather than hanging on the nginx built-in default (30s).
-- `dns-zone` (default: `docker`) - the suffix appended to `<app>.<process-type>` when constructing the upstream hostname.
-
-To revert to the legacy IP-based upstream block (for instance on a host where `coredns-docker` cannot be installed):
+To enable resolver-based upstreams:
 
 ```shell
-dokku nginx:set --global dns-resolver off
+dokku nginx:set --global dns-resolver 127.0.0.1:1053
 dokku proxy:build-config --all
 ```
 
+To revert to the IP-based upstream block, unset the property and rebuild the config:
+
+```shell
+dokku nginx:set --global dns-resolver
+dokku proxy:build-config --all
+```
+
+The behavior is controlled by three nginx properties, each settable per app or globally:
+
+- `dns-resolver` (default: none) - the resolver address nginx talks to. Resolver-based upstreams are only rendered when this is set.
+- `dns-resolver-timeout` (default: `5s`) - how long nginx waits for a DNS response before giving up and returning 502. The default is short so requests fail fast when coredns-docker is unreachable rather than hanging on the nginx built-in default (30s).
+- `dns-zone` (default: `docker`) - the suffix appended to `<app>.<process-type>` when constructing the upstream hostname.
+
 > [!NOTE]
-> The sentinel for disabling the feature is the literal string `off`. Setting `dns-resolver` to the empty string (`""`) does **not** disable it - that deletes the property and the default (`127.0.0.1:1053`) re-engages. Use `off` to disable, the default to re-enable.
+> When `dns-resolver` is set, no `upstream` block is rendered for the `web` process, so `proxy-keepalive` has no effect on it. Upstreams for [proxy routes](/docs/networking/proxy-management.md#path-based-routing-to-non-web-processes) to other process types remain IP-based.
 
 See [the `nginx.conf.sigil` reference](/docs/appendices/file-formats/nginx-conf-sigil.md) for the sigil variables that drive the resolver-based render, and how vendored templates can adopt or skip it.
 
@@ -672,6 +679,9 @@ All nginx-vhosts properties are settable at both the app and global scope.
 | `client-header-timeout` | app + global | `60s` | `--nginx-client-header-timeout`, `--nginx-global-client-header-timeout`, `--nginx-computed-client-header-timeout` | Time allowed to read the request header from the client |
 | `client-max-body-size` | app + global | `1m` | `--nginx-client-max-body-size`, `--nginx-global-client-max-body-size`, `--nginx-computed-client-max-body-size` | Maximum allowed request body size |
 | `disable-custom-config` | app + global | `false` | `--nginx-disable-custom-config`, `--nginx-global-disable-custom-config`, `--nginx-computed-disable-custom-config` | When `true`, ignores app-supplied `nginx.conf.d/*.conf` snippets |
+| `dns-resolver` | app + global | none | `--nginx-dns-resolver`, `--nginx-global-dns-resolver`, `--nginx-computed-dns-resolver` | Resolver address used for DNS-based upstreams. When unset, upstreams are IP-based |
+| `dns-resolver-timeout` | app + global | `5s` | `--nginx-dns-resolver-timeout`, `--nginx-global-dns-resolver-timeout`, `--nginx-computed-dns-resolver-timeout` | Time nginx waits for a DNS response from the resolver |
+| `dns-zone` | app + global | `docker` | `--nginx-dns-zone`, `--nginx-global-dns-zone`, `--nginx-computed-dns-zone` | Zone appended to `<app>.<process-type>` for DNS-based upstream hostnames |
 | `error-log-path` | app + global | _`{nginx-log-root}/{app}-error.log`_ | `--nginx-error-log-path`, `--nginx-global-error-log-path`, `--nginx-computed-error-log-path` | Path inside the nginx container where error logs are written |
 | `hsts` | app + global | `true` | `--nginx-hsts`, `--nginx-global-hsts`, `--nginx-computed-hsts` | When `true`, emits a `Strict-Transport-Security` header on HTTPS responses |
 | `hsts-include-subdomains` | app + global | `true` | `--nginx-hsts-include-subdomains`, `--nginx-global-hsts-include-subdomains`, `--nginx-computed-hsts-include-subdomains` | Adds the `includeSubDomains` directive to the HSTS header |

@@ -17,12 +17,12 @@ teardown() {
   global_teardown
 }
 
-@test "(nginx-vhosts:set) dns-resolver and dns-zone defaults report 127.0.0.1:1053 and docker" {
+@test "(nginx-vhosts:set) dns-resolver defaults to empty and dns-zone defaults to docker" {
   run /bin/bash -c "dokku nginx:report $TEST_APP --nginx-computed-dns-resolver"
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "127.0.0.1:1053"
+  assert_output ""
 
   run /bin/bash -c "dokku nginx:report $TEST_APP --nginx-computed-dns-zone"
   echo "output: $output"
@@ -55,7 +55,27 @@ teardown() {
   assert_output "test"
 }
 
-@test "(nginx-vhosts) generated nginx.conf uses resolver and variable-based proxy_pass by default" {
+@test "(nginx-vhosts) generated nginx.conf uses IP-based upstream by default" {
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:show-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_not_contains "resolver "
+  assert_output_not_contains "\$dokku_upstream"
+  assert_output_contains "upstream ${TEST_APP}-"
+}
+
+@test "(nginx-vhosts) generated nginx.conf uses resolver and variable-based proxy_pass when dns-resolver is set" {
+  run /bin/bash -c "dokku nginx:set --global dns-resolver 127.0.0.1:1053"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP
   echo "output: $output"
   echo "status: $status"
@@ -72,8 +92,8 @@ teardown() {
   assert_output_not_contains "upstream ${TEST_APP}-"
 }
 
-@test "(nginx-vhosts) generated nginx.conf falls back to IP-based upstream when dns-resolver=off" {
-  run /bin/bash -c "dokku nginx:set --global dns-resolver off"
+@test "(nginx-vhosts) unsetting dns-resolver reverts to IP-based upstream" {
+  run /bin/bash -c "dokku nginx:set --global dns-resolver 127.0.0.1:1053"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -87,24 +107,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_not_contains "resolver 127.0.0.1:1053"
-  assert_output_not_contains "\$dokku_upstream"
-  assert_output_contains "upstream ${TEST_APP}-"
-}
-
-@test "(nginx-vhosts) setting dns-resolver to empty re-engages the default resolver path" {
-  run /bin/bash -c "dokku nginx:set --global dns-resolver off"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-
-  run /bin/bash -c "dokku nginx:show-config $TEST_APP"
-  assert_output_contains "upstream ${TEST_APP}-"
+  assert_output_contains "resolver 127.0.0.1:1053 valid=10s ipv6=off"
 
   run /bin/bash -c "dokku nginx:set --global dns-resolver"
   echo "output: $output"
@@ -120,11 +123,16 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output_contains "resolver 127.0.0.1:1053 valid=10s ipv6=off"
-  assert_output_not_contains "upstream ${TEST_APP}-"
+  assert_output_not_contains "resolver 127.0.0.1:1053"
+  assert_output_contains "upstream ${TEST_APP}-"
 }
 
 @test "(nginx-vhosts) vendored nginx.conf.sigil renders IP-based upstream regardless of dns-resolver" {
+  run /bin/bash -c "dokku nginx:set --global dns-resolver 127.0.0.1:1053"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP custom_nginx_template
   echo "output: $output"
   echo "status: $status"
@@ -140,6 +148,11 @@ teardown() {
 }
 
 @test "(nginx-vhosts) nginx returns 502 when coredns-docker is stopped" {
+  run /bin/bash -c "dokku nginx:set --global dns-resolver 127.0.0.1:1053"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP
   echo "output: $output"
   echo "status: $status"
