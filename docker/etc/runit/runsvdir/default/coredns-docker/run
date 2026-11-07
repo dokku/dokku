@@ -1,0 +1,7 @@
+#!/bin/bash
+
+exec >>/var/log/services/coredns-docker
+exec 2>&1
+
+echo "Running coredns-docker"
+exec /usr/bin/coredns-docker -conf /etc/coredns/Corefile
