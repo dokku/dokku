@@ -175,3 +175,37 @@ teardown() {
 
   assert_http_localhost_response http "$TEST_APP.$DOKKU_DOMAIN" 80 / "" 200
 }
+
+@test "(nginx-vhosts) nginx returns 502 when the app container is not running" {
+  run /bin/bash -c "dokku nginx:set --global dns-resolver 127.0.0.1:1053"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  assert_http_localhost_response http "$TEST_APP.$DOKKU_DOMAIN" 80 / "" 200
+
+  run /bin/bash -c "docker container stop $TEST_APP.web.1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:show-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "proxy_pass http://\$dokku_upstream"
+
+  assert_http_localhost_response http "$TEST_APP.$DOKKU_DOMAIN" 80 / "" 502
+
+  run /bin/bash -c "docker container start $TEST_APP.web.1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  assert_http_localhost_response http "$TEST_APP.$DOKKU_DOMAIN" 80 / "" 200
+}
