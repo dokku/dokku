@@ -20,6 +20,12 @@ install_dependencies() {
     curl -L "https://packagecloud.io/dokku/dokku/packages/ubuntu/noble/docker-container-healthchecker_${DOCKER_CONTAINER_HEALTHCHECKER_VERSION}_amd64.deb/download.deb" -o "$ROOT_DIR/build/${DOCKER_CONTAINER_HEALTHCHECKER_PACKAGE_NAME}"
   fi
 
+  COREDNS_DOCKER_VERSION=$(jq -r --arg name coredns-docker '.dependencies[] | select(.name == $name) | .version' contrib/dependencies.json)
+  COREDNS_DOCKER_PACKAGE_NAME="coredns-docker_${COREDNS_DOCKER_VERSION}_amd64.deb"
+  if [[ ! -f "$ROOT_DIR/build/${COREDNS_DOCKER_PACKAGE_NAME}" ]]; then
+    curl -L "https://packagecloud.io/dokku/dokku/packages/ubuntu/noble/coredns-docker_${COREDNS_DOCKER_VERSION}_amd64.deb/download.deb" -o "$ROOT_DIR/build/${COREDNS_DOCKER_PACKAGE_NAME}"
+  fi
+
   HEROKUISH_VERSION=$(jq -r --arg name herokuish '.recommendations[] | select(.name == $name) | .version' contrib/dependencies.json)
   HEROKUISH_PACKAGE_NAME="herokuish_${HEROKUISH_VERSION}_amd64.deb"
   if [[ ! -f "$ROOT_DIR/build/${HEROKUISH_PACKAGE_NAME}" ]]; then
@@ -68,6 +74,7 @@ install_dependencies() {
 
   ls -lah "${ROOT_DIR}/build/"
   sudo dpkg -i \
+    "${ROOT_DIR}/build/$COREDNS_DOCKER_PACKAGE_NAME" \
     "${ROOT_DIR}/build/$DOCKER_CONTAINER_HEALTHCHECKER_PACKAGE_NAME" \
     "${ROOT_DIR}/build/$DOCKER_IMAGE_LABELER_PACKAGE_NAME" \
     "${ROOT_DIR}/build/$HEROKUISH_PACKAGE_NAME" \
