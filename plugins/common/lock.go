@@ -1,11 +1,9 @@
 package common
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
-	"syscall"
 )
 
 // LockedDirectoriesEnvVar names the environment variable a caller holding a
@@ -15,11 +13,13 @@ import (
 // does not deadlock waiting on its own parent.
 const LockedDirectoriesEnvVar = "DOKKU_LOCKED_DIRECTORIES"
 
-// LockDirectory holds an exclusive flock on dir for the duration of fn. The
-// directory must already exist. The lock is advisory: it serializes callers
-// that go through LockDirectory, and does not block plain reads. Locks are
-// taken per open file description, so goroutines in a single process exclude
-// each other as well as separate processes do.
+// LockDirectory holds an exclusive lock on dir for the duration of fn. The
+// directory must already exist. On unix the lock is a flock on the directory
+// itself, and on windows it is a LockFileEx lock on a lock file inside the
+// directory. The lock is advisory: it serializes callers that go through
+// LockDirectory, and does not block plain reads. Locks are taken per open
+// file, so goroutines in a single process exclude each other as well as
+// separate processes do.
 //
 // A directory listed in DOKKU_LOCKED_DIRECTORIES is treated as already held by
 // a parent process, and fn runs without taking the lock again. LockDirectory is
@@ -31,18 +31,7 @@ func LockDirectory(dir string, fn func() error) error {
 		return fn()
 	}
 
-	file, err := os.Open(dir)
-	if err != nil {
-		return fmt.Errorf("Unable to open %s for locking: %w", dir, err)
-	}
-	defer file.Close()
-
-	if err := syscall.Flock(int(file.Fd()), syscall.LOCK_EX); err != nil {
-		return fmt.Errorf("Unable to lock %s: %w", dir, err)
-	}
-	defer syscall.Flock(int(file.Fd()), syscall.LOCK_UN)
-
-	return fn()
+	return lockDirectory(dir, fn)
 }
 
 // isDirectoryLockHeld reports whether dir is listed in DOKKU_LOCKED_DIRECTORIES
