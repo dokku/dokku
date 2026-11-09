@@ -14,7 +14,7 @@ checks:skip <app> [process-type(s)]       Skip zero-downtime checks for all proc
 
 By default, Dokku will wait `10` seconds after starting each container before assuming it is up and proceeding with the deploy. Once this has occurred for all containers started by an application, traffic will be switched to point to your new containers. Dokku will also wait a further `60` seconds *after* the deploy is complete before terminating old containers in order to give time for long running connections to terminate. In either case, you may have more than one container running for a given application.
 
-Once a new container has started, Dokku waits up to `10` seconds for it to report an IP address before running checks against that address. If a `web` container with checks enabled never reports an IP address, the deploy fails and the previous containers continue to serve traffic. When checks are skipped or disabled - or for other process types - the recorded IP address for that container is removed instead.
+Once a new container has started, Dokku waits up to `10` seconds for it to report an IP address before running checks against that address. If a `web` container with checks enabled is running but never reports an IP address - or still has none after passing its checks - the deploy fails and the previous containers continue to serve traffic. A container that is not running is left to the checks to report. When checks are skipped or disabled - or for other process types - the recorded IP address for that container is removed instead.
 
 You may both create user-defined checks for web processes using the `healthchecks` key in the `app.json` file, as well as customize any and all parts of this experience using the checks plugin.
 
