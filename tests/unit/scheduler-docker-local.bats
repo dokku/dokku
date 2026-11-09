@@ -759,6 +759,126 @@ teardown() {
   rm -rf "$CUSTOM_TMP"
 }
 
+@test "(scheduler-docker-local) ip file tracks the new container after restart" {
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  local old_cid
+  old_cid="$(<"$DOKKU_ROOT/$TEST_APP/CONTAINER.web.1")"
+
+  run /bin/bash -c "dokku ps:restart $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  local cid ipaddr
+  cid="$(<"$DOKKU_ROOT/$TEST_APP/CONTAINER.web.1")"
+  [[ "$cid" != "$old_cid" ]]
+  ipaddr="$(docker container inspect --format '{{ (index .NetworkSettings.Networks "bridge").IPAddress }}' "$cid")"
+  [[ -n "$ipaddr" ]]
+
+  run /bin/bash -c "cat $DOKKU_ROOT/$TEST_APP/IP.web.1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "$ipaddr"
+
+  run /bin/bash -c "grep -F 'server $ipaddr:5000' $DOKKU_ROOT/$TEST_APP/nginx.conf"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
+@test "(scheduler-docker-local) unresolvable web ip fails deploy and keeps old container" {
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  local old_cid old_ipaddr
+  old_cid="$(<"$DOKKU_ROOT/$TEST_APP/CONTAINER.web.1")"
+  old_ipaddr="$(<"$DOKKU_ROOT/$TEST_APP/IP.web.1")"
+
+  run /bin/bash -c "dokku docker-options:add --process web $TEST_APP deploy '--network none'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:restart $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Unable to determine ip address for new container (web.1)"
+
+  run /bin/bash -c "cat $DOKKU_ROOT/$TEST_APP/CONTAINER.web.1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "$old_cid"
+
+  run /bin/bash -c "cat $DOKKU_ROOT/$TEST_APP/IP.web.1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "$old_ipaddr"
+
+  run /bin/bash -c "docker container inspect --format '{{.State.Running}}' $old_cid"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+}
+
+@test "(scheduler-docker-local) unresolvable worker ip removes ip file" {
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:scale $TEST_APP worker=1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "test -s $DOKKU_ROOT/$TEST_APP/IP.worker.1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku docker-options:add --process worker $TEST_APP deploy '--network none'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:restart $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "removing recorded ip address (worker.1)"
+
+  run /bin/bash -c "test -f $DOKKU_ROOT/$TEST_APP/IP.worker.1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+}
+
 quoted_procfile_callback() {
   local APP="$1"
   local APP_REPO_DIR="$2"

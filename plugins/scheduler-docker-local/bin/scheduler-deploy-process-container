@@ -103,6 +103,11 @@ main() {
     dokku_log_verbose "Attempting pre-flight checks ($PROC_TYPE.$CONTAINER_INDEX)"
     plugn trigger check-deploy "$APP" "$cid" "$PROC_TYPE" "$DOKKU_PORT" "$ipaddr" "$CONTAINER_INDEX"
   fi
+
+  ipaddr="$(fn-scheduler-docker-local-settled-ipaddr "$APP" "$PROC_TYPE" "$cid")"
+  if [[ -z "$ipaddr" ]] && [[ "$PROC_TYPE" == "web" ]]; then
+    dokku_log_fail "Unable to determine ip address for new container ($PROC_TYPE.$CONTAINER_INDEX)"
+  fi
   trap - INT TERM EXIT
 
   if [[ -f "$DOKKU_CONTAINER_ID_FILE" ]]; then
@@ -113,11 +118,38 @@ main() {
 
   # now using the new container
   [[ -n "$cid" ]] && echo "$cid" >"$DOKKU_CONTAINER_ID_FILE"
-  [[ -n "$ipaddr" ]] && plugn trigger network-write-ipaddr "$APP" "$PROC_TYPE" "$CONTAINER_INDEX" "$ipaddr"
+  if [[ -n "$ipaddr" ]]; then
+    plugn trigger network-write-ipaddr "$APP" "$PROC_TYPE" "$CONTAINER_INDEX" "$ipaddr"
+  else
+    dokku_log_warn "Unable to determine ip address for new container, removing recorded ip address ($PROC_TYPE.$CONTAINER_INDEX)"
+    rm -f "$DOKKU_ROOT/$APP/IP.$PROC_TYPE.$CONTAINER_INDEX"
+  fi
   [[ -n "$DOKKU_PORT" ]] && plugn trigger network-write-port "$APP" "$PROC_TYPE" "$CONTAINER_INDEX" "$DOKKU_PORT"
 
   # cleanup pre-migration files
   rm -f "$DOKKU_ROOT/$APP/CONTAINER" "$DOKKU_ROOT/$APP/IP" "$DOKKU_ROOT/$APP/PORT"
+}
+
+fn-scheduler-docker-local-settled-ipaddr() {
+  declare desc="wait for a container to be running with an ip address and print that address"
+  declare APP="$1" PROC_TYPE="$2" CID="$3"
+  local attempt ipaddr
+
+  for attempt in {1..10}; do
+    if [[ "$("$DOCKER_BIN" container inspect --format '{{.State.Running}}' "$CID" 2>/dev/null || true)" == "true" ]]; then
+      ipaddr="$(plugn trigger network-get-ipaddr "$APP" "$PROC_TYPE" "$CID")"
+      if [[ -n "$ipaddr" ]]; then
+        echo "$ipaddr"
+        return 0
+      fi
+    fi
+
+    if [[ "$attempt" -lt 10 ]]; then
+      sleep 1
+    fi
+  done
+
+  return 0
 }
 
 fn-scheduler-docker-local-extract-start-cmd() {
