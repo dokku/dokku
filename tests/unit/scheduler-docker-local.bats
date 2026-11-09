@@ -802,7 +802,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP no_healthchecks_callback
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -821,6 +821,7 @@ teardown() {
   echo "status: $status"
   assert_failure
   assert_output_contains "Unable to determine ip address for new container (web.1)" -1
+  assert_output_not_contains "Attempting pre-flight checks (web.1)"
 
   run /bin/bash -c "cat $DOKKU_ROOT/$TEST_APP/CONTAINER.web.1"
   echo "output: $output"
@@ -950,12 +951,6 @@ dockerfile_callback() {
   local APP="$1"
   local APP_REPO_DIR="$2"
   mv "$APP_REPO_DIR/dockerfile.Dockerfile" "$APP_REPO_DIR/Dockerfile"
-}
-
-no_healthchecks_callback() {
-  local APP="$1"
-  local APP_REPO_DIR="$2"
-  rm -f "$APP_REPO_DIR/app.json"
 }
 
 failing_check_callback() {

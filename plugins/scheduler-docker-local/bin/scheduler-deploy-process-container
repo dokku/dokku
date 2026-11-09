@@ -80,8 +80,6 @@ main() {
   plugn trigger post-container-create "app" "$cid" "$APP" "deploy" "$PROC_TYPE"
   "$DOCKER_BIN" container start "$cid" >/dev/null || true
 
-  ipaddr=$(plugn trigger network-get-ipaddr "$APP" "$PROC_TYPE" "$cid")
-
   kill_new() {
     declare desc="wrapper function to kill newly started app container"
     declare APP="$1" CID="$2" PROC_TYPE="$3" CONTAINER_INDEX="$4"
@@ -100,14 +98,17 @@ main() {
 
   # run checks first, then post-deploy hooks, which switches proxy traffic
   trap "kill_new $APP $cid $PROC_TYPE $CONTAINER_INDEX" INT TERM EXIT
+  ipaddr="$(fn-scheduler-docker-local-settled-ipaddr "$APP" "$PROC_TYPE" "$cid")"
+  if [[ -z "$ipaddr" ]] && [[ "$PROC_TYPE" == "web" ]] && [[ "$DOKKU_CHECKS_DISABLED" == "false" ]] && [[ "$(is_app_proctype_checks_skipped "$APP" "$PROC_TYPE")" == "false" ]]; then
+    dokku_log_info2_quiet "Start of $APP container output (${cid:0:12} $PROC_TYPE.$CONTAINER_INDEX)"
+    dokku_container_log_verbose_quiet "$cid"
+    dokku_log_info2_quiet "End of $APP container output (${cid:0:12} $PROC_TYPE.$CONTAINER_INDEX)"
+    dokku_log_fail "Unable to determine ip address for new container ($PROC_TYPE.$CONTAINER_INDEX)"
+  fi
+
   if [[ "$DOKKU_CHECKS_DISABLED" == "false" ]]; then
     dokku_log_verbose "Attempting pre-flight checks ($PROC_TYPE.$CONTAINER_INDEX)"
     plugn trigger check-deploy "$APP" "$cid" "$PROC_TYPE" "$DOKKU_PORT" "$ipaddr" "$CONTAINER_INDEX"
-  fi
-
-  ipaddr="$(fn-scheduler-docker-local-settled-ipaddr "$APP" "$PROC_TYPE" "$cid")"
-  if [[ -z "$ipaddr" ]] && [[ "$PROC_TYPE" == "web" ]] && [[ "$DOKKU_CHECKS_DISABLED" == "false" ]] && [[ "$(is_app_proctype_checks_skipped "$APP" "$PROC_TYPE")" == "false" ]]; then
-    dokku_log_fail "Unable to determine ip address for new container ($PROC_TYPE.$CONTAINER_INDEX)"
   fi
   trap - INT TERM EXIT
 
