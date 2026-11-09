@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -267,6 +268,27 @@ func TestPropertyLockSerializesReadModifyWrite(t *testing.T) {
 	})).To(Succeed())
 
 	Expect(PropertyGet(propertyTestPlugin, propertyTestApp, "counter")).To(Equal("50"))
+}
+
+func TestLockDirectorySerializesConcurrentCallers(t *testing.T) {
+	RegisterTestingT(t)
+	t.Setenv(LockedDirectoriesEnvVar, "")
+
+	dir := t.TempDir()
+	var active atomic.Int32
+	var overlapped atomic.Bool
+	Expect(runConcurrently(20, func(i int) error {
+		return LockDirectory(dir, func() error {
+			if active.Add(1) > 1 {
+				overlapped.Store(true)
+			}
+			defer active.Add(-1)
+			time.Sleep(5 * time.Millisecond)
+			return nil
+		})
+	})).To(Succeed())
+
+	Expect(overlapped.Load()).To(BeFalse())
 }
 
 func TestLockDirectorySkipsDirectoriesHeldByParent(t *testing.T) {
