@@ -802,7 +802,7 @@ teardown() {
   echo "status: $status"
   assert_success
 
-  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP no_healthchecks_callback
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -950,6 +950,12 @@ dockerfile_callback() {
   local APP="$1"
   local APP_REPO_DIR="$2"
   mv "$APP_REPO_DIR/dockerfile.Dockerfile" "$APP_REPO_DIR/Dockerfile"
+}
+
+no_healthchecks_callback() {
+  local APP="$1"
+  local APP_REPO_DIR="$2"
+  rm -f "$APP_REPO_DIR/app.json"
 }
 
 failing_check_callback() {
