@@ -820,7 +820,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_failure
-  assert_output_contains "Unable to determine ip address for new container (web.1)"
+  assert_output_contains "Unable to determine ip address for new container (web.1)" -1
 
   run /bin/bash -c "cat $DOKKU_ROOT/$TEST_APP/CONTAINER.web.1"
   echo "output: $output"
