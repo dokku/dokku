@@ -841,6 +841,39 @@ teardown() {
   assert_output "true"
 }
 
+@test "(scheduler-docker-local) unresolvable web ip with skipped checks removes ip file" {
+  run create_app
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku checks:skip $TEST_APP web"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku docker-options:add --process web $TEST_APP deploy '--network none'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku ps:restart $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "removing recorded ip address (web.1)"
+
+  run /bin/bash -c "test -f $DOKKU_ROOT/$TEST_APP/IP.web.1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+}
+
 @test "(scheduler-docker-local) unresolvable worker ip removes ip file" {
   run create_app
   echo "output: $output"

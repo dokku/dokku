@@ -3,6 +3,7 @@ set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
+source "$PLUGIN_AVAILABLE_PATH/checks/functions"
 source "$PLUGIN_AVAILABLE_PATH/scheduler-docker-local/internal-functions"
 
 main() {
@@ -105,7 +106,7 @@ main() {
   fi
 
   ipaddr="$(fn-scheduler-docker-local-settled-ipaddr "$APP" "$PROC_TYPE" "$cid")"
-  if [[ -z "$ipaddr" ]] && [[ "$PROC_TYPE" == "web" ]]; then
+  if [[ -z "$ipaddr" ]] && [[ "$PROC_TYPE" == "web" ]] && [[ "$DOKKU_CHECKS_DISABLED" == "false" ]] && [[ "$(is_app_proctype_checks_skipped "$APP" "$PROC_TYPE")" == "false" ]]; then
     dokku_log_fail "Unable to determine ip address for new container ($PROC_TYPE.$CONTAINER_INDEX)"
   fi
   trap - INT TERM EXIT
