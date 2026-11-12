@@ -15,6 +15,7 @@ As well, you may wish to customize your installation in some other fashion. or e
 - [Vagrant Installation Notes](/docs/getting-started/install/vagrant.md)
 - [Advanced Install Customization](/docs/getting-started/advanced-installation.md)
 - [Automated deployment via ansible](https://github.com/dokku/ansible-dokku)
+- Idempotent install via [shellscript.download](https://shellscript.download): [`load.sh dokku`](https://shellscript.download/scripts/dokku) for the Debian package, [`load.sh dokku-docker`](https://shellscript.download/scripts/dokku-docker) for the Docker image
 
 ## Installing from Source
 
