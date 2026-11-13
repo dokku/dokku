@@ -580,6 +580,15 @@ teardown() {
   assert_success
   assert_output_contains "console://redacted" 2
 
+  # the aggregate report runs the report trigger with an empty format, and
+  # redacts the same way
+  run /bin/bash -c "dokku report $TEST_APP 2>&1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "console://redacted" 2
+  assert_output_not_contains "encoding[codec]=text"
+
   run /bin/bash -c "dokku logs:set $TEST_APP vector-cron-sink"
   echo "output: $output"
   echo "status: $status"
