@@ -155,13 +155,14 @@ func reportVectorCronSink(appName string) string {
 
 // redactedSink returns the sink value as-is for json reports or when the exact
 // flag was requested, and otherwise reduces it to its scheme so that
-// credentials embedded in the DSN are not printed in a general report
+// credentials embedded in the DSN are not printed in a general report. The
+// aggregate `dokku report` passes an empty format, which is a general report too.
 func redactedSink(value string, exactFlag string) string {
 	if value == "" {
 		return value
 	}
 
-	if os.Getenv("DOKKU_REPORT_FORMAT") != "stdout" {
+	if os.Getenv("DOKKU_REPORT_FORMAT") == "json" {
 		return value
 	}
 
