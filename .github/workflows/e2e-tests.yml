@@ -1,0 +1,158 @@
+---
+name: Browser E2E (opt-in)
+
+# yamllint disable-line rule:truthy
+on:
+  pull_request:
+    paths:
+      - 'tests/E2E/**'
+      - 'plugins/proxy/**'
+      - 'plugins/nginx-vhosts/**'
+      - '.github/workflows/e2e-tests.yml'
+  schedule:
+    - cron: '23 4 * * 1'
+  workflow_dispatch:
+    inputs:
+      negative_controls:
+        description: 'Development only: verify all eight wrong-state controls fail their assertions'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+# Dedicated suite: local/manual users must reserve it before dispatching.
+concurrency:
+  group: testrigor-${{ vars.TESTRIGOR_SUITE_ID || 'unconfigured' }}
+  cancel-in-progress: false
+
+jobs:
+  gate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      enabled: ${{ steps.config.outputs.enabled }}
+    steps:
+      - name: Check suite configuration
+        id: config
+        env:
+          TESTRIGOR_SUITE_ID: ${{ vars.TESTRIGOR_SUITE_ID }}
+          TESTRIGOR_TOKEN_PRESENT: ${{ secrets.TESTRIGOR_CI_TOKEN != '' }}
+          DOKKU_DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          DOKKU_PR_HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
+        # No PR checkout in the secret-bearing gate. Keep the embedded script
+        # synchronized with ci-gate.py; test_ci.py checks the exact content.
+        run: |
+          python3 - <<'PY'
+          """Evaluate CI opt-in without starting Docker, contacting testRigor or logging secrets."""
+          import os
+          from pathlib import Path
+
+
+          def evaluate(env):
+            manual = env.get('GITHUB_EVENT_NAME') == 'workflow_dispatch'
+            scheduled = (env.get('GITHUB_EVENT_NAME') == 'schedule'
+                         and bool(env.get('DOKKU_DEFAULT_BRANCH'))
+                         and env.get('GITHUB_REF') == 'refs/heads/' + env['DOKKU_DEFAULT_BRANCH'])
+            pull_request = (env.get('GITHUB_EVENT_NAME') == 'pull_request'
+                            and bool(env.get('GITHUB_REPOSITORY'))
+                            and env.get('DOKKU_PR_HEAD_REPOSITORY') == env['GITHUB_REPOSITORY'])
+            trusted = manual or scheduled or pull_request
+            configured = bool(env.get('TESTRIGOR_SUITE_ID', '').strip()) and env.get('TESTRIGOR_TOKEN_PRESENT') == 'true'
+            return trusted and configured
+
+
+          def reason(env):
+            if not env.get('TESTRIGOR_SUITE_ID', '').strip():
+              return 'suite ID is not configured'
+            if env.get('TESTRIGOR_TOKEN_PRESENT') != 'true':
+              return 'CI token is not configured'
+            return 'event is not a same-repository PR, manual dispatch or default-branch schedule'
+
+
+          if __name__ == '__main__':
+            enabled = evaluate(os.environ)
+            value = 'true' if enabled else 'false'
+            with Path(os.environ['GITHUB_OUTPUT']).open('a', encoding='utf-8') as output:
+              output.write('enabled=' + value + '\n')
+            message = 'Browser E2E enabled.' if enabled else 'Browser E2E skipped: ' + reason(os.environ)
+            print(message if enabled else '::notice::' + message)
+            if os.environ.get('GITHUB_STEP_SUMMARY'):
+              with Path(os.environ['GITHUB_STEP_SUMMARY']).open('a', encoding='utf-8') as summary:
+                summary.write(message + '\n')
+          PY
+
+  browser:
+    needs: gate
+    if: needs.gate.outputs.enabled == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    env:
+      DOKKU_SOURCE_REVISION: ${{ github.sha }}
+      DOKKU_HARNESS_BRANCH: ${{ github.head_ref || github.ref_name }}
+      DOKKU_E2E_IMAGE: dokku-e2e/source:${{ github.sha }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7
+        with:
+          node-version-file: tests/E2E/.node-version
+      - name: Select unique artifact directory
+        run: printf 'E2E_ARTIFACTS=%s/dokku-e2e-%s-%s\n' "$RUNNER_TEMP" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" >> "$GITHUB_ENV"
+      - name: Install locked testRigor CLI
+        run: npm ci --prefix tests/E2E
+      - name: Build checked-out Dokku source
+        timeout-minutes: 60
+        run: |
+          bash tests/E2E/scripts/build-dokku.sh "$E2E_ARTIFACTS"
+          # The source builder uses a short revision tag; give CI its unique tag.
+          docker tag "dokku-e2e/source:${DOKKU_SOURCE_REVISION:0:9}" "$DOKKU_E2E_IMAGE"
+      - name: Install and probe isolated fixture
+        timeout-minutes: 15
+        run: bash tests/E2E/scripts/install-dokku.sh install
+      - name: Run sequential routing cases
+        timeout-minutes: 45
+        env:
+          TESTRIGOR_API_KEY: ${{ secrets.TESTRIGOR_CI_TOKEN }}
+          TESTRIGOR_SUITE_ID: ${{ vars.TESTRIGOR_SUITE_ID }}
+          NEGATIVE_CONTROLS: ${{ github.event_name == 'workflow_dispatch' && inputs.negative_controls || false }}
+        run: |
+          args=()
+          if [[ "$NEGATIVE_CONTROLS" == true ]]; then
+            args+=(--negative-controls)
+          fi
+          python3 tests/E2E/scripts/run-ci.py "$E2E_ARTIFACTS/lifecycle" "${args[@]}"
+      - name: Publish testRigor execution links
+        if: always() && env.E2E_ARTIFACTS != ''
+        run: python3 tests/E2E/scripts/report-results.py "$E2E_ARTIFACTS/lifecycle"
+      - name: Collect failure diagnostics
+        if: failure()
+        run: |
+          mkdir -p "$E2E_ARTIFACTS/diagnostics"
+          docker compose -f tests/E2E/compose.yml logs --tail 200 > "$E2E_ARTIFACTS/diagnostics/compose.log" 2>&1 || true
+          docker compose -f tests/E2E/compose.yml exec -T dokku dokku logs browser-probe -n 100 > "$E2E_ARTIFACTS/diagnostics/app.log" 2>&1 || true
+      - name: Stop isolated deployment
+        if: always()
+        timeout-minutes: 5
+        run: docker compose -f tests/E2E/compose.yml down --remove-orphans
+      - name: Upload browser results and diagnostics
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7
+        with:
+          name: dokku-browser-e2e-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ env.E2E_ARTIFACTS }}/lifecycle/positive/*/report.xml
+            ${{ env.E2E_ARTIFACTS }}/lifecycle/positive/*/*.log
+            ${{ env.E2E_ARTIFACTS }}/lifecycle/negative/*/report.xml
+            ${{ env.E2E_ARTIFACTS }}/lifecycle/negative/*/*.log
+            ${{ env.E2E_ARTIFACTS }}/lifecycle/provenance.json
+            ${{ env.E2E_ARTIFACTS }}/lifecycle/result.json
+            ${{ env.E2E_ARTIFACTS }}/lifecycle/execution-links.md
+            ${{ env.E2E_ARTIFACTS }}/lifecycle/execution-links.json
+            ${{ env.E2E_ARTIFACTS }}/diagnostics/*.log
+            ${{ env.E2E_ARTIFACTS }}/evidence/*.log
+            ${{ env.E2E_ARTIFACTS }}/evidence/*.sha256
+            ${{ env.E2E_ARTIFACTS }}/evidence/*.json
+          if-no-files-found: ignore
+          retention-days: 7

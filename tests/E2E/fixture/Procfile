@@ -1,0 +1,3 @@
+web: python server.py web
+api: python server.py api
+ws: python ws.py

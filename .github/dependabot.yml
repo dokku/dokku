@@ -1,6 +1,13 @@
 ---
 version: 2
 updates:
+  - package-ecosystem: npm
+    directory: "/tests/E2E"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    labels:
+      - "type: tests"
   - package-ecosystem: pip
     directory: "/docs/_build"
     schedule:

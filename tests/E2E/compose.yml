@@ -1,0 +1,44 @@
+name: dokku-browser-e2e
+
+services:
+  engine:
+    image: ${DOKKU_E2E_ENGINE_IMAGE:-docker:29.0.2-dind@sha256:d003717ad7a27d359dd2f5f6aa6ca691f5f58671e8d1ff0277d07e5635bb8332}
+    privileged: true
+    environment:
+      DOCKER_TLS_CERTDIR: ""
+      DOCKER_HOST: unix:///var/run/docker-engine/docker.sock
+    command: ["dockerd", "--host=unix:///var/run/docker-engine/docker.sock", "--storage-driver=overlay2"]
+    ports:
+      - "127.0.0.1:${DOKKU_E2E_HTTP_PORT:-19080}:80"
+      - "127.0.0.1:${DOKKU_E2E_HTTPS_PORT:-19443}:443"
+      - "127.0.0.1:${DOKKU_E2E_SSH_PORT:-13022}:22"
+    volumes:
+      - engine-data:/var/lib/docker
+      - engine-socket:/var/run/docker-engine
+      - dokku-data:/mnt/dokku
+    healthcheck:
+      test: ["CMD", "docker", "info"]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+
+  dokku:
+    image: ${DOKKU_E2E_IMAGE:?Set DOKKU_E2E_IMAGE to the source-built image}
+    network_mode: service:engine
+    # Share just the daemon socket directory, preserving the image's /run services.
+    entrypoint: ["/bin/bash", "-c", "ln -sf /var/run/docker-engine/docker.sock /var/run/docker.sock; exec /sbin/my_init"]
+    depends_on:
+      engine:
+        condition: service_healthy
+    environment:
+      DOKKU_HOSTNAME: localhost
+      DOKKU_HOST_ROOT: /mnt/dokku/home/dokku
+      DOKKU_LIB_HOST_ROOT: /mnt/dokku/var/lib/dokku
+    volumes:
+      - engine-socket:/var/run/docker-engine
+      - dokku-data:/mnt/dokku
+
+volumes:
+  engine-data:
+  engine-socket:
+  dokku-data:
