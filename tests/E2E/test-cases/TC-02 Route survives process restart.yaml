@@ -2,4 +2,4 @@ customSteps: |
   click "Check backend"
   check that page contains stored value from "expectedBackendMarker"
   check that page does not contain stored value from "previousHostname"
-labels: [routing]
+labels: [routing, routing-tc-02]

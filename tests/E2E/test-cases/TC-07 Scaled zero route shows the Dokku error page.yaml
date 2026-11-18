@@ -2,4 +2,4 @@ customSteps: |
   click "Open routed page"
   check that page contains stored value from "expectedErrorHeading"
   check that page contains stored value from "expectedErrorDetail"
-labels: [routing]
+labels: [routing, routing-tc-07]

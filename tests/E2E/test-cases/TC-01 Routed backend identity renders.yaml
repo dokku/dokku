@@ -1,4 +1,4 @@
 customSteps: |
   click "Check backend"
   check that page contains stored value from "expectedBackendMarker"
-labels: [routing]
+labels: [routing, routing-tc-01]

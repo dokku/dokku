@@ -4,4 +4,4 @@ customSteps: |
   check that page contains string with parameters "Echo: ${sentMessage} Marker: ${expectedBackendMarker}"
   check that page contains "HTTP Host: localhost:19080"
   check that page contains "WebSocket Host: localhost:19080"
-labels: [routing]
+labels: [routing, routing-tc-06]

@@ -81,6 +81,9 @@ Eligible same-repository pull requests run when routing or harness files change;
 manual dispatch and a weekly default-branch schedule are also supported.
 Missing configuration and fork pull requests skip with a notice.
 Concurrency prevents overlapping workflow runs against the same suite.
+Each case has a distinct `routing-tc-01` through `routing-tc-08` label. The
+controller selects that label so each execution contains one case even when
+all eight definitions are saved in the online suite.
 
 The workflow builds the checked-out source, installs the fixture, runs all eight
 cases sequentially and stops the isolated deployment even on failure.

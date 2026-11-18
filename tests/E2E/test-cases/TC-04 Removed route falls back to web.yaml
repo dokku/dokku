@@ -2,4 +2,4 @@ customSteps: |
   click "Check backend"
   check that page contains "Backend check failed: Backend HTTP 404"
   check that page does not contain stored value from "expectedBackendMarker"
-labels: [routing]
+labels: [routing, routing-tc-04]

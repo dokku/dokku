@@ -1,4 +1,4 @@
 customSteps: |
   click "Open API login"
   check that page contains "API login page"
-labels: [routing]
+labels: [routing, routing-tc-08]

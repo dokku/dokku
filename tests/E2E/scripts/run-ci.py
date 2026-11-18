@@ -120,7 +120,7 @@ class Controller:
     args = ['test-suite', 'run', self.suite, '--localhost', '--url', 'http://localhost:19080',
             '--test-cases-path', str(case), '--variables-path', str(values),
             '--settings-path', str(ROOT / 'settings.json'),
-            '--labels', 'routing',
+            '--labels', f'routing-tc-{number:02d}',
             '--branch', os.environ['DOKKU_HARNESS_BRANCH'], '--commit', os.environ['DOKKU_SOURCE_REVISION'],
             '--min-port', '48196', '--max-port', '48196',
             '--junit-report-save-path', str(folder / 'report.xml')]

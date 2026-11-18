@@ -173,7 +173,7 @@ class BoundaryTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, 'existing redirect-control route'):
           c.execute((8,), True)
 
-  def test_every_browser_run_supplies_versioned_zero_retry_settings(self):
+  def test_every_run_selects_one_saved_case_and_supplies_zero_retry_settings(self):
     runner = load('run-ci')
     with tempfile.TemporaryDirectory() as folder, patch.dict(os.environ,
       {'TESTRIGOR_API_KEY': 'offline-token', 'TESTRIGOR_SUITE_ID': 'suite',
@@ -181,7 +181,14 @@ class BoundaryTests(unittest.TestCase):
       c = runner.Controller(Path(folder) / 'out')
       def cli(args, log):
         if args[1] == 'run':
-          self.assertEqual(args[args.index('--labels') + 1], 'routing')
+          selected_label = args[args.index('--labels') + 1]
+          selected = []
+          for case in (runner.ROOT / 'test-cases').glob('*.yaml'):
+            labels = next(line for line in case.read_text().splitlines() if line.startswith('labels:'))
+            if selected_label in [label.strip() for label in labels.split('[', 1)[1].rstrip(']').split(',')]:
+              selected.append(case)
+          # All eight cases may already exist online: the filter must still select only this file.
+          self.assertEqual(selected, [Path(args[args.index('--test-cases-path') + 1])])
           settings = Path(args[args.index('--settings-path') + 1])
           self.assertEqual(settings, runner.ROOT / 'settings.json')
           self.assertEqual(json.loads(settings.read_text()), {'maximumNumerOfRetries': 0})
@@ -189,7 +196,7 @@ class BoundaryTests(unittest.TestCase):
           report.write_text('<testsuites><testcase/><property name="taskId" value="offline-run"/></testsuites>')
         return 0
       with patch.object(c, 'cli_process', cli):
-        for number, negative in ((1, False), (1, True), (8, False)):
+        for number, negative in [(n, False) for n in range(1, 9)] + [(1, True)]:
           passed, result = c.browser(number, {}, negative)
           self.assertTrue(passed)
           self.assertEqual(result['runID'], 'offline-run')
