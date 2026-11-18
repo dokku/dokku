@@ -9,6 +9,7 @@ ARG DOKKU_HOSTNAME=dokku.invalid
 ARG DOKKU_SKIP_KEY_FILE=true
 ARG DOKKU_VHOST_ENABLE=false
 ARG DOKKU_WEB_CONFIG=false
+ARG RAILPACK_VERSION=0.43.0
 
 RUN addgroup --gid $DOKKU_GID dokku \
   && adduser --uid $DOKKU_UID --gid $DOKKU_GID --disabled-password --gecos "" "dokku"
@@ -39,7 +40,7 @@ RUN mkdir -p /etc/apt/keyrings \
   && rm -rf /tmp/nixpacks.bash \
   && curl -o /tmp/railpack.bash -sSL https://railpack.com/install.sh \
   && chmod +x /tmp/railpack.bash \
-  && RAILPACK_BIN_DIR=/usr/bin BIN_DIR=/usr/bin /tmp/railpack.bash \
+  && RAILPACK_VERSION="$RAILPACK_VERSION" RAILPACK_BIN_DIR=/usr/bin BIN_DIR=/usr/bin /tmp/railpack.bash \
   && test -x /usr/bin/railpack \
   && rm -rf /tmp/railpack.bash \
   && echo "dokku dokku/hostname string $DOKKU_HOSTNAME" | debconf-set-selections \
