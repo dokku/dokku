@@ -2,4 +2,4 @@ source "https://rubygems.org"
 
 ruby '4.0.2'
 
-gem 'kramdown', '~> 2.5'
+gem 'kramdown', '~> 2.6'
