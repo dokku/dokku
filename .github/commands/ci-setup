@@ -3,6 +3,7 @@ set -eo pipefail
 
 DOKKU_DOMAIN=${DOKKU_DOMAIN:="dokku.me"}
 DOKKU_DOMAIN_IP="10.0.0.2"
+AWS_LINK_LOCAL_RESOLVER_IP="169.254.169.253"
 
 primary-interface() {
   declare desc="print the name of the interface holding the default route"
@@ -13,6 +14,31 @@ interface-ip() {
   declare desc="print the first ipv4 address assigned to an interface"
   declare IFACE="$1"
   ip -4 -o addr show dev "$IFACE" | awk '{split($4, a, "/"); print a[1]; exit}'
+}
+
+release-dns-resolver() {
+  declare desc="move dns resolution off an address that is about to be claimed locally"
+  declare IFACE="$1" CLAIMED_IP="$2"
+
+  resolvectl dns 2>/dev/null | grep -qw "$CLAIMED_IP" || return 0
+
+  echo "$CLAIMED_IP is the dns resolver on this runner, switching $IFACE to $AWS_LINK_LOCAL_RESOLVER_IP"
+  sudo resolvectl dns "$IFACE" "$AWS_LINK_LOCAL_RESOLVER_IP"
+  sudo resolvectl flush-caches
+  if resolvectl dns 2>/dev/null | grep -qw "$CLAIMED_IP"; then
+    echo "!     $CLAIMED_IP is still configured as a dns resolver and cannot be claimed for $DOKKU_DOMAIN" >&2
+    resolvectl dns >&2 || true
+    return 1
+  fi
+}
+
+verify-dns-resolution() {
+  declare desc="fail when the runner can no longer resolve external hostnames"
+  if ! getent hosts archive.ubuntu.com >/dev/null; then
+    echo "!     dns resolution is broken after claiming $DOKKU_DOMAIN_IP" >&2
+    resolvectl status >&2 || true
+    return 1
+  fi
 }
 
 echo "=====> detect network interface"
@@ -37,11 +63,9 @@ sudo cat /etc/hostname
 echo "=====> resolve $DOKKU_DOMAIN"
 sudo apt -qq -y --no-install-recommends install net-tools
 if [[ "$DOKKU_DOMAIN" == "dokku.me" ]]; then
-  if resolvectl dns 2>/dev/null | grep -qw "$DOKKU_DOMAIN_IP"; then
-    echo "!     $DOKKU_DOMAIN_IP is the dns resolver on this runner and cannot be claimed for $DOKKU_DOMAIN" >&2
-    exit 1
-  fi
+  release-dns-resolver "$iface" "$DOKKU_DOMAIN_IP"
   sudo ip addr add "$DOKKU_DOMAIN_IP/24" broadcast 10.0.0.255 dev "$iface"
+  verify-dns-resolution
 fi
 
 echo "=====> install ci-dependencies"
