@@ -30,6 +30,7 @@ datastore:import <datastore-type> <service> [-f|--file <path>]                  
 datastore:info <datastore-type> [<service>] [--info-flags...]                                      # print the service information
 datastore:label <datastore-type> <service> <key=value>...                                          # add docker labels to the service container
 datastore:link <datastore-type> <service> [<app>] [--link-flags...]                                # link the datastore service to the app
+datastore:link-migrate <datastore-type> <service> [<app>]                                          # move linked apps off the deprecated docker link and onto a network
 datastore:linked <datastore-type> <service> [<app>]                                                # check if the datastore service is linked to an app
 datastore:links <datastore-type> <service>                                                         # list all apps linked to the datastore service
 datastore:list <datastore-type>                                                                    # list all datastore services

@@ -112,6 +112,28 @@ teardown() {
   assert_failure
 }
 
+@test "(datastore:link-migrate) moves a linked app onto a network" {
+  run /bin/bash -c "dokku datastore:create redis $TEST_SERVICE"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku datastore:link redis $TEST_SERVICE $TEST_APP --no-restart"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku datastore:link-migrate redis $TEST_SERVICE $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku datastore:linked redis $TEST_SERVICE $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
 @test "(datastore) deleting an app unlinks its services" {
   run /bin/bash -c "dokku datastore:create redis $TEST_SERVICE"
   echo "output: $output"
