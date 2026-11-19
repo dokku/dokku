@@ -218,8 +218,8 @@ github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 h1:Z9n2FFNU
 github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51/go.mod h1:CzGEWj7cYgsdH8dAjBGEr58BoE7ScuLd+fwFZ44+/x8=
 github.com/kedacore/keda/v2 v2.21.0 h1:R6z2HZvstK4RLUMxroNACzBj74xGxt3kG59b5Xc+Xps=
 github.com/kedacore/keda/v2 v2.21.0/go.mod h1:djq9CnH0OT9Wis6jwtc02oiUstN081M81Amk8JtkbVo=
-github.com/klauspost/compress v1.20.0 h1:a3C1ke2ohxFymNlb2HWAHjDeKCI90scRskErZkR0ezA=
-github.com/klauspost/compress v1.20.0/go.mod h1:LUdAzn7YLVvxLpc7y3V1m40wESHTgc1422pwwBSKYuI=
+github.com/klauspost/compress v1.20.4 h1:dD0v/bvxtjCBqQu6sx1TNWkalEY5lNTIe+HY9w8TeNI=
+github.com/klauspost/compress v1.20.4/go.mod h1:LUdAzn7YLVvxLpc7y3V1m40wESHTgc1422pwwBSKYuI=
 github.com/kr/fs v0.1.0 h1:Jskdu9ieNAYnjxsi0LbQp1ulIKZV1LAFgK1tWhpZgl8=
 github.com/kr/fs v0.1.0/go.mod h1:FFnZGqtBN9Gxj7eW1uZ42v5BccTP0vu6NEaFoC2HwRg=
 github.com/kr/pretty v0.3.1 h1:flRD4NNwYAUpkphVc1HcthR4KEIFJ65n8Mw5qdRn3LE=
@@ -357,8 +357,8 @@ github.com/tailscale/hujson v0.0.0-20250605163823-992244df8c5a h1:a6TNDN9CgG+cYj
 github.com/tailscale/hujson v0.0.0-20250605163823-992244df8c5a/go.mod h1:EbW0wDK/qEUYI0A5bqq0C2kF8JTQwWONmGDBbzsxxHo=
 github.com/traefik/paerser v0.2.2 h1:cpzW/ZrQrBh3mdwD/jnp6aXASiUFKOVr6ldP+keJTcQ=
 github.com/traefik/paerser v0.2.2/go.mod h1:7BBDd4FANoVgaTZG+yh26jI6CA2nds7D/4VTEdIsh24=
-github.com/traefik/traefik/v2 v2.11.61 h1:u8s2pE7Ck4VCYoVbW9JRtzz4QJ3iGMqpZ2tXuzsBgdM=
-github.com/traefik/traefik/v2 v2.11.61/go.mod h1:jj0mKHVCWL7EboxVPxW7HnAE16LFryv2Nq/kNh9ueis=
+github.com/traefik/traefik/v2 v2.11.63 h1:ofOc8G0nMZvz7d3OCMMrPMdCNDDjCpyxR38621Icinc=
+github.com/traefik/traefik/v2 v2.11.63/go.mod h1:PHBFhzpOHRu2xM7AtwtzqrXpM3grSvQZBTybC5a3AxE=
 github.com/x448/float16 v0.8.4 h1:qLwI1I70+NjRFUR3zs1JPUCgaCXSh3SW62uAKT1mSBM=
 github.com/x448/float16 v0.8.4/go.mod h1:14CWIYCyZA/cWjXOioeEpHeN/83MdbZDRQHoFcYsOfg=
 github.com/xlab/treeprint v1.2.0 h1:HzHnuAF1plUN2zGlAFHbSQP2qJ0ZAD3XF5XD7OesXRQ=
