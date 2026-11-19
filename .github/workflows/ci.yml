@@ -183,13 +183,7 @@ jobs:
 
       - name: install in a container
         if: ${{ matrix.image }}
-        run: |
-          docker run --rm \
-            -v /var/run/docker.sock:/var/run/docker.sock \
-            -v "$PWD:/src" \
-            -w /src \
-            "${{ matrix.image }}" \
-            ./tests/ci/install-test.sh
+        run: ./tests/ci/install-test-container.sh "${{ matrix.image }}"
 
   docker-deploy-tests:
     name: docker

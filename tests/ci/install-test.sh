@@ -16,34 +16,6 @@ log-fail() {
   exit 1
 }
 
-fn-has-init-system() {
-  declare desc="Returns true when the host is running systemd"
-  [[ -d /run/systemd/system ]]
-}
-
-fn-install-prerequisites() {
-  declare desc="Installs the packages bootstrap.sh expects to already exist"
-  local missing=() command
-
-  for command in curl sudo; do
-    command -v "$command" >/dev/null || missing+=("$command")
-  done
-
-  if [[ "${#missing[@]}" -gt 0 ]]; then
-    apt-get update -qq
-    DEBIAN_FRONTEND=noninteractive apt-get -qq -y --no-install-recommends install ca-certificates "${missing[@]}"
-  fi
-}
-
-fn-disable-service-starts() {
-  declare desc="Stops packages from starting services when there is no init system"
-  fn-has-init-system && return 0
-
-  log-info "No init system detected, disabling service starts"
-  printf '#!/bin/sh\nexit 101\n' >/usr/sbin/policy-rc.d
-  chmod +x /usr/sbin/policy-rc.d
-}
-
 fn-run-bootstrap() {
   declare desc="Installs the latest released dokku via bootstrap.sh"
   log-info "Installing the latest release via bootstrap.sh"
@@ -92,8 +64,7 @@ main() {
   [[ -f "$package" ]] || log-fail "Missing package $package"
 
   log-info "Testing install on $(. /etc/os-release && echo "$PRETTY_NAME") ($(dpkg --print-architecture))"
-  fn-install-prerequisites
-  fn-disable-service-starts
+  [[ -d /run/systemd/system ]] || log-fail "install-test.sh must be run on a host booted with systemd"
   fn-run-bootstrap
   fn-install-build "$package"
   fn-verify-install "$package"
