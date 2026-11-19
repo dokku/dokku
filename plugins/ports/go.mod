@@ -23,7 +23,7 @@ require (
 	github.com/pkg/sftp v1.13.11 // indirect
 	golang.org/x/crypto v0.58.0 // indirect
 	golang.org/x/sync v0.25.0 // indirect
-	golang.org/x/sys v0.49.0 // indirect
+	golang.org/x/sys v0.50.0 // indirect
 )
 
 replace github.com/dokku/dokku/plugins/common => ../common
