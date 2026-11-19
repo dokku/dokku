@@ -1,4 +1,5 @@
-FROM dokku/build-base:0.1.2 AS builder
+ARG BUILD_BASE_IMAGE=dokku/build-base:0.3.0
+FROM ${BUILD_BASE_IMAGE} AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -16,7 +17,7 @@ COPY Makefile ${WORKDIR}/
 COPY *.mk ${WORKDIR}/
 COPY contrib/dependencies.json ${WORKDIR}/contrib/dependencies.json
 
-RUN make deb-setup sshcommand plugn
+RUN make sshcommand plugn
 
 COPY . ${WORKDIR}
 

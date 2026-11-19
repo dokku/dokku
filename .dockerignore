@@ -12,6 +12,7 @@ tests
 !docs/_build/requirements.txt
 !tests/dhparam.pem
 !contrib/bash-completion
+!contrib/check-static-binaries
 !contrib/dependencies.json
 !contrib/docker
 !contrib/update-deb-dependencies

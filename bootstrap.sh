@@ -4,7 +4,7 @@ set -eo pipefail
 [[ $TRACE ]] && set -x
 
 # A script to bootstrap dokku.
-# It expects to be run on Ubuntu 22.04/24.04/26.04 or Debian 11/12/13 via 'sudo'
+# It expects to be run on Ubuntu 22.04/24.04/26.04 or Debian 12/13 via 'sudo'
 # If installing a tag higher than 0.3.13, it may install dokku via a package (so long as the package is higher than 0.3.13)
 # Otherwise it checks out the dokku source code from GitHub into ~/dokku and then runs 'make install' from dokku source.
 #
@@ -20,7 +20,7 @@ set -eo pipefail
 # That's good because it prevents our output overlapping with wget's.
 # It also means that we can't run a partially downloaded script.
 
-SUPPORTED_VERSIONS="Debian [11, 12, 13], Ubuntu [22.04, 24.04, 26.04]"
+SUPPORTED_VERSIONS="Debian [12, 13], Ubuntu [22.04, 24.04, 26.04]"
 DOKKU_DOCS_URL="https://dokku.com/docs"
 
 UI_MODE="plain"
@@ -656,9 +656,9 @@ dokku-os-id() {
   if ! in-array "$DOKKU_DISTRO" "debian" "ubuntu" "raspbian"; then
     echo "noble"
   elif [[ "$DOKKU_DISTRO" == "ubuntu" ]]; then
-    in-array "$os_id" "jammy" "noble" && echo "$os_id" || echo "noble"
+    in-array "$os_id" "jammy" "noble" "resolute" && echo "$os_id" || echo "noble"
   else
-    in-array "$os_id" "bullseye" "bookworm" "trixie" && echo "$os_id" || echo "bookworm"
+    in-array "$os_id" "bookworm" "trixie" && echo "$os_id" || echo "bookworm"
   fi
 }
 
@@ -727,7 +727,7 @@ check-environment() {
   echo "hostname: $(hostname -f)"
 
   if [[ "$DOKKU_INSTALL_METHOD" == "package" ]]; then
-    if ! in-array "$DOKKU_DISTRO_VERSION" "22.04" "24.04" "26.04" "10" "11" "12" "13"; then
+    if ! in-array "$DOKKU_DISTRO_VERSION" "22.04" "24.04" "26.04" "12" "13"; then
       log-fail "Unsupported Linux distribution. Only the following versions are supported: $SUPPORTED_VERSIONS"
     fi
   fi

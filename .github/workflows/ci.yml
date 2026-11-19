@@ -148,6 +148,49 @@ jobs:
           name: test-results-${{ matrix.index }}
           path: test-results
 
+  install-tests:
+    name: install.${{ matrix.os }}.${{ matrix.arch }}
+    needs: build
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {os: ubuntu-22.04, arch: amd64, runner: ubuntu-22.04}
+          - {os: ubuntu-22.04, arch: arm64, runner: ubuntu-22.04-arm}
+          - {os: ubuntu-24.04, arch: amd64, runner: ubuntu-24.04}
+          - {os: ubuntu-24.04, arch: arm64, runner: ubuntu-24.04-arm}
+          - {os: ubuntu-26.04, arch: amd64, runner: ubuntu-26.04}
+          - {os: ubuntu-26.04, arch: arm64, runner: ubuntu-26.04-arm}
+          - {os: debian-12, arch: amd64, runner: ubuntu-24.04, image: 'debian:12'}
+          - {os: debian-12, arch: arm64, runner: ubuntu-24.04-arm, image: 'debian:12'}
+          - {os: debian-13, arch: amd64, runner: ubuntu-24.04, image: 'debian:13'}
+          - {os: debian-13, arch: arm64, runner: ubuntu-24.04-arm, image: 'debian:13'}
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: download packages
+        uses: actions/download-artifact@v8
+        with:
+          name: build
+          path: build
+
+      - name: install on the runner
+        if: ${{ !matrix.image }}
+        run: sudo ./tests/ci/install-test.sh
+
+      - name: install in a container
+        if: ${{ matrix.image }}
+        run: |
+          docker run --rm \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            -v "$PWD:/src" \
+            -w /src \
+            "${{ matrix.image }}" \
+            ./tests/ci/install-test.sh
+
   docker-deploy-tests:
     name: docker
     needs: build

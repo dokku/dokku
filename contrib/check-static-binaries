@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $TRACE ]] && set -x
+
+main() {
+  declare desc="Fails if any ELF binary within a directory is dynamically linked"
+  declare DIRECTORY="$1"
+  local binary description failed=false
+
+  if [[ -z "$DIRECTORY" ]] || [[ ! -d "$DIRECTORY" ]]; then
+    echo "!   Usage: check-static-binaries <directory>" 1>&2
+    return 1
+  fi
+
+  while IFS= read -r -d '' binary; do
+    description="$(file -b "$binary")"
+    [[ "$description" == ELF* ]] || continue
+    if [[ "$description" == *"dynamically linked"* ]]; then
+      echo "!   $binary is dynamically linked: $description" 1>&2
+      failed=true
+    fi
+  done < <(find "$DIRECTORY" -type f -perm -u+x -print0)
+
+  if [[ "$failed" == "true" ]]; then
+    echo "!   Dynamically linked binaries will not run on every supported operating system" 1>&2
+    return 1
+  fi
+}
+
+main "$@"

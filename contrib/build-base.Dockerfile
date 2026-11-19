@@ -1,5 +1,7 @@
 FROM ubuntu:24.04
 
+LABEL org.opencontainers.image.version="0.3.0"
+
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update -qq && apt-get -qq -y --no-install-recommends install \
@@ -8,6 +10,7 @@ RUN apt-get update -qq && apt-get -qq -y --no-install-recommends install \
     ca-certificates \
     coreutils \
     curl \
+    file \
     gcc \
     git \
     help2man \
