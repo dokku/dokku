@@ -1,7 +1,7 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    kramdown (2.5.2)
+    kramdown (2.6.1)
       rexml (>= 3.4.4)
     rexml (3.4.4)
 
@@ -9,10 +9,10 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  kramdown (~> 2.5)
+  kramdown (~> 2.6)
 
 CHECKSUMS
-  kramdown (2.5.2) sha256=1ba542204c66b6f9111ff00dcc26075b95b220b07f2905d8261740c82f7f02fa
+  kramdown (2.6.1) sha256=fbef3479b69c875aacb118dde77a40d6cc3a91e2c1d505a4c3f3f9e92d142641
   rexml (3.4.4) sha256=19e0a2c3425dfbf2d4fc1189747bdb2f849b6c5e74180401b15734bc97b5d142
 
 RUBY VERSION
