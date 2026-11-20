@@ -44,6 +44,7 @@ fn-start-container() {
     --tmpfs /run \
     --tmpfs /run/lock \
     -v /sys/fs/cgroup:/sys/fs/cgroup:rw \
+    -v /var/lib/containerd \
     -v /var/lib/docker \
     -v "$ROOT_DIR:/src" \
     "$IMAGE" >/dev/null
@@ -82,7 +83,7 @@ fn-print-diagnostics() {
 
 fn-cleanup() {
   declare desc="Prints diagnostics on failure and removes the test container"
-  declare EXIT_CODE="$?"
+  declare EXIT_CODE="$1"
   if [[ "$EXIT_CODE" -ne 0 ]] && docker container inspect "$CONTAINER_NAME" >/dev/null 2>/dev/null; then
     fn-print-diagnostics
   fi
@@ -97,7 +98,7 @@ main() {
   [[ -n "$BASE_IMAGE" ]] || log-fail "Usage: install-test-container.sh <image>"
   image="dokku/install-test:${BASE_IMAGE//[:\/]/-}"
 
-  trap fn-cleanup EXIT
+  trap 'fn-cleanup "$?"' EXIT
   fn-build-image "$BASE_IMAGE" "$image"
   fn-start-container "$image"
   fn-wait-for-boot
