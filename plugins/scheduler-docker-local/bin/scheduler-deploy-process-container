@@ -99,7 +99,7 @@ main() {
   # run checks first, then post-deploy hooks, which switches proxy traffic
   trap "kill_new $APP $cid $PROC_TYPE $CONTAINER_INDEX" INT TERM EXIT
   ipaddr="$(fn-scheduler-docker-local-settled-ipaddr "$APP" "$PROC_TYPE" "$cid")"
-  if [[ -z "$ipaddr" ]] && fn-scheduler-docker-local-ipaddr-required "$APP" "$PROC_TYPE" && fn-scheduler-docker-local-container-is-running "$cid"; then
+  if [[ -z "$ipaddr" ]] && fn-scheduler-docker-local-ipaddr-required "$APP" "$PROC_TYPE" && fn-scheduler-docker-local-container-is-stable "$cid"; then
     fn-scheduler-docker-local-fail-missing-ipaddr "$APP" "$PROC_TYPE" "$CONTAINER_INDEX" "$cid"
   fi
 
@@ -141,6 +141,13 @@ fn-scheduler-docker-local-container-is-running() {
   declare CID="$1"
 
   [[ "$("$DOCKER_BIN" container inspect --format '{{.State.Running}}' "$CID" 2>/dev/null || true)" == "true" ]]
+}
+
+fn-scheduler-docker-local-container-is-stable() {
+  declare desc="return 0 if the container is running and has never been restarted"
+  declare CID="$1"
+
+  [[ "$("$DOCKER_BIN" container inspect --format '{{.State.Running}} {{.RestartCount}}' "$CID" 2>/dev/null || true)" == "true 0" ]]
 }
 
 fn-scheduler-docker-local-ipaddr-required() {
