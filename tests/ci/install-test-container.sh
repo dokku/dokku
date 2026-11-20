@@ -51,7 +51,12 @@ fn-start-container() {
 
 fn-wait-for-boot() {
   declare desc="Waits for systemd inside the container to finish booting"
-  local state
+  local attempt state
+
+  for attempt in {1..60}; do
+    docker exec "$CONTAINER_NAME" test -S /run/systemd/private && break
+    sleep 1
+  done
 
   state="$(docker exec "$CONTAINER_NAME" systemctl is-system-running --wait || true)"
   log-info "systemd state: $state"
