@@ -66,8 +66,26 @@ fn-wait-for-boot() {
   fi
 }
 
+fn-print-diagnostics() {
+  declare desc="Prints the docker daemon state inside the test container"
+  log-info "docker service status"
+  docker exec "$CONTAINER_NAME" systemctl status docker --no-pager || true
+  log-info "docker service journal"
+  docker exec "$CONTAINER_NAME" journalctl -u docker -u containerd --no-pager -n 100 || true
+  log-info "docker info"
+  docker exec "$CONTAINER_NAME" docker info || true
+  log-info "docker pull hello-world"
+  docker exec "$CONTAINER_NAME" docker pull hello-world || true
+  log-info "install log"
+  docker exec "$CONTAINER_NAME" bash -c 'tail -n 200 /var/log/dokku/install-*.log' || true
+}
+
 fn-cleanup() {
-  declare desc="Removes the test container"
+  declare desc="Prints diagnostics on failure and removes the test container"
+  declare EXIT_CODE="$?"
+  if [[ "$EXIT_CODE" -ne 0 ]] && docker container inspect "$CONTAINER_NAME" >/dev/null 2>/dev/null; then
+    fn-print-diagnostics
+  fi
   docker rm -f "$CONTAINER_NAME" >/dev/null || true
 }
 
