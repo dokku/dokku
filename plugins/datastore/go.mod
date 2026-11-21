@@ -1,6 +1,6 @@
 module github.com/dokku/dokku/plugins/datastore
 
-go 1.27.3
+go 1.27.4
 
 require github.com/dokku/dokku-datastore v0.12.0
 

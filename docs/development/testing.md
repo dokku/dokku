@@ -13,7 +13,7 @@ All pull requests have tests run against them on [GitHub Actions](https://github
 
 If you wish to skip tests for a particular commit, e.g. documentation changes, you may add the `[ci skip]` designator to your commit message. Commits that _should_ be tested but have the above designator will not be merged.
 
-While we do provide official packages for a variety of platforms, as our test suite currently runs on Ubuntu Noble 24.04, we only provide official installation support for that platform and the supported LTS releases of Ubuntu (currently 22.04, 24.04, and 26.04).
+The full test suite runs on Ubuntu Noble 24.04. In addition, every pull request installs the built package on each officially supported operating system - Ubuntu 22.04, 24.04 and 26.04, and Debian 12 and 13 - on both `amd64` and `arm64`. Ubuntu installs run directly on the CI runner, while Debian installs run inside a privileged container booted with systemd.
 
 ## Local Test Execution
 

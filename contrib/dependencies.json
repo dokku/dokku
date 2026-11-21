@@ -57,6 +57,14 @@
       }
     },
     {
+      "name": "railpack",
+      "version": "0.43.0",
+      "urls": {
+        "amd64": "https://github.com/railwayapp/railpack/releases/download/v0.43.0/railpack-v0.43.0-x86_64-unknown-linux-musl.tar.gz",
+        "arm64": "https://github.com/railwayapp/railpack/releases/download/v0.43.0/railpack-v0.43.0-arm64-unknown-linux-musl.tar.gz"
+      }
+    },
+    {
       "name": "sshcommand",
       "version": "0.20.2",
       "urls": {

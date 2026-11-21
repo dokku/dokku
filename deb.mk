@@ -27,7 +27,7 @@ deb-all: deb-setup deb-dokku
 deb-setup:
 	@echo "-> Updating deb repository and installing build requirements"
 	@sudo apt-get update -qq >/dev/null
-	@sudo DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true apt-get -qq -y --no-install-recommends install gcc git build-essential wget ruby-dev lintian >/dev/null 2>&1
+	@sudo DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true apt-get -qq -y --no-install-recommends install file gcc git build-essential wget ruby-dev lintian >/dev/null 2>&1
 	@command -v fpm >/dev/null || sudo gem install fpm --no-ri --no-rdoc
 	@ssh -o StrictHostKeyChecking=no git@github.com || true
 
@@ -45,5 +45,6 @@ endif
 	rm -f /tmp/build-dokku/DEBIAN/lintian-overrides
 	cp debian/lintian-overrides /tmp/build-dokku/usr/share/lintian/overrides/dokku
 	sed -i.bak "s/^Version: .*/Version: `cat /tmp/build-dokku/var/lib/dokku/STABLE_VERSION`/g" /tmp/build-dokku/DEBIAN/control && rm /tmp/build-dokku/DEBIAN/control.bak
-	dpkg-deb --build /tmp/build-dokku "$(BUILD_DIRECTORY)/dokku_`cat /tmp/build-dokku/var/lib/dokku/VERSION`_$(DOKKU_ARCHITECTURE).deb"
+	contrib/check-static-binaries /tmp/build-dokku
+	dpkg-deb -Zxz --build /tmp/build-dokku "$(BUILD_DIRECTORY)/dokku_`cat /tmp/build-dokku/var/lib/dokku/VERSION`_$(DOKKU_ARCHITECTURE).deb"
 	lintian "$(BUILD_DIRECTORY)/dokku_`cat /tmp/build-dokku/var/lib/dokku/VERSION`_$(DOKKU_ARCHITECTURE).deb" || true

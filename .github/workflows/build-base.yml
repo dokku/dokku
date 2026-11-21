@@ -1,0 +1,75 @@
+---
+name: build-base
+
+# yamllint disable-line rule:truthy
+on:
+  pull_request:
+    branches:
+      - '*'
+    paths:
+      - 'contrib/build-base.Dockerfile'
+      - '.github/workflows/build-base.yml'
+  push:
+    branches:
+      - 'master'
+    paths:
+      - 'contrib/build-base.Dockerfile'
+
+concurrency:
+  group: build-base-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-base:
+    name: build-base
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: read image version
+        id: version
+        run: |
+          version="$(grep 'org.opencontainers.image.version' contrib/build-base.Dockerfile | cut -d'"' -f2)"
+          if [[ -z "$version" ]]; then
+            echo "Unable to read org.opencontainers.image.version from contrib/build-base.Dockerfile"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: set up qemu
+        uses: docker/setup-qemu-action@v4
+
+      - name: set up docker buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: login to docker hub
+        if: github.event_name == 'push'
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: refuse to overwrite a published tag
+        if: github.event_name == 'push'
+        run: |
+          if docker manifest inspect "dokku/build-base:${{ steps.version.outputs.version }}" >/dev/null 2>&1; then
+            echo "dokku/build-base:${{ steps.version.outputs.version }} is already published, bump org.opencontainers.image.version"
+            exit 1
+          fi
+
+      - name: build image
+        run: |
+          push_flag=""
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            push_flag="--push"
+          fi
+          docker buildx build \
+            --platform linux/amd64,linux/arm64 \
+            --progress plain \
+            --tag "dokku/build-base:${{ steps.version.outputs.version }}" \
+            --tag "dokku/build-base:latest" \
+            -f contrib/build-base.Dockerfile \
+            $push_flag \
+            contrib

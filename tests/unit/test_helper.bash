@@ -732,7 +732,11 @@ install_nixpacks() {
 
 install_railpack() {
   if ! command -v "railpack" &>/dev/null; then
-    curl -sSL https://railpack.com/install.sh | FORCE=1 bash
+    local DEPS_FILE="${BATS_TEST_DIRNAME}/../../contrib/dependencies.json"
+    local RAILPACK_URL
+    RAILPACK_URL="$(jq -r --arg arch "$(dpkg --print-architecture)" '.dependencies[] | select(.name == "railpack") | .urls[$arch]' "$DEPS_FILE")"
+    curl -fsSL "$RAILPACK_URL" | tar -C /usr/local/bin --no-same-owner -xzf - railpack
+    chmod +x /usr/local/bin/railpack
   fi
 }
 

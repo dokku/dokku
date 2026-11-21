@@ -24,10 +24,31 @@ log-fail() {
   exit 1
 }
 
+fn-build-base-image() {
+  declare desc="Prints the build base image, building it locally when the tag is not published"
+  local IMAGE VERSION
+
+  VERSION="$(grep 'org.opencontainers.image.version' "$ROOT_DIR/contrib/build-base.Dockerfile" | cut -d'"' -f2)"
+  if [[ -z "$VERSION" ]]; then
+    log-error "Unable to read the build base image version"
+    return 1
+  fi
+
+  IMAGE="dokku/build-base:$VERSION"
+  if docker image inspect "$IMAGE" >/dev/null 2>&1 || docker pull "$IMAGE" >/dev/null 2>&1; then
+    echo "$IMAGE"
+    return 0
+  fi
+
+  log-info "(build-base-image) $IMAGE is not published, building it locally" >&2
+  docker build --progress plain -f "$ROOT_DIR/contrib/build-base.Dockerfile" -t "$IMAGE" "$ROOT_DIR/contrib" >&2 || return 1
+  echo "$IMAGE"
+}
+
 fn-build-dokku() {
   declare desc="Builds dokku packages within a docker container"
   declare IS_RELEASE="$1" DOKKU_VERSION="$2"
-  local NAME GOLANG_VERSION
+  local NAME GOLANG_VERSION BUILD_BASE_IMAGE
 
   if [[ -z "$DOKKU_VERSION" ]]; then
     log-error "Invalid deb file specified"
@@ -40,7 +61,9 @@ fn-build-dokku() {
 
   pushd "$ROOT_DIR" >/dev/null
   GOLANG_VERSION="$(grep BUILD_IMAGE common.mk | cut -d' ' -f3 | cut -d':' -f2)"
+  BUILD_BASE_IMAGE="$(fn-build-base-image)" || return 1
   docker build \
+    --build-arg BUILD_BASE_IMAGE="$BUILD_BASE_IMAGE" \
     --build-arg DOKKU_VERSION="$DOKKU_VERSION" \
     --build-arg DOKKU_GIT_REV="$DOKKU_GIT_REV" \
     --build-arg IS_RELEASE="$IS_RELEASE" \
@@ -134,7 +157,7 @@ fn-publish-package() {
   [[ "$RELEASE_TYPE" == "raspbian" ]] && DIST=raspbian
 
   if [[ "$RELEASE_TYPE" == "raspbian" ]]; then
-    OS_IDS=("bullseye" "bookworm" "trixie")
+    OS_IDS=("bookworm" "trixie")
     for OS_ID in "${OS_IDS[@]}"; do
       log-info "(release-dokku) pushing deb to packagecloud.com/${REPOSITORY}/${DIST}"
       package_cloud push "${REPOSITORY}/${DIST}/${OS_ID}" "$PACKAGE_NAME"
@@ -155,7 +178,7 @@ fn-publish-package() {
     done
 
     DIST=debian
-    OS_IDS=("bullseye" "bookworm" "trixie")
+    OS_IDS=("bookworm" "trixie")
     for OS_ID in "${OS_IDS[@]}"; do
       log-info "(release-dokku) pushing ${RELEASE_TYPE} to packagecloud.com/${REPOSITORY}/${DIST}"
       package_cloud push "${REPOSITORY}/${DIST}/${OS_ID}" "$PACKAGE_NAME"
