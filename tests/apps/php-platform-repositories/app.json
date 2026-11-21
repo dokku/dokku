@@ -1,0 +1,12 @@
+{
+  "healthchecks": {
+    "web": [
+      {
+        "content": "\u003chtml\u003e\u003ch3\u003ephp\u003c/h3\u003e\u003c/html\u003e",
+        "name": "check-1",
+        "path": "/",
+        "type": "startup"
+      }
+    ]
+  }
+}
