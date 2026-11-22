@@ -9,7 +9,7 @@ The best plan for disaster recovery is to always keep multiple (remote) copies o
 > [!IMPORTANT]
 > The `backup:export` and `backup:import` commands were introduced in 0.39.0.
 
-Dokku can export an app (and/or service, and/or the global configuration) into a single `tar.gz` archive and restore it again, either on the same host or a fresh one. Each plugin serializes its own slice of state, so the archive captures config, domains, ports, docker-options, process scale, the git repository, and any other plugin's data.
+Dokku can export an app (and/or service, and/or the global configuration) into a single `tar.gz` archive and restore it again, either on the same host or a fresh one. Each plugin serializes its own slice of state, so the archive captures config, app and global domains, ports, docker-options, process scale, the git repository, and any other plugin's data.
 
 ```shell
 # export everything (all apps, all services, global config) to /tmp
@@ -56,10 +56,12 @@ dokku backup:import --skip-install-plugins "$BACKUP_FILE"
 
 ### Notes and caveats
 
-- **Secrets are stored unencrypted.** The archive contains environment variables and TLS material in plaintext. Store and transfer it securely.
+- **Secrets are stored unencrypted.** The archive contains environment variables, TLS material, and secrets held in plugin settings (such as log sinks and proxy credentials) in plaintext. Store and transfer it securely.
 - **Disk space.** Export buffers the archive to the `--backup-dir` (default `/tmp`); import extracts the whole archive before restoring. Ensure roughly twice the archive size is free.
 - **Persistent storage data** is only included when `--include-storage` is passed, and only for dokku-managed storage directories. Mount declarations are always captured.
-- **Datastore services** are provided by third-party plugins. They are auto-discovered for a full export only when their plugin implements the `datastore-list` and `service-list` triggers; otherwise pass `--service TYPE:NAME` explicitly.
+- **Datastore services** managed by the core [datastore plugin](/docs/advanced-usage/datastore-management.md) are discovered and backed up automatically. Services from a third-party datastore plugin are discovered for a full export only when that plugin implements the `service-list` trigger, and are backed up only when it implements the `backup-service-export` and `backup-service-import` triggers; otherwise pass `--service TYPE:NAME` explicitly.
+- **Registry credentials** from `registry:login` are not backed up. Log in again on the restored host.
+- **Kubernetes node sysctls** set with `scheduler-k3s` are restored as settings but not re-applied to the cluster.
 - **Access control.** Callers can only export and import apps and services they have access to via the [user-auth](/docs/development/plugin-triggers.md#user-auth) plugin trigger.
 - **Generated config** (nginx vhost files, proxy config) and **log history** are not backed up; they are regenerated when the app is redeployed.
 - **Portability.** The declarative `config/*.yml` slices are [docket](https://github.com/dokku/docket) (>= 0.6.0) recipes; a backup also contains aggregate `tasks.yml` recipes that `docket apply` can consume for out-of-band restores.

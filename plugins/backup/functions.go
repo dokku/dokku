@@ -71,26 +71,17 @@ func uniqueNonEmptyLines(text string) []string {
 	return lines
 }
 
-// discoverServiceTypes broadcasts the datastore-list trigger and returns the
-// unique set of installed datastore types. Each datastore plugin echoes its own
-// type in response.
-func discoverServiceTypes() ([]string, error) {
-	result, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
-		Trigger: "datastore-list",
-		Env:     streamTriggerEnv,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return uniqueNonEmptyLines(result.StdoutContents()), nil
-}
-
-// listServicesOfType calls the type-scoped service-list trigger and returns the
-// services of the requested type as type:name references.
+// listServicesOfType calls the service-list trigger and returns the services it
+// reports as type:name references. An empty serviceType lists the services of
+// every datastore plugin; otherwise each plugin filters to that type.
 func listServicesOfType(serviceType string) ([]serviceRef, error) {
+	args := []string{}
+	if serviceType != "" {
+		args = append(args, serviceType)
+	}
 	result, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
 		Trigger: "service-list",
-		Args:    []string{serviceType},
+		Args:    args,
 		Env:     streamTriggerEnv,
 	})
 	if err != nil {
@@ -103,34 +94,30 @@ func listServicesOfType(serviceType string) ([]serviceRef, error) {
 		if len(parts) != 2 || parts[0] == "" || parts[1] == "" {
 			continue
 		}
+		if serviceType != "" && parts[0] != serviceType {
+			continue
+		}
 		refs = append(refs, serviceRef{Type: parts[0], Name: parts[1]})
 	}
 	return refs, nil
 }
 
-// discoverAllServices enumerates every datastore type via datastore-list, lists
-// each type's services via service-list, and returns the access-filtered,
-// deduplicated set.
+// discoverAllServices lists every service via an unfiltered service-list call
+// and returns the access-filtered, deduplicated set.
 func discoverAllServices() ([]serviceRef, error) {
-	types, err := discoverServiceTypes()
+	typeRefs, err := listServicesOfType("")
 	if err != nil {
 		return nil, err
 	}
 
 	seen := map[string]bool{}
 	var refs []serviceRef
-	for _, serviceType := range types {
-		typeRefs, err := listServicesOfType(serviceType)
-		if err != nil {
-			return nil, err
+	for _, ref := range typeRefs {
+		if seen[ref.key()] || !callerHasServiceAccess(ref) {
+			continue
 		}
-		for _, ref := range typeRefs {
-			if seen[ref.key()] || !callerHasServiceAccess(ref) {
-				continue
-			}
-			seen[ref.key()] = true
-			refs = append(refs, ref)
-		}
+		seen[ref.key()] = true
+		refs = append(refs, ref)
 	}
 
 	sort.Slice(refs, func(i, j int) bool { return refs[i].key() < refs[j].key() })
@@ -162,21 +149,56 @@ func callerHasAppAccess(appName string) bool {
 
 // callerHasServiceAccess reports whether the SSH caller may access a service.
 // There is no service list-filter trigger, so it reuses the generic user-auth
-// command-authorization trigger with the service's canonical export command.
-// When no ACL plugin provides user-auth, all access is granted.
+// command-authorization trigger with the export command the caller would run
+// for that service: <type>:export for a type an installed plugin owns, and
+// datastore:export for a type served by the core datastore plugin. When no ACL
+// plugin provides user-auth, all access is granted.
 func callerHasServiceAccess(ref serviceRef) bool {
 	if !common.PlugnTriggerExists("user-auth") {
 		return true
 	}
+	args := []string{sshUser(), sshName(), fmt.Sprintf("%s:export", ref.Type), ref.Name}
+	if !serviceTypeHasOwnPlugin(ref.Type) {
+		args = []string{sshUser(), sshName(), "datastore:export", ref.Type, ref.Name}
+	}
 	result, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
 		Trigger: "user-auth",
-		Args:    []string{sshUser(), sshName(), fmt.Sprintf("%s:export", ref.Type), ref.Name},
+		Args:    args,
 		Env:     streamTriggerEnv,
 	})
 	if err != nil {
 		return false
 	}
 	return result.ExitCode == 0
+}
+
+// serviceTypeHasOwnPlugin reports whether an enabled plugin other than the core
+// datastore plugin provides a service type, matching how the datastore plugin
+// decides which types it defers: either a plugin directory named after the
+// type, or a plugin whose config sets PLUGIN_COMMAND_PREFIX to the type.
+func serviceTypeHasOwnPlugin(serviceType string) bool {
+	enabledPath := common.MustGetEnv("PLUGIN_ENABLED_PATH")
+	if common.DirectoryExists(filepath.Join(enabledPath, serviceType)) {
+		return true
+	}
+
+	entries, err := os.ReadDir(enabledPath)
+	if err != nil {
+		return false
+	}
+	want := fmt.Sprintf("export PLUGIN_COMMAND_PREFIX=%q", serviceType)
+	for _, entry := range entries {
+		contents, err := os.ReadFile(filepath.Join(enabledPath, entry.Name(), "config"))
+		if err != nil {
+			continue
+		}
+		for _, line := range strings.Split(string(contents), "\n") {
+			if line == want {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // appExists reports whether an app currently exists on the host. It checks the

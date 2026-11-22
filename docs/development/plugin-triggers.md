@@ -275,7 +275,7 @@ SCOPE_DIR="$1"
 
 ### `backup-service-export`
 
-- Description: Exports a datastore service's state into the service backup scope directory. Implemented by datastore plugins; core ships no service implementation.
+- Description: Exports a datastore service's state into the service backup scope directory. Implemented by datastore plugins, including the core `datastore` plugin for every datastore type no installed plugin owns.
 - Invoked by: `dokku backup:export`
 - Arguments: `$SERVICE_TYPE $SERVICE_NAME $SCOPE_DIR`
 - Example:
@@ -293,7 +293,7 @@ SERVICE_TYPE="$1"; SERVICE_NAME="$2"; SCOPE_DIR="$3"
 
 ### `backup-service-import`
 
-- Description: Restores a datastore service from the service backup scope directory. Implemented by datastore plugins.
+- Description: Restores a datastore service from the service backup scope directory. Implemented by datastore plugins, including the core `datastore` plugin. When the service already exists and `dokku backup:import --force` was passed, `DOKKU_BACKUP_FORCE=1` is set in the environment, and the plugin should replace the existing service with the backed up one.
 - Invoked by: `dokku backup:import`
 - Arguments: `$SERVICE_TYPE $SERVICE_NAME $SCOPE_DIR`
 - Example:
@@ -345,11 +345,11 @@ These points are useful when writing a plugin that participates in restore:
 - `pre-backup-app-deploy` runs after all config is restored and right before the deploy, but only when the app is actually being redeployed. It is the place for pre-deploy preparation that must run before the build — for example refreshing or symlinking a restored TLS certificate (an ACME re-issue using a standalone challenge can run here, since `domains` is already restored). It is best-effort and does not block the redeploy.
 - The deploy (`receive-app`) is the last step and runs the full deploy lifecycle. Work that needs the **already-running** app should hang off the normal post-deploy lifecycle (the plugin's own post-deploy hook fires inside the redeploy), not off an import phase. The top-level `post-backup-import` runs once after every app has redeployed, for any cross-app finalization.
 
-### `datastore-list`
+### `service-list`
 
-- Description: Reports a datastore plugin's own service type so other plugins can enumerate installed datastores. Used by `dokku backup:export` to discover services to back up. Each datastore plugin echoes its own type (its `$PLUGIN_COMMAND_PREFIX`).
-- Invoked by: `dokku backup:export`
-- Arguments: none
+- Description: Lists a datastore plugin's services as `TYPE:NAME` pairs, one per line, so other plugins can enumerate services. Called with no arguments, every datastore plugin lists all of its services; called with a service type, a plugin prints nothing unless that type is its own. `dokku backup:export` calls it with no arguments to discover services to back up, and with a type to check whether a service exists. The core `datastore` plugin implements it for every datastore type no installed plugin owns.
+- Invoked by: `dokku backup:export`, `dokku backup:import`
+- Arguments: `[$SERVICE_TYPE]`
 - Example:
 
 ```shell
@@ -357,7 +357,15 @@ These points are useful when writing a plugin that participates in restore:
 
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
-echo "$PLUGIN_COMMAND_PREFIX"
+SERVICE_TYPE="$1"
+
+if [[ -n "$SERVICE_TYPE" ]] && [[ "$SERVICE_TYPE" != "$PLUGIN_COMMAND_PREFIX" ]]; then
+  exit 0
+fi
+
+for service in $(ls "$PLUGIN_DATA_ROOT"); do
+  echo "$PLUGIN_COMMAND_PREFIX:$service"
+done
 ```
 
 ### `backup-plugins-install`

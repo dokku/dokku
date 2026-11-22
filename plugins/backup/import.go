@@ -239,7 +239,9 @@ func importApp(workDir string, appName string, meta ManifestApp, force bool) err
 }
 
 // importService restores a single service: it enforces access then dispatches
-// the service-import triggers so the datastore plugin recreates it.
+// the service-import triggers so the datastore plugin recreates it. When the
+// service already exists (only reachable with --force), DOKKU_BACKUP_FORCE=1 is
+// set on backup-service-import so the datastore plugin replaces it.
 func importService(workDir string, ref serviceRef, force bool) error {
 	scope := serviceScopeDir(workDir, ref.Type, ref.Name)
 	if !common.DirectoryExists(scope) {
@@ -257,7 +259,11 @@ func importService(workDir string, ref serviceRef, force bool) error {
 	if err := dispatchTrigger("pre-backup-service-import", ref.Type, ref.Name, scope); err != nil {
 		return err
 	}
-	if err := dispatchTrigger("backup-service-import", ref.Type, ref.Name, scope); err != nil {
+	env := map[string]string{}
+	if exists {
+		env["DOKKU_BACKUP_FORCE"] = "1"
+	}
+	if err := dispatchTriggerWithEnv(env, "backup-service-import", ref.Type, ref.Name, scope); err != nil {
 		return err
 	}
 	return dispatchTrigger("post-backup-service-import", ref.Type, ref.Name, scope)

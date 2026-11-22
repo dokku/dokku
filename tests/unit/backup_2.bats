@@ -67,7 +67,7 @@ teardown() {
   assert_output_contains "re-run with --force"
 }
 
-@test "(backup) service discovery and round-trip via datastore-list and service-list" {
+@test "(backup) service discovery and round-trip via service-list" {
   create_fake_service "mydb" "service-payload"
 
   run /bin/bash -c "dokku backup:export --backup-dir /tmp 2>/dev/null"
