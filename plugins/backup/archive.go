@@ -110,7 +110,12 @@ func TarGzExtract(srcPath string, destDir string) error {
 			return fmt.Errorf("unable to read backup entry: %w", err)
 		}
 
-		target := filepath.Join(cleanDest, header.Name)
+		entryName := filepath.FromSlash(header.Name)
+		if !filepath.IsLocal(entryName) {
+			return fmt.Errorf("refusing to extract entry outside backup directory: %s", header.Name)
+		}
+
+		target := filepath.Join(cleanDest, entryName)
 		if !isWithin(cleanDest, target) {
 			return fmt.Errorf("refusing to extract entry outside backup directory: %s", header.Name)
 		}

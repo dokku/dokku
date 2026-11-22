@@ -53,19 +53,19 @@ func TestTarGzExtractRejectsPathTraversal(t *testing.T) {
 	}
 }
 
-func TestTarGzExtractContainsAbsolutePath(t *testing.T) {
+func TestTarGzExtractRejectsAbsolutePath(t *testing.T) {
 	archive := filepath.Join(t.TempDir(), "evil.tar.gz")
 	writeMaliciousArchive(t, archive, "/tmp/dokku-backup-escape.txt")
 
 	dest := t.TempDir()
-	if err := TarGzExtract(archive, dest); err != nil {
-		t.Fatalf("TarGzExtract: %v", err)
+	if err := TarGzExtract(archive, dest); err == nil {
+		t.Fatalf("expected an absolute-path entry to be rejected")
 	}
 	if _, err := os.Stat("/tmp/dokku-backup-escape.txt"); err == nil {
-		t.Errorf("absolute-path entry escaped to /tmp instead of being contained under the destination")
+		t.Errorf("absolute-path entry escaped to /tmp")
 	}
-	if _, err := os.Stat(filepath.Join(dest, "tmp", "dokku-backup-escape.txt")); err != nil {
-		t.Errorf("absolute-path entry was not contained under the destination: %v", err)
+	if _, err := os.Stat(filepath.Join(dest, "tmp", "dokku-backup-escape.txt")); err == nil {
+		t.Errorf("absolute-path entry was extracted under the destination")
 	}
 }
 
