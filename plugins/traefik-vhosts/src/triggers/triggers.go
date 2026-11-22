@@ -18,6 +18,14 @@ func main() {
 
 	var err error
 	switch trigger {
+	case "backup-app-export":
+		err = traefikvhosts.TriggerBackupAppExport(flag.Arg(0), flag.Arg(1))
+	case "backup-app-import":
+		err = traefikvhosts.TriggerBackupAppImport(flag.Arg(0), flag.Arg(1))
+	case "backup-global-export":
+		err = traefikvhosts.TriggerBackupGlobalExport(flag.Arg(0))
+	case "backup-global-import":
+		err = traefikvhosts.TriggerBackupGlobalImport(flag.Arg(0))
 	case "report":
 		appName := flag.Arg(0)
 		err = traefikvhosts.ReportSingleApp(appName, "", "")

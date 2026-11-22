@@ -20,6 +20,14 @@ func main() {
 
 	var err error
 	switch trigger {
+	case "backup-app-export":
+		err = scheduler.TriggerBackupAppExport(flag.Arg(0), flag.Arg(1))
+	case "backup-app-import":
+		err = scheduler.TriggerBackupAppImport(flag.Arg(0), flag.Arg(1))
+	case "backup-global-export":
+		err = scheduler.TriggerBackupGlobalExport(flag.Arg(0))
+	case "backup-global-import":
+		err = scheduler.TriggerBackupGlobalImport(flag.Arg(0))
 	case "install":
 		err = scheduler.TriggerInstall()
 	case "post-app-clone-setup":

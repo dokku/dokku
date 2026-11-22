@@ -19,6 +19,14 @@ func main() {
 
 	var err error
 	switch trigger {
+	case "backup-app-export":
+		err = cron.TriggerBackupAppExport(flag.Arg(0), flag.Arg(1))
+	case "backup-app-import":
+		err = cron.TriggerBackupAppImport(flag.Arg(0), flag.Arg(1))
+	case "backup-global-export":
+		err = cron.TriggerBackupGlobalExport(flag.Arg(0))
+	case "backup-global-import":
+		err = cron.TriggerBackupGlobalImport(flag.Arg(0))
 	case "app-json-is-valid":
 		appName := flag.Arg(0)
 		appJSONPath := flag.Arg(1)

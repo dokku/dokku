@@ -18,6 +18,14 @@ func main() {
 
 	var err error
 	switch trigger {
+	case "backup-app-export":
+		err = ps.TriggerBackupAppExport(flag.Arg(0), flag.Arg(1))
+	case "backup-app-import":
+		err = ps.TriggerBackupAppImport(flag.Arg(0), flag.Arg(1))
+	case "backup-global-export":
+		err = ps.TriggerBackupGlobalExport(flag.Arg(0))
+	case "backup-global-import":
+		err = ps.TriggerBackupGlobalImport(flag.Arg(0))
 	case "app-restart":
 		appName := flag.Arg(0)
 		err = ps.TriggerAppRestart(appName)

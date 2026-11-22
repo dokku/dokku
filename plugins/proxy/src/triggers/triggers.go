@@ -18,6 +18,14 @@ func main() {
 
 	var err error
 	switch trigger {
+	case "backup-app-export":
+		err = proxy.TriggerBackupAppExport(flag.Arg(0), flag.Arg(1))
+	case "backup-app-import":
+		err = proxy.TriggerBackupAppImport(flag.Arg(0), flag.Arg(1))
+	case "backup-global-export":
+		err = proxy.TriggerBackupGlobalExport(flag.Arg(0))
+	case "backup-global-import":
+		err = proxy.TriggerBackupGlobalImport(flag.Arg(0))
 	case "install":
 		err = proxy.TriggerInstall()
 	case "proxy-is-enabled":

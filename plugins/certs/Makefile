@@ -1,4 +1,4 @@
-TRIGGERS = triggers/report
+TRIGGERS = triggers/backup-app-export triggers/backup-app-import triggers/report
 BUILD = report-subcommand triggers
 PLUGIN_NAME = certs
 

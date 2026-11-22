@@ -9,3 +9,4 @@
 /report
 /scheduler-cron-write
 /scheduler-stop
+/backup-*

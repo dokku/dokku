@@ -18,6 +18,14 @@ func main() {
 
 	var err error
 	switch trigger {
+	case "backup-app-export":
+		err = haproxyvhosts.TriggerBackupAppExport(flag.Arg(0), flag.Arg(1))
+	case "backup-app-import":
+		err = haproxyvhosts.TriggerBackupAppImport(flag.Arg(0), flag.Arg(1))
+	case "backup-global-export":
+		err = haproxyvhosts.TriggerBackupGlobalExport(flag.Arg(0))
+	case "backup-global-import":
+		err = haproxyvhosts.TriggerBackupGlobalImport(flag.Arg(0))
 	case "report":
 		appName := flag.Arg(0)
 		err = haproxyvhosts.ReportSingleApp(appName, "", "")

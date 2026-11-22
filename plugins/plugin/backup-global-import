@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-plugin-backup-global-import() {
+  declare desc="reports third-party plugins recorded in a backup when they are not being reinstalled"
+  declare trigger="backup-global-import"
+  declare SCOPE_DIR="$1"
+  local SRC="$SCOPE_DIR/data/plugin/plugins.txt"
+
+  [[ -f "$SRC" ]] || return 0
+  [[ -s "$SRC" ]] || return 0
+
+  # Plugins are reinstalled by default by the backup-plugins-install trigger
+  # before anything else, so there is nothing to warn about unless the import was
+  # run with --skip-install-plugins.
+  [[ "$DOKKU_BACKUP_INSTALL_PLUGINS" == "1" ]] && return 0
+
+  dokku_log_warn "The backup was created with the following third-party plugins installed."
+  dokku_log_warn "Re-run backup:import without --skip-install-plugins to reinstall them, or install them manually:"
+  local name url committish
+  while IFS=$'\t' read -r name url committish; do
+    [[ -z "$name" ]] && continue
+    if [[ -n "$url" ]]; then
+      dokku_log_warn "  - $name ($url)"
+    else
+      dokku_log_warn "  - $name"
+    fi
+  done <"$SRC"
+}
+
+trigger-plugin-backup-global-import "$@"

@@ -17,6 +17,14 @@ func main() {
 
 	var err error
 	switch trigger {
+	case "backup-app-export":
+		err = storage.TriggerBackupAppExport(flag.Arg(0), flag.Arg(1))
+	case "backup-app-import":
+		err = storage.TriggerBackupAppImport(flag.Arg(0), flag.Arg(1))
+	case "backup-global-export":
+		err = storage.TriggerBackupGlobalExport(flag.Arg(0))
+	case "backup-global-import":
+		err = storage.TriggerBackupGlobalImport(flag.Arg(0))
 	case "install":
 		err = storage.TriggerInstall()
 	case "storage-list":

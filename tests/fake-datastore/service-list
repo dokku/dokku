@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/config"
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+plugin-service-list() {
+  declare desc="lists fake services as type:name pairs, scoped to this plugin's type"
+  declare SERVICE_TYPE="$1"
+
+  if [[ -n "$SERVICE_TYPE" ]] && [[ "$SERVICE_TYPE" != "$PLUGIN_COMMAND_PREFIX" ]]; then
+    return
+  fi
+
+  for service in $(fn-fake-services-list); do
+    echo "$PLUGIN_COMMAND_PREFIX:$service"
+  done
+}
+
+plugin-service-list "$@"

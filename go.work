@@ -3,6 +3,7 @@ go 1.27.4
 use (
 	./plugins/app-json
 	./plugins/apps
+	./plugins/backup
 	./plugins/builder
 	./plugins/builder-dockerfile
 	./plugins/builder-herokuish

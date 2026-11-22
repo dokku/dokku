@@ -5,3 +5,4 @@
 /report-subcommand
 /scheduler-storage-exec
 /subcommands/report
+/backup-*

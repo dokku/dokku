@@ -18,6 +18,14 @@ func main() {
 
 	var err error
 	switch trigger {
+	case "backup-app-export":
+		err = nginxvhosts.TriggerBackupAppExport(flag.Arg(0), flag.Arg(1))
+	case "backup-app-import":
+		err = nginxvhosts.TriggerBackupAppImport(flag.Arg(0), flag.Arg(1))
+	case "backup-global-export":
+		err = nginxvhosts.TriggerBackupGlobalExport(flag.Arg(0))
+	case "backup-global-import":
+		err = nginxvhosts.TriggerBackupGlobalImport(flag.Arg(0))
 	case "report":
 		appName := flag.Arg(0)
 		err = nginxvhosts.ReportSingleApp(appName, "", "")
