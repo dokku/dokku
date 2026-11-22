@@ -52,7 +52,8 @@ When running scheduled cron tasks, there are a few items to be aware of:
 
 - Scheduled cron tasks are performed within the app environment available at runtime. If the app image does not exist, the command may fail to execute.
 - Schedules are performed on the hosting server's timezone, which is typically UTC.
-- At this time, only the `PATH` and `SHELL` environment variables are specified in the cron template.
+- At this time, only the `PATH`, `SHELL`, `USER`, and `NAME` environment variables are specified in the cron template.
+    - `USER` and `NAME` are both set to `dokku`, the user that runs the crontab. Cron sets neither, and Dokku reads them as `SSH_USER` and `SSH_NAME`, so plugin triggers see a scheduled task as `SSH_USER=dokku` and `SSH_NAME=dokku`.
     - A `MAILTO` value can be set via the `cron:set` command.
     - A `MAILFROM` value can be set via the `cron:set` command.
     - Tasks injected by plugins via the [`cron-entries` trigger](/docs/development/plugin-triggers.md#cron-entries) may set a `MAILTO` value of their own, which is used for that task instead of the global value. `MAILTO` is reset after the task to the global value, or to the `dokku` user when no global value is set, so no other task is mailed to that address. The output of such a task is mailed to that address as well as appended to the task's log file.
