@@ -10,3 +10,4 @@
 /docker-args-process-build
 /docker-args-process-deploy
 /docker-args-process-run
+/backup-*

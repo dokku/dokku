@@ -2,9 +2,12 @@ package common
 
 import (
 	"fmt"
+	"io/fs"
 	"os"
+	"os/user"
 	"path/filepath"
 	"sort"
+	"strconv"
 
 	yaml "go.yaml.in/yaml/v3"
 )
@@ -107,6 +110,47 @@ func BackupReadRecipeFile(path string, out interface{}) error {
 	}
 
 	return nil
+}
+
+// BackupChownTree recursively sets dokku system user and group ownership on a
+// restored path without changing file modes. Symlinks are re-owned in place
+// and never followed.
+func BackupChownTree(root string) error {
+	uid, gid, err := backupSystemIDs()
+	if err != nil {
+		return err
+	}
+
+	return filepath.WalkDir(root, func(path string, _ fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		return os.Lchown(path, uid, gid)
+	})
+}
+
+// backupSystemIDs resolves the numeric uid and gid of the dokku system user
+// and group.
+func backupSystemIDs() (int, int, error) {
+	systemUser, err := user.Lookup(GetenvWithDefault("DOKKU_SYSTEM_USER", "dokku"))
+	if err != nil {
+		return 0, 0, err
+	}
+	systemGroup, err := user.LookupGroup(GetenvWithDefault("DOKKU_SYSTEM_GROUP", "dokku"))
+	if err != nil {
+		return 0, 0, err
+	}
+
+	uid, err := strconv.Atoi(systemUser.Uid)
+	if err != nil {
+		return 0, 0, err
+	}
+	gid, err := strconv.Atoi(systemGroup.Gid)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	return uid, gid, nil
 }
 
 // BackupPropertyExport serializes every property of a plugin (for one app, or

@@ -25,9 +25,9 @@ func TestTarGzRoundTrip(t *testing.T) {
 	}
 
 	for rel, want := range map[string]string{
-		"manifest.json":                    "{}",
-		"apps/api/config/config.yml":       "name: config",
-		"apps/api/data/repo.bundle":        "BUNDLE",
+		"manifest.json":              "{}",
+		"apps/api/config/config.yml": "name: config",
+		"apps/api/data/repo.bundle":  "BUNDLE",
 	} {
 		got, err := os.ReadFile(filepath.Join(dest, filepath.FromSlash(rel)))
 		if err != nil {

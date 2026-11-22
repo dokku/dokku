@@ -18,6 +18,14 @@ func main() {
 
 	var err error
 	switch trigger {
+	case "backup-app-export":
+		err = openrestyvhosts.TriggerBackupAppExport(flag.Arg(0), flag.Arg(1))
+	case "backup-app-import":
+		err = openrestyvhosts.TriggerBackupAppImport(flag.Arg(0), flag.Arg(1))
+	case "backup-global-export":
+		err = openrestyvhosts.TriggerBackupGlobalExport(flag.Arg(0))
+	case "backup-global-import":
+		err = openrestyvhosts.TriggerBackupGlobalImport(flag.Arg(0))
 	case "report":
 		appName := flag.Arg(0)
 		err = openrestyvhosts.ReportSingleApp(appName, "", "")

@@ -1,4 +1,4 @@
-TRIGGERS = triggers/report
+TRIGGERS = triggers/backup-app-export triggers/backup-app-import triggers/backup-global-export triggers/backup-global-import triggers/report
 BUILD = pagesize nginx-property report-subcommand triggers
 PLUGIN_NAME = nginx-vhosts
 

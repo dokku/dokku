@@ -18,6 +18,14 @@ func main() {
 
 	var err error
 	switch trigger {
+	case "backup-app-export":
+		err = builderdockerfile.TriggerBackupAppExport(flag.Arg(0), flag.Arg(1))
+	case "backup-app-import":
+		err = builderdockerfile.TriggerBackupAppImport(flag.Arg(0), flag.Arg(1))
+	case "backup-global-export":
+		err = builderdockerfile.TriggerBackupGlobalExport(flag.Arg(0))
+	case "backup-global-import":
+		err = builderdockerfile.TriggerBackupGlobalImport(flag.Arg(0))
 	case "report":
 		appName := flag.Arg(0)
 		err = builderdockerfile.ReportSingleApp(appName, "", "")

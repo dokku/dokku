@@ -13,3 +13,4 @@
 /subcommands/*
 /triggers
 /triggers/*
+/backup-*
