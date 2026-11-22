@@ -81,7 +81,7 @@ teardown() {
 
   rm -rf "/var/lib/dokku/services/fake/mydb"
 
-  run /bin/bash -c "dokku backup:import --service fake:mydb '$backup_file'"
+  run /bin/bash -c "dokku backup:import --force --service fake:mydb '$backup_file'"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -106,7 +106,7 @@ teardown() {
   rm -rf "/var/lib/dokku/data/storage/$TEST_APP-data"
   dokku --force apps:destroy $TEST_APP
 
-  run /bin/bash -c "dokku backup:import '$backup_file'"
+  run /bin/bash -c "dokku backup:import --force '$backup_file'"
   echo "output: $output"
   echo "status: $status"
   assert_success

@@ -1,13 +1,16 @@
 package backup
 
 import (
+	"bufio"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
+	"github.com/mattn/go-isatty"
 )
 
 // CommandImport implements `dokku backup:import`. It extracts the backup,
@@ -58,9 +61,15 @@ func CommandImport(backupFile string, appNames []string, serviceSpecs []string, 
 		}
 	}
 
-	conflicts := preflightConflicts(apps, services, force)
+	conflicts := preflightConflicts(workDir, apps, services, force)
 	if len(conflicts) > 0 {
-		return fmt.Errorf("the following already exist and would be overwritten; re-run with --force to replace them: %s", strings.Join(conflicts, ", "))
+		if !stdinIsTerminal() {
+			return fmt.Errorf("the following already exist and would be overwritten; re-run with --force to replace them: %s", strings.Join(conflicts, ", "))
+		}
+		if err := confirmOverwrite(conflicts, backupFile); err != nil {
+			return err
+		}
+		force = true
 	}
 
 	var failures []string
@@ -162,10 +171,16 @@ func serviceMatchesSpecs(ref serviceRef, serviceSpecs []string) bool {
 	return false
 }
 
+// globalConflictName is how the global scope is listed among the things an
+// import would overwrite.
+const globalConflictName = "global configuration"
+
 // preflightConflicts returns the names of existing, accessible targets that
-// would be overwritten without --force. Inaccessible existing targets are not
-// listed (they are skipped generically during restore).
-func preflightConflicts(apps []string, services []serviceRef, force bool) []string {
+// would be overwritten without --force. The global configuration is always
+// listed when the backup carries any global state, since every host has global
+// configuration of its own. Inaccessible existing targets are not listed (they
+// are skipped generically during restore).
+func preflightConflicts(workDir string, apps []string, services []serviceRef, force bool) []string {
 	if force {
 		return nil
 	}
@@ -181,7 +196,61 @@ func preflightConflicts(apps []string, services []serviceRef, force bool) []stri
 		}
 	}
 	sort.Strings(conflicts)
+	if directoryHasFiles(globalScopeDir(workDir)) {
+		conflicts = append(conflicts, globalConflictName)
+	}
 	return conflicts
+}
+
+// confirmOverwrite lists everything an import would overwrite and asks the
+// caller to confirm by typing a name: the app or service itself when it is the
+// only thing overwritten, otherwise the backup archive's file name.
+func confirmOverwrite(conflicts []string, backupFile string) error {
+	expected := filepath.Base(backupFile)
+	if len(conflicts) == 1 && conflicts[0] != globalConflictName {
+		expected = conflicts[0]
+	}
+
+	common.LogWarn("WARNING: Potentially Destructive Action")
+	common.LogWarn("This restore will overwrite the following:")
+	for _, conflict := range conflicts {
+		common.LogWarn(fmt.Sprintf("  %s", conflict))
+	}
+	common.LogWarn(fmt.Sprintf("To proceed, type \"%s\"", expected))
+	fmt.Fprint(os.Stderr, "> ")
+
+	response, err := bufio.NewReader(os.Stdin).ReadString('\n')
+	if err != nil && response == "" {
+		return fmt.Errorf("no confirmation received; restore aborted")
+	}
+	if strings.TrimSpace(response) != expected {
+		return fmt.Errorf("confirmation did not match; restore aborted")
+	}
+	return nil
+}
+
+// stdinIsTerminal reports whether stdin is an interactive terminal, so a
+// confirmation prompt can be answered.
+func stdinIsTerminal() bool {
+	fd := os.Stdin.Fd()
+	return isatty.IsTerminal(fd) || isatty.IsCygwinTerminal(fd)
+}
+
+// directoryHasFiles reports whether a directory contains at least one regular
+// file anywhere below it.
+func directoryHasFiles(root string) bool {
+	found := false
+	_ = filepath.WalkDir(root, func(_ string, entry fs.DirEntry, err error) error {
+		if err != nil || found {
+			return filepath.SkipDir
+		}
+		if entry.Type().IsRegular() {
+			found = true
+			return filepath.SkipAll
+		}
+		return nil
+	})
+	return found
 }
 
 // importApp restores a single app: it enforces access, (re)creates the app,
@@ -198,7 +267,7 @@ func importApp(workDir string, appName string, meta ManifestApp, force bool) err
 		if !force {
 			return fmt.Errorf("Unable to restore %s", appName)
 		}
-		if err := dispatchTrigger("app-destroy", appName); err != nil {
+		if err := dispatchTriggerWithEnv(map[string]string{"DOKKU_APPS_FORCE_DELETE": "1"}, "app-destroy", appName); err != nil {
 			return fmt.Errorf("unable to replace existing app %s: %w", appName, err)
 		}
 	}

@@ -42,7 +42,7 @@ dokku backup:import --app node-js-app "$BACKUP_FILE"
 dokku backup:import --service postgres:mydb "$BACKUP_FILE"
 ```
 
-Importing is destructive. If an app or service already exists, the import aborts and asks you to re-run with `--force` to replace it:
+Importing is destructive. Before restoring, the import lists every existing app and service the backup would overwrite, along with the global configuration, and asks you to confirm by typing a name: the app or service when it is the only thing being overwritten, otherwise the backup archive's file name. A mismatch aborts the import before anything is restored. When the import is not run from an interactive terminal it aborts instead, and asks you to re-run with `--force`. Pass `--force` to skip the confirmation:
 
 ```shell
 dokku backup:import --force "$BACKUP_FILE"

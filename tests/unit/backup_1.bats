@@ -42,7 +42,7 @@ teardown() {
   install_predeploy_check_plugin
   rm -f "/tmp/predeploy-$TEST_APP.txt"
 
-  run /bin/bash -c "dokku backup:import '$backup_file'"
+  run /bin/bash -c "dokku backup:import --force '$backup_file'"
   echo "output: $output"
   echo "status: $status"
   assert_success

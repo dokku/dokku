@@ -4,6 +4,7 @@ go 1.27.4
 
 require (
 	github.com/dokku/dokku/plugins/common v0.0.0-00010101000000-000000000000
+	github.com/mattn/go-isatty v0.0.24
 	github.com/spf13/pflag v1.1.0
 	go.yaml.in/yaml/v3 v3.0.5
 )
@@ -15,7 +16,6 @@ require (
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/kr/fs v0.1.0 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
-	github.com/mattn/go-isatty v0.0.24 // indirect
 	github.com/melbahja/goph v1.5.2 // indirect
 	github.com/otiai10/copy v1.14.1 // indirect
 	github.com/otiai10/mint v1.6.3 // indirect

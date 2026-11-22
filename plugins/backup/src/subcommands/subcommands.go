@@ -29,7 +29,7 @@ func main() {
 		args := flag.NewFlagSet("backup:import", flag.ExitOnError)
 		appNames := args.StringArray("app", []string{}, "--app: an app to restore; repeatable")
 		serviceSpecs := args.StringArray("service", []string{}, "--service: a service to restore as TYPE[:NAME]; repeatable")
-		force := args.Bool("force", false, "--force: replace existing apps/services without confirmation")
+		force := args.Bool("force", false, "--force: overwrite existing apps, services, and global configuration without asking for confirmation")
 		skipInstallPlugins := args.Bool("skip-install-plugins", false, "--skip-install-plugins: do not reinstall third-party plugins recorded in the backup; only report them")
 		args.Parse(os.Args[2:])
 		backupFile := args.Arg(0)

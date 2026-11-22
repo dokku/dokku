@@ -54,7 +54,7 @@ teardown() {
   echo "output: $output"
   assert_success
 
-  run /bin/bash -c "dokku backup:import --service redis:backup-redis '$backup_file'"
+  run /bin/bash -c "dokku backup:import --force --service redis:backup-redis '$backup_file'"
   echo "output: $output"
   echo "status: $status"
   assert_success

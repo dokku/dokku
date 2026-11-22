@@ -53,7 +53,7 @@ teardown() {
 
   dokku --force apps:destroy $TEST_APP
 
-  run /bin/bash -c "dokku backup:import '$backup_file'"
+  run /bin/bash -c "dokku backup:import --force '$backup_file'"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -97,7 +97,7 @@ teardown() {
   dokku storage:destroy --force backup-mode-data 2>/dev/null || true
   rm -rf "/var/lib/dokku/data/storage/backup-mode-data"
 
-  run /bin/bash -c "dokku backup:import '$backup_file'"
+  run /bin/bash -c "dokku backup:import --force '$backup_file'"
   echo "output: $output"
   echo "status: $status"
   assert_success
