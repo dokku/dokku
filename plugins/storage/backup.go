@@ -17,6 +17,10 @@ func managedStorageRoot() string {
 	return filepath.Join(common.GetenvWithDefault("DOKKU_LIB_ROOT", "/var/lib/dokku"), "data", "storage")
 }
 
+// backupExcludedProperties are migration markers that must not be restored, so
+// the destination host's own migration state is kept.
+var backupExcludedProperties = []string{"legacy-mounts-migrated"}
+
 // writeEntryFile serializes a storage entry into a backup directory.
 func writeEntryFile(dir string, entry *Entry) error {
 	if err := os.MkdirAll(dir, 0755); err != nil {
@@ -62,7 +66,7 @@ func restoreEntryFiles(dir string) error {
 // reference. When DOKKU_BACKUP_INCLUDE_STORAGE is set, the contents of each
 // dokku-managed entry directory are bundled as well.
 func TriggerBackupAppExport(appName string, scopeDir string) error {
-	if err := common.BackupPropertyExport("storage", appName, scopeDir, ""); err != nil {
+	if err := common.BackupPropertyExportFiltered("storage", appName, scopeDir, "", backupExcludedProperties); err != nil {
 		return err
 	}
 
@@ -154,7 +158,7 @@ func TriggerBackupAppImport(appName string, scopeDir string) error {
 		}); err != nil {
 			return err
 		}
-		if err := common.SetPermissions(common.SetPermissionInput{Filename: entry.HostPath, Mode: 0755}); err != nil {
+		if err := ensureDockerLocalPath(entry); err != nil {
 			return err
 		}
 	}

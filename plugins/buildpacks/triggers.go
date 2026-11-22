@@ -31,26 +31,33 @@ func migrateStackProperty() error {
 	appNames = append(appNames, apps...)
 
 	for _, appName := range appNames {
-		if !common.PropertyExists("buildpacks", appName, "stack") {
-			continue
-		}
-
-		value := common.PropertyGet("buildpacks", appName, "stack")
-		if value != "" {
-			builder := builderForStack(value)
-			if !common.PropertyExists(builder, appName, "stack") {
-				if err := common.PropertyWrite(builder, appName, "stack", value); err != nil {
-					return err
-				}
-			}
-		}
-
-		if err := common.PropertyDelete("buildpacks", appName, "stack"); err != nil {
+		if err := migrateStackPropertyForApp(appName); err != nil {
 			return err
 		}
 	}
 
 	return nil
+}
+
+// migrateStackPropertyForApp moves a legacy buildpacks stack value for one
+// app (or "--global") to the builder plugin that owns that stack. An existing
+// value on the builder is kept, and the buildpacks stack key is always removed.
+func migrateStackPropertyForApp(appName string) error {
+	if !common.PropertyExists("buildpacks", appName, "stack") {
+		return nil
+	}
+
+	value := common.PropertyGet("buildpacks", appName, "stack")
+	if value != "" {
+		builder := builderForStack(value)
+		if !common.PropertyExists(builder, appName, "stack") {
+			if err := common.PropertyWrite(builder, appName, "stack", value); err != nil {
+				return err
+			}
+		}
+	}
+
+	return common.PropertyDelete("buildpacks", appName, "stack")
 }
 
 // TriggerPostAppCloneSetup creates new buildpacks files
