@@ -2,7 +2,7 @@ module github.com/dokku/dokku/plugins/datastore
 
 go 1.27.4
 
-require github.com/dokku/dokku-datastore v0.12.1-0.20261122095500-fbfbde053924
+require github.com/dokku/dokku-datastore v0.13.0
 
 require (
 	dario.cat/mergo v1.0.2 // indirect

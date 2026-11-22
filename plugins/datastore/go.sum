@@ -40,8 +40,8 @@ github.com/docker/go-units v0.5.0 h1:69rxXcBk27SvSaaxTtLh/8llcHD8vYHT7WSdRZ/jvr4
 github.com/docker/go-units v0.5.0/go.mod h1:fgPhTUdO+D/Jk86RDLlptpiXQzgHJF7gydDDbaIK4Dk=
 github.com/dokku/docker-port-forward v0.7.0 h1:P+vrztgAq+XRo93It83COaBPZ6rV3uTwO7UFbqYO/vQ=
 github.com/dokku/docker-port-forward v0.7.0/go.mod h1:c80UNGZOYX7stZUgzaMpjC7PKo16sJGo5wNcbkOUfzs=
-github.com/dokku/dokku-datastore v0.12.1-0.20261122095500-fbfbde053924 h1:RYRLj43MtBOFamPPo6ciGnypreUiVSIU4Sj9JEANVi0=
-github.com/dokku/dokku-datastore v0.12.1-0.20261122095500-fbfbde053924/go.mod h1:VmHRcuM/HiUZz5nb54XbDFXN6YwR4tnvMBE62VMktzs=
+github.com/dokku/dokku-datastore v0.13.0 h1:FnBlp85uDRIzkKhBwU1nW5cVofYuypXQA2QiMoxnBW8=
+github.com/dokku/dokku-datastore v0.13.0/go.mod h1:VmHRcuM/HiUZz5nb54XbDFXN6YwR4tnvMBE62VMktzs=
 github.com/dokku/dokku/plugins/docker-options v0.0.0-20261102053158-1910c3fb682a h1:pwA8IIBDrGtjyhXwoVPEV8+p8rDEv7JLK/SFc6zxW1g=
 github.com/dokku/dokku/plugins/docker-options v0.0.0-20261102053158-1910c3fb682a/go.mod h1:sQpHfMRDTaHQ8m0JMaN6DAuHuSwwvw69AT6DPBgiCl4=
 github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
