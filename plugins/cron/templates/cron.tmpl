@@ -6,6 +6,8 @@ MAILTO={{ .Mailto }}
 {{ end -}}
 PATH=/usr/local/bin:/usr/bin:/bin
 SHELL=/bin/bash
+USER={{ .User }}
+NAME={{ .User }}
 
 {{ range $task := .Tasks -}}
 {{ if $task.Mailto -}}

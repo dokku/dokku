@@ -126,6 +126,21 @@ teardown() {
   assert_output_contains "python3 task.py daily" 0
 }
 
+@test "(cron) crontab names the crontab user" {
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP template_cron_file_valid_single
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  # cron sets neither USER nor NAME, which dokku reads as SSH_USER and SSH_NAME
+  run /bin/bash -c "cat /var/spool/cron/crontabs/dokku"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "USER=dokku"
+  assert_output_contains "NAME=dokku"
+}
+
 @test "(cron) k3s-scheduled app skips host crontab" {
   run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP template_cron_file_valid_single
   echo "output: $output"

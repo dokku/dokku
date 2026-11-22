@@ -3156,6 +3156,8 @@ sshcommand acl-add dokku NAME < $PATH_TO_SSH_KEY
 
 Note that the `NAME` value is set at the first ssh key match. If an ssh key is set in the `/home/dokku/.ssh/authorized_keys` multiple times, the first match will decide the value.
 
+Scheduled tasks written to the `dokku` user's crontab are run with `USER` and `NAME` set to `dokku`, so the trigger is called with an `SSH_USER` and `SSH_NAME` of `dokku`. A command run without `NAME` set is called with an `SSH_NAME` of `default`.
+
 - Description: Allows you to deny access to a Dokku command by either ssh user or associated ssh-command NAME user.
 - Invoked by: `dokku`
 - Arguments: `$SSH_USER $SSH_NAME $DOKKU_COMMAND`
@@ -3193,6 +3195,8 @@ sshcommand acl-add dokku NAME < $PATH_TO_SSH_KEY
 ```
 
 Note that the `NAME` value is set at the first ssh key match. If an ssh key is set in the `/home/dokku/.ssh/authorized_keys` multiple times, the first match will decide the value.
+
+Scheduled tasks written to the `dokku` user's crontab are run with `USER` and `NAME` set to `dokku`, so the trigger is called with an `SSH_USER` and `SSH_NAME` of `dokku`. A command run without `NAME` set is called with an `SSH_NAME` of `default`.
 
 - Description: Allows you to deny access to a Dokku app by either ssh user or associated ssh-command NAME user.
 - Invoked by: `dokku`

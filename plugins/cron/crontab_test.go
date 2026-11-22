@@ -187,6 +187,8 @@ func TestCronTemplateResetsMailtoAfterATaskWithItsOwn(t *testing.T) {
 		"MAILTO=global@example.com",
 		"PATH=/usr/local/bin:/usr/bin:/bin",
 		"SHELL=/bin/bash",
+		"USER=dokku",
+		"NAME=dokku",
 		"",
 		"@daily /bin/true &>> /var/log/dokku/log.log",
 		"MAILTO=alpha@example.com",
@@ -219,6 +221,8 @@ func TestCronTemplateResetsMailtoToTheCrontabOwner(t *testing.T) {
 	want := strings.Join([]string{
 		"PATH=/usr/local/bin:/usr/bin:/bin",
 		"SHELL=/bin/bash",
+		"USER=dokku",
+		"NAME=dokku",
 		"",
 		"MAILTO=alpha@example.com",
 		"@hourly /bin/alpha 2>&1 | tee -a /var/log/dokku/alpha.log",
@@ -243,11 +247,48 @@ func TestCronTemplateWithoutTaskMailto(t *testing.T) {
 	want := strings.Join([]string{
 		"PATH=/usr/local/bin:/usr/bin:/bin",
 		"SHELL=/bin/bash",
+		"USER=dokku",
+		"NAME=dokku",
 		"",
 		"@daily /bin/true &>> /var/log/dokku/log.log",
 		"",
 	}, "\n")
 	if got != want {
 		t.Errorf("rendered crontab =\n%s\nwant\n%s", got, want)
+	}
+}
+
+// TestCronTemplateNamesTheCrontabUser pins that USER and NAME are set to the
+// crontab's owner ahead of every task. cron sets neither, and dokku reads them
+// as SSH_USER and SSH_NAME, so without them a scheduled task would be named
+// "default" with no user at all.
+func TestCronTemplateNamesTheCrontabUser(t *testing.T) {
+	tasks := []CronTask{
+		{Schedule: "@daily", AltCommand: "/bin/true"},
+	}
+
+	lines := strings.Split(renderCronTemplate(t, tasks, ""), "\n")
+	firstTask := -1
+	for i, line := range lines {
+		if strings.HasPrefix(line, "@daily ") {
+			firstTask = i
+			break
+		}
+	}
+	if firstTask == -1 {
+		t.Fatalf("rendered crontab has no task line:\n%s", strings.Join(lines, "\n"))
+	}
+
+	for _, want := range []string{"USER=" + crontabUser, "NAME=" + crontabUser} {
+		found := false
+		for _, line := range lines[:firstTask] {
+			if line == want {
+				found = true
+				break
+			}
+		}
+		if !found {
+			t.Errorf("rendered crontab does not set %q before its first task:\n%s", want, strings.Join(lines, "\n"))
+		}
 	}
 }

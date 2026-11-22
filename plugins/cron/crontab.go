@@ -301,6 +301,11 @@ func writeCronTab() error {
 // resetting it, so every task after it goes back to the global MAILTO. Without
 // a global MAILTO it is reset to the crontab's owner, which is who cron mails
 // when MAILTO is unset - an empty MAILTO would stop cron mailing anyone.
+//
+// cron sets LOGNAME for a task but neither USER nor NAME, which dokku reads as
+// SSH_USER and SSH_NAME for every command it runs. Both are set to the
+// crontab's owner so a scheduled task is named for the user that runs it
+// instead of an empty SSH_USER and an SSH_NAME of "default".
 func cronTemplateData(tasks []CronTask, mailfrom string, mailto string) map[string]interface{} {
 	resetMailto := mailto
 	if resetMailto == "" {
@@ -312,6 +317,7 @@ func cronTemplateData(tasks []CronTask, mailfrom string, mailto string) map[stri
 		"Mailfrom":    mailfrom,
 		"Mailto":      mailto,
 		"ResetMailto": resetMailto,
+		"User":        crontabUser,
 	}
 }
 
