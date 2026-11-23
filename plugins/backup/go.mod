@@ -6,7 +6,7 @@ require (
 	github.com/dokku/dokku/plugins/common v0.0.0-00010101000000-000000000000
 	github.com/mattn/go-isatty v0.0.24
 	github.com/spf13/pflag v1.1.0
-	go.yaml.in/yaml/v3 v3.0.5
+	go.yaml.in/yaml/v3 v3.0.6
 )
 
 require (
