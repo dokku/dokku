@@ -323,6 +323,30 @@ func GlobalHSTS() string {
 	return common.PropertyGet("nginx", "--global", "hsts")
 }
 
+// AppHTTP2 returns the app-level http2 property
+func AppHTTP2(appName string) string {
+	return common.PropertyGet("nginx", appName, "http2")
+}
+
+// ComputedHTTP2 returns whether http2 is enabled for the app, falling back to the global value and then to true
+func ComputedHTTP2(appName string) string {
+	appValue := AppHTTP2(appName)
+	if appValue != "" {
+		return appValue
+	}
+
+	value := GlobalHTTP2()
+	if value == "" {
+		value = "true"
+	}
+	return value
+}
+
+// GlobalHTTP2 returns the global http2 property
+func GlobalHTTP2() string {
+	return common.PropertyGet("nginx", "--global", "http2")
+}
+
 func AppNginxConfSigilPath(appName string) string {
 	return common.PropertyGet("nginx", appName, "nginx-conf-sigil-path")
 }

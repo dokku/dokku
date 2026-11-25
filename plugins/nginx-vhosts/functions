@@ -193,6 +193,23 @@ is_http2_directive_supported() {
   echo $HAS_SUPPORT
 }
 
+fn-nginx-vhosts-warn-http2-listener-scope() {
+  declare desc="warns when http2 is disabled for an app on an nginx version that scopes http2 to the listen socket"
+  declare APP="$1" SSL_INUSE="$2"
+  local NGINX_LOCATION NGINX_VERSION
+
+  [[ "$SSL_INUSE" == "true" ]] || return 0
+  [[ "$(fn-nginx-computed-http2 "$APP")" == "false" ]] || return 0
+
+  NGINX_LOCATION=$(get_nginx_location)
+  [[ -n "$NGINX_LOCATION" ]] || return 0
+  NGINX_VERSION="$("$NGINX_LOCATION" -v 2>&1 | cut -d'/' -f 2 | awk '{print $1}')"
+  [[ "$(is_http2_directive_supported "$NGINX_VERSION")" == "false" ]] || return 0
+
+  dokku_log_warn "nginx $NGINX_VERSION enables http2 per listen address, so http2 stays enabled for $APP while any other app on the same address and port enables it"
+  dokku_log_warn "Disable http2 for every app sharing the listener, e.g. via 'dokku nginx:set --global http2 false'"
+}
+
 fn-nginx-vhosts-render-template() {
   declare desc="renders an nginx.conf.sigil template via sigil to an output path"
   declare APP="$1" NGINX_TEMPLATE="$2" OUTPUT_PATH="$3"
@@ -301,6 +318,7 @@ fn-nginx-vhosts-render-template() {
   HTTP2_DIRECTIVE_SUPPORTED="$(is_http2_directive_supported "$NGINX_VERSION")"
   HTTP2_PUSH_SUPPORTED="$(is_http2_push_enabled "$NGINX_VERSION")"
   GRPC_SUPPORTED="true"
+  local HTTP2_ENABLED="$(fn-nginx-computed-http2 "$APP")"
 
   local NGINX_LOG_ROOT="$(fn-nginx-log-root)"
   local NGINX_ACCESS_LOG_FORMAT="$(fn-nginx-computed-access-log-format "$APP")"
@@ -361,6 +379,7 @@ fn-nginx-vhosts-render-template() {
     NGINX_DNS_RESOLVER_TIMEOUT="$NGINX_DNS_RESOLVER_TIMEOUT"
     NGINX_DNS_ZONE="$NGINX_DNS_ZONE"
     HTTP2_DIRECTIVE_SUPPORTED="$HTTP2_DIRECTIVE_SUPPORTED"
+    HTTP2_ENABLED="$HTTP2_ENABLED"
     HTTP2_PUSH_SUPPORTED="$HTTP2_PUSH_SUPPORTED"
     GRPC_SUPPORTED="$GRPC_SUPPORTED"
     DOKKU_APP_LISTEN_PORT="$DOKKU_APP_LISTEN_PORT" DOKKU_APP_LISTEN_IP="$DOKKU_APP_LISTEN_IP"
@@ -601,6 +620,7 @@ nginx_build_config() {
       fi
 
       xargs -i echo "-----> Configuring {}...(using $NGINX_TEMPLATE_SOURCE template)" <<<"$(echo "${SSL_VHOSTS}" "${NONSSL_VHOSTS}" | tr ' ' '\n' | sort -u)"
+      fn-nginx-vhosts-warn-http2-listener-scope "$APP" "$SSL_INUSE"
       fn-nginx-vhosts-render-template "$APP" "$NGINX_TEMPLATE" "$NGINX_CONF" "$DOKKU_APP_LISTEN_PORT" "$DOKKU_APP_LISTEN_IP"
 
       dokku_log_info1 "Creating $SCHEME nginx.conf"

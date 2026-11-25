@@ -389,6 +389,7 @@ Unsetting this value is the same as enabling custom nginx config usage.
 {{ .APP }}                          Application name
 {{ .APP_SSL_PATH }}                 Path to SSL certificate and key
 {{ .DOKKU_ROOT }}                   Global Dokku root directory (ex: app dir would be `{{ .DOKKU_ROOT }}/{{ .APP }}`)
+{{ .HTTP2_ENABLED }}                Set to `true` when http2 should be enabled for https listeners (same as the computed `http2` property)
 {{ .PROXY_PORT }}                   Non-SSL nginx listener port (same as the `proxy-port` property)
 {{ .PROXY_SSL_PORT }}               SSL nginx listener port (same as the `proxy-ssl-port` property)
 {{ .NOSSL_SERVER_NAME }}            List of non-SSL VHOSTS
@@ -467,7 +468,7 @@ dokku nginx:set --global property-name
 Changing these value globally or on a per-app basis will require rebuilding the nginx config via the `proxy:build-config` command.
 
 > [!WARNING]
-> Validation is not performed against the values, and they are used as is within Dokku.
+> Validation is not performed against the values, and they are used as is within Dokku. The exceptions are `http2`, which only accepts `true` or `false`, and `proxy-keepalive`, which only accepts an integer.
 
 | Property                  | Default                               | Type    | Explanation                                                                         |
 | --------------------------|---------------------------------------|---------|-------------------------------------------------------------------------------------|
@@ -483,6 +484,7 @@ Changing these value globally or on a per-app basis will require rebuilding the 
 | hsts-include-subdomains   | `true`                                | boolean | Forces the browser to apply the HSTS policy to all app subdomains                   |
 | hsts-max-age              | `15724800`                            | integer | Time in seconds to cache HSTS configuration                                         |
 | hsts-preload              | `false`                               | boolean | Tells the browser to include the domain in their HSTS preload lists                 |
+| http2                     | `true`                                | boolean | Enables or disables http2 for https listeners                                       |
 | keepalive-timeout         | `75s`                                 | string  | Timeout (with units) during which a keep-alive client connection will stay open on the server side |
 | lingering-timeout         | `5s`                                  | string  | Timeout (with units) is the maximum waiting time for more client data to arrive     |
 | nginx-conf-sigil-path     | `nginx.conf.sigil`                    | string  | Path in the repository to the `nginx.conf.sigil` file                               |
@@ -529,6 +531,33 @@ Properties:
 - `hsts-preload`
 
 If SSL certificates are present, HSTS will be automatically enabled.
+
+#### Disabling HTTP/2
+
+> [!NOTE]
+> Users with apps that contain a custom `nginx.conf.sigil` file will need to modify the files to respect the new `HTTP2_ENABLED` variable.
+
+Properties:
+
+- `http2`
+
+HTTP/2 is enabled by default for all https listeners. It can be disabled for an app or globally, for example when the installed nginx version cannot be upgraded to address an HTTP/2 vulnerability.
+
+```shell
+# disable http2 for the node-js-app
+dokku nginx:set node-js-app http2 false
+
+# disable http2 for all apps
+dokku nginx:set --global http2 false
+
+# rebuild the nginx config to apply the change
+dokku proxy:build-config --all
+```
+
+gRPC (`grpc` and `grpcs`) listeners require HTTP/2 and are not affected by this property.
+
+> [!WARNING]
+> On nginx versions older than 1.25.1, http2 is enabled per listen address and port rather than per app. If any app listening on the same address and port has http2 enabled, it remains enabled for every app on that listener. On these versions, disable http2 globally instead of per app.
 
 #### Running behind another proxy — configuring `X-Forwarded-*` headers
 
@@ -687,6 +716,7 @@ All nginx-vhosts properties are settable at both the app and global scope.
 | `hsts-include-subdomains` | app + global | `true` | `--nginx-hsts-include-subdomains`, `--nginx-global-hsts-include-subdomains`, `--nginx-computed-hsts-include-subdomains` | Adds the `includeSubDomains` directive to the HSTS header |
 | `hsts-max-age` | app + global | `15724800` | `--nginx-hsts-max-age`, `--nginx-global-hsts-max-age`, `--nginx-computed-hsts-max-age` | `max-age` value (seconds) in the HSTS header |
 | `hsts-preload` | app + global | `false` | `--nginx-hsts-preload`, `--nginx-global-hsts-preload`, `--nginx-computed-hsts-preload` | Adds the `preload` directive to the HSTS header |
+| `http2` | app + global | `true` | `--nginx-http2`, `--nginx-global-http2`, `--nginx-computed-http2` | When `false`, https listeners only serve HTTP/1.1. gRPC listeners always use HTTP/2 |
 | `keepalive-timeout` | app + global | `75s` | `--nginx-keepalive-timeout`, `--nginx-global-keepalive-timeout`, `--nginx-computed-keepalive-timeout` | Time an idle keep-alive connection stays open |
 | `lingering-timeout` | app + global | `5s` | `--nginx-lingering-timeout`, `--nginx-global-lingering-timeout`, `--nginx-computed-lingering-timeout` | Time nginx waits for more client data when closing a connection |
 | `nginx-conf-sigil-path` | app + global | `nginx.conf.sigil` | `--nginx-nginx-conf-sigil-path`, `--nginx-global-nginx-conf-sigil-path`, `--nginx-computed-nginx-conf-sigil-path` | Path within the app to a custom `nginx.conf.sigil` template |

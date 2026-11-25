@@ -37,6 +37,7 @@ func nginxReportProps() []nginxReportProp {
 		{"hsts-max-age", AppHSTSMaxAge, ComputedHSTSMaxAge, wrapGlobal(GlobalHSTSMaxAge)},
 		{"hsts-preload", AppHSTSPreload, ComputedHSTSPreload, wrapGlobal(GlobalHSTSPreload)},
 		{"hsts", AppHSTS, ComputedHSTS, wrapGlobal(GlobalHSTS)},
+		{"http2", AppHTTP2, ComputedHTTP2, wrapGlobal(GlobalHTTP2)},
 		{"keepalive-timeout", AppKeepaliveTimeout, ComputedKeepaliveTimeout, wrapGlobal(GlobalKeepaliveTimeout)},
 		{"lingering-timeout", AppLingeringTimeout, ComputedLingeringTimeout, wrapGlobal(GlobalLingeringTimeout)},
 		{"nginx-conf-sigil-path", AppNginxConfSigilPath, ComputedNginxConfSigilPath, wrapGlobal(GlobalNginxConfSigilPath)},

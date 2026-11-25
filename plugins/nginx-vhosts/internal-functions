@@ -316,6 +316,24 @@ fn-nginx-global-hsts() {
   fn-get-property --app "$APP" --global "hsts"
 }
 
+fn-nginx-http2() {
+  declare desc="get the app-level http2 property"
+  declare APP="$1"
+  fn-get-property --app "$APP" "http2"
+}
+
+fn-nginx-computed-http2() {
+  declare desc="get the computed http2 property"
+  declare APP="$1"
+  fn-get-property --app "$APP" --computed "http2"
+}
+
+fn-nginx-global-http2() {
+  declare desc="get the global http2 property"
+  declare APP="$1"
+  fn-get-property --app "$APP" --global "http2"
+}
+
 fn-nginx-vhosts-last-visited-at() {
   declare APP="$1"
   local LOG_PATH=$(fn-nginx-access-log-path "$APP")

@@ -9,7 +9,10 @@
 {{ $is_redirect := and (not $is_ssl) (eq $listen_port "80") $.SSL_INUSE }}
 server {
   {{ if $is_ssl }}
-  {{ if eq $.HTTP2_DIRECTIVE_SUPPORTED "true" }}
+  {{ if ne $.HTTP2_ENABLED "true" }}
+  listen      [{{ $.NGINX_BIND_ADDRESS_IP6 }}]:{{ $listen_port }} ssl;
+  listen      {{ if $.NGINX_BIND_ADDRESS_IP4 }}{{ $.NGINX_BIND_ADDRESS_IP4 }}:{{end}}{{ $listen_port }} ssl;
+  {{ else if eq $.HTTP2_DIRECTIVE_SUPPORTED "true" }}
   listen      [{{ $.NGINX_BIND_ADDRESS_IP6 }}]:{{ $listen_port }} ssl;
   listen      {{ if $.NGINX_BIND_ADDRESS_IP4 }}{{ $.NGINX_BIND_ADDRESS_IP4 }}:{{end}}{{ $listen_port }} ssl;
   http2 on;
@@ -92,7 +95,7 @@ server {
 {{ else }}
     proxy_pass  http://{{ $.APP }}-{{ $upstream_port }};
 {{ end }}
-    {{ if and $is_ssl (eq $.HTTP2_PUSH_SUPPORTED "true") }}http2_push_preload on; {{ end }}
+    {{ if and $is_ssl (eq $.HTTP2_ENABLED "true") (eq $.HTTP2_PUSH_SUPPORTED "true") }}http2_push_preload on; {{ end }}
     proxy_http_version {{ $.PROXY_HTTP_VERSION }};
     proxy_connect_timeout {{ $.PROXY_CONNECT_TIMEOUT }};
     proxy_read_timeout {{ $.PROXY_READ_TIMEOUT }};

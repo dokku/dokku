@@ -135,6 +135,31 @@ teardown() {
   assert_output "backup-global.example.com"
 }
 
+@test "(backup) nginx http2 property round-trip" {
+  dokku nginx:set $TEST_APP http2 false
+
+  run /bin/bash -c "dokku backup:export --app $TEST_APP --backup-dir /tmp 2>/dev/null"
+  echo "output: $output"
+  assert_success
+  local backup_file="$output"
+
+  run /bin/bash -c "tar xzf '$backup_file' -O apps/$TEST_APP/config/nginx.yml"
+  echo "output: $output"
+  assert_success
+  assert_output_contains "property: http2"
+
+  dokku --force apps:destroy $TEST_APP
+
+  run /bin/bash -c "dokku backup:import --force '$backup_file'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:report $TEST_APP --nginx-http2"
+  echo "output: $output"
+  assert_output "false"
+}
+
 save_global_vhost() {
   declare desc="saves the global VHOST file so a test can change global domains"
   cp -a "$DOKKU_ROOT/VHOST" "$BATS_TMPDIR/backup-3-global-VHOST" 2>/dev/null || true
