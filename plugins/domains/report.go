@@ -3,13 +3,10 @@ package domains
 import (
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
 )
-
-var hostnameRegex = regexp.MustCompile(`^[a-z0-9.*-]*[a-z0-9*-]$`)
 
 // ReportSingleApp is an internal function that displays the domains report for one or more apps
 func ReportSingleApp(appName string, format string, infoFlag string) error {
@@ -93,21 +90,12 @@ func globalVhostContents() string {
 
 func isGlobalVhostEnabled() bool {
 	for _, line := range strings.Split(globalVhostContents(), "\n") {
-		if isValidHostname(line) {
+		if common.IsValidHostname(line) {
 			return true
 		}
 	}
 
 	return false
-}
-
-func isValidHostname(hostname string) bool {
-	hostname = strings.ToLower(hostname)
-	if hostname == "_" {
-		return true
-	}
-
-	return hostnameRegex.MatchString(hostname)
 }
 
 func readFileString(path string) string {

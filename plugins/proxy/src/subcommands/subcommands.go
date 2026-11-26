@@ -96,6 +96,31 @@ func main() {
 		args.Parse(os.Args[2:])
 		appName := args.Arg(0)
 		err = proxy.CommandRouteReport(appName, *format)
+	case "redirect:set":
+		args := flag.NewFlagSet("proxy:redirect:set", flag.ExitOnError)
+		code := args.Int("code", proxy.DefaultRedirectCode, "--code: http status code to redirect with")
+		args.Parse(os.Args[2:])
+		appName := args.Arg(0)
+		source := args.Arg(1)
+		destination := args.Arg(2)
+		err = proxy.CommandRedirectSet(appName, source, destination, *code)
+	case "redirect:remove":
+		args := flag.NewFlagSet("proxy:redirect:remove", flag.ExitOnError)
+		args.Parse(os.Args[2:])
+		appName := args.Arg(0)
+		source := args.Arg(1)
+		err = proxy.CommandRedirectRemove(appName, source)
+	case "redirect:clear":
+		args := flag.NewFlagSet("proxy:redirect:clear", flag.ExitOnError)
+		args.Parse(os.Args[2:])
+		appName := args.Arg(0)
+		err = proxy.CommandRedirectClear(appName)
+	case "redirect:report":
+		args := flag.NewFlagSet("proxy:redirect:report", flag.ExitOnError)
+		format := args.String("format", "stdout", "format: [ stdout | json ]")
+		args.Parse(os.Args[2:])
+		appName := args.Arg(0)
+		err = proxy.CommandRedirectReport(appName, *format)
 	default:
 		err = fmt.Errorf("Invalid plugin subcommand call: %s", subcommand)
 	}

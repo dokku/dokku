@@ -34,6 +34,9 @@ func main() {
 	case "proxy-type":
 		appName := flag.Arg(0)
 		err = proxy.TriggerProxyType(appName)
+	case "proxy-redirects-list":
+		appName := flag.Arg(0)
+		err = proxy.TriggerProxyRedirectsList(appName)
 	case "proxy-routes-list":
 		appName := flag.Arg(0)
 		err = proxy.TriggerProxyRoutesList(appName)

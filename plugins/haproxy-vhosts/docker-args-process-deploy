@@ -105,12 +105,16 @@ trigger-haproxy-vhosts-docker-args-process-deploy() {
 
     # EasyHAProxy serves https itself: it requests the certificate (certbot), terminates
     # TLS on 443 and forwards to the same container port as http
+    local redirect_scheme="http"
     if [[ -n "$letsencrypt_email" ]] && { [[ -n "$proxy_container_https_port" ]] || [[ -n "$proxy_container_https_port_candidate" ]]; }; then
+      redirect_scheme="https"
       output="$output --label haproxy.$APP-$PROC_TYPE.redirect_ssl=true"
       output="$output --label haproxy.$APP-$PROC_TYPE.certbot=true"
     else
       output="$output --label haproxy.$APP-$PROC_TYPE.redirect_ssl=false"
     fi
+
+    output="$output$(fn-haproxy-redirect-labels "$APP" "$PROC_TYPE" "$redirect_scheme")"
   fi
 
   local proxy_labels_file_path=$(fn-proxy-get-labels-file-path "haproxy" "$APP")

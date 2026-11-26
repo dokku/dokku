@@ -118,3 +118,33 @@ The `$dokku_upstream` variable name is intentionally namespaced (rather than `$u
 ### Choosing between the two
 
 The IP-based path is the default for the bundled template, and the DNS-based path is used once `dns-resolver` is set. Vendored templates that have not been updated continue to use `DOKKU_APP_<PROC>_LISTENERS` and are unaffected by the `dns-resolver` setting. The `DOKKU_APP_<PROC>_LISTENER_HOST` and `NGINX_DNS_ZONE` variables are populated regardless of whether `dns-resolver` is set, so a vendored template can adopt the resolver path on its own schedule by switching its rendering snippet, even if other apps on the host are still using IP-based upstreams.
+
+## Domain redirects
+
+> [!IMPORTANT]
+> New as of 0.39.0
+
+Domain redirects declared via `proxy:redirect:set` are exposed to templates as the `PROXY_REDIRECTS` variable: a space-separated list of `source|destination|code|tls` entries, where `tls` is `true` when the app's certificate covers the source. Redirect sources are always removed from `NOSSL_SERVER_NAME` and `SSL_SERVER_NAME`, so a vendored template that does not render `PROXY_REDIRECTS` stops serving those domains entirely. To keep redirects working, render a `server {}` block per redirect inside the port mapping loop, as the bundled template does:
+
+```nginx
+{{ range $redirect := $.PROXY_REDIRECTS | split " " }}
+{{ if $redirect }}
+{{ $rd := $redirect | split "|" }}
+{{ if or (not $is_ssl) (eq (index $rd 3) "true") }}
+server {
+  listen      [{{ $.NGINX_BIND_ADDRESS_IP6 }}]:{{ $listen_port }}{{ if $is_ssl }} ssl{{ end }};
+  listen      {{ if $.NGINX_BIND_ADDRESS_IP4 }}{{ $.NGINX_BIND_ADDRESS_IP4 }}:{{end}}{{ $listen_port }}{{ if $is_ssl }} ssl{{ end }};
+  server_name {{ index $rd 0 }};
+  {{ if $is_ssl }}
+  ssl_certificate     {{ $.APP_SSL_PATH }}/server.crt;
+  ssl_certificate_key {{ $.APP_SSL_PATH }}/server.key;
+  {{ end }}
+  include {{ $.DOKKU_ROOT }}/{{ $.APP }}/nginx.conf.d/*.conf;
+  location / {
+    return {{ index $rd 2 }} $scheme://{{ index $rd 1 }}$request_uri;
+  }
+}
+{{ end }}
+{{ end }}
+{{ end }}
+```

@@ -354,6 +354,23 @@ assert_http_localhost_response_contains() {
   fi
 }
 
+assert_http_localhost_redirect() {
+  declare desc="asserts that a request to the local proxy for a domain responds with a redirect status code and location"
+  local scheme="$1" domain="$2" port="$3" path="$4" status_code="$5" location="$6"
+  local retries="${HTTP_ASSERT_RETRIES:-30}" attempt=1
+  while [[ "$attempt" -lt "$retries" ]]; do
+    run curl --connect-to "$domain:$port:localhost:$port" -kSso /dev/null -w "%{http_code} %{redirect_url}" "$scheme://$domain:$port$path"
+    [[ "$output" == "$status_code $location" ]] && break
+    sleep 1
+    attempt=$((attempt + 1))
+  done
+  echo "curl: curl --connect-to $domain:$port:localhost:$port -kSso /dev/null -w '%{http_code} %{redirect_url}' $scheme://$domain:$port$path"
+  echo "output: $output"
+  echo "status: $status"
+  echo "attempts: $attempt"
+  assert_output "$status_code $location"
+}
+
 assert_ssl_domain() {
   local domain=$1
   assert_app_domain "${domain}"

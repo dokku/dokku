@@ -123,6 +123,13 @@ dokku haproxy:set --global refresh-conf 5
 
 The `refresh-conf` property is global-only and cannot be set on a per-app basis. Setting an empty value will reset it to the default. After modifying, the Haproxy container will need to be restarted.
 
+### Domain redirects
+
+> [!IMPORTANT]
+> New as of 0.39.0
+
+Domain redirects declared via `proxy:redirect:set` are rendered as a `redirect` label on the app's `web` containers. The `byjg/easy-haproxy` sidecar always answers redirects with a `301`, so the `--code` flag is ignored under this backend. Redirect sources stay in the app's `host` label so the sidecar still requests certificates for them, and the sidecar matches redirects before routing a request to the app. Run `dokku ps:rebuild <app>` after changing redirects so the containers are recreated with the new labels. See the [proxy management documentation](/docs/networking/proxy-management.md#domain-redirects) for usage.
+
 ### Label Management
 
 The Haproxy plugin allows you to add custom container labels to apps. These labels are injected into containers during deployment and can be used to configure Haproxy behavior beyond what the plugin provides by default.

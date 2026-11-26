@@ -8,7 +8,15 @@ proxy:build-config [--parallel count] [--all|<app>] # (Re)builds config for give
 proxy:clear-config [--all|<app>] # Clears config for given app
 proxy:disable [--parallel count] [--all|<app>]      # Disable proxy for app
 proxy:enable [--parallel count] [--all|<app>]       # Enable proxy for app
+proxy:redirect:clear <app>                          # Removes every domain redirect for an app
+proxy:redirect:remove <app> <source>                # Removes a domain redirect from an app
+proxy:redirect:report [<app>] [--format json]       # Displays the domain redirects for an app
+proxy:redirect:set <app> <source> <destination> [--code code] # Adds or updates a redirect from a source domain to a destination domain
 proxy:report [<app>] [<flag>]                       # Displays a proxy report for one or more apps
+proxy:route:clear <app>                             # Removes every path-based route for an app
+proxy:route:remove <app> <path>                     # Removes a path-based route from an app
+proxy:route:report [<app>] [--format json]          # Displays the path-based routes for an app
+proxy:route:set <app> <process> <path> [--port port] [--strip-prefix] # Adds or updates a path-based route to a non-web process
 proxy:set [<app>|--global] <key> (<value>)          # Set or clear a proxy property for an app
 ```
 
@@ -276,6 +284,82 @@ dokku proxy:route:set node-js-app api /api/v0/admin
 - **haproxy**: routes are stored but inert under this backend. They activate automatically if you switch to a rendering backend (`nginx`, `traefik`, `caddy`, `openresty`, or `k3s`).
 - **WebSocket** traffic is forwarded transparently on `nginx`, `traefik`, `caddy`, and `k3s` backends - no additional configuration is required.
 - A route to a process that is scaled to `0` will resolve to no upstream until the process is scaled up (`dokku ps:scale <app> <process>=1`). `proxy:route:set` warns when this is the case.
+
+### Domain redirects
+
+> [!IMPORTANT]
+> New as of 0.39.0
+
+Use `proxy:redirect:*` to redirect every request for one domain to another domain, for example sending `www.example.com` to `example.com`. The request path and query string are kept, so `http://www.example.com/docs?page=2` redirects to `http://example.com/docs?page=2`.
+
+> [!NOTE]
+> Domain redirects are rendered by the `nginx`, `caddy`, `traefik`, `haproxy`, `openresty`, and `k3s` proxy backends. Redirects stored under any other proxy type are kept and render once the app switches to one of these backends.
+
+#### Adding a redirect
+
+```shell
+dokku proxy:redirect:set node-js-app www.example.com example.com
+```
+
+The `--code` flag sets the http status code used for the redirect, and must be one of `301` (default), `302`, `303`, `307`, or `308`:
+
+```shell
+dokku proxy:redirect:set node-js-app old.example.com example.com --code 302
+```
+
+`proxy:redirect:set` uses set semantics: the resulting redirect is fully described by its arguments, and omitting `--code` resets the code to `301`. Both the source and the destination must be plain hostnames; wildcards, the `_` catch-all, schemes, ports, and paths are rejected. The redirect uses the same scheme as the incoming request when the backend supports it, and always targets the default port for that scheme.
+
+#### Redirects and app domains
+
+A redirect source does not need to be one of the app's domains. When it is - for example, because `www.example.com` was added with `domains:add` so that a certificate covers it - the source is removed from the hostnames the app is served on, and only the redirect answers requests for it. The domain stays in the app's domain list, so `domains:report` still shows it and the [letsencrypt plugin](https://github.com/dokku/dokku-letsencrypt) still requests a certificate for it.
+
+```shell
+dokku domains:add node-js-app example.com www.example.com
+dokku proxy:redirect:set node-js-app www.example.com example.com
+dokku letsencrypt:enable node-js-app
+```
+
+Under the `nginx` backend, the redirect server blocks include the app's `nginx.conf.d` files, so the letsencrypt http-01 challenge keeps working for the source domain, and an https redirect is only rendered when the app's certificate covers the source.
+
+#### Removing a redirect
+
+```shell
+dokku proxy:redirect:remove node-js-app www.example.com
+```
+
+Removing a source that is not registered is a successful no-op.
+
+#### Clearing all redirects
+
+```shell
+dokku proxy:redirect:clear node-js-app
+```
+
+#### Listing redirects
+
+```shell
+dokku proxy:redirect:report node-js-app
+```
+
+```
+=====> node-js-app proxy redirects information
+       Redirect old.example.com -> example.com (302)
+       Redirect www.example.com -> example.com (301)
+```
+
+The report supports JSON output for scripting:
+
+```shell
+dokku proxy:redirect:report node-js-app --format json
+```
+
+#### Redirect caveats per backend
+
+- **nginx**: redirect changes take effect immediately, as `proxy:redirect:*` rebuilds the nginx config. Apps with a custom `nginx.conf.sigil` must render the `PROXY_REDIRECTS` variable themselves; see the [nginx documentation](/docs/networking/proxies/nginx.md#domain-redirects).
+- **caddy**, **traefik**, **haproxy**, and **openresty**: redirects are applied via Docker labels on the `web` containers. Containers must be recreated for the change to take effect, and the command prints a notice instructing you to run `dokku ps:rebuild <app>`.
+- **traefik**: redirects are either permanent or temporary. `301` and `308` render as a permanent redirect, and every other code renders as a temporary redirect, which traefik answers with a `302` for `GET` requests.
+- **haproxy**: the `byjg/easy-haproxy` sidecar always answers redirects with a `301`, so `--code` is ignored and the command prints a warning when it is set to anything else. Redirect sources stay in the app's host list so the sidecar still issues certificates for them.
+- **k3s**: redirect changes take effect on the next deploy when the chart is re-rendered. See the [k3s scheduler documentation](/docs/deployment/schedulers/k3s.md#domain-redirects).
 
 ### Container network interface binding
 

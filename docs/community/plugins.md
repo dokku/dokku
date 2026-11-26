@@ -45,7 +45,6 @@ Every datastore below is also served by the `datastore` plugin Dokku ships, as i
 | [Postgres](https://github.com/dokku/dokku-postgres)                                               | [dokku][]             | 0.4.0+                |
 | [Pushpin](https://github.com/dokku/dokku-pushpin)                                                 | [dokku][]             | 0.4.0+                |
 | [RabbitMQ](https://github.com/dokku/dokku-rabbitmq)                                               | [dokku][]             | 0.4.0+                |
-| [Redirect](https://github.com/dokku/dokku-redirect)                                               | [dokku][]             | 0.4.0+                |
 | [Redis](https://github.com/dokku/dokku-redis)                                                     | [dokku][]             | 0.4.0+                |
 | [Registry](https://github.com/dokku/dokku-registry)                                               | [dokku][]             | 0.12.0+               |
 | [RethinkDB](https://github.com/dokku/dokku-rethinkdb)                                             | [dokku][]             | 0.4.0+                |
@@ -198,6 +197,7 @@ The following plugins have been removed as their functionality is now in Dokku C
 | [Persistent Storage](https://github.com/dyson/dokku-persistent-storage)                           | [dyson][]             | v0.3.17 (docker-options plugin)           |
 | [Pre-Deploy Tasks](https://github.com/michaelshobbs/dokku-app-predeploy-tasks)                    | [michaelshobbs][]     | v0.5.0 (deployment tasks)                 |
 | [PrimeCache](https://github.com/darkpixel/dokku-prime-cache)                                      | [darkpixel][]         | v0.3.0 (zero downtime deploys)            |
+| [Redirect](https://github.com/dokku/dokku-redirect)                                               | [dokku][]             | v0.39.0 (proxy:redirect)                  |
 | [Rollbar](https://github.com/iloveitaly/dokku-rollbar)                                            | [iloveitaly][]        | v0.5.0 (deployment tasks)                 |
 | [Syslog](https://github.com/michaelshobbs/dokku-syslog)                                           | [michaelshobbs][]     | v0.22.6 (vector log shipping)             |
 | [Haproxy tcp load balancer](https://github.com/256dpi/dokku-haproxy)                              | [256dpi][]            | v0.28.0 (haproxt plugin)                  |

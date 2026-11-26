@@ -4,6 +4,7 @@ set -eo pipefail
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
 source "$PLUGIN_AVAILABLE_PATH/certs/functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
+source "$PLUGIN_AVAILABLE_PATH/proxy/functions"
 source "$PLUGIN_AVAILABLE_PATH/nginx-vhosts/internal-functions"
 
 get_nginx_location() {
@@ -247,6 +248,23 @@ fn-nginx-vhosts-warn-http3-unsupported() {
   dokku_log_warn "HTTP/3 requires nginx 1.25.0 or newer built with --with-http_v3_module"
 }
 
+fn-nginx-vhosts-redirects() {
+  declare desc="outputs the space-separated source|destination|code|tls entries for each redirect of an app"
+  declare APP="$1" SSL_INUSE="$2" SSL_HOSTNAME_REGEX="$3"
+  local source destination code tls output=""
+
+  while IFS='|' read -r source destination code; do
+    [[ -z "$source" ]] && continue
+    tls=false
+    if [[ "$SSL_INUSE" == "true" ]] && [[ -n "$SSL_HOSTNAME_REGEX" ]] && grep -qE "^(${SSL_HOSTNAME_REGEX})$" <<<"$source"; then
+      tls=true
+    fi
+    output="${output} ${source}|${destination}|${code}|${tls}"
+  done < <(plugn trigger proxy-redirects-list "$APP")
+
+  echo "$output" | xargs
+}
+
 fn-nginx-vhosts-render-template() {
   declare desc="renders an nginx.conf.sigil template via sigil to an output path"
   declare APP="$1" NGINX_TEMPLATE="$2" OUTPUT_PATH="$3"
@@ -318,13 +336,15 @@ fn-nginx-vhosts-render-template() {
   PROXY_ROUTE_LISTENERS="$(echo "$PROXY_ROUTE_LISTENERS" | xargs)"
 
   local SSL_INUSE=
-  local NONSSL_VHOSTS=$(plugn trigger domains-list "$APP")
+  local NONSSL_VHOSTS=$(fn-proxy-served-domains "$APP")
   local NOSSL_SERVER_NAME=$(echo "$NONSSL_VHOSTS" | xargs)
   local SSL_SERVER_NAME=""
+  local SSL_HOSTNAME_REGEX=""
+  local REDIRECT_SOURCES=" $(fn-proxy-redirect-sources "$APP" | xargs) "
   if [[ "$IS_SSL_ENABLED" == "true" ]]; then
     SSL_INUSE=true
     local SSL_HOSTNAME=$(get_ssl_hostnames "$APP")
-    local SSL_HOSTNAME_REGEX=$(echo "$SSL_HOSTNAME" | xargs | sed 's|\.|\\.|g' | sed 's/\*/\[^\.\]\*/g' | sed 's/ /|/g')
+    SSL_HOSTNAME_REGEX=$(echo "$SSL_HOSTNAME" | xargs | sed 's|\.|\\.|g' | sed 's/\*/\[^\.\]\*/g' | sed 's/ /|/g')
 
     local SSL_VHOSTS
     if [[ "$IS_APP_VHOST_ENABLED" == "true" ]]; then
@@ -336,11 +356,16 @@ fn-nginx-vhosts-render-template() {
     local -a ssl_vhosts
     read -r -d '' -a ssl_vhosts <<<"$SSL_VHOSTS" || true
     for host in "${ssl_vhosts[@]}"; do
+      if [[ "$REDIRECT_SOURCES" == *" ${host} "* ]]; then
+        continue
+      fi
       if [[ ! $NOSSL_SERVER_NAME =~ (^|[[:space:]])$host($|[[:space:]]) ]]; then
         SSL_SERVER_NAME="${host}${SSL_SERVER_NAME:+ $SSL_SERVER_NAME}"
       fi
     done
   fi
+
+  local PROXY_REDIRECTS="$(fn-nginx-vhosts-redirects "$APP" "$SSL_INUSE" "$SSL_HOSTNAME_REGEX")"
 
   local NGINX_LOCATION NGINX_VERSION SPDY_SUPPORTED TLS13_SUPPORTED HTTP2_SUPPORTED HTTP2_PUSH_SUPPORTED HTTP2_DIRECTIVE_SUPPORTED GRPC_SUPPORTED
   NGINX_LOCATION=$(get_nginx_location)
@@ -446,6 +471,7 @@ fn-nginx-vhosts-render-template() {
     PROXY_PORT="$PROXY_PORT" PROXY_SSL_PORT="$PROXY_SSL_PORT"
     PROXY_PORT_MAP="$PROXY_PORT_MAP" PROXY_UPSTREAM_PORTS="$PROXY_UPSTREAM_PORTS"
     PROXY_ROUTES="$PROXY_ROUTES" PROXY_ROUTE_LISTENERS="$PROXY_ROUTE_LISTENERS"
+    PROXY_REDIRECTS="$PROXY_REDIRECTS"
     PROXY_X_FORWARDED_FOR="$PROXY_X_FORWARDED_FOR"
     PROXY_X_FORWARDED_PORT="$PROXY_X_FORWARDED_PORT"
     PROXY_X_FORWARDED_PROTO="$PROXY_X_FORWARDED_PROTO"

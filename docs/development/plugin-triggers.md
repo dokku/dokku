@@ -2569,6 +2569,24 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `proxy-redirects-list`
+
+- Description: Emits one `source|destination|code` line per domain redirect declared via `proxy:redirect:set`, sorted by source. Backends use this to render domain redirects in their config, container labels, or ingress resources.
+- Invoked by: `nginx-vhosts`, `caddy-vhosts`, `traefik-vhosts`, `haproxy-vhosts`, `openresty-vhosts`, `scheduler-k3s`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+APP="$1"
+while IFS='|' read -r source destination code; do
+  echo "Redirect ${source} -> ${destination} (${code})"
+done < <(plugn trigger proxy-redirects-list "$APP")
+```
+
 ### `proxy-routes-list`
 
 - Description: Emits one `process|port|path|strip` line per path-based route declared via `proxy:route:set`, sorted by descending path length. Backends use this to render path-based routes in their config or container labels.

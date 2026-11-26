@@ -4,7 +4,7 @@
 {{- continue }}
 {{- end }}
 
-{{- if and $config.web.tls.enabled (not $config.web.tls.use_imported_cert) $config.web.domains }}
+{{- if and $config.web.tls.enabled (not $config.web.tls.use_imported_cert) (or $config.web.domains $config.web.redirects) }}
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -36,6 +36,9 @@ spec:
   dnsNames:
     {{- range $idx, $domain := $config.web.domains }}
     - {{ $domain.name }}
+    {{- end }}
+    {{- range $idx, $redirect := $config.web.redirects }}
+    - {{ $redirect.source }}
     {{- end }}
 {{- end }}
 {{- end }}

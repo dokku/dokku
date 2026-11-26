@@ -97,7 +97,7 @@ trigger-traefik-vhosts-docker-args-process-deploy() {
   # any `http:80` port mapping is treated as a `http` traefik entrypoint
   # any `https:443` port mapping is treated as a `https` traefik entrypoint
   if [[ -n "$is_app_listening" ]]; then
-    app_domains="$(plugn trigger domains-list "$APP")"
+    app_domains="$(fn-proxy-served-domains "$APP")"
     if [[ -n "$app_domains" ]]; then
       # get length of domains
       if [[ "$(echo "$traefik_domains" | wc -w)" -eq 1 ]]; then
@@ -127,6 +127,7 @@ trigger-traefik-vhosts-docker-args-process-deploy() {
       if [[ -n "$traefik_domains" ]]; then
         output="$output --label \"traefik.http.routers.$APP-$PROC_TYPE-http.rule=$traefik_domains\""
       fi
+      output="$output$(fn-traefik-redirect-labels "$APP" "$PROC_TYPE" "http" "$(fn-traefik-computed-http-entry-point)")"
     fi
 
     if [[ -n "$proxy_container_https_port" ]] || [[ -n "$proxy_container_https_port_candidate" ]]; then
@@ -143,6 +144,7 @@ trigger-traefik-vhosts-docker-args-process-deploy() {
       if [[ -n "$traefik_domains" ]]; then
         output="$output --label \"traefik.http.routers.$APP-$PROC_TYPE-https.rule=$traefik_domains\""
       fi
+      output="$output$(fn-traefik-redirect-labels "$APP" "$PROC_TYPE" "https" "$(fn-traefik-computed-https-entry-point)")"
     fi
 
     local healthcheck hc_path hc_scheme hc_port hc_timeout hc_interval

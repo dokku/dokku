@@ -175,3 +175,29 @@ fn-proxy-write-labels-file() {
   fi
   mv -f "$tmp_file" "$LABELS_FILE"
 }
+
+fn-proxy-redirect-sources() {
+  declare desc="outputs the source domain of each redirect for an app, one per line"
+  declare APP="$1"
+  local source
+
+  while IFS='|' read -r source _ _; do
+    [[ -z "$source" ]] && continue
+    echo "$source"
+  done < <(plugn trigger proxy-redirects-list "$APP")
+}
+
+fn-proxy-served-domains() {
+  declare desc="outputs the app domains, one per line, without any domain that is the source of a redirect"
+  declare APP="$1"
+  local domain redirect_sources
+
+  redirect_sources=" $(fn-proxy-redirect-sources "$APP" | xargs) "
+  while read -r domain; do
+    [[ -z "$domain" ]] && continue
+    if [[ "$redirect_sources" == *" ${domain} "* ]]; then
+      continue
+    fi
+    echo "$domain"
+  done < <(plugn trigger domains-list "$APP")
+}

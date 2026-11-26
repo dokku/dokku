@@ -165,6 +165,13 @@ dokku caddy:set --global log-level DEBUG
 
 After modifying,  the Caddy container will need to be restarted.
 
+### Domain redirects
+
+> [!IMPORTANT]
+> New as of 0.39.0
+
+Domain redirects declared via `proxy:redirect:set` are rendered as Caddy site labels (`caddy_<n>` and `caddy_<n>.redir`) on the app's `web` containers, and redirect sources are removed from the app's own `caddy` site. Caddy requests a certificate for the redirect source along with the app's other domains when a letsencrypt email is configured. Run `dokku ps:rebuild <app>` after changing redirects so the containers are recreated with the new labels. See the [proxy management documentation](/docs/networking/proxy-management.md#domain-redirects) for usage.
+
 ### Label Management
 
 The Caddy plugin allows you to add custom container labels to apps. These labels are injected into containers during deployment and can be used to configure Caddy behavior beyond what the plugin provides by default.

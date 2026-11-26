@@ -67,12 +67,39 @@ fn-traefik-route-slug() {
   echo "$s"
 }
 
+fn-traefik-redirect-labels() {
+  declare desc="outputs the traefik router and middleware labels that redirect each redirect source to its destination"
+  declare APP="$1" PROC_TYPE="$2" SCHEME="$3" ENTRY_POINT="$4"
+  local source destination code permanent name redirect_index=0
+
+  while IFS='|' read -r source destination code; do
+    [[ -z "$source" ]] && continue
+    name="$APP-redirect-$redirect_index-$SCHEME"
+    permanent=false
+    if [[ "$code" == "301" ]] || [[ "$code" == "308" ]]; then
+      permanent=true
+    fi
+
+    echo -n " --label 'traefik.http.middlewares.${name}.redirectregex.regex=^[^:]+://[^/]+(.*)'"
+    echo -n " --label 'traefik.http.middlewares.${name}.redirectregex.replacement=${SCHEME}://${destination}\${1}'"
+    echo -n " --label traefik.http.middlewares.${name}.redirectregex.permanent=${permanent}"
+    echo -n " --label traefik.http.routers.${name}.entrypoints=${ENTRY_POINT}"
+    echo -n " --label \"traefik.http.routers.${name}.rule=Host(\`${source}\`)\""
+    echo -n " --label traefik.http.routers.${name}.middlewares=${name}"
+    echo -n " --label traefik.http.routers.${name}.service=$APP-$PROC_TYPE-$SCHEME"
+    if [[ "$SCHEME" == "https" ]]; then
+      echo -n " --label traefik.http.routers.${name}.tls.certresolver=leresolver"
+    fi
+    redirect_index=$((redirect_index + 1))
+  done < <(plugn trigger proxy-redirects-list "$APP")
+}
+
 fn-traefik-host-rule() {
   declare desc="builds a traefik Host(\`d1\`) || Host(\`d2\`) rule fragment from an app's domains"
   declare APP="$1"
   local app_domains domain result=""
 
-  app_domains="$(plugn trigger domains-list "$APP")"
+  app_domains="$(fn-proxy-served-domains "$APP")"
   if [[ -z "$app_domains" ]]; then
     return
   fi
