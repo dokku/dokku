@@ -9,6 +9,7 @@ setup() {
 }
 
 teardown() {
+  dokku nginx:set --global http2 || true
   destroy_app
   [[ -f "$DOKKU_ROOT/VHOST.bak" ]] && mv "$DOKKU_ROOT/VHOST.bak" "$DOKKU_ROOT/VHOST" && chown dokku:dokku "$DOKKU_ROOT/VHOST"
   global_teardown
@@ -156,6 +157,97 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_contains "Enabling HSTS" 1
+}
+
+@test "(nginx-vhosts) nginx:set http2" {
+  setup_test_tls wildcard
+
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:show-config $TEST_APP | grep -c http2"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:set $TEST_APP http2 false"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku proxy:build-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  if dpkg --compare-versions "$(nginx -v 2>&1 | cut -d'/' -f 2 | awk '{print $1}')" lt 1.25.1; then
+    assert_output_contains "enables http2 per listen address"
+  else
+    assert_output_contains "enables http2 per listen address" 0
+  fi
+
+  run /bin/bash -c "dokku nginx:show-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "ssl;" 2
+  assert_output_contains "http2" 0
+
+  run /bin/bash -c "dokku nginx:set $TEST_APP http2"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku proxy:build-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:show-config $TEST_APP | grep -c http2"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
+@test "(nginx-vhosts) nginx:set --global http2" {
+  setup_test_tls wildcard
+
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:set --global http2 false"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku proxy:build-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:show-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "http2" 0
+
+  run /bin/bash -c "dokku nginx:set $TEST_APP http2 true"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku proxy:build-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:show-config $TEST_APP | grep -c http2"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
 }
 
 @test "(nginx-vhosts) nginx:set bind-address" {

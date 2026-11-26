@@ -64,6 +64,7 @@ func defaultVars() map[string]interface{} {
 		"PROXY_X_FORWARDED_PROTO":     "$scheme",
 		"PROXY_X_FORWARDED_SSL":       "",
 		"HTTP2_DIRECTIVE_SUPPORTED":   "true",
+		"HTTP2_ENABLED":               "true",
 		"PROXY_ROUTES":                "",
 		"PROXY_ROUTE_LISTENERS":       "",
 	}
@@ -191,6 +192,54 @@ func TestTemplate_HTTPSWithHTTP2Parameter(t *testing.T) {
 	out := renderTemplate(t, v)
 	mustContain(t, out, "listen      [::]:443 ssl http2;")
 	mustNotContain(t, out, "http2 on;")
+}
+
+func TestTemplate_HTTPSWithHTTP2DisabledDirectiveSupported(t *testing.T) {
+	v := defaultVars()
+	v["PROXY_PORT_MAP"] = "https:443:5000"
+	v["SSL_INUSE"] = "true"
+	v["SSL_SERVER_NAME"] = "app.example.com"
+	v["HTTP2_DIRECTIVE_SUPPORTED"] = "true"
+	v["HTTP2_ENABLED"] = "false"
+	out := renderTemplate(t, v)
+	mustContain(t, out, "listen      [::]:443 ssl;")
+	mustNotContain(t, out, "http2")
+}
+
+func TestTemplate_HTTPSWithHTTP2DisabledDirectiveUnsupported(t *testing.T) {
+	v := defaultVars()
+	v["PROXY_PORT_MAP"] = "https:443:5000"
+	v["SSL_INUSE"] = "true"
+	v["SSL_SERVER_NAME"] = "app.example.com"
+	v["HTTP2_DIRECTIVE_SUPPORTED"] = "false"
+	v["HTTP2_ENABLED"] = "false"
+	out := renderTemplate(t, v)
+	mustContain(t, out, "listen      [::]:443 ssl;")
+	mustNotContain(t, out, "http2")
+}
+
+func TestTemplate_HTTPSOmitsPushPreloadWhenHTTP2Disabled(t *testing.T) {
+	v := defaultVars()
+	v["PROXY_PORT_MAP"] = "https:443:5000"
+	v["SSL_INUSE"] = "true"
+	v["SSL_SERVER_NAME"] = "app.example.com"
+	v["HTTP2_DIRECTIVE_SUPPORTED"] = "false"
+	v["HTTP2_PUSH_SUPPORTED"] = "true"
+	v["HTTP2_ENABLED"] = "false"
+	out := renderTemplate(t, v)
+	mustNotContain(t, out, "http2_push_preload")
+}
+
+func TestTemplate_GRPCKeepsHTTP2WhenHTTP2Disabled(t *testing.T) {
+	v := defaultVars()
+	v["PROXY_PORT_MAP"] = "grpcs:443:50051"
+	v["PROXY_UPSTREAM_PORTS"] = "50051"
+	v["SSL_INUSE"] = "true"
+	v["SSL_SERVER_NAME"] = "app.example.com"
+	v["HTTP2_ENABLED"] = "false"
+	out := renderTemplate(t, v)
+	mustContain(t, out, "http2 on;")
+	mustContain(t, out, "grpc_pass  grpc://app-50051;")
 }
 
 func TestTemplate_NoWebListenersReturns502(t *testing.T) {
