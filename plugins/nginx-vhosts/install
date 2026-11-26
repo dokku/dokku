@@ -101,7 +101,8 @@ trigger-nginx-vhosts-install() {
     sed -i '/server_tokens/d' "$NGINX_ROOT/nginx.conf"
   fi
 
-  sigil -f "$DOKKU_TEMPLATE" DOKKU_ROOT="$DOKKU_ROOT" NGINX_ROOT="$NGINX_ROOT" | cat -s >"$NGINX_ROOT/conf.d/dokku.conf"
+  mkdir -p "${DOKKU_LIB_ROOT}/data/nginx-vhosts/http3"
+  sigil -f "$DOKKU_TEMPLATE" DOKKU_ROOT="$DOKKU_ROOT" DOKKU_LIB_ROOT="$DOKKU_LIB_ROOT" NGINX_ROOT="$NGINX_ROOT" | cat -s >"$NGINX_ROOT/conf.d/dokku.conf"
 
   # allow users to override their server_names_hash_bucket_size
   if [[ ! -f "$NGINX_ROOT/conf.d/server_names_hash_bucket_size.conf" ]]; then

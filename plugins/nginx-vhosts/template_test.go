@@ -65,6 +65,8 @@ func defaultVars() map[string]interface{} {
 		"PROXY_X_FORWARDED_SSL":       "",
 		"HTTP2_DIRECTIVE_SUPPORTED":   "true",
 		"HTTP2_ENABLED":               "true",
+		"HTTP3_ENABLED":               "false",
+		"HTTP3_SUPPORTED":             "false",
 		"PROXY_ROUTES":                "",
 		"PROXY_ROUTE_LISTENERS":       "",
 	}
@@ -240,6 +242,102 @@ func TestTemplate_GRPCKeepsHTTP2WhenHTTP2Disabled(t *testing.T) {
 	out := renderTemplate(t, v)
 	mustContain(t, out, "http2 on;")
 	mustContain(t, out, "grpc_pass  grpc://app-50051;")
+}
+
+func http3Vars(portMap string) map[string]interface{} {
+	v := defaultVars()
+	v["PROXY_PORT_MAP"] = portMap
+	v["SSL_INUSE"] = "true"
+	v["SSL_SERVER_NAME"] = "app.example.com"
+	v["HTTP3_ENABLED"] = "true"
+	v["HTTP3_SUPPORTED"] = "true"
+	return v
+}
+
+func TestTemplate_HTTPSWithHTTP3(t *testing.T) {
+	out := renderTemplate(t, http3Vars("http:80:5000 https:443:5000"))
+	mustContain(t, out, "listen      [::]:443 quic;")
+	mustContain(t, out, "listen      443 quic;")
+	mustContain(t, out, "http3 on;")
+	mustContain(t, out, `add_header Alt-Svc 'h3=":443"; ma=86400' always;`)
+	mustContain(t, out, "listen      [::]:443 ssl;")
+	mustNotContain(t, out, "reuseport")
+	if strings.Count(out, "quic;") != 2 {
+		t.Errorf("expected quic listeners only on the https server\n--- output ---\n%s", out)
+	}
+}
+
+func TestTemplate_HTTPSWithHTTP3CustomPortAndBindAddress(t *testing.T) {
+	v := http3Vars("https:8443:5000")
+	v["NGINX_BIND_ADDRESS_IP4"] = "10.0.0.1"
+	v["NGINX_BIND_ADDRESS_IP6"] = "fd00::1"
+	out := renderTemplate(t, v)
+	mustContain(t, out, "listen      [fd00::1]:8443 quic;")
+	mustContain(t, out, "listen      10.0.0.1:8443 quic;")
+	mustContain(t, out, `add_header Alt-Svc 'h3=":8443"; ma=86400' always;`)
+}
+
+func TestTemplate_HTTPSWithHTTP3AndHTTP2Disabled(t *testing.T) {
+	v := http3Vars("https:443:5000")
+	v["HTTP2_ENABLED"] = "false"
+	out := renderTemplate(t, v)
+	mustContain(t, out, "listen      [::]:443 quic;")
+	mustNotContain(t, out, "http2")
+}
+
+func TestTemplate_HTTPSWithHTTP3Disabled(t *testing.T) {
+	v := http3Vars("https:443:5000")
+	v["HTTP3_ENABLED"] = "false"
+	out := renderTemplate(t, v)
+	mustNotContain(t, out, "quic")
+	mustNotContain(t, out, "http3")
+	mustNotContain(t, out, "Alt-Svc")
+}
+
+func TestTemplate_HTTPSWithHTTP3Unsupported(t *testing.T) {
+	v := http3Vars("https:443:5000")
+	v["HTTP3_SUPPORTED"] = "false"
+	out := renderTemplate(t, v)
+	mustNotContain(t, out, "quic")
+	mustNotContain(t, out, "http3")
+	mustNotContain(t, out, "Alt-Svc")
+}
+
+func TestTemplate_GRPCSIgnoresHTTP3(t *testing.T) {
+	v := http3Vars("grpcs:443:50051")
+	v["PROXY_UPSTREAM_PORTS"] = "50051"
+	out := renderTemplate(t, v)
+	mustContain(t, out, "grpc_pass  grpc://app-50051;")
+	mustNotContain(t, out, "quic")
+	mustNotContain(t, out, "Alt-Svc")
+}
+
+func TestDokkuConfTemplate_IncludesHTTP3ListenersBeforeApps(t *testing.T) {
+	_, file, _, ok := runtime.Caller(0)
+	if !ok {
+		t.Fatal("runtime.Caller failed")
+	}
+	data, err := os.ReadFile(filepath.Join(filepath.Dir(file), "templates", "dokku.conf.sigil"))
+	if err != nil {
+		t.Fatalf("read template: %v", err)
+	}
+	vars := map[string]interface{}{
+		"DOKKU_ROOT":     "/home/dokku",
+		"DOKKU_LIB_ROOT": "/var/lib/dokku",
+		"NGINX_ROOT":     "/etc/nginx",
+	}
+	buf, err := sigil.Execute(data, vars, "dokku.conf.sigil")
+	if err != nil {
+		t.Fatalf("sigil.Execute: %v", err)
+	}
+	out := buf.String()
+	listenersInclude := "include /var/lib/dokku/data/nginx-vhosts/http3/*.conf;"
+	appInclude := "include /home/dokku/*/nginx.conf;"
+	mustContain(t, out, listenersInclude)
+	mustContain(t, out, appInclude)
+	if strings.Index(out, listenersInclude) > strings.Index(out, appInclude) {
+		t.Errorf("expected the http3 listener include before the app include\n--- output ---\n%s", out)
+	}
 }
 
 func TestTemplate_NoWebListenersReturns502(t *testing.T) {

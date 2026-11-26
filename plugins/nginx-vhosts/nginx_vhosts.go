@@ -347,6 +347,30 @@ func GlobalHTTP2() string {
 	return common.PropertyGet("nginx", "--global", "http2")
 }
 
+// AppHTTP3 returns the app-level http3 property
+func AppHTTP3(appName string) string {
+	return common.PropertyGet("nginx", appName, "http3")
+}
+
+// ComputedHTTP3 returns whether http3 is enabled for the app, falling back to the global value and then to false
+func ComputedHTTP3(appName string) string {
+	appValue := AppHTTP3(appName)
+	if appValue != "" {
+		return appValue
+	}
+
+	value := GlobalHTTP3()
+	if value == "" {
+		value = "false"
+	}
+	return value
+}
+
+// GlobalHTTP3 returns the global http3 property
+func GlobalHTTP3() string {
+	return common.PropertyGet("nginx", "--global", "http3")
+}
+
 func AppNginxConfSigilPath(appName string) string {
 	return common.PropertyGet("nginx", appName, "nginx-conf-sigil-path")
 }

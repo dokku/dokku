@@ -38,6 +38,7 @@ func nginxReportProps() []nginxReportProp {
 		{"hsts-preload", AppHSTSPreload, ComputedHSTSPreload, wrapGlobal(GlobalHSTSPreload)},
 		{"hsts", AppHSTS, ComputedHSTS, wrapGlobal(GlobalHSTS)},
 		{"http2", AppHTTP2, ComputedHTTP2, wrapGlobal(GlobalHTTP2)},
+		{"http3", AppHTTP3, ComputedHTTP3, wrapGlobal(GlobalHTTP3)},
 		{"keepalive-timeout", AppKeepaliveTimeout, ComputedKeepaliveTimeout, wrapGlobal(GlobalKeepaliveTimeout)},
 		{"lingering-timeout", AppLingeringTimeout, ComputedLingeringTimeout, wrapGlobal(GlobalLingeringTimeout)},
 		{"nginx-conf-sigil-path", AppNginxConfSigilPath, ComputedNginxConfSigilPath, wrapGlobal(GlobalNginxConfSigilPath)},
