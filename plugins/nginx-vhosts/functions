@@ -210,6 +210,43 @@ fn-nginx-vhosts-warn-http2-listener-scope() {
   dokku_log_warn "Disable http2 for every app sharing the listener, e.g. via 'dokku nginx:set --global http2 false'"
 }
 
+is_http3_supported() {
+  declare desc="detects whether the installed nginx binary was built with http3 support"
+  local NGINX_LOCATION="$1" NGINX_VERSION="$2"
+  local MAJOR_VERSION MINOR_VERSION
+
+  MAJOR_VERSION=$(echo "$NGINX_VERSION" | awk '{split($0,a,"."); print a[1]}')
+  MINOR_VERSION=$(echo "$NGINX_VERSION" | awk '{split($0,a,"."); print a[2]}')
+  if [[ "$MAJOR_VERSION" -lt "1" ]] || { [[ "$MAJOR_VERSION" -eq "1" ]] && [[ "$MINOR_VERSION" -lt "25" ]]; }; then
+    echo false
+    return
+  fi
+
+  if "$NGINX_LOCATION" -V 2>&1 | grep -q -- "--with-http_v3_module"; then
+    echo true
+    return
+  fi
+
+  echo false
+}
+
+fn-nginx-vhosts-warn-http3-unsupported() {
+  declare desc="warns when http3 is enabled for an app but the installed nginx cannot serve it"
+  declare APP="$1" SSL_INUSE="$2"
+  local NGINX_LOCATION NGINX_VERSION
+
+  [[ "$SSL_INUSE" == "true" ]] || return 0
+  [[ "$(fn-nginx-computed-http3 "$APP")" == "true" ]] || return 0
+
+  NGINX_LOCATION=$(get_nginx_location)
+  [[ -n "$NGINX_LOCATION" ]] || return 0
+  NGINX_VERSION="$("$NGINX_LOCATION" -v 2>&1 | cut -d'/' -f 2 | awk '{print $1}')"
+  [[ "$(is_http3_supported "$NGINX_LOCATION" "$NGINX_VERSION")" == "false" ]] || return 0
+
+  dokku_log_warn "http3 is enabled for $APP but nginx $NGINX_VERSION does not support it, skipping quic listeners"
+  dokku_log_warn "HTTP/3 requires nginx 1.25.0 or newer built with --with-http_v3_module"
+}
+
 fn-nginx-vhosts-render-template() {
   declare desc="renders an nginx.conf.sigil template via sigil to an output path"
   declare APP="$1" NGINX_TEMPLATE="$2" OUTPUT_PATH="$3"
@@ -319,6 +356,8 @@ fn-nginx-vhosts-render-template() {
   HTTP2_PUSH_SUPPORTED="$(is_http2_push_enabled "$NGINX_VERSION")"
   GRPC_SUPPORTED="true"
   local HTTP2_ENABLED="$(fn-nginx-computed-http2 "$APP")"
+  local HTTP3_SUPPORTED="$(is_http3_supported "$NGINX_LOCATION" "$NGINX_VERSION")"
+  local HTTP3_ENABLED="$(fn-nginx-computed-http3 "$APP")"
 
   local NGINX_LOG_ROOT="$(fn-nginx-log-root)"
   local NGINX_ACCESS_LOG_FORMAT="$(fn-nginx-computed-access-log-format "$APP")"
@@ -381,6 +420,8 @@ fn-nginx-vhosts-render-template() {
     HTTP2_DIRECTIVE_SUPPORTED="$HTTP2_DIRECTIVE_SUPPORTED"
     HTTP2_ENABLED="$HTTP2_ENABLED"
     HTTP2_PUSH_SUPPORTED="$HTTP2_PUSH_SUPPORTED"
+    HTTP3_ENABLED="$HTTP3_ENABLED"
+    HTTP3_SUPPORTED="$HTTP3_SUPPORTED"
     GRPC_SUPPORTED="$GRPC_SUPPORTED"
     DOKKU_APP_LISTEN_PORT="$DOKKU_APP_LISTEN_PORT" DOKKU_APP_LISTEN_IP="$DOKKU_APP_LISTEN_IP"
     APP_SSL_PATH="$APP_SSL_PATH" SSL_INUSE="$SSL_INUSE" SSL_SERVER_NAME="$SSL_SERVER_NAME"
@@ -621,11 +662,13 @@ nginx_build_config() {
 
       xargs -i echo "-----> Configuring {}...(using $NGINX_TEMPLATE_SOURCE template)" <<<"$(echo "${SSL_VHOSTS}" "${NONSSL_VHOSTS}" | tr ' ' '\n' | sort -u)"
       fn-nginx-vhosts-warn-http2-listener-scope "$APP" "$SSL_INUSE"
+      fn-nginx-vhosts-warn-http3-unsupported "$APP" "$SSL_INUSE"
       fn-nginx-vhosts-render-template "$APP" "$NGINX_TEMPLATE" "$NGINX_CONF" "$DOKKU_APP_LISTEN_PORT" "$DOKKU_APP_LISTEN_IP"
 
       dokku_log_info1 "Creating $SCHEME nginx.conf"
       mkdir -p "$DOKKU_ROOT/$APP/nginx.conf.d"
       fn-nginx-vhosts-install-config "$APP" "$NGINX_CONF"
+      fn-nginx-vhosts-write-http3-listeners
 
       if [[ "$IS_DEPLOYED_WITH_LISTENERS" == "true" ]]; then
         fn-nginx-vhosts-manage-hsts "$APP" "$SSL_INUSE"
@@ -642,6 +685,7 @@ nginx_build_config() {
     if [[ -f "$DOKKU_ROOT/$APP/nginx.conf" ]]; then
       dokku_log_info1 "Deleting nginx.conf"
       rm "$DOKKU_ROOT/$APP/nginx.conf"
+      fn-nginx-vhosts-write-http3-listeners
 
       if (is_deployed "$APP"); then
         dokku_log_info1 "Reloading nginx after nginx.conf deletion"

@@ -10,6 +10,7 @@ setup() {
 
 teardown() {
   dokku nginx:set --global http2 || true
+  dokku nginx:set --global http3 || true
   destroy_app
   [[ -f "$DOKKU_ROOT/VHOST.bak" ]] && mv "$DOKKU_ROOT/VHOST.bak" "$DOKKU_ROOT/VHOST" && chown dokku:dokku "$DOKKU_ROOT/VHOST"
   global_teardown
@@ -250,6 +251,41 @@ teardown() {
   assert_success
 }
 
+@test "(nginx-vhosts) nginx:set http3" {
+  setup_test_tls wildcard
+
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku nginx:set $TEST_APP http3 true"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku proxy:build-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  if nginx_supports_http3; then
+    assert_output_contains "does not support it, skipping quic listeners" 0
+  else
+    assert_output_contains "does not support it, skipping quic listeners"
+  fi
+
+  run /bin/bash -c "dokku nginx:show-config $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  if nginx_supports_http3; then
+    assert_output_contains "quic;" 2
+  else
+    assert_output_contains "quic" 0
+    assert_output_contains "Alt-Svc" 0
+  fi
+}
+
 @test "(nginx-vhosts) nginx:set bind-address" {
   run deploy_app
   echo "output: $output"
@@ -347,4 +383,9 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
+}
+
+nginx_supports_http3() {
+  declare desc="returns whether the installed nginx can serve http3"
+  dpkg --compare-versions "$(nginx -v 2>&1 | cut -d'/' -f 2 | awk '{print $1}')" ge 1.25.0 && nginx -V 2>&1 | grep -q -- "--with-http_v3_module"
 }

@@ -334,6 +334,92 @@ fn-nginx-global-http2() {
   fn-get-property --app "$APP" --global "http2"
 }
 
+fn-nginx-http3() {
+  declare desc="get the app-level http3 property"
+  declare APP="$1"
+  fn-get-property --app "$APP" "http3"
+}
+
+fn-nginx-computed-http3() {
+  declare desc="get the computed http3 property"
+  declare APP="$1"
+  fn-get-property --app "$APP" --computed "http3"
+}
+
+fn-nginx-global-http3() {
+  declare desc="get the global http3 property"
+  declare APP="$1"
+  fn-get-property --app "$APP" --global "http3"
+}
+
+fn-nginx-vhosts-http3-listeners-dir() {
+  declare desc="returns the directory holding the shared http3 listener config"
+  echo "${DOKKU_LIB_ROOT}/data/nginx-vhosts/http3"
+}
+
+fn-nginx-vhosts-write-http3-listeners() {
+  declare desc="writes one reuseport quic listener for every quic address used by app nginx configs"
+  declare EXCLUDE_APP="${1:-}"
+  local LISTENERS_DIR="$(fn-nginx-vhosts-http3-listeners-dir)"
+  local -a CONFIG_FILES=()
+  local config_file app_dir STAGED_FILE
+
+  mkdir -p "$LISTENERS_DIR"
+  for app_dir in "$DOKKU_ROOT"/*/; do
+    [[ -n "$EXCLUDE_APP" ]] && [[ "$app_dir" == "$DOKKU_ROOT/$EXCLUDE_APP/" ]] && continue
+    [[ -f "${app_dir}nginx.conf" ]] || continue
+    for config_file in "${app_dir}nginx.conf" "${app_dir}"nginx.conf.d/*.conf; do
+      [[ -f "$config_file" ]] && CONFIG_FILES+=("$config_file")
+    done
+  done
+
+  STAGED_FILE="$(mktemp "$LISTENERS_DIR/.listeners.conf.XXXXXX")"
+  if [[ "${#CONFIG_FILES[@]}" -gt 0 ]]; then
+    fn-nginx-vhosts-http3-listeners-render "${CONFIG_FILES[@]}" >"$STAGED_FILE"
+  fi
+  chmod 0644 "$STAGED_FILE"
+  mv -f "$STAGED_FILE" "$LISTENERS_DIR/listeners.conf"
+}
+
+fn-nginx-vhosts-http3-listeners-render() {
+  declare desc="renders a stub server with a reuseport quic listener for each quic address found in the given nginx configs"
+  awk '
+    function normalize(address) {
+      sub(/^(\*|0\.0\.0\.0):/, "", address)
+      return address
+    }
+    { sub(/#.*/, "") }
+    $1 == "listen" {
+      is_quic = 0
+      has_reuseport = 0
+      for (i = 3; i <= NF; i++) {
+        token = $i
+        sub(/;$/, "", token)
+        if (token == "quic") is_quic = 1
+        if (token == "reuseport") has_reuseport = 1
+      }
+      if (!is_quic) next
+      address = normalize($2)
+      sub(/;$/, "", address)
+      if (has_reuseport) {
+        reuseport[address] = 1
+      } else if (!(address in seen)) {
+        seen[address] = 1
+        order[++count] = address
+      }
+    }
+    END {
+      lines = ""
+      for (i = 1; i <= count; i++) {
+        if (order[i] in reuseport) continue
+        lines = lines "  listen " order[i] " quic reuseport;\n"
+      }
+      if (lines == "") exit
+      printf "server {\n%s  server_name _;\n  access_log off;\n  ssl_reject_handshake on;\n}\n", lines
+    }
+  ' "$@"
+}
+
 fn-nginx-vhosts-last-visited-at() {
   declare APP="$1"
   local LOG_PATH=$(fn-nginx-access-log-path "$APP")
@@ -1049,5 +1135,6 @@ nginx_clear_config() {
   declare desc="Remove the nginx conf file"
   declare APP="$1"
   rm -f "$DOKKU_ROOT/$APP/nginx.conf"
+  fn-nginx-vhosts-write-http3-listeners
   suppress_output fn-nginx-vhosts-nginx-init-cmd "reload"
 }

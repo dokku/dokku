@@ -390,6 +390,8 @@ Unsetting this value is the same as enabling custom nginx config usage.
 {{ .APP_SSL_PATH }}                 Path to SSL certificate and key
 {{ .DOKKU_ROOT }}                   Global Dokku root directory (ex: app dir would be `{{ .DOKKU_ROOT }}/{{ .APP }}`)
 {{ .HTTP2_ENABLED }}                Set to `true` when http2 should be enabled for https listeners (same as the computed `http2` property)
+{{ .HTTP3_ENABLED }}                Set to `true` when http3 should be enabled for https listeners (same as the computed `http3` property)
+{{ .HTTP3_SUPPORTED }}              Set to `true` when the installed nginx is 1.25.0 or newer and built with `--with-http_v3_module`
 {{ .PROXY_PORT }}                   Non-SSL nginx listener port (same as the `proxy-port` property)
 {{ .PROXY_SSL_PORT }}               SSL nginx listener port (same as the `proxy-ssl-port` property)
 {{ .NOSSL_SERVER_NAME }}            List of non-SSL VHOSTS
@@ -468,7 +470,7 @@ dokku nginx:set --global property-name
 Changing these value globally or on a per-app basis will require rebuilding the nginx config via the `proxy:build-config` command.
 
 > [!WARNING]
-> Validation is not performed against the values, and they are used as is within Dokku. The exceptions are `http2`, which only accepts `true` or `false`, and `proxy-keepalive`, which only accepts an integer.
+> Validation is not performed against the values, and they are used as is within Dokku. The exceptions are `http2` and `http3`, which only accept `true` or `false`, and `proxy-keepalive`, which only accepts an integer.
 
 | Property                  | Default                               | Type    | Explanation                                                                         |
 | --------------------------|---------------------------------------|---------|-------------------------------------------------------------------------------------|
@@ -485,6 +487,7 @@ Changing these value globally or on a per-app basis will require rebuilding the 
 | hsts-max-age              | `15724800`                            | integer | Time in seconds to cache HSTS configuration                                         |
 | hsts-preload              | `false`                               | boolean | Tells the browser to include the domain in their HSTS preload lists                 |
 | http2                     | `true`                                | boolean | Enables or disables http2 for https listeners                                       |
+| http3                     | `false`                               | boolean | Enables or disables http3 (QUIC) for https listeners                                |
 | keepalive-timeout         | `75s`                                 | string  | Timeout (with units) during which a keep-alive client connection will stay open on the server side |
 | lingering-timeout         | `5s`                                  | string  | Timeout (with units) is the maximum waiting time for more client data to arrive     |
 | nginx-conf-sigil-path     | `nginx.conf.sigil`                    | string  | Path in the repository to the `nginx.conf.sigil` file                               |
@@ -558,6 +561,44 @@ gRPC (`grpc` and `grpcs`) listeners require HTTP/2 and are not affected by this 
 
 > [!WARNING]
 > On nginx versions older than 1.25.1, http2 is enabled per listen address and port rather than per app. If any app listening on the same address and port has http2 enabled, it remains enabled for every app on that listener. On these versions, disable http2 globally instead of per app.
+
+#### Enabling HTTP/3
+
+> [!NOTE]
+> Users with apps that contain a custom `nginx.conf.sigil` file will need to modify the files to respect the new `HTTP3_ENABLED` and `HTTP3_SUPPORTED` variables.
+
+Properties:
+
+- `http3`
+
+HTTP/3 is disabled by default. When enabled for an app with an SSL certificate, every https listener also listens for QUIC connections on the same UDP port, and responses include an `Alt-Svc` header advertising HTTP/3 to clients.
+
+```shell
+# enable http3 for the node-js-app
+dokku nginx:set node-js-app http3 true
+
+# enable http3 for all apps
+dokku nginx:set --global http3 true
+
+# rebuild the nginx config to apply the change
+dokku proxy:build-config --all
+```
+
+HTTP/3 has the following requirements:
+
+- nginx 1.25.0 or newer built with the `--with-http_v3_module` configure flag. The output of `nginx -V` lists the flags nginx was built with. The packages provided by [nginx.org](https://nginx.org/en/linux_packages.html) include this module.
+- TLSv1.3, which is enabled by the default nginx config.
+- OpenSSL 3.5.1 or newer is recommended. Older OpenSSL versions use a compatibility layer that does not support early data (0-RTT).
+- The https port must be open for UDP traffic in any firewall in front of the server, in addition to TCP. When running Dokku via the official docker image, publish the port for UDP as well, e.g. `--publish 443:443/udp`.
+
+If http3 is enabled but the installed nginx does not support it, Dokku displays a warning and builds the nginx config without QUIC listeners. gRPC (`grpc` and `grpcs`) listeners are not affected by this property.
+
+The `Alt-Svc` header advertises the port that nginx listens on. If clients reach nginx through a different port, for example due to port forwarding, HTTP/3 will not be used. The header is added at the server level, so it is not sent for responses from a `location` block that defines its own `add_header` directives.
+
+Nginx only allows the `reuseport` option once for each QUIC address and port, while that option is required to serve QUIC with multiple worker processes. Because of this, Dokku does not set `reuseport` in app configs. Instead, whenever an app config is built or removed, Dokku scans the generated `nginx.conf` and `nginx.conf.d/*.conf` files of every app for QUIC listeners and writes a single stub server with one `reuseport` listener for each address to `/var/lib/dokku/data/nginx-vhosts/http3/listeners.conf`. This stub server also rejects QUIC connections for unknown hostnames. Addresses where an app config already sets `reuseport` are skipped. QUIC listeners in other nginx configuration files, such as files in `/etc/nginx/conf.d`, are not scanned.
+
+> [!WARNING]
+> Remove any manually added `listen ... quic` directives from an app's `nginx.conf.d` folder before enabling the `http3` property, as nginx will reject duplicate listen directives in the same server block. Custom `nginx.conf.sigil` files should not set `reuseport` on QUIC listeners. Custom `dokku.conf` templates provided via the `nginx-dokku-template-source` trigger must include `/var/lib/dokku/data/nginx-vhosts/http3/*.conf`.
 
 #### Running behind another proxy — configuring `X-Forwarded-*` headers
 
@@ -717,6 +758,7 @@ All nginx-vhosts properties are settable at both the app and global scope.
 | `hsts-max-age` | app + global | `15724800` | `--nginx-hsts-max-age`, `--nginx-global-hsts-max-age`, `--nginx-computed-hsts-max-age` | `max-age` value (seconds) in the HSTS header |
 | `hsts-preload` | app + global | `false` | `--nginx-hsts-preload`, `--nginx-global-hsts-preload`, `--nginx-computed-hsts-preload` | Adds the `preload` directive to the HSTS header |
 | `http2` | app + global | `true` | `--nginx-http2`, `--nginx-global-http2`, `--nginx-computed-http2` | When `false`, https listeners only serve HTTP/1.1. gRPC listeners always use HTTP/2 |
+| `http3` | app + global | `false` | `--nginx-http3`, `--nginx-global-http3`, `--nginx-computed-http3` | When `true` and supported by nginx, https listeners also accept HTTP/3 over QUIC and advertise it via the `Alt-Svc` header |
 | `keepalive-timeout` | app + global | `75s` | `--nginx-keepalive-timeout`, `--nginx-global-keepalive-timeout`, `--nginx-computed-keepalive-timeout` | Time an idle keep-alive connection stays open |
 | `lingering-timeout` | app + global | `5s` | `--nginx-lingering-timeout`, `--nginx-global-lingering-timeout`, `--nginx-computed-lingering-timeout` | Time nginx waits for more client data when closing a connection |
 | `nginx-conf-sigil-path` | app + global | `nginx.conf.sigil` | `--nginx-nginx-conf-sigil-path`, `--nginx-global-nginx-conf-sigil-path`, `--nginx-computed-nginx-conf-sigil-path` | Path within the app to a custom `nginx.conf.sigil` template |

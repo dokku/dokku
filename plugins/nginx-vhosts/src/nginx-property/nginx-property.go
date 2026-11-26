@@ -69,6 +69,8 @@ func appValue(appName string, property string) string {
 		value = nginx_vhosts.AppHSTS(appName)
 	case "http2":
 		value = nginx_vhosts.AppHTTP2(appName)
+	case "http3":
+		value = nginx_vhosts.AppHTTP3(appName)
 	case "keepalive-timeout":
 		value = nginx_vhosts.AppKeepaliveTimeout(appName)
 	case "lingering-timeout":
@@ -149,6 +151,8 @@ func computedValue(appName string, property string) string {
 		value = nginx_vhosts.ComputedHSTS(appName)
 	case "http2":
 		value = nginx_vhosts.ComputedHTTP2(appName)
+	case "http3":
+		value = nginx_vhosts.ComputedHTTP3(appName)
 	case "keepalive-timeout":
 		value = nginx_vhosts.ComputedKeepaliveTimeout(appName)
 	case "lingering-timeout":
@@ -229,6 +233,8 @@ func globalValue(appName string, property string) string {
 		value = nginx_vhosts.GlobalHSTS()
 	case "http2":
 		value = nginx_vhosts.GlobalHTTP2()
+	case "http3":
+		value = nginx_vhosts.GlobalHTTP3()
 	case "keepalive-timeout":
 		value = nginx_vhosts.GlobalKeepaliveTimeout()
 	case "lingering-timeout":

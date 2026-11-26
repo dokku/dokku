@@ -10,6 +10,7 @@ trigger-nginx-vhosts-post-delete() {
   declare APP="$1"
 
   fn-plugin-property-destroy "nginx" "$APP"
+  fn-nginx-vhosts-write-http3-listeners "$APP"
   if fn-nginx-vhosts-nginx-is-running; then
     restart_nginx "$@" >/dev/null
   fi

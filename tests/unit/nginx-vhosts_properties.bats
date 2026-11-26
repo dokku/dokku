@@ -103,6 +103,7 @@ assert_nginx_property_set_get() {
 @test "(nginx:report) misc properties raw/global/computed" {
   assert_nginx_property_set_get "disable-custom-config" "false" "true"
   assert_nginx_property_set_get "http2" "false" "true"
+  assert_nginx_property_set_get "http3" "true" "false"
   assert_nginx_property_set_get "underscore-in-headers" "on" "off"
   assert_nginx_property_set_get "proxy-http-version" "2" "1.1"
   assert_nginx_property_set_get "proxy-keepalive" "8" "16"
@@ -128,6 +129,26 @@ assert_nginx_property_set_get() {
   echo "status: $status"
   assert_success
   assert_output "true"
+}
+
+@test "(nginx:set) http3 rejects invalid values" {
+  run /bin/bash -c "dokku nginx:set $TEST_APP http3 on"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Invalid value for http3: must be true or false"
+
+  run /bin/bash -c "dokku nginx:set --global http3 yes"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "Invalid value for http3: must be true or false"
+
+  run /bin/bash -c "dokku nginx:report $TEST_APP --nginx-computed-http3"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
 }
 
 @test "(nginx:set) missing app" {
