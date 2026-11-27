@@ -203,7 +203,7 @@ teardown() {
 }
 
 @test "(scheduler-docker-local) timer installed" {
-  run /bin/bash -c "systemctl list-timers | grep dokku-retire"
+  run /bin/bash -c "systemctl list-timers --all | grep dokku-retire"
   echo "output: $output"
   echo "status: $status"
   assert_success
