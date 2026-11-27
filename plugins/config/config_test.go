@@ -20,6 +20,7 @@ func setupTestApp(t *testing.T) (testAppDir string) {
 	t.Helper()
 
 	dokkuRoot, libRoot := setupIsolatedEnv(t)
+	stubGroupEnv(t, map[string]string{})
 	t.Setenv("PLUGIN_ENABLED_PATH", filepath.Join(libRoot, "plugins", "enabled"))
 	t.Setenv("PLUGIN_CORE_AVAILABLE_PATH", filepath.Join(libRoot, "core-plugins", "available"))
 

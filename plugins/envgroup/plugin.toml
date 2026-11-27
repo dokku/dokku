@@ -1,0 +1,4 @@
+[plugin]
+description = "dokku core envgroup plugin"
+version = "0.38.34"
+[plugin.config]

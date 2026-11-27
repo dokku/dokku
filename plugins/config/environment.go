@@ -67,7 +67,8 @@ func LoadAppEnv(appName string) (env *Env, err error) {
 	return loadFromFile(appName, appfile)
 }
 
-// LoadMergedAppEnv loads an app environment merged with the global environment
+// LoadMergedAppEnv loads an app environment merged on top of the app's env
+// groups, which are in turn merged on top of the global environment
 func LoadMergedAppEnv(appName string) (env *Env, err error) {
 	env, err = LoadAppEnv(appName)
 	if err != nil {
@@ -77,10 +78,98 @@ func LoadMergedAppEnv(appName string) (env *Env, err error) {
 	if err != nil {
 		common.LogFailWithError(err)
 	}
+	groups, err := groupEnvLoader(appName)
+	if err != nil {
+		return nil, err
+	}
+	global.Merge(NewEnvFromMap(env.name, groups))
 	global.Merge(env)
 	global.filename = ""
 	global.name = env.name
-	return global, err
+	return global, nil
+}
+
+// groupEnvLoader returns the merged env group layer for an app. It is a
+// variable so that tests can run without plugn.
+var groupEnvLoader = loadGroupEnv
+
+// loadGroupEnv fetches the merged env group layer for an app via the
+// envgroup-app-env trigger. Empty output means the app has no group layer.
+func loadGroupEnv(appName string) (map[string]string, error) {
+	results, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "envgroup-app-env",
+		Args:    []string{appName, "json"},
+	})
+	if err != nil {
+		return nil, fmt.Errorf("Unable to load env groups for %s: %s", appName, err.Error())
+	}
+
+	envMap := map[string]string{}
+	output := strings.TrimSpace(results.StdoutContents())
+	if output == "" {
+		return envMap, nil
+	}
+
+	if err := json.Unmarshal([]byte(output), &envMap); err != nil {
+		return nil, fmt.Errorf("Unable to parse env groups for %s: %s", appName, err.Error())
+	}
+
+	return envMap, nil
+}
+
+// NewEnvFromMap creates an environment that is not bound to a file from the given map
+func NewEnvFromMap(name string, envMap map[string]string) *Env {
+	env := &Env{
+		name:     name,
+		filename: "",
+		env:      make(map[string]string, len(envMap)),
+	}
+	for k, v := range envMap {
+		env.env[k] = v
+	}
+	return env
+}
+
+// LoadEnvFile loads the environment stored in the envfile at filename. A
+// missing file is treated as an empty environment, and writing the returned
+// environment creates it.
+func LoadEnvFile(name string, filename string) (*Env, error) {
+	return loadFromFile(name, filename)
+}
+
+// LoadImportEnv reads an environment to import from filename, or from stdin
+// when filename is "-", in the given format. The format defaults to envfile.
+func LoadImportEnv(name string, filename string, format string) (*Env, error) {
+	switch format {
+	case "", "envfile":
+		return loadFromFile(name, filename)
+	case "json":
+		return loadFromFileJSON(name, filename)
+	default:
+		return nil, fmt.Errorf("Unknown format: %s", format)
+	}
+}
+
+// ParseExportFormat returns the ExportFormat for its command-line name
+func ParseExportFormat(format string) (ExportFormat, error) {
+	exportTypes := map[string]ExportFormat{
+		"docker-args":      ExportFormatDockerArgs,
+		"docker-args-keys": ExportFormatDockerArgsKeys,
+		"envfile":          ExportFormatEnvfile,
+		"exports":          ExportFormatExports,
+		"json":             ExportFormatJSON,
+		"json-list":        ExportFormatJSONList,
+		"pack-keys":        ExportFormatPackArgKeys,
+		"pretty":           ExportFormatPretty,
+		"shell":            ExportFormatShell,
+	}
+
+	exportType, ok := exportTypes[format]
+	if !ok {
+		return ExportFormatExports, fmt.Errorf("Unknown export format: %v", format)
+	}
+
+	return exportType, nil
 }
 
 // LoadGlobalEnv loads the global environment
@@ -363,14 +452,14 @@ func (e *Env) stringWithPrefixAndSeparator(prefix string, separator string) stri
 	keys := e.Keys()
 	entries := make([]string, len(keys))
 	for i, k := range keys {
-		v := singleQuoteEscape(e.env[k])
+		v := SingleQuoteEscape(e.env[k])
 		entries[i] = fmt.Sprintf("%s%s='%s'", prefix, k, v)
 	}
 	return strings.Join(entries, separator)
 }
 
-// singleQuoteEscape escapes the value as if it were shell-quoted in single quotes
-func singleQuoteEscape(value string) string { // so that 'esc'aped' -> 'esc'\''aped'
+// SingleQuoteEscape escapes the value as if it were shell-quoted in single quotes
+func SingleQuoteEscape(value string) string { // so that 'esc'aped' -> 'esc'\''aped'
 	return strings.Replace(value, "'", "'\\''", -1)
 }
 
@@ -419,7 +508,7 @@ func loadFromFile(name string, filename string) (env *Env, err error) {
 	}
 
 	for k := range envMap {
-		if err := validateKey(k); err != nil {
+		if err := ValidateKey(k); err != nil {
 			common.LogInfo1(fmt.Sprintf("Deleting invalid key %s from config for %s", k, name))
 			delete(envMap, k)
 			dirty = true

@@ -28,7 +28,7 @@ func main() {
 	case "bundle":
 		args := flag.NewFlagSet("bundle", flag.ExitOnError)
 		global := args.Bool("global", false, "--global: use the global environment")
-		merged := args.Bool("merged", false, "--merged: merge app environment and global environment")
+		merged := args.Bool("merged", false, "--merged: merge app environment with group and global environments")
 		args.Parse(os.Args[2:])
 		if !*global {
 			appName = args.Arg(0)
@@ -46,7 +46,7 @@ func main() {
 	case "export":
 		args := flag.NewFlagSet("export", flag.ExitOnError)
 		global := args.Bool("global", false, "--global: use the global environment")
-		merged := args.Bool("merged", false, "--merged: merge app environment and global environment")
+		merged := args.Bool("merged", false, "--merged: merge app environment with group and global environments")
 		format := args.String("format", "exports", "--format: [ docker-args | docker-args-keys | exports | envfile | json | json-list | pack-keys | pretty | shell ] which format to export as)")
 		args.Parse(os.Args[2:])
 		if !*global {
@@ -66,7 +66,7 @@ func main() {
 	case "keys":
 		args := flag.NewFlagSet("keys", flag.ExitOnError)
 		global := args.Bool("global", false, "--global: use the global environment")
-		merged := args.Bool("merged", false, "--merged: merge app environment and global environment")
+		merged := args.Bool("merged", false, "--merged: merge app environment with group and global environments")
 		args.Parse(os.Args[2:])
 		if !*global {
 			appName = args.Arg(0)
@@ -75,7 +75,7 @@ func main() {
 	case "show":
 		args := flag.NewFlagSet("show", flag.ExitOnError)
 		global := args.Bool("global", false, "--global: use the global environment")
-		merged := args.Bool("merged", false, "--merged: display the app's environment merged with the global environment")
+		merged := args.Bool("merged", false, "--merged: display the app's environment merged with the group and global environments")
 		args.Parse(os.Args[2:])
 		if !*global {
 			appName = args.Arg(0)

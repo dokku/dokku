@@ -1221,6 +1221,22 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `envgroup-app-env`
+
+- Description: Outputs the merged environment of the env groups an app belongs to, with groups added later overriding groups added earlier. Outputs nothing for the `exports` format when the app belongs to no groups.
+- Invoked by: the config plugin when loading an app's merged environment, and `builder-herokuish` when writing the release's `/app/.profile.d` files
+- Arguments: `$APP $FORMAT`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+APP="$1"; FORMAT="$2"
+
+# TODO
+```
+
 ### `git-deploy-branch`
 
 - Description: Outputs the deploy branch for an app, inherited or not
@@ -2710,7 +2726,7 @@ plugn trigger receive-app $APP $newrev
 ### `release-and-deploy`
 
 - Description: Triggers a release of the image tag and a subsequent deploy
-- Invoked by:
+- Invoked by: `dokku config:clear`, `dokku config:set`, `dokku config:unset`, and the `dokku envgroup:*` commands when passed `--restart`
 - Arguments: `$APP $IMAGE_TAG`
 - Example:
 

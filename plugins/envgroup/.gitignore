@@ -1,0 +1,9 @@
+/commands
+/subcommands/*
+/triggers/*
+/triggers
+/backup-*
+/envgroup-*
+/install
+/post-*
+/report

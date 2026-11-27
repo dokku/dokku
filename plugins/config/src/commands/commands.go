@@ -43,7 +43,7 @@ func main() {
 		global := args.Bool("global", false, "--global: use the global environment")
 		shell := args.Bool("shell", false, "--shell: in a single-line for usage in command-line utilities [deprecated]")
 		export := args.Bool("export", false, "--export: print the env as eval-compatible exports [deprecated]")
-		merged := args.Bool("merged", false, "--merged: display the app's environment merged with the global environment")
+		merged := args.Bool("merged", false, "--merged: display the app's environment merged with the group and global environments")
 		args.Parse(os.Args[2:])
 		appName := args.Arg(0)
 
