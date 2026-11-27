@@ -51,7 +51,7 @@ func TriggerConfigGetGlobal(key string) error {
 
 // TriggerConfigSet sets config values for an app
 func TriggerConfigSet(appName string, noRestart bool, pairs ...string) error {
-	return SubSet(appName, pairs, noRestart, false)
+	return SubSet(appName, pairs, noRestart, false, false)
 }
 
 // TriggerConfigUnset unsets an app config value by key

@@ -62,14 +62,15 @@ func CommandKeys(appName string, global bool, merged bool) error {
 	return SubKeys(appName, merged)
 }
 
-// CommandSet sets one or more environment variable pairs
-func CommandSet(appName string, pairs []string, global bool, noRestart bool, encoded bool) error {
+// CommandSet sets one or more environment variable pairs, unsetting every
+// other key when replace is true
+func CommandSet(appName string, pairs []string, global bool, noRestart bool, encoded bool, replace bool) error {
 	appName, err := getAppNameOrGlobal(appName, global)
 	if err != nil {
 		return err
 	}
 
-	return SubSet(appName, pairs, noRestart, encoded)
+	return SubSet(appName, pairs, noRestart, encoded, replace)
 }
 
 // CommandShow pretty-prints the specified environment vaiables

@@ -91,7 +91,22 @@ func SubImport(appName string, replace bool, noRestart bool, format string, file
 		common.LogInfo1Quiet(fmt.Sprintf("Setting config var %s=%s", k, v))
 	}
 
-	return SetMany(appName, env.Map(), replace, !noRestart)
+	if replace {
+		return replaceAppEnv(appName, env.Map(), noRestart)
+	}
+
+	return SetMany(appName, env.Map(), false, !noRestart)
+}
+
+// replaceAppEnv replaces an app or global environment with entries, keeping
+// the dokku-managed keys of an app that entries does not set
+func replaceAppEnv(appName string, entries map[string]string, noRestart bool) error {
+	preserve, err := ManagedKeys(appName)
+	if err != nil {
+		return err
+	}
+
+	return ReplaceMany(appName, entries, preserve, !noRestart)
 }
 
 // SubKeys implements the logic for config:keys without app name validation
@@ -103,8 +118,9 @@ func SubKeys(appName string, merged bool) error {
 	return nil
 }
 
-// SubSet implements the logic for config:set without app name validation
-func SubSet(appName string, pairs []string, noRestart bool, encoded bool) error {
+// SubSet implements the logic for config:set without app name validation.
+// When replace is true every key not given is unset.
+func SubSet(appName string, pairs []string, noRestart bool, encoded bool, replace bool) error {
 	if len(pairs) == 0 {
 		return errors.New("At least one env pair must be given")
 	}
@@ -112,6 +128,10 @@ func SubSet(appName string, pairs []string, noRestart bool, encoded bool) error 
 	updated, err := ParseEnvPairs(pairs, encoded)
 	if err != nil {
 		return err
+	}
+
+	if replace {
+		return replaceAppEnv(appName, updated, noRestart)
 	}
 
 	return SetMany(appName, updated, false, !noRestart)

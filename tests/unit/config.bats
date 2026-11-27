@@ -810,6 +810,173 @@ teardown() {
   assert_output "0"
 }
 
+@test "(config:set) --replace unsets keys not given" {
+  run /bin/bash -c "dokku config:set --no-restart $TEST_APP FIRST_KEY=1 SECOND_KEY=2"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku config:set --no-restart --replace $TEST_APP SECOND_KEY=20 THIRD_KEY=3"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Unsetting FIRST_KEY"
+
+  run /bin/bash -c "dokku config:get $TEST_APP FIRST_KEY"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku config:get $TEST_APP SECOND_KEY"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "20"
+
+  run /bin/bash -c "dokku config:get $TEST_APP THIRD_KEY"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "3"
+}
+
+@test "(config:set) --replace --global replaces the global environment" {
+  run /bin/bash -c "dokku config:set --global --replace REPLACED_GLOBAL=true"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Unsetting global_test"
+
+  run /bin/bash -c "dokku config:keys --global"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "REPLACED_GLOBAL"
+}
+
+@test "(config:set) --replace requires a pair" {
+  run /bin/bash -c "dokku config:set --replace $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+  assert_output_contains "At least one env pair must be given"
+}
+
+@test "(config:set) --replace keeps dokku-managed keys" {
+  run /bin/bash -c "dokku domains:disable $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku config:set --no-restart $TEST_APP GIT_REV=abc OLD_KEY=old"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku config:set --no-restart --replace $TEST_APP NEW_KEY=new"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Keeping dokku-managed config var GIT_REV"
+  assert_output_contains "Keeping dokku-managed config var NO_VHOST"
+  assert_output_contains "Unsetting OLD_KEY"
+
+  run /bin/bash -c "dokku config:get $TEST_APP NO_VHOST"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "1"
+
+  run /bin/bash -c "dokku config:get $TEST_APP GIT_REV"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "abc"
+
+  run /bin/bash -c "dokku config:get $TEST_APP OLD_KEY"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku domains:report $TEST_APP --domains-app-enabled"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku config:set --no-restart --replace $TEST_APP NEW_KEY=new GIT_REV=xyz"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku config:get $TEST_APP GIT_REV"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "xyz"
+}
+
+@test "(config:set) --replace keeps a custom rev env var" {
+  run /bin/bash -c "dokku git:set $TEST_APP rev-env-var MY_REV"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku config:set --no-restart $TEST_APP MY_REV=def GIT_REV=abc"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku config:set --no-restart --replace $TEST_APP NEW_KEY=new"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku config:get $TEST_APP MY_REV"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "def"
+
+  run /bin/bash -c "dokku config:get $TEST_APP GIT_REV"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+}
+
+@test "(config:set) --replace skips the restart when nothing changes" {
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku config:set --replace $TEST_APP REPLACE_KEY=1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Restarting app $TEST_APP"
+
+  run /bin/bash -c "dokku config:set --replace $TEST_APP REPLACE_KEY=1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "No changes to config vars"
+  assert_output_not_contains "Restarting app"
+
+  run /bin/bash -c "dokku config:set --replace $TEST_APP REPLACE_KEY=2"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Restarting app $TEST_APP"
+
+  run /bin/bash -c "echo 'REPLACE_KEY=2' | dokku config:import --replace $TEST_APP -"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "No changes to config vars"
+  assert_output_not_contains "Restarting app"
+}
+
 block_app_config_dir() {
   declare desc="makes the app config directory unwritable for the dokku user"
 

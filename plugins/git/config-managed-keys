@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
+source "$PLUGIN_AVAILABLE_PATH/git/internal-functions"
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-git-config-managed-keys() {
+  declare desc="outputs the app config key holding the git revision"
+  declare trigger="config-managed-keys"
+  declare APP="$1"
+  local ENV_VAR_NAME
+
+  ENV_VAR_NAME="$(fn-git-rev-env-var "$APP")"
+  if [[ -n "$ENV_VAR_NAME" ]]; then
+    echo "$ENV_VAR_NAME"
+  fi
+}
+
+trigger-git-config-managed-keys "$@"

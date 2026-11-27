@@ -119,6 +119,10 @@ func TestEnvFileHelpers(t *testing.T) {
 	env, _ = LoadEnvFile("dev", filename)
 	Expect(env.Map()).To(Equal(map[string]string{"C": "3"}))
 
+	changed, err = SetEnvFileEntries("dev", filename, map[string]string{"C": "3"}, true)
+	Expect(err).To(Succeed())
+	Expect(changed).To(BeFalse())
+
 	_, err = SetEnvFileEntries("dev", filename, map[string]string{"1BAD": "x"}, false)
 	Expect(err).To(MatchError("Invalid key name: '1BAD'"))
 

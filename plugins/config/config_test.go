@@ -21,6 +21,7 @@ func setupTestApp(t *testing.T) (testAppDir string) {
 
 	dokkuRoot, libRoot := setupIsolatedEnv(t)
 	stubGroupEnv(t, map[string]string{})
+	stubManagedKeys(t, "")
 	t.Setenv("PLUGIN_ENABLED_PATH", filepath.Join(libRoot, "plugins", "enabled"))
 	t.Setenv("PLUGIN_CORE_AVAILABLE_PATH", filepath.Join(libRoot, "core-plugins", "available"))
 
@@ -63,19 +64,19 @@ func TestConfigSetMany(t *testing.T) {
 	expectValue(testAppName, "testKey", "TESTING")
 
 	vals := []string{"testKey=updated", "testKey2=new"}
-	Expect(CommandSet(testAppName, vals, false, true, false)).To(Succeed())
+	Expect(CommandSet(testAppName, vals, false, true, false, false)).To(Succeed())
 	expectValue(testAppName, "testKey", "updated")
 	expectValue(testAppName, "testKey2", "new")
 
 	vals = []string{"testKey=updated_global", "testKey2=new_global"}
-	Expect(CommandSet("", vals, true, true, false)).To(Succeed())
+	Expect(CommandSet("", vals, true, true, false, false)).To(Succeed())
 	expectValue("", "testKey", "updated_global")
 	expectValue("", "testKey2", "new_global")
 	expectValue("", "globalKey", "GLOBAL_VALUE")
 	expectValue(testAppName, "testKey", "updated")
 	expectValue(testAppName, "testKey2", "new")
 
-	Expect(CommandSet(testAppName+"does_not_exist", vals, false, true, false)).ToNot(Succeed())
+	Expect(CommandSet(testAppName+"does_not_exist", vals, false, true, false, false)).ToNot(Succeed())
 }
 
 func TestConfigUnsetAll(t *testing.T) {
@@ -318,4 +319,115 @@ func expectValue(appName string, key string, expected string) {
 func expectNoValue(appName string, key string) {
 	_, ok := Get(appName, key)
 	Expect(ok).To(Equal(false))
+}
+
+func TestReplaceEnvFileEntries(t *testing.T) {
+	RegisterTestingT(t)
+	_, libRoot := setupIsolatedEnv(t)
+
+	filename := filepath.Join(libRoot, "config", "replace-app", "ENV")
+	Expect(os.MkdirAll(filepath.Dir(filename), 0755)).To(Succeed())
+	original := []byte("export A=1\nexport B=2\nexport C=3\n")
+	Expect(os.WriteFile(filename, original, 0600)).To(Succeed())
+
+	changed, removed, err := ReplaceEnvFileEntries("replace-app", filename, map[string]string{"A": "1", "B": "2", "C": "3"}, nil)
+	Expect(err).To(Succeed())
+	Expect(changed).To(BeFalse())
+	Expect(removed).To(BeEmpty())
+	contents, err := os.ReadFile(filename)
+	Expect(err).To(Succeed())
+	Expect(contents).To(Equal(original))
+
+	changed, removed, err = ReplaceEnvFileEntries("replace-app", filename, map[string]string{"A": "1", "B": "20", "C": "3"}, nil)
+	Expect(err).To(Succeed())
+	Expect(changed).To(BeTrue())
+	Expect(removed).To(BeEmpty())
+
+	changed, removed, err = ReplaceEnvFileEntries("replace-app", filename, map[string]string{"B": "20"}, nil)
+	Expect(err).To(Succeed())
+	Expect(changed).To(BeTrue())
+	Expect(removed).To(Equal([]string{"A", "C"}))
+	env, err := LoadEnvFile("replace-app", filename)
+	Expect(err).To(Succeed())
+	Expect(env.Map()).To(Equal(map[string]string{"B": "20"}))
+
+	_, _, err = ReplaceEnvFileEntries("replace-app", filename, map[string]string{"1BAD": "x"}, nil)
+	Expect(err).To(MatchError("Invalid key name: '1BAD'"))
+	env, _ = LoadEnvFile("replace-app", filename)
+	Expect(env.Map()).To(Equal(map[string]string{"B": "20"}))
+}
+
+func TestReplaceEnvFileEntriesPreserve(t *testing.T) {
+	RegisterTestingT(t)
+	_, libRoot := setupIsolatedEnv(t)
+
+	filename := filepath.Join(libRoot, "config", "replace-app", "ENV")
+	Expect(os.MkdirAll(filepath.Dir(filename), 0755)).To(Succeed())
+	Expect(os.WriteFile(filename, []byte("export GIT_REV=abc\nexport NO_VHOST=1\nexport OLD=x\n"), 0600)).To(Succeed())
+
+	preserve := []string{"GIT_REV", "NO_VHOST", "MISSING"}
+	changed, removed, err := ReplaceEnvFileEntries("replace-app", filename, map[string]string{"NEW": "y"}, preserve)
+	Expect(err).To(Succeed())
+	Expect(changed).To(BeTrue())
+	Expect(removed).To(Equal([]string{"OLD"}))
+	env, err := LoadEnvFile("replace-app", filename)
+	Expect(err).To(Succeed())
+	Expect(env.Map()).To(Equal(map[string]string{"GIT_REV": "abc", "NO_VHOST": "1", "NEW": "y"}))
+
+	changed, _, err = ReplaceEnvFileEntries("replace-app", filename, map[string]string{"NEW": "y"}, preserve)
+	Expect(err).To(Succeed())
+	Expect(changed).To(BeFalse())
+
+	changed, removed, err = ReplaceEnvFileEntries("replace-app", filename, map[string]string{"NEW": "y", "GIT_REV": "def"}, preserve)
+	Expect(err).To(Succeed())
+	Expect(changed).To(BeTrue())
+	Expect(removed).To(BeEmpty())
+	env, _ = LoadEnvFile("replace-app", filename)
+	Expect(env.Map()).To(Equal(map[string]string{"GIT_REV": "def", "NO_VHOST": "1", "NEW": "y"}))
+
+	changed, removed, err = ReplaceEnvFileEntries("replace-app", filename, map[string]string{"NEW": "y"}, nil)
+	Expect(err).To(Succeed())
+	Expect(changed).To(BeTrue())
+	Expect(removed).To(Equal([]string{"GIT_REV", "NO_VHOST"}))
+}
+
+// stubManagedKeys replaces the config-managed-keys trigger with fixed output
+// so tests can run without plugn
+func stubManagedKeys(t *testing.T, output string) {
+	t.Helper()
+
+	original := managedKeysLoader
+	managedKeysLoader = func(appName string) (string, error) {
+		return output, nil
+	}
+	t.Cleanup(func() {
+		managedKeysLoader = original
+	})
+}
+
+func TestManagedKeys(t *testing.T) {
+	RegisterTestingT(t)
+	stubManagedKeys(t, "GIT_REV\n\n  NO_VHOST  \nGIT_REV\nnot-a-key\n")
+
+	keys, err := ManagedKeys(testAppName)
+	Expect(err).To(Succeed())
+	Expect(keys).To(Equal([]string{"GIT_REV", "NO_VHOST"}))
+
+	keys, err = ManagedKeys("--global")
+	Expect(err).To(Succeed())
+	Expect(keys).To(BeEmpty())
+}
+
+func TestConfigSetReplace(t *testing.T) {
+	RegisterTestingT(t)
+	testAppDir := setupTestApp(t)
+	Expect(os.WriteFile(filepath.Join(testAppDir, "ENV"), []byte("export GIT_REV=abc\nexport OLD=x\nexport testKey=TESTING\n"), 0600)).To(Succeed())
+	stubManagedKeys(t, "GIT_REV\n")
+
+	Expect(CommandSet(testAppName, []string{"testKey=NEW"}, false, true, false, true)).To(Succeed())
+	expectValue(testAppName, "testKey", "NEW")
+	expectValue(testAppName, "GIT_REV", "abc")
+	expectNoValue(testAppName, "OLD")
+
+	Expect(CommandSet(testAppName, []string{}, false, true, false, true)).To(MatchError("At least one env pair must be given"))
 }

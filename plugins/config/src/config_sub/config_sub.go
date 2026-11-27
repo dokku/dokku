@@ -91,7 +91,7 @@ func main() {
 			appName = args.Arg(0)
 		}
 		pairs := getKeys(args.Args(), *global)
-		err = config.SubSet(appName, pairs, *noRestart, *encoded)
+		err = config.SubSet(appName, pairs, *noRestart, *encoded, false)
 	case "unset":
 		args := flag.NewFlagSet("unset", flag.ExitOnError)
 		global := args.Bool("global", false, "--global: use the global environment")

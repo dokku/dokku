@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+
+trigger-domains-config-managed-keys() {
+  declare desc="outputs the app config key holding whether vhosts are disabled"
+  declare trigger="config-managed-keys"
+  declare APP="$1"
+
+  echo "NO_VHOST"
+}
+
+trigger-domains-config-managed-keys "$@"
