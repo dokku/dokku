@@ -33,8 +33,13 @@ fn-proxy-get-labels-file-path() {
 }
 EOF
 
-  cat >"$STUB_ROOT/plugins/caddy-vhosts/internal-functions" <<'EOF'
+  touch "$STUB_ROOT/core/common/property-functions"
+
+  cat >"$STUB_ROOT/plugins/caddy-vhosts/internal-functions" <<EOF
 #!/usr/bin/env bash
+source "$REPO_ROOT/plugins/caddy-vhosts/internal-functions"
+EOF
+  cat >>"$STUB_ROOT/plugins/caddy-vhosts/internal-functions" <<'EOF'
 fn-caddy-computed-letsencrypt-email() {
   echo "${STUB_LETSENCRYPT_EMAIL:-}"
 }
@@ -78,6 +83,13 @@ case "$cmd" in
   app-json-get-content)
     echo "${STUB_APP_JSON:-{\}}"
     ;;
+  proxy-routes-list)
+    ;;
+  proxy-redirects-list)
+    if [[ -n "${STUB_REDIRECTS:-}" ]]; then
+      printf '%s\n' "$STUB_REDIRECTS"
+    fi
+    ;;
   *)
     echo "unexpected plugn trigger: $cmd $*" >&2
     exit 1
@@ -101,6 +113,7 @@ invoke_caddy_docker_args() {
     STUB_VHOST_ENABLED="${STUB_VHOST_ENABLED:-true}" \
     STUB_LABELS_FILE="${STUB_LABELS_FILE:-/nonexistent}" \
     STUB_APP_JSON="${STUB_APP_JSON:-}" \
+    STUB_REDIRECTS="${STUB_REDIRECTS:-}" \
     bash "$TRIGGER" "${APP_NAME:-testapp}" "dockerfile" "latest" "${PROC_TYPE:-web}" "1" <<<"${STDIN_DATA:-}"
 }
 
@@ -308,4 +321,49 @@ invoke_caddy_docker_args() {
   assert_success
   assert_output_contains "--label 'caddy=example.com:80'"
   assert_output_contains "caddy.tls=internal" 0
+}
+
+@test "(caddy-vhosts) redirects emit http redirect site labels and drop the source from the app site" {
+  STUB_DOMAINS="$(printf 'example.com\nwww.example.com')"
+  STUB_PORTS="http:80:5000"
+  STUB_REDIRECTS="$(printf 'old.example.com|example.com|302\nwww.example.com|example.com|301')"
+
+  run invoke_caddy_docker_args
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "--label 'caddy=example.com:80'"
+  assert_output_contains "--label 'caddy_1=old.example.com:80'"
+  assert_output_contains "--label 'caddy_1.redir=http://example.com{uri} 302'"
+  assert_output_contains "--label 'caddy_2=www.example.com:80'"
+  assert_output_contains "--label 'caddy_2.redir=http://example.com{uri} 301'"
+}
+
+@test "(caddy-vhosts) redirects use https sites when a letsencrypt email is set" {
+  STUB_DOMAINS="example.com"
+  STUB_PORTS="$(printf 'http:80:5000\nhttps:443:5000')"
+  STUB_LETSENCRYPT_EMAIL="admin@example.com"
+  STUB_REDIRECTS="www.example.com|example.com|308"
+
+  run invoke_caddy_docker_args
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "--label 'caddy=example.com'"
+  assert_output_contains "--label 'caddy_1=www.example.com'"
+  assert_output_contains "--label 'caddy_1.redir=https://example.com{uri} 308'"
+}
+
+@test "(caddy-vhosts) redirects still render when every app domain is a redirect source" {
+  STUB_DOMAINS="www.example.com"
+  STUB_PORTS="http:80:5000"
+  STUB_REDIRECTS="www.example.com|example.com|301"
+
+  run invoke_caddy_docker_args
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "--label 'caddy=" 0
+  assert_output_contains "--label 'caddy_1=www.example.com:80'"
+  assert_output_contains "--label 'caddy_1.redir=http://example.com{uri} 301'"
 }
