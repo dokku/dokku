@@ -224,6 +224,7 @@ func BuildAppChart(ctx context.Context, appName, imageTag string, opts BuildOpti
 	}
 
 	domains := []string{}
+	redirects := []ProcessRedirect{}
 	if _, ok := processes["web"]; ok {
 		_, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
 			Trigger:     "domains-vhost-enabled",
@@ -245,6 +246,12 @@ func BuildAppChart(ctx context.Context, appName, imageTag string, opts BuildOpti
 					domains = append(domains, domain)
 				}
 			}
+
+			redirects, err = GetAppRedirects(appName)
+			if err != nil {
+				return cleanup(fmt.Errorf("Error getting redirects for deployment: %w", err))
+			}
+			domains = filterRedirectSources(domains, redirects)
 		}
 	}
 
@@ -448,8 +455,9 @@ func BuildAppChart(ctx context.Context, appName, imageTag string, opts BuildOpti
 			}
 
 			processValues.Web = ProcessWeb{
-				Domains:  domainValues,
-				PortMaps: []ProcessPortMap{},
+				Domains:   domainValues,
+				PortMaps:  []ProcessPortMap{},
+				Redirects: redirects,
 				TLS: ProcessTls{
 					Enabled:         tlsConfig.Enabled,
 					IssuerKind:      tlsConfig.IssuerKind,
@@ -538,7 +546,7 @@ func BuildAppChart(ctx context.Context, appName, imageTag string, opts BuildOpti
 
 		templateFiles := []string{"deployment", "keda-scaled-object"}
 		if processType == "web" {
-			templateFiles = append(templateFiles, "service", "certificate", "issuer", "ingress", "ingress-route", "compression-middleware", "https-redirect-middleware", "strip-prefix-middleware", "keda-http-scaled-object", "keda-interceptor-proxy-service")
+			templateFiles = append(templateFiles, "service", "certificate", "issuer", "ingress", "ingress-route", "compression-middleware", "https-redirect-middleware", "redirect-ingress", "strip-prefix-middleware", "keda-http-scaled-object", "keda-interceptor-proxy-service")
 		} else if _, routed := routedPorts[processType]; routed {
 			templateFiles = append(templateFiles, "service")
 		}

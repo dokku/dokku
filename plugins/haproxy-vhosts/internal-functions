@@ -4,6 +4,19 @@ source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
+fn-haproxy-redirect-labels() {
+  declare desc="outputs the haproxy label that redirects each redirect source to its destination"
+  declare APP="$1" PROC_TYPE="$2" SCHEME="$3"
+  local redirects
+
+  redirects="$(plugn trigger proxy-redirects-list "$APP" | jq -R -s -c --arg scheme "$SCHEME" 'split("\n") | map(select(length > 0) | split("|")) | map({key: .[0], value: ($scheme + "://" + .[1])}) | from_entries')"
+  if [[ -z "$redirects" ]] || [[ "$redirects" == "{}" ]]; then
+    return
+  fi
+
+  echo -n " --label 'haproxy.$APP-$PROC_TYPE.redirect=${redirects}'"
+}
+
 fn-haproxy-logs() {
   declare desc="shows the logs for the haproxy container"
   declare TAIL="$1" NUM="$2"

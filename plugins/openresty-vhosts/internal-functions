@@ -11,6 +11,27 @@ fn-get-pagesize() {
   "$PLUGIN_CORE_AVAILABLE_PATH/nginx-vhosts/pagesize"
 }
 
+fn-openresty-redirect-labels() {
+  declare desc="emits per-redirect openresty labels for the web container"
+  declare APP="$1" LETSENCRYPT_ENABLED="$2"
+  local source destination code ssl_hostname_regex="" redirect_index=0
+
+  if [[ "$LETSENCRYPT_ENABLED" != "true" ]] && [[ "$(plugn trigger certs-exists "$APP")" == "true" ]]; then
+    ssl_hostname_regex="$(get_ssl_hostnames "$APP" | xargs | sed 's|\.|\\.|g' | sed 's/\*/\[^\.\]\*/g' | sed 's/ /|/g')"
+  fi
+
+  while IFS='|' read -r source destination code; do
+    [[ -z "$source" ]] && continue
+    echo -n " '--label=openresty.redirect.${redirect_index}.source=${source}'"
+    echo -n " '--label=openresty.redirect.${redirect_index}.destination=${destination}'"
+    echo -n " '--label=openresty.redirect.${redirect_index}.code=${code}'"
+    if [[ -n "$ssl_hostname_regex" ]] && ! grep -qE "^(${ssl_hostname_regex})$" <<<"$source"; then
+      echo -n " '--label=openresty.redirect.${redirect_index}.tls=false'"
+    fi
+    redirect_index=$((redirect_index + 1))
+  done < <(plugn trigger proxy-redirects-list "$APP")
+}
+
 fn-openresty-route-labels() {
   declare desc="emits per-route openresty labels for a non-web container"
   declare APP="$1" PROC_TYPE="$2" STDIN="$3"

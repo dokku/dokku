@@ -163,6 +163,13 @@ The following folders within an app repository may have `*.conf` files that will
 
 Custom snippets filenames may only include alphanumeric, underscore, and dot characters. For security reasons, filenames that contain other characters will be ignored.
 
+### Domain redirects
+
+> [!IMPORTANT]
+> New as of 0.39.0
+
+Domain redirects declared via `proxy:redirect:set` are rendered as `openresty.redirect.<n>.*` labels on the app's `web` containers, and redirect sources are removed from the `openresty.domains` label. The sidecar renders a `server {}` block per redirect, including the letsencrypt challenge location when letsencrypt is enabled. When the app uses an imported certificate that does not cover a redirect source, only the `http` redirect is rendered for that source. Run `dokku ps:rebuild <app>` after changing redirects so the containers are recreated with the new labels. See the [proxy management documentation](/docs/networking/proxy-management.md#domain-redirects) for usage.
+
 ### Label Management
 
 The OpenResty plugin allows you to add custom container labels to apps. These labels are injected into containers during deployment and can be used to configure OpenResty behavior beyond what the plugin provides by default.

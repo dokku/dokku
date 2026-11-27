@@ -82,6 +82,20 @@ func TriggerProxyRoutesList(appName string) error {
 	return nil
 }
 
+// TriggerProxyRedirectsList prints one "source|destination|code" line per
+// redirect, sorted by source. Backends use this to render domain redirects in
+// their config or labels.
+func TriggerProxyRedirectsList(appName string) error {
+	redirects, err := GetRedirects(appName)
+	if err != nil {
+		return err
+	}
+	for _, r := range redirects {
+		fmt.Printf("%s|%s|%d\n", r.Source, r.Destination, r.Code)
+	}
+	return nil
+}
+
 // TriggerPostAppCloneSetup creates new proxy files
 func TriggerPostAppCloneSetup(oldAppName string, newAppName string) error {
 	return common.PropertyClone("proxy", oldAppName, newAppName)

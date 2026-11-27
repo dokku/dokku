@@ -1,1 +1,1 @@
-FROM dokku/openresty-docker-proxy:0.13.1
+FROM dokku/openresty-docker-proxy:0.14.0

@@ -23,6 +23,10 @@ Additional commands:`
     proxy:disable <app>, Disable proxy for app
     proxy:enable <app>, Enable proxy for app
     proxy:report [<app>] [<flag>], Displays a proxy report for one or more apps
+    proxy:redirect:clear <app>, Removes every domain redirect for an app
+    proxy:redirect:remove <app> <source>, Removes a domain redirect from an app
+    proxy:redirect:report [<app>] [--format json], Displays the domain redirects for an app
+    proxy:redirect:set <app> <source> <destination> [--code code], Adds or updates a redirect from a source domain to a destination domain
     proxy:route:clear <app>, Removes every path-based route for an app
     proxy:route:remove <app> <path>, Removes a path-based route from an app
     proxy:route:report [<app>] [--format json], Displays the path-based routes for an app

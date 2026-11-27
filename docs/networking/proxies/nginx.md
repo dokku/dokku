@@ -394,11 +394,12 @@ Unsetting this value is the same as enabling custom nginx config usage.
 {{ .HTTP3_SUPPORTED }}              Set to `true` when the installed nginx is 1.25.0 or newer and built with `--with-http_v3_module`
 {{ .PROXY_PORT }}                   Non-SSL nginx listener port (same as the `proxy-port` property)
 {{ .PROXY_SSL_PORT }}               SSL nginx listener port (same as the `proxy-ssl-port` property)
-{{ .NOSSL_SERVER_NAME }}            List of non-SSL VHOSTS
+{{ .NOSSL_SERVER_NAME }}            List of non-SSL VHOSTS, without any redirect source
 {{ .PROXY_PORT_MAP }}               List of port mappings (same as the `map` ports property)
+{{ .PROXY_REDIRECTS }}              Space-separated list of `source|destination|code|tls` domain redirects (see `proxy:redirect:set`)
 {{ .PROXY_UPSTREAM_PORTS }}         List of configured upstream ports (derived from the `map` ports property)
 {{ .SSL_INUSE }}                    Boolean set when an app is SSL-enabled
-{{ .SSL_SERVER_NAME }}              List of SSL VHOSTS
+{{ .SSL_SERVER_NAME }}              List of SSL VHOSTS, without any redirect source
 ```
 
 Finally, each process type has it's network listeners - a list of IP:PORT pairs for the respective app containers - exposed via an `.DOKKU_APP_${PROCESS_TYPE}_LISTENERS` variable - the `PROCESS_TYPE` will be upper-cased with hyphens transformed into underscores. Users can use the new variables to expose non-web processes via the nginx proxy.
@@ -442,6 +443,17 @@ location / {
 ```
 
 Please adjust the `Procfile` and `nginx.conf` file as appropriate.
+
+### Domain redirects
+
+> [!IMPORTANT]
+> New as of 0.39.0
+
+Domain redirects declared via `proxy:redirect:set` are rendered as extra `server {}` blocks in the app's nginx config. See the [proxy management documentation](/docs/networking/proxy-management.md#domain-redirects) for usage.
+
+Each redirect gets a `server {}` block per `http` port mapping, and per `https` port mapping when the app's certificate covers the redirect source. The block uses `server_name <source>`, includes the app's `nginx.conf.d/*.conf` files, and answers every request with `return <code> $scheme://<destination>$request_uri;`. Redirect sources are removed from `NOSSL_SERVER_NAME` and `SSL_SERVER_NAME`, so a source that is also an app domain doesn't cause a "conflicting server name" warning.
+
+Apps with a custom `nginx.conf.sigil` still have redirect sources removed from `NOSSL_SERVER_NAME` and `SSL_SERVER_NAME`, but only render the redirect blocks if the template iterates over the `PROXY_REDIRECTS` variable. Each entry is a `source|destination|code|tls` value, where `tls` is `true` when the app's certificate covers the source. See the default template in `plugins/nginx-vhosts/templates/nginx.conf.sigil` for an example.
 
 ### Setting Properties for the nginx config
 

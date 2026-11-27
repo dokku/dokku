@@ -10,7 +10,7 @@ fn-caddy-route-labels() {
   local caddy_domains app_domains output route_proc route_port route_path route_strip
   local matcher_name route_index=0
 
-  app_domains="$(plugn trigger domains-list "$APP")"
+  app_domains="$(fn-proxy-served-domains "$APP")"
   if [[ -n "$app_domains" ]]; then
     caddy_domains="$(echo "$app_domains" | xargs)"
     caddy_domains="${caddy_domains// /, }"
@@ -73,6 +73,27 @@ fn-caddy-route-labels() {
   fi
 
   echo -n "$STDIN $output"
+}
+
+fn-caddy-redirect-labels() {
+  declare desc="outputs the caddy site labels that redirect each redirect source to its destination"
+  declare APP="$1" LETSENCRYPT_EMAIL="$2"
+  local source destination code site scheme="http" redirect_index=1
+
+  if [[ -n "$LETSENCRYPT_EMAIL" ]]; then
+    scheme="https"
+  fi
+
+  while IFS='|' read -r source destination code; do
+    [[ -z "$source" ]] && continue
+    site="$source"
+    if [[ "$scheme" == "http" ]]; then
+      site="${source}:80"
+    fi
+    echo -n " --label 'caddy_${redirect_index}=${site}'"
+    echo -n " --label 'caddy_${redirect_index}.redir=${scheme}://${destination}{uri} ${code}'"
+    redirect_index=$((redirect_index + 1))
+  done < <(plugn trigger proxy-redirects-list "$APP")
 }
 
 fn-caddy-route-slug() {

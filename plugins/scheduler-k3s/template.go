@@ -309,13 +309,35 @@ type ProcessLabels struct {
 }
 
 type ProcessWeb struct {
-	Domains  []ProcessDomains `yaml:"domains,omitempty"`
-	PortMaps []ProcessPortMap `yaml:"port_maps,omitempty"`
-	TLS      ProcessTls       `yaml:"tls"`
+	Domains   []ProcessDomains  `yaml:"domains,omitempty"`
+	PortMaps  []ProcessPortMap  `yaml:"port_maps,omitempty"`
+	Redirects []ProcessRedirect `yaml:"redirects,omitempty"`
+	TLS       ProcessTls        `yaml:"tls"`
 }
 
 type ProcessDomains struct {
 	Name string `yaml:"name"`
+	Slug string `yaml:"slug"`
+}
+
+// ProcessRedirect is one domain redirect declared via proxy:redirect:set. The
+// chart templates iterate this slice to emit an Ingress or IngressRoute per
+// redirect source, and include each source in the web certificate.
+type ProcessRedirect struct {
+	// Source is the hostname that is redirected.
+	Source string `yaml:"source"`
+
+	// Destination is the hostname requests are redirected to.
+	Destination string `yaml:"destination"`
+
+	// Code is the http status code used for the redirect.
+	Code int `yaml:"code"`
+
+	// Permanent is true when Code is a permanent redirect code.
+	Permanent bool `yaml:"permanent"`
+
+	// Slug is a deterministic identifier derived from Source. It is used as a
+	// stable name fragment for generated resources.
 	Slug string `yaml:"slug"`
 }
 

@@ -163,6 +163,13 @@ dokku traefik:set --global log-level DEBUG
 
 After modifying, the Traefik container will need to be restarted.
 
+### Domain redirects
+
+> [!IMPORTANT]
+> New as of 0.39.0
+
+Domain redirects declared via `proxy:redirect:set` are rendered as a router and `redirectregex` middleware per redirect and entrypoint on the app's `web` containers, and redirect sources are removed from the app's own router rules. Traefik only distinguishes permanent from temporary redirects: `301` and `308` render as permanent redirects, and every other code renders as a temporary redirect, which traefik answers with a `302` for `GET` requests. Run `dokku ps:rebuild <app>` after changing redirects so the containers are recreated with the new labels. See the [proxy management documentation](/docs/networking/proxy-management.md#domain-redirects) for usage.
+
 ### Label Management
 
 The Traefik plugin allows you to add custom container labels to apps. These labels are injected into containers during deployment and can be used to configure Traefik behavior beyond what the plugin provides by default.

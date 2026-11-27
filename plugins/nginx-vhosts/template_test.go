@@ -69,6 +69,7 @@ func defaultVars() map[string]interface{} {
 		"HTTP3_SUPPORTED":             "false",
 		"PROXY_ROUTES":                "",
 		"PROXY_ROUTE_LISTENERS":       "",
+		"PROXY_REDIRECTS":             "",
 	}
 }
 
@@ -546,4 +547,82 @@ func TestTemplate_NginxConfDIncludeAlways(t *testing.T) {
 			mustContain(t, out, "include /home/dokku/app/nginx.conf.d/*.conf;")
 		})
 	}
+}
+
+func TestTemplate_NoRedirectsRendersNoRedirectBlocks(t *testing.T) {
+	out := renderTemplate(t, defaultVars())
+	mustNotContain(t, out, "$request_uri;")
+	if strings.Count(out, "server {") != 1 {
+		t.Errorf("expected a single server block\n--- output ---\n%s", out)
+	}
+}
+
+func TestTemplate_RedirectHTTP(t *testing.T) {
+	v := defaultVars()
+	v["PROXY_REDIRECTS"] = "www.example.com|app.example.com|301|false"
+	out := renderTemplate(t, v)
+	mustContain(t, out, "server_name www.example.com;")
+	mustContain(t, out, "return 301 $scheme://app.example.com$request_uri;")
+	mustContain(t, out, "server_name app.example.com;")
+	if strings.Count(out, "server {") != 2 {
+		t.Errorf("expected an app and a redirect server block\n--- output ---\n%s", out)
+	}
+}
+
+func TestTemplate_RedirectMultipleWithCodes(t *testing.T) {
+	v := defaultVars()
+	v["PROXY_REDIRECTS"] = "old.example.com|app.example.com|308|false www.example.com|app.example.com|302|false"
+	out := renderTemplate(t, v)
+	mustContain(t, out, "server_name old.example.com;")
+	mustContain(t, out, "return 308 $scheme://app.example.com$request_uri;")
+	mustContain(t, out, "server_name www.example.com;")
+	mustContain(t, out, "return 302 $scheme://app.example.com$request_uri;")
+}
+
+func TestTemplate_RedirectHTTPSWhenCertCoversSource(t *testing.T) {
+	v := defaultVars()
+	v["PROXY_PORT_MAP"] = "http:80:5000 https:443:5000"
+	v["SSL_INUSE"] = "true"
+	v["PROXY_REDIRECTS"] = "www.example.com|app.example.com|301|true"
+	out := renderTemplate(t, v)
+	if strings.Count(out, "server_name www.example.com;") != 2 {
+		t.Errorf("expected http and https redirect blocks\n--- output ---\n%s", out)
+	}
+	if strings.Count(out, "return 301 $scheme://app.example.com$request_uri;") != 2 {
+		t.Errorf("expected two redirect returns\n--- output ---\n%s", out)
+	}
+	if strings.Count(out, "ssl_certificate           /home/dokku/app/tls/server.crt;") != 2 {
+		t.Errorf("expected the app cert on the app and redirect https blocks\n--- output ---\n%s", out)
+	}
+}
+
+func TestTemplate_RedirectSkipsHTTPSWhenCertDoesNotCoverSource(t *testing.T) {
+	v := defaultVars()
+	v["PROXY_PORT_MAP"] = "http:80:5000 https:443:5000"
+	v["SSL_INUSE"] = "true"
+	v["PROXY_REDIRECTS"] = "www.example.com|app.example.com|301|false"
+	out := renderTemplate(t, v)
+	if strings.Count(out, "server_name www.example.com;") != 1 {
+		t.Errorf("expected only an http redirect block\n--- output ---\n%s", out)
+	}
+	if strings.Count(out, "ssl_certificate           /home/dokku/app/tls/server.crt;") != 1 {
+		t.Errorf("expected the app cert only on the app https block\n--- output ---\n%s", out)
+	}
+}
+
+func TestTemplate_RedirectIncludesNginxConfD(t *testing.T) {
+	v := defaultVars()
+	v["PROXY_REDIRECTS"] = "www.example.com|app.example.com|301|false"
+	out := renderTemplate(t, v)
+	if strings.Count(out, "include /home/dokku/app/nginx.conf.d/*.conf;") != 2 {
+		t.Errorf("expected nginx.conf.d include in the app and redirect blocks\n--- output ---\n%s", out)
+	}
+}
+
+func TestTemplate_RedirectOmittedForGRPC(t *testing.T) {
+	v := defaultVars()
+	v["PROXY_PORT_MAP"] = "grpc:50051:50051"
+	v["PROXY_REDIRECTS"] = "www.example.com|app.example.com|301|false"
+	out := renderTemplate(t, v)
+	mustNotContain(t, out, "server_name www.example.com;")
 }

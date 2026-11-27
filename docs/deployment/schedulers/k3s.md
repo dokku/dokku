@@ -380,6 +380,24 @@ An exact domain always takes precedence over a wildcard, including across apps. 
 
 Only the leading label may be wildcarded. A domain such as `api.*.node-js-app.com` is treated as a literal hostname and will not match anything.
 
+### Domain redirects
+
+> [!IMPORTANT]
+> New as of 0.39.0
+
+Both the `nginx` and `traefik` ingress classes render domain redirects declared via `proxy:redirect:set`. See the [proxy management documentation](/docs/networking/proxy-management.md#domain-redirects) for usage.
+
+```shell
+dokku proxy:redirect:set node-js-app www.node-js-app.com node-js-app.com
+```
+
+Each redirect gets its own ingress resources for the source domain, and the source is removed from the app's web `Ingress` or `IngressRoute` hosts. When TLS is enabled for the app, redirects target `https` on the destination, the source is served with the app's TLS secret, and a source that is not covered by an imported certificate is added to the app's cert-manager `Certificate` so it is issued along with the app's other domains.
+
+- `nginx`: each redirect is an `Ingress` with an `nginx.ingress.kubernetes.io/configuration-snippet` annotation that returns the redirect, keeping the request path and query string. This relies on `allowSnippetAnnotations` and an `annotations-risk-level` of `Critical`, which Dokku sets when it installs ingress-nginx. Clusters that disable snippet annotations will reject the redirect `Ingress`.
+- `traefik`: each redirect is a `redirectRegex` `Middleware` plus an `IngressRoute` per entrypoint. `301` and `308` render as a permanent redirect, and every other code renders as a temporary redirect, which traefik answers with a `302` for `GET` requests.
+
+Redirect changes take effect on the next deploy. Run `dokku ps:rebuild node-js-app` to apply them to an already deployed app.
+
 ### SSL Certificates
 
 #### Enabling letsencrypt integration

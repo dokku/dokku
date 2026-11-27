@@ -157,6 +157,51 @@ server {
   include {{ $.DOKKU_ROOT }}/{{ $.APP }}/nginx.conf.d/*.conf;
 {{ end }}
 }
+
+{{ range $redirect := $.PROXY_REDIRECTS | split " " }}
+{{ if $redirect }}
+{{ $rd := $redirect | split "|" }}
+{{ $redirect_source := index $rd 0 }}
+{{ $redirect_destination := index $rd 1 }}
+{{ $redirect_code := index $rd 2 }}
+{{ $redirect_tls := index $rd 3 }}
+{{ if or (not $is_ssl) (eq $redirect_tls "true") }}
+server {
+  {{ if $is_ssl }}
+  {{ if ne $.HTTP2_ENABLED "true" }}
+  listen      [{{ $.NGINX_BIND_ADDRESS_IP6 }}]:{{ $listen_port }} ssl;
+  listen      {{ if $.NGINX_BIND_ADDRESS_IP4 }}{{ $.NGINX_BIND_ADDRESS_IP4 }}:{{end}}{{ $listen_port }} ssl;
+  {{ else if eq $.HTTP2_DIRECTIVE_SUPPORTED "true" }}
+  listen      [{{ $.NGINX_BIND_ADDRESS_IP6 }}]:{{ $listen_port }} ssl;
+  listen      {{ if $.NGINX_BIND_ADDRESS_IP4 }}{{ $.NGINX_BIND_ADDRESS_IP4 }}:{{end}}{{ $listen_port }} ssl;
+  http2 on;
+  {{ else }}
+  listen      [{{ $.NGINX_BIND_ADDRESS_IP6 }}]:{{ $listen_port }} ssl http2;
+  listen      {{ if $.NGINX_BIND_ADDRESS_IP4 }}{{ $.NGINX_BIND_ADDRESS_IP4 }}:{{end}}{{ $listen_port }} ssl http2;
+  {{ end }}
+  {{ else }}
+  listen      [{{ $.NGINX_BIND_ADDRESS_IP6 }}]:{{ $listen_port }};
+  listen      {{ if $.NGINX_BIND_ADDRESS_IP4 }}{{ $.NGINX_BIND_ADDRESS_IP4 }}:{{end}}{{ $listen_port }};
+  {{ end }}
+  server_name {{ $redirect_source }};
+  access_log  {{ $.NGINX_ACCESS_LOG_PATH }}{{ if and ($.NGINX_ACCESS_LOG_FORMAT) (ne $.NGINX_ACCESS_LOG_PATH "off") }} {{ $.NGINX_ACCESS_LOG_FORMAT }}{{ end }};
+  error_log   {{ $.NGINX_ERROR_LOG_PATH }};
+
+  {{ if $is_ssl }}
+  ssl_certificate           {{ $.APP_SSL_PATH }}/server.crt;
+  ssl_certificate_key       {{ $.APP_SSL_PATH }}/server.key;
+  ssl_protocols             TLSv1.2 TLSv1.3;
+  ssl_prefer_server_ciphers off;
+  {{ end }}
+
+  include {{ $.DOKKU_ROOT }}/{{ $.APP }}/nginx.conf.d/*.conf;
+  location / {
+    return {{ $redirect_code }} $scheme://{{ $redirect_destination }}$request_uri;
+  }
+}
+{{ end }}
+{{ end }}
+{{ end }}
 {{ else if or (eq $scheme "grpc") (eq $scheme "grpcs") }}
 {{ if $.DOKKU_APP_WEB_LISTENERS }}
 {{ $is_ssl := eq $scheme "grpcs" }}
