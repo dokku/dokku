@@ -41,6 +41,18 @@ verify-dns-resolution() {
   fi
 }
 
+disable-unused-apt-sources() {
+  declare desc="remove apt sources ci never installs from, so an outage on one cannot fail apt-get update"
+  local source_file
+  for source_file in /etc/apt/sources.list.d/*; do
+    [[ -f "$source_file" ]] || continue
+    if grep -q "packages.microsoft.com" "$source_file"; then
+      echo "removing apt source $source_file"
+      sudo rm -f "$source_file"
+    fi
+  done
+}
+
 echo "=====> detect network interface"
 ip -br addr
 resolvectl dns || true
@@ -59,6 +71,9 @@ sudo hostname "$DOKKU_DOMAIN"
 echo "$DOKKU_DOMAIN" | sudo tee /etc/hostname
 hostname
 sudo cat /etc/hostname
+
+echo "=====> disable unused apt sources"
+disable-unused-apt-sources
 
 echo "=====> resolve $DOKKU_DOMAIN"
 sudo apt -qq -y --no-install-recommends install net-tools
