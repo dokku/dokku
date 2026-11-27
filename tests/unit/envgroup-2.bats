@@ -59,6 +59,17 @@ teardown() {
   assert_success
   assert_output_contains "Restarting app $TEST_APP"
 
+  run /bin/bash -c "dokku run $TEST_APP env | grep -E '^ENVGROUP_SHARED='"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "ENVGROUP_SHARED=global"
+
+  run /bin/bash -c "dokku ps:rebuild $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
   run /bin/bash -c "dokku run $TEST_APP env | grep -E '^(ENVGROUP_SHARED|GROUP_ONLY)=' | tr '\n' ' '"
   echo "output: $output"
   echo "status: $status"

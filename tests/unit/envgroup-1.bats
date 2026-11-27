@@ -230,7 +230,7 @@ teardown() {
   echo "output: $output"
   echo "status: $status"
   assert_success
-  assert_output "A_KEY='one' B_KEY='two'"
+  assert_output "A_KEY='one' B_KEY='two' "
 
   run /bin/bash -c "dokku envgroup:export --format json bats-dev | jq -r .B_KEY"
   echo "output: $output"

@@ -145,6 +145,8 @@ dokku envgroup:set --restart dev API_URL=https://api2.example.com
 
 > [!NOTE]
 > `ps:restart` reuses the app's existing release, and apps built with herokuish keep the global and group values from that release in `/app/.profile.d`. Use `--restart` or `ps:rebuild` so that those apps pick up the new values.
+>
+> Apps built with herokuish also keep the merged environment from their last build in `/app/.env`. Keys removed from a group, or from an app by removing the group, remain set there until the app is rebuilt with `ps:rebuild`, as with `config:unset`.
 
 ### Backups
 
