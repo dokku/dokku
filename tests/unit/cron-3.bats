@@ -4,6 +4,7 @@ load test_helper
 
 setup() {
   global_setup
+  stop_retire_timer
   create_app
   mkdir -p /var/lib/dokku/plugins/available/cron-entries
   mkdir -p /var/lib/dokku/plugins/enabled/cron-entries
@@ -24,6 +25,7 @@ teardown() {
   dokku scheduler:set "$TEST_APP" selected docker-local 2>/dev/null || true
   destroy_app
   global_teardown
+  start_retire_timer
 }
 
 @test "(cron) create [empty]" {

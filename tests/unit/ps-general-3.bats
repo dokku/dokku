@@ -4,12 +4,14 @@ load test_helper
 
 setup() {
   global_setup
+  stop_retire_timer
   create_app
 }
 
 teardown() {
   destroy_app
   global_teardown
+  start_retire_timer
 }
 
 @test "(ps:scale) --replace scales down unspecified processes" {

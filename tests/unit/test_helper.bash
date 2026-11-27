@@ -838,3 +838,23 @@ run_concurrently() {
   echo "failed runs: $failed"
   [[ "$failed" -eq 0 ]]
 }
+
+stop_retire_timer() {
+  declare desc="stops the dokku-retire timer and waits for an in-flight ps:retire so only the test runs ps:retire"
+  local retire_lock="/var/lib/dokku/data/ps/retire"
+  if systemctl is-active --quiet dokku-retire.timer 2>/dev/null; then
+    systemctl stop dokku-retire.timer
+    RETIRE_TIMER_STOPPED=true
+  fi
+
+  if [[ -f "$retire_lock" ]]; then
+    flock -w 300 "$retire_lock" true || true
+  fi
+}
+
+start_retire_timer() {
+  declare desc="starts the dokku-retire timer if stop_retire_timer stopped it"
+  if [[ "$RETIRE_TIMER_STOPPED" == "true" ]]; then
+    systemctl start dokku-retire.timer
+  fi
+}

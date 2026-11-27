@@ -4,6 +4,7 @@ load test_helper
 
 setup() {
   global_setup
+  stop_retire_timer
   create_app
   dokku checks:set $TEST_APP wait-to-retire 30
 }
@@ -11,6 +12,7 @@ setup() {
 teardown() {
   destroy_app
   global_teardown
+  start_retire_timer
 }
 
 @test "(registry) registry:help" {
