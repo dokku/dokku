@@ -15,7 +15,7 @@ func Get(appName string, key string) (value string, ok bool) {
 	if err != nil {
 		return "", false
 	}
-	if err = validateKey(key); err != nil {
+	if err = ValidateKey(key); err != nil {
 		return "", false
 	}
 	return env.Get(key)
@@ -33,20 +33,74 @@ func GetWithDefault(appName string, key string, defaultValue string) (value stri
 // SetMany variables in the environment. If appName is empty the global config is used. If restart is true the app is restarted.
 func SetMany(appName string, entries map[string]string, replace bool, restart bool) (err error) {
 	global := appName == "" || appName == "--global"
-	keys := make([]string, 0, len(entries))
+	name, filename := appOrGlobalTarget(appName)
+	changed, err := SetEnvFileEntries(name, filename, entries, replace)
+	if err != nil {
+		return err
+	}
+	if changed {
+		keys := make([]string, 0, len(entries))
+		for k := range entries {
+			keys = append(keys, k)
+		}
+		triggerUpdate(appName, "set", keys)
+	}
+	if !global && restart {
+		RestartApp(appName)
+	}
+	return
+}
+
+// UnsetMany a value in a config. If appName is empty the global config is used. If restart is true the app is restarted.
+func UnsetMany(appName string, keys []string, restart bool) (err error) {
+	global := appName == "" || appName == "--global"
+	name, filename := appOrGlobalTarget(appName)
+	changed, err := UnsetEnvFileKeys(name, filename, keys)
+	if err != nil {
+		return err
+	}
+	if changed {
+		triggerUpdate(appName, "unset", keys)
+	}
+	if !global && restart {
+		RestartApp(appName)
+	}
+	return
+}
+
+// UnsetAll removes all config keys
+func UnsetAll(appName string, restart bool) (err error) {
+	global := appName == "" || appName == "--global"
+	name, filename := appOrGlobalTarget(appName)
+	changed, err := ClearEnvFile(name, filename)
+	if err != nil {
+		return err
+	}
+	if changed {
+		triggerUpdate(appName, "clear", []string{})
+	}
+	if !global && restart {
+		RestartApp(appName)
+	}
+	return
+}
+
+// SetEnvFileEntries sets the given entries in the environment file at
+// filename, clearing it first when replace is true, and returns whether the
+// file was changed. Every key is validated before anything is written.
+func SetEnvFileEntries(name string, filename string, entries map[string]string, replace bool) (bool, error) {
 	for k := range entries {
-		if err = validateKey(k); err != nil {
-			return
+		if err := ValidateKey(k); err != nil {
+			return false, err
 		}
 	}
 
-	changed, err := updateAppOrGlobalEnv(appName, func(env *Env) bool {
+	return UpdateEnvFile(name, filename, func(env *Env) bool {
 		if replace {
 			env.Clear()
 		}
 		for k, v := range entries {
 			env.Set(k, v)
-			keys = append(keys, k)
 		}
 		if len(entries) == 0 {
 			return false
@@ -58,27 +112,19 @@ func SetMany(appName string, entries map[string]string, replace bool, restart bo
 		}
 		return true
 	})
-	if err != nil {
-		return err
-	}
-	if changed {
-		triggerUpdate(appName, "set", keys)
-	}
-	if !global && restart && shouldRestart(appName) {
-		triggerRestart(appName)
-	}
-	return
 }
 
-// UnsetMany a value in a config. If appName is empty the global config is used. If restart is true the app is restarted.
-func UnsetMany(appName string, keys []string, restart bool) (err error) {
-	global := appName == "" || appName == "--global"
+// UnsetEnvFileKeys removes the given keys from the environment file at
+// filename and returns whether the file was changed. Every key is validated
+// before anything is written.
+func UnsetEnvFileKeys(name string, filename string, keys []string) (bool, error) {
 	for _, k := range keys {
-		if err = validateKey(k); err != nil {
-			return
+		if err := ValidateKey(k); err != nil {
+			return false, err
 		}
 	}
-	changed, err := updateAppOrGlobalEnv(appName, func(env *Env) bool {
+
+	return UpdateEnvFile(name, filename, func(env *Env) bool {
 		changed := false
 		for _, k := range keys {
 			if _, hasKey := env.Map()[k]; hasKey {
@@ -91,22 +137,12 @@ func UnsetMany(appName string, keys []string, restart bool) (err error) {
 		}
 		return changed
 	})
-	if err != nil {
-		return err
-	}
-	if changed {
-		triggerUpdate(appName, "unset", keys)
-	}
-	if !global && restart && shouldRestart(appName) {
-		triggerRestart(appName)
-	}
-	return
 }
 
-// UnsetAll removes all config keys
-func UnsetAll(appName string, restart bool) (err error) {
-	global := appName == "" || appName == "--global"
-	changed, err := updateAppOrGlobalEnv(appName, func(env *Env) bool {
+// ClearEnvFile removes every key from the environment file at filename and
+// returns whether the file was changed
+func ClearEnvFile(name string, filename string) (bool, error) {
+	return UpdateEnvFile(name, filename, func(env *Env) bool {
 		changed := false
 		for k := range env.Map() {
 			common.LogInfo1Quiet(fmt.Sprintf("Unsetting %s", k))
@@ -115,36 +151,18 @@ func UnsetAll(appName string, restart bool) (err error) {
 		}
 		return changed
 	})
-	if err != nil {
-		return err
-	}
-	if changed {
-		triggerUpdate(appName, "clear", []string{})
-	}
-	if !global && restart && shouldRestart(appName) {
-		triggerRestart(appName)
-	}
-	return
 }
 
-// updateAppOrGlobalEnv loads the app or global environment, passes it to
-// update and writes it back when update reports a change, returning whether it
-// did. The directory holding the environment file stays locked from the load
-// to the write, so concurrent config changes cannot drop each other's keys.
+// UpdateEnvFile loads the environment file at filename, passes it to update
+// and writes it back when update reports a change, returning whether it did.
+// The directory holding the environment file stays locked from the load to
+// the write, so concurrent config changes cannot drop each other's keys.
 // Triggers reacting to the change must run after this returns, as a trigger
 // that changes the same environment would otherwise wait on the lock forever.
-func updateAppOrGlobalEnv(appName string, update func(env *Env) bool) (bool, error) {
-	filename := getGlobalFile()
-	if appName != "" && appName != "--global" {
-		var err error
-		if filename, err = getAppFile(appName); err != nil {
-			return false, err
-		}
-	}
-
+func UpdateEnvFile(name string, filename string, update func(env *Env) bool) (bool, error) {
 	changed := false
 	apply := func() error {
-		env, err := loadAppOrGlobalEnv(appName)
+		env, err := loadFromFile(name, filename)
 		if err != nil {
 			return err
 		}
@@ -167,6 +185,25 @@ func updateAppOrGlobalEnv(appName string, update func(env *Env) bool) (bool, err
 
 	err := common.LockDirectory(dir, apply)
 	return changed, err
+}
+
+// RestartApp redeploys a deployed app so that it picks up a change to its
+// environment, unless the app's ps restore property is set to false
+func RestartApp(appName string) {
+	if shouldRestart(appName) {
+		triggerRestart(appName)
+	}
+}
+
+// appOrGlobalTarget returns the name and environment file path for an app, or
+// for the global environment when appName is empty or --global
+func appOrGlobalTarget(appName string) (string, string) {
+	if appName == "" || appName == "--global" {
+		return "<global>", getGlobalFile()
+	}
+
+	filename, _ := getAppFile(appName)
+	return appName, filename
 }
 
 func shouldRestart(appName string) bool {
@@ -205,10 +242,10 @@ func triggerUpdate(appName string, operation string, args []string) {
 	}
 }
 
-// getEnvironment for the given app (global config if appName is empty). Merge with global environment if merged is true.
+// getEnvironment for the given app (global config if appName is empty). Merge with group and global environments if merged is true.
 func getEnvironment(appName string, merged bool) (env *Env) {
 	var err error
-	if appName != "" && merged {
+	if appName != "" && appName != "--global" && merged {
 		env, err = LoadMergedAppEnv(appName)
 	} else {
 		env, err = loadAppOrGlobalEnv(appName)
@@ -240,7 +277,8 @@ func loadAppOrGlobalEnv(appName string) (env *Env, err error) {
 	return LoadAppEnv(appName)
 }
 
-func validateKey(key string) error {
+// ValidateKey returns an error when key is not a valid environment variable name
+func ValidateKey(key string) error {
 	r, _ := regexp.Compile("^[a-zA-Z_][a-zA-Z0-9_]*$")
 	if !r.MatchString(key) {
 		return fmt.Errorf("Invalid key name: '%s'", key)

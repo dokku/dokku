@@ -58,6 +58,9 @@
 			"path": "plugins/enter"
 		},
 		{
+			"path": "plugins/envgroup"
+		},
+		{
 			"path": "plugins/git"
 		},
 		{

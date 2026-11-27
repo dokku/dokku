@@ -12,26 +12,12 @@ import (
 
 func export(appName string, merged bool, format string) error {
 	env := getEnvironment(appName, merged)
-	exportType := ExportFormatExports
+	exportType, err := ParseExportFormat(format)
+	if err != nil {
+		return err
+	}
+
 	suffix := "\n"
-
-	exportTypes := map[string]ExportFormat{
-		"docker-args":      ExportFormatDockerArgs,
-		"docker-args-keys": ExportFormatDockerArgsKeys,
-		"envfile":          ExportFormatEnvfile,
-		"exports":          ExportFormatExports,
-		"json":             ExportFormatJSON,
-		"json-list":        ExportFormatJSONList,
-		"pack-keys":        ExportFormatPackArgKeys,
-		"pretty":           ExportFormatPretty,
-		"shell":            ExportFormatShell,
-	}
-
-	exportType, ok := exportTypes[format]
-	if !ok {
-		return fmt.Errorf("Unknown export format: %v", format)
-	}
-
 	if exportType == ExportFormatShell {
 		suffix = " "
 	}
@@ -74,7 +60,7 @@ func SubGet(appName string, keys []string, quoted bool) error {
 	}
 
 	if quoted {
-		fmt.Printf("'%s'\n", singleQuoteEscape(value))
+		fmt.Printf("'%s'\n", SingleQuoteEscape(value))
 	} else {
 		fmt.Printf("%s\n", value)
 	}
@@ -92,21 +78,9 @@ func SubImport(appName string, replace bool, noRestart bool, format string, file
 		format = "envfile"
 	}
 
-	var env *Env
-	var err error
-	switch format {
-	case "envfile":
-		env, err = loadFromFile(appName, filename)
-		if err != nil {
-			return err
-		}
-	case "json":
-		env, err = loadFromFileJSON(appName, filename)
-		if err != nil {
-			return err
-		}
-	default:
-		return fmt.Errorf("Unknown format: %s", format)
+	env, err := LoadImportEnv(appName, filename, format)
+	if err != nil {
+		return err
 	}
 
 	if len(env.Map()) == 0 {
@@ -135,25 +109,36 @@ func SubSet(appName string, pairs []string, noRestart bool, encoded bool) error 
 		return errors.New("At least one env pair must be given")
 	}
 
+	updated, err := ParseEnvPairs(pairs, encoded)
+	if err != nil {
+		return err
+	}
+
+	return SetMany(appName, updated, false, !noRestart)
+}
+
+// ParseEnvPairs parses KEY=VALUE pairs into a map, base64-decoding each value
+// when encoded is true
+func ParseEnvPairs(pairs []string, encoded bool) (map[string]string, error) {
 	updated := make(map[string]string)
 	for _, e := range pairs {
 		parts := strings.SplitN(e, "=", 2)
 		if len(parts) == 1 {
-			return fmt.Errorf("Invalid env pair: %v", e)
+			return nil, fmt.Errorf("Invalid env pair: %v", e)
 		}
 
 		key, value := parts[0], parts[1]
 		if encoded {
 			decoded, err := base64.StdEncoding.DecodeString(value)
 			if err != nil {
-				return fmt.Errorf("%s for key '%s'", err.Error(), key)
+				return nil, fmt.Errorf("%s for key '%s'", err.Error(), key)
 			}
 			value = string(decoded)
 		}
 		updated[key] = value
 	}
 
-	return SetMany(appName, updated, false, !noRestart)
+	return updated, nil
 }
 
 // SubShow implements the logic for config:show without app name validation

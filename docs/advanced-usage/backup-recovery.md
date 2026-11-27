@@ -9,7 +9,7 @@ The best plan for disaster recovery is to always keep multiple (remote) copies o
 > [!IMPORTANT]
 > The `backup:export` and `backup:import` commands were introduced in 0.39.0.
 
-Dokku can export an app (and/or service, and/or the global configuration) into a single `tar.gz` archive and restore it again, either on the same host or a fresh one. Each plugin serializes its own slice of state, so the archive captures config, app and global domains, ports, docker-options, process scale, the git repository, and any other plugin's data.
+Dokku can export an app (and/or service, and/or the global configuration) into a single `tar.gz` archive and restore it again, either on the same host or a fresh one. Each plugin serializes its own slice of state, so the archive captures config, [env groups](/docs/configuration/environment-variable-groups.md), app and global domains, ports, docker-options, process scale, the git repository, and any other plugin's data.
 
 ```shell
 # export everything (all apps, all services, global config) to /tmp

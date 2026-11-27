@@ -22,6 +22,7 @@ use (
 	./plugins/datastore
 	./plugins/docker-options
 	./plugins/domains
+	./plugins/envgroup
 	./plugins/git
 	./plugins/haproxy-vhosts
 	./plugins/logs

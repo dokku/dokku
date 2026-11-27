@@ -150,6 +150,7 @@ ci-go-coverage:
 	@$(MAKE) ci-go-coverage-plugin PLUGIN_NAME=common
 	@$(MAKE) ci-go-coverage-plugin PLUGIN_NAME=config
 	@$(MAKE) ci-go-coverage-plugin PLUGIN_NAME=docker-options
+	@$(MAKE) ci-go-coverage-plugin PLUGIN_NAME=envgroup
 	@$(MAKE) ci-go-coverage-plugin PLUGIN_NAME=network
 	@$(MAKE) ci-go-coverage-plugin PLUGIN_NAME=buildpacks
 
@@ -184,6 +185,7 @@ go-tests:
 	@$(MAKE) go-test-plugin PLUGIN_NAME=cron
 	@$(MAKE) go-test-plugin PLUGIN_NAME=datastore
 	@$(MAKE) go-test-plugin PLUGIN_NAME=docker-options
+	@$(MAKE) go-test-plugin PLUGIN_NAME=envgroup
 	@$(MAKE) go-test-plugin PLUGIN_NAME=logs
 	@$(MAKE) go-test-plugin PLUGIN_NAME=network
 	@$(MAKE) go-test-plugin PLUGIN_NAME=nginx-vhosts

@@ -22,7 +22,7 @@ Environment variables are available both at run time and during the application 
 For buildpack deploys, Dokku will create a  `/app/.env` file that can be used for legacy buildpacks. Note that this is _not_ updated when `config:set` or `config:unset` is called, and is only written during a `deploy` or `ps:rebuild`. Developers are encouraged to instead read from the application environment directly, as the proper values will be available then.
 
 > [!NOTE]
-> Global environment variables are sourced before app-specific environment variables. This means that app-specific variables will take precedence over global variables. Configuring global environment variables should be considered potentially dangerous as configuration applies to all applications.
+> Global environment variables are sourced first, followed by the [environment variable groups](/docs/configuration/environment-variable-groups.md) the app belongs to, followed by app-specific environment variables. This means that app-specific variables will take precedence over group variables, which in turn take precedence over global variables. Configuring global environment variables should be considered potentially dangerous as configuration applies to all applications.
 
 You can set multiple environment variables at once:
 

@@ -18,6 +18,7 @@ trigger-builder-herokuish-builder-release() {
   trap "rm -rf '$TMP_WORK_DIR' >/dev/null" RETURN INT TERM EXIT
 
   config_export global >"$TMP_WORK_DIR/00-global-env.sh"
+  plugn trigger envgroup-app-env "$APP" exports >"$TMP_WORK_DIR/00-group-env.sh"
   config_export app "$APP" >"$TMP_WORK_DIR/01-app-env.sh"
 
   local DOCKER_BUILD_ARGS=("--label=org.label-schema.schema-version=1.0" "--label=org.label-schema.vendor=dokku" "--label=com.dokku.app-name=$APP" "--label=com.dokku.image-stage=release" "--label=dokku")

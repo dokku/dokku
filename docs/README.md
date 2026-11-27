@@ -63,6 +63,7 @@ This documentation covers the installation, configuration, and usage of Dokku - 
 ## Configuration
 
 - [Environment Variables](configuration/environment-variables.md) - Configure app environment
+- [Environment Variable Groups](configuration/environment-variable-groups.md) - Share environment variables across apps
 - [Domains](configuration/domains.md) - Custom domain management
 - [SSL/TLS](configuration/ssl.md) - HTTPS and certificates
 
