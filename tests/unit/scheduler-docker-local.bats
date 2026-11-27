@@ -4,6 +4,7 @@ load test_helper
 
 setup() {
   global_setup
+  stop_retire_timer
 }
 
 teardown() {
@@ -202,7 +203,7 @@ teardown() {
 }
 
 @test "(scheduler-docker-local) timer installed" {
-  run /bin/bash -c "systemctl list-timers | grep dokku-retire"
+  run /bin/bash -c "systemctl list-timers --all | grep dokku-retire"
   echo "output: $output"
   echo "status: $status"
   assert_success
@@ -488,7 +489,6 @@ teardown() {
 
 @test "(scheduler-docker-local) ps:retire keeps an image that is another app's source image" {
   local SECOND_APP="$TEST_APP-2" TMP_IMAGE_DIR
-  stop_retire_timer
   TMP_IMAGE_DIR="$(mktemp -d "/tmp/${DOKKU_DOMAIN}.XXXXX")"
   cp -r "${BATS_TEST_DIRNAME}/../../tests/apps/python/." "$TMP_IMAGE_DIR"
   run /bin/bash -c "docker image build -t dokku-test/$TEST_APP:shared -f $TMP_IMAGE_DIR/alt.Dockerfile $TMP_IMAGE_DIR"
@@ -930,21 +930,6 @@ operator_procfile_callback() {
   cat >"$APP_REPO_DIR/Procfile" <<'PROCFILE'
 web: python3 -u web.py && echo done
 PROCFILE
-}
-
-stop_retire_timer() {
-  declare desc="stops the dokku-retire timer so only the test runs ps:retire"
-  if systemctl is-active --quiet dokku-retire.timer 2>/dev/null; then
-    systemctl stop dokku-retire.timer
-    RETIRE_TIMER_STOPPED=true
-  fi
-}
-
-start_retire_timer() {
-  declare desc="starts the dokku-retire timer if stop_retire_timer stopped it"
-  if [[ "$RETIRE_TIMER_STOPPED" == "true" ]]; then
-    systemctl start dokku-retire.timer
-  fi
 }
 
 dockerfile_callback() {
