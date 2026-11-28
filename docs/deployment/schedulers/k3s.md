@@ -69,6 +69,8 @@ Clusters can be initialized via the `scheduler-k3s:initialize` command. This wil
 dokku scheduler-k3s:initialize
 ```
 
+Initializing a cluster downloads and installs a number of components, many of which are served from GitHub releases. To ride out transient download errors, the apt package installs, the k3s installer download and run, the system manifests, the helm chart downloads, and the helper command downloads are each retried up to 5 times with exponential backoff before the command fails.
+
 By default, the k3s installation can run both app and system workloads. For clusters where app workloads are run on distinct worker nodes, initialize the cluster with the `--taint-scheduling` flag, which will allow _only_ Critical cluster components on the k3s control-plane nodes.
 
 ```shell
@@ -107,6 +109,8 @@ dokku scheduler-k3s:initialize \
 
 > [!WARNING]
 > The `dokku` user _must_ be able to ssh onto the server in order to connect nodes to the cluster. The remote user must be root or have sudo enabled, or the install will fail.
+
+When adding a node, the remote apt package installs, the k3s installer download, and the k3s installer run are each retried up to 5 times with exponential backoff before the command fails.
 
 #### Adding a worker node
 
@@ -1193,6 +1197,8 @@ Alternatively, a comma separated list of chart names can be specified to only fo
 ```shell
 dokku scheduler-k3s:ensure-charts --charts cert-manager
 ```
+
+Chart downloads and the system manifests applied by `scheduler-k3s:ensure-charts` are retried up to 5 times with exponential backoff before the command fails.
 
 #### Replacing the entire chart override set
 

@@ -1,13 +1,21 @@
 package scheduler_k3s
 
 import (
+	"context"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"strings"
+	"sync/atomic"
 	"testing"
+	"time"
 
 	"helm.sh/helm/v3/pkg/action"
+	"helm.sh/helm/v3/pkg/chart"
+	"helm.sh/helm/v3/pkg/chartutil"
 	"helm.sh/helm/v3/pkg/helmpath"
+	"helm.sh/helm/v3/pkg/repo"
 )
 
 func TestApplyChartPathOptions(t *testing.T) {
@@ -222,5 +230,128 @@ func TestNewHelmSettingsUnsetsVariablesThatWereNotSet(t *testing.T) {
 		if value, ok := os.LookupEnv(envVar); ok {
 			t.Errorf("%s = %q after cleanup, want it to be unset", envVar, value)
 		}
+	}
+}
+
+// newChartRepositoryServer serves a chart repository containing a single
+// chart, failing the first failures requests for the chart archive
+func newChartRepositoryServer(t *testing.T, failures int32) (*httptest.Server, *int32) {
+	t.Helper()
+
+	directory := t.TempDir()
+	_, err := chartutil.Save(&chart.Chart{
+		Metadata: &chart.Metadata{
+			APIVersion: chart.APIVersionV2,
+			Name:       "retry-test",
+			Version:    "0.1.0",
+		},
+	}, directory)
+	if err != nil {
+		t.Fatalf("unable to package chart: %v", err)
+	}
+
+	var archiveRequests int32
+	server := httptest.NewUnstartedServer(nil)
+	server.Config.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasSuffix(r.URL.Path, ".tgz") && atomic.AddInt32(&archiveRequests, 1) <= failures {
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+		http.FileServer(http.Dir(directory)).ServeHTTP(w, r)
+	})
+	server.Start()
+	t.Cleanup(server.Close)
+
+	index, err := repo.IndexDirectory(directory, server.URL)
+	if err != nil {
+		t.Fatalf("unable to index chart repository: %v", err)
+	}
+	if err := index.WriteFile(filepath.Join(directory, "index.yaml"), 0644); err != nil {
+		t.Fatalf("unable to write chart repository index: %v", err)
+	}
+
+	return server, &archiveRequests
+}
+
+func TestLocateChart(t *testing.T) {
+	useFastRetries(t)
+
+	cases := []struct {
+		name         string
+		failures     int32
+		wantErr      bool
+		wantRequests int32
+	}{
+		{
+			name:         "downloads the chart on the first attempt",
+			failures:     0,
+			wantErr:      false,
+			wantRequests: 1,
+		},
+		{
+			name:         "retries a transient chart download error",
+			failures:     1,
+			wantErr:      false,
+			wantRequests: 2,
+		},
+		{
+			name:         "fails once every attempt is used",
+			failures:     DefaultRetryAttempts,
+			wantErr:      true,
+			wantRequests: DefaultRetryAttempts,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			server, archiveRequests := newChartRepositoryServer(t, tc.failures)
+
+			settings, cleanup, err := newHelmSettings()
+			if err != nil {
+				t.Fatalf("newHelmSettings returned an error: %v", err)
+			}
+			defer cleanup()
+
+			options := action.ChartPathOptions{RepoURL: server.URL, Version: "0.1.0"}
+			location, err := locateChart(context.Background(), &options, "retry-test", settings)
+
+			if got := atomic.LoadInt32(archiveRequests); got != tc.wantRequests {
+				t.Errorf("archive requests = %d, want %d", got, tc.wantRequests)
+			}
+
+			if tc.wantErr {
+				if err == nil {
+					t.Fatal("err = nil, want an error")
+				}
+				return
+			}
+
+			if err != nil {
+				t.Fatalf("err = %v, want nil", err)
+			}
+			if _, err := os.Stat(location); err != nil {
+				t.Errorf("located chart %q does not exist: %v", location, err)
+			}
+		})
+	}
+}
+
+func TestLocateChartDoesNotRetryLocalCharts(t *testing.T) {
+	previous := DefaultRetryInitialDelay
+	DefaultRetryInitialDelay = time.Hour
+	t.Cleanup(func() {
+		DefaultRetryInitialDelay = previous
+	})
+
+	settings, cleanup, err := newHelmSettings()
+	if err != nil {
+		t.Fatalf("newHelmSettings returned an error: %v", err)
+	}
+	defer cleanup()
+
+	options := action.ChartPathOptions{}
+	_, err = locateChart(context.Background(), &options, filepath.Join(t.TempDir(), "missing-chart"), settings)
+	if err == nil {
+		t.Fatal("err = nil, want an error for a missing local chart")
 	}
 }
