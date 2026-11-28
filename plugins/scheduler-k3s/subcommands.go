@@ -14,7 +14,6 @@ import (
 	"syscall"
 
 	"github.com/dokku/dokku/plugins/common"
-	resty "github.com/go-resty/resty/v2"
 	"github.com/ryanuber/columnize"
 	"helm.sh/helm/v3/pkg/chartutil"
 )
@@ -420,7 +419,7 @@ func CommandInitialize(ingressClass string, serverIP string, taintScheduling boo
 	common.LogInfo1Quiet("Initializing k3s")
 
 	common.LogInfo2Quiet("Updating apt")
-	aptUpdateCmd, err := common.CallExecCommand(common.ExecCommandInput{
+	err := retryExecCommand(ctx, "update apt", common.ExecCommandInput{
 		Command: "apt-get",
 		Args: []string{
 			"update",
@@ -430,12 +429,9 @@ func CommandInitialize(ingressClass string, serverIP string, taintScheduling boo
 	if err != nil {
 		return fmt.Errorf("Unable to call apt-get update command: %w", err)
 	}
-	if aptUpdateCmd.ExitCode != 0 {
-		return fmt.Errorf("Invalid exit code from apt-get update command: %d", aptUpdateCmd.ExitCode)
-	}
 
 	common.LogInfo2Quiet("Installing k3s dependencies")
-	aptInstallCmd, err := common.CallExecCommand(common.ExecCommandInput{
+	err = retryExecCommand(ctx, "install k3s dependencies", common.ExecCommandInput{
 		Command: "apt-get",
 		Args: []string{
 			"-y",
@@ -451,26 +447,8 @@ func CommandInitialize(ingressClass string, serverIP string, taintScheduling boo
 	if err != nil {
 		return fmt.Errorf("Unable to call apt-get install command: %w", err)
 	}
-	if aptInstallCmd.ExitCode != 0 {
-		return fmt.Errorf("Invalid exit code from apt-get install command: %d", aptInstallCmd.ExitCode)
-	}
 
 	common.LogInfo2Quiet("Downloading k3s installer")
-	client := resty.New()
-	resp, err := client.R().
-		SetContext(ctx).
-		Get("https://get.k3s.io")
-	if err != nil {
-		return fmt.Errorf("Unable to download k3s installer: %w", err)
-	}
-	if resp == nil {
-		return fmt.Errorf("Missing response from k3s installer download: %w", err)
-	}
-
-	if resp.StatusCode() != 200 {
-		return fmt.Errorf("Invalid status code for k3s installer script: %d", resp.StatusCode())
-	}
-
 	f, err := os.CreateTemp("", "sample")
 	if err != nil {
 		return fmt.Errorf("Unable to create temporary file for k3s installer: %w", err)
@@ -481,22 +459,14 @@ func CommandInitialize(ingressClass string, serverIP string, taintScheduling boo
 		return fmt.Errorf("Unable to close k3s installer file: %w", err)
 	}
 
-	err = common.WriteStringToFile(common.WriteStringToFileInput{
-		Content:  resp.String(),
-		Filename: f.Name(),
-		Mode:     os.FileMode(0755),
+	err = downloadToFile(ctx, DownloadToFileInput{
+		Description: "k3s installer",
+		URL:         "https://get.k3s.io",
+		Filename:    f.Name(),
+		Mode:        os.FileMode(0755),
 	})
 	if err != nil {
-		return fmt.Errorf("Unable to write k3s installer to file: %w", err)
-	}
-
-	fi, err := os.Stat(f.Name())
-	if err != nil {
-		return fmt.Errorf("Unable to get k3s installer file size: %w", err)
-	}
-
-	if fi.Size() == 0 {
-		return fmt.Errorf("Invalid k3s installer filesize")
+		return err
 	}
 
 	token := getGlobalGlobalToken()
@@ -532,16 +502,13 @@ func CommandInitialize(ingressClass string, serverIP string, taintScheduling boo
 	})
 
 	common.LogInfo2Quiet("Running k3s installer")
-	installerCmd, err := common.CallExecCommand(common.ExecCommandInput{
+	err = retryExecCommand(ctx, "run k3s installer", common.ExecCommandInput{
 		Command:     f.Name(),
 		Args:        args,
 		StreamStdio: true,
 	})
 	if err != nil {
 		return fmt.Errorf("Unable to call k3s installer command: %w", err)
-	}
-	if installerCmd.ExitCode != 0 {
-		return fmt.Errorf("Invalid exit code from k3s installer command: %d", installerCmd.ExitCode)
 	}
 
 	clientset, err := NewKubernetesClient()
@@ -564,8 +531,13 @@ func CommandInitialize(ingressClass string, serverIP string, taintScheduling boo
 
 	for _, manifest := range KubernetesManifests {
 		common.LogInfo2Quiet(fmt.Sprintf("Installing %s@%s", manifest.Name, manifest.Version))
-		err = clientset.ApplyKubernetesManifest(ctx, ApplyKubernetesManifestInput{
-			Manifest: manifest.Path,
+		err = retryOperation(ctx, RetryInput{
+			Description: fmt.Sprintf("install %s@%s", manifest.Name, manifest.Version),
+			Operation: func(ctx context.Context) error {
+				return clientset.ApplyKubernetesManifest(ctx, ApplyKubernetesManifestInput{
+					Manifest: manifest.Path,
+				})
+			},
 		})
 		if err != nil {
 			return fmt.Errorf("Unable to apply kubernetes manifest: %w", err)
@@ -907,7 +879,7 @@ func CommandClusterAdd(profileName string, role string, remoteHost string, serve
 
 	common.LogInfo1(fmt.Sprintf("Joining %s to k3s cluster as %s", remoteHost, incomingProfile.Role))
 	common.LogInfo2Quiet("Updating apt")
-	aptUpdateCmd, err := common.CallSshCommand(common.SshCommandInput{
+	err = retrySshCommand(ctx, "update apt", common.SshCommandInput{
 		Command: "apt-get",
 		Args: []string{
 			"update",
@@ -920,12 +892,9 @@ func CommandClusterAdd(profileName string, role string, remoteHost string, serve
 	if err != nil {
 		return fmt.Errorf("Unable to call apt-get update command over ssh: %w", err)
 	}
-	if aptUpdateCmd.ExitCode != 0 {
-		return fmt.Errorf("Invalid exit code from apt-get update command over ssh: %d", aptUpdateCmd.ExitCode)
-	}
 
 	common.LogInfo2Quiet("Installing k3s dependencies")
-	aptInstallCmd, err := common.CallSshCommand(common.SshCommandInput{
+	err = retrySshCommand(ctx, "install k3s dependencies", common.SshCommandInput{
 		Command: "apt-get",
 		Args: []string{
 			"-y",
@@ -944,14 +913,12 @@ func CommandClusterAdd(profileName string, role string, remoteHost string, serve
 	if err != nil {
 		return fmt.Errorf("Unable to call apt-get install command over ssh: %w", err)
 	}
-	if aptInstallCmd.ExitCode != 0 {
-		return fmt.Errorf("Invalid exit code from apt-get install command over ssh: %d", aptInstallCmd.ExitCode)
-	}
 
 	common.LogInfo2Quiet("Downloading k3s installer")
-	curlTask, err := common.CallSshCommand(common.SshCommandInput{
+	err = retrySshCommand(ctx, "download k3s installer", common.SshCommandInput{
 		Command: "curl",
 		Args: []string{
+			"-fsSL",
 			"-o /tmp/k3s-installer.sh",
 			"https://get.k3s.io",
 		},
@@ -961,9 +928,6 @@ func CommandClusterAdd(profileName string, role string, remoteHost string, serve
 	})
 	if err != nil {
 		return fmt.Errorf("Unable to call curl command over ssh: %w", err)
-	}
-	if curlTask.ExitCode != 0 {
-		return fmt.Errorf("Invalid exit code from curl command over ssh: %d", curlTask.ExitCode)
 	}
 
 	common.LogInfo2Quiet("Setting k3s installer permissions")
@@ -1103,7 +1067,7 @@ export INSTALL_K3S_VERSION=%s
 	}
 
 	common.LogInfo2Quiet(fmt.Sprintf("Adding %s k3s cluster", nodeName))
-	joinCmd, err := common.CallSshCommand(common.SshCommandInput{
+	err = retrySshCommand(ctx, "run k3s installer", common.SshCommandInput{
 		Command:          "/tmp/k3s-installer-executor.sh",
 		Args:             args,
 		AllowUknownHosts: incomingProfile.AllowUknownHosts,
@@ -1113,9 +1077,6 @@ export INSTALL_K3S_VERSION=%s
 	})
 	if err != nil {
 		return fmt.Errorf("Unable to call k3s installer command over ssh: %w", err)
-	}
-	if joinCmd.ExitCode != 0 {
-		return fmt.Errorf("Invalid exit code from k3s installer command over ssh: %d", joinCmd.ExitCode)
 	}
 
 	common.LogInfo2Quiet("Waiting for node to exist")
@@ -1350,8 +1311,13 @@ func CommandEnsureCharts(forceInstall bool, forceChartNames []string) error {
 
 	for _, manifest := range KubernetesManifests {
 		common.LogInfo2Quiet(fmt.Sprintf("Installing %s@%s", manifest.Name, manifest.Version))
-		err = clientset.ApplyKubernetesManifest(ctx, ApplyKubernetesManifestInput{
-			Manifest: manifest.Path,
+		err = retryOperation(ctx, RetryInput{
+			Description: fmt.Sprintf("install %s@%s", manifest.Name, manifest.Version),
+			Operation: func(ctx context.Context) error {
+				return clientset.ApplyKubernetesManifest(ctx, ApplyKubernetesManifestInput{
+					Manifest: manifest.Path,
+				})
+			},
 		})
 		if err != nil {
 			return fmt.Errorf("Unable to apply kubernetes manifest: %w", err)

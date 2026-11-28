@@ -102,6 +102,28 @@ func applyChartPathOptions(options *action.ChartPathOptions, input ChartInput) {
 	}
 }
 
+// locateChart returns the local path of a chart, downloading it first when the
+// chart options point at a remote repository. Downloads from a remote
+// repository are retried, as chart archives are often served from release
+// hosts that return transient errors.
+func locateChart(ctx context.Context, options *action.ChartPathOptions, chartPath string, settings *cli.EnvSettings) (string, error) {
+	if options.RepoURL == "" {
+		return options.LocateChart(chartPath, settings)
+	}
+
+	var location string
+	err := retryOperation(ctx, RetryInput{
+		Description: fmt.Sprintf("locate chart %s", chartPath),
+		Operation: func(ctx context.Context) error {
+			var err error
+			location, err = options.LocateChart(chartPath, settings)
+			return err
+		},
+	})
+
+	return location, err
+}
+
 // helmHomeEnvVars are the environment variables helm resolves its cache, config
 // and data homes from, mapped to the scratch subdirectory each one gets.
 var helmHomeEnvVars = map[string]string{
@@ -292,7 +314,7 @@ func (h *HelmAgent) InstallChart(ctx context.Context, input ChartInput) error {
 	}
 	defer cleanup()
 
-	chart, err := client.ChartPathOptions.LocateChart(input.ChartPath, settings)
+	chart, err := locateChart(ctx, &client.ChartPathOptions, input.ChartPath, settings)
 	if err != nil {
 		return fmt.Errorf("Error locating chart: %w", err)
 	}
@@ -423,7 +445,7 @@ func (h *HelmAgent) UpgradeChart(ctx context.Context, input ChartInput) error {
 	}
 	defer cleanup()
 
-	chart, err := client.ChartPathOptions.LocateChart(input.ChartPath, settings)
+	chart, err := locateChart(ctx, &client.ChartPathOptions, input.ChartPath, settings)
 	if err != nil {
 		return fmt.Errorf("Error locating chart: %w", err)
 	}

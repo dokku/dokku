@@ -24,7 +24,6 @@ import (
 	dockeroptions "github.com/dokku/dokku/plugins/docker-options"
 	"github.com/dokku/dokku/plugins/logs"
 	nginxvhosts "github.com/dokku/dokku/plugins/nginx-vhosts"
-	resty "github.com/go-resty/resty/v2"
 	"github.com/gosimple/slug"
 	kedav1alpha1 "github.com/kedacore/keda/v2/apis/keda/v1alpha1"
 	"golang.org/x/sync/errgroup"
@@ -2485,49 +2484,17 @@ func installHelperCommands(ctx context.Context) error {
 		"kubens":  "https://github.com/ahmetb/kubectx/releases/latest/download/kubens",
 	}
 
-	client := resty.New()
 	for binaryName, url := range urls {
-		resp, err := client.R().
-			SetContext(ctx).
-			Get(url)
-		if err != nil {
-			return fmt.Errorf("Unable to download %s: %w", binaryName, err)
-		}
-		if resp == nil {
-			return fmt.Errorf("Missing response from %s download: %w", binaryName, err)
-		}
-
-		if resp.StatusCode() != 200 {
-			return fmt.Errorf("Invalid status code for %s: %d", binaryName, resp.StatusCode())
-		}
-
-		f, err := os.Create(filepath.Join("/usr/local/bin", binaryName))
-		if err != nil {
-			return fmt.Errorf("Unable to create %s: %w", binaryName, err)
-		}
-
-		if err := f.Close(); err != nil {
-			return fmt.Errorf("Unable to close %s file: %w", binaryName, err)
-		}
-
-		err = common.WriteStringToFile(common.WriteStringToFileInput{
-			Content:   resp.String(),
-			Filename:  f.Name(),
-			GroupName: "root",
-			Mode:      os.FileMode(0755),
-			Username:  "root",
+		err := downloadToFile(ctx, DownloadToFileInput{
+			Description: binaryName,
+			URL:         url,
+			Filename:    filepath.Join("/usr/local/bin", binaryName),
+			GroupName:   "root",
+			Mode:        os.FileMode(0755),
+			Username:    "root",
 		})
 		if err != nil {
-			return fmt.Errorf("Unable to write %s to file: %w", binaryName, err)
-		}
-
-		fi, err := os.Stat(f.Name())
-		if err != nil {
-			return fmt.Errorf("Unable to get %s file size: %w", binaryName, err)
-		}
-
-		if fi.Size() == 0 {
-			return fmt.Errorf("Invalid %s filesize", binaryName)
+			return err
 		}
 	}
 
@@ -2535,21 +2502,6 @@ func installHelperCommands(ctx context.Context) error {
 }
 
 func installHelm(ctx context.Context) error {
-	client := resty.New()
-	resp, err := client.R().
-		SetContext(ctx).
-		Get("https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3")
-	if err != nil {
-		return fmt.Errorf("Unable to download helm installer: %w", err)
-	}
-	if resp == nil {
-		return fmt.Errorf("Missing response from helm installer download: %w", err)
-	}
-
-	if resp.StatusCode() != 200 {
-		return fmt.Errorf("Invalid status code for helm installer script: %d", resp.StatusCode())
-	}
-
 	f, err := os.CreateTemp("", "sample")
 	if err != nil {
 		return fmt.Errorf("Unable to create temporary file for helm installer: %w", err)
@@ -2560,34 +2512,23 @@ func installHelm(ctx context.Context) error {
 		return fmt.Errorf("Unable to close helm installer file: %w", err)
 	}
 
-	err = common.WriteStringToFile(common.WriteStringToFileInput{
-		Content:  resp.String(),
-		Filename: f.Name(),
-		Mode:     os.FileMode(0755),
+	err = downloadToFile(ctx, DownloadToFileInput{
+		Description: "helm installer",
+		URL:         "https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3",
+		Filename:    f.Name(),
+		Mode:        os.FileMode(0755),
 	})
 	if err != nil {
-		return fmt.Errorf("Unable to write helm installer to file: %w", err)
-	}
-
-	fi, err := os.Stat(f.Name())
-	if err != nil {
-		return fmt.Errorf("Unable to get helm installer file size: %w", err)
-	}
-
-	if fi.Size() == 0 {
-		return fmt.Errorf("Invalid helm installer filesize")
+		return err
 	}
 
 	common.LogInfo2Quiet("Running helm installer")
-	installerCmd, err := common.CallExecCommand(common.ExecCommandInput{
+	err = retryExecCommand(ctx, "run helm installer", common.ExecCommandInput{
 		Command:     f.Name(),
 		StreamStdio: true,
 	})
 	if err != nil {
 		return fmt.Errorf("Unable to call helm installer command: %w", err)
-	}
-	if installerCmd.ExitCode != 0 {
-		return fmt.Errorf("Invalid exit code from helm installer command: %d", installerCmd.ExitCode)
 	}
 
 	return nil
