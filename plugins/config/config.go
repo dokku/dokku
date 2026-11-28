@@ -5,6 +5,8 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
+	"strings"
 
 	"github.com/dokku/dokku/plugins/common"
 )
@@ -31,10 +33,15 @@ func GetWithDefault(appName string, key string, defaultValue string) (value stri
 }
 
 // SetMany variables in the environment. If appName is empty the global config is used. If restart is true the app is restarted.
+// When replace is true, every key not in entries is removed, as with ReplaceMany without preserved keys.
 func SetMany(appName string, entries map[string]string, replace bool, restart bool) (err error) {
+	if replace {
+		return ReplaceMany(appName, entries, nil, restart)
+	}
+
 	global := appName == "" || appName == "--global"
 	name, filename := appOrGlobalTarget(appName)
-	changed, err := SetEnvFileEntries(name, filename, entries, replace)
+	changed, err := SetEnvFileEntries(name, filename, entries, false)
 	if err != nil {
 		return err
 	}
@@ -49,6 +56,42 @@ func SetMany(appName string, entries map[string]string, replace bool, restart bo
 		RestartApp(appName)
 	}
 	return
+}
+
+// ReplaceMany replaces the whole environment with entries, keeping the current
+// value of any key in preserve that entries does not set. If appName is empty
+// the global config is used. Removed keys are reported to post-config-update
+// before the set keys. Nothing is written, triggered or restarted when the
+// environment would not change, otherwise the app is restarted if restart is true.
+func ReplaceMany(appName string, entries map[string]string, preserve []string, restart bool) error {
+	global := appName == "" || appName == "--global"
+	name, filename := appOrGlobalTarget(appName)
+	changed, removed, err := ReplaceEnvFileEntries(name, filename, entries, preserve)
+	if err != nil {
+		return err
+	}
+
+	if !changed {
+		common.LogInfo1Quiet("No changes to config vars")
+		return nil
+	}
+
+	if len(removed) > 0 {
+		triggerUpdate(appName, "unset", removed)
+	}
+	if len(entries) > 0 {
+		keys := make([]string, 0, len(entries))
+		for k := range entries {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
+		triggerUpdate(appName, "set", keys)
+	}
+
+	if !global && restart {
+		RestartApp(appName)
+	}
+	return nil
 }
 
 // UnsetMany a value in a config. If appName is empty the global config is used. If restart is true the app is restarted.
@@ -88,7 +131,14 @@ func UnsetAll(appName string, restart bool) (err error) {
 // SetEnvFileEntries sets the given entries in the environment file at
 // filename, clearing it first when replace is true, and returns whether the
 // file was changed. Every key is validated before anything is written.
+// When replace is true the file is left untouched if it already holds exactly
+// the given entries.
 func SetEnvFileEntries(name string, filename string, entries map[string]string, replace bool) (bool, error) {
+	if replace {
+		changed, _, err := ReplaceEnvFileEntries(name, filename, entries, nil)
+		return changed, err
+	}
+
 	for k := range entries {
 		if err := ValidateKey(k); err != nil {
 			return false, err
@@ -96,9 +146,6 @@ func SetEnvFileEntries(name string, filename string, entries map[string]string, 
 	}
 
 	return UpdateEnvFile(name, filename, func(env *Env) bool {
-		if replace {
-			env.Clear()
-		}
 		for k, v := range entries {
 			env.Set(k, v)
 		}
@@ -112,6 +159,83 @@ func SetEnvFileEntries(name string, filename string, entries map[string]string, 
 		}
 		return true
 	})
+}
+
+// ReplaceEnvFileEntries replaces the contents of the environment file at
+// filename with entries, keeping the current value of any key in preserve that
+// entries does not set. It returns whether the file was changed and the sorted
+// keys that were removed. The file is not written when it already holds the
+// resulting environment. Every key is validated before anything is written.
+func ReplaceEnvFileEntries(name string, filename string, entries map[string]string, preserve []string) (bool, []string, error) {
+	for k := range entries {
+		if err := ValidateKey(k); err != nil {
+			return false, nil, err
+		}
+	}
+
+	removed := []string{}
+	changed, err := UpdateEnvFile(name, filename, func(env *Env) bool {
+		current := env.Map()
+		desired := make(map[string]string, len(entries))
+		for k, v := range entries {
+			desired[k] = v
+		}
+
+		kept := []string{}
+		for _, k := range preserve {
+			if _, given := desired[k]; given {
+				continue
+			}
+			if v, ok := current[k]; ok {
+				desired[k] = v
+				kept = append(kept, k)
+			}
+		}
+
+		for k := range current {
+			if _, ok := desired[k]; !ok {
+				removed = append(removed, k)
+			}
+		}
+		sort.Strings(removed)
+
+		differs := len(removed) > 0
+		for k, v := range desired {
+			if cv, ok := current[k]; !ok || cv != v {
+				differs = true
+				break
+			}
+		}
+		if !differs {
+			return false
+		}
+
+		sort.Strings(kept)
+		for _, k := range kept {
+			common.LogInfo1Quiet(fmt.Sprintf("Keeping dokku-managed config var %s", k))
+		}
+		for _, k := range removed {
+			common.LogInfo1Quiet(fmt.Sprintf("Unsetting %s", k))
+		}
+
+		env.Clear()
+		for k, v := range desired {
+			env.Set(k, v)
+		}
+
+		if len(entries) > 0 {
+			common.LogInfo1Quiet("Setting config vars")
+			if os.Getenv("DOKKU_QUIET_OUTPUT") == "" {
+				fmt.Println(prettyPrintEnvEntries("       ", entries))
+			}
+		}
+		return true
+	})
+	if err != nil || !changed {
+		return false, nil, err
+	}
+
+	return true, removed, nil
 }
 
 // UnsetEnvFileKeys removes the given keys from the environment file at
@@ -204,6 +328,45 @@ func appOrGlobalTarget(appName string) (string, string) {
 
 	filename, _ := getAppFile(appName)
 	return appName, filename
+}
+
+// ManagedKeys returns the app config keys that other plugins manage, as
+// reported by the config-managed-keys trigger. The global environment has
+// no managed keys. Lines that are not valid key names are ignored.
+func ManagedKeys(appName string) ([]string, error) {
+	if appName == "" || appName == "--global" {
+		return nil, nil
+	}
+
+	output, err := managedKeysLoader(appName)
+	if err != nil {
+		return nil, fmt.Errorf("Unable to fetch dokku-managed config keys: %s", err.Error())
+	}
+
+	seen := map[string]bool{}
+	keys := []string{}
+	for _, line := range strings.Split(output, "\n") {
+		key := strings.TrimSpace(line)
+		if key == "" || seen[key] || ValidateKey(key) != nil {
+			continue
+		}
+		seen[key] = true
+		keys = append(keys, key)
+	}
+	return keys, nil
+}
+
+// managedKeysLoader returns the raw output of the config-managed-keys trigger
+// for an app. It is a variable so that tests can run without plugn.
+var managedKeysLoader = loadManagedKeys
+
+// loadManagedKeys calls the config-managed-keys trigger for an app
+func loadManagedKeys(appName string) (string, error) {
+	results, err := common.CallPlugnTrigger(common.PlugnTriggerInput{
+		Trigger: "config-managed-keys",
+		Args:    []string{appName},
+	})
+	return results.StdoutContents(), err
 }
 
 func shouldRestart(appName string) bool {

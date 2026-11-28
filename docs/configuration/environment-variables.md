@@ -5,14 +5,15 @@ Typically an application will require some configuration to run properly. Dokku 
 The `config` plugin provides the following commands to manage your variables:
 
 ```
-config:show (<app>|--global)                                                          Pretty-print an app or global environment
-config:bundle (<app>|--global) [--merged]                                             Bundle environment into tarfile
-config:clear (<app>|--global)                                                         Clears environment variables
-config:export (<app>|--global) [--format <format>]                                    Export a global or app environment
-config:get (<app>|--global) KEY                                                       Display a global or app-specific config value
-config:keys (<app>|--global) [--merged]                                               Show keys set in environment
-config:set [--encoded] [--no-restart] (<app>|--global) KEY1=VALUE1 [KEY2=VALUE2 ...]  Set one or more config vars
-config:unset [--no-restart] (<app>|--global) KEY1 [KEY2 ...]                          Unset one or more config vars
+config:show (<app>|--global)                                                                      Pretty-print an app or global environment
+config:bundle (<app>|--global) [--merged]                                                         Bundle environment into tarfile
+config:clear (<app>|--global)                                                                     Clears environment variables
+config:export (<app>|--global) [--format <format>]                                                Export a global or app environment
+config:get (<app>|--global) KEY                                                                   Display a global or app-specific config value
+config:import [--no-restart] [--replace] (<app>|--global) [FILE|-]                                Import environment from file
+config:keys (<app>|--global) [--merged]                                                           Show keys set in environment
+config:set [--encoded] [--no-restart] [--replace] (<app>|--global) KEY1=VALUE1 [KEY2=VALUE2 ...]  Set one or more config vars
+config:unset [--no-restart] (<app>|--global) KEY1 [KEY2 ...]                                      Unset one or more config vars
 ```
 
 > For security reasons - and as per [docker recommendations](https://github.com/docker/docker/issues/13490) - Dockerfile-based deploys have variables available _only_ during runtime, as noted in [this issue](https://github.com/dokku/dokku/issues/1860). Consider using [build arguments](/docs/deployment/builders/dockerfiles.md#build-time-configuration-variables) to expose variables during build-time for Dockerfile apps.
@@ -85,6 +86,33 @@ dokku config:export --format shell node-js-app
 #
 #   APP_ENV='prod' COMPILE_ASSETS='1'
 ```
+
+## Importing environment variables
+
+Environment variables can be imported from a file with the `config:import` command. Imported variables are merged into the existing environment. The file can be in `envfile` (default) or `json` format, and `-` reads it from stdin:
+
+```shell
+dokku config:import node-js-app ./node-js-app.env
+dokku config:import --format json node-js-app - < node-js-app.json
+```
+
+## Replacing all environment variables
+
+> [!IMPORTANT]
+> New as of 0.39.0
+
+To make an environment exactly match a given set of variables in a single change, pass the `--replace` flag to `config:set` or `config:import`. Any variable that is not given is unset, and the app is restarted once:
+
+```shell
+dokku config:set --replace node-js-app APP_ENV=prod COMPILE_ASSETS=1
+dokku config:import --replace node-js-app ./node-js-app.env
+```
+
+If the environment already matches the given variables, nothing is written and the app is not restarted, so the same command can be run repeatedly.
+
+Some variables in an app's environment are managed by Dokku itself, such as the variable holding the deployed git revision (`GIT_REV` by default, see `git:set <app> rev-env-var`) and `NO_VHOST` (set by `domains:disable` and `domains:enable`). These are kept when they are not given, and are overwritten when they are. The global environment has no managed variables, so `config:set --global --replace` replaces it exactly.
+
+To remove every variable from an environment, use `config:clear` instead.
 
 ## Setting Environment Variables via app.json
 

@@ -778,6 +778,22 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 # TODO
 ```
 
+### `config-managed-keys`
+
+- Description: Outputs the app config keys a plugin manages, one per line. Keys output by any plugin are kept when an app's environment is replaced with `config:set --replace` or `config:import --replace` and the key is not given.
+- Invoked by: `dokku config:set --replace`, `dokku config:import --replace`
+- Arguments: `$APP`
+- Example:
+
+```shell
+#!/usr/bin/env bash
+
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+APP="$1"
+
+echo "MY_PLUGIN_MANAGED_KEY"
+```
+
 ### `config-migrate-env`
 
 - Description: Drains the pre-0.38 `$DOKKU_ROOT/ENV` and `$DOKKU_ROOT/<app>/ENV` files into the config property path, removing each file once it has been drained. A file found at the old path after its migration has been recorded is never imported: the config path holds every change made since, so the file is removed when it agrees with the current config and otherwise moved aside to `ENV.migrated`. Idempotent, and safe to call from an install trigger that runs before the config plugin's own.
@@ -1939,9 +1955,9 @@ APP="$1"
 
 ### `post-config-update`
 
-- Description: Allows you to get notified when one or more configs is added or removed. Action can be `set` or `unset`.
-- Invoked by: `dokku config:set`, `dokku config:unset`
-- Arguments: `$APP` `set|unset` `key1=VALUE1 key2=VALUE2`
+- Description: Allows you to get notified when one or more configs is added or removed. Action can be `set`, `unset` or `clear`. When an environment is replaced with `--replace`, the trigger is invoked with `unset` and the removed keys before it is invoked with `set` and the given keys.
+- Invoked by: `dokku config:set`, `dokku config:unset`, `dokku config:import`, `dokku config:clear`
+- Arguments: `$APP` `set|unset|clear` `KEY1 KEY2`
 - Example:
 
 ```shell

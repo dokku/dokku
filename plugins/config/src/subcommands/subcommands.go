@@ -104,12 +104,13 @@ func main() {
 		global := args.Bool("global", false, "--global: use the global environment")
 		encoded := args.Bool("encoded", false, "--encoded: interpret VALUEs as base64")
 		noRestart := args.Bool("no-restart", false, "--no-restart: no restart")
+		replace := args.Bool("replace", false, "--replace: replace all existing config vars with the given pairs")
 		args.Parse(os.Args[2:])
 		if !*global {
 			appName = args.Arg(0)
 		}
 		pairs := getKeys(args.Args(), *global)
-		err = config.CommandSet(appName, pairs, *global, *noRestart, *encoded)
+		err = config.CommandSet(appName, pairs, *global, *noRestart, *encoded, *replace)
 	case "unset":
 		args := flag.NewFlagSet("config:unset", flag.ExitOnError)
 		global := args.Bool("global", false, "--global: use the global environment")

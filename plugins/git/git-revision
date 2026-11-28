@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 source "$PLUGIN_AVAILABLE_PATH/config/functions"
+source "$PLUGIN_AVAILABLE_PATH/git/internal-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
@@ -8,12 +9,9 @@ trigger-git-git-revision() {
   declare desc="fetches the current git revision value for an application"
   declare trigger="git-revision"
   declare APP="$1"
+  local ENV_VAR_NAME
 
-  ENV_VAR_NAME="$(fn-plugin-property-get "git" "$APP" "rev-env-var")"
-  if [[ -z "$ENV_VAR_NAME" ]] && ! fn-plugin-property-exists "git" "$APP" "rev-env-var"; then
-    ENV_VAR_NAME="GIT_REV"
-  fi
-
+  ENV_VAR_NAME="$(fn-git-rev-env-var "$APP")"
   if [[ -z "$ENV_VAR_NAME" ]]; then
     return
   fi

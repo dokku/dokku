@@ -116,11 +116,7 @@ git_build() {
   local APP="$1" REV="$2"
   local DOKKU_DEPLOY_BRANCH ENV_VAR_NAME REF
   if [[ -n "$REV" ]]; then
-    ENV_VAR_NAME="$(fn-plugin-property-get "git" "$APP" "rev-env-var")"
-    if [[ -z "$ENV_VAR_NAME" ]] && ! fn-plugin-property-exists "git" "$APP" "rev-env-var"; then
-      ENV_VAR_NAME="GIT_REV"
-    fi
-
+    ENV_VAR_NAME="$(fn-git-rev-env-var "$APP")"
     if [[ -n "$ENV_VAR_NAME" ]]; then
       DOKKU_QUIET_OUTPUT=1 config_set --no-restart "$APP" "${ENV_VAR_NAME}=${REV}"
     fi

@@ -91,7 +91,7 @@ dokku envgroup:import --format json --replace dev - < dev.json
 dokku envgroup:clear dev
 ```
 
-`envgroup:export` supports the same formats as `config:export`, and `envgroup:import` supports the same `envfile` and `json` formats as `config:import`.
+`envgroup:export` supports the same formats as `config:export`, and `envgroup:import` supports the same `envfile` and `json` formats as `config:import`. With `--replace`, `envgroup:import` unsets every key not in the file, and leaves the group and its apps untouched when the group already holds exactly the imported keys.
 
 ### Adding apps to groups
 
