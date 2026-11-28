@@ -110,7 +110,7 @@ dokku config:import --replace node-js-app ./node-js-app.env
 
 If the environment already matches the given variables, nothing is written and the app is not restarted, so the same command can be run repeatedly.
 
-Some variables in an app's environment are managed by Dokku itself, such as the variable holding the deployed git revision (`GIT_REV` by default, see `git:set <app> rev-env-var`) and `NO_VHOST` (set by `domains:disable` and `domains:enable`). These are kept when they are not given, and are overwritten when they are. The global environment has no managed variables, so `config:set --global --replace` replaces it exactly.
+Some variables in an app's environment are managed by Dokku itself, such as the variable holding the deployed git revision (`GIT_REV` by default, see `git:set <app> rev-env-var`). These are kept when they are not given, and are overwritten when they are. The global environment has no managed variables, so `config:set --global --replace` replaces it exactly.
 
 To remove every variable from an environment, use `config:clear` instead.
 

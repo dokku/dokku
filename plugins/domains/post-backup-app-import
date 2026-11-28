@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_AVAILABLE_PATH/domains/internal-functions"
+
+trigger-domains-post-backup-app-import() {
+  declare desc="migrates a NO_VHOST config var restored from an older backup to the domains disabled property"
+  declare trigger="post-backup-app-import"
+  declare APP="$1" SCOPE_DIR="$2"
+
+  fn-domains-migrate-no-vhost "$APP"
+}
+
+trigger-domains-post-backup-app-import "$@"

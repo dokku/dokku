@@ -9,9 +9,9 @@ trigger-domains-domains-disable() {
   declare APP="$1" RESTART_APP="$2"
 
   if [[ "$RESTART_APP" == "true" ]]; then
-    disable_app_vhost "$APP"
+    disable_app_vhost "$APP" --restart
   else
-    disable_app_vhost "$APP" --no-restart
+    disable_app_vhost "$APP"
   fi
 }
 

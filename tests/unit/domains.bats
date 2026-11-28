@@ -558,3 +558,259 @@ teardown() {
   assert_output_contains "glob-canary" 0
   assert_output_contains "http://*"
 }
+
+@test "(domains) domains:disable stores the disabled state outside the app environment" {
+  run /bin/bash -c "dokku domains:disable $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku domains:report $TEST_APP --domains-app-enabled"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "cat $DOKKU_LIB_ROOT/config/domains/$TEST_APP/disabled"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku config:get $TEST_APP NO_VHOST"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku config:export $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "NO_VHOST" 0
+
+  run /bin/bash -c "dokku domains:enable $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku domains:report $TEST_APP --domains-app-enabled"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "test -f $DOKKU_LIB_ROOT/config/domains/$TEST_APP/disabled"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+}
+
+@test "(domains) the disabled state survives config:clear and a NO_VHOST config var" {
+  run /bin/bash -c "dokku domains:disable $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku config:clear --no-restart $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku domains:report $TEST_APP --domains-app-enabled"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku config:set --no-restart $TEST_APP NO_VHOST=0"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku domains:report $TEST_APP --domains-app-enabled"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
+}
+
+@test "(domains) install migrates NO_VHOST to the disabled property" {
+  run /bin/bash -c "dokku config:set --no-restart $TEST_APP NO_VHOST=1"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku domains:report $TEST_APP --domains-app-enabled"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku plugin:install --core"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Migrating deprecated NO_VHOST to domains disabled property for $TEST_APP"
+
+  run /bin/bash -c "dokku domains:report $TEST_APP --domains-app-enabled"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku config:get $TEST_APP NO_VHOST"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+}
+
+@test "(domains) install unsets an enabled NO_VHOST" {
+  run /bin/bash -c "dokku config:set --no-restart $TEST_APP NO_VHOST=0"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku plugin:install --core"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Migrating deprecated NO_VHOST to domains disabled property for $TEST_APP" 0
+
+  run /bin/bash -c "dokku domains:report $TEST_APP --domains-app-enabled"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku config:get $TEST_APP NO_VHOST"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+}
+
+@test "(domains) apps:clone and apps:rename keep the disabled state" {
+  run /bin/bash -c "dokku domains:disable $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku apps:clone --skip-deploy $TEST_APP $TEST_APP-clone"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku domains:report $TEST_APP-clone --domains-app-enabled"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku apps:rename --skip-deploy $TEST_APP-clone $TEST_APP-renamed"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku domains:report $TEST_APP-renamed --domains-app-enabled"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "test -d $DOKKU_LIB_ROOT/config/domains/$TEST_APP-clone"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+}
+
+@test "(domains) apps:rename keeps an enabled app enabled without global domains" {
+  run /bin/bash -c "dokku domains:clear-global"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku domains:set $TEST_APP $TEST_APP.dokku.test"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku apps:rename --skip-deploy $TEST_APP other-name"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku domains:report other-name --domains-app-enabled"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku domains:report other-name --domains-app-vhosts"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "$TEST_APP.dokku.test"
+}
+
+@test "(domains) apps:destroy removes the domains properties" {
+  run /bin/bash -c "dokku domains:disable $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "test -d $DOKKU_LIB_ROOT/config/domains/$TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku --force apps:destroy $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "test -d $DOKKU_LIB_ROOT/config/domains/$TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_failure
+
+  run /bin/bash -c "dokku apps:create $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+}
+
+@test "(domains) domains:disable and domains:enable do not restart a deployed app" {
+  run deploy_app python dokku@$DOKKU_DOMAIN:$TEST_APP
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "docker ps -q --filter label=com.dokku.app-name=$TEST_APP --filter label=com.dokku.process-type=web"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  local container_id="$output"
+
+  run /bin/bash -c "dokku domains:disable $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Restarting app" 0
+
+  run /bin/bash -c "dokku domains:enable $TEST_APP"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Restarting app" 0
+
+  run /bin/bash -c "docker ps -q --filter label=com.dokku.app-name=$TEST_APP --filter label=com.dokku.process-type=web"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "$container_id"
+
+  run /bin/bash -c "dokku domains:report $TEST_APP --domains-app-enabled"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output "true"
+}

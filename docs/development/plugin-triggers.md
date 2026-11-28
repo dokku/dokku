@@ -1164,8 +1164,8 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 ### `domains-disable`
 
-- Description: Disables domains for an app
-- Invoked by:
+- Description: Disables domains for an app. When `$RESTART_APP` is `true`, a deployed app is restarted; otherwise the `post-domains-update` trigger is called so proxies can rebuild their configuration.
+- Invoked by: `nginx-vhosts` during `dokku proxy:disable`
 - Arguments: `$APP` `$RESTART_APP`
 - Example:
 
@@ -1179,8 +1179,8 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 
 ### `domains-enable`
 
-- Description: Enables domains for an app
-- Invoked by:
+- Description: Enables domains for an app. When `$RESTART_APP` is `true`, a deployed app is restarted; otherwise the `post-domains-update` trigger is called so proxies can rebuild their configuration.
+- Invoked by: `nginx-vhosts` during `dokku proxy:enable`
 - Arguments: `$APP` `$RESTART_APP`
 - Example:
 

@@ -1,16 +1,20 @@
 #!/usr/bin/env bash
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
-source "$PLUGIN_AVAILABLE_PATH/domains/functions"
+source "$PLUGIN_AVAILABLE_PATH/domains/internal-functions"
 
 trigger-domains-install() {
   declare desc="domains install trigger"
   declare trigger="install"
 
+  fn-plugin-property-setup "domains"
+  plugn trigger config-migrate-env || dokku_log_warn "Unable to migrate legacy env files"
+
   shopt -s nullglob
   for app in $(dokku_apps "false" 2>/dev/null); do
+    fn-domains-migrate-no-vhost "$app"
     domains_setup "$app"
-    rm -f "$DOKKU_ROOT/$APP/URLS"
+    rm -f "$DOKKU_ROOT/$app/URLS"
   done
 }
 

@@ -57,6 +57,14 @@ dokku domains:enable node-js-app
 dokku domains:enable --all
 ```
 
+Neither `domains:disable` nor `domains:enable` restart the app. The proxy configuration is rebuilt for proxies that support it, such as nginx. Proxies that read container labels, such as Caddy, HAProxy, OpenResty and Traefik, apply the change the next time the app is deployed or restarted:
+
+```shell
+dokku ps:restart node-js-app
+```
+
+Whether vhosts are disabled is stored by the domains plugin rather than in the app's environment, so it does not appear in `config:show` or `config:export`, is not exposed to the app's containers, and is kept when the environment is changed with `config:clear`, `config:set --replace` or `config:import --replace`.
+
 The domains plugin allows you to specify custom domains for applications. This plugin is aware of any ssl certificates that are imported via `certs:add`. Be aware that disabling domains (with `domains:disable`) will override any custom domains.
 
 ```shell

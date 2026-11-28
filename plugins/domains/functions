@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
-source "$PLUGIN_AVAILABLE_PATH/config/functions"
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
 
@@ -65,11 +65,20 @@ disable_app_vhost() {
     rm -f "$APP_VHOST_PATH"
   fi
 
-  [[ "$RESTART_APP" == "--no-restart" ]] && local CONFIG_SET_ARGS=$RESTART_APP
-  DOKKU_QUIET_OUTPUT=1 config_set $CONFIG_SET_ARGS $APP NO_VHOST=1
-  if [[ "$RESTART_APP" == "--no-restart" ]]; then
-    plugn trigger post-domains-update "$APP" "disable"
+  fn-plugin-property-write "domains" "$APP" "disabled" "true"
+  fn-domains-apply-vhost-change "$APP" "disable" "$RESTART_APP"
+}
+
+fn-domains-apply-vhost-change() {
+  declare desc="restarts the app when requested and deployed, otherwise triggers a domains update"
+  declare APP="$1" ACTION="$2" RESTART_APP="$3"
+
+  if [[ "$RESTART_APP" == "--restart" ]] && is_deployed "$APP"; then
+    plugn trigger app-restart "$APP"
+    return
   fi
+
+  plugn trigger post-domains-update "$APP" "$ACTION"
 }
 
 domains_setup() {
@@ -86,7 +95,7 @@ domains_setup() {
       chown "${DOKKU_SYSTEM_USER}:${DOKKU_SYSTEM_GROUP}" "$APP_VHOST_PATH"
     else
       dokku_log_info1_quiet "Global server virtual host not set, disabling app vhost..."
-      disable_app_vhost "$APP" --no-restart
+      disable_app_vhost "$APP"
     fi
   fi
 }
@@ -113,7 +122,7 @@ domains_add() {
   done
 
   if [[ "$(is_app_vhost_enabled "$APP")" == "false" ]]; then
-    domains_enable "$APP" --no-restart
+    domains_enable "$APP"
   fi
 
   plugn trigger post-domains-update "$APP" "add" "$@"
@@ -150,7 +159,7 @@ domains_set() {
   dokku_log_info1 "Set $* for $APP"
 
   if [[ "$(is_app_vhost_enabled "$APP")" == "false" ]]; then
-    domains_enable "$APP" --no-restart
+    domains_enable "$APP"
   fi
 
   plugn trigger post-domains-update "$APP" "set" "$@"
@@ -163,7 +172,7 @@ domains_disable() {
 
   touch "$APP_VHOST_PATH"
   if [[ "$(is_app_vhost_enabled "$APP")" == "true" ]]; then
-    disable_app_vhost "$APP" --no-restart
+    disable_app_vhost "$APP"
   else
     dokku_log_info1 "Domains (VHOST) support is already disabled for app ($APP)"
   fi
@@ -180,8 +189,7 @@ domains_enable() {
     if [[ -n "$DEFAULT_VHOSTS" ]]; then
       echo "$DEFAULT_VHOSTS" >"$APP_VHOST_PATH"
     fi
-    [[ "$RESTART_APP" == "--no-restart" ]] && local ENABLE_APP_VHOST_ARGS=$RESTART_APP
-    enable_app_vhost "$APP" "$ENABLE_APP_VHOST_ARGS"
+    enable_app_vhost "$APP" "$RESTART_APP"
   else
     dokku_log_info1 "Domains (VHOST) support is already enabled for app ($APP)"
   fi
@@ -247,11 +255,8 @@ enable_app_vhost() {
   declare APP=$1 RESTART_APP="$2"
 
   plugn trigger pre-enable-vhost "$APP"
-  [[ "$RESTART_APP" == "--no-restart" ]] && local CONFIG_SET_ARGS=$RESTART_APP
-  DOKKU_QUIET_OUTPUT=1 config_set $CONFIG_SET_ARGS "$APP" NO_VHOST=0
-  if [[ "$RESTART_APP" == "--no-restart" ]]; then
-    plugn trigger post-domains-update "$APP" "enable"
-  fi
+  fn-plugin-property-delete "domains" "$APP" "disabled"
+  fn-domains-apply-vhost-change "$APP" "enable" "$RESTART_APP"
 }
 
 get_app_domains() {
@@ -301,10 +306,9 @@ is_app_vhost_enabled() {
   declare desc="returns true or false if vhost support is enabled for a given application"
 
   local APP=$1
-  local NO_VHOST=$(config_get "$APP" NO_VHOST)
   local APP_VHOST_ENABLED=true
 
-  if [[ "$NO_VHOST" == "1" ]]; then
+  if [[ "$(fn-plugin-property-get "domains" "$APP" "disabled")" == "true" ]]; then
     local APP_VHOST_ENABLED=false
   fi
 

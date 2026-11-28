@@ -4,11 +4,13 @@ set -eo pipefail
 source "$PLUGIN_AVAILABLE_PATH/domains/functions"
 
 trigger-domains-post-app-clone-setup() {
-  declare desc="removes domain files when setting up a clone"
+  declare desc="removes domain files and copies the domains properties when setting up a clone"
   declare trigger="post-app-clone-setup"
   declare OLD_APP="$1" NEW_APP="$2"
   local APP_ROOT="$DOKKU_ROOT/$NEW_APP"
 
+  fn-plugin-property-destroy "domains" "$NEW_APP"
+  fn-plugin-property-clone "domains" "$OLD_APP" "$NEW_APP"
   rm -rf "$APP_ROOT/VHOST"
   DOKKU_QUIET_OUTPUT=1 domains_setup "$NEW_APP"
 }

@@ -83,6 +83,94 @@ teardown() {
   assert_output_contains "config.json" 0
 }
 
+@test "(backup) domains disabled state round-trips" {
+  dokku domains:disable $TEST_APP
+
+  run /bin/bash -c "dokku backup:export --app $TEST_APP --backup-dir /tmp 2>/dev/null"
+  echo "output: $output"
+  assert_success
+  local backup_file="$output"
+
+  run /bin/bash -c "tar xzf '$backup_file' -O apps/$TEST_APP/config/domains.yml"
+  echo "output: $output"
+  assert_success
+  assert_output_contains "dokku_domains_toggle:"
+  assert_output_contains "state: absent"
+
+  run /bin/bash -c "tar xzf '$backup_file' -O apps/$TEST_APP/config/config.yml"
+  echo "output: $output"
+  assert_output_contains "NO_VHOST" 0
+
+  dokku --force apps:destroy $TEST_APP
+
+  run /bin/bash -c "dokku backup:import --force '$backup_file'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku domains:report $TEST_APP --domains-app-enabled"
+  echo "output: $output"
+  assert_success
+  assert_output "false"
+}
+
+@test "(backup:import) restores an enabled app on a host without global domains" {
+  dokku domains:set $TEST_APP backup-enabled.example.com
+
+  run /bin/bash -c "dokku backup:export --app $TEST_APP --backup-dir /tmp 2>/dev/null"
+  echo "output: $output"
+  assert_success
+  local backup_file="$output"
+
+  dokku --force apps:destroy $TEST_APP
+  dokku domains:clear-global
+
+  run /bin/bash -c "dokku backup:import --force '$backup_file'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+
+  run /bin/bash -c "dokku domains:report $TEST_APP --domains-app-enabled"
+  echo "output: $output"
+  assert_success
+  assert_output "true"
+
+  run /bin/bash -c "dokku domains:report $TEST_APP --domains-app-vhosts"
+  echo "output: $output"
+  assert_success
+  assert_output "backup-enabled.example.com"
+}
+
+@test "(backup:import) migrates NO_VHOST from an older backup" {
+  dokku config:set --no-restart $TEST_APP NO_VHOST=1
+
+  run /bin/bash -c "dokku backup:export --app $TEST_APP --backup-dir /tmp 2>/dev/null"
+  echo "output: $output"
+  assert_success
+  local backup_file="$output"
+
+  run /bin/bash -c "tar xzf '$backup_file' -O apps/$TEST_APP/config/config.yml"
+  echo "output: $output"
+  assert_output_contains "NO_VHOST"
+
+  dokku --force apps:destroy $TEST_APP
+
+  run /bin/bash -c "dokku backup:import --force '$backup_file'"
+  echo "output: $output"
+  echo "status: $status"
+  assert_success
+  assert_output_contains "Migrating deprecated NO_VHOST to domains disabled property for $TEST_APP"
+
+  run /bin/bash -c "dokku domains:report $TEST_APP --domains-app-enabled"
+  echo "output: $output"
+  assert_success
+  assert_output "false"
+
+  run /bin/bash -c "dokku config:get $TEST_APP NO_VHOST"
+  echo "output: $output"
+  assert_failure
+}
+
 @test "(backup) --include-storage restores the entry directory mode" {
   dokku storage:create backup-mode-data --mode 0770
   dokku storage:mount $TEST_APP backup-mode-data --container-dir /app/storage
