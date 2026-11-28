@@ -1,8 +1,27 @@
 #!/usr/bin/env bash
 source "$PLUGIN_CORE_AVAILABLE_PATH/common/functions"
+source "$PLUGIN_AVAILABLE_PATH/config/functions"
 source "$PLUGIN_AVAILABLE_PATH/domains/functions"
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
+
+fn-domains-migrate-no-vhost() {
+  declare desc="migrates the deprecated NO_VHOST config var to the domains disabled property"
+  declare APP="$1"
+  local NO_VHOST
+
+  NO_VHOST="$(config_get "$APP" NO_VHOST 2>/dev/null || true)"
+  if [[ -z "$NO_VHOST" ]]; then
+    return
+  fi
+
+  if [[ "$NO_VHOST" == "1" ]]; then
+    dokku_log_info1 "Migrating deprecated NO_VHOST to domains disabled property for $APP. Use 'dokku domains:enable $APP' and 'dokku domains:disable $APP' to manage this going forward."
+    fn-plugin-property-write "domains" "$APP" "disabled" "true"
+  fi
+
+  DOKKU_QUIET_OUTPUT=1 config_unset --no-restart "$APP" NO_VHOST
+}
 
 fn-domains-app-enabled() {
   declare APP="$1"

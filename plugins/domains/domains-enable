@@ -9,9 +9,9 @@ trigger-domains-domains-enable() {
   declare APP="$1" RESTART_APP="$2"
 
   if [[ "$RESTART_APP" == "true" ]]; then
-    domains_enable "$APP"
+    domains_enable "$APP" --restart
   else
-    domains_enable "$APP" --no-restart
+    domains_enable "$APP"
   fi
 }
 

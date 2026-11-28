@@ -51,15 +51,16 @@ func ReportSingleApp(appName string, format string, infoFlag string) error {
 }
 
 func reportAppEnabled(appName string) string {
-	results, _ := common.CallPlugnTrigger(common.PlugnTriggerInput{
-		Trigger: "config-get",
-		Args:    []string{appName, "NO_VHOST"},
-	})
-	if results.StdoutContents() == "1" {
+	if isAppVhostDisabled(appName) {
 		return "false"
 	}
 
 	return "true"
+}
+
+// isAppVhostDisabled returns whether vhost support has been disabled for an app
+func isAppVhostDisabled(appName string) bool {
+	return common.PropertyGet("domains", appName, "disabled") == "true"
 }
 
 func reportAppVhosts(appName string) string {

@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -eo pipefail
+[[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
+
+trigger-domains-post-delete() {
+  declare desc="destroys the domains properties for a given app"
+  declare trigger="post-delete"
+  declare APP="$1"
+
+  fn-plugin-property-destroy "domains" "$APP"
+}
+
+trigger-domains-post-delete "$@"

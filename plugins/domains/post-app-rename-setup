@@ -1,11 +1,16 @@
 #!/usr/bin/env bash
 set -eo pipefail
 [[ $DOKKU_TRACE ]] && set -x
+source "$PLUGIN_CORE_AVAILABLE_PATH/common/property-functions"
 
 trigger-domains-post-app-rename-setup() {
-  declare desc="updates VHOST files during rename"
+  declare desc="moves the domains properties and updates VHOST files during rename"
   declare trigger="post-app-rename-setup"
   declare OLD_APP="$1" NEW_APP="$2"
+
+  fn-plugin-property-destroy "domains" "$NEW_APP"
+  fn-plugin-property-clone "domains" "$OLD_APP" "$NEW_APP"
+  fn-plugin-property-destroy "domains" "$OLD_APP"
 
   if [[ ! -f "$DOKKU_ROOT/$OLD_APP/VHOST" ]]; then
     return

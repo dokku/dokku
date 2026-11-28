@@ -878,14 +878,8 @@ teardown() {
   echo "status: $status"
   assert_success
   assert_output_contains "Keeping dokku-managed config var GIT_REV"
-  assert_output_contains "Keeping dokku-managed config var NO_VHOST"
+  assert_output_contains "Keeping dokku-managed config var NO_VHOST" 0
   assert_output_contains "Unsetting OLD_KEY"
-
-  run /bin/bash -c "dokku config:get $TEST_APP NO_VHOST"
-  echo "output: $output"
-  echo "status: $status"
-  assert_success
-  assert_output "1"
 
   run /bin/bash -c "dokku config:get $TEST_APP GIT_REV"
   echo "output: $output"
